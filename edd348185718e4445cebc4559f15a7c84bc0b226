@@ -16,6 +16,24 @@
       "revId": "edd348185718e4445cebc4559f15a7c84bc0b226",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e1d6b3_b350ca31",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10869
+      },
+      "writtenOn": "2020-02-07T22:18:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdf9da1f_d40ea9de",
+      "revId": "edd348185718e4445cebc4559f15a7c84bc0b226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
