@@ -2701,7 +2701,7 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
-// shader:      void main(float x, float y, inout half4 color)
+// shader:      void main(float2 p, inout half4 color)
 // colorfilter: void main(inout half4 color)
 STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
     // If N is less than the interpreter's VecWidth, then we are doing more work than necessary in

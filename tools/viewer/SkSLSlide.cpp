@@ -39,8 +39,8 @@ SkSLSlide::SkSLSlide() {
 
         "in fragmentProcessor fp;\n"
         "\n"
-        "void main(float x, float y, inout half4 color) {\n"
-        "    color = sample(fp, float2(x, y));\n"
+        "void main(float2 p, inout half4 color) {\n"
+        "    color = sample(fp, p);\n"
         "}\n";
 }
 

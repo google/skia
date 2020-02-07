@@ -44,13 +44,8 @@ public:
                             case SkSL::Compiler::FormatArg::Kind::kOutput:
                                 result += args.fOutputColor;
                                 break;
-                            case SkSL::Compiler::FormatArg::Kind::kCoordX:
+                            case SkSL::Compiler::FormatArg::Kind::kCoords:
                                 result += coordsName;
-                                result += ".x";
-                                break;
-                            case SkSL::Compiler::FormatArg::Kind::kCoordY:
-                                result += coordsName;
-                                result += ".y";
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kUniform:
                                 result += args.fUniformHandler->getUniformCStr(

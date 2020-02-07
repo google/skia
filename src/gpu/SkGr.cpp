@@ -50,7 +50,7 @@ GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels
 in int rangeType;
 
-void main(float x, float y, inout half4 color) {
+void main(float2 p, inout half4 color) {
     half value;
     half range;
     @switch (rangeType) {
@@ -67,8 +67,8 @@ void main(float x, float y, inout half4 color) {
     }
     @if (sk_Caps.integerSupport) {
         // This ordered-dither code is lifted from the cpu backend.
-        uint x = uint(x);
-        uint y = uint(y);
+        uint x = uint(p.x);
+        uint y = uint(p.y);
         uint m = (y & 1) << 5 | (x & 1) << 4 |
                  (y & 2) << 2 | (x & 2) << 1 |
                  (y & 4) >> 1 | (x & 4) >> 2;
@@ -76,7 +76,7 @@ void main(float x, float y, inout half4 color) {
     } else {
         // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
         // dither pattern rather than an 8x8 one.
-        half4 modValues = mod(half4(half(x), half(y), half(x), half(y)), half4(2.0, 2.0, 4.0, 4.0));
+        half4 modValues = mod(half4(half(p.x), half(p.y), half(p.x), half(p.y)), half4(2.0, 2.0, 4.0, 4.0));
         half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
         value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
     }

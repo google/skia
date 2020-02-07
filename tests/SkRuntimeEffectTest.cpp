@@ -16,7 +16,7 @@
 
 DEF_TEST(SkRuntimeEffectInvalidInputs, r) {
     auto test = [r](const char* hdr, const char* expected) {
-        SkString src = SkStringPrintf("%s void main(float x, float y, inout half4 color) {}", hdr);
+        SkString src = SkStringPrintf("%s void main(float2 p, inout half4 color) {}", hdr);
         auto[effect, errorText] = SkRuntimeEffect::Make(src);
         REPORTER_ASSERT(r, !effect);
         REPORTER_ASSERT(r, errorText.contains(expected),
@@ -55,7 +55,7 @@ static_assert(sizeof(bool) == 1);
 class TestEffect {
 public:
     TestEffect(skiatest::Reporter* r, const char* hdr, const char* body) {
-        SkString src = SkStringPrintf("%s void main(float x, float y, inout half4 color) { %s }",
+        SkString src = SkStringPrintf("%s void main(float2 p, inout half4 color) { %s }",
                                       hdr, body);
         auto[effect, errorText] = SkRuntimeEffect::Make(src);
         if (!effect) {
@@ -139,7 +139,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
     }
     REPORTER_ASSERT(r, surface);
 
-    TestEffect xy(r, "", "color = half4(half(x - 0.5), half(y - 0.5), 0, 1);");
+    TestEffect xy(r, "", "color = half4(half2(p - 0.5), 0, 1);");
     xy.test(r, surface, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
     using float4 = std::array<float, 4>;
