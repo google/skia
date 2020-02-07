@@ -117,6 +117,30 @@
       "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2968aaf9_ccf551b0",
+        "filename": "modules/sksg/src/SkSGGroup.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-07T23:31:36Z",
+      "side": 1,
+      "message": "Right, I meant things must be spread out in one dimension (horizontally or vertically) and not very \"grid-y\".\n\nWe can totally decide to enable the more rigorous test if it helps (and quadratic behavior doesn\u0027t explode), I just couldn\u0027t find any evidence that it does for existing assets.",
+      "parentUuid": "9cb6a67c_b2f99d33",
+      "range": {
+        "startLine": 91,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 38
+      },
+      "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
