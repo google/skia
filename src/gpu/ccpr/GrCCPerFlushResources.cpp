@@ -87,8 +87,10 @@ public:
 
         auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                 fResources->renderedPathCoverageType());
-        GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(),
-                                   srcProxy->textureSwizzle(), srcProxy->origin());
+        GrColorType ct = GrCCAtlas::CoverageTypeToColorType(fResources->renderedPathCoverageType());
+        GrSwizzle swizzle = flushState->caps().getReadSwizzle(srcProxy->backendFormat(), ct);
+        GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(), swizzle,
+                                   GrCCAtlas::kTextureOrigin);
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().outputSwizzle());

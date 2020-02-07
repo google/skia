@@ -223,7 +223,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
             CoverageType::kFP16_CoverageCount == fCoverageType);
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return std::make_unique<GrCCClipProcessor>(&clipPath, isCoverageCount, mustCheckBounds);
+    return std::make_unique<GrCCClipProcessor>(caps, &clipPath, isCoverageCount, mustCheckBounds);
 }
 
 void GrCoverageCountingPathRenderer::preFlush(

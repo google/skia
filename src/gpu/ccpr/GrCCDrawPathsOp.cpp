@@ -450,9 +450,10 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
 
         GrSurfaceProxy* atlas = range.fAtlasProxy;
         if (atlas->isInstantiated()) {  // Instantiation can fail in exceptional circumstances.
-            GrCCPathProcessor pathProc(range.fCoverageMode, atlas->peekTexture(),
-                                       atlas->textureSwizzle(), atlas->origin(),
-                                       fViewMatrixIfUsingLocalCoords);
+            GrColorType ct = GrCCPathProcessor::GetColorTypeFromCoverageMode(range.fCoverageMode);
+            GrSwizzle swizzle = flushState->caps().getReadSwizzle(atlas->backendFormat(), ct);
+            GrCCPathProcessor pathProc(range.fCoverageMode, atlas->peekTexture(), swizzle,
+                                       GrCCAtlas::kTextureOrigin, fViewMatrixIfUsingLocalCoords);
             fixedDynamicState.fPrimitiveProcessorTextures = &atlas;
             pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
                                range.fEndInstanceIdx, this->bounds());
