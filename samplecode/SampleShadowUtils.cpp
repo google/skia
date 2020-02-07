@@ -177,7 +177,7 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
-        SkPoint3 zPlaneParams = SkPoint3::Make(0, 0, SkTMax(1.0f, kHeight + fZDelta));
+        SkPoint3 zPlaneParams = SkPoint3::Make(0, 0, std::max(1.0f, kHeight + fZDelta));
 
         // convex paths
         for (auto& m : matrices) {
@@ -203,7 +203,7 @@ protected:
 
                     canvas->translate(dx, 0);
                     x += dx;
-                    dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+                    dy = std::max(dy, postMBounds.height() + kPad + kHeight);
                 }
             }
         }
@@ -229,7 +229,7 @@ protected:
 
                 canvas->translate(dx, 0);
                 x += dx;
-                dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+                dy = std::max(dy, postMBounds.height() + kPad + kHeight);
             }
         }
 

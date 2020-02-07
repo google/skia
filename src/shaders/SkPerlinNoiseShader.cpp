@@ -74,9 +74,9 @@ public:
         {}
 
         StitchData(SkScalar w, SkScalar h)
-          : fWidth(SkTMin(SkScalarRoundToInt(w), SK_MaxS32 - kPerlinNoise))
+          : fWidth(std::min(SkScalarRoundToInt(w), SK_MaxS32 - kPerlinNoise))
           , fWrapX(kPerlinNoise + fWidth)
-          , fHeight(SkTMin(SkScalarRoundToInt(h), SK_MaxS32 - kPerlinNoise))
+          , fHeight(std::min(SkScalarRoundToInt(h), SK_MaxS32 - kPerlinNoise))
           , fWrapY(kPerlinNoise + fHeight) {}
 
         bool operator==(const StitchData& other) const {

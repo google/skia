@@ -67,8 +67,8 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
 
     for (int c = 0; c < 3; ++c) {
         float srcComponent = ((src & (0xff << (c * 8))) >> (c * 8)) * invScale;
-        float lower = SkTMax(0.f, srcComponent - error);
-        float upper = SkTMin(255.f, srcComponent + error);
+        float lower = std::max(0.f, srcComponent - error);
+        float upper = std::min(255.f, srcComponent + error);
         if (toSRGB) {
             lower = linear_to_srgb(lower / 255.f);
             upper = linear_to_srgb(upper / 255.f);

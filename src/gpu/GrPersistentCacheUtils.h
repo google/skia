@@ -40,7 +40,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     writer.write32(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         writer.writeString(shaders[i].c_str(), shaders[i].size());
-        writer.writePad(&inputs[SkTMin(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
+        writer.writePad(&inputs[std::min(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
     }
     writer.writeBool(SkToBool(meta));
     if (meta) {

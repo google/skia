@@ -118,8 +118,8 @@ static inline bool sk_float_isnan(float x) {
  *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
  */
 static inline int sk_float_saturate2int(float x) {
-    x = SkTMin<float>(x, SK_MaxS32FitsInFloat);
-    x = SkTMax<float>(x, SK_MinS32FitsInFloat);
+    x = x < SK_MaxS32FitsInFloat ? x : SK_MaxS32FitsInFloat;
+    x = x > SK_MinS32FitsInFloat ? x : SK_MinS32FitsInFloat;
     return (int)x;
 }
 
@@ -127,8 +127,8 @@ static inline int sk_float_saturate2int(float x) {
  *  Return the closest int for the given double. Returns SK_MaxS32 for NaN.
  */
 static inline int sk_double_saturate2int(double x) {
-    x = SkTMin<double>(x, SK_MaxS32);
-    x = SkTMax<double>(x, SK_MinS32);
+    x = x < SK_MaxS32 ? x : SK_MaxS32;
+    x = x > SK_MinS32 ? x : SK_MinS32;
     return (int)x;
 }
 
@@ -136,8 +136,8 @@ static inline int sk_double_saturate2int(double x) {
  *  Return the closest int64_t for the given float. Returns SK_MaxS64FitsInFloat for NaN.
  */
 static inline int64_t sk_float_saturate2int64(float x) {
-    x = SkTMin<float>(x, SK_MaxS64FitsInFloat);
-    x = SkTMax<float>(x, SK_MinS64FitsInFloat);
+    x = x < SK_MaxS64FitsInFloat ? x : SK_MaxS64FitsInFloat;
+    x = x > SK_MinS64FitsInFloat ? x : SK_MinS64FitsInFloat;
     return (int64_t)x;
 }
 

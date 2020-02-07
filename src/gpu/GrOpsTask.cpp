@@ -809,7 +809,7 @@ void GrOpsTask::recordOp(
                op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
-    int maxCandidates = SkTMin(kMaxOpChainDistance, fOpChains.count());
+    int maxCandidates = std::min(kMaxOpChainDistance, fOpChains.count());
     if (maxCandidates) {
         int i = 0;
         while (true) {
@@ -846,7 +846,7 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
 
     for (int i = 0; i < fOpChains.count() - 1; ++i) {
         OpChain& chain = fOpChains[i];
-        int maxCandidateIdx = SkTMin(i + kMaxOpChainDistance, fOpChains.count() - 1);
+        int maxCandidateIdx = std::min(i + kMaxOpChainDistance, fOpChains.count() - 1);
         int j = i + 1;
         while (true) {
             OpChain& candidate = fOpChains[j];
