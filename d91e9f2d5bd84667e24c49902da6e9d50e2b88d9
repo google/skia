@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a17e132_4f1afe11",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-07T15:44:38Z",
+      "side": 1,
+      "message": "nit: shouldn\u0027t add this cache for tasks that don\u0027t use ccache.\n\nProbably just call this method where you add the ccache CIPD package.",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c728d30_0edd336d",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-07T15:44:38Z",
+      "side": 1,
+      "message": "No spaces in Go code. Please use gofmt. There\u0027s support for auto-running gofmt/goimports/govet on save for most editors.",
+      "range": {
+        "startLine": 1166,
+        "startChar": 0,
+        "endLine": 1166,
+        "endChar": 8
+      },
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69237a18_a3e0f28d",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-07T15:44:38Z",
+      "side": 1,
+      "message": "nit: can probably just put this in the block below",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d3cb17d_278d84c7",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-07T15:44:38Z",
+      "side": 1,
+      "message": "nit: I would probably just do args[\u0027cc_wrapper\u0027] \u003d \u0027\"%s/bin/ccache\"\u0027 % ccache\n\nthen get rid of the cc_wrapper var",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
