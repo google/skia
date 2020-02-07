@@ -51,6 +51,7 @@ GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const Displa
 }
 
 GLWindowContext_mac::~GLWindowContext_mac() {
+    [NSOpenGLContext clearCurrentContext];
     [fPixelFormat release];
     fPixelFormat = nil;
     [fGLContext release];
