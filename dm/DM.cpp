@@ -1467,127 +1467,134 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
-#if defined(__MSVC_RUNTIME_CHECKS)
-    _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
-#endif
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
-    android::ProcessState::self()->startThreadPool();
-#endif
+//#if defined(__MSVC_RUNTIME_CHECKS)
+//    _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
+//#endif
+//#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
+//    android::ProcessState::self()->startThreadPool();
+//#endif
     CommandLineFlags::Parse(argc, argv);
-
-    initializeEventTracingForTools();
-
-#if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
-    cd_Documents();
-#endif
-    setbuf(stdout, nullptr);
-    setup_crash_handler();
-
-    ToolUtils::SetDefaultFontMgr();
-    SetAnalyticAAFromCommonFlags();
-
-    gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
-    gUseSkVMBlitter               = FLAGS_skvm;
-
-    // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
-    if (!FLAGS_writePath.isEmpty()) {
-        sk_mkdir(FLAGS_writePath[0]);
-        gVLog = fopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w");
-    }
-    if (FLAGS_verbose) {
-        gVLog = stderr;
-    }
-
-    GrContextOptions grCtxOptions;
-    SetCtxOptionsFromCommonFlags(&grCtxOptions);
-
-    dump_json();  // It's handy for the bots to assume this is ~never missing.
-
-    SkAutoGraphics ag;
-    SkTaskGroup::Enabler enabled(FLAGS_threads);
-
-    if (nullptr == GetResourceAsData("images/color_wheel.png")) {
-        info("Some resources are missing.  Do you need to set --resourcePath?\n");
-    }
-    gather_gold();
-    gather_uninteresting_hashes();
-
-    if (!gather_srcs()) {
-        return 1;
-    }
-    // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
-    bool defaultConfigs = true;
-    for (int i = 0; i < argc; i++) {
-        static const char* kConfigArg = "--config";
-        if (strcmp(argv[i], kConfigArg) == 0) {
-            defaultConfigs = false;
-            break;
-        }
-    }
-    if (!gather_sinks(grCtxOptions, defaultConfigs)) {
-        return 1;
-    }
-    gather_tests();
-    gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
-    info("%d srcs * %d sinks + %d tests == %d tasks\n",
-         gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
-
-    // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
-    SkTaskGroup parallel;
-    SkTArray<Task> serial;
-
-    for (auto& sink : gSinks)
-    for (auto&  src : gSrcs) {
-        if (src->veto(sink->flags()) ||
-            is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
-                           src.options.c_str(), src->name().c_str())) {
-            SkAutoSpinlock lock(gMutex);
-            gPending--;
-            continue;
-        }
-
-        Task task(src, sink);
-        if (src->serial() || sink->serial()) {
-            serial.push_back(task);
-        } else {
-            parallel.add([task] { Task::Run(task); });
-        }
-    }
-    for (auto test : gParallelTests) {
-        parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
-    }
-
-    // With the parallel work running, run serial tasks and tests here on main thread.
-    for (auto task : serial) { Task::Run(task); }
-    for (auto test : gSerialTests) { run_test(test, grCtxOptions); }
-
-    // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
-    parallel.wait();
-    gDefinitelyThreadSafeWork.wait();
-
-    // At this point we're back in single-threaded land.
-
-    // We'd better have run everything.
-    SkASSERT(gPending == 0);
-    // Make sure we've flushed all our results to disk.
-    dump_json();
-
-    if (gFailures.count() > 0) {
-        info("Failures:\n");
-        for (int i = 0; i < gFailures.count(); i++) {
-            info("\t%s\n", gFailures[i].c_str());
-        }
-        info("%d failures\n", gFailures.count());
-        // A non-zero return code does not make it to Swarming
-        // An abort does.
-#ifdef SK_BUILD_FOR_IOS
-        SK_ABORT("There were failures!");
-#endif
-        return 1;
-    }
-
-    SkGraphics::PurgeAllCaches();
-    info("Finished!\n");
+//
+//    initializeEventTracingForTools();
+//
+//#if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
+//    cd_Documents();
+//#endif
+//    setbuf(stdout, nullptr);
+//    setup_crash_handler();
+//
+//    ToolUtils::SetDefaultFontMgr();
+//    SetAnalyticAAFromCommonFlags();
+//
+//    gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
+//    gUseSkVMBlitter               = FLAGS_skvm;
+//
+//    // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
+//    if (!FLAGS_writePath.isEmpty()) {
+//        sk_mkdir(FLAGS_writePath[0]);
+//        gVLog = fopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w");
+//    }
+//    if (FLAGS_verbose) {
+//        gVLog = stderr;
+//    }
+//
+//    GrContextOptions grCtxOptions;
+//    SetCtxOptionsFromCommonFlags(&grCtxOptions);
+//
+//    dump_json();  // It's handy for the bots to assume this is ~never missing.
+//
+//    SkAutoGraphics ag;
+//    SkTaskGroup::Enabler enabled(FLAGS_threads);
+//
+//    if (nullptr == GetResourceAsData("images/color_wheel.png")) {
+//        info("Some resources are missing.  Do you need to set --resourcePath?\n");
+//    }
+//    gather_gold();
+//    gather_uninteresting_hashes();
+//
+//    if (!gather_srcs()) {
+//        return 1;
+//    }
+//    // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
+//    bool defaultConfigs = true;
+//    for (int i = 0; i < argc; i++) {
+//        static const char* kConfigArg = "--config";
+//        if (strcmp(argv[i], kConfigArg) == 0) {
+//            defaultConfigs = false;
+//            break;
+//        }
+//    }
+//    if (!gather_sinks(grCtxOptions, defaultConfigs)) {
+//        return 1;
+//    }
+//    gather_tests();
+//    gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
+//    info("%d srcs * %d sinks + %d tests == %d tasks\n",
+//         gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
+//
+//    // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
+//    SkTaskGroup parallel;
+//    SkTArray<Task> serial;
+//
+//    for (auto& sink : gSinks)
+//    for (auto&  src : gSrcs) {
+//        if (src->veto(sink->flags()) ||
+//            is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
+//                           src.options.c_str(), src->name().c_str())) {
+//            SkAutoSpinlock lock(gMutex);
+//            gPending--;
+//            continue;
+//        }
+//
+//        Task task(src, sink);
+//        if (src->serial() || sink->serial()) {
+//            serial.push_back(task);
+//        } else {
+//            parallel.add([task] { Task::Run(task); });
+//        }
+//    }
+//    for (auto test : gParallelTests) {
+//        parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
+//    }
+//
+//    // With the parallel work running, run serial tasks and tests here on main thread.
+//    for (auto task : serial) { Task::Run(task); }
+//    for (auto test : gSerialTests) { run_test(test, grCtxOptions); }
+//
+//    // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
+//    parallel.wait();
+//    gDefinitelyThreadSafeWork.wait();
+//
+//    // At this point we're back in single-threaded land.
+//
+//    // We'd better have run everything.
+//    SkASSERT(gPending == 0);
+//    // Make sure we've flushed all our results to disk.
+//    dump_json();
+//
+//    if (gFailures.count() > 0) {
+//        info("Failures:\n");
+//        for (int i = 0; i < gFailures.count(); i++) {
+//            info("\t%s\n", gFailures[i].c_str());
+//        }
+//        info("%d failures\n", gFailures.count());
+//        // A non-zero return code does not make it to Swarming
+//        // An abort does.
+//#ifdef SK_BUILD_FOR_IOS
+//        SK_ABORT("There were failures!");
+//#endif
+//        return 1;
+//    }
+//
+//    SkGraphics::PurgeAllCaches();
+    (void)setup_crash_handler;
+    (void)gather_gold;
+    (void)gather_uninteresting_hashes;
+    (void)gather_srcs;
+    (void)gather_sinks;
+    (void)gather_tests;
+    (void)run_test;
+    info("Hello World\n");
 
     return 0;
 }
