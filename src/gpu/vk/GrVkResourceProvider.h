@@ -184,9 +184,9 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrVkPipelineState* refPipelineState(GrRenderTarget*,
-                                            const GrProgramInfo&,
-                                            VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
+                                                     const GrProgramInfo&,
+                                                     VkRenderPass compatibleRenderPass);
 
     private:
         struct Entry;
