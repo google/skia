@@ -80,13 +80,29 @@ public:
             : INHERITED(ClassID())
             , fHelper(args, aaType, stencil)
             , fQuads(1, !fHelper.isTrivial()) {
+        // Set bounds before clipping so we don't have to worry about unioning the bounds of
+        // the two potential quads (GrQuad::bounds() is perspective-safe).
+        this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
+                        IsHairline::kNo);
+
+        DrawQuad extra;
+        int count = GrQuadUtils::ClipToW0(quad, &extra);
+        if (count == 0) {
+            // We can't discard the op at this point, but disable AA flags so it won't go through
+            // inset/outset processing
+            quad->fEdgeFlags = GrQuadAAFlags::kNone;
+            count = 1;
+        }
+
         // Conservatively keep track of the local coordinates; it may be that the paint doesn't
         // need them after analysis is finished. If the paint is known to be solid up front they
         // can be skipped entirely.
         fQuads.append(quad->fDevice, {paintColor, quad->fEdgeFlags},
                       fHelper.isTrivial() ? nullptr : &quad->fLocal);
-        this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
-                        IsHairline::kNo);
+        if (count > 1) {
+            fQuads.append(extra.fDevice, { paintColor, extra.fEdgeFlags },
+                          fHelper.isTrivial() ? nullptr : &extra.fLocal);
+        }
     }
 
     const char* name() const override { return "FillRectOp"; }
@@ -329,18 +345,14 @@ private:
         return CombineResult::kMerged;
     }
 
-    // Similar to onCombineIfPossible, but adds a quad assuming its op would have been compatible.
-    // But since it's avoiding the op list management, it must update the op's bounds. This is only
-    // used with quad sets, which uses the same view matrix for each quad so this assumes that the
-    // device quad type of the new quad is the same as the op's.
-    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType) {
+    bool canAddQuads(int numQuads, GrAAType aaType) {
         // The new quad's aa type should be the same as the first quad's or none, except when the
         // first quad's aa type was already downgraded to none, in which case the stored type must
         // be lifted to back to the requested type.
+        int quadCount = fQuads.count() + numQuads;
         if (aaType != fHelper.aaType() && aaType != GrAAType::kNone) {
-            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(aaType,
-                                                                            fQuads.count()+1);
-            if (fQuads.count()+1 > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
+            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(aaType, quadCount);
+            if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 // Promoting to the new aaType would've caused an overflow of the indexBuffer
                 // limit
                 return false;
@@ -351,20 +363,42 @@ private:
             fHelper.setAAType(aaType);
         } else {
             auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
-                                                                            fQuads.count()+1);
-            if (fQuads.count()+1 > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
+                                                                            quadCount);
+            if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 return false; // This op can't grow any more
             }
         }
 
-        // Update the bounds and add the quad to this op's storage
+        return true;
+    }
+
+    // Similar to onCombineIfPossible, but adds a quad assuming its op would have been compatible.
+    // But since it's avoiding the op list management, it must update the op's bounds.
+    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType) {
         SkRect newBounds = this->bounds();
         newBounds.joinPossiblyEmptyRect(quad->fDevice.bounds());
-        this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
-                        IsHairline::kNo);
-        fQuads.append(quad->fDevice, { color, quad->fEdgeFlags },
-                      fHelper.isTrivial() ? nullptr : &quad->fLocal);
-        return true;
+
+        DrawQuad extra;
+        int count = GrQuadUtils::ClipToW0(quad, &extra);
+        if (count == 0 ) {
+            // Just skip the append (trivial success)
+            return true;
+        } else if (!this->canAddQuads(count, aaType)) {
+            // Not enough room in the index buffer for the AA type
+            return false;
+        } else {
+            // Can actually add the 1 or 2 quads representing the draw
+            fQuads.append(quad->fDevice, { color, quad->fEdgeFlags },
+                          fHelper.isTrivial() ? nullptr : &quad->fLocal);
+            if (count > 1) {
+                fQuads.append(extra.fDevice, { color, extra.fEdgeFlags },
+                              fHelper.isTrivial() ? nullptr : &extra.fLocal);
+            }
+            // Update the bounds
+            this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
+                            IsHairline::kNo);
+            return true;
+        }
     }
 
     struct ColorAndAA {
