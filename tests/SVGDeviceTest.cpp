@@ -451,4 +451,79 @@ DEF_TEST(SVGDevice_fill_stroke, reporter) {
     }
 }
 
+DEF_TEST(SVGDevice_fill_rect_hex, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    const SkDOM::Node* rectElement = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "blue") == 0);
+}
+
+DEF_TEST(SVGDevice_fill_rect_custom_hex, reporter) {
+    SkDOM dom;
+    {
+        SkPaint paint;
+        paint.setColor(0xFFAABCDE);
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+        svgCanvas->drawRect(bounds, paint);
+        paint.setColor(0xFFAABBCC);
+        svgCanvas->drawRect(bounds, paint);
+        paint.setColor(0xFFAA1123);
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    // Test 0xAABCDE filled rect.
+    const SkDOM::Node* rectElement = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#AABCDE") == 0);
+
+    // Test 0xAABBCC filled rect.
+    rectElement = dom.getNextSibling(rectElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#ABC") == 0);
+
+    // Test 0xFFAA1123 filled rect. Make sure it does not turn into #A123.
+    rectElement = dom.getNextSibling(rectElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#AA1123") == 0);
+}
+
+DEF_TEST(SVGDevice_fill_stroke_rect_hex, reporter) {
+    SkDOM dom;
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+
+        SkPaint paint;
+        paint.setColor(0xFF00BBAC);
+        svgCanvas->drawRect(bounds, paint);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(0xFF123456);
+        paint.setStrokeWidth(1);
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    const SkDOM::Node* rectNode = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectNode, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "fill"), "#00BBAC") == 0);
+
+    rectNode = dom.getNextSibling(rectNode, "rect");
+    ABORT_TEST(reporter, !rectNode, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke"), "#123456") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke-width"), "1") == 0);
+}
 #endif
