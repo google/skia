@@ -91,14 +91,14 @@ static void testTightBoundsQuads(PathOpsThreadState* data) {
                     continue;
                 }
                 lineWritten = true;
-                bitsWritten.fLeft = SkTMin(bitsWritten.fLeft, x);
-                bitsWritten.fRight = SkTMax(bitsWritten.fRight, x);
+                bitsWritten.fLeft = std::min(bitsWritten.fLeft, x);
+                bitsWritten.fRight = std::max(bitsWritten.fRight, x);
             }
             if (!lineWritten) {
                 continue;
             }
-            bitsWritten.fTop = SkTMin(bitsWritten.fTop, y);
-            bitsWritten.fBottom = SkTMax(bitsWritten.fBottom, y);
+            bitsWritten.fTop = std::min(bitsWritten.fTop, y);
+            bitsWritten.fBottom = std::max(bitsWritten.fBottom, y);
         }
         if (!bitsWritten.isEmpty()) {
             SkIRect tightOut;

@@ -159,7 +159,7 @@ public:
                 this->dfs(dependent, (*dependedOn)[i]->indexInSort());
             }
 
-            lowerBound = SkTMin(dependent->indexInSort(), lowerBound);
+            lowerBound = std::min(dependent->indexInSort(), lowerBound);
         }
 
         this->shift(lowerBound);

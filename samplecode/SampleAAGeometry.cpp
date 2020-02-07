@@ -393,7 +393,7 @@ static void add_to_map(SkScalar coverage, int x, int y, uint8_t* distanceMap, in
     }
     SkASSERT(x < w);
     SkASSERT(y < h);
-    distanceMap[y * w + x] = SkTMax(distanceMap[y * w + x], (uint8_t) byteCoverage);
+    distanceMap[y * w + x] = std::max(distanceMap[y * w + x], (uint8_t) byteCoverage);
 }
 
 static void filter_coverage(const uint8_t* map, int len, uint8_t min, uint8_t max,
@@ -918,7 +918,7 @@ public:
     bool scaleToFit() {
         SkMatrix matrix;
         SkRect bounds = fPath.getBounds();
-        SkScalar scale = SkTMin(this->width() / bounds.width(), this->height() / bounds.height())
+        SkScalar scale = std::min(this->width() / bounds.width(), this->height() / bounds.height())
                 * 0.8f;
         matrix.setScale(scale, scale, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
@@ -1226,16 +1226,16 @@ public:
                 return -radius;
         }
         rotated.fY /= SkScalarSqrt(lenSq);
-        return SkTMax(-radius, SkTMin(radius, rotated.fY));
+        return std::max(-radius, std::min(radius, rotated.fY));
     }
 
     // given a line, compute the interior and exterior gradient coverage
     bool coverage(SkPoint s, SkPoint e, uint8_t* distanceMap, int w, int h) {
         SkScalar radius = fWidthControl.fValLo;
-        int minX = SkTMax(0, (int) (SkTMin(s.fX, e.fX) - radius));
-        int minY = SkTMax(0, (int) (SkTMin(s.fY, e.fY) - radius));
-        int maxX = SkTMin(w, (int) (SkTMax(s.fX, e.fX) + radius) + 1);
-        int maxY = SkTMin(h, (int) (SkTMax(s.fY, e.fY) + radius) + 1);
+        int minX = std::max(0, (int) (std::min(s.fX, e.fX) - radius));
+        int minY = std::max(0, (int) (std::min(s.fY, e.fY) - radius));
+        int maxX = std::min(w, (int) (std::max(s.fX, e.fX) + radius) + 1);
+        int maxY = std::min(h, (int) (std::max(s.fY, e.fY) + radius) + 1);
         for (int y = minY; y < maxY; ++y) {
             for (int x = minX; x < maxX; ++x) {
                 SkScalar ptToLineDist = pt_to_line(s, e, x, y);
@@ -1571,7 +1571,7 @@ public:
     }
 
     static SkScalar MapScreenYtoValue(int y, const UniControl& control) {
-        return SkTMin(1.f, SkTMax(0.f,
+        return std::min(1.f, std::max(0.f,
                 SkIntToScalar(y) - control.fBounds.fTop) / control.fBounds.height())
                 * (control.fMax - control.fMin) + control.fMin;
     }
@@ -1615,9 +1615,9 @@ public:
                     case MyClick::kFilterControl: {
                         SkScalar val = MapScreenYtoValue(click->fCurr.fY, fFilterControl);
                         if (val - fFilterControl.fValLo < fFilterControl.fValHi - val) {
-                            fFilterControl.fValLo = SkTMax(0.f, val);
+                            fFilterControl.fValLo = std::max(0.f, val);
                         } else {
-                            fFilterControl.fValHi = SkTMin(255.f, val);
+                            fFilterControl.fValHi = std::min(255.f, val);
                         }
                         } break;
                     case MyClick::kResControl:

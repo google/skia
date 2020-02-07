@@ -660,16 +660,16 @@ GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
 
     SkASSERT(kARGBDimensions[index].width() <= kMaxAtlasDim);
     SkASSERT(kARGBDimensions[index].height() <= kMaxAtlasDim);
-    fARGBDimensions.set(SkTMin<int>(kARGBDimensions[index].width(), maxTextureSize),
-                        SkTMin<int>(kARGBDimensions[index].height(), maxTextureSize));
-    fMaxTextureSize = SkTMin<int>(maxTextureSize, kMaxAtlasDim);
+    fARGBDimensions.set(std::min<int>(kARGBDimensions[index].width(), maxTextureSize),
+                        std::min<int>(kARGBDimensions[index].height(), maxTextureSize));
+    fMaxTextureSize = std::min<int>(maxTextureSize, kMaxAtlasDim);
 }
 
 SkISize GrDrawOpAtlasConfig::atlasDimensions(GrMaskFormat type) const {
     if (kA8_GrMaskFormat == type) {
         // A8 is always 2x the ARGB dimensions, clamped to the max allowed texture size
-        return { SkTMin<int>(2 * fARGBDimensions.width(), fMaxTextureSize),
-                 SkTMin<int>(2 * fARGBDimensions.height(), fMaxTextureSize) };
+        return { std::min<int>(2 * fARGBDimensions.width(), fMaxTextureSize),
+                 std::min<int>(2 * fARGBDimensions.height(), fMaxTextureSize) };
     } else {
         return fARGBDimensions;
     }

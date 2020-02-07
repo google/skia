@@ -704,7 +704,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
         , fBackend(GrBackendApi::kVulkan)
         , fVkInfo(vkInfo, layout.release()) {}
@@ -719,7 +719,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fFramebufferOnly(false) // TODO: set this from mtlInfo.fTexture->framebufferOnly
         , fWidth(width)
         , fHeight(height)
-        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(0)
         , fBackend(GrBackendApi::kMetal)
         , fMtlInfo(mtlInfo) {}
@@ -733,7 +733,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              const GrGLFramebufferInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
-        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(stencilBits)
         , fBackend(GrBackendApi::kOpenGL)
         , fGLInfo(glInfo) {
@@ -749,7 +749,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(stencilBits)
         , fMockInfo(mockInfo) {}
 

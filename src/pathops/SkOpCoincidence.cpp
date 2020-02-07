@@ -206,8 +206,8 @@ bool SkOpCoincidence::extend(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtT
             swap(oppPtTStart, oppPtTEnd);
         }
     }
-    double oppMinT = SkTMin(oppPtTStart->fT, oppPtTEnd->fT);
-    SkDEBUGCODE(double oppMaxT = SkTMax(oppPtTStart->fT, oppPtTEnd->fT));
+    double oppMinT = std::min(oppPtTStart->fT, oppPtTEnd->fT);
+    SkDEBUGCODE(double oppMaxT = std::max(oppPtTStart->fT, oppPtTEnd->fT));
     do {
         if (coinSeg != test->coinPtTStart()->segment()) {
             continue;
@@ -215,8 +215,8 @@ bool SkOpCoincidence::extend(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtT
         if (oppSeg != test->oppPtTStart()->segment()) {
             continue;
         }
-        double oTestMinT = SkTMin(test->oppPtTStart()->fT, test->oppPtTEnd()->fT);
-        double oTestMaxT = SkTMax(test->oppPtTStart()->fT, test->oppPtTEnd()->fT);
+        double oTestMinT = std::min(test->oppPtTStart()->fT, test->oppPtTEnd()->fT);
+        double oTestMaxT = std::max(test->oppPtTStart()->fT, test->oppPtTEnd()->fT);
         // if debug check triggers, caller failed to check if extended already exists
         SkASSERT(test->coinPtTStart()->fT > coinPtTStart->fT
                 || coinPtTEnd->fT > test->coinPtTEnd()->fT
@@ -977,8 +977,8 @@ bool SkOpCoincidence::contains(const SkOpPtT* coinPtTStart, const SkOpPtT* coinP
             swap(oppPtTStart, oppPtTEnd);
         }
     }
-    double oppMinT = SkTMin(oppPtTStart->fT, oppPtTEnd->fT);
-    double oppMaxT = SkTMax(oppPtTStart->fT, oppPtTEnd->fT);
+    double oppMinT = std::min(oppPtTStart->fT, oppPtTEnd->fT);
+    double oppMaxT = std::max(oppPtTStart->fT, oppPtTEnd->fT);
     do {
         if (coinSeg != test->coinPtTStart()->segment()) {
             continue;
@@ -992,10 +992,10 @@ bool SkOpCoincidence::contains(const SkOpPtT* coinPtTStart, const SkOpPtT* coinP
         if (oppSeg != test->oppPtTStart()->segment()) {
             continue;
         }
-        if (oppMinT < SkTMin(test->oppPtTStart()->fT, test->oppPtTEnd()->fT)) {
+        if (oppMinT < std::min(test->oppPtTStart()->fT, test->oppPtTEnd()->fT)) {
             continue;
         }
-        if (oppMaxT > SkTMax(test->oppPtTStart()->fT, test->oppPtTEnd()->fT)) {
+        if (oppMaxT > std::max(test->oppPtTStart()->fT, test->oppPtTEnd()->fT)) {
             continue;
         }
         return true;
@@ -1426,8 +1426,8 @@ bool SkOpCoincidence::Ordered(const SkOpSegment* coinSeg, const SkOpSegment* opp
 bool SkOpCoincidence::overlap(const SkOpPtT* coin1s, const SkOpPtT* coin1e,
         const SkOpPtT* coin2s, const SkOpPtT* coin2e, double* overS, double* overE) const {
     SkASSERT(coin1s->segment() == coin2s->segment());
-    *overS = SkTMax(SkTMin(coin1s->fT, coin1e->fT), SkTMin(coin2s->fT, coin2e->fT));
-    *overE = SkTMin(SkTMax(coin1s->fT, coin1e->fT), SkTMax(coin2s->fT, coin2e->fT));
+    *overS = std::max(std::min(coin1s->fT, coin1e->fT), std::min(coin2s->fT, coin2e->fT));
+    *overE = std::min(std::max(coin1s->fT, coin1e->fT), std::max(coin2s->fT, coin2e->fT));
     return *overS < *overE;
 }
 

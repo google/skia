@@ -191,7 +191,7 @@ class ChineseZoomView : public Sample {
             auto paragraphLength = kParagraphLength;
             SkScalar y = 0;
             while (paragraphLength - 45 > 0) {
-                auto currentLineLength = SkTMin(45, paragraphLength - 45);
+                auto currentLineLength = std::min(45, paragraphLength - 45);
                 this->createRandomLine(glyphs, currentLineLength);
 
                 ToolUtils::add_to_text_blob_w_len(&builder,

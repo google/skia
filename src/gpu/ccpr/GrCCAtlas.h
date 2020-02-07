@@ -169,8 +169,8 @@ private:
 };
 
 inline void GrCCAtlas::Specs::accountForSpace(int width, int height) {
-    fMinWidth = SkTMax(width, fMinWidth);
-    fMinHeight = SkTMax(height, fMinHeight);
+    fMinWidth = std::max(width, fMinWidth);
+    fMinHeight = std::max(height, fMinHeight);
     fApproxNumPixels += (width + kPadding) * (height + kPadding);
 }
 

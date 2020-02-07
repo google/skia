@@ -198,7 +198,7 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     SkASSERT(filters == (int)options.fFilterFlags);
     png_set_filter(fPngPtr, PNG_FILTER_TYPE_BASE, filters);
 
-    int zlibLevel = SkTMin(SkTMax(0, options.fZLibLevel), 9);
+    int zlibLevel = std::min(std::max(0, options.fZLibLevel), 9);
     SkASSERT(zlibLevel == options.fZLibLevel);
     png_set_compression_level(fPngPtr, zlibLevel);
 

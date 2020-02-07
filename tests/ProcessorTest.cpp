@@ -638,7 +638,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                         "doesn't match actual output. Error: %f, Tolerance: %f, "
                                         "input: (%f, %f, %f, %f), actual: (%f, %f, %f, %f), "
                                         "expected(%f, %f, %f, %f)", fp->name(),
-                                        SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol,
+                                        std::max(rDiff, std::max(gDiff, std::max(bDiff, aDiff))), kTol,
                                         input4f.fR, input4f.fG, input4f.fB, input4f.fA,
                                         output4f.fR, output4f.fG, output4f.fB, output4f.fA,
                                         expected4f.fR, expected4f.fG, expected4f.fB, expected4f.fA);

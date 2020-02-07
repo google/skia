@@ -152,7 +152,7 @@ public:
             // Otherwise compute the color type needed as the max over all quads.
             fColorType = ColorType::kNone;
             while(iter.next()) {
-                fColorType = SkTMax(fColorType, GrQuadPerEdgeAA::MinColorType(iter->fColor));
+                fColorType = std::max(fColorType, GrQuadPerEdgeAA::MinColorType(iter->fColor));
             }
         }
         // Most SkShaders' FPs multiply their calculated color by the paint color or alpha. We want
@@ -316,7 +316,7 @@ private:
         // If the processor sets are compatible, the two ops are always compatible; it just needs to
         // adjust the state of the op to be the more general quad and aa types of the two ops and
         // then concatenate the per-quad data.
-        fColorType = SkTMax(fColorType, that->fColorType);
+        fColorType = std::max(fColorType, that->fColorType);
 
         // The helper stores the aa type, but isCompatible(with true arg) allows the two ops' aa
         // types to be none and coverage, in which case this op's aa type must be lifted to coverage

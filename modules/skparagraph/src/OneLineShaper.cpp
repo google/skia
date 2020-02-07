@@ -275,8 +275,8 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
             } else if (lastUnresolved.fText.intersects(unresolved.fText)) {
                 // Few pieces of the same unresolved text block can ignore the second one
                 lastUnresolved.fGlyphs.start =
-                        SkTMin(lastUnresolved.fGlyphs.start, glyphRange.start);
-                lastUnresolved.fGlyphs.end = SkTMax(lastUnresolved.fGlyphs.end, glyphRange.end);
+                        std::min(lastUnresolved.fGlyphs.start, glyphRange.start);
+                lastUnresolved.fGlyphs.end = std::max(lastUnresolved.fGlyphs.end, glyphRange.end);
                 lastUnresolved.fText = clusteredText(lastUnresolved.fGlyphs);
                 return;
             }
@@ -361,7 +361,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
     };
 
     for (auto& block : styleSpan) {
-        BlockRange blockRange(SkTMax(block.fRange.start, textRange.start), SkTMin(block.fRange.end, textRange.end));
+        BlockRange blockRange(std::max(block.fRange.start, textRange.start), std::min(block.fRange.end, textRange.end));
         if (blockRange.empty()) {
             continue;
         }
@@ -433,8 +433,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             // Shape the text by bidi regions
             while (bidiIndex < bidiRegions.size()) {
                 BidiRegion& bidiRegion = bidiRegions[bidiIndex];
-                auto start = SkTMax(bidiRegion.text.start, placeholder.fTextBefore.start);
-                auto end = SkTMin(bidiRegion.text.end, placeholder.fTextBefore.end);
+                auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
+                auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);

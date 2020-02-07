@@ -196,7 +196,7 @@ SkISize GrResourceProvider::MakeApprox(SkISize dimensions) {
     auto adjust = [](int value) {
         static const int kMagicTol = 1024;
 
-        value = SkTMax(kMinScratchTextureSize, value);
+        value = std::max(kMinScratchTextureSize, value);
 
         if (SkIsPow2(value)) {
             return value;
@@ -477,7 +477,7 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     }
     // bin by pow2 with a reasonable min
     static const size_t MIN_SIZE = 1 << 12;
-    size_t allocSize = SkTMax(MIN_SIZE, GrNextSizePow2(size));
+    size_t allocSize = std::max(MIN_SIZE, GrNextSizePow2(size));
 
     GrScratchKey key;
     GrGpuBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);

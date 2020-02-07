@@ -82,9 +82,9 @@ public:
         SkFontMetrics metrics;
         info.fFont.getMetrics(&metrics);
         if (!fLineCount) {
-            fFirstLineAscent = SkTMin(fFirstLineAscent, metrics.fAscent);
+            fFirstLineAscent = std::min(fFirstLineAscent, metrics.fAscent);
         }
-        fLastLineDescent = SkTMax(fLastLineDescent, metrics.fDescent);
+        fLastLineDescent = std::max(fLastLineDescent, metrics.fDescent);
     }
 
     void commitRunInfo() override {}
