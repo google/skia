@@ -556,7 +556,7 @@ public:
             }
 
             void main(float x, float y, inout half4 color) {
-                float3 norm = convert_normal_sample(sample(normal_map));
+                float3 norm = convert_normal_sample(sample(normal_map, float2(x, y)));
                 float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
 
                 float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
@@ -566,7 +566,7 @@ public:
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 1);
 
-                color = sample(color_map) * half4(float4(scale, scale, scale, 1));
+                color = sample(color_map, float2(x, y)) * half4(float4(scale, scale, scale, 1));
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
