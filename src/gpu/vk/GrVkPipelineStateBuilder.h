@@ -27,12 +27,14 @@ public:
      *
      * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
      * as input. After successful generation, the builder result objects are available to be used.
-     * @return the created pipeline if generation was successful; nullptr otherwise
+     * This function may modify the program key by setting the surface origin key to 0 (unspecified)
+     * if it turns out the program does not care about the surface origin.
+     * @return true if generation was successful.
      */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
-                                                  const GrProgramDesc&,
                                                   const GrProgramInfo&,
+                                                  GrProgramDesc*,
                                                   VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
@@ -43,9 +45,9 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
+    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(const GrProgramDesc&, VkRenderPass compatibleRenderPass);
+    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
@@ -59,6 +61,7 @@ private:
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,
+                              GrProgramDesc* desc,
                               SkSL::String* outSPIRV,
                               SkSL::Program::Inputs* outInputs);
 

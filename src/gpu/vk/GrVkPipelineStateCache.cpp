@@ -68,7 +68,7 @@ void GrVkResourceProvider::PipelineStateCache::release() {
     fMap.reset();
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
@@ -95,7 +95,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, desc, programInfo, compatibleRenderPass));
+                fGpu, renderTarget, programInfo, &desc, compatibleRenderPass));
         if (!pipelineState) {
             return nullptr;
         }

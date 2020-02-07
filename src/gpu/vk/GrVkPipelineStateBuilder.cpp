@@ -23,28 +23,28 @@ typedef size_t shader_size;
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
-        const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
+        GrProgramDesc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrVkPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
 
-    return builder.finalize(desc, compatibleRenderPass);
+    return builder.finalize(compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    GrRenderTarget* renderTarget,
-                                                   const GrProgramDesc& desc,
-                                                   const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+                                                   const GrProgramInfo& programInfo,
+                                                   GrProgramDesc* desc)
+        : INHERITED(renderTarget, programInfo, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -66,6 +66,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
+                                                    GrProgramDesc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
     if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
@@ -139,8 +140,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     // program, and that only depends on the base GrProgramDesc data.
     // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
     // to the key right after the base key.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
-                                                this->desc().initialKeyLength()+4);
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
+                                                this->desc()->initialKeyLength()+4);
 
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
@@ -148,8 +149,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
-                                                      VkRenderPass compatibleRenderPass) {
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
+                                                      GrProgramDesc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -213,7 +214,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         // program, and that only depends on the base GrProgramDesc data.
         // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
         // to the key right after the base key.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.initialKeyLength()+4);
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
@@ -248,6 +249,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                   &shaderModules[kVertex_GrShaderType],
                                                   &shaderStageInfo[0],
                                                   settings,
+                                                  desc,
                                                   &shaders[kVertex_GrShaderType],
                                                   &inputs[kVertex_GrShaderType]);
 
@@ -256,6 +258,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                         &shaderModules[kFragment_GrShaderType],
                                                         &shaderStageInfo[1],
                                                         settings,
+                                                        desc,
                                                         &shaders[kFragment_GrShaderType],
                                                         &inputs[kFragment_GrShaderType]);
 
@@ -265,6 +268,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                             &shaderModules[kGeometry_GrShaderType],
                                                             &shaderStageInfo[2],
                                                             settings,
+                                                            desc,
                                                             &shaders[kGeometry_GrShaderType],
                                                             &inputs[kGeometry_GrShaderType]);
             ++numShaderStages;

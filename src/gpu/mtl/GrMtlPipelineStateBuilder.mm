@@ -25,25 +25,24 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
-                                                                GrMtlGpu* gpu,
-                                                                GrRenderTarget* renderTarget,
-                                                                const GrProgramDesc& desc,
-                                                                const GrProgramInfo& programInfo) {
+GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(GrMtlGpu* gpu,
+                                                                   GrRenderTarget* renderTarget,
+                                                                   const GrProgramInfo& programInfo,
+                                                                   GrProgramDesc* desc) {
     GrAutoLocaleSetter als("C");
-    GrMtlPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrMtlPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
-    return builder.finalize(renderTarget, desc, programInfo);
+    return builder.finalize(renderTarget, programInfo, desc);
 }
 
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
                                                      GrRenderTarget* renderTarget,
-                                                     const GrProgramDesc& desc,
-                                                     const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+                                                     const GrProgramInfo& programInfo,
+                                                     GrProgramDesc* desc)
+        : INHERITED(renderTarget, programInfo, desc)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {
@@ -92,8 +91,8 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
     // Here we shear off the Mtl-specific portion of the Desc in order to create the
     // persistent key. This is because Mtl only caches the MSL code, not the fully compiled
     // program, and that only depends on the base GrProgramDesc data.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
-                                                this->desc().initialKeyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
+                                                this->desc()->initialKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kMSL_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
@@ -104,6 +103,7 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
         const SkSL::String& shader,
         SkSL::Program::Kind kind,
         const SkSL::Program::Settings& settings,
+        GrProgramDesc* desc,
         SkSL::String* msl,
         SkSL::Program::Inputs* inputs) {
     id<MTLLibrary> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader,
@@ -388,8 +388,8 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 }
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
-                                                        const GrProgramDesc& desc,
-                                                        const GrProgramInfo& programInfo) {
+                                                        const GrProgramInfo& programInfo,
+                                                        GrProgramDesc* desc) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
 
@@ -414,7 +414,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
         // Here we shear off the Mtl-specific portion of the Desc in order to create the
         // persistent key. This is because Mtl only caches the MSL code, not the fully compiled
         // program, and that only depends on the base GrProgramDesc data.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.initialKeyLength());
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength());
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
@@ -446,12 +446,14 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                                      *sksl[kVertex_GrShaderType],
                                                      SkSL::Program::kVertex_Kind,
                                                      settings,
+                                                     desc,
                                                      &shaders[kVertex_GrShaderType],
                                                      &inputs[kVertex_GrShaderType]);
         shaderLibraries[kFragment_GrShaderType] = this->generateMtlShaderLibrary(
                                                        *sksl[kFragment_GrShaderType],
                                                        SkSL::Program::kFragment_Kind,
                                                        settings,
+                                                       desc,
                                                        &shaders[kFragment_GrShaderType],
                                                        &inputs[kFragment_GrShaderType]);
 

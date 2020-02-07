@@ -153,7 +153,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-            fGpu, renderTarget, desc, programInfo));
+            fGpu, renderTarget, programInfo, &desc));
         if (!pipelineState) {
             return nullptr;
         }

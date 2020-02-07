@@ -21,15 +21,15 @@
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
-                                           const GrProgramDesc& desc,
-                                           const GrProgramInfo& programInfo)
+                                           const GrProgramInfo& programInfo,
+                                           const GrProgramDesc* desc)
         : fVS(this)
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
         , fRenderTarget(renderTarget)
-        , fDesc(desc)
         , fProgramInfo(programInfo)
+        , fDesc(desc)
         , fGeometryProcessor(nullptr)
         , fXferProcessor(nullptr)
         , fNumFragmentSamplers(0) {}
