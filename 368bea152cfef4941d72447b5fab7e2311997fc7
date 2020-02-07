@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "8314156b_907f5389",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-07T13:58:31Z",
+      "side": 1,
+      "message": "I think I\u0027m convinced it\u0027s not worth it. But I don\u0027t feel strongly.",
+      "parentUuid": "b79b09a0_43e1307b",
+      "range": {
+        "startLine": 624,
+        "startChar": 45,
+        "endLine": 624,
+        "endChar": 59
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec4ec80c_b4b6ea79",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 3
@@ -64,6 +88,29 @@
         "startChar": 24,
         "endLine": 633,
         "endChar": 39
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19012e81_7a43f826",
+        "filename": "src/gpu/geometry/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-07T13:58:31Z",
+      "side": 1,
+      "message": "I\u0027m surprised his works without an underlying type.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 25
       },
       "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
