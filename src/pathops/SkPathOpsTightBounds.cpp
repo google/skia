@@ -17,10 +17,10 @@ bool TightBounds(const SkPath& path, SkRect* result) {
         verb = iter.next(pts);
         switch (verb) {
             case SkPath::kMove_Verb:
-                moveBounds.fLeft = SkTMin(moveBounds.fLeft, pts[0].fX);
-                moveBounds.fTop = SkTMin(moveBounds.fTop, pts[0].fY);
-                moveBounds.fRight = SkTMax(moveBounds.fRight, pts[0].fX);
-                moveBounds.fBottom = SkTMax(moveBounds.fBottom, pts[0].fY);
+                moveBounds.fLeft = std::min(moveBounds.fLeft, pts[0].fX);
+                moveBounds.fTop = std::min(moveBounds.fTop, pts[0].fY);
+                moveBounds.fRight = std::max(moveBounds.fRight, pts[0].fX);
+                moveBounds.fBottom = std::max(moveBounds.fBottom, pts[0].fY);
                 break;
             case SkPath::kQuad_Verb:
             case SkPath::kConic_Verb:

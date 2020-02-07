@@ -62,8 +62,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         scaledOutX = outX / sampleSize;
         scaledOutY = outY / sampleSize;
         // We need to be safe here because getSupportedSubset() may have modified the subset.
-        const int extraX = SkTMax(0, desiredSubset.width() - outX - subset.width());
-        const int extraY = SkTMax(0, desiredSubset.height() - outY - subset.height());
+        const int extraX = std::max(0, desiredSubset.width() - outX - subset.width());
+        const int extraY = std::max(0, desiredSubset.height() - outY - subset.height());
         const int scaledExtraX = extraX / sampleSize;
         const int scaledExtraY = extraY / sampleSize;
         scaledOutWidth += scaledOutX + scaledExtraX;

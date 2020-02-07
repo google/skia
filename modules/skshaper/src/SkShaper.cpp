@@ -191,9 +191,9 @@ void SkTextBlobBuilderRunHandler::beginLine() {
 void SkTextBlobBuilderRunHandler::runInfo(const RunInfo& info) {
     SkFontMetrics metrics;
     info.fFont.getMetrics(&metrics);
-    fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
-    fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
-    fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
+    fMaxRunAscent = std::min(fMaxRunAscent, metrics.fAscent);
+    fMaxRunDescent = std::max(fMaxRunDescent, metrics.fDescent);
+    fMaxRunLeading = std::max(fMaxRunLeading, metrics.fLeading);
 }
 
 void SkTextBlobBuilderRunHandler::commitRunInfo() {

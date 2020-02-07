@@ -15,10 +15,10 @@ struct SkDRect {
     double fLeft, fTop, fRight, fBottom;
 
     void add(const SkDPoint& pt) {
-        fLeft = SkTMin(fLeft, pt.fX);
-        fTop = SkTMin(fTop, pt.fY);
-        fRight = SkTMax(fRight, pt.fX);
-        fBottom = SkTMax(fBottom, pt.fY);
+        fLeft = std::min(fLeft, pt.fX);
+        fTop = std::min(fTop, pt.fY);
+        fRight = std::max(fRight, pt.fX);
+        fBottom = std::max(fBottom, pt.fY);
     }
 
     bool contains(const SkDPoint& pt) const {

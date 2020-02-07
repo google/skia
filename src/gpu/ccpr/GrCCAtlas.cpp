@@ -30,10 +30,10 @@ public:
     bool addRect(int w, int h, SkIPoint16* loc, int maxAtlasSize) {
         // Pad all paths except those that are expected to take up an entire physical texture.
         if (w < maxAtlasSize) {
-            w = SkTMin(w + kPadding, maxAtlasSize);
+            w = std::min(w + kPadding, maxAtlasSize);
         }
         if (h < maxAtlasSize) {
-            h = SkTMin(h + kPadding, maxAtlasSize);
+            h = std::min(h + kPadding, maxAtlasSize);
         }
         if (!fRectanizer.addRect(w, h, loc)) {
             return false;
@@ -85,7 +85,7 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(const LazyInstantiateAtlasCa
 
 GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps& caps)
         : fCoverageType(coverageType)
-        , fMaxTextureSize(SkTMax(SkTMax(specs.fMinHeight, specs.fMinWidth),
+        , fMaxTextureSize(std::max(std::max(specs.fMinHeight, specs.fMinWidth),
                                  specs.fMaxPreferredTextureSize)) {
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
@@ -94,7 +94,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
 
     // Begin with the first pow2 dimensions whose area is theoretically large enough to contain the
     // pending paths, favoring height over width if necessary.
-    int log2area = SkNextLog2(SkTMax(specs.fApproxNumPixels, 1));
+    int log2area = SkNextLog2(std::max(specs.fApproxNumPixels, 1));
     fHeight = 1 << ((log2area + 1) / 2);
     fWidth = 1 << (log2area / 2);
 
@@ -104,8 +104,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
     if (fWidth < specs.fMinWidth || fHeight < specs.fMinHeight) {
         // They want to stuff a particularly large path into the atlas. Just punt and go with their
         // min width and height. The atlas will grow as needed.
-        fWidth = SkTMin(specs.fMinWidth + kPadding, fMaxTextureSize);
-        fHeight = SkTMin(specs.fMinHeight + kPadding, fMaxTextureSize);
+        fWidth = std::min(specs.fMinWidth + kPadding, fMaxTextureSize);
+        fHeight = std::min(specs.fMinHeight + kPadding, fMaxTextureSize);
     }
 
     fTopNode = std::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
@@ -139,8 +139,8 @@ bool GrCCAtlas::addRect(const SkIRect& devIBounds, SkIVector* offset) {
     }
     offset->set(location.x() - devIBounds.left(), location.y() - devIBounds.top());
 
-    fDrawBounds.fWidth = SkTMax(fDrawBounds.width(), location.x() + devIBounds.width());
-    fDrawBounds.fHeight = SkTMax(fDrawBounds.height(), location.y() + devIBounds.height());
+    fDrawBounds.fWidth = std::max(fDrawBounds.width(), location.x() + devIBounds.width());
+    fDrawBounds.fHeight = std::max(fDrawBounds.height(), location.y() + devIBounds.height());
     return true;
 }
 
@@ -158,11 +158,11 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
         }
         if (fHeight <= fWidth) {
             int top = fHeight;
-            fHeight = SkTMin(fHeight * 2, fMaxTextureSize);
+            fHeight = std::min(fHeight * 2, fMaxTextureSize);
             fTopNode = std::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
         } else {
             int left = fWidth;
-            fWidth = SkTMin(fWidth * 2, fMaxTextureSize);
+            fWidth = std::min(fWidth * 2, fMaxTextureSize);
             fTopNode = std::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
         }
     } while (!fTopNode->addRect(w, h, loc, fMaxTextureSize));
@@ -217,7 +217,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     SkASSERT(!fTextureProxy->isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
-    SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);
+    SkASSERT(std::max(fHeight, fWidth) <= fMaxTextureSize);
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
 
     // Finalize the content size of our proxy. The GPU can potentially make optimizations if it

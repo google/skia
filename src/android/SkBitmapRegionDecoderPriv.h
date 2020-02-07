@@ -35,16 +35,16 @@ enum SubsetType {
 inline SubsetType adjust_subset_rect(const SkISize& imageDims, SkIRect* subset, int* outX,
         int* outY) {
     // These must be at least zero, we can't start decoding the image at a negative coordinate.
-    int left = SkTMax(0, subset->fLeft);
-    int top = SkTMax(0, subset->fTop);
+    int left = std::max(0, subset->fLeft);
+    int top = std::max(0, subset->fTop);
 
     // If input offsets are less than zero, we decode to an offset location in the output bitmap.
     *outX = left - subset->fLeft;
     *outY = top - subset->fTop;
 
     // Make sure we don't decode pixels past the edge of the image or past the edge of the subset.
-    int width = SkTMin(imageDims.width() - left, subset->width() - *outX);
-    int height = SkTMin(imageDims.height() - top, subset->height() - *outY);
+    int width = std::min(imageDims.width() - left, subset->width() - *outX);
+    int height = std::min(imageDims.height() - top, subset->height() - *outY);
     if (width <= 0 || height <= 0) {
         return SubsetType::kOutside_SubsetType;
     }

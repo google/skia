@@ -469,8 +469,8 @@ int main(int argc, char** argv) {
         }
         srcname = SkOSPath::Basename(srcfile.c_str());
     }
-    int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
-        height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
+    int width = std::min(SkScalarCeilToInt(skp->cullRect().width()), 2048),
+        height = std::min(SkScalarCeilToInt(skp->cullRect().height()), 2048);
     if (FLAGS_verbosity >= 3 &&
         (width != skp->cullRect().width() || height != skp->cullRect().height())) {
         fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
@@ -502,7 +502,7 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "failed to create context for config %s",
                                      config->getTag().c_str());
     }
-    if (ctx->maxRenderTargetSize() < SkTMax(width, height)) {
+    if (ctx->maxRenderTargetSize() < std::max(width, height)) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
               width, height, ctx->maxRenderTargetSize());
     }

@@ -181,7 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 // index.
                 while (i < kBoxCount) {
                     static_assert(kIndexPatternRepeatCount >= 3);
-                    int repetitionCount = SkTMin(3 - baseRepetition, kBoxCount - i);
+                    int repetitionCount = std::min(3 - baseRepetition, kBoxCount - i);
 
                     GrMesh mesh(GrPrimitiveType::kTriangles);
                     mesh.setIndexed(helper->fIndexBuffer, repetitionCount * 6, baseRepetition * 6,
