@@ -14682,6 +14682,10 @@
         {
           "name": "gopath",
           "path": "cache/gopath"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -14724,6 +14728,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
