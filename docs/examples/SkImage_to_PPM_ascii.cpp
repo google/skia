@@ -8,7 +8,7 @@ void dump_txt(const SkData* data, const char* name) {
         size_t s = data->size();
         const char* d = (const char*)data->bytes();
         while (s > 0) {
-            int l = (int)SkTMin(s, (size_t)1024);
+            int l = (int)std::min(s, (size_t)1024);
             SkDebugf("%.*s", l, d);
             s -= l;
             d += l;

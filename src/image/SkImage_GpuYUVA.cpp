@@ -277,12 +277,12 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
         const SkPixmap* pixmap = &yuvaPixmaps[i];
         SkAutoPixmapStorage resized;
         int maxTextureSize = context->priv().caps()->maxTextureSize();
-        int maxDim = SkTMax(yuvaPixmaps[i].width(), yuvaPixmaps[i].height());
+        int maxDim = std::max(yuvaPixmaps[i].width(), yuvaPixmaps[i].height());
         if (limitToMaxTextureSize && maxDim > maxTextureSize) {
             float scale = static_cast<float>(maxTextureSize) / maxDim;
-            int newWidth = SkTMin(static_cast<int>(yuvaPixmaps[i].width() * scale), maxTextureSize);
+            int newWidth = std::min(static_cast<int>(yuvaPixmaps[i].width() * scale), maxTextureSize);
             int newHeight =
-                    SkTMin(static_cast<int>(yuvaPixmaps[i].height() * scale), maxTextureSize);
+                    std::min(static_cast<int>(yuvaPixmaps[i].height() * scale), maxTextureSize);
             SkImageInfo info = yuvaPixmaps[i].info().makeWH(newWidth, newHeight);
             if (!resized.tryAlloc(info) ||
                 !yuvaPixmaps[i].scalePixels(resized, kLow_SkFilterQuality)) {

@@ -172,7 +172,7 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
         x /= 2;
         y /= 2;
-        width = SkTMax(1u, width / 2);
-        height = SkTMax(1u, height / 2);
+        width = std::max(1u, width / 2);
+        height = std::max(1u, height / 2);
     }
 }

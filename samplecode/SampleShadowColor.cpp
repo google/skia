@@ -74,11 +74,11 @@ protected:
                     handled = true;
                     break;
                 case '>':
-                    fZIndex = SkTMin(9, fZIndex+1);
+                    fZIndex = std::min(9, fZIndex+1);
                     handled = true;
                     break;
                 case '<':
-                    fZIndex = SkTMax(0, fZIndex-1);
+                    fZIndex = std::max(0, fZIndex-1);
                     handled = true;
                     break;
                 default:
@@ -115,9 +115,9 @@ protected:
             if (paint.getColor() != SK_ColorBLACK) {
                 SkColor color = paint.getColor();
 
-                uint8_t max = SkTMax(SkTMax(SkColorGetR(color), SkColorGetG(color)),
+                uint8_t max = std::max(std::max(SkColorGetR(color), SkColorGetG(color)),
                                      SkColorGetB(color));
-                uint8_t min = SkTMin(SkTMin(SkColorGetR(color), SkColorGetG(color)),
+                uint8_t min = std::min(std::min(SkColorGetR(color), SkColorGetG(color)),
                                      SkColorGetB(color));
                 SkScalar luminance = 0.5f*(max + min) / 255.f;
                 SkScalar alpha = (.6 - .4*luminance)*luminance*luminance + 0.3f;

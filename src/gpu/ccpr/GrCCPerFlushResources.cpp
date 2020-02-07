@@ -171,7 +171,7 @@ GrCCPerFlushResources::GrCCPerFlushResources(
         // Overallocate by one point so we can call Sk4f::Store at the final SkPoint in the array.
         // (See transform_path_pts below.)
         // FIXME: instead use built-in instructions to write only the first two lanes of an Sk4f.
-        : fLocalDevPtsBuffer(SkTMax(specs.fRenderedPathStats[kFillIdx].fMaxPointsPerPath,
+        : fLocalDevPtsBuffer(std::max(specs.fRenderedPathStats[kFillIdx].fMaxPointsPerPath,
                                     specs.fRenderedPathStats[kStrokeIdx].fMaxPointsPerPath) + 1)
         , fFiller((CoverageType::kFP16_CoverageCount == coverageType)
                           ? GrCCFiller::Algorithm::kCoverageCount
