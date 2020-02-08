@@ -549,29 +549,58 @@ public:
             uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
+            uniform float rect[4];
+            uniform float width;
+
+            float compute_edge(float x, float min, float max) {
+                float dx = 0;
+                if (x < min) {  // left side
+                    dx = x - min;
+                } else if (x > max) {
+                    dx = x - max;
+                }
+                return dx / width;
+            }
+
+            float3 rect_rounded_norm(float2 xy) {
+                float dx = compute_edge(xy.x, rect[0] + width, rect[2] - width);
+                float dy = compute_edge(xy.y, rect[1] + width, rect[3] - width);
+                if (abs(dx) > abs(dy)) {
+                    dy = 0;
+                } else {
+                    dx = 0;
+                }
+                return float3(dx, dy, sqrt(1 - dx*dx - dy*dy));
+            }
+
             float3 convert_normal_sample(half4 c) {
                 float3 n = 2 * c.rgb - 1;
                 n.y = -n.y;
                 return n;
             }
 
-            void main(float2 p, inout half4 color) {
-                float3 norm = convert_normal_sample(sample(normal_map, p));
+            half4 do_lighting(float2 xy, float3 norm) {
                 float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
 
-                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+                float3 plane_pos = (localToWorld * float4(xy, 0, 1)).xyz;
                 float3 light_dir = normalize(lightPos - plane_pos);
 
                 float ambient = 0.2;
                 float dp = dot(plane_norm, light_dir);
-                float scale = min(ambient + max(dp, 0), 1);
+                half scale = half(min(ambient + max(dp, 0), 1));
+                return half4(scale, scale, scale, 1);
+            }
 
-                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+            void main(float2 xy, inout half4 color) {
+             //   float3 norm = convert_normal_sample(sample(normal_map));
+                float3 norm = rect_rounded_norm(xy);
+                color = sample(color_map, xy) * do_lighting(xy, norm);
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
         if (!effect) {
             SkDebugf("runtime error %s\n", error.c_str());
+            SkASSERT(false);
         }
         fEffect = effect;
     }
@@ -604,10 +633,16 @@ public:
             SkM44  fLocalToWorld;
             SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
+
+            SkRect fRect;
+            float  fWidth;
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
+
+        uni.fRect = {0, 0, 400, 400};
+        uni.fWidth = 50;
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
