@@ -214,9 +214,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,
-                                                                 scaleAdjust));
-    if (!proxy) {
+    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, samplerState, scaleAdjust);
+    if (!view) {
         return nullptr;
     }
 
@@ -244,11 +243,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             }
         }
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
-                                      kDir, srcAlphaType);
+        inner = GrBicubicEffect::Make(std::move(view), lmInverse, wrapModes, domainX, domainY, kDir,
+                                      srcAlphaType);
     } else {
-        inner = GrTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse, samplerState,
-                                      caps);
+        inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
                                           args.fDstColorInfo->colorSpace());

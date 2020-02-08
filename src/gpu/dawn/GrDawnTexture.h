@@ -21,7 +21,7 @@ public:
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, SkISize dimensions,
                                             GrRenderable, int sampleCnt,
-                                            GrMipMapsStatus, GrWrapCacheable,
+                                            GrMipMapsStatus, GrWrapCacheable, GrIOType,
                                             const GrDawnTextureInfo&);
 
     ~GrDawnTexture() override;
@@ -52,8 +52,6 @@ protected:
     }
 
 private:
-    GrDawnTexture(GrDawnGpu*, const GrSurfaceDesc&, const GrDawnTextureInfo&, GrMipMapsStatus);
-
     GrDawnTextureInfo        fInfo;
     wgpu::TextureView        fTextureView;
 

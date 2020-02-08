@@ -495,7 +495,7 @@ protected:
             int numPtsArray[] = { 5, 7, 8, 20, 100 };
 
             size_t arrayIndex = index - SK_ARRAY_COUNT(PolygonOffsetData::gSimplePoints);
-            arrayIndex = SkTMin(arrayIndex, SK_ARRAY_COUNT(numPtsArray) - 1);
+            arrayIndex = std::min(arrayIndex, SK_ARRAY_COUNT(numPtsArray) - 1);
             SkASSERT(arrayIndex < SK_ARRAY_COUNT(numPtsArray));
             *numPts = numPtsArray[arrayIndex];
             // squash horizontally

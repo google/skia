@@ -25,8 +25,8 @@ static const char* RUNTIME_FUNCTIONS_SRC = R"(
         return half4(half3(value), raw.a);
     }
 
-    void main(float x, float y, inout half4 color) {
-        color = blackAndWhite(half4(scale(x), scale(y), gColor.b, 1));
+    void main(float2 p, inout half4 color) {
+        color = blackAndWhite(half4(scale(p.x), scale(p.y), gColor.b, 1));
     }
 )";
 
@@ -38,8 +38,7 @@ class RuntimeFunctions : public skiagm::GM {
     SkISize onISize() override { return {256, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
-        // static to pass gl persistent cache test in dm
-        static sk_sp<SkRuntimeEffect> gEffect =
+        sk_sp<SkRuntimeEffect> gEffect =
                 std::get<0>(SkRuntimeEffect::Make(SkString(RUNTIME_FUNCTIONS_SRC)));
         SkASSERT(gEffect);
 

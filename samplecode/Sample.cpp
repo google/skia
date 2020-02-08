@@ -18,8 +18,8 @@ class GrContext;
 //////////////////////////////////////////////////////////////////////////////
 
 void Sample::setSize(SkScalar width, SkScalar height) {
-    width = SkMaxScalar(0, width);
-    height = SkMaxScalar(0, height);
+    width = std::max(0.0f, width);
+    height = std::max(0.0f, height);
 
     if (fWidth != width || fHeight != height)
     {

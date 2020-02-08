@@ -116,12 +116,9 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         children[i] = buffer.readShader();
     }
 
-    // We don't have a way to ensure that indices are consistent and correct when deserializing.
-    // Perhaps we should have a hash table to map strings to indices? For now, all shaders get a
-    // new unique ID after serialization.
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
-    return sk_sp<SkFlattenable>(new SkRTShader(std::move(effect), std::move(inputs), localMPtr,
-                                               children.data(), children.size(), isOpaque));
+    return effect->makeShader(std::move(inputs), children.data(), children.size(), localMPtr,
+                              isOpaque);
 }
 
 #if SK_SUPPORT_GPU
@@ -130,8 +127,7 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
-    auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader",
-                             fInputs->data(), fInputs->size(), &matrix);
+    auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader", fInputs, &matrix);
     for (const auto& child : fChildren) {
         auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
         if (!childFP) {

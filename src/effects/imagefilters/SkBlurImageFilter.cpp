@@ -555,8 +555,8 @@ static sk_sp<SkSpecialImage> cpu_blur(
 static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
     SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
     ctm.mapVectors(&sigma, 1);
-    sigma.fX = SkMinScalar(SkScalarAbs(sigma.fX), MAX_SIGMA);
-    sigma.fY = SkMinScalar(SkScalarAbs(sigma.fY), MAX_SIGMA);
+    sigma.fX = std::min(SkScalarAbs(sigma.fX), MAX_SIGMA);
+    sigma.fY = std::min(SkScalarAbs(sigma.fY), MAX_SIGMA);
     return sigma;
 }
 
@@ -643,7 +643,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
 
     auto context = ctx.getContext();
 
-    GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+    GrSurfaceProxyView inputView = input->view(context);
     if (!inputView.proxy()) {
         return nullptr;
     }

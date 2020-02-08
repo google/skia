@@ -222,10 +222,6 @@ def dm_flags(api, bot):
       # skbug.com/9235
       blacklist('_ test _ Programs')
 
-    if 'Metal' in bot and 'MacBook10.1-' in bot:
-      # skbug.com/9817
-      blacklist('_ test _ Programs')
-
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
     if 'GPU' in bot and ('Nexus7' in bot or
@@ -378,14 +374,14 @@ def dm_flags(api, bot):
     if arg in args:
       args.remove(arg)
 
-  if 'DDL' in bot:
-    # The DDL bots just render the large skps and the gms
+  if 'DDL' in bot or 'PDF' in bot:
+    # The DDL and PDF bots just render the large skps and the gms
     remove_from_args('tests')
     remove_from_args('image')
     remove_from_args('colorImage')
     remove_from_args('svg')
   else:
-    # Currently, only the DDL bots render skps
+    # No other bots render the .skps.
     remove_from_args('skp')
 
   if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
@@ -398,13 +394,6 @@ def dm_flags(api, bot):
     remove_from_args('skp')
   else:
     remove_from_args('lottie')
-
-  if 'PDF' in bot:
-    # (Just GMs for now.)
-    remove_from_args('tests')
-    remove_from_args('image')
-    remove_from_args('colorImage')
-    remove_from_args('svg')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -1082,7 +1071,6 @@ TEST_BUILDERS = [
   'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
-  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-Metal',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]
 

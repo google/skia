@@ -13,6 +13,8 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 
+enum class GrQuadAAFlags;
+
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
  * points make a triangle strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
@@ -159,6 +161,14 @@ private:
     float fW[4] = {1.f, 1.f, 1.f, 1.f};
 
     Type fType = Type::kAxisAligned;
+};
+
+// A simple struct representing the common work unit of a pair of device and local coordinates, as
+// well as the edge flags controlling anti-aliasing for the quadrilateral when drawn.
+struct DrawQuad {
+    GrQuad        fDevice;
+    GrQuad        fLocal;
+    GrQuadAAFlags fEdgeFlags;
 };
 
 #endif

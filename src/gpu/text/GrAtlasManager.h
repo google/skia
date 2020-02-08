@@ -75,7 +75,7 @@ public:
 
     // add to texture atlas that matches this format
     GrDrawOpAtlas::ErrorCode addToAtlas(
-            GrResourceProvider*, GrStrikeCache*, GrTextStrike*,
+            GrResourceProvider*,
             GrDrawOpAtlas::PlotLocator*, GrDeferredUploadTarget*, GrMaskFormat,
             int width, int height, const void* image, SkIPoint16* loc);
 

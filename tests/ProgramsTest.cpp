@@ -154,7 +154,7 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrCon
 
     int sampleCnt = random->nextBool() ? caps->getRenderTargetSampleCount(2, format) : 1;
     // Above could be 0 if msaa isn't supported.
-    sampleCnt = SkTMax(1, sampleCnt);
+    sampleCnt = std::max(1, sampleCnt);
 
     return GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
@@ -262,36 +262,28 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     // setup dummy textures
     GrMipMapped mipMapped = GrMipMapped(context->priv().caps()->mipMapSupport());
     {
-        GrSurfaceDesc dummyDesc;
-        dummyDesc.fWidth = 34;
-        dummyDesc.fHeight = 18;
+        static constexpr SkISize kDummyDims = {34, 18};
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
-        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kYes, 1,
+        proxies[0] = {proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kYes, 1,
                                                  kBottomLeft_GrSurfaceOrigin, mipMapped,
                                                  SkBackingFit::kExact, SkBudgeted::kNo,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
-                      GrColorType::kRGBA_8888,
-                      kPremul_SkAlphaType
-        };
+                      GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
     {
-        GrSurfaceDesc dummyDesc;
-        dummyDesc.fWidth = 16;
-        dummyDesc.fHeight = 22;
+        static constexpr SkISize kDummyDims = {16, 22};
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
-        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kNo, 1,
+        proxies[1] = {proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kNo, 1,
                                                  kTopLeft_GrSurfaceOrigin, mipMapped,
                                                  SkBackingFit::kExact, SkBudgeted::kNo,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
-                      GrColorType::kAlpha_8,
-                      kPremul_SkAlphaType
-        };
+                      GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
 
     if (!std::get<0>(proxies[0]) || !std::get<0>(proxies[1])) {

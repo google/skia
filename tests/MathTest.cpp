@@ -408,15 +408,6 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, SkScalarIsNaN(x));
     }
 
-    for (i = 0; i < 1000; i++) {
-        int value = rand.nextS() >> 16;
-        int max = rand.nextU() >> 16;
-
-        int clamp = SkClampMax(value, max);
-        int clamp2 = value < 0 ? 0 : (value > max ? max : value);
-        REPORTER_ASSERT(reporter, clamp == clamp2);
-    }
-
     for (i = 0; i < 10000; i++) {
         SkPoint p;
 
@@ -651,14 +642,7 @@ DEF_TEST(FloatSaturate32, reporter) {
         int i = sk_float_saturate2int(r.fFloat);
         REPORTER_ASSERT(reporter, r.fExpectedInt == i);
 
-        // ensure that these bound even non-finite values (including NaN)
-
-        SkScalar mx = SkTMax<SkScalar>(r.fFloat, 50);
-        REPORTER_ASSERT(reporter, mx >= 50);
-
-        SkScalar mn = SkTMin<SkScalar>(r.fFloat, 50);
-        REPORTER_ASSERT(reporter, mn <= 50);
-
+        // Ensure that SkTPin bounds even non-finite values (including NaN)
         SkScalar p = SkTPin<SkScalar>(r.fFloat, 0, 100);
         REPORTER_ASSERT(reporter, p >= 0 && p <= 100);
     }

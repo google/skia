@@ -1036,12 +1036,12 @@ void Viewer::setupCurrentSlide() {
     }
 }
 
-#define MAX_ZOOM_LEVEL  8
-#define MIN_ZOOM_LEVEL  -8
+#define MAX_ZOOM_LEVEL  8.0f
+#define MIN_ZOOM_LEVEL  -8.0f
 
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
-    fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+    fZoomLevel = SkTPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
     this->preTouchMatrixChanged();
 }
 
@@ -2239,11 +2239,11 @@ void Viewer::drawImGui() {
         if (ImGui::Begin("Zoom", &fShowZoomWindow)) {
             static int zoomFactor = 8;
             if (ImGui::Button("<<")) {
-                zoomFactor = SkTMax(zoomFactor / 2, 4);
+                zoomFactor = std::max(zoomFactor / 2, 4);
             }
             ImGui::SameLine(); ImGui::Text("%2d", zoomFactor); ImGui::SameLine();
             if (ImGui::Button(">>")) {
-                zoomFactor = SkTMin(zoomFactor * 2, 32);
+                zoomFactor = std::min(zoomFactor * 2, 32);
             }
 
             if (!fZoomWindowFixed) {

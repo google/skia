@@ -200,8 +200,8 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
     SkRect bounds = args.fShape->styledBounds();
-    SkScalar minDim = SkMinScalar(bounds.width(), bounds.height());
-    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+    SkScalar minDim = std::min(bounds.width(), bounds.height());
+    SkScalar maxDim = std::max(bounds.width(), bounds.height());
     SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
     SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
     if (maxDim > kMaxDim || kMinSize > minSize || maxSize > kMaxSize) {
@@ -397,12 +397,12 @@ private:
                     // approximate the scale since we can't get it from the matrix
                     SkRect xformedBounds;
                     args.fViewMatrix.mapRect(&xformedBounds, bounds);
-                    maxScale = SkScalarAbs(SkTMax(xformedBounds.width() / bounds.width(),
+                    maxScale = SkScalarAbs(std::max(xformedBounds.width() / bounds.width(),
                                                   xformedBounds.height() / bounds.height()));
                 } else {
                     maxScale = SkScalarAbs(args.fViewMatrix.getMaxScale());
                 }
-                SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+                SkScalar maxDim = std::max(bounds.width(), bounds.height());
                 // We try to create the DF at a 2^n scaled path resolution (1/2, 1, 2, 4, etc.)
                 // In the majority of cases this will yield a crisper rendering.
                 SkScalar mipScale = 1.0f;
@@ -432,7 +432,7 @@ private:
                     }
                     mipSize = newMipSize;
                 }
-                SkScalar desiredDimension = SkTMin(mipSize, kMaxMIP);
+                SkScalar desiredDimension = std::min(mipSize, kMaxMIP);
 
                 // check to see if df path is cached
                 ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
@@ -621,17 +621,19 @@ private:
         shapeData->fBounds.fRight /= scale;
         shapeData->fBounds.fBottom /= scale;
 
-        // We pack the 2bit page index in the low bit of the u and v texture coords
+        // Pack the page index into the u and v texture coords
         uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1 | vBit,
-                                      (atlasLocation.fX+SK_DistanceFieldPad+
-                                       devPathBounds.width()) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad+
-                                       devPathBounds.height()) << 1 | vBit);
+        uint16_t left, top, right, bottom;
+        std::tie(left, top, right, bottom) =
+                std::make_tuple(atlasLocation.fX + SK_DistanceFieldPad,
+                                atlasLocation.fY + SK_DistanceFieldPad,
+                                atlasLocation.fX + SK_DistanceFieldPad + devPathBounds.width(),
+                                atlasLocation.fY + SK_DistanceFieldPad + devPathBounds.height());
+        std::tie(left, top) =
+                GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
+        std::tie(right, bottom) =
+                GrDrawOpAtlas::PackIndexInTexCoords(right, bottom, pageIndex);
+        shapeData->fTextureCoords.set(left, top, right, bottom);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -719,14 +721,17 @@ private:
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
-        // We pack the 2bit page index in the low bit of the u and v texture coords
+        // Pack the page index into the u and v texture coords
         uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set(atlasLocation.fX << 1 | uBit, atlasLocation.fY << 1 | vBit,
-                                      (atlasLocation.fX+width) << 1 | uBit,
-                                      (atlasLocation.fY+height) << 1 | vBit);
+        uint16_t left, top, right, bottom;
+        std::tie(left, top, right, bottom) = std::make_tuple(atlasLocation.fX, atlasLocation.fY,
+                                                             atlasLocation.fX+width,
+                                                             atlasLocation.fY+height);
+        std::tie(left, top) =
+                GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
+        std::tie(right, bottom) =
+                GrDrawOpAtlas::PackIndexInTexCoords(right, bottom, pageIndex);
+        shapeData->fTextureCoords.set(left, top, right, bottom);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);

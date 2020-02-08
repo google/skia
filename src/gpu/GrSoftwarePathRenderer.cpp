@@ -163,28 +163,28 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
     SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
+
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     paint.addCoverageFragmentProcessor(GrTextureEffect::Make(
-            std::move(proxy), kPremul_SkAlphaType, maskMatrix, GrSamplerState::Filter::kNearest));
+            std::move(view), kPremul_SkAlphaType, maskMatrix, GrSamplerState::Filter::kNearest));
     DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
 }
 
 static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext* context,
                                                               SkBackingFit fit,
-                                                              int width, int height) {
+                                                              SkISize dimensions) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
-
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                  GrRenderable::kNo);
 
     GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
 
-    return proxyProvider->createProxy(format, desc, swizzle, GrRenderable::kNo, 1,
+    return proxyProvider->createProxy(format, dimensions, swizzle, GrRenderable::kNo, 1,
                                       kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
                                       SkBudgeted::kYes, GrProtected::kNo);
 }
@@ -337,9 +337,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
 
         if (taskGroup) {
-            proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
-                                                     boundsForMask->width(),
-                                                     boundsForMask->height());
+            proxy = make_deferred_mask_texture_proxy(args.fContext, fit, boundsForMask->size());
             if (!proxy) {
                 return false;
             }

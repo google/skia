@@ -176,11 +176,11 @@ public:
         kGlyphImage = 2,
         kGlyphPath = 3,
 
-        // The original glyph could not be found and a fallback was used.
+        // (DEPRECATED) The original glyph could not be found and a fallback was used.
         kGlyphMetricsFallback = 4,
         kGlyphPathFallback = 5,
 
-        kLast = kGlyphPathFallback
+        kLast = kGlyphPath
     };
 
     // An interface to delete handles that may be pinned by the remote server.

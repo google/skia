@@ -144,6 +144,9 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
     while (!fUnresolvedBlocks.empty()) {
         auto unresolved = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
+        if (unresolved.fText.width() == 0) {
+            continue;
+        }
         fResolvedBlocks.emplace_back(unresolved);
         fUnresolvedGlyphs += unresolved.fGlyphs.width();
     }
@@ -215,7 +218,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
 
         // Carve out the line text out of the entire run text
         fAdvance.fX += runAdvance.fX;
-        fAdvance.fY = SkMaxScalar(fAdvance.fY, runAdvance.fY);
+        fAdvance.fY = std::max(fAdvance.fY, runAdvance.fY);
     }
 
     advanceX = fAdvance.fX;
@@ -272,8 +275,8 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
             } else if (lastUnresolved.fText.intersects(unresolved.fText)) {
                 // Few pieces of the same unresolved text block can ignore the second one
                 lastUnresolved.fGlyphs.start =
-                        SkTMin(lastUnresolved.fGlyphs.start, glyphRange.start);
-                lastUnresolved.fGlyphs.end = SkTMax(lastUnresolved.fGlyphs.end, glyphRange.end);
+                        std::min(lastUnresolved.fGlyphs.start, glyphRange.start);
+                lastUnresolved.fGlyphs.end = std::max(lastUnresolved.fGlyphs.end, glyphRange.end);
                 lastUnresolved.fText = clusteredText(lastUnresolved.fGlyphs);
                 return;
             }
@@ -358,7 +361,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
     };
 
     for (auto& block : styleSpan) {
-        BlockRange blockRange(SkTMax(block.fRange.start, textRange.start), SkTMin(block.fRange.end, textRange.end));
+        BlockRange blockRange(std::max(block.fRange.start, textRange.start), std::min(block.fRange.end, textRange.end));
         if (blockRange.empty()) {
             continue;
         }
@@ -430,8 +433,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             // Shape the text by bidi regions
             while (bidiIndex < bidiRegions.size()) {
                 BidiRegion& bidiRegion = bidiRegions[bidiIndex];
-                auto start = SkTMax(bidiRegion.text.start, placeholder.fTextBefore.start);
-                auto end = SkTMin(bidiRegion.text.end, placeholder.fTextBefore.end);
+                auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
+                auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);
@@ -480,7 +483,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         run.fPositions[0] = { advanceX, 0 };
         run.fOffsets[0] = {0, 0};
         run.fClusterIndexes[0] = 0;
-        run.fPlaceholder = &placeholder.fStyle;
+        run.fPlaceholderIndex = &placeholder - fParagraph->fPlaceholders.begin();
         advanceX += placeholder.fStyle.fWidth;
     }
     return true;
@@ -494,7 +497,7 @@ bool OneLineShaper::shape() {
 
     auto result = iterateThroughShapingRegions(
             [this, limitlessWidth]
-            (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t textDirection) {
+            (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t defaultBidiLevel) {
 
         // Set up the shaper and shape the next
         auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
@@ -504,7 +507,7 @@ bool OneLineShaper::shape() {
         }
 
         iterateThroughFontStyles(textRange, styleSpan,
-                [this, &shaper, textDirection, limitlessWidth, &advanceX]
+                [this, &shaper, defaultBidiLevel, limitlessWidth, &advanceX]
                 (Block block, SkTArray<SkShaper::Feature> features) {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
@@ -528,20 +531,15 @@ bool OneLineShaper::shape() {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
-                    SingleFontIterator fontIter(unresolvedText, font);
-                    LangIterator lang(unresolvedText, blockSpan,
+                    SkShaper::TrivialFontRunIterator fontIter(font, unresolvedText.size());
+                    LangIterator langIter(unresolvedText, blockSpan,
                                       fParagraph->paragraphStyle().getTextStyle());
-                    auto script = SkShaper::MakeHbIcuScriptRunIterator(unresolvedText.begin(),
-                                                                       unresolvedText.size());
-                    auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-                            unresolvedText.begin(), unresolvedText.size(), textDirection);
-                    if (bidi == nullptr) {
-                        return false;
-                    }
-
+                    SkShaper::TrivialBiDiRunIterator bidiIter(defaultBidiLevel, unresolvedText.size());
+                    auto scriptIter = SkShaper::MakeHbIcuScriptRunIterator
+                                     (unresolvedText.begin(), unresolvedText.size());
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
-                            fontIter, *bidi,*script, lang,
+                            fontIter, bidiIter,*scriptIter, langIter,
                             features.data(), features.size(),
                             limitlessWidth, this);
 

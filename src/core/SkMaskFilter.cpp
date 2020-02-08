@@ -144,7 +144,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     // top
     r.setLTRB(innerR.left(), outerR.top(), innerR.right(), innerR.top());
     if (r.intersect(clipR)) {
-        int startY = SkMax32(0, r.top() - outerR.top());
+        int startY = std::max(0, r.top() - outerR.top());
         int stopY = startY + r.height();
         int width = r.width();
         for (int y = startY; y < stopY; ++y) {

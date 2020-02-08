@@ -23,13 +23,16 @@ public:
             : fProxy(proxy), fOrigin(origin), fSwizzle(swizzle) {}
 
     // This entry point is used when we don't care about the origin or the swizzle.
-    GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy)
+    explicit GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy)
             : fProxy(proxy), fOrigin(kTopLeft_GrSurfaceOrigin) {}
 
     GrSurfaceProxyView(GrSurfaceProxyView&& view) = default;
     GrSurfaceProxyView(const GrSurfaceProxyView&) = default;
 
+    operator bool() const { return SkToBool(fProxy.get()); }
+
     GrSurfaceProxyView& operator=(const GrSurfaceProxyView&) = default;
+    GrSurfaceProxyView& operator=(GrSurfaceProxyView&& view) = default;
 
     bool operator==(const GrSurfaceProxyView& view) const {
         return fProxy->uniqueID() == view.fProxy->uniqueID() &&
@@ -39,7 +42,7 @@ public:
     bool operator!=(const GrSurfaceProxyView& other) const { return !(*this == other); }
 
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
-    sk_sp<GrSurfaceProxy> proxyRef() const { return fProxy; }
+    sk_sp<GrSurfaceProxy> refProxy() const { return fProxy; }
 
     GrTextureProxy* asTextureProxy() const {
         if (!fProxy) {

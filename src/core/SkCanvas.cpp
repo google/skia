@@ -537,7 +537,7 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
 {
     inc_canvas();
     this->init(sk_make_sp<SkNoPixelsDevice>(
-            SkIRect::MakeWH(SkTMax(width, 0), SkTMax(height, 0)), fProps));
+            SkIRect::MakeWH(std::max(width, 0), std::max(height, 0)), fProps));
 }
 
 SkCanvas::SkCanvas(const SkIRect& bounds)

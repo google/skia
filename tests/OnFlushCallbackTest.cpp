@@ -315,13 +315,13 @@ public:
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
                 [format](GrResourceProvider* resourceProvider)
                         -> GrSurfaceProxy::LazyCallbackResult {
-                    GrSurfaceDesc desc;
+                    SkISize dims;
                     // TODO: until partial flushes in MDB lands we're stuck having
                     // all 9 atlas draws occur
-                    desc.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
-                    desc.fHeight = kAtlasTileSize;
+                    dims.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
+                    dims.fHeight = kAtlasTileSize;
 
-                    return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1,
+                    return resourceProvider->createTexture(dims, format, GrRenderable::kYes, 1,
                                                            GrMipMapped::kNo, SkBudgeted::kYes,
                                                            GrProtected::kNo);
                 },
@@ -446,10 +446,13 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 
     rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
+    GrSurfaceOrigin origin = atlasProxy->origin();
+    GrSwizzle swizzle = atlasProxy->textureSwizzle();
+    GrSurfaceProxyView atlasView(std::move(atlasProxy), origin, swizzle);
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrTextureEffect::Make(atlasProxy, atlasAlphaType);
+        auto fp = GrTextureEffect::Make(atlasView, atlasAlphaType);
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -498,12 +501,11 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     save_bm(bm, "atlas-fake.png");
 #endif
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info());
     desc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurfaceProxy> tmp = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                              context->textureProvider(),
-                                                             desc, SkBudgeted::kYes,
+                                                             dm.dimensions(), SkBudgeted::kYes,
                                                              bm.getPixels(), bm.rowBytes());
 
     return sk_ref_sp(tmp->asTextureProxy());
@@ -568,7 +570,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        auto fp = GrTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
+        GrSurfaceOrigin origin = proxies[i]->origin();
+        GrSwizzle swizzle = proxies[i]->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxies[i]), origin, swizzle);
+        auto fp = GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 

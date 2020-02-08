@@ -675,7 +675,7 @@ class CCPR_cache_multiFlush : public CCPRCacheTest {
                     } else {
                         REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
                     }
-                    nextFlush = SkTMin(j + (int)rand.nextRangeU(1, 29), kNumPaths - 1);
+                    nextFlush = std::min(j + (int)rand.nextRangeU(1, 29), kNumPaths - 1);
                 }
             }
             SkASSERT(endPathIdx == pathIdx % kNumPaths);

@@ -41,7 +41,7 @@ public:
      */
     void setNeedsStencil(int8_t numStencilSamples) {
         SkASSERT(numStencilSamples >= fSampleCnt);
-        fNumStencilSamples = SkTMax(numStencilSamples, fNumStencilSamples);
+        fNumStencilSamples = std::max(numStencilSamples, fNumStencilSamples);
     }
 
     /**
@@ -90,7 +90,7 @@ protected:
     // Deferred version
     GrRenderTargetProxy(const GrCaps&,
                         const GrBackendFormat&,
-                        const GrSurfaceDesc&,
+                        SkISize,
                         int sampleCount,
                         GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle,
@@ -114,7 +114,7 @@ protected:
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&,
                         const GrBackendFormat&,
-                        const GrSurfaceDesc&,
+                        SkISize,
                         int sampleCount,
                         GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle,

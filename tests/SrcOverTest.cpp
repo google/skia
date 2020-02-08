@@ -55,7 +55,7 @@ DEF_TEST(SrcOver, reporter) {
             unsigned r0 = test_srcover0(dst, i);
             unsigned r1 = test_srcover1(dst, i);
             unsigned r2 = test_srcover2(dst, i);
-            unsigned max = SkMax32(dst, i);
+            unsigned max = std::max(dst, i);
             // ignore the known failure
             if (dst != 255) {
                 REPORTER_ASSERT(reporter, r0 <= 255 && r0 >= max);

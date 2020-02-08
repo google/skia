@@ -44,11 +44,13 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
-                                             GrStrikeCache*, GrAtlasManager*, GrGlyph*,
-                                             SkBulkGlyphMetricsAndImages*,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
-                                             bool isScaledGlyph);
+                                             bool isScaledGlyph,
+                                             GrResourceProvider*,
+                                             GrDeferredUploadTarget*,
+                                             GrAtlasManager*,
+                                             GrGlyph*);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
@@ -80,9 +82,8 @@ private:
  * GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
  * used to generate individual Glyph Masks.
  */
-class GrStrikeCache final {
+class GrStrikeCache {
 public:
-    GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes);
     ~GrStrikeCache();
 
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
@@ -95,8 +96,6 @@ public:
         }
         return this->generateStrike(desc);
     }
-
-    const SkMasks& getMasks() const { return *f565Masks; }
 
     void freeAll();
 
@@ -117,7 +116,6 @@ private:
     using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;
 
     StrikeHash fCache;
-    std::unique_ptr<const SkMasks> f565Masks;
 };
 
 #endif  // GrStrikeCache_DEFINED

@@ -203,7 +203,7 @@ uniform half4 circleData;
         // half-plane. Similarly, in the extreme high ratio cases circle becomes a point WRT to the
         // Guassian and the profile texture is a just a Gaussian evaluation. However, we haven't yet
         // implemented this latter optimization.
-        sigmaToCircleRRatio = SkTMin(sigmaToCircleRRatio, 8.f);
+        sigmaToCircleRRatio = std::min(sigmaToCircleRRatio, 8.f);
         SkFixed sigmaToCircleRRatioFixed;
         static const SkScalar kHalfPlaneThreshold = 0.1f;
         bool useHalfPlaneApprox = false;
@@ -253,7 +253,8 @@ uniform half4 circleData;
             bm.setImmutable();
 
             GrBitmapTextureMaker maker(context, bm);
-            std::tie(blurProfile, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
+            auto[blurView, grCT] = maker.view(GrMipMapped::kNo);
+            blurProfile = blurView.asTextureProxyRef();
             if (!blurProfile) {
                 return nullptr;
             }

@@ -35,62 +35,62 @@ bool GrOctoBounds::clip(const SkIRect& clipRect) {
         //     y = x + (y0 - x0)
         // Substitute: l45 = x0 - y0
         //     y = x - l45
-        b = SkScalarPin(r - l45, t, b);
+        b = SkTPin(r - l45, t, b);
     } else if (r45 < Get_x45(r,b)) {
         // Slide the right side leftward until it crosses the r45 diagonal at y=b.
         //     x = y + (x0 - y0)
         // Substitute: r45 = x0 - y0
         //     x = y + r45
-        r = SkScalarPin(b + r45, l, r);
+        r = SkTPin(b + r45, l, r);
     }
     if (l45 > Get_x45(l,t)) {
         // Slide the left side rightward until it crosses the l45 diagonal at y=t.
         //     x = y + (x0 - y0)
         // Substitute: l45 = x0 - y0
         //     x = y + l45
-        l = SkScalarPin(t + l45, l, r);
+        l = SkTPin(t + l45, l, r);
     } else if (r45 < Get_x45(l,t)) {
         // Slide the top downward until it crosses the r45 diagonal at x=l.
         //     y = x + (y0 - x0)
         // Substitute: r45 = x0 - y0
         //     y = x - r45
-        t = SkScalarPin(l - r45, t, b);
+        t = SkTPin(l - r45, t, b);
     }
     if (t45 > Get_y45(l,b)) {
         // Slide the left side rightward until it crosses the t45 diagonal at y=b.
         //     x = -y + (x0 + y0)
         // Substitute: t45 = x0 + y0
         //     x = -y + t45
-        l = SkScalarPin(t45 - b, l, r);
+        l = SkTPin(t45 - b, l, r);
     } else if (b45 < Get_y45(l,b)) {
         // Slide the bottom upward until it crosses the b45 diagonal at x=l.
         //     y = -x + (y0 + x0)
         // Substitute: b45 = x0 + y0
         //     y = -x + b45
-        b = SkScalarPin(b45 - l, t, b);
+        b = SkTPin(b45 - l, t, b);
     }
     if (t45 > Get_y45(r,t)) {
         // Slide the top downward until it crosses the t45 diagonal at x=r.
         //     y = -x + (y0 + x0)
         // Substitute: t45 = x0 + y0
         //     y = -x + t45
-        t = SkScalarPin(t45 - r, t, b);
+        t = SkTPin(t45 - r, t, b);
     } else if (b45 < Get_y45(r,t)) {
         // Slide the right side leftward until it crosses the b45 diagonal at y=t.
         //     x = -y + (x0 + y0)
         // Substitute: b45 = x0 + y0
         //     x = -y + b45
-        r = SkScalarPin(b45 - t, l, r);
+        r = SkTPin(b45 - t, l, r);
     }
 
     // Tighten the 45-degree bounding box. Since the dev bounds are now fully tightened, we only
     // have to clamp the diagonals to outer corners.
     // NOTE: This will not cause l,t,r,b to need more insetting. We only ever change a diagonal by
     // pinning it to a FAR corner, which, by definition, is still outside the other corners.
-    l45 = SkScalarPin(Get_x45(l,b), l45, r45);
-    t45 = SkScalarPin(Get_y45(l,t), t45, b45);
-    r45 = SkScalarPin(Get_x45(r,t), l45, r45);
-    b45 = SkScalarPin(Get_y45(r,b), t45, b45);
+    l45 = SkTPin(Get_x45(l,b), l45, r45);
+    t45 = SkTPin(Get_y45(l,t), t45, b45);
+    r45 = SkTPin(Get_x45(r,t), l45, r45);
+    b45 = SkTPin(Get_y45(r,b), t45, b45);
 
     // Make one final check for empty or NaN bounds. If the dev bounds were clipped completely
     // outside one of the diagonals, they will have been pinned to empty. It's also possible that

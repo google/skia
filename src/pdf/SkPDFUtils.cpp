@@ -102,7 +102,7 @@ static void append_quad(const SkPoint quad[], SkWStream* content) {
 
 void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
-    SkScalar bottom = SkMinScalar(rect.fBottom, rect.fTop);
+    SkScalar bottom = std::min(rect.fBottom, rect.fTop);
 
     SkPDFUtils::AppendScalar(rect.fLeft, content);
     content->writeText(" ");

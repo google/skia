@@ -65,8 +65,6 @@ skia_core_public = [
   "$_include/core/SkPngChunkReader.h",
   "$_include/core/SkPoint.h",
   "$_include/core/SkPoint3.h",
-  "$_include/core/SkPostConfig.h",
-  "$_include/core/SkPreConfig.h",
   "$_include/core/SkPromiseImageTexture.h",
   "$_include/core/SkRRect.h",
   "$_include/core/SkRSXform.h",

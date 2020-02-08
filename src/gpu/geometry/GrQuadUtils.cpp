@@ -35,15 +35,20 @@ static AI V4f next_ccw(const V4f& v) {
     return skvx::shuffle<1, 3, 0, 2>(v);
 }
 
+static AI V4f next_diag(const V4f& v) {
+    // Same as next_ccw(next_ccw(v)), or next_cw(next_cw(v)), e.g. two rotations either direction.
+    return skvx::shuffle<3, 2, 1, 0>(v);
+}
+
 // Replaces zero-length 'bad' edge vectors with the reversed opposite edge vector.
 // e3 may be null if only 2D edges need to be corrected for.
 static AI void correct_bad_edges(const M4f& bad, V4f* e1, V4f* e2, V4f* e3) {
     if (any(bad)) {
         // Want opposite edges, L B T R -> R T B L but with flipped sign to preserve winding
-        *e1 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e1), *e1);
-        *e2 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e2), *e2);
+        *e1 = if_then_else(bad, -next_diag(*e1), *e1);
+        *e2 = if_then_else(bad, -next_diag(*e2), *e2);
         if (e3) {
-            *e3 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e3), *e3);
+            *e3 = if_then_else(bad, -next_diag(*e3), *e3);
         }
     }
 }
@@ -381,28 +386,177 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
     }
 }
 
-bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
-                GrQuad* local) {
-    SkASSERT(quad->isFinite());
+int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices) {
+    using Vertices = TessellationHelper::Vertices;
 
-    if (quad->quadType() == GrQuad::Type::kAxisAligned) {
+    SkASSERT(quad && extraVertices);
+
+    if (quad->fDevice.quadType() < GrQuad::Type::kPerspective) {
+        // W implicitly 1s for each vertex, so nothing to do but draw unmodified 'quad'
+        return 1;
+    }
+
+    M4f validW = quad->fDevice.w4f() >= SkPathPriv::kW0PlaneDistance;
+    if (all(validW)) {
+        // Nothing to clip, can proceed normally drawing just 'quad'
+        return 1;
+    } else if (!any(validW)) {
+        // Everything is clipped, so draw nothing
+        return 0;
+    }
+
+    // The clipped local coordinates will most likely not remain rectilinear
+    GrQuad::Type localType = quad->fLocal.quadType();
+    if (localType < GrQuad::Type::kGeneral) {
+        localType = GrQuad::Type::kGeneral;
+    }
+
+    // If we got here, there are 1, 2, or 3 points behind the w = 0 plane. If 2 or 3 points are
+    // clipped we can define a new quad that covers the clipped shape directly. If there's 1 clipped
+    // out, the new geometry is a pentagon.
+    Vertices v;
+    v.reset(quad->fDevice, &quad->fLocal);
+
+    int clipCount = (validW[0] ? 0 : 1) + (validW[1] ? 0 : 1) +
+                    (validW[2] ? 0 : 1) + (validW[3] ? 0 : 1);
+    SkASSERT(clipCount >= 1 && clipCount <= 3);
+
+    // FIXME de-duplicate from the projectedBounds() calculations.
+    V4f t = (SkPathPriv::kW0PlaneDistance - v.fW) / (next_ccw(v.fW) - v.fW);
+
+    Vertices clip;
+    clip.fX = (t * next_ccw(v.fX) + (1.f - t) * v.fX);
+    clip.fY = (t * next_ccw(v.fY) + (1.f - t) * v.fY);
+    clip.fW = SkPathPriv::kW0PlaneDistance;
+
+    clip.fU = (t * next_ccw(v.fU) + (1.f - t) * v.fU);
+    clip.fV = (t * next_ccw(v.fV) + (1.f - t) * v.fV);
+    clip.fR = (t * next_ccw(v.fR) + (1.f - t) * v.fR);
+
+    M4f ccwValid = next_ccw(v.fW) >= SkPathPriv::kW0PlaneDistance;
+    M4f cwValid  = next_cw(v.fW)  >= SkPathPriv::kW0PlaneDistance;
+
+    if (clipCount != 1) {
+        // Simplest case, replace behind-w0 points with their clipped points by following CCW edge
+        // or CW edge, depending on if the edge crosses from neg. to pos. w or pos. to neg.
+        SkASSERT(clipCount == 2 || clipCount == 3);
+
+        // NOTE: when 3 vertices are clipped, this results in a degenerate quad where one vertex
+        // is replicated. This is preferably to inserting a 3rd vertex on the w = 0 intersection
+        // line because two parallel edges make inset/outset math unstable for large quads.
+        v.fX = if_then_else(validW, v.fX,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fX),
+                               if_then_else(ccwValid, clip.fX, /* cwValid */ next_cw(clip.fX))));
+        v.fY = if_then_else(validW, v.fY,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fY),
+                               if_then_else(ccwValid, clip.fY, /* cwValid */ next_cw(clip.fY))));
+        v.fW = if_then_else(validW, v.fW, clip.fW);
+
+        v.fU = if_then_else(validW, v.fU,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fU),
+                               if_then_else(ccwValid, clip.fU, /* cwValid */ next_cw(clip.fU))));
+        v.fV = if_then_else(validW, v.fV,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fV),
+                               if_then_else(ccwValid, clip.fV, /* cwValid */ next_cw(clip.fV))));
+        v.fR = if_then_else(validW, v.fR,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fR),
+                               if_then_else(ccwValid, clip.fR, /* cwValid */ next_cw(clip.fR))));
+
+        // For 2 or 3 clipped vertices, the resulting shape is a quad or a triangle, so it can be
+        // entirely represented in 'quad'.
+        v.asGrQuads(&quad->fDevice, GrQuad::Type::kPerspective,
+                    &quad->fLocal, localType);
+        return 1;
+    } else {
+        // The clipped geometry is a pentagon, so it will be represented as two quads connected by
+        // a new non-AA edge. Use the midpoint along one of the unclipped edges as a split vertex.
+        Vertices mid;
+        mid.fX = 0.5f * (v.fX + next_ccw(v.fX));
+        mid.fY = 0.5f * (v.fY + next_ccw(v.fY));
+        mid.fW = 0.5f * (v.fW + next_ccw(v.fW));
+
+        mid.fU = 0.5f * (v.fU + next_ccw(v.fU));
+        mid.fV = 0.5f * (v.fV + next_ccw(v.fV));
+        mid.fR = 0.5f * (v.fR + next_ccw(v.fR));
+
+        // Make a quad formed by the 2 clipped points, the inserted mid point, and the good vertex
+        // that is CCW rotated from the clipped vertex.
+        Vertices v2;
+        v2.fUVRCount = v.fUVRCount;
+        v2.fX = if_then_else((!validW) | (!ccwValid), clip.fX,
+                        if_then_else(cwValid, next_cw(mid.fX), v.fX));
+        v2.fY = if_then_else((!validW) | (!ccwValid), clip.fY,
+                        if_then_else(cwValid, next_cw(mid.fY), v.fY));
+        v2.fW = if_then_else((!validW) | (!ccwValid), clip.fW,
+                        if_then_else(cwValid, next_cw(mid.fW), v.fW));
+
+        v2.fU = if_then_else((!validW) | (!ccwValid), clip.fU,
+                        if_then_else(cwValid, next_cw(mid.fU), v.fU));
+        v2.fV = if_then_else((!validW) | (!ccwValid), clip.fV,
+                        if_then_else(cwValid, next_cw(mid.fV), v.fV));
+        v2.fR = if_then_else((!validW) | (!ccwValid), clip.fR,
+                        if_then_else(cwValid, next_cw(mid.fR), v.fR));
+        // The non-AA edge for this quad is the opposite of the clipped vertex's edge
+        GrQuadAAFlags v2EdgeFlag = (!validW[0] ? GrQuadAAFlags::kRight  : // left clipped -> right
+                                   (!validW[1] ? GrQuadAAFlags::kTop    : // bottom clipped -> top
+                                   (!validW[2] ? GrQuadAAFlags::kBottom : // top clipped -> bottom
+                                                 GrQuadAAFlags::kLeft))); // right clipped -> left
+        extraVertices->fEdgeFlags = quad->fEdgeFlags & ~v2EdgeFlag;
+
+        // Make a quad formed by the remaining two good vertices, one clipped point, and the
+        // inserted mid point.
+        v.fX = if_then_else(!validW, next_cw(clip.fX),
+                       if_then_else(!cwValid, mid.fX, v.fX));
+        v.fY = if_then_else(!validW, next_cw(clip.fY),
+                       if_then_else(!cwValid, mid.fY, v.fY));
+        v.fW = if_then_else(!validW, clip.fW,
+                       if_then_else(!cwValid, mid.fW, v.fW));
+
+        v.fU = if_then_else(!validW, next_cw(clip.fU),
+                       if_then_else(!cwValid, mid.fU, v.fU));
+        v.fV = if_then_else(!validW, next_cw(clip.fV),
+                       if_then_else(!cwValid, mid.fV, v.fV));
+        v.fR = if_then_else(!validW, next_cw(clip.fR),
+                       if_then_else(!cwValid, mid.fR, v.fR));
+        // The non-AA edge for this quad is the clipped vertex's edge
+        GrQuadAAFlags v1EdgeFlag = (!validW[0] ? GrQuadAAFlags::kLeft   :
+                                   (!validW[1] ? GrQuadAAFlags::kBottom :
+                                   (!validW[2] ? GrQuadAAFlags::kTop    :
+                                                 GrQuadAAFlags::kRight)));
+
+        v.asGrQuads(&quad->fDevice, GrQuad::Type::kPerspective,
+                    &quad->fLocal, localType);
+        quad->fEdgeFlags &= ~v1EdgeFlag;
+
+        v2.asGrQuads(&extraVertices->fDevice, GrQuad::Type::kPerspective,
+                     &extraVertices->fLocal, localType);
+        // Caller must draw both 'quad' and 'extraVertices' to cover the clipped geometry
+        return 2;
+    }
+}
+
+bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool computeLocal) {
+    SkASSERT(quad->fDevice.isFinite());
+
+    if (quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
         // crop_rect and crop_rect_simple keep the rectangles as rectangles, so the intersection
         // of the crop and quad can be calculated exactly. Some care must be taken if the quad
         // is axis-aligned but does not satisfy asRect() due to flips, etc.
         GrQuadAAFlags clippedEdges;
-        if (local) {
-            if (is_simple_rect(*quad) && is_simple_rect(*local)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(),
-                                                local->xs(), local->ys());
+        if (computeLocal) {
+            if (is_simple_rect(quad->fDevice) && is_simple_rect(quad->fLocal)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                quad->fLocal.xs(), quad->fLocal.ys());
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
-                                         local->xs(), local->ys(), local->ws());
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                         quad->fLocal.xs(), quad->fLocal.ys(), quad->fLocal.ws());
             }
         } else {
-            if (is_simple_rect(*quad)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(), nullptr, nullptr);
+            if (is_simple_rect(quad->fDevice)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                nullptr, nullptr);
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
                                          nullptr, nullptr, nullptr);
             }
         }
@@ -410,26 +564,31 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // Apply the clipped edge updates to the original edge flags
         if (cropAA == GrAA::kYes) {
             // Turn on all edges that were clipped
-            *edgeFlags |= clippedEdges;
+            quad->fEdgeFlags |= clippedEdges;
         } else {
             // Turn off all edges that were clipped
-            *edgeFlags &= ~clippedEdges;
+            quad->fEdgeFlags &= ~clippedEdges;
         }
         return true;
     }
 
-    if (local) {
+    if (computeLocal) {
         // FIXME (michaelludwig) Calculate cropped local coordinates when not kAxisAligned
         return false;
     }
 
-    V4f devX = quad->x4f();
-    V4f devY = quad->y4f();
-    V4f devIW = quad->iw4f();
+    V4f devX = quad->fDevice.x4f();
+    V4f devY = quad->fDevice.y4f();
     // Project the 3D coordinates to 2D
-    if (quad->quadType() == GrQuad::Type::kPerspective) {
-        devX *= devIW;
-        devY *= devIW;
+    if (quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
+        V4f devW = quad->fDevice.w4f();
+        if (any(devW < SkPathPriv::kW0PlaneDistance)) {
+            // The rest of this function assumes the quad is in front of w = 0
+            return false;
+        }
+        devW = 1.f / devW;
+        devX *= devW;
+        devY *= devW;
     }
 
     V4f clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
@@ -460,21 +619,17 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // FIXME (michaelludwig) - once we have local coordinates handled, it may be desirable to
         // keep the draw as perspective so that the hardware does perspective interpolation instead
         // of pushing it into a local coord w and having the shader do an extra divide.
-        clipX.store(quad->xs());
-        clipY.store(quad->ys());
-        quad->ws()[0] = 1.f;
-        quad->ws()[1] = 1.f;
-        quad->ws()[2] = 1.f;
-        quad->ws()[3] = 1.f;
-        quad->setQuadType(GrQuad::Type::kAxisAligned);
+        clipX.store(quad->fDevice.xs());
+        clipY.store(quad->fDevice.ys());
+        quad->fDevice.setQuadType(GrQuad::Type::kAxisAligned);
 
         // Update the edge flags to match the clip setting since all 4 edges have been clipped
-        *edgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+        quad->fEdgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
         return true;
     }
 
-    // FIXME (michaelludwig) - use the GrQuadPerEdgeAA tessellation inset/outset math to move
+    // FIXME (michaelludwig) - use TessellationHelper's inset/outset math to move
     // edges to the closest clip corner they are outside of
 
     return false;
@@ -840,22 +995,22 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
                     V4f(0.f)) / denom;                            /* !B      */
     }
 
-    V4f newW = fW + a * e1w + b * e2w;
-    // If newW < 0, scale a and b such that the point reaches the infinity plane instead of crossing
-    // This breaks orthogonality of inset/outsets, but GPUs don't handle negative Ws well so this
-    // is far less visually disturbing (likely not noticeable since it's at extreme perspective).
-    // The alternative correction (multiply xyw by -1) has the disadvantage of changing how local
-    // coordinates would be interpolated.
-    static const float kMinW = 1e-6f;
-    if (any(newW < 0.f)) {
-        V4f scale = if_then_else(newW < kMinW, (kMinW - fW) / (newW - fW), V4f(1.f));
-        a *= scale;
-        b *= scale;
-    }
-
     fX += a * e1x + b * e2x;
     fY += a * e1y + b * e2y;
     fW += a * e1w + b * e2w;
+
+    // If fW has gone negative, flip the point to the other side of w=0. This only happens if the
+    // edge was approaching a vanishing point and it was physically impossible to outset 1/2px in
+    // screen space w/o going behind the viewer and being mirrored. Scaling by -1 preserves the
+    // computed screen space position but moves the 3D point off of the original quad. So far, this
+    // seems to be a reasonable compromise.
+    if (any(fW < 0.f)) {
+        V4f scale = if_then_else(fW < 0.f, V4f(-1.f), V4f(1.f));
+        fX *= scale;
+        fY *= scale;
+        fW *= scale;
+    }
+
     correct_bad_coords(abs(denom) < kTolerance, &fX, &fY, &fW);
 
     if (fUVRCount > 0) {
@@ -863,12 +1018,10 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
         V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
         V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
         V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
-        correct_bad_edges(mad(e1u, e1u, e1v * e1v) < kDist2Tolerance, &e1u, &e1v, &e1r);
 
         V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
         V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
         V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
-        correct_bad_edges(mad(e2u, e2u, e2v * e2v) < kDist2Tolerance, &e2u, &e2v, &e2r);
 
         fU += a * e1u + b * e2u;
         fV += a * e1v + b * e2v;

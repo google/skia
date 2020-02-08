@@ -807,7 +807,7 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
     SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
     SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
     if (SkScalarsAreFinite(sx, sy)) {
-        SkScalar scale = SkTMax(sx, sy);
+        SkScalar scale = std::max(sx, sy);
         if (scale > 0) {
             return scale;
         }
@@ -1233,8 +1233,8 @@ bool SkDraw::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipB
         // quality of large filters like blurs, and the corresponding memory
         // requests.
         static const int MAX_MARGIN = 128;
-        if (!bounds->intersect(clipBounds->makeOutset(SkMin32(margin.fX, MAX_MARGIN),
-                                                      SkMin32(margin.fY, MAX_MARGIN)))) {
+        if (!bounds->intersect(clipBounds->makeOutset(std::min(margin.fX, MAX_MARGIN),
+                                                      std::min(margin.fY, MAX_MARGIN)))) {
             return false;
         }
     }

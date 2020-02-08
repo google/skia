@@ -13,6 +13,7 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 
+#include <algorithm>
 #include <initializer_list>
 #include <utility>
 
@@ -253,7 +254,7 @@ public:
         if (index >= fCount) {
             return 0;
         }
-        int count = SkMin32(max, fCount - index);
+        int count = std::min(max, fCount - index);
         memcpy(dst, fArray + index, sizeof(T) * count);
         return count;
     }

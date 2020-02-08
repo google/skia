@@ -32,8 +32,7 @@
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_OUT_BUILTIN                 10007
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
-#define SK_MAIN_X_BUILTIN              10009
-#define SK_MAIN_Y_BUILTIN              10010
+#define SK_MAIN_COORDS_BUILTIN         10009
 #define SK_WIDTH_BUILTIN               10011
 #define SK_HEIGHT_BUILTIN              10012
 #define SK_FRAGCOORD_BUILTIN              15
@@ -77,8 +76,7 @@ public:
         enum class Kind {
             kInput,
             kOutput,
-            kCoordX,
-            kCoordY,
+            kCoords,
             kUniform,
             kChildProcessor,
             kFunctionName
@@ -92,8 +90,8 @@ public:
                 , fIndex(index) {}
 
         Kind fKind;
-
         int fIndex;
+        String fCoords;
     };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU

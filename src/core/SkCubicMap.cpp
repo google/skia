@@ -52,7 +52,7 @@ static float compute_t_from_x(float A, float B, float C, float x) {
 }
 
 float SkCubicMap::computeYFromX(float x) const {
-    x = SkScalarPin(x, 0, 1);
+    x = SkTPin(x, 0.0f, 1.0f);
 
     if (nearly_zero(x) || nearly_zero(1 - x)) {
         return x;
@@ -80,8 +80,8 @@ static inline bool coeff_nearly_zero(float delta) {
 
 SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
     // Clamp X values only (we allow Ys outside [0..1]).
-    p1.fX = SkTMin(SkTMax(p1.fX, 0.0f), 1.0f);
-    p2.fX = SkTMin(SkTMax(p2.fX, 0.0f), 1.0f);
+    p1.fX = std::min(std::max(p1.fX, 0.0f), 1.0f);
+    p2.fX = std::min(std::max(p2.fX, 0.0f), 1.0f);
 
     Sk2s s1 = Sk2s::Load(&p1) * 3;
     Sk2s s2 = Sk2s::Load(&p2) * 3;

@@ -75,7 +75,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
 
-    int count = SkMin32(fm->countFamilies(), maxFamilies);
+    int count = std::min(fm->countFamilies(), maxFamilies);
 
     // make a ton of text
     SkAutoTArray<uint16_t> text(maxTotalText);

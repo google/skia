@@ -36,7 +36,7 @@ static void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, 
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        dstY = SkClampMax(mapper.intY(), maxY);
+        dstY = SkTPin<int>(mapper.intY(), 0, maxY);
         fx = mapper.fractionalIntX();
     }
 
@@ -68,7 +68,7 @@ static void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, 
         }
     } else {
         for (int i = 0; i < count; ++i) {
-            dst[i] = src[SkClampMax(SkFractionalIntToInt(fx), maxX)];
+            dst[i] = src[SkTPin<int>(SkFractionalIntToInt(fx), 0, maxX)];
             fx += dx;
         }
     }
@@ -311,12 +311,12 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     const int maxX = s.fPixmap.width() - 1;
     const int maxY = s.fPixmap.height() - 1;
     int ix = s.fFilterOneX + x;
-    int iy = SkClampMax(s.fFilterOneY + y, maxY);
+    int iy = SkTPin(s.fFilterOneY + y, 0, maxY);
     const SkPMColor* row = s.fPixmap.addr32(0, iy);
 
     // clamp to the left
     if (ix < 0) {
-        int n = SkMin32(-ix, count);
+        int n = std::min(-ix, count);
         sk_memset32(colors, row[0], n);
         count -= n;
         if (0 == count) {
@@ -328,7 +328,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     }
     // copy the middle
     if (ix <= maxX) {
-        int n = SkMin32(maxX - ix + 1, count);
+        int n = std::min(maxX - ix + 1, count);
         memcpy(colors, row + ix, n * sizeof(SkPMColor));
         count -= n;
         if (0 == count) {
@@ -378,7 +378,7 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const void* sIn,
 
     ix = sk_int_mod(ix, stopX);
     for (;;) {
-        int n = SkMin32(stopX - ix, count);
+        int n = std::min(stopX - ix, count);
         memcpy(colors, row + ix, n * sizeof(SkPMColor));
         count -= n;
         if (0 == count) {
@@ -458,7 +458,7 @@ static void S32_D32_constX_shaderproc(const void* sIn,
         const int stopY = s.fPixmap.height();
         switch (s.fTileModeY) {
             case SkTileMode::kClamp:
-                iY0 = SkClampMax(yTemp, stopY-1);
+                iY0 = SkTPin(yTemp, 0, stopY-1);
                 break;
             case SkTileMode::kRepeat:
                 iY0 = sk_int_mod(yTemp, stopY);
@@ -483,7 +483,7 @@ static void S32_D32_constX_shaderproc(const void* sIn,
 
             switch (s.fTileModeY) {
             case SkTileMode::kClamp:
-                iY2 = SkClampMax(iY2, stopY-1);
+                iY2 = SkTPin(iY2, 0, stopY-1);
                 break;
             case SkTileMode::kRepeat:
                 iY2 = sk_int_mod(iY2, stopY);

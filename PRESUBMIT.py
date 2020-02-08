@@ -37,7 +37,7 @@ PUBLIC_API_OWNERS = (
 AUTHORS_FILE_NAME = 'AUTHORS'
 RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
-DOCS_PREVIEW_URL = 'https://skia.org/?cl='
+DOCS_PREVIEW_URL = 'https://skia.org/?cl={issue}'
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 SERVICE_ACCOUNT_SUFFIX = [
@@ -47,11 +47,11 @@ SERVICE_ACCOUNT_SUFFIX = [
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
-  """Checks that files end with atleast one \n (LF)."""
+  """Checks that files end with at least one \n (LF)."""
   eof_files = []
   for f in input_api.AffectedSourceFiles(source_file_filter):
     contents = input_api.ReadFile(f, 'rb')
-    # Check that the file ends in atleast one newline character.
+    # Check that the file ends in at least one newline character.
     if len(contents) > 1 and contents[-1:] != '\n':
       eof_files.append(f.LocalPath())
 
@@ -447,75 +447,68 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
-def _FooterExists(footers, key, value):
-  for k, v in footers:
-    if k == key and v == value:
-      return True
-  return False
-
-
-def PostUploadHook(cl, change, output_api):
+def PostUploadHook(gerrit, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
   * Adds 'No-Try: true' if the CL contains only docs changes.
   """
+  if not change.issue:
+    return []
+
+  # Skip PostUploadHooks for all auto-commit service account bots. New
+  # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
+  # the "--use-commit-queue" flag to "git cl upload".
+  for suffix in SERVICE_ACCOUNT_SUFFIX:
+    if change.author_email.endswith(suffix):
+      return []
 
   results = []
-  atleast_one_docs_change = False
+  at_least_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
     affected_file_path = affected_file.LocalPath()
     file_path, _ = os.path.splitext(affected_file_path)
     if 'site' == file_path.split(os.path.sep)[0]:
-      atleast_one_docs_change = True
+      at_least_one_docs_change = True
     else:
       all_docs_changes = False
-    if atleast_one_docs_change and not all_docs_changes:
+    if at_least_one_docs_change and not all_docs_changes:
       break
 
-  issue = cl.issue
-  if issue:
-    # Skip PostUploadHooks for all auto-commit service account bots. New
-    # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
-    # the "--use-commit-queue" flag to "git cl upload".
-    for suffix in SERVICE_ACCOUNT_SUFFIX:
-      if cl.GetIssueOwner().endswith(suffix):
-        return results
+  footers = change.GitFootersFromDescription()
+  description_changed = False
 
-    original_description_lines, footers = cl.GetDescriptionFooters()
-    new_description_lines = list(original_description_lines)
+  # If the change includes only doc changes then add No-Try: true in the
+  # CL's description if it does not exist yet.
+  if all_docs_changes and 'true' not in footers.get('No-Try', []):
+    description_changed = True
+    change.AddDescriptionFooter('No-Try', 'true')
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'This change has only doc changes. Automatically added '
+            '\'No-Try: true\' to the CL\'s description'))
 
-    # If the change includes only doc changes then add No-Try: true in the
-    # CL's description if it does not exist yet.
-    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
-      new_description_lines.append('No-Try: true')
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'This change has only doc changes. Automatically added '
-              '\'No-Try: true\' to the CL\'s description'))
+  # If there is at least one docs change then add preview link in the CL's
+  # description if it does not already exist there.
+  docs_preview_link = DOCS_PREVIEW_URL.format(issue=change.issue)
+  if (at_least_one_docs_change
+      and docs_preview_link not in footers.get('Docs-Preview', [])):
+    # Automatically add a link to where the docs can be previewed.
+    description_changed = True
+    change.AddDescriptionFooter('Docs-Preview', docs_preview_link)
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'Automatically added a link to preview the docs changes to the '
+            'CL\'s description'))
 
-    # If there is atleast one docs change then add preview link in the CL's
-    # description if it does not already exist there.
-    docs_preview_link = '%s%s' % (DOCS_PREVIEW_URL, issue)
-    docs_preview_line = 'Docs-Preview: %s' % docs_preview_link
-    if (atleast_one_docs_change and
-        not _FooterExists(footers, 'Docs-Preview', docs_preview_link)):
-      # Automatically add a link to where the docs can be previewed.
-      new_description_lines.append(docs_preview_line)
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'Automatically added a link to preview the docs changes to the '
-              'CL\'s description'))
+  # If the description has changed update it.
+  if description_changed:
+    gerrit.UpdateDescription(
+        change.FullDescriptionText(), change.issue)
 
-    # If the description has changed update it.
-    if new_description_lines != original_description_lines:
-      # Add a new line separating the new contents from the old contents.
-      new_description_lines.insert(len(original_description_lines), '')
-      cl.UpdateDescriptionFooters(new_description_lines, footers)
-
-    return results
+  return results
 
 
 def CheckChangeOnCommit(input_api, output_api):

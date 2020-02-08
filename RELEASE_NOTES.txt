@@ -7,8 +7,24 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
-  * Added SkAndroidCodec::getICCProfile for reporting the native ICC profile of
-    an encoded image, even if it doesn't map to an SkColorSpace.
+  * Removed SkTMax and SkTMin.
+  * Removed SkTClamp and SkClampMax.
+  * Removed SkScalarClampMax and SkScalarPin.
+  * Removed SkMax32 and SkMin32.
+  * Removed SkMaxScalar and SkMinScalar.
+
+  * SkColorSetA now warns if the result is unused.
+
+  * An SkImageInfo with a null SkColorSpace passed to SkCodec::getPixels() and
+    related calls is treated as a request to do no color correction at decode
+    time.
+
+  * Remove CGFontRef parameter from SkCreateTypefaceFromCTFont.
+    Use CTFontManagerCreateFontDescriptorFromData instead of
+    CGFontCreateWithDataProvider to create CTFonts to avoid memory use issues.
+
+  * Added SkCodec:: and SkAndroidCodec::getICCProfile for reporting the native
+    ICC profile of an encoded image, even if it doesn't map to an SkColorSpace.
 
 * * *
 

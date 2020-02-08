@@ -319,8 +319,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
                           destinationLevel: currentMipLevel
                          destinationOrigin: origin];
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
         layerHeight = currentHeight;
     }
 #ifdef SK_BUILD_FOR_MAC
@@ -367,8 +367,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += trimmedSize;
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
     }
     SkASSERT(combinedBufferSize > 0 && !individualMipOffsets.empty());
 
@@ -410,8 +410,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
                           destinationLevel: currentMipLevel
                          destinationOrigin: origin];
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
     }
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
@@ -440,7 +440,7 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
     return stencil;
 }
 
-sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            GrRenderable renderable,
                                            int renderTargetSampleCnt,
@@ -465,8 +465,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
     texDesc.textureType = MTLTextureType2D;
     texDesc.pixelFormat = mtlPixelFormat;
-    texDesc.width = desc.fWidth;
-    texDesc.height = desc.fHeight;
+    texDesc.width = dimensions.fWidth;
+    texDesc.height = dimensions.fHeight;
     texDesc.depth = 1;
     texDesc.mipmapLevelCount = mipLevelCount;
     texDesc.sampleCount = 1;
@@ -482,11 +482,10 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrMipMapsStatus mipMapsStatus =
             mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
     if (renderable == GrRenderable::kYes) {
-        tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
-                                                                   desc, renderTargetSampleCnt,
-                                                                   texDesc, mipMapsStatus);
+        tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
+                this, budgeted, dimensions, renderTargetSampleCnt, texDesc, mipMapsStatus);
     } else {
-        tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
+        tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipMapsStatus);
     }
 
     if (!tex) {
@@ -551,10 +550,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                                 ? GrMipMapsStatus::kValid
                                                                 : GrMipMapsStatus::kNotAllocated;
 
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
-    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
+    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipMapsStatus);
     if (!tex) {
         return nullptr;
     }
@@ -605,8 +601,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                       destinationLevel: currentMipLevel
                      destinationOrigin: origin];
 
-        levelDimensions = {SkTMax(1, levelDimensions.width() /2),
-                           SkTMax(1, levelDimensions.height()/2)};
+        levelDimensions = {std::max(1, levelDimensions.width() /2),
+                           std::max(1, levelDimensions.height()/2)};
     }
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
@@ -631,17 +627,6 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& back
     return GrGetMTLTexture(textureInfo.fTexture.get());
 }
 
-static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> mtlTexture,
-                                     GrRenderable renderable) {
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        if (renderable == GrRenderable::kYes) {
-            SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
-        }
-    }
-    surfaceDesc->fWidth = mtlTexture.width;
-    surfaceDesc->fHeight = mtlTexture.height;
-}
-
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                 GrColorType grColorType,
                                                 GrWrapOwnership,
@@ -652,10 +637,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo);
-
-    return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
+    return GrMtlTexture::MakeWrappedTexture(this, backendTex.dimensions(), mtlTexture, cacheable,
+                                            ioType);
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
@@ -666,10 +649,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapCompressedBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo);
-
-    return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, kRead_GrIOType);
+    return GrMtlTexture::MakeWrappedTexture(this, backendTex.dimensions(), mtlTexture, cacheable,
+                                            kRead_GrIOType);
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -689,14 +670,15 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
+    }
 
     sampleCnt = caps.getRenderTargetSampleCount(sampleCnt, format);
     SkASSERT(sampleCnt);
 
-    return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, sampleCnt,
-                                                                    mtlTexture, cacheable);
+    return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
+            this, backendTex.dimensions(), sampleCnt, mtlTexture, cacheable);
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
@@ -710,11 +692,12 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
+    }
 
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, backendRT.sampleCnt(),
-                                                      mtlTexture);
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, backendRT.dimensions(),
+                                                      backendRT.sampleCnt(), mtlTexture);
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
@@ -729,14 +712,17 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
+    }
+
     sampleCnt = this->mtlCaps().getRenderTargetSampleCount(sampleCnt, format);
     if (!sampleCnt) {
         return nullptr;
     }
 
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, sampleCnt, mtlTexture);
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, backendTex.dimensions(), sampleCnt,
+                                                      mtlTexture);
 }
 
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
@@ -967,8 +953,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
                       destinationLevel: currentMipLevel
                      destinationOrigin: origin];
 
-        levelDimensions = { SkTMax(1, levelDimensions.width() / 2),
-                            SkTMax(1, levelDimensions.height() / 2) };
+        levelDimensions = { std::max(1, levelDimensions.width() / 2),
+                            std::max(1, levelDimensions.height() / 2) };
     }
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(0, transferBufferSize)];

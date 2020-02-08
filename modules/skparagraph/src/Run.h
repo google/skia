@@ -104,8 +104,8 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
-    PlaceholderStyle* placeholder() const { return fPlaceholder; }
-    bool isPlaceholder() const { return fPlaceholder != nullptr; }
+    PlaceholderStyle* placeholderStyle() const;
+    bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
@@ -177,7 +177,7 @@ private:
     SkFont fFont;
     SkFontMetrics fFontMetrics;
     SkScalar fHeightMultiplier;
-    PlaceholderStyle* fPlaceholder;
+    size_t fPlaceholderIndex;
     bool fEllipsis;
     size_t fIndex;
     uint8_t fBidiLevel;
@@ -353,15 +353,15 @@ public:
             return;
         }
 
-        fAscent = SkTMin(fAscent, run->correctAscent());
-        fDescent = SkTMax(fDescent, run->correctDescent());
-        fLeading = SkTMax(fLeading, run->correctLeading());
+        fAscent = std::min(fAscent, run->correctAscent());
+        fDescent = std::max(fDescent, run->correctDescent());
+        fLeading = std::max(fLeading, run->correctLeading());
     }
 
     void add(InternalLineMetrics other) {
-        fAscent = SkTMin(fAscent, other.fAscent);
-        fDescent = SkTMax(fDescent, other.fDescent);
-        fLeading = SkTMax(fLeading, other.fLeading);
+        fAscent = std::min(fAscent, other.fAscent);
+        fDescent = std::max(fDescent, other.fDescent);
+        fLeading = std::max(fLeading, other.fLeading);
     }
     void clean() {
         fAscent = 0;
@@ -378,8 +378,8 @@ public:
             metrics.fLeading = fLeading;
         } else {
             // This is another of those flutter changes. To be removed...
-            metrics.fAscent = SkTMin(metrics.fAscent, fAscent - fLeading / 2.0f);
-            metrics.fDescent = SkTMax(metrics.fDescent, fDescent + fLeading / 2.0f);
+            metrics.fAscent = std::min(metrics.fAscent, fAscent - fLeading / 2.0f);
+            metrics.fDescent = std::max(metrics.fDescent, fDescent + fLeading / 2.0f);
         }
     }
 

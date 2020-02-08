@@ -6,6 +6,7 @@
  */
 
 #include "dm/DMSrcSink.h"
+#include "gm/verifiers/gmverifier.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
@@ -108,6 +109,11 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     gm->modifyGrContextOptions(options);
 }
 
+std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    return gm->getVerifiers();
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
@@ -199,8 +205,8 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             // We will not allow the border to be larger than the image dimensions.  Allowing
             // these large borders causes off by one errors that indicate a problem with the
             // test suite, not a problem with the implementation.
-            const uint32_t maxBorder = SkTMin(width, height) / (fSampleSize * divisor);
-            const uint32_t scaledBorder = SkTMin(5u, maxBorder);
+            const uint32_t maxBorder = std::min(width, height) / (fSampleSize * divisor);
+            const uint32_t scaledBorder = std::min(5u, maxBorder);
             const uint32_t unscaledBorder = scaledBorder * fSampleSize;
 
             // We may need to clear the canvas to avoid uninitialized memory.
@@ -264,8 +270,8 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
 SkISize BRDSrc::size() const {
     std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (brd) {
-        return {SkTMax(1, brd->width() / (int)fSampleSize),
-                SkTMax(1, brd->height() / (int)fSampleSize)};
+        return {std::max(1, brd->width() / (int)fSampleSize),
+                std::max(1, brd->height() / (int)fSampleSize)};
     }
     return {0, 0};
 }
@@ -593,12 +599,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
+                const int linesToSkip = std::min(stripeHeight, height - i * stripeHeight);
                 codec->skipScanlines(linesToSkip);
 
                 // Read a stripe
                 const int startY = (i + 1) * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                const int linesToRead = std::min(stripeHeight, height - startY);
                 if (linesToRead > 0) {
                     codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
                                         rowBytes);
@@ -613,12 +619,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             for (int i = 0; i < numStripes; i += 2) {
                 // Read a stripe
                 const int startY = i * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                const int linesToRead = std::min(stripeHeight, height - startY);
                 codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
                                     rowBytes);
 
                 // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
+                const int linesToSkip = std::min(stripeHeight, height - (i + 1) * stripeHeight);
                 if (linesToSkip > 0) {
                     codec->skipScanlines(linesToSkip);
                 }
@@ -636,7 +642,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int tileSize = 36;
             SkIRect subset;
             for (int x = 0; x < width; x += tileSize) {
-                subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
+                subset = SkIRect::MakeXYWH(x, 0, std::min(tileSize, width - x), height);
                 options.fSubset = &subset;
                 if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options)) {
                     return "Could not start scanline decoder.";
@@ -676,14 +682,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 int top = 0;
                 for (int y = 0; y < H; y+= h) {
                     // Do not make the subset go off the edge of the image.
-                    const int preScaleW = SkTMin(w, W - x);
-                    const int preScaleH = SkTMin(h, H - y);
+                    const int preScaleW = std::min(w, W - x);
+                    const int preScaleH = std::min(h, H - y);
                     subset.setXYWH(x, y, preScaleW, preScaleH);
                     // And scale
                     // FIXME: Should we have a version of getScaledDimensions that takes a subset
                     // into account?
-                    const int scaledW = SkTMax(1, SkScalarRoundToInt(preScaleW * fScale));
-                    const int scaledH = SkTMax(1, SkScalarRoundToInt(preScaleH * fScale));
+                    const int scaledW = std::max(1, SkScalarRoundToInt(preScaleW * fScale));
+                    const int scaledH = std::max(1, SkScalarRoundToInt(preScaleH * fScale));
                     decodeInfo = decodeInfo.makeWH(scaledW, scaledH);
                     SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
                     size_t subsetRowBytes = subsetBitmapInfo.minRowBytes();
@@ -974,7 +980,16 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     SkImageInfo info = codec->getInfo();
     if (fDecodeToDst) {
-        info = canvas->imageInfo().makeDimensions(info.dimensions());
+        SkImageInfo canvasInfo = canvas->imageInfo();
+        if (!canvasInfo.colorSpace()) {
+            // This will skip color conversion, and the resulting images will
+            // look different from images they are compared against in Gold, but
+            // that doesn't mean they are wrong. We have a test verifying that
+            // passing a null SkColorSpace skips conversion, so skip this
+            // misleading test.
+            return Error::Nonfatal("Skipping decoding without color transform.");
+        }
+        info = canvasInfo.makeDimensions(info.dimensions());
     }
 
     SkBitmap bitmap;
@@ -1201,7 +1216,7 @@ SVGSrc::SVGSrc(Path path)
         // no intrinsic size
         fDom->setContainerSize(kDefaultSVGSize);
     } else {
-        fScale = SkTMax(1.f, SkTMax(kMinimumSVGSize.width()  / sz.width(),
+        fScale = std::max(1.f, std::max(kMinimumSVGSize.width()  / sz.width(),
                                     kMinimumSVGSize.height() / sz.height()));
     }
 }
@@ -1374,7 +1389,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         initContext(context);
     }
     const int maxDimension = context->priv().caps()->maxTextureSize();
-    if (maxDimension < SkTMax(size.width(), size.height())) {
+    if (maxDimension < std::max(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
     uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;

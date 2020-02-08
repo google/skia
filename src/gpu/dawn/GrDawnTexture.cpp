@@ -86,6 +86,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensio
                                                 GrRenderable renderable,
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
+                                                GrIOType ioType,
                                                 const GrDawnTextureInfo& info) {
     wgpu::TextureView textureView = info.fTexture.CreateView();
     if (!textureView) {
@@ -101,6 +102,9 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensio
                 new GrDawnTexture(gpu, dimensions, textureView, info, status));
     }
     tex->registerWithCacheWrapped(cacheable);
+    if (ioType == kRead_GrIOType) {
+      tex->setReadOnly();
+    }
     return tex;
 }
 
@@ -168,7 +172,7 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
         x /= 2;
         y /= 2;
-        width = SkTMax(1u, width / 2);
-        height = SkTMax(1u, height / 2);
+        width = std::max(1u, width / 2);
+        height = std::max(1u, height / 2);
     }
 }

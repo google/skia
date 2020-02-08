@@ -130,7 +130,7 @@ public:
         static_assert(sizeof(Value) == 8, "");
 
         // TODO: LIKELY
-        if (src + 7 <= eos) {
+        if (src && src + 7 <= eos) {
             this->initFastShortString(src, size);
         } else {
             this->initShortString(src, size);

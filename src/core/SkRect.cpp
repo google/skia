@@ -11,10 +11,10 @@
 
 bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {
     SkIRect tmp = {
-        SkMax32(a.fLeft,   b.fLeft),
-        SkMax32(a.fTop,    b.fTop),
-        SkMin32(a.fRight,  b.fRight),
-        SkMin32(a.fBottom, b.fBottom)
+        std::max(a.fLeft,   b.fLeft),
+        std::max(a.fTop,    b.fTop),
+        std::min(a.fRight,  b.fRight),
+        std::min(a.fBottom, b.fBottom)
     };
     if (tmp.isEmpty()) {
         return false;
@@ -85,8 +85,8 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
     bool all_finite = (accum * 0 == 0).allTrue();
     if (all_finite) {
-        this->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                      SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+        this->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                      std::max(max[0], max[2]), std::max(max[1], max[3]));
     } else {
         this->setEmpty();
     }
@@ -100,10 +100,10 @@ void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
 }
 
 #define CHECK_INTERSECT(al, at, ar, ab, bl, bt, br, bb) \
-    SkScalar L = SkMaxScalar(al, bl);                   \
-    SkScalar R = SkMinScalar(ar, br);                   \
-    SkScalar T = SkMaxScalar(at, bt);                   \
-    SkScalar B = SkMinScalar(ab, bb);                   \
+    SkScalar L = std::max(al, bl);                   \
+    SkScalar R = std::min(ar, br);                   \
+    SkScalar T = std::max(at, bt);                   \
+    SkScalar B = std::min(ab, bb);                   \
     do { if (!(L < R && T < B)) return false; } while (0)
     // do the !(opposite) check so we return false if either arg is NaN
 
@@ -127,10 +127,10 @@ void SkRect::join(const SkRect& r) {
     if (this->isEmpty()) {
         *this = r;
     } else {
-        fLeft   = SkMinScalar(fLeft, r.fLeft);
-        fTop    = SkMinScalar(fTop, r.fTop);
-        fRight  = SkMaxScalar(fRight, r.fRight);
-        fBottom = SkMaxScalar(fBottom, r.fBottom);
+        fLeft   = std::min(fLeft, r.fLeft);
+        fTop    = std::min(fTop, r.fTop);
+        fRight  = std::max(fRight, r.fRight);
+        fBottom = std::max(fBottom, r.fBottom);
     }
 }
 

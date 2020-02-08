@@ -586,7 +586,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         SkScalar dotProd = normal1.dot(normal2);
                         // The max is because this could go slightly negative if precision causes
                         // us to become slightly concave.
-                        SkScalar sinHalfAngleSq = SkTMax(SkScalarHalf(SK_Scalar1 + dotProd), 0.f);
+                        SkScalar sinHalfAngleSq = std::max(SkScalarHalf(SK_Scalar1 + dotProd), 0.f);
                         SkScalar lengthSq = sk_ieee_float_divide(outsetSq, sinHalfAngleSq);
                         if (lengthSq > miterLimitSq) {
                             // just bevel it
@@ -665,7 +665,7 @@ static SkScalar compute_coverage(SkScalar depth, SkScalar initialDepth, SkScalar
     }
     SkScalar result = (depth - initialDepth) / (targetDepth - initialDepth) *
             (targetCoverage - initialCoverage) + initialCoverage;
-    return SkScalarClampMax(result, 1.0f);
+    return SkTPin(result, 0.0f, 1.0f);
 }
 
 // return true when processing is complete
@@ -899,8 +899,8 @@ bool GrAAConvexTessellator::Ring::isConvex(const GrAAConvexTessellator& tess) co
         cur  = tess.point(fPts[next].fIndex) - tess.point(fPts[i].fIndex);
         SkScalar dot = prev.fX * cur.fY - prev.fY * cur.fX;
 
-        minDot = SkMinScalar(minDot, dot);
-        maxDot = SkMaxScalar(maxDot, dot);
+        minDot = std::min(minDot, dot);
+        maxDot = std::max(maxDot, dot);
 
         prev = cur;
     }

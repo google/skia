@@ -149,9 +149,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    GrSurfaceDesc desc;
-    desc.fWidth = 10;
-    desc.fHeight = 10;
+    static constexpr SkISize kDims = {10, 10};
 
     const GrBackendFormat format =
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
@@ -164,7 +162,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                        format, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                        format, kDims, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
                         GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
                 {
@@ -237,8 +235,10 @@ void test_draw_op(GrContext* context,
                   sk_sp<GrTextureProxy> inputDataProxy,
                   SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(
-            GrTextureEffect::Make(std::move(inputDataProxy), inputAlphaType));
+    GrSurfaceOrigin origin = inputDataProxy->origin();
+    GrSwizzle swizzle = inputDataProxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(inputDataProxy), origin, swizzle);
+    paint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(view), inputAlphaType));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -282,11 +282,11 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy || !proxy->instantiate(resourceProvider)) {
+        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[0] = {std::move(proxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
+        proxies[0] = {view.asTextureProxyRef(), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
 
     {
@@ -305,11 +305,11 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (uint8_t*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy || !proxy->instantiate(resourceProvider)) {
+        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[1] = {std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType};
+        proxies[1] = {view.asTextureProxyRef(), GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
 
     return true;
@@ -332,8 +332,8 @@ sk_sp<GrTextureProxy> make_input_texture(GrRecordingContext* context, int width,
                          [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
     bitmap.setImmutable();
     GrBitmapTextureMaker maker(context, bitmap);
-    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-    return proxy;
+    auto[view, grCT] = maker.view(GrMipMapped::kNo);
+    return view.asTextureProxyRef();
 }
 
 // We tag logged  data as unpremul to avoid conversion when encoding as  PNG. The input texture
@@ -636,7 +636,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                         "doesn't match actual output. Error: %f, Tolerance: %f, "
                                         "input: (%f, %f, %f, %f), actual: (%f, %f, %f, %f), "
                                         "expected(%f, %f, %f, %f)", fp->name(),
-                                        SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol,
+                                        std::max(rDiff, std::max(gDiff, std::max(bDiff, aDiff))), kTol,
                                         input4f.fR, input4f.fG, input4f.fB, input4f.fA,
                                         output4f.fR, output4f.fG, output4f.fB, output4f.fA,
                                         expected4f.fR, expected4f.fG, expected4f.fB, expected4f.fA);

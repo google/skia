@@ -16,8 +16,8 @@
 const char* gProg = R"(
     uniform half4 gColor;
 
-    void main(float x, float y, inout half4 color) {
-        color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+    void main(float2 p, inout half4 color) {
+        color = half4(half2(p)*(1.0/255), gColor.b, 1);
     }
 )";
 
@@ -29,8 +29,7 @@ class RuntimeShader : public skiagm::GM {
     SkISize onISize() override { return {512, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
-        // static to pass gl persistent cache test in dm
-        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(SkRuntimeEffect::Make(SkString(gProg)));
+        sk_sp<SkRuntimeEffect> gEffect = std::get<0>(SkRuntimeEffect::Make(SkString(gProg)));
         SkASSERT(gEffect);
 
         SkMatrix localM;

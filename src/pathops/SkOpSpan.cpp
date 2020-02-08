@@ -178,8 +178,8 @@ SkOpSpanBase::Collapsed SkOpSpanBase::collapsed(double s, double e) const {
         if (walk->segment() != segment) {
             continue;
         }
-        min = SkTMin(min, walk->fT);
-        max = SkTMax(max, walk->fT);
+        min = std::min(min, walk->fT);
+        max = std::max(max, walk->fT);
         if (between(min, s, max) && between(min, e, max)) {
             return Collapsed::kYes;
         }

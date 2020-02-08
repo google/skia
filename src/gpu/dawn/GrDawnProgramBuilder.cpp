@@ -437,7 +437,7 @@ GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
                                            GrProgramDesc* desc)
-    : INHERITED(renderTarget, programInfo, desc)
+    : INHERITED(renderTarget, *desc, programInfo)
     , fGpu(gpu)
     , fVaryingHandler(this)
     , fUniformHandler(this) {

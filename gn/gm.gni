@@ -30,6 +30,7 @@ gm_sources = [
   "$_gm/backdrop.cpp",
   "$_gm/backdrop_imagefilter_croprect.cpp",
   "$_gm/badpaint.cpp",
+  "$_gm/bc1_transparency.cpp",
   "$_gm/beziereffects.cpp",
   "$_gm/beziers.cpp",
   "$_gm/bicubic.cpp",
@@ -157,6 +158,7 @@ gm_sources = [
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
   "$_gm/extractbitmap.cpp",
+  "$_gm/exoticformats.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
   "$_gm/filltypes.cpp",
@@ -350,6 +352,7 @@ gm_sources = [
   "$_gm/tallstretchedbitmaps.cpp",
   "$_gm/tessellation.cpp",
   "$_gm/testgradient.cpp",
+  "$_gm/texelsubset.cpp",
   "$_gm/text_scale_skew.cpp",
   "$_gm/textblob.cpp",
   "$_gm/textblobblockreordering.cpp",
@@ -362,7 +365,6 @@ gm_sources = [
   "$_gm/textblobtransforms.cpp",
   "$_gm/textblobuseaftergpufree.cpp",
   "$_gm/texteffects.cpp",
-  "$_gm/texturedomaineffect.cpp",
   "$_gm/thinconcavepaths.cpp",
   "$_gm/thinrects.cpp",
   "$_gm/thinstrokedrects.cpp",
@@ -387,6 +389,7 @@ gm_sources = [
   "$_gm/xfermodes3.cpp",
   "$_gm/yuvtorgbeffect.cpp",
   "$_gm/yuv420_odd_dim.cpp",
+  "$_gm/verifiers/gmverifier.cpp",
 ]
 
 gl_gm_sources = [

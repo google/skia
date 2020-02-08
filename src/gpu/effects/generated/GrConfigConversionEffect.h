@@ -39,9 +39,9 @@ public:
             for (int x = 0; x < kSize; ++x) {
                 uint8_t* color = reinterpret_cast<uint8_t*>(&srcData[kSize * y + x]);
                 color[3] = y;
-                color[2] = SkTMin(x, y);
-                color[1] = SkTMin(x, y);
-                color[0] = SkTMin(x, y);
+                color[2] = std::min(x, y);
+                color[1] = std::min(x, y);
+                color[0] = std::min(x, y);
             }
         }
         memset(firstRead, 0, kSize * kSize * sizeof(uint32_t));
@@ -69,9 +69,9 @@ public:
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[dataProxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
+        auto[dataView, ct] = maker.view(GrMipMapped::kNo);
 
-        if (!dataProxy) {
+        if (!dataView.proxy()) {
             return false;
         }
 
@@ -89,7 +89,8 @@ public:
         std::unique_ptr<GrFragmentProcessor> upmToPM(
                 new GrConfigConversionEffect(PMConversion::kToPremul));
 
-        paint1.addColorFragmentProcessor(GrTextureEffect::Make(dataProxy, kPremul_SkAlphaType));
+        paint1.addColorFragmentProcessor(
+                GrTextureEffect::Make(std::move(dataView), kPremul_SkAlphaType));
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -104,7 +105,7 @@ public:
         tempRTC->discard();
 
         paint2.addColorFragmentProcessor(
-                GrTextureEffect::Make(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType));
+                GrTextureEffect::Make(readRTC->readSurfaceView(), kUnpremul_SkAlphaType));
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -112,7 +113,7 @@ public:
                                 kRect);
 
         paint3.addColorFragmentProcessor(
-                GrTextureEffect::Make(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType));
+                GrTextureEffect::Make(tempRTC->readSurfaceView(), kPremul_SkAlphaType));
         paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

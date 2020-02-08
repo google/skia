@@ -126,7 +126,7 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     // Measure all key strings:
     SkScalar keyWidth = 0;
     for (Command& cmd : fCommands) {
-        keyWidth = SkMaxScalar(keyWidth,
+        keyWidth = std::max(keyWidth,
                                font.measureText(cmd.fKeyName.c_str(), cmd.fKeyName.size(),
                                                 SkTextEncoding::kUTF8));
     }
