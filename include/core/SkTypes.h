@@ -297,17 +297,15 @@
 // If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
 // If not, we'll default to RGBA everywhere except BGRA on Windows.
 #if defined(SK_R32_SHIFT)
-    static_assert(SK_R32_SHIFT == 0 || SK_R32_SHIFT == 16, "");
-#elif defined(SK_BUILD_FOR_WIN)
-    #define SK_R32_SHIFT 16
+    static_assert(SK_R32_SHIFT == 16, "");
 #else
-    #define SK_R32_SHIFT 0
+    #define SK_R32_SHIFT 16
 #endif
 
 #if defined(SK_B32_SHIFT)
-    static_assert(SK_B32_SHIFT == (16-SK_R32_SHIFT), "");
+    static_assert(SK_B32_SHIFT == 0, "");
 #else
-    #define SK_B32_SHIFT (16-SK_R32_SHIFT)
+    #define SK_B32_SHIFT 0
 #endif
 
 #define SK_G32_SHIFT 8
