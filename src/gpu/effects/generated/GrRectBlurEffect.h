@@ -37,7 +37,7 @@ public:
         // conservatively choose to have 2 texels for each dst pixel.
         int minWidth = 2 * sk_float_ceil2int(sixSigma);
         // Bin by powers of 2 with a minimum so we get good profile reuse.
-        int width = SkTMax(SkNextPow2(minWidth), 32);
+        int width = std::max(SkNextPow2(minWidth), 32);
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -65,10 +65,11 @@ public:
             bitmap.setImmutable();
 
             GrBitmapTextureMaker maker(context, bitmap);
-            std::tie(proxy, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxy) {
+            auto[view, grCT] = maker.view(GrMipMapped::kNo);
+            if (!view.proxy()) {
                 return nullptr;
             }
+            proxy = view.asTextureProxyRef();
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
         }

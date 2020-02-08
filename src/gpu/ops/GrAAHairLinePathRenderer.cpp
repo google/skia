@@ -226,7 +226,7 @@ static int num_quad_subdivs(const SkPoint p[3]) {
 
         // +1 since we're ignoring the mantissa contribution.
         int log = get_float_exp(dsqd/(gSubdivTol*gSubdivTol)) + 1;
-        log = SkTMin(SkTMax(0, log), kMaxSub);
+        log = std::min(std::max(0, log), kMaxSub);
         return log;
     }
 }

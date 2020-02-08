@@ -17,7 +17,7 @@ class GrTextureEffect : public GrFragmentProcessor {
 public:
     /** Make from a filter. The sampler will be configured with clamp mode. */
     static std::unique_ptr<GrFragmentProcessor> Make(
-            sk_sp<GrSurfaceProxy>,
+            GrSurfaceProxyView,
             SkAlphaType,
             const SkMatrix& = SkMatrix::I(),
             GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
@@ -26,11 +26,8 @@ public:
      * Make from a full GrSamplerState. Caps are required to determine support for kClampToBorder.
      * This will be emulated in the shader if there is no hardware support.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
-                                                     SkAlphaType,
-                                                     const SkMatrix&,
-                                                     GrSamplerState,
-                                                     const GrCaps& caps);
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            GrSurfaceProxyView, SkAlphaType, const SkMatrix&, GrSamplerState, const GrCaps& caps);
 
     /**
      * Makes a texture effect that samples a subset of a texture. The wrap modes of the
@@ -42,7 +39,7 @@ public:
      * outside the window. More specifically, we treat the MIP map case exactly like the
      * bilerp case in terms of how the final texture coords are computed.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(GrSurfaceProxyView,
                                                                 SkAlphaType,
                                                                 const SkMatrix&,
                                                                 GrSamplerState,
@@ -54,7 +51,7 @@ public:
      * knowledge of how this effect will be nested into a paint, the local coords used with the
      * draw, etc. It is only used to attempt to optimize away the shader subset calculations.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(GrSurfaceProxyView,
                                                                 SkAlphaType,
                                                                 const SkMatrix&,
                                                                 GrSamplerState,
@@ -64,11 +61,8 @@ public:
 
     /**
      * This is similar to MakeTexelSubset but takes a float rather than integer subset rect.
-     * No adjustment is done for filtering, the texture coordinates are limited to the
-     * unmodified subset. The subset should be unnormalized. The effect will apply texture
-     * coordinate normalization after subset restriction (logically).
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeSubset(sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
                                                            const SkMatrix&,
                                                            GrSamplerState,
@@ -81,7 +75,7 @@ public:
      * knowledge of how this effect will be nested into a paint, the local coords used with the
      * draw, etc. It is only used to attempt to optimize away the shader subset calculations.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeSubset(sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
                                                            const SkMatrix&,
                                                            GrSamplerState,
@@ -111,7 +105,6 @@ private:
         Sampling(const GrSurfaceProxy& proxy,
                  GrSamplerState sampler,
                  const SkRect&,
-                 bool,
                  const SkRect*,
                  const GrCaps&);
         inline bool usesDecal() const;
@@ -122,7 +115,7 @@ private:
     SkRect fSubset;
     ShaderMode fShaderModes[2];
 
-    inline GrTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&, const Sampling&);
+    inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const SkMatrix&, const Sampling&);
 
     GrTextureEffect(const GrTextureEffect& src);
 

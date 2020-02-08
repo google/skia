@@ -33,10 +33,10 @@ GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkIm
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 }
 
-sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                   AllowedTexGenType onlyIfFast) {
-    return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
-                                    willBeMipped, onlyIfFast);
+GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(bool willBeMipped,
+                                                                    AllowedTexGenType onlyIfFast) {
+    return fImage->lockTextureProxyView(this->context(), fOriginalKey, fCachingHint, willBeMipped,
+                                        onlyIfFast);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
@@ -58,16 +58,20 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkIma
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 }
 
-sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                   AllowedTexGenType onlyIfFast) {
+GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(
+        bool willBeMipped, AllowedTexGenType onlyIfFast) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {
-        return nullptr;
+        return {};
     }
 
     if (willBeMipped) {
-        return fImage->asMippedTextureProxyRef(this->context());
+        return fImage->refMippedView(this->context());
     } else {
-        return fImage->asTextureProxyRef(this->context());
+        if (const GrSurfaceProxyView* view = fImage->view(this->context())) {
+            return *view;
+        } else {
+            return {};
+        }
     }
 }
 
@@ -115,7 +119,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     }
 
     const auto& caps = *fImage->context()->priv().caps();
-    auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
                                      filter, caps, textureMatrix, domain);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),

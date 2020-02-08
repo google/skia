@@ -13,7 +13,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrOctoBounds.h"
 
 class GrCCPathCacheEntry;
@@ -54,16 +53,14 @@ public:
         kLiteral
     };
 
-    static CoverageMode GetCoverageMode(GrCCAtlas::CoverageType coverageType) {
-        return (GrCCAtlas::CoverageType::kFP16_CoverageCount == coverageType)
-                ? CoverageMode::kCoverageCount
-                : CoverageMode::kLiteral;
+    static GrColorType GetColorTypeFromCoverageMode(CoverageMode mode) {
+        return mode == CoverageMode::kCoverageCount ? GrColorType::kAlpha_F16
+            : GrColorType::kAlpha_8;
     }
 
-    GrCCPathProcessor(
-            CoverageMode, const GrTexture* atlasTexture, const GrSwizzle&,
-            GrSurfaceOrigin atlasOrigin,
-            const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
+    GrCCPathProcessor(CoverageMode, const GrTexture* atlasTexture, const GrSwizzle&,
+                      GrSurfaceOrigin atlasOrigin,
+                      const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {

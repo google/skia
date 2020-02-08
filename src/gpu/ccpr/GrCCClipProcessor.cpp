@@ -13,20 +13,37 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, IsCoverageCount isCoverageCount,
+static GrSurfaceProxyView make_view(const GrCaps& caps, GrSurfaceProxy* proxy,
+                                    bool isCoverageCount) {
+    GrColorType ct = isCoverageCount ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
+    GrSwizzle swizzle = caps.getReadSwizzle(proxy->backendFormat(), ct);
+    return { sk_ref_sp(proxy), GrCCAtlas::kTextureOrigin, swizzle };
+}
+
+GrCCClipProcessor::GrCCClipProcessor(GrSurfaceProxyView view, const GrCCClipPath* clipPath,
+                                     IsCoverageCount isCoverageCount,
                                      MustCheckBounds mustCheckBounds)
         : INHERITED(kGrCCClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fClipPath(clipPath)
         , fIsCoverageCount(IsCoverageCount::kYes == isCoverageCount)
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds)
-        , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy())) {
-    SkASSERT(fAtlasAccess.view().proxy());
+        , fAtlasAccess(std::move(view)) {
+    SkASSERT(fAtlasAccess.view());
     this->setTextureSamplerCnt(1);
+}
+
+GrCCClipProcessor::GrCCClipProcessor(const GrCaps& caps, const GrCCClipPath* clipPath,
+                                     IsCoverageCount isCoverageCount,
+                                     MustCheckBounds mustCheckBounds)
+        : GrCCClipProcessor(make_view(caps, clipPath->atlasLazyProxy(),
+                                      IsCoverageCount::kYes == isCoverageCount),
+                            clipPath, isCoverageCount, mustCheckBounds) {
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {
     return std::make_unique<GrCCClipProcessor>(
-            fClipPath, IsCoverageCount(fIsCoverageCount), MustCheckBounds(fMustCheckBounds));
+            fAtlasAccess.view(), fClipPath, IsCoverageCount(fIsCoverageCount),
+            MustCheckBounds(fMustCheckBounds));
 }
 
 void GrCCClipProcessor::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {

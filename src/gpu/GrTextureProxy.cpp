@@ -17,7 +17,7 @@
 
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
-                               const GrSurfaceDesc& srcDesc,
+                               SkISize dimensions,
                                GrSurfaceOrigin origin,
                                GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
@@ -27,7 +27,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator)
-        : INHERITED(format, srcDesc, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
+        : INHERITED(format, dimensions, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
@@ -39,7 +39,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
 // Lazy-callback version
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
-                               const GrSurfaceDesc& desc,
+                               SkISize dimensions,
                                GrSurfaceOrigin origin,
                                GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
@@ -49,8 +49,8 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator)
-        : INHERITED(std::move(callback), format, desc, GrRenderable::kNo, origin, texSwizzle, fit,
-                    budgeted, isProtected, surfaceFlags, useAllocator)
+        : INHERITED(std::move(callback), format, dimensions, GrRenderable::kNo, origin, texSwizzle,
+                    fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)

@@ -27,7 +27,7 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
 
     if (fRect.width() < xRad+xRad || fRect.height() < yRad+yRad) {
         // At most one of these two divides will be by zero, and neither numerator is zero.
-        SkScalar scale = SkMinScalar(sk_ieee_float_divide(fRect. width(), xRad + xRad),
+        SkScalar scale = std::min(sk_ieee_float_divide(fRect. width(), xRad + xRad),
                                      sk_ieee_float_divide(fRect.height(), yRad + yRad));
         SkASSERT(scale < SK_Scalar1);
         xRad *= scale;
@@ -64,17 +64,17 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
         return;
     }
 
-    leftRad = SkMaxScalar(leftRad, 0);
-    topRad = SkMaxScalar(topRad, 0);
-    rightRad = SkMaxScalar(rightRad, 0);
-    bottomRad = SkMaxScalar(bottomRad, 0);
+    leftRad = std::max(leftRad, 0.0f);
+    topRad = std::max(topRad, 0.0f);
+    rightRad = std::max(rightRad, 0.0f);
+    bottomRad = std::max(bottomRad, 0.0f);
 
     SkScalar scale = SK_Scalar1;
     if (leftRad + rightRad > fRect.width()) {
         scale = fRect.width() / (leftRad + rightRad);
     }
     if (topRad + bottomRad > fRect.height()) {
-        scale = SkMinScalar(scale, fRect.height() / (topRad + bottomRad));
+        scale = std::min(scale, fRect.height() / (topRad + bottomRad));
     }
 
     if (scale < SK_Scalar1) {
@@ -115,7 +115,7 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
 // miss the fact that a scale is required.
 static double compute_min_scale(double rad1, double rad2, double limit, double curMin) {
     if ((rad1 + rad2) > limit) {
-        return SkTMin(curMin, limit / (rad1 + rad2));
+        return std::min(curMin, limit / (rad1 + rad2));
     }
     return curMin;
 }

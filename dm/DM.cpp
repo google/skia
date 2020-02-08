@@ -7,6 +7,7 @@
 
 #include "dm/DMJsonWriter.h"
 #include "dm/DMSrcSink.h"
+#include "gm/verifiers/gmverifier.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkColorPriv.h"
@@ -149,6 +150,9 @@ static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
 
 static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
+
+static DEFINE_bool(runVerifiers, false,
+                   "if true, run SkQP-style verification of GM-produced images.");
 
 
 #if defined(__MSVC_RUNTIME_CHECKS)
@@ -1132,6 +1136,11 @@ struct Task {
                 }
             }
 
+            // Run verifiers if specified
+            if (FLAGS_runVerifiers) {
+                RunGMVerifiers(task, bitmap);
+            }
+
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
             SkStreamAsset* data = stream.detachAsStream().release();
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
@@ -1386,6 +1395,23 @@ struct Task {
                 fail(SkStringPrintf("Can't write to %s.\n", path.c_str()));
                 return;
             }
+        }
+    }
+
+    static void RunGMVerifiers(const Task& task, const SkBitmap& actualBitmap) {
+        const SkString name = task.src->name();
+        auto verifierList = task.src->getVerifiers();
+        if (verifierList == nullptr) {
+            return;
+        }
+
+        skiagm::verifiers::VerifierResult
+            res = verifierList->verifyAll(task.sink->colorInfo(), actualBitmap);
+        if (!res.ok()) {
+            fail(
+                SkStringPrintf(
+                    "%s %s %s %s: verifier failed: %s", task.sink.tag.c_str(), task.src.tag.c_str(),
+                    task.src.options.c_str(), name.c_str(), res.message().c_str()));
         }
     }
 };

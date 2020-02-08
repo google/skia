@@ -293,7 +293,7 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
     {
         SkScalar w = devRect.width() - dx;
         SkScalar h = devRect.height() - dy;
-        spare = SkTMin(w, h);
+        spare = std::min(w, h);
     }
 
     *isDegenerate = spare <= 0;
@@ -702,8 +702,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
     // For device-space stroke widths less than one we can't inset more than the original
     // device space stroke width if we want to keep the sizing of all the rects correct.
-    const SkScalar insetX = SkTMin(SK_ScalarHalf, devHalfStrokeSize.fX);
-    const SkScalar insetY = SkTMin(SK_ScalarHalf, devHalfStrokeSize.fY);
+    const SkScalar insetX = std::min(SK_ScalarHalf, devHalfStrokeSize.fX);
+    const SkScalar insetY = std::min(SK_ScalarHalf, devHalfStrokeSize.fY);
 
     // But, correspondingly, we always want to keep the AA picture frame one pixel wide.
     const SkScalar outsetX = SK_Scalar1 - insetX;
@@ -721,7 +721,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                            maybe_coverage(0.0f));
     }
 
-    float innerCoverage = compute_inner_coverage(SkTMax(devHalfStrokeSize.fX,
+    float innerCoverage = compute_inner_coverage(std::max(devHalfStrokeSize.fX,
                                                         devHalfStrokeSize.fY));
 
     SkPMColor4f scaledColor = color * innerCoverage;
@@ -798,10 +798,9 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage,
-                                  GrQuadAAFlags::kAll,
-                                  GrQuad::MakeFromRect(rects[0], viewMatrix),
-                                  GrQuad(rects[0]));
+        DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
+                      GrQuadAAFlags::kAll};
+        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     SkVector devHalfStrokeSize{ SkScalarHalf(devOutside.fRight - devInside.fRight),
@@ -838,7 +837,7 @@ GR_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     // Create either a empty rect or a non-empty rect.
     SkRect rect =
             random->nextBool() ? SkRect::MakeXYWH(10, 10, 50, 40) : SkRect::MakeXYWH(6, 7, 0, 0);
-    SkScalar minDim = SkMinScalar(rect.width(), rect.height());
+    SkScalar minDim = std::min(rect.width(), rect.height());
     SkScalar strokeWidth = random->nextUScalar1() * minDim;
 
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);

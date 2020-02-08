@@ -43,9 +43,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    GrSurfaceDesc desc;
-    desc.fWidth = metalLayer.drawableSize.width;
-    desc.fHeight = metalLayer.drawableSize.height;
+    SkISize dims = {(int)metalLayer.drawableSize.width, (int)metalLayer.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
     texInfo.fMipMapped = GrMipMapped::kNo;
@@ -58,19 +56,17 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
                 id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
 
-                GrSurfaceDesc desc;
-                desc.fWidth = metalLayer.drawableSize.width;
-                desc.fHeight = metalLayer.drawableSize.height;
+                SkISize dims = {(int)metalLayer.drawableSize.width,
+                                (int)metalLayer.drawableSize.height};
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (metalLayer.framebufferOnly) {
-                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                                      mtlGpu, desc, sampleCnt, currentDrawable.texture);
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(mtlGpu, dims, sampleCnt,
+                                                                         currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                                      mtlGpu, desc, sampleCnt, currentDrawable.texture,
-                                      GrWrapCacheable::kNo);
+                            mtlGpu, dims, sampleCnt, currentDrawable.texture, GrWrapCacheable::kNo);
                 }
                 if (surface && sampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
@@ -80,7 +76,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
-            desc,
+            dims,
             readSwizzle,
             sampleCnt,
             origin,
@@ -124,9 +120,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    GrSurfaceDesc desc;
-    desc.fWidth = mtkView.drawableSize.width;
-    desc.fHeight = mtkView.drawableSize.height;
+    SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
     texInfo.fMipMapped = GrMipMapped::kNo;
@@ -139,19 +133,16 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
                 MTKView* mtkView = (__bridge MTKView*)view;
                 id<CAMetalDrawable> currentDrawable = [mtkView currentDrawable];
 
-                GrSurfaceDesc desc;
-                desc.fWidth = mtkView.drawableSize.width;
-                desc.fHeight = mtkView.drawableSize.height;
+                SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (mtkView.framebufferOnly) {
-                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                                      mtlGpu, desc, sampleCnt, currentDrawable.texture);
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(mtlGpu, dims, sampleCnt,
+                                                                         currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                                      mtlGpu, desc, sampleCnt, currentDrawable.texture,
-                                      GrWrapCacheable::kNo);
+                            mtlGpu, dims, sampleCnt, currentDrawable.texture, GrWrapCacheable::kNo);
                 }
                 if (surface && sampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
@@ -160,7 +151,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
-            desc,
+            dims,
             readSwizzle,
             sampleCnt,
             origin,

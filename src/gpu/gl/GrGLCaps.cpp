@@ -93,7 +93,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (fDriverBugWorkarounds.max_fragment_uniform_vectors_32) {
-        fMaxFragmentUniformVectors = SkMin32(fMaxFragmentUniformVectors, 32);
+        fMaxFragmentUniformVectors = std::min(fMaxFragmentUniformVectors, 32);
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
@@ -408,7 +408,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
-    shaderCaps->fMaxFragmentSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    shaderCaps->fMaxFragmentSamplers = std::min<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
     // SGX and Mali GPUs have tiled architectures that have trouble with frequently changing VBOs.
     // We've measured a performance increase using non-VBO vertex data for dynamic content on these
@@ -547,18 +547,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
 
     if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
-        fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
+        fMaxTextureSize = std::min(fMaxTextureSize, 4096);
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
-    fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
+    fMaxRenderTargetSize = std::min(fMaxTextureSize, fMaxRenderTargetSize);
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
 
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
         // On Mali G71, RT's above 4k have been observed to incur a performance cost.
-        fMaxPreferredRenderTargetSize = SkTMin(4096, fMaxPreferredRenderTargetSize);
+        fMaxPreferredRenderTargetSize = std::min(4096, fMaxPreferredRenderTargetSize);
     }
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
@@ -3104,7 +3104,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                     GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &maxSampleCnt);
                 }
                 // Chrome has a mock GL implementation that returns 0.
-                maxSampleCnt = SkTMax(1, maxSampleCnt);
+                maxSampleCnt = std::max(1, maxSampleCnt);
 
                 static constexpr int kDefaultSamples[] = {1, 2, 4, 8};
                 int count = SK_ARRAY_COUNT(kDefaultSamples);
@@ -3755,14 +3755,21 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverBlacklistMSAACCPR = true;
     }
 
-    if (shaderCaps->fTessellationSupport && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
+    // http://skbug.com/9739
+    bool isNVIDIAPascal =
+            kNVIDIA_GrGLDriver == ctxInfo.driver() &&
+            ctxInfo.hasExtension("GL_NV_conservative_raster_pre_snap_triangles") &&  // Pascal+.
+            !ctxInfo.hasExtension("GL_NV_conservative_raster_underestimation");  // Volta+.
+    if (isNVIDIAPascal && ctxInfo.driverVersion() < GR_GL_DRIVER_VER(440, 00, 0)) {
         if (GR_IS_GR_GL(ctxInfo.standard())) {
+            // glMemoryBarrier wasn't around until version 4.2.
             if (ctxInfo.version() >= GR_GL_VER(4,2)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
                 shaderCaps->fTessellationSupport = false;
             }
         } else {
+            // glMemoryBarrier wasn't around until es version 3.1.
             if (ctxInfo.version() >= GR_GL_VER(3,1)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
@@ -4122,7 +4129,7 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) 
         return 0;
     }
 
-    requestedCount = SkTMax(1, requestedCount);
+    requestedCount = std::max(1, requestedCount);
     if (1 == requestedCount) {
         return info.fColorSampleCounts[0] == 1 ? 1 : 0;
     }
@@ -4131,7 +4138,7 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) 
         if (info.fColorSampleCounts[i] >= requestedCount) {
             int count = info.fColorSampleCounts[i];
             if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
-                count = SkTMin(count, 4);
+                count = std::min(count, 4);
             }
             return count;
         }
@@ -4147,7 +4154,7 @@ int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
     }
     int count = table[table.count() - 1];
     if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
-        count = SkTMin(count, 4);
+        count = std::min(count, 4);
     }
     return count;
 }

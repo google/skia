@@ -966,44 +966,42 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             sk_sp<SkImage> refImg(imageMaker(ctx));
 
             // Any context should be able to borrow the texture at this point
-            sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
-                    ctx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, proxy);
+            GrSurfaceProxyView view =
+                    as_IB(refImg)->refView(ctx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, view);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
-            sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef(
-                    otherCtx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, !otherProxy);
+            GrSurfaceProxyView otherView =
+                    as_IB(refImg)->refView(otherCtx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, !otherView);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
-            sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef(
-                    ctx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, proxySecondRef);
+            GrSurfaceProxyView viewSecondRef =
+                    as_IB(refImg)->refView(ctx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, viewSecondRef);
 
             // Release first ref from the original context
-            proxy.reset(nullptr);
+            view.reset();
 
             // We released one proxy but not the other from the current borrowing context. Make sure
             // a new context is still not able to borrow the texture.
             otherTestContext->makeCurrent();
-            otherProxy = as_IB(refImg)->asTextureProxyRef(
-                    otherCtx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, !otherProxy);
+            otherView = as_IB(refImg)->refView(otherCtx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, !otherView);
 
             // Release second ref from the original context
             testContext->makeCurrent();
-            proxySecondRef.reset(nullptr);
+            viewSecondRef.reset();
 
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
-            otherProxy = as_IB(refImg)->asTextureProxyRef(
-                    otherCtx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, otherProxy);
+            otherView = as_IB(refImg)->refView(otherCtx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, otherView);
 
             // Release everything
-            otherProxy.reset(nullptr);
+            otherView.reset();
             refImg.reset(nullptr);
         }
     }
@@ -1040,9 +1038,9 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            sk_sp<GrTextureProxy> proxy =
-                    as_IB(image)->asTextureProxyRef(ctx, GrSamplerState::Filter::kNearest, nullptr);
-            REPORTER_ASSERT(reporter, proxy);
+            GrSurfaceProxyView view =
+                    as_IB(image)->refView(ctx, GrSamplerState::Filter::kNearest, nullptr);
+            REPORTER_ASSERT(reporter, view);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;
             GrColorType grCT = SkColorTypeToGrColorType(image->colorType());
@@ -1210,7 +1208,7 @@ static void make_all_premul(SkBitmap* bm) {
     for (int a = 0; a < 256; ++a) {
         for (int r = 0; r < 256; ++r) {
             // make all valid premul combinations
-            int c = SkTMin(a, r);
+            int c = std::min(a, r);
             *bm->getAddr32(a, r) = SkPackARGB32(a, c, c, c);
         }
     }
@@ -1432,7 +1430,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
 
     // Flatten it and repeat.
-    as_IB(i2.get())->asTextureProxyRef(c);
+    as_IB(i2.get())->view(c);
     REPORTER_ASSERT(reporter,
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
@@ -1454,7 +1452,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     // make the YUVA planes from backend textures rather than pixmaps that GrContext must upload.
     // Calling numFlushes rebases the flush count from here.
     numFlushes();
-    as_IB(i2.get())->asTextureProxyRef(c);
+    as_IB(i2.get())->view(c);
     REPORTER_ASSERT(reporter,
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());

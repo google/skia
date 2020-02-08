@@ -17,12 +17,11 @@
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
-                           const GrSurfaceDesc& desc,
+                           SkISize dimensions,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
-                    GrTextureType::k2D, mipMapsStatus)
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -37,14 +36,13 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            Wrapped,
-                           const GrSurfaceDesc& desc,
+                           SkISize dimensions,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus,
                            GrWrapCacheable cacheable,
                            GrIOType ioType)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
-                    GrTextureType::k2D, mipMapsStatus)
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -58,12 +56,11 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 }
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
-                           const GrSurfaceDesc& desc,
+                           SkISize dimensions,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
-                    GrTextureType::k2D, mipMapsStatus)
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
@@ -72,10 +69,11 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
     SkASSERT(!texture.framebufferOnly);
 }
 
-sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
-                                                   const GrSurfaceDesc& desc,
-                                                   MTLTextureDescriptor* texDesc,
-                                                   GrMipMapsStatus mipMapsStatus) {
+sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
+                                                 SkBudgeted budgeted,
+                                                 SkISize dimensions,
+                                                 MTLTextureDescriptor* texDesc,
+                                                 GrMipMapsStatus mipMapsStatus) {
     id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
     if (!texture) {
         return nullptr;
@@ -83,11 +81,11 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu, SkBudgeted budge
     if (@available(macOS 10.11, iOS 9.0, *)) {
         SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
     }
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, dimensions, texture, mipMapsStatus));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
-                                                     const GrSurfaceDesc& desc,
+                                                     SkISize dimensions,
                                                      id<MTLTexture> texture,
                                                      GrWrapCacheable cacheable,
                                                      GrIOType ioType) {
@@ -97,8 +95,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     }
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
                                                                  : GrMipMapsStatus::kNotAllocated;
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus,
-                                                cacheable, ioType));
+    return sk_sp<GrMtlTexture>(
+            new GrMtlTexture(gpu, kWrapped, dimensions, texture, mipMapsStatus, cacheable, ioType));
 }
 
 GrMtlTexture::~GrMtlTexture() {

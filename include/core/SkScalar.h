@@ -103,16 +103,6 @@ static inline SkScalar SkScalarFraction(SkScalar x) {
     return x - SkScalarTruncToScalar(x);
 }
 
-static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
-    x = SkTMin(x, max);
-    x = SkTMax<SkScalar>(x, 0);
-    return x;
-}
-
-static inline SkScalar SkScalarPin(SkScalar x, SkScalar min, SkScalar max) {
-    return SkTPin(x, min, max);
-}
-
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkScalarInvert(x)           sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(SK_Scalar1, (x))
@@ -121,9 +111,6 @@ static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
-
-static inline SkScalar SkMaxScalar(SkScalar a, SkScalar b) { return a > b ? a : b; }
-static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : b; }
 
 static inline bool SkScalarIsInt(SkScalar x) {
     return x == SkScalarFloorToScalar(x);

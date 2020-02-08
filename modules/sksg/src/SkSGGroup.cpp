@@ -57,13 +57,9 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
 }
 
 void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    // TODO: this heuristic works at the moment, but:
-    //   a) it is fragile because it relies on all leaf render nodes being atomic draws
-    //   b) could be improved by e.g. detecting all leaf render draws are non-overlapping
-    const auto isolate = fChildren.size() > 1;
     const auto local_ctx = ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
                                                                          canvas->getTotalMatrix(),
-                                                                         isolate);
+                                                                         fRequiresIsolation);
 
     for (const auto& child : fChildren) {
         child->render(canvas, local_ctx);
@@ -84,9 +80,28 @@ SkRect Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     SkRect bounds = SkRect::MakeEmpty();
+    fRequiresIsolation = false;
 
-    for (const auto& child : fChildren) {
-        bounds.join(child->revalidate(ic, ctm));
+    for (size_t i = 0; i < fChildren.size(); ++i) {
+        const auto child_bounds = fChildren[i]->revalidate(ic, ctm);
+
+        // If any of the child nodes overlap, group effects require layer isolation.
+        if (!fRequiresIsolation && i > 0 && child_bounds.intersects(bounds)) {
+#if 1
+            // Testing conservatively against the union of prev bounds is cheap and good enough.
+            fRequiresIsolation = true;
+#else
+            // Testing exhaustively doesn't seem to increase the layer elision rate in practice.
+            for (size_t j = 0; j < i; ++ j) {
+                if (child_bounds.intersects(fChildren[i]->bounds())) {
+                    fRequiresIsolation = true;
+                    break;
+                }
+            }
+#endif
+        }
+
+        bounds.join(child_bounds);
     }
 
     return bounds;

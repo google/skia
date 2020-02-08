@@ -220,6 +220,7 @@ public:
 
     GrBackendTexture& operator=(const GrBackendTexture& that);
 
+    SkISize dimensions() const { return {fWidth, fHeight}; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
@@ -367,6 +368,7 @@ public:
     GrBackendRenderTarget(const GrBackendRenderTarget& that);
     GrBackendRenderTarget& operator=(const GrBackendRenderTarget&);
 
+    SkISize dimensions() const { return {fWidth, fHeight}; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     int sampleCnt() const { return fSampleCnt; }

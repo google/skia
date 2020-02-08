@@ -8,15 +8,11 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/SkChecksum.h"
 #include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-
-static inline int new_sksl_index() {
-    static std::atomic<int> nextIndex{ 0 };
-    return nextIndex++;
-}
 
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     auto compiler = std::make_unique<SkSL::Compiler>();
@@ -198,7 +194,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
                                  size_t uniformSize)
-        : fIndex(new_sksl_index())
+        : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fCompiler(std::move(compiler))
         , fBaseProgram(std::move(baseProgram))
@@ -211,9 +207,9 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
 }
 
 size_t SkRuntimeEffect::inputSize() const {
-    return fInAndUniformVars.empty()
-        ? 0
-        : fInAndUniformVars.back().fOffset + fInAndUniformVars.back().sizeInBytes();
+    return fInAndUniformVars.empty() ? 0
+                                     : SkAlign4(fInAndUniformVars.back().fOffset +
+                                                fInAndUniformVars.back().sizeInBytes());
 }
 
 SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
@@ -300,7 +296,7 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
                                             sk_sp<SkShader> children[], size_t childCount,
                                             const SkMatrix* localMatrix, bool isOpaque) {
-    return inputs && inputs->size() >= this->inputSize() && childCount >= fChildren.size()
+    return inputs && inputs->size() == this->inputSize() && childCount >= fChildren.size()
         ? sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this), std::move(inputs), localMatrix,
                                          children, childCount, isOpaque))
         : nullptr;
@@ -309,7 +305,7 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs) {
     extern sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect>, sk_sp<SkData>);
 
-    return inputs && inputs->size() >= this->inputSize()
+    return inputs && inputs->size() == this->inputSize()
         ? SkMakeRuntimeColorFilter(sk_ref_sp(this), std::move(inputs))
         : nullptr;
 }

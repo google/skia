@@ -19,8 +19,10 @@ struct Info {
 };
 
 static SkM44 inv(const SkM44& m) {
-    SkM44 inverse;
-    m.invert(&inverse);
+    SkM44 inverse(SkM44::kUninitialized_Constructor);
+    if (!m.invert(&inverse)) {
+        inverse.setIdentity();
+    }
     return inverse;
 }
 

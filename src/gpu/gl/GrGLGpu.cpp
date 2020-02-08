@@ -833,10 +833,9 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
-    const auto size = SkISize::Make(backendRT.width(), backendRT.height());
     int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
 
-    return GrGLRenderTarget::MakeWrapped(this, size, format, sampleCount, rtIDs,
+    return GrGLRenderTarget::MakeWrapped(this, backendRT.dimensions(), format, sampleCount, rtIDs,
                                          backendRT.stencilBits());
 }
 
@@ -1041,8 +1040,8 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
             continue;
         }
         int twoToTheMipLevel = 1 << currentMipLevel;
-        const int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        const int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+        const int currentWidth = std::max(1, width / twoToTheMipLevel);
+        const int currentHeight = std::max(1, height / twoToTheMipLevel);
         const size_t trimRowBytes = currentWidth * bpp;
         const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
@@ -1121,7 +1120,7 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
             }
 
             offset += levelDataSize;
-            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
         }
     } else {
         size_t offset = 0;
@@ -1146,7 +1145,7 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
             }
 
             offset += levelDataSize;
-            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
         }
     }
     return true;
@@ -1296,7 +1295,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     return state;
 }
 
-sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
@@ -1315,15 +1314,15 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
-    texDesc.fSize = {desc.fWidth, desc.fHeight};
+    texDesc.fSize = dimensions;
     texDesc.fTarget = GR_GL_TEXTURE_2D;
     texDesc.fFormat = format.asGLFormat();
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
 
-    texDesc.fID = this->createTexture2D({desc.fWidth, desc.fHeight}, texDesc.fFormat, renderable,
-                                        &initialState, mipLevelCount);
+    texDesc.fID = this->createTexture2D(dimensions, texDesc.fFormat, renderable, &initialState,
+                                        mipLevelCount);
 
     if (!texDesc.fID) {
         return return_null_texture();
@@ -1380,8 +1379,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
             for (int i = 0; i < mipLevelCount; ++i) {
                 if (levelClearMask & (1U << i)) {
-                    int levelWidth  = SkTMax(1, texDesc.fSize.width()  >> i);
-                    int levelHeight = SkTMax(1, texDesc.fSize.height() >> i);
+                    int levelWidth  = std::max(1, texDesc.fSize.width()  >> i);
+                    int levelHeight = std::max(1, texDesc.fSize.height() >> i);
                     // Levels only get smaller as we proceed. Once we create a zeros use it for all
                     // smaller levels that need clearing.
                     if (!zeros) {
@@ -1668,7 +1667,7 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         if (this->glCaps().formatSupportsTexStorage(format)) {
             GL_ALLOC_CALL(this->glInterface(),
-                          TexStorage2D(GR_GL_TEXTURE_2D, SkTMax(mipLevelCount, 1), internalFormat,
+                          TexStorage2D(GR_GL_TEXTURE_2D, std::max(mipLevelCount, 1), internalFormat,
                                        dimensions.width(), dimensions.height()));
             success = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
         } else {
@@ -1678,8 +1677,8 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
             if (externalFormat && externalType) {
                 for (int level = 0; level < mipLevelCount && error == GR_GL_NO_ERROR; level++) {
                     const int twoToTheMipLevel = 1 << level;
-                    const int currentWidth = SkTMax(1, dimensions.width() / twoToTheMipLevel);
-                    const int currentHeight = SkTMax(1, dimensions.height() / twoToTheMipLevel);
+                    const int currentWidth = std::max(1, dimensions.width() / twoToTheMipLevel);
+                    const int currentHeight = std::max(1, dimensions.height() / twoToTheMipLevel);
                     GL_ALLOC_CALL(
                             this->glInterface(),
                             TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat, currentWidth,
@@ -1789,7 +1788,7 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
 
     // This is purely a workaround for a spurious warning generated by gcc. Otherwise the above
     // assert would be sufficient. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=5912
-    int numWindows = SkTMin(windowState.numWindows(), int(GrWindowRectangles::kMaxWindows));
+    int numWindows = std::min(windowState.numWindows(), int(GrWindowRectangles::kMaxWindows));
     SkASSERT(windowState.numWindows() == numWindows);
 
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
@@ -1817,7 +1816,7 @@ void GrGLGpu::disableWindowRectangles() {
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo));
+    sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram(renderTarget, programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2490,7 +2489,7 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int ba
         this->setupGeometry(nullptr, mesh.vertexBuffer(), 0, mesh.instanceBuffer(),
                             baseInstance + i, GrPrimitiveRestart::kNo);
         GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount,
-                                    SkTMin(instanceCount - i, maxInstances)));
+                                    std::min(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
     }
 }
@@ -2507,7 +2506,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount, 
         this->setupGeometry(mesh.indexBuffer(), mesh.vertexBuffer(), baseVertex,
                             mesh.instanceBuffer(), baseInstance + i, mesh.primitiveRestart());
         GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, elementPtr,
-                                      SkTMin(instanceCount - i, maxInstances)));
+                                      std::min(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
     }
 }
@@ -3707,8 +3706,8 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_TEXTURE_2D,
                                      glTex->textureID(), level));
 
-        width = SkTMax(1, width / 2);
-        height = SkTMax(1, height / 2);
+        width = std::max(1, width / 2);
+        height = std::max(1, height / 2);
         this->flushViewport(width, height);
 
         GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
@@ -3851,8 +3850,8 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
             GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
                                   levelDimensions.height(), externalFormat, externalType,
                                   pixelStorage.get()));
-            levelDimensions = {SkTMax(1, levelDimensions.width() /2),
-                               SkTMax(1, levelDimensions.height()/2)};
+            levelDimensions = {std::max(1, levelDimensions.width() /2),
+                               std::max(1, levelDimensions.height()/2)};
         }
     }
     // Unbind this texture from the scratch texture unit.

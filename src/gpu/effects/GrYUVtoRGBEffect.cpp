@@ -15,7 +15,7 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
+std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView views[],
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
                                                             GrSamplerState::Filter filterMode,
@@ -25,7 +25,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
     int numPlanes;
     SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
-    const SkISize YDimensions = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->dimensions();
+    const SkISize YDimensions =
+        views[yuvaIndices[SkYUVAIndex::kY_Index].fIndex].proxy()->dimensions();
 
     // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
     // do_fancy_upsampling option. However, skbug.com/9693.
@@ -34,7 +35,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
                                                                : GrSamplerState::Filter::kBilerp;
     std::unique_ptr<GrFragmentProcessor> planeFPs[4];
     for (int i = 0; i < numPlanes; ++i) {
-        SkISize dimensions = proxies[i]->dimensions();
+        SkISize dimensions = views[i].proxy()->dimensions();
         SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&localMatrix);
         GrSamplerState::Filter planeFilter = filterMode;
         SkRect planeDomain;
@@ -67,14 +68,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
 
         if (domain) {
             SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
-            if (planeFilter != GrSamplerState::Filter::kNearest) {
-                // Inset by half a pixel for bilerp, after scaling to the size of the plane
-                planeDomain.inset(0.5f, 0.5f);
-            }
-            planeFPs[i] = GrTextureEffect::MakeSubset(proxies[i], kUnknown_SkAlphaType,
+            planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
                                                       *planeMatrix, planeFilter, planeDomain, caps);
         } else {
-            planeFPs[i] = GrTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix,
+            planeFPs[i] = GrTextureEffect::Make(views[i], kUnknown_SkAlphaType, *planeMatrix,
                                                 planeFilter);
         }
     }

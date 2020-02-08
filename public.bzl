@@ -466,6 +466,8 @@ DM_SRCS_ALL = struct(
         "experimental/svg/model/*.h",
         "gm/*.cpp",
         "gm/*.h",
+        "gm/verifiers/*.cpp",
+        "gm/verifiers/*.h",
         "src/utils/SkMultiPictureDocument.cpp",
         "src/xml/*.cpp",
         "tests/*.cpp",

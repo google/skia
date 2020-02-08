@@ -366,8 +366,8 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
         // It should be possible to make it much faster.
         for (int sample_x = -4; sample_x < sample_width + 4; sample_x += 4) {
             int fir[LCD_PER_PIXEL] = { 0 };
-            for (int sample_index = SkMax32(0, sample_x - 4), coeff_index = sample_index - (sample_x - 4)
-                ; sample_index < SkMin32(sample_x + 8, sample_width)
+            for (int sample_index = std::max(0, sample_x - 4), coeff_index = sample_index - (sample_x - 4)
+                ; sample_index < std::min(sample_x + 8, sample_width)
                 ; ++sample_index, ++coeff_index)
             {
                 int sample_value = srcP[sample_index];
@@ -377,7 +377,7 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
             }
             for (int subpxl_index = 0; subpxl_index < LCD_PER_PIXEL; ++subpxl_index) {
                 fir[subpxl_index] /= 0x100;
-                fir[subpxl_index] = SkMin32(fir[subpxl_index], 255);
+                fir[subpxl_index] = std::min(fir[subpxl_index], 255);
             }
 
             U8CPU r, g, b;
@@ -396,7 +396,7 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
                 b = maskPreBlend.fB[b];
             }
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-            r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+            r = std::max(r, 10); g = std::max(g, 10); b = std::max(b, 10);
 #endif
             *dstP = SkPack888ToRGB16(r, g, b);
             dstP = SkTAddOffset<uint16_t>(dstP, dstPDelta);
@@ -587,8 +587,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         fRec.getMatrixFrom2x2(&matrix);
 
         if (as_MFB(fMaskFilter)->filterMask(&dstM, srcM, matrix, nullptr)) {
-            int width = SkMin32(origGlyph.fWidth, dstM.fBounds.width());
-            int height = SkMin32(origGlyph.fHeight, dstM.fBounds.height());
+            int width = std::min<int>(origGlyph.fWidth, dstM.fBounds.width());
+            int height = std::min<int>(origGlyph.fHeight, dstM.fBounds.height());
             int dstRB = origGlyph.rowBytes();
             int srcRB = dstM.fRowBytes;
 

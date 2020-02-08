@@ -107,10 +107,11 @@ bool TextStyle::equalsByFonts(const TextStyle& that) const {
     return !fIsPlaceholder && !that.fIsPlaceholder &&
            fFontStyle == that.fFontStyle &&
            fFontFamilies == that.fFontFamilies &&
-           SkScalarNearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
-           SkScalarNearlyEqual(fWordSpacing, that.fWordSpacing) &&
-           SkScalarNearlyEqual(fHeight, that.fHeight) &&
-           SkScalarNearlyEqual(fFontSize, that.fFontSize) &&
+           fFontFeatures == that.fFontFeatures &&
+           nearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
+           nearlyEqual(fWordSpacing, that.fWordSpacing) &&
+           nearlyEqual(fHeight, that.fHeight) &&
+           nearlyEqual(fFontSize, that.fFontSize) &&
            fLocale == that.fLocale;
 }
 
@@ -179,12 +180,12 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
 }
 
 bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
-    return SkScalarNearlyEqual(fWidth, other.fWidth) &&
-           SkScalarNearlyEqual(fHeight, other.fHeight) &&
+    return nearlyEqual(fWidth, other.fWidth) &&
+           nearlyEqual(fHeight, other.fHeight) &&
            fAlignment == other.fAlignment &&
            fBaseline == other.fBaseline &&
            (fAlignment != PlaceholderAlignment::kBaseline ||
-            SkScalarNearlyEqual(fBaselineOffset, other.fBaselineOffset));
+            nearlyEqual(fBaselineOffset, other.fBaselineOffset));
 }
 
 }  // namespace textlayout

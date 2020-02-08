@@ -122,7 +122,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
-        GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+        GrSurfaceProxyView inputView = input->view(context);
         SkASSERT(inputView.asTextureProxy());
 
         const auto isProtected = inputView.proxy()->isProtected();
@@ -183,8 +183,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
     int dstWidth = dst.width(), dstHeight = dst.height();
     for (int y = 0; y < dstHeight; ++y) {
         for (int x = 0; x < dstWidth; ++x) {
-            SkScalar x_dist = SkMin32(x, dstWidth - x - 1) * invInset;
-            SkScalar y_dist = SkMin32(y, dstHeight - y - 1) * invInset;
+            SkScalar x_dist = std::min(x, dstWidth - x - 1) * invInset;
+            SkScalar y_dist = std::min(y, dstHeight - y - 1) * invInset;
             SkScalar weight = 0;
 
             static const SkScalar kScalar2 = SkScalar(2);
@@ -197,12 +197,12 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
 
                 SkScalar dist = SkScalarSqrt(SkScalarSquare(x_dist) +
                                              SkScalarSquare(y_dist));
-                dist = SkMaxScalar(kScalar2 - dist, 0);
-                weight = SkMinScalar(SkScalarSquare(dist), SK_Scalar1);
+                dist = std::max(kScalar2 - dist, 0.0f);
+                weight = std::min(SkScalarSquare(dist), SK_Scalar1);
             } else {
-                SkScalar sqDist = SkMinScalar(SkScalarSquare(x_dist),
+                SkScalar sqDist = std::min(SkScalarSquare(x_dist),
                                               SkScalarSquare(y_dist));
-                weight = SkMinScalar(sqDist, SK_Scalar1);
+                weight = std::min(sqDist, SK_Scalar1);
             }
 
             SkScalar x_interp = weight * (fSrcRect.x() + x * invXZoom) + (1 - weight) * x;

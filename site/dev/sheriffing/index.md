@@ -33,7 +33,7 @@ Below is a brief summary of what the sheriff does for each task:
 * Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
-* File or follow up with [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+* File or follow up with [BreakingTheBuildbots bugs](https://bugs.chromium.org/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
 * Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
 * (Optional) Document significant events that occurred during your sheriff shift in the [Weekly
   Handoff Notes section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.y49irwbutzr) in the handoff doc.

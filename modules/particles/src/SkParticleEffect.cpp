@@ -494,7 +494,7 @@ void SkParticleEffect::setCapacity(int capacity) {
     fStableRandoms.realloc(capacity);
 
     fCapacity = capacity;
-    fCount = SkTMin(fCount, fCapacity);
+    fCount = std::min(fCount, fCapacity);
 }
 
 void SkParticleEffect::RegisterParticleTypes() {

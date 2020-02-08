@@ -95,7 +95,7 @@ static void add_alpha(SkAlpha* alpha, SkAlpha delta) {
 }
 
 static void safely_add_alpha(SkAlpha* alpha, SkAlpha delta) {
-    *alpha = SkTMin(0xFF, *alpha + delta);
+    *alpha = std::min(0xFF, *alpha + delta);
 }
 
 class AdditiveBlitter : public SkBlitter {
@@ -415,7 +415,7 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
         antialias -= x;
         x = 0;
     }
-    len = SkTMin(len, fWidth - x);
+    len = std::min(len, fWidth - x);
     SkASSERT(check(x, len));
 
     if (x < fOffsetX) {
@@ -485,7 +485,7 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], 
         antialias -= x;
         x = 0;
     }
-    len = SkTMin(len, fWidth - x);
+    len = std::min(len, fWidth - x);
     SkASSERT(check(x, len));
 
     if (x < fOffsetX) {
@@ -589,7 +589,7 @@ static SkFixed approximate_intersection(SkFixed l1, SkFixed r1, SkFixed l2, SkFi
     if (l2 > r2) {
         std::swap(l2, r2);
     }
-    return (SkTMax(l1, l2) + SkTMin(r1, r2)) / 2;
+    return (std::max(l1, l2) + std::min(r1, r2)) / 2;
 }
 
 // Here we always send in l < SK_Fixed1, and the first alpha we want to compute is alphas[0]
@@ -1107,7 +1107,7 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
     SkAnalyticEdge* riteE = (SkAnalyticEdge*)leftE->fNext;
     SkAnalyticEdge* currE = (SkAnalyticEdge*)riteE->fNext;
 
-    SkFixed y = SkTMax(leftE->fUpperY, riteE->fUpperY);
+    SkFixed y = std::max(leftE->fUpperY, riteE->fUpperY);
 
     for (;;) {
         // We have to check fLowerY first because some edges might be alone (e.g., there's only
@@ -1149,15 +1149,15 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             std::swap(leftE, riteE);
         }
 
-        SkFixed local_bot_fixed = SkMin32(leftE->fLowerY, riteE->fLowerY);
+        SkFixed local_bot_fixed = std::min(leftE->fLowerY, riteE->fLowerY);
         if (is_smooth_enough(leftE, riteE, currE, stop_y)) {
             local_bot_fixed = SkFixedCeilToFixed(local_bot_fixed);
         }
-        local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y));
+        local_bot_fixed = std::min(local_bot_fixed, SkIntToFixed(stop_y));
 
-        SkFixed left  = SkTMax(leftBound, leftE->fX);
+        SkFixed left  = std::max(leftBound, leftE->fX);
         SkFixed dLeft = leftE->fDX;
-        SkFixed rite  = SkTMin(riteBound, riteE->fX);
+        SkFixed rite  = std::min(riteBound, riteE->fX);
         SkFixed dRite = riteE->fDX;
         if (0 == (dLeft | dRite)) {
             int     fullLeft    = SkFixedCeilToInt(left);
@@ -1326,8 +1326,8 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             // Smooth jumping to integer y may make the last nextLeft/nextRite out of bound.
             // Take them back into the bound here.
             // Note that we substract kSnapHalf later so we have to add them to leftBound/riteBound
-            SkFixed nextLeft = SkTMax(left + SkFixedMul(dLeft, dY), leftBound + kSnapHalf);
-            SkFixed nextRite = SkTMin(rite + SkFixedMul(dRite, dY), riteBound + kSnapHalf);
+            SkFixed nextLeft = std::max(left + SkFixedMul(dLeft, dY), leftBound + kSnapHalf);
+            SkFixed nextRite = std::min(rite + SkFixedMul(dRite, dY), riteBound + kSnapHalf);
             SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                      (nextLeft & kSnapMask) >= leftBound && (nextRite & kSnapMask) <= riteBound);
             blit_trapezoid_row(blitter,
@@ -1472,10 +1472,10 @@ static void blit_saved_trapezoid(SkAnalyticEdge*  leftE,
     blit_trapezoid_row(
             blitter,
             y,
-            SkTMax(leftE->fSavedX, leftClip),
-            SkTMin(riteE->fSavedX, rightClip),
-            SkTMax(lowerLeft, leftClip),
-            SkTMin(lowerRite, rightClip),
+            std::max(leftE->fSavedX, leftClip),
+            std::min(riteE->fSavedX, rightClip),
+            std::max(lowerLeft, leftClip),
+            std::min(lowerRite, rightClip),
             leftE->fSavedDY,
             riteE->fSavedDY,
             fullAlpha,
@@ -1557,7 +1557,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                            bool             skipIntersect) {
     prevHead->fX = prevHead->fUpperX = leftClip;
     nextTail->fX = nextTail->fUpperX = rightClip;
-    SkFixed y                        = SkTMax(prevHead->fNext->fUpperY, SkIntToFixed(start_y));
+    SkFixed y                        = std::max(prevHead->fNext->fUpperY, SkIntToFixed(start_y));
     SkFixed nextNextY                = SK_MaxS32;
 
     {
@@ -1596,7 +1596,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
         int             w               = 0;
         bool            in_interval     = isInverse;
         SkFixed         prevX           = prevHead->fX;
-        SkFixed         nextY           = SkTMin(nextNextY, SkFixedCeilToFixed(y + 1));
+        SkFixed         nextY           = std::min(nextNextY, SkFixedCeilToFixed(y + 1));
         bool            isIntegralNextY = (nextY & (SK_Fixed1 - 1)) == 0;
         SkAnalyticEdge* currE           = prevHead->fNext;
         SkAnalyticEdge* leftE           = prevHead;
@@ -1699,9 +1699,9 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                 } else {
                     SkFixed rite = currE->fX;
                     currE->goY(nextY, yShift);
-                    SkFixed nextLeft = SkTMax(leftClip, leftE->fX);
-                    rite             = SkTMin(rightClip, rite);
-                    SkFixed nextRite = SkTMin(rightClip, currE->fX);
+                    SkFixed nextLeft = std::max(leftClip, leftE->fX);
+                    rite             = std::min(rightClip, rite);
+                    SkFixed nextRite = std::min(rightClip, currE->fX);
                     blit_trapezoid_row(
                             blitter,
                             y >> 16,
@@ -1718,11 +1718,11 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                                               (edges_too_close(prevRite, left, leftE->fX) ||
                                                edges_too_close(currE, currE->fNext, nextY))),
                             true);
-                    prevRite = SkFixedCeilToInt(SkTMax(rite, currE->fX));
+                    prevRite = SkFixedCeilToInt(std::max(rite, currE->fX));
                 }
             } else {
                 if (isLeft) {
-                    left     = SkTMax(currE->fX, leftClip);
+                    left     = std::max(currE->fX, leftClip);
                     leftDY   = currE->fDY;
                     leftE    = currE;
                     leftEnds = leftE->fLowerY == nextY;
@@ -1810,7 +1810,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                                    y >> 16,
                                    left,
                                    rightClip,
-                                   SkTMax(leftClip, leftE->fX),
+                                   std::max(leftClip, leftE->fX),
                                    rightClip,
                                    leftDY,
                                    0,
@@ -1915,8 +1915,8 @@ static SK_ALWAYS_INLINE void aaa_fill_path(
         // Otherwise, the edge drift may access an invalid address inside the mask.
         SkIRect ir;
         path.getBounds().roundOut(&ir);
-        leftBound  = SkTMax(leftBound, SkIntToFixed(ir.fLeft));
-        rightBound = SkTMin(rightBound, SkIntToFixed(ir.fRight));
+        leftBound  = std::max(leftBound, SkIntToFixed(ir.fLeft));
+        rightBound = std::min(rightBound, SkIntToFixed(ir.fRight));
     }
 
     if (!path.isInverseFillType() && path.isConvex() && count >= 2) {

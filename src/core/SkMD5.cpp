@@ -75,7 +75,7 @@ SkMD5::Digest SkMD5::finish() {
     // Pad out to 56 mod 64.
     unsigned int bufferIndex = (unsigned int)(this->byteCount & 0x3F);
     unsigned int paddingLength = (bufferIndex < 56) ? (56 - bufferIndex) : (120 - bufferIndex);
-    static uint8_t PADDING[64] = {
+    static const uint8_t PADDING[64] = {
         0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

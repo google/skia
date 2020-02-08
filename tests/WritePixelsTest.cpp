@@ -523,9 +523,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
 
     {
         // Seed the resource cached with a scratch texture that will be reused by writePixels
-        GrSurfaceDesc desc;
-        desc.fWidth = 32;
-        desc.fHeight = 64;
+        static constexpr SkISize kDims = {32, 64};
 
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kNo);
@@ -533,7 +531,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                format, kDims, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
                 GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
         temp->instantiate(context->priv().resourceProvider());
     }

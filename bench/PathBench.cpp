@@ -732,8 +732,8 @@ protected:
                                int startAngle)
     {
 
-        SkScalar rx = SkMinScalar(rect.width(), xIn);
-        SkScalar ry = SkMinScalar(rect.height(), yIn);
+        SkScalar rx = std::min(rect.width(), xIn);
+        SkScalar ry = std::min(rect.height(), yIn);
 
         SkRect arcRect;
         arcRect.setLTRB(-rx, -ry, rx, ry);

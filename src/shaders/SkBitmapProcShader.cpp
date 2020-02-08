@@ -69,7 +69,7 @@ public:
         SkASSERT(state.fPixmap.addr());
 
         for (;;) {
-            int n = SkTMin(count, max);
+            int n = std::min(count, max);
             SkASSERT(n > 0 && n < BUF_MAX*2);
             mproc(state, buffer, n, x, y);
             sproc(state, buffer, n, dstC);

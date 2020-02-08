@@ -51,6 +51,7 @@ GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const Displa
 }
 
 GLWindowContext_mac::~GLWindowContext_mac() {
+    [NSOpenGLContext clearCurrentContext];
     [fPixelFormat release];
     fPixelFormat = nil;
     [fGLContext release];
@@ -125,7 +126,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     GLint sampleCount;
     [fPixelFormat getValues:&sampleCount forAttribute:NSOpenGLPFASamples forVirtualScreen:0];
     fSampleCount = sampleCount;
-    fSampleCount = SkTMax(fSampleCount, 1);
+    fSampleCount = std::max(fSampleCount, 1);
 
     const NSRect viewportRect = [fMainView frame];
     fWidth = viewportRect.size.width;

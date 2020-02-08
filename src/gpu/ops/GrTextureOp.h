@@ -49,9 +49,7 @@ public:
                                           Saturate,
                                           SkBlendMode,
                                           GrAAType,
-                                          GrQuadAAFlags,
-                                          const GrQuad& deviceQuad,
-                                          const GrQuad& localQuad,
+                                          DrawQuad*,
                                           const SkRect* domain = nullptr);
 
     // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not

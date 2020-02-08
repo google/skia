@@ -67,8 +67,8 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
 
     for (int c = 0; c < 3; ++c) {
         float srcComponent = ((src & (0xff << (c * 8))) >> (c * 8)) * invScale;
-        float lower = SkTMax(0.f, srcComponent - error);
-        float upper = SkTMin(255.f, srcComponent + error);
+        float lower = std::max(0.f, srcComponent - error);
+        float upper = std::min(255.f, srcComponent + error);
         if (toSRGB) {
             lower = linear_to_srgb(lower / 255.f);
             upper = linear_to_srgb(upper / 255.f);
@@ -95,27 +95,22 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    static const int kW = 256;
-    static const int kH = 256;
-    static const size_t kRowBytes = sizeof(uint32_t) * kW;
+    static constexpr SkISize kBaseSize{256, 256};
+    static const size_t kRowBytes = sizeof(uint32_t) * kBaseSize.fWidth;
 
-    GrSurfaceDesc baseDesc;
-    baseDesc.fWidth = kW;
-    baseDesc.fHeight = kH;
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(kBaseSize);
 
-    const SkImageInfo ii = SkImageInfo::MakeN32Premul(kW, kH);
-
-    SkAutoTMalloc<uint32_t> srcPixels(kW * kH);
-    for (int y = 0; y < kH; ++y) {
-        for (int x = 0; x < kW; ++x) {
-            srcPixels.get()[y*kW+x] = SkPreMultiplyARGB(x, y, x, 0xFF);
+    SkAutoTMalloc<uint32_t> srcPixels(kBaseSize.area());
+    for (int y = 0; y < kBaseSize.fHeight; ++y) {
+        for (int x = 0; x < kBaseSize.fWidth; ++x) {
+            srcPixels.get()[y*kBaseSize.fWidth+x] = SkPreMultiplyARGB(x, y, x, 0xFF);
         }
     }
 
     SkBitmap bm;
     bm.installPixels(ii, srcPixels.get(), kRowBytes);
 
-    SkAutoTMalloc<uint32_t> read(kW * kH);
+    SkAutoTMalloc<uint32_t> read(kBaseSize.area());
 
     // We allow more error on GPUs with lower precision shader variables.
     float error = context->priv().caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
@@ -141,7 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
         dst->flush();
 
-        sk_memset32(read.get(), 0, kW * kH);
+        sk_memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;
@@ -149,10 +144,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
         bool abort = false;
         // Validate that pixels were copied/transformed correctly.
-        for (int y = 0; y < kH && !abort; ++y) {
-            for (int x = 0; x < kW && !abort; ++x) {
-                uint32_t r = read.get()[y * kW + x];
-                uint32_t s = srcPixels.get()[y * kW + x];
+        for (int y = 0; y < kBaseSize.fHeight && !abort; ++y) {
+            for (int x = 0; x < kBaseSize.fWidth && !abort; ++x) {
+                uint32_t r = read.get()[y * kBaseSize.fWidth + x];
+                uint32_t s = srcPixels.get()[y * kBaseSize.fWidth + x];
                 uint32_t expected;
                 if (!check_gamma(s, r, toSRGB, error, &expected)) {
                     ERRORF(reporter, "Expected dst %d,%d to contain 0x%08x "

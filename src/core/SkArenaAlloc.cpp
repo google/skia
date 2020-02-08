@@ -142,13 +142,21 @@ char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t
 
 restart:
     uint32_t skipOverhead = 0;
-    bool needsSkipFooter = fCursor != fDtorCursor;
+    const bool needsSkipFooter = fCursor != fDtorCursor;
     if (needsSkipFooter) {
         skipOverhead = sizeof(Footer) + sizeof(uint32_t);
     }
-    char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
-    uint32_t totalSize = sizeIncludingFooter + skipOverhead;
+    const uint32_t totalSize = sizeIncludingFooter + skipOverhead;
 
+    // Math on null fCursor/fEnd is undefined behavior, so explicitly check for first alloc.
+    if (!fCursor) {
+        this->ensureSpace(totalSize, alignment);
+        goto restart;
+    }
+
+    assert(fEnd);
+    // This test alone would be enough nullptr were defined to be 0, but it's not.
+    char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
     if ((ptrdiff_t)totalSize > fEnd - objStart) {
         this->ensureSpace(totalSize, alignment);
         goto restart;

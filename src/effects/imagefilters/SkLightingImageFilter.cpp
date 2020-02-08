@@ -164,12 +164,12 @@ public:
     SkPMColor light(const SkPoint3& normal, const SkPoint3& surfaceTolight,
                     const SkPoint3& lightColor) const override {
         SkScalar colorScale = fKD * normal.dot(surfaceTolight);
-        colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
+        colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(255,
-                            SkClampMax(SkScalarRoundToInt(color.fX), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fY), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fZ), 255));
+                            SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fY), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fZ), 0, 255));
     }
 private:
     SkScalar fKD;
@@ -189,12 +189,12 @@ public:
         halfDir.fZ += SK_Scalar1;        // eye position is always (0, 0, 1)
         fast_normalize(&halfDir);
         SkScalar colorScale = fKS * SkScalarPow(normal.dot(halfDir), fShininess);
-        colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
+        colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
-        return SkPackARGB32(SkClampMax(SkScalarRoundToInt(max_component(color)), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fX), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fY), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fZ), 255));
+        return SkPackARGB32(SkTPin(SkScalarRoundToInt(max_component(color)), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fY), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fZ), 0, 255));
     }
 private:
     SkScalar fKS;
@@ -485,7 +485,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
 
     auto context = ctx.getContext();
 
-    GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+    GrSurfaceProxyView inputView = input->view(context);
     SkASSERT(inputView.asTextureProxy());
 
     auto renderTargetContext = GrRenderTargetContext::Make(
@@ -967,7 +967,7 @@ public:
      : INHERITED(color),
        fLocation(location),
        fTarget(target),
-       fSpecularExponent(SkScalarPin(specularExponent, kSpecularExponentMin, kSpecularExponentMax))
+       fSpecularExponent(SkTPin(specularExponent, kSpecularExponentMin, kSpecularExponentMax))
     {
        fS = target - location;
        fast_normalize(&fS);

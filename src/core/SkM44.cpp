@@ -296,7 +296,9 @@ SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
     SkV3 s = normalize(f.cross(u));
 
     SkM44 m(SkM44::kUninitialized_Constructor);
-    (void)SkM44::Cols(v4(s, 0), v4(s.cross(f), 0), v4(-f, 0), v4(eye, 1)).invert(&m);
+    if (!SkM44::Cols(v4(s, 0), v4(s.cross(f), 0), v4(-f, 0), v4(eye, 1)).invert(&m)) {
+        m.setIdentity();
+    }
     return m;
 }
 

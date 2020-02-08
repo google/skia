@@ -28,14 +28,14 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
             mat.setTranslate((i % 2) ? pathBounds.fLeft : pathBounds.fRight,
                              (i < 2) ? pathBounds.fTop : pathBounds.fBottom);
             mat.postConcat(viewM);
-            stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
+            stretch = std::max(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
     SkScalar srcTol = 0;
     if (stretch <= 0) {
         // We have degenerate bounds or some degenerate matrix. Thus we set the tolerance to be the
         // max of the path pathBounds width and height.
-        srcTol = SkTMax(pathBounds.width(), pathBounds.height());
+        srcTol = std::max(pathBounds.width(), pathBounds.height());
     } else {
         srcTol = devTol / stretch;
     }
@@ -71,7 +71,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, kMaxPointsPerCurve);
+            return std::min(pow2, kMaxPointsPerCurve);
         }
     }
 }
@@ -106,7 +106,7 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
     // You should have called scaleToleranceToSrc, which guarantees this
     SkASSERT(tol >= gMinCurveTol);
 
-    SkScalar d = SkTMax(
+    SkScalar d = std::max(
         SkPointPriv::DistanceToLineSegmentBetweenSqd(points[1], points[0], points[3]),
         SkPointPriv::DistanceToLineSegmentBetweenSqd(points[2], points[0], points[3]));
     d = SkScalarSqrt(d);
@@ -127,7 +127,7 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, kMaxPointsPerCurve);
+            return std::min(pow2, kMaxPointsPerCurve);
         }
     }
 }
@@ -342,7 +342,7 @@ void GrPathUtils::getConicKLM(const SkPoint p[3], const SkScalar weight, SkMatri
     // scale the max absolute value of coeffs to 10
     SkScalar scale = 0.f;
     for (int i = 0; i < 9; ++i) {
-       scale = SkMaxScalar(scale, SkScalarAbs(klm[i]));
+       scale = std::max(scale, SkScalarAbs(klm[i]));
     }
     SkASSERT(scale > 0.f);
     scale = 10.f / scale;

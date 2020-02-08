@@ -95,12 +95,12 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        sk_sp<GrTextureProxy> proxies[3];
+        GrSurfaceProxyView views[3];
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
@@ -126,7 +126,7 @@ protected:
                 };
                 const auto& caps = *context->priv().caps();
                 std::unique_ptr<GrFragmentProcessor> fp(GrYUVtoRGBEffect::Make(
-                        proxies, yuvaIndices, static_cast<SkYUVColorSpace>(space),
+                        views, yuvaIndices, static_cast<SkYUVColorSpace>(space),
                         GrSamplerState::Filter::kNearest, caps));
                 if (fp) {
                     GrPaint grPaint;
@@ -211,12 +211,12 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        sk_sp<GrTextureProxy> proxies[2];
+        GrSurfaceProxyView views[2];
 
         for (int i = 0; i < 2; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
@@ -240,7 +240,7 @@ protected:
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             const auto& caps = *context->priv().caps();
-            auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
+            auto fp = GrYUVtoRGBEffect::Make(views, yuvaIndices,
                                              static_cast<SkYUVColorSpace>(space),
                                              GrSamplerState::Filter::kNearest, caps);
             if (fp) {
@@ -307,12 +307,12 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        sk_sp<GrTextureProxy> proxies[3];
+        GrSurfaceProxyView views[3];
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
@@ -350,7 +350,7 @@ protected:
                 const SkRect* domainPtr = j > 0 ? &domain : nullptr;
                 const auto& caps = *context->priv().caps();
                 std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVtoRGBEffect::Make(proxies, yuvaIndices, kJPEG_SkYUVColorSpace,
+                        GrYUVtoRGBEffect::Make(views, yuvaIndices, kJPEG_SkYUVColorSpace,
                                                kFilters[i], caps, SkMatrix::I(), domainPtr));
                 if (fp) {
                     GrPaint grPaint;

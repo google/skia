@@ -42,7 +42,7 @@ public:
                                                   GrSurfaceProxyView readView,
                                                   GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, const SkISize& dimensions,
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, SkISize dimensions,
                                                   const GrBackendFormat&, GrRenderable,
                                                   int renderTargetSampleCnt, GrMipMapped,
                                                   GrProtected, GrSurfaceOrigin, GrColorType,
@@ -97,7 +97,7 @@ public:
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
-    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fReadView.proxyRef(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fReadView.refProxy(); }
 
     GrTextureProxy* asTextureProxy() { return fReadView.asTextureProxy(); }
     const GrTextureProxy* asTextureProxy() const { return fReadView.asTextureProxy(); }

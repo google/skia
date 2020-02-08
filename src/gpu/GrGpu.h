@@ -84,7 +84,7 @@ public:
      * pixel configs can be used as render targets. Support for configs as textures
      * or render targets can be checked using GrCaps.
      *
-     * @param desc           describes the texture to be created.
+     * @param dimensions     dimensions of the texture to be created.
      * @param format         the format for the texture (not currently used).
      * @param renderable     should the resulting texture be renderable
      * @param renderTargetSampleCnt The number of samples to use for rendering if renderable is
@@ -93,7 +93,8 @@ public:
      * @param isProtected    should the texture be created as protected.
      * @param texels         array of mipmap levels containing texel data to load.
      *                       If level i has pixels then it is assumed that its dimensions are
-     *                       max(1, floor(desc.fWidth / 2)) by max(1, floor(desc.fHeight / 2)).
+     *                       max(1, floor(dimensions.fWidth / 2)) by
+     *                       max(1, floor(dimensions.fHeight / 2)).
      *                       If texels[i].fPixels == nullptr for all i <= mipLevelCount or
      *                       mipLevelCount is 0 then the texture's contents are uninitialized.
      *                       If a level has non-null pixels, its row bytes must be a multiple of the
@@ -106,11 +107,12 @@ public:
      *                       of uploading texel data.
      * @param srcColorType   The color type of data in texels[].
      * @param texelLevelCount the number of levels in 'texels'. May be 0, 1, or
-     *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
-     *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
+     *                       floor(max((log2(dimensions.fWidth), log2(dimensions.fHeight)))). It
+     *                       must be the latter if GrCaps::createTextureMustSpecifyAllLevels() is
+     *                       true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
@@ -124,7 +126,7 @@ public:
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
@@ -665,7 +667,7 @@ private:
     // Texture size, renderablility, format support, sample count will have already been validated
     // in base class before onCreateTexture is called.
     // If the ith bit is set in levelClearMask then the ith MIP level should be cleared.
-    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
+    virtual sk_sp<GrTexture> onCreateTexture(SkISize dimensions,
                                              const GrBackendFormat&,
                                              GrRenderable,
                                              int renderTargetSampleCnt,
@@ -739,7 +741,7 @@ private:
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
 
-    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc&,
+    sk_sp<GrTexture> createTextureCommon(SkISize,
                                          const GrBackendFormat&,
                                          GrRenderable,
                                          int renderTargetSampleCnt,

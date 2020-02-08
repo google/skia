@@ -36,8 +36,8 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
     if (a.start == b.start && a.end == b.end) return a;
-    auto begin = SkTMax(a.start, b.start);
-    auto end = SkTMin(a.end, b.end);
+    auto begin = std::max(a.start, b.start);
+    auto end = std::min(a.end, b.end);
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
@@ -139,12 +139,13 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fClusters.reset();
         fGraphemes.reset();
         this->markGraphemes();
-        this->computeEmptyMetrics();
 
         if (!this->shapeTextIntoEndlessLine()) {
 
             this->resetContext();
+            // TODO: merge the two next calls - they always come together
             this->resolveStrut();
+            this->computeEmptyMetrics();
             this->fLines.reset();
 
             // Set the important values that are not zero
@@ -190,6 +191,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kLineBroken) {
         this->resetContext();
         this->resolveStrut();
+        this->computeEmptyMetrics();
         this->fLines.reset();
         this->breakShapedTextIntoLines(floorWidth);
         fState = kLineBroken;
@@ -412,7 +414,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     }
                 }
 
-                fLongestLine = SkTMax(fLongestLine, advance.fX);
+                fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
@@ -425,9 +427,17 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
 
 void ParagraphImpl::formatLines(SkScalar maxWidth) {
     auto effectiveAlign = fParagraphStyle.effective_align();
+
+    if (!SkScalarIsFinite(maxWidth) && effectiveAlign != TextAlign::kLeft) {
+        // Special case: clean all text in case of maxWidth == INF & align != left
+        // We had to go through shaping though because we need all the measurement numbers
+        fLines.reset();
+        return;
+    }
     if (effectiveAlign == TextAlign::kJustify) {
         this->resetRunShifts();
     }
+
     for (auto& line : fLines) {
         if (&line == &fLines.back() && effectiveAlign == TextAlign::kJustify) {
             effectiveAlign = line.assumedTextAlign();
@@ -654,7 +664,6 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         // Found a line that intersects with the text
         auto firstBoxOnTheLine = results.size();
         auto paragraphTextDirection = paragraphStyle().getTextDirection();
-        auto lineTextAlign = line.assumedTextAlign();
         const Run* lastRun = nullptr;
         line.iterateThroughVisualRuns(true,
             [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
@@ -683,35 +692,17 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
                 auto runInLineWidth = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
                 runOffset += *width;
+                *width = runInLineWidth;
 
                 // Found a run that intersects with the text
                 auto context = line.measureTextInsideOneRun(intersect, run, runOffset, 0, true, true);
-
-                //*width += context.clip.width();
-                *width = runInLineWidth;
-
                 SkRect clip = context.clip;
-                SkRect trailingSpaces = SkRect::MakeEmpty();
-                SkScalar ghostSpacesRight = context.run->leftToRight() ? clip.right() - line.width() : 0;
-                SkScalar ghostSpacesLeft = !context.run->leftToRight() ? clip.right() - line.width() : 0;
-
-                if (ghostSpacesRight + ghostSpacesLeft > 0) {
-                    if (lineTextAlign == TextAlign::kLeft && ghostSpacesLeft > 0) {
-                        clip.offset(-ghostSpacesLeft, 0);
-                    } else if (lineTextAlign == TextAlign::kRight && ghostSpacesLeft > 0) {
-                        clip.offset(-ghostSpacesLeft, 0);
-                    } else if (lineTextAlign == TextAlign::kCenter) {
-                        // TODO: What do we do for centering?
-                    }
-                }
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Change it once flutter rolls into google3
                     //  (probably will break things if changed before)
                     clip.fBottom = line.height();
-                    clip.fTop = line.sizes().baseline() -
-                                line.getMaxRunMetrics().baseline() +
-                                line.getMaxRunMetrics().delta();
+                    clip.fTop = line.sizes().delta();
 
                 } else if (rectHeightStyle == RectHeightStyle::kIncludeLineSpacingTop) {
                     if (&line != &fLines.front()) {
@@ -734,37 +725,82 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 } else if (rectHeightStyle == RectHeightStyle::kStrut) {
                     auto strutStyle = this->paragraphStyle().getStrutStyle();
                     if (strutStyle.getStrutEnabled() && strutStyle.getFontSize() > 0) {
-                        auto top = line.baseline() ; //+ line.sizes().runTop(run);
+                        auto top = line.baseline();
                         clip.fTop = top + fStrutMetrics.ascent();
                         clip.fBottom = top + fStrutMetrics.descent();
                     }
                 }
-                clip.offset(line.offset());
 
-                // Check if we can merge two boxes
-                bool mergedBoxes = false;
-                if (!results.empty() &&
-                    lastRun != nullptr && lastRun->placeholder() == nullptr && context.run->placeholder() == nullptr &&
-                    lastRun->lineHeight() == context.run->lineHeight() &&
-                    lastRun->font() == context.run->font()) {
-                    auto& lastBox = results.back();
-                    if (SkScalarNearlyEqual(lastBox.rect.fTop, clip.fTop) &&
-                        SkScalarNearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
-                            (SkScalarNearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
-                             SkScalarNearlyEqual(lastBox.rect.fRight, clip.fLeft))) {
-                        lastBox.rect.fLeft = SkTMin(lastBox.rect.fLeft, clip.fLeft);
-                        lastBox.rect.fRight = SkTMax(lastBox.rect.fRight, clip.fRight);
-                        mergedBoxes = true;
+                // Separate trailing spaces and move them in the default order of the paragraph
+                // in case the run order and the paragraph order don't match
+                SkRect trailingSpaces = SkRect::MakeEmpty();
+                if (line.trimmedText().end < line.textWithSpaces().end && // Line has trailing spaces
+                    line.textWithSpaces().end == intersect.end &&         // Range is at the end of the line
+                    line.trimmedText().end > intersect.start)             // Range has more than just spaces
+                {
+                    auto delta = line.spacesWidth();
+                    trailingSpaces = SkRect::MakeXYWH(0, 0, 0, 0);
+                    // There are trailing spaces in this run
+                    if (this->paragraphStyle().getTextAlign() == TextAlign::kJustify &&
+                        &line != &fLines.back())
+                    {
+                        // TODO: this is just a patch. Make it right later (when it's clear what and how)
+                        clip.fLeft = 0;
+                        clip.fRight = line.width();
+                    } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kRtl &&
+                        !run->leftToRight())
+                    {
+                        // Split
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = - delta;
+                        trailingSpaces.fRight = 0;
+                        clip.fLeft += delta;
+                    } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kLtr &&
+                        run->leftToRight())
+                    {
+                        // Split
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = line.width();
+                        trailingSpaces.fRight = trailingSpaces.fLeft + delta;
+                        clip.fRight -= delta;
                     }
                 }
-                lastRun = context.run;
 
-                if (!mergedBoxes) {
+                clip.offset(line.offset());
+                if (trailingSpaces.width() > 0) {
+                    trailingSpaces.offset(line.offset());
+                }
+
+                // Check if we can merge two boxes instead of adding a new one
+                auto merge = [&lastRun, &context, &results](SkRect clip) {
+                    bool mergedBoxes = false;
+                    if (!results.empty() &&
+                        lastRun != nullptr &&
+                        lastRun->placeholderStyle() == nullptr &&
+                        context.run->placeholderStyle() == nullptr &&
+                        nearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
+                        lastRun->font() == context.run->font())
+                    {
+                        auto& lastBox = results.back();
+                        if (nearlyEqual(lastBox.rect.fTop, clip.fTop) &&
+                            nearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
+                                (nearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
+                                 nearlyEqual(lastBox.rect.fRight, clip.fLeft)))
+                        {
+                            lastBox.rect.fLeft = std::min(lastBox.rect.fLeft, clip.fLeft);
+                            lastBox.rect.fRight = std::max(lastBox.rect.fRight, clip.fRight);
+                            mergedBoxes = true;
+                        }
+                    }
+                    lastRun = context.run;
+                    return mergedBoxes;
+                };
+
+                if (!merge(clip)) {
                     results.emplace_back(
                         clip, context.run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
                 }
-
-                if (trailingSpaces.width() > 0) {
+                if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
                 }
 
@@ -815,7 +851,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
                   auto context =
                           line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
                   *width = context.clip.width();
-                  if (run->placeholder() == nullptr) {
+                  if (run->placeholderStyle() == nullptr) {
                       return true;
                   }
                   if (run->textRange().width() == 0) {
@@ -862,13 +898,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 
                 auto offsetX = line.offset().fX;
                 auto context = line.measureTextInsideOneRun(textRange, run, 0, 0, true, false);
-                if (dx < context.clip.fLeft ) {
+                if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
                     result = { SkToS32(context.run->fClusterIndexes[context.pos]), kDownstream };
                     return false;
                 }
 
-                if (dx >= context.clip.fRight) {
+                if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking but just in case keep the last one as the closes
                     // so far
                     auto index = context.pos + context.size;
@@ -887,12 +923,18 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 size_t found = context.pos;
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
-                    auto end = littleRound(context.run->positionX(i) + context.fTextShift + offsetX);
-                    if (end > dx) {
+                    auto index = context.run->leftToRight() ? i : context.size - i;
+                    auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
+                    if ((context.run->leftToRight() ? end > dx : dx > end)) {
                         break;
                     }
-                    found = i;
+                    found = index;
                 }
+
+                if (!context.run->leftToRight()) {
+                    --found;
+                }
+
                 auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
                 auto clusterIndex8 = context.run->fClusterIndexes[found];
@@ -1054,6 +1096,7 @@ void ParagraphImpl::setState(InternalState state) {
         case kLineBroken:
             this->resetContext();
             this->resolveStrut();
+            this->computeEmptyMetrics();
             this->fRunShifts.reset();
             fLines.reset();
         case kFormatted:
@@ -1085,7 +1128,9 @@ void ParagraphImpl::computeEmptyMetrics() {
                                       fEmptyMetrics.leading() * multiplier);
     }
 
-    fStrutMetrics.updateLineMetrics(fEmptyMetrics);
+    if (fParagraphStyle.getStrutStyle().getStrutEnabled()) {
+        fStrutMetrics.updateLineMetrics(fEmptyMetrics);
+    }
 }
 
 void ParagraphImpl::updateText(size_t from, SkString text) {

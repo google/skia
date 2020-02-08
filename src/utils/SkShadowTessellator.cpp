@@ -913,8 +913,8 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // umbraColor is the interior value, penumbraColor the exterior value.
     auto outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
     auto inset = outset * SkDrawShadowMetrics::AmbientRecipAlpha(baseZ) - outset;
-    inset = SkScalarPin(inset, 0, SkTMin(path.getBounds().width(),
-                                         path.getBounds().height()));
+    inset = SkTPin(inset, 0.0f, std::min(path.getBounds().width(),
+                                       path.getBounds().height()));
 
     if (!this->computePathPolygon(path, ctm)) {
         return;

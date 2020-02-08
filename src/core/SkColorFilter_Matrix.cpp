@@ -82,14 +82,13 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 
 bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
                                      SkColorSpace* /*dstCS*/,
-                                     skvm::Uniforms* uniforms,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc*,
                                      skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
         p->unpremul(r,g,b,*a);
 
-        skvm::Builder::Uniform u = uniforms->pushF(fMatrix, 20);
-        auto m = [&](int i) { return p->uniformF(u.ptr, u.offset + 4*i); };
+        auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
         skvm::F32 rgba[4];
         for (int j = 0; j < 4; j++) {

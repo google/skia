@@ -85,10 +85,12 @@ public:
         GrSurfaceProxy* srcProxy = fSrcProxy.get();
         SkASSERT(srcProxy->isInstantiated());
 
-        auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+        auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                 fResources->renderedPathCoverageType());
-        GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(),
-                                   srcProxy->textureSwizzle(), srcProxy->origin());
+        GrColorType ct = GrCCAtlas::CoverageTypeToColorType(fResources->renderedPathCoverageType());
+        GrSwizzle swizzle = flushState->caps().getReadSwizzle(srcProxy->backendFormat(), ct);
+        GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(), swizzle,
+                                   GrCCAtlas::kTextureOrigin);
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().outputSwizzle());
@@ -171,7 +173,7 @@ GrCCPerFlushResources::GrCCPerFlushResources(
         // Overallocate by one point so we can call Sk4f::Store at the final SkPoint in the array.
         // (See transform_path_pts below.)
         // FIXME: instead use built-in instructions to write only the first two lanes of an Sk4f.
-        : fLocalDevPtsBuffer(SkTMax(specs.fRenderedPathStats[kFillIdx].fMaxPointsPerPath,
+        : fLocalDevPtsBuffer(std::max(specs.fRenderedPathStats[kFillIdx].fMaxPointsPerPath,
                                     specs.fRenderedPathStats[kStrokeIdx].fMaxPointsPerPath) + 1)
         , fFiller((CoverageType::kFP16_CoverageCount == coverageType)
                           ? GrCCFiller::Algorithm::kCoverageCount
@@ -533,7 +535,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
         int endCopyRange = atlas->getFillBatchID();
         SkASSERT(endCopyRange > copyRangeIdx);
 
-        auto rtc = atlas->makeRenderTargetContext(onFlushRP);
+        auto rtc = atlas->instantiate(onFlushRP);
         for (; copyRangeIdx < endCopyRange; ++copyRangeIdx) {
             const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
             int endCopyInstance = baseCopyInstance + copyRange.fCount;
@@ -564,7 +566,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
             }
         }
 
-        if (auto rtc = atlas->makeRenderTargetContext(onFlushRP, std::move(backingTexture))) {
+        if (auto rtc = atlas->instantiate(onFlushRP, std::move(backingTexture))) {
             std::unique_ptr<GrDrawOp> op;
             if (CoverageType::kA8_Multisample == fRenderedAtlasStack.coverageType()) {
                 op = GrStencilAtlasOp::Make(

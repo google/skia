@@ -239,7 +239,7 @@ static void brute_force_1d(SkScalar stepMin, SkScalar stepMax,
             sum += gaussian(j, gaussianSigma) * step(i-j, stepMin, stepMax);
         }
 
-        result[i] = SkClampMax(SkClampPos(int(sum + 0.5f)), 255);
+        result[i] = SkTPin(SkClampPos(int(sum + 0.5f)), 0, 255);
     }
 }
 

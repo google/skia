@@ -70,8 +70,9 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
-                                 &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
+                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
+                                 &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
@@ -254,7 +255,7 @@ void GrDistanceFieldA8TextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                                GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
-    numViews = SkTMin(numViews, kMaxTextures);
+    numViews = std::min(numViews, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = views[0].proxy()->dimensions();
@@ -347,8 +348,9 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfPathEffect.inTextureCoords().name(),
-                                 atlasDimensionsInvName, &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfPathEffect.numTextureSamplers(),
+                                 dfPathEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
+                                 &texIdx, &st);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfPathEffect.inColor(), args.fOutputColor);
@@ -547,7 +549,7 @@ void GrDistanceFieldPathGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                              GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
-    numViews = SkTMin(numViews, kMaxTextures);
+    numViews = std::min(numViews, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = views[0].proxy()->dimensions();
@@ -652,8 +654,9 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
-                                 &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
+                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
+                                 &texIdx, &st);
 
         GrGLSLVarying delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta);
@@ -870,7 +873,7 @@ void GrDistanceFieldLCDTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                                 GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
-    numViews = SkTMin(numViews, kMaxTextures);
+    numViews = std::min(numViews, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = views[0].proxy()->dimensions();

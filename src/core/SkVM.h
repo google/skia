@@ -9,6 +9,7 @@
 #define SkVM_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
@@ -336,26 +337,31 @@ namespace skvm {
 
     struct Color { skvm::F32 r,g,b,a; };
 
+    struct OptimizedInstruction {
+        Op op;
+        Val x,y,z;
+        int immy,immz;
+
+        int  death;
+        bool can_hoist;
+        bool used_in_loop;
+    };
+
     class Builder {
     public:
+        SK_BEGIN_REQUIRE_DENSE
         struct Instruction {
-            // Tightly packed for hashing:
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
-            // End tightly packed for hashing.
-
-            // Not populated until done() has been called.
-            int  death;         // Index of last live instruction taking this input; live if != 0.
-            bool can_hoist;     // Value independent of all loop variables?
-            bool used_in_loop;  // Is the value used in the loop (or only by hoisted values)?
         };
+        SK_END_REQUIRE_DENSE
 
-        Program done(const char* debug_name = nullptr);
+        Program done(const char* debug_name = nullptr) const;
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-
+        std::vector<OptimizedInstruction> optimize() const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
@@ -533,8 +539,8 @@ namespace skvm {
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
         // Common idioms used in several places, worth centralizing for consistency.
-        F32 unorm(int bits, I32);   // E.g. unorm(8, x) -> x * (1/255.0f)
-        I32 unorm(int bits, F32);   // E.g. unorm(8, f) -> round(x * 255)
+        F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
+        I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
         Color unpack_8888(I32 rgba);
         Color unpack_565 (I32 bgr );  // bottom 16 bits
@@ -569,35 +575,34 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
-        uint32_t                                      fHashLo{0},
-                                                      fHashHi{0};
     };
 
     // Helper to streamline allocating and working with uniforms.
     struct Uniforms {
-        Arg              ptr;
+        Arg              base;
         std::vector<int> buf;
 
-        explicit Uniforms(int init) : ptr(Arg{0}), buf(init) {}
+        explicit Uniforms(int init) : base(Arg{0}), buf(init) {}
 
-        Builder::Uniform push(const int* vals, int n) {
-            int offset = sizeof(int)*buf.size();
-            buf.insert(buf.end(), vals, vals+n);
-            return {ptr, offset};
-        }
-        Builder::Uniform pushF(const float* vals, int n) {
-            return this->push((const int*)vals, n);
+        Builder::Uniform push(int val) {
+            buf.push_back(val);
+            return {base, (int)( sizeof(int)*(buf.size() - 1) )};
         }
 
-        Builder::Uniform push (int   val) { return this->push (&val, 1); }
-        Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
+        Builder::Uniform pushF(float val) {
+            int bits;
+            memcpy(&bits, &val, sizeof(int));
+            return this->push(bits);
+        }
 
         Builder::Uniform pushPtr(const void* ptr) {
-            union {
-                const void* ptr;
-                int   ints[sizeof(const void*) / sizeof(int)];
-            } pun = {ptr};
-            return this->push(pun.ints, SK_ARRAY_COUNT(pun.ints));
+            // Jam the pointer into 1 or 2 ints.
+            int ints[sizeof(ptr) / sizeof(int)];
+            memcpy(ints, &ptr, sizeof(ptr));
+            for (int bits : ints) {
+                buf.push_back(bits);
+            }
+            return {base, (int)( sizeof(int)*(buf.size() - SK_ARRAY_COUNT(ints)) )};
         }
     };
 
@@ -612,7 +617,7 @@ namespace skvm {
             union { Reg z; int immz; };
         };
 
-        Program(const std::vector<Builder::Instruction>& instructions,
+        Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>                 & strides,
                 const char* debug_name);
 
@@ -644,12 +649,12 @@ namespace skvm {
         void dump(SkWStream* = nullptr) const;
 
     private:
-        void setupInterpreter(const std::vector<Builder::Instruction>&);
-        void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
+        void setupInterpreter(const std::vector<OptimizedInstruction>&);
+        void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
 
         void interpret(int n, void* args[]) const;
 
-        bool jit(const std::vector<Builder::Instruction>&,
+        bool jit(const std::vector<OptimizedInstruction>&,
                  bool try_hoisting,
                  Assembler*) const;
 

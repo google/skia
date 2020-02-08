@@ -56,9 +56,10 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
         c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
-        SkASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 2);
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
+        SkASSERT("float2" == c.fArguments[1]->fType.name());
         SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
         int index = 0;
         bool found = false;
@@ -80,8 +81,15 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
         this->write("%s");
+        size_t childCallIndex = fArgs->fFormatArgs.size();
         fArgs->fFormatArgs.push_back(
                 Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
+        OutputStream* oldOut = fOut;
+        StringStream buffer;
+        fOut = &buffer;
+        this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+        fOut = oldOut;
+        fArgs->fFormatArgs[childCallIndex].fCoords = buffer.str();
         return;
     }
     if (c.fFunction.fBuiltin) {
@@ -124,13 +132,9 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             this->write("%s");
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
-        case SK_MAIN_X_BUILTIN:
+        case SK_MAIN_COORDS_BUILTIN:
             this->write("%s");
-            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordX));
-            break;
-        case SK_MAIN_Y_BUILTIN:
-            this->write("%s");
-            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordY));
+            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoords));
             break;
         default:
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {

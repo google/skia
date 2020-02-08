@@ -45,7 +45,7 @@ bool SkStreamBuffer::buffer(size_t totalBytesToBuffer) {
 
     if (fHasLengthAndPosition) {
         const size_t remaining = fStream->getLength() - fStream->getPosition() + fTrulyBuffered;
-        fBytesBuffered = SkTMin(remaining, totalBytesToBuffer);
+        fBytesBuffered = std::min(remaining, totalBytesToBuffer);
     } else {
         const size_t extraBytes = totalBytesToBuffer - fBytesBuffered;
         const size_t bytesBuffered = fStream->read(fBuffer + fBytesBuffered, extraBytes);

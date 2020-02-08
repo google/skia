@@ -291,11 +291,11 @@ void SkMatrixConvolutionImageFilterImpl::filterPixels(const SkBitmap& src,
                 }
             }
             int a = convolveAlpha
-                  ? SkClampMax(SkScalarFloorToInt(sumA * fGain + fBias), 255)
+                  ? SkTPin(SkScalarFloorToInt(sumA * fGain + fBias), 0, 255)
                   : 255;
-            int r = SkClampMax(SkScalarFloorToInt(sumR * fGain + fBias), a);
-            int g = SkClampMax(SkScalarFloorToInt(sumG * fGain + fBias), a);
-            int b = SkClampMax(SkScalarFloorToInt(sumB * fGain + fBias), a);
+            int r = SkTPin(SkScalarFloorToInt(sumR * fGain + fBias), 0, a);
+            int g = SkTPin(SkScalarFloorToInt(sumG * fGain + fBias), 0, a);
+            int b = SkTPin(SkScalarFloorToInt(sumB * fGain + fBias), 0, a);
             if (!convolveAlpha) {
                 a = SkGetPackedA32(PixelFetcher::fetch(src, x, y, bounds));
                 *dptr++ = SkPreMultiplyARGB(a, r, g, b);
@@ -419,7 +419,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
         // fall-back, which saves us from having to do the xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
-        GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+        GrSurfaceProxyView inputView = input->view(context);
         SkASSERT(inputView.asTextureProxy());
 
         const auto isProtected = inputView.proxy()->isProtected();

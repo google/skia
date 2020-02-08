@@ -555,7 +555,7 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
 static sk_sp<SkSpecialImage> apply_morphology(
         GrRecordingContext* context, SkSpecialImage* input, const SkIRect& rect,
         MorphType morphType, SkISize radius, const SkImageFilter_Base::Context& ctx) {
-    GrSurfaceProxyView srcView = input->asSurfaceProxyViewRef(context);
+    GrSurfaceProxyView srcView = input->view(context);
     SkAlphaType srcAlphaType = input->alphaType();
     SkASSERT(srcView.asTextureProxy());
     sk_sp<SkColorSpace> colorSpace = ctx.refColorSpace();
@@ -624,7 +624,7 @@ namespace {
         const int dstStrideX = direction == MorphDirection::kX ? 1 : dstStride;
         const int srcStrideY = direction == MorphDirection::kX ? srcStride : 1;
         const int dstStrideY = direction == MorphDirection::kX ? dstStride : 1;
-        radius = SkMin32(radius, width - 1);
+        radius = std::min(radius, width - 1);
         const SkPMColor* upperSrc = src + radius * srcStrideX;
         for (int x = 0; x < width; ++x) {
             const SkPMColor* lp = src;
@@ -657,7 +657,7 @@ namespace {
         const int dstStrideX = direction == MorphDirection::kX ? 1 : dstStride;
         const int srcStrideY = direction == MorphDirection::kX ? srcStride : 1;
         const int dstStrideY = direction == MorphDirection::kX ? dstStride : 1;
-        radius = SkMin32(radius, width - 1);
+        radius = std::min(radius, width - 1);
         const SkPMColor* upperSrc = src + radius * srcStrideX;
         for (int x = 0; x < width; ++x) {
             const SkPMColor* lp = src;
@@ -689,7 +689,7 @@ namespace {
         const int dstStrideX = direction == MorphDirection::kX ? 1 : dstStride;
         const int srcStrideY = direction == MorphDirection::kX ? srcStride : 1;
         const int dstStrideY = direction == MorphDirection::kX ? dstStride : 1;
-        radius = SkMin32(radius, width - 1);
+        radius = std::min(radius, width - 1);
         const SkPMColor* upperSrc = src + radius * srcStrideX;
         for (int x = 0; x < width; ++x) {
             const SkPMColor* lp = src;
@@ -705,15 +705,15 @@ namespace {
                         r = SkGetPackedR32(*p),
                         a = SkGetPackedA32(*p);
                     if (type == MorphType::kDilate) {
-                        B = SkTMax(b, B);
-                        G = SkTMax(g, G);
-                        R = SkTMax(r, R);
-                        A = SkTMax(a, A);
+                        B = std::max(b, B);
+                        G = std::max(g, G);
+                        R = std::max(r, R);
+                        A = std::max(a, A);
                     } else {
-                        B = SkTMin(b, B);
-                        G = SkTMin(g, G);
-                        R = SkTMin(r, R);
-                        A = SkTMin(a, A);
+                        B = std::min(b, B);
+                        G = std::min(g, G);
+                        R = std::min(r, R);
+                        A = std::min(a, A);
                     }
                 }
                 *dptr = SkPackARGB32(A, R, G, B);

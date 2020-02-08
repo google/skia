@@ -467,7 +467,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     if (!ctx) {
         return nullptr;
     }
-    sampleCount = SkTMax(1, sampleCount);
+    sampleCount = std::max(1, sampleCount);
     GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     if (!ctx->priv().caps()->mipMapSupport()) {
@@ -507,7 +507,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!context) {
         return nullptr;
     }
-    sampleCnt = SkTMax(1, sampleCnt);
+    sampleCnt = std::max(1, sampleCnt);
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
                                                                 tex.getBackendFormat());
@@ -642,7 +642,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
 
-    sampleCnt = SkTMax(1, sampleCnt);
+    sampleCnt = std::max(1, sampleCnt);
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
                                                                 tex.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
