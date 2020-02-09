@@ -32,6 +32,7 @@ namespace skottie_utils {
  */
 class CustomPropertyManager final {
 public:
+    std::string currentNode = "";
     CustomPropertyManager();
     ~CustomPropertyManager();
 

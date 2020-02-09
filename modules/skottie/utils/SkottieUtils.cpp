@@ -15,26 +15,36 @@ public:
 
     void onColorProperty(const char node_name[],
                          const LazyHandle<skottie::ColorPropertyHandle>& c) override {
-        const auto key = fMgr->acceptKey(node_name);
-        if (!key.empty()) {
-            fMgr->fColorMap[key].push_back(c());
-        }
+        const auto markedKey = fMgr->acceptKey(node_name);
+        const auto key = markedKey.empty() ? markedKey : fMgr->currentNode + ".Color";
+        fMgr->fColorMap[key].push_back(c());
     }
 
     void onOpacityProperty(const char node_name[],
                            const LazyHandle<skottie::OpacityPropertyHandle>& o) override {
-        const auto key = fMgr->acceptKey(node_name);
-        if (!key.empty()) {
-            fMgr->fOpacityMap[key].push_back(o());
-        }
+        const auto markedKey = fMgr->acceptKey(node_name);
+        const auto key = markedKey.empty() ? markedKey : fMgr->currentNode + ".Opacity";
+        fMgr->fOpacityMap[key].push_back(o());
     }
 
     void onTransformProperty(const char node_name[],
                              const LazyHandle<skottie::TransformPropertyHandle>& t) override {
-        const auto key = fMgr->acceptKey(node_name);
-        if (!key.empty()) {
-            fMgr->fTransformMap[key].push_back(t());
-        }
+        const auto markedKey = fMgr->acceptKey(node_name);
+        const auto key = markedKey.empty() ? markedKey : fMgr->currentNode + ".Transform";
+        fMgr->fTransformMap[key].push_back(t());
+    }
+
+    void onEnterNode(const char node_name[]) override {
+        fMgr->currentNode =
+                fMgr->currentNode.empty() ? node_name : fMgr->currentNode + "." + node_name;
+    }
+
+    void onLeavingProperty(const char node_name[]) override {
+        auto length = strlen(node_name);
+        fMgr->currentNode = fMgr->currentNode.length() > length
+                                    ? fMgr->currentNode.substr(
+                                              0, fMgr->currentNode.length() - strlen(node_name) - 1)
+                                    : "";
     }
 
     void onTextProperty(const char node_name[],
