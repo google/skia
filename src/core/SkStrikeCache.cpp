@@ -22,7 +22,7 @@ public:
     Node(SkStrikeCache* strikeCache,
          const SkDescriptor& desc,
          std::unique_ptr<SkScalerContext> scaler,
-         const SkFontMetrics& metrics,
+         const SkFontMetrics* metrics,
          std::unique_ptr<SkStrikePinner> pinner)
             : fStrikeCache{strikeCache}
             , fStrike{desc, std::move(scaler), metrics}
@@ -277,14 +277,7 @@ auto SkStrikeCache::createStrike(
         std::unique_ptr<SkScalerContext> scaler,
         SkFontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner) -> Node* {
-    SkFontMetrics fontMetrics;
-    if (maybeMetrics != nullptr) {
-        fontMetrics = *maybeMetrics;
-    } else {
-        scaler->getFontMetrics(&fontMetrics);
-    }
-
-    return new Node{this, desc, std::move(scaler), fontMetrics, std::move(pinner)};
+    return new Node{this, desc, std::move(scaler), maybeMetrics, std::move(pinner)};
 }
 
 void SkStrikeCache::purgeAll() {
