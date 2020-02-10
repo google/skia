@@ -294,27 +294,23 @@
     } while (false)
 #endif
 
-// If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
-// If not, we'll default to RGBA everywhere except BGRA on Windows.
-#if defined(SK_R32_SHIFT)
-    static_assert(SK_R32_SHIFT == 0 || SK_R32_SHIFT == 16, "");
-#elif defined(SK_BUILD_FOR_WIN)
-    #define SK_R32_SHIFT 16
-#else
-    #define SK_R32_SHIFT 0
-#endif
-
-#if defined(SK_B32_SHIFT)
-    static_assert(SK_B32_SHIFT == (16-SK_R32_SHIFT), "");
-#else
-    #define SK_B32_SHIFT (16-SK_R32_SHIFT)
-#endif
-
+/**
+ *  These define the shift values to access components in SkColor and SkPMColor.
+ *
+ *  Skia supports a wide-range of colortypes (pixel configurations), including RGBA and BGRA
+ *  variations of 8888. Historically, it only supported one of these swizzles, which was lovingly
+ *  called N32 (for "native"). Today there is broad support for both, and many other types, but
+ *  we leave these in for compatibility with older clients.
+ */
+#define SK_B32_SHIFT 0
 #define SK_G32_SHIFT 8
+#define SK_R32_SHIFT 16
 #define SK_A32_SHIFT 24
 
-
 /**
+ *  DEPRECATED: Now that the shift order is alwasy BGRA, we shouldn't need this BYTE_ORDER
+ *  query.
+ *
  * SK_PMCOLOR_BYTE_ORDER can be used to query the byte order of SkPMColor at compile time. The
  * relationship between the byte order and shift values depends on machine endianness. If the shift
  * order is R=0, G=8, B=16, A=24 then ((char*)&pmcolor)[0] will produce the R channel on a little
