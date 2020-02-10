@@ -22,6 +22,30 @@
       "revId": "8544d9282c1d1f6db147ce653c3b80290776d22d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7198b685_91dd0b63",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-10T15:13:07Z",
+      "side": 1,
+      "message": "Agreed. I just wrote this CL to see what would break. If its worth pursuing this \"feature\" that N32 is no longer in the client\u0027s control, I will post a clearer CL.",
+      "parentUuid": "05ddae62_3b787627",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 6
+      },
+      "revId": "8544d9282c1d1f6db147ce653c3b80290776d22d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
