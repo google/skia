@@ -33,6 +33,22 @@
   },
   {
     "cmd": [
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-start"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Fast/Release",
@@ -65,6 +81,22 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-end"
   },
   {
     "cmd": [
