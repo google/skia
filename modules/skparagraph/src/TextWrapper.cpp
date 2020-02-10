@@ -142,7 +142,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         return std::make_tuple(fEndLine.breakCluster() + 1, 0, width);
     }
 
-    auto width = fEndLine.withWithGhostSpaces();
+    auto width = fEndLine.widthWithGhostSpaces();
     auto cluster = fEndLine.breakCluster();
     if (fEndLine.endCluster() != fEndLine.startCluster() ||
         fEndLine.endPos() != fEndLine.startPos()) {
@@ -205,7 +205,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         if (needEllipsis && !fHardLineBreak) {
             // This is what we need to do to preserve a space before the ellipsis
             fEndLine.restoreBreak();
-            widthWithSpaces = fEndLine.withWithGhostSpaces();
+            widthWithSpaces = fEndLine.widthWithGhostSpaces();
         }
 
         // If the line is empty with the hard line break, let's take the paragraph font (flutter???)

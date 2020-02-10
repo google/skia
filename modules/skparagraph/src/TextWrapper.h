@@ -45,7 +45,7 @@ class TextWrapper {
         }
 
         inline SkScalar width() const { return fWidth; }
-        SkScalar withWithGhostSpaces() const { return fWidthWithGhostSpaces; }
+        SkScalar widthWithGhostSpaces() const { return fWidthWithGhostSpaces; }
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
