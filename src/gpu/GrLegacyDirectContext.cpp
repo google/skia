@@ -191,7 +191,6 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext)
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
 #ifdef SK_VULKAN
-    GrContextOptions defaultOptions;
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kVulkan, options));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
