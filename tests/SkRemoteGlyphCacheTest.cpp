@@ -857,7 +857,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
                 SkMatrix::I(), &rec, &effects);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
-        auto context = serverTf->createScalerContext(effects, desc, false);
+        auto context = serverTf->createScalerContext(effects, desc);
         SkGlyph glyph{lostGlyphID};
         context->getMetrics(&glyph);
         realMask = glyph.maskFormat();

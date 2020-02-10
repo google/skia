@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkScalerContext.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -127,9 +128,10 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
             return sk_ref_sp(this);
         }
-        SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                               const SkDescriptor*) const override {
-            return nullptr;
+        SkScalerContext* onCreateScalerContext(const SkScalerContextEffects& effects,
+                                               const SkDescriptor* desc) const override {
+            return SkScalerContext::MakeEmptyContext(
+                    sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
         }
         void onFilterRec(SkScalerContextRec*) const override { }
         std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {

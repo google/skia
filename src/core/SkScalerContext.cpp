@@ -863,53 +863,13 @@ void SkScalerContextRec::setLuminanceColor(SkColor c) {
             SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c)));
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-class SkScalerContext_Empty : public SkScalerContext {
-public:
-    SkScalerContext_Empty(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
-                          const SkDescriptor* desc)
-        : SkScalerContext(std::move(typeface), effects, desc) {}
-
-protected:
-    unsigned generateGlyphCount() override {
-        return 0;
-    }
-    bool generateAdvance(SkGlyph* glyph) override {
-        glyph->zeroMetrics();
-        return true;
-    }
-    void generateMetrics(SkGlyph* glyph) override {
-        glyph->fMaskFormat = fRec.fMaskFormat;
-        glyph->zeroMetrics();
-    }
-    void generateImage(const SkGlyph& glyph) override {}
-    bool generatePath(SkGlyphID glyph, SkPath* path) override {
-        path->reset();
-        return false;
-    }
-    void generateFontMetrics(SkFontMetrics* metrics) override {
-        if (metrics) {
-            sk_bzero(metrics, sizeof(*metrics));
-        }
-    }
-};
-
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
 std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
-    const SkScalerContextEffects& effects, const SkDescriptor* desc, bool allowFailure) const
-{
-    std::unique_ptr<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
-    if (!c && !allowFailure) {
-        c = std::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
-                                                      effects, desc);
-    }
-
-    // !allowFailure implies c != nullptr
-    SkASSERT(c || allowFailure);
-
-    return c;
+        const SkScalerContextEffects& effects, const SkDescriptor* desc) const {
+    auto answer = std::unique_ptr<SkScalerContext>{this->onCreateScalerContext(effects, desc)};
+    SkASSERT(answer != nullptr);
+    return answer;
 }
 
 /*
@@ -1196,6 +1156,42 @@ bool SkScalerContext::CheckBufferSizeForRec(const SkScalerContextRec& rec,
                                             size_t size) {
     SkBinaryWriteBuffer buf;
     return size >= calculate_size_and_flatten(rec, effects, &buf);
+}
+
+SkScalerContext* SkScalerContext::MakeEmptyContext(
+        sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
+        const SkDescriptor* desc) {
+    class SkScalerContext_Empty : public SkScalerContext {
+    public:
+        SkScalerContext_Empty(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
+                              const SkDescriptor* desc)
+                : SkScalerContext(std::move(typeface), effects, desc) {}
+
+    protected:
+        unsigned generateGlyphCount() override {
+            return 0;
+        }
+        bool generateAdvance(SkGlyph* glyph) override {
+            glyph->zeroMetrics();
+            return true;
+        }
+        void generateMetrics(SkGlyph* glyph) override {
+            glyph->fMaskFormat = fRec.fMaskFormat;
+            glyph->zeroMetrics();
+        }
+        void generateImage(const SkGlyph& glyph) override {}
+        bool generatePath(SkGlyphID glyph, SkPath* path) override {
+            path->reset();
+            return false;
+        }
+        void generateFontMetrics(SkFontMetrics* metrics) override {
+            if (metrics) {
+                sk_bzero(metrics, sizeof(*metrics));
+            }
+        }
+    };
+
+    return new SkScalerContext_Empty{std::move(typeface), effects, desc};
 }
 
 

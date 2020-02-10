@@ -701,7 +701,8 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
     auto c = std::make_unique<SkScalerContext_FreeType>(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
     if (!c->success()) {
-        return nullptr;
+        return SkScalerContext::MakeEmptyContext(
+                sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
     }
     return c.release();
 }
