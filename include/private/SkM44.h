@@ -14,6 +14,9 @@
 struct SkV3 {
     float x, y, z;
 
+    SkV3(SkScalar xx, SkScalar yy, SkScalar zz)
+        : x(xx), y(yy), z(zz) {}
+
     bool operator==(const SkV3& v) const {
         return x == v.x && y == v.y && z == v.z;
     }
