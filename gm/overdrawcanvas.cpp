@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
@@ -25,8 +26,9 @@
 #define HEIGHT 500
 
 
-static const uint32_t kOverdrawColors[6] = {
-        0x00000000, 0x5f00005f, 0x2f2f0000, 0x2f002f00, 0x3f00003f, 0x7f00007f,
+static const SkPMColor kOverdrawColors[6] = {
+    SkPackARGB32(0,0,0,0),       SkPackARGB32(0x5f,0x5f,0,0), SkPackARGB32(0x2f,0,0,0x2f),
+    SkPackARGB32(0x2f,0,0x2f,0), SkPackARGB32(0x3f,0x3f,0,0), SkPackARGB32(0x7f,0x7f,0,0),
 };
 
 
