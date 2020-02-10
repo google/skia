@@ -91,6 +91,7 @@ public:
 
     uint32_t contextID() const;
     const GrCaps* caps() const;
+    GrOpMemoryPool* opMemoryPool() const;
 
 #if GR_TEST_UTILS
     bool testingOnly_getSuppressAllocationWarnings() const;

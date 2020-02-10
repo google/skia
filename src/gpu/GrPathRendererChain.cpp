@@ -33,7 +33,9 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kGpuTessellation) {
         if (caps.shaderCaps()->tessellationSupport()) {
-            fChain.push_back(sk_make_sp<GrGpuTessellationPathRenderer>());
+            auto gtess = sk_make_sp<GrGpuTessellationPathRenderer>(caps);
+            context->priv().addOnFlushCallbackObject(gtess.get());
+            fChain.push_back(std::move(gtess));
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {

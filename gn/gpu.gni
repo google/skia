@@ -420,6 +420,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.cpp",
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.h",
 
+  "$_src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
+  "$_src/gpu/tessellate/GrDrawAtlasPathOp.h",
   "$_src/gpu/tessellate/GrFillPathShader.cpp",
   "$_src/gpu/tessellate/GrFillPathShader.h",
   "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",

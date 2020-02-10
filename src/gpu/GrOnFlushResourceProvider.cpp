@@ -142,6 +142,10 @@ const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->priv().caps();
 }
 
+GrOpMemoryPool* GrOnFlushResourceProvider::opMemoryPool() const {
+    return fDrawingMgr->getContext()->priv().opMemoryPool();
+}
+
 #if GR_TEST_UTILS
 bool GrOnFlushResourceProvider::testingOnly_getSuppressAllocationWarnings() const {
     return fDrawingMgr->getContext()->testingOnly_getSuppressAllocationWarnings();

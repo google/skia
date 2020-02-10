@@ -77,6 +77,7 @@ public:
         kDefaultGeoProc_ClassID,
         kDIEllipseGeometryProcessor_ClassID,
         kDisableColorXP_ClassID,
+        kDrawAtlasPathShader_ClassID,
         kEllipseGeometryProcessor_ClassID,
         kEllipticalRRectEffect_ClassID,
         kGP_ClassID,
