@@ -144,17 +144,7 @@ std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,
         const SkTypeface& typeface) {
-    auto scaler = typeface.createScalerContext(effects, &desc, true /* can fail */);
-
-    // Check if we can create a scaler-context before creating the glyphcache.
-    // If not, we may have exhausted OS/font resources, so try purging the
-    // cache once and try again
-    // pass true the first time, to notice if the scalercontext failed,
-    if (scaler == nullptr) {
-        PurgeAll();
-        scaler = typeface.createScalerContext(effects, &desc, false /* must succeed */);
-    }
-    return scaler;
+    return typeface.createScalerContext(effects, &desc);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(

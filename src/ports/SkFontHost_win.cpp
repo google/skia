@@ -26,6 +26,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkLeanWindows.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
@@ -2023,12 +2024,49 @@ sk_sp<SkData> LogFontTypeface::onCopyTableData(SkFontTableTag tag) const {
     return data;
 }
 
+class SkScalerContext_Empty : public SkScalerContext {
+public:
+    SkScalerContext_Empty(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
+                          const SkDescriptor* desc)
+        : SkScalerContext(std::move(typeface), effects, desc) {}
+
+protected:
+    unsigned generateGlyphCount() override {
+        return 0;
+    }
+    bool generateAdvance(SkGlyph* glyph) override {
+        glyph->zeroMetrics();
+        return true;
+    }
+    void generateMetrics(SkGlyph* glyph) override {
+        glyph->fMaskFormat = fRec.fMaskFormat;
+        glyph->zeroMetrics();
+    }
+    void generateImage(const SkGlyph& glyph) override {}
+    bool generatePath(SkGlyphID glyph, SkPath* path) override {
+        path->reset();
+        return false;
+    }
+    void generateFontMetrics(SkFontMetrics* metrics) override {
+        if (metrics) {
+            sk_bzero(metrics, sizeof(*metrics));
+        }
+    }
+};
+
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                         const SkDescriptor* desc) const {
     auto ctx = std::make_unique<SkScalerContext_GDI>(
             sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        return nullptr;
+        ctx.reset();
+        SkStrikeCache::PurgeAll();
+        ctx = std::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+        if (!ctx->isValid()) {
+            ctx = std::make_unique<SkScalerContext_Empty>(
+                    sk_ref_sp(const_cast<SkTypeface*>(this)), effects, desc);
+        }
     }
     return ctx.release();
 }
