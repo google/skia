@@ -323,7 +323,8 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     }
 
     sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes());
+    auto image = sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes());
+    return as_IB(image.get())->onPeekBitmap()->pixelRef() ? image : nullptr;
 }
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,
