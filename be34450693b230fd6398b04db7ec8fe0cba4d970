@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e260d246_605eedc8",
+        "filename": "modules/skottie/include/SkottieProperty.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-10T14:37:50Z",
+      "side": 1,
+      "message": "Is there a semantic difference between \"node\" and \"property\" here?  The calls look balanced on the same input, so I presume they refer to the same thing?  Then we should name them the same: onEnterNode/onExitNode or onNodeBegin/onNodeEnd or such.",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 59
+      },
+      "revId": "be34450693b230fd6398b04db7ec8fe0cba4d970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b36c8407_fa0b3140",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-10T14:37:50Z",
+      "side": 1,
+      "message": "For symmetry, can you relocate the onEnter call here (easier the see the balanced calls next to each other)?",
+      "revId": "be34450693b230fd6398b04db7ec8fe0cba4d970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d15aa3d_9ce99836",
+        "filename": "modules/skottie/utils/SkottieUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-10T14:37:50Z",
+      "side": 1,
+      "message": "1) does this need to be public (I think it\u0027s only being accessed from nested PropertyInterceptor)?\n2) Skia style is to prefix fields with \"f\"\n3) explicit initialization should not be needed in this case\n\ni.e. I would relocate to the private section (end of class) as fCurrentNode, drop the initialization.",
+      "revId": "be34450693b230fd6398b04db7ec8fe0cba4d970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
