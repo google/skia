@@ -1217,6 +1217,10 @@ func (b *builder) compile(name string, parts map[string]string) string {
 			Name: "xcode",
 			Path: "cache/Xcode.app",
 		})
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_mac"))
+		b.usesCCache(task, name)
+		// DO NOT SUBMIT
+		task.Dimensions = append(task.Dimensions, "id:vm331-m9")
 		if strings.Contains(name, "CommandBuffer") {
 			timeout(task, 2*time.Hour)
 		}
