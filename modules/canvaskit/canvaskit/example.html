@@ -40,6 +40,7 @@
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
+<canvas id=camera3d width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -64,6 +65,7 @@
     DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);
     InkExample(CanvasKit);
+    Camera3D(CanvasKit);
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -1272,5 +1274,263 @@
     }
     surface.requestAnimationFrame(drawFrame);
 
+  }
+
+  function Camera3D(canvas) {
+    const surface = CanvasKit.MakeCanvasSurface('camera3d');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const sizeX = document.getElementById('camera3d').width;
+    const sizeY = document.getElementById('camera3d').height;
+
+    let clickToWorld = new CanvasKit.SkM44();
+    let worldToClick = new CanvasKit.SkM44();
+    // rotation of the cube shown in the demo
+    let rotation = new CanvasKit.SkM44();
+    // temporary during a click and drag
+    let clickRotation = new CanvasKit.SkM44();
+
+    // A virtual sphere used for tumbling the object on screen.
+    const vSphereCenterX = sizeX/2;
+    const vSphereCenterY = sizeY/2;
+    const vSphereRadius = Math.min(vSphereCenterX, vSphereCenterY);
+
+    // The rounded rect used for each face
+    const margin = vSphereRadius / 20;
+    const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(margin, margin,
+      vSphereRadius - margin, vSphereRadius - margin), margin*2.5, margin*2.5);
+
+    const camNear = 0.05;
+    const camFar = 4;
+    const camAngle = Math.PI / 12;
+
+    const camEye = new CanvasKit.SkV3(0, 0, 1/Math.tan(camAngle/2) - 1);
+    const camCOA = new CanvasKit.SkV3(0, 0, 0);
+    const camUp = new CanvasKit.SkV3(0, 1, 0);
+
+    let mouseDown = false;
+    let clickDownX = 0;
+    let clickDownY = 0;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    // keep spinning after mouse up
+    let totalSpin = 0;
+    let spinRate = 0;
+    let lastRadians = 0;
+    let spinning = {}; // an interval object we can use to cancel the animation when spinning stops.
+
+    // Takes an x and y rotation in radians and a scale and returns a 4x4 matrix used to draw a
+    // face of the cube in that orientation.
+    function faceM44(rx, ry, scale) {
+      return CanvasKit.SkM44.Rotate(new CanvasKit.SkV3(0,1,0), ry).multiply(
+        CanvasKit.SkM44.Rotate(new CanvasKit.SkV3(1,0,0), rx)).multiply(
+        CanvasKit.SkM44.Translate(0, 0, scale));
+    }
+
+    const scale = vSphereRadius/2
+    const faces = [
+      {matrix: faceM44(         0,         0, scale ), color:CanvasKit.RED}, // front
+      {matrix: faceM44(         0,   Math.PI, scale ), color:CanvasKit.GREEN}, // back
+
+      {matrix: faceM44( Math.PI/2,         0, scale ), color:CanvasKit.BLUE}, // top
+      {matrix: faceM44(-Math.PI/2,         0, scale ), color:CanvasKit.CYAN}, // bottom
+
+      {matrix: faceM44(         0, Math.PI/2, scale ), color:CanvasKit.MAGENTA}, // left
+      {matrix: faceM44(         0,-Math.PI/2, scale ), color:CanvasKit.YELLOW}, // right
+    ];
+
+    // Returns true when the matrix represents a face with a normal facing the camera.
+    function front(m) {
+      // Is this invertible?
+      let m2 = new CanvasKit.SkM44();
+      if (!m.invert(m2)) {
+        m2.setIdentity();
+      }
+      // look at the sign of the z-scale of the inverse of m
+      const ans = m2.rc(2,2) > 0;
+      m2.delete()
+      return ans;
+    }
+
+    // Return the inverse of an SkM44. asset it's invertible
+    function inv(m) {
+      let m2 = new CanvasKit.SkM44();
+      if (!m.invert(m2)) {
+        throw "Matrix not invertible";
+      }
+      return m2;
+    }
+
+    function saveCamera(canvas, /* rect */ area, /* scalar */ zscale) {
+      const camera = new CanvasKit.SkM44.Sk3LookAt(camEye, camCOA, camUp);
+      const perspective = new CanvasKit.SkM44.Sk3Perspective(camNear, camFar, camAngle);
+      // Calculate viewport scale. Even through we know these values are all constants in this
+      // example it might be handy to change the size later.
+      const centerX = (area.fLeft + area.fRight)/2;
+      const centerY = (area.fTop + area.fBottom)/2;
+      const halfW = (area.fRight - area.fLeft)/2;
+      const halfH = (area.fBottom - area.fTop)/2;
+      const viewport = new CanvasKit.SkM44.Translate(centerX, centerY, 0).multiply(
+        CanvasKit.SkM44.Scale(halfW, halfH, zscale));
+
+      // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+      // as part of our "camera".
+      canvas.experimental_saveCamera(
+        viewport.multiply(perspective),
+        camera.multiply(inv(viewport)));
+
+      // delete temporary matrices
+      camera.delete();
+      perspective.delete();
+      viewport.delete();
+    }
+
+    function setClickToWorld(canvas, matrix) {
+      const l2d = canvas.experimental_getLocalToDevice();
+      worldToClick = inv(matrix).multiply(l2d);
+      clickToWorld = inv(worldToClick);
+    }
+
+    function drawCubeFace(canvas, m, color) {
+      const trans = new CanvasKit.SkM44.Translate(vSphereRadius/2, vSphereRadius/2, 0);   // center of the rotation
+      canvas.experimental_concat44(trans.multiply(m).multiply(inv(trans)));
+      // skip faces facing backwards
+      if (!front(canvas.experimental_getLocalToDevice())) {
+        return;
+      }
+      const paint = new CanvasKit.SkPaint();
+      paint.setColor(color);
+      // TODO replace color with a bump shader
+      canvas.drawRRect(rr, paint);
+
+      trans.delete();
+    }
+
+    function drawFrame(canvas) {
+      // TODO if not GPU backend, print an error to the console and return.
+      // this demo only works in GL.
+      const clickM = canvas.experimental_getLocalToDevice();
+      canvas.save();
+      canvas.translate(vSphereCenterX - vSphereRadius/2, vSphereCenterY - vSphereRadius/2);
+      // pass surface dimensions as viewport size.
+      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2);
+      setClickToWorld(canvas, clickM);
+      for (let f of faces) {
+        const saveCount = canvas.getSaveCount();
+        canvas.save();
+        drawCubeFace(canvas, clickRotation.multiply(rotation).multiply(f.matrix), f.color);
+        canvas.restoreToCount(saveCount);
+      }
+      canvas.restore();  // camera
+      canvas.restore();  // center the following content in the window
+
+      // draw virtual sphere outline.
+      const paint = new CanvasKit.SkPaint();
+      paint.setAntiAlias(true);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      paint.setColor(CanvasKit.Color(64, 255, 0, 1.0));
+      canvas.drawCircle(vSphereCenterX, vSphereCenterY, vSphereRadius, paint);
+      canvas.drawLine(vSphereCenterX, vSphereCenterY - vSphereRadius,
+                       vSphereCenterX, vSphereCenterY + vSphereRadius, paint);
+      canvas.drawLine(vSphereCenterX - vSphereRadius, vSphereCenterY,
+                       vSphereCenterX + vSphereRadius, vSphereCenterY, paint);
+    }
+
+    // convert a 2D point in the circle displayed on screen to a 3D unit vector.
+    // the virtual sphere is a technique selecting a 3D direction by clicking on a the projection
+    // of a hemisphere.
+    function vSphereUnitV3(x, y) {
+      // v = (v - fCenter) * (1 / fRadius);
+      let vx = (x - vSphereCenterX) / vSphereRadius;
+      let vy = (y - vSphereCenterY) / vSphereRadius;
+
+      // len2 = v.lengthSquared();
+      let len2 = vx * vx + vy * vy;
+
+      if (len2 > 1) {
+          // normalize
+          let len = Math.sqrt(len2);
+          vx /= len;
+          vy /= len;
+          len2 = 1;
+      }
+      const z = Math.sqrt(1 - len2);
+      return new CanvasKit.SkV3(vx, vy, z);
+    }
+
+    function computeVSphereRotation(x0, y0, x1, y1) {
+      const u = vSphereUnitV3(x0, y0);
+      const v = vSphereUnitV3(x1, y1);
+      // Axis is in the scope of the Camera3D function so it can be used in keepSpinning.
+      axis = u.cross(v);
+      const sinValue = axis.length();
+      const cosValue = u.dot(v);
+
+      let m = new CanvasKit.SkM44();
+      if (Math.abs(sinValue) > 0.000000001) {
+          m.setRotateUnitSinCos(axis.timesScalar(1 / sinValue), sinValue, cosValue);
+          const radians = Math.atan(cosValue / sinValue);
+          spinRate = lastRadians - radians;
+          lastRadians = radians;
+      }
+      return m;
+    }
+
+    function keepSpinning() {
+      //let m = new CanvasKit.SkM44();
+      totalSpin += spinRate;
+      clickRotation.setRotate(axis, totalSpin);
+
+      //rotation = m.multiply(rotation);
+      spinRate *= .99;
+      if (spinRate < 0.02) {
+        stopSpinning();
+      }
+      surface.requestAnimationFrame(drawFrame);
+    }
+
+    function stopSpinning() {
+        clearInterval(spinning);
+        rotation = clickRotation.multiply(rotation);
+        clickRotation.setIdentity();
+    }
+
+    function interact(e) {
+      const type = e.type;
+      if (type === 'lostpointercapture' || type === 'pointerup' || type == 'pointerleave') {
+        stopSpinning();
+        mouseDown = false;
+        if (spinRate > 0.02) {
+          spinning = setInterval(keepSpinning, 30);
+          console.log(`start spinning at ${spinRate}`);
+        }
+        return;
+      } else if (type === 'pointermove') {
+        if (!mouseDown)  { return; }
+        lastMouseX = e.offsetX
+        lastMouseY = e.offsetY
+        clickRotation = computeVSphereRotation(clickDownX, clickDownY,
+                                               lastMouseX, lastMouseY);
+      } else if (type === 'pointerdown') {
+        stopSpinning();
+        mouseDown = true;
+        clickDownX = e.offsetX;
+        clickDownY = e.offsetY;
+      }
+      surface.requestAnimationFrame(drawFrame);
+    };
+
+    document.getElementById('camera3d').addEventListener('pointermove', interact);
+    document.getElementById('camera3d').addEventListener('pointerdown', interact);
+    document.getElementById('camera3d').addEventListener('lostpointercapture', interact);
+    document.getElementById('camera3d').addEventListener('pointerleave', interact);
+    document.getElementById('camera3d').addEventListener('pointerup', interact);
+
+    surface.requestAnimationFrame(drawFrame);
+    console.log("defined camera23 example")
   }
 </script>
