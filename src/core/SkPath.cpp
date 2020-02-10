@@ -1259,6 +1259,15 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
                 point.fY = SkScalarRoundToScalar(point.fY);
             }
         }
+
+        // If this is the last point, the final coordinate should match the input point
+        // (by definition); replace it to ensure that rounding errors in the above math
+        // don't cause any problems.
+        if (i == segments - 1) {
+          mapped[1].fX = x;
+          mapped[1].fY = y;
+        }
+
         this->conicTo(mapped[0], mapped[1], w);
         startTheta = endTheta;
     }
