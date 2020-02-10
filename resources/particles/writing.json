@@ -24,7 +24,7 @@
       "void spawn(inout Particle p) {",
       "  p.lifetime = 4;",
       "  p.pos = mouse_pos;",
-      "  p.frame = effect.age / 0.75 + mix(-0.05, 0.05, rand);",
+      "  p.frame = effect.age / 0.75 + mix(-0.05, 0.05, rand(p.seed));",
       "}",
       "",
       "void update(inout Particle p) {",

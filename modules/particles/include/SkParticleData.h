@@ -32,13 +32,13 @@ struct SkParticles {
         kColorB,
         kColorA,
         kSpriteFrame,
-        kFlags,       // This is the only non-float data (it's actually uint32_t)
+        kFlags,       // The last two are non-float data (they're actually uint32_t)
+        kRandom,
 
         kNumChannels,
     };
 
     SkAutoTMalloc<float>    fData[kNumChannels];
-    SkAutoTMalloc<SkRandom> fRandom;
 };
 
 #endif // SkParticleData_DEFINED

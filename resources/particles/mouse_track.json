@@ -18,8 +18,8 @@
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 2 + rand;",
-      "  p.vel.y = (20 * rand) - 10;",
+      "  p.lifetime = 2 + rand(p.seed);",
+      "  p.vel.y = (20 * rand(p.seed)) - 10;",
       "}",
       "",
       "void update(inout Particle p) {",
@@ -27,7 +27,7 @@
       "  p.color.g = 1 - p.age;",
       "  float s1 = 0.5 + (1.5 * p.age);",
       "  float s2 = 1.0 + (-0.75 * p.age);",
-      "  p.scale = (s1 + (s2 - s1) * rand) * 0.5;",
+      "  p.scale = (s1 + (s2 - s1) * rand(p.seed)) * 0.5;",
       "  p.vel.y += 20.0 * dt;",
       "}",
       ""
