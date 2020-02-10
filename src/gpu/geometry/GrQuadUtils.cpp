@@ -936,13 +936,15 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
     V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
     V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
-    correct_bad_edges(mad(e1x, e1x, e1y * e1y) < kDist2Tolerance, &e1x, &e1y, &e1w);
+    M4f e1Bad = mad(e1x, e1x, e1y * e1y) < kDist2Tolerance;
+    correct_bad_edges(e1Bad, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
     V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
     V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
     V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
-    correct_bad_edges(mad(e2x, e2x, e2y * e2y) < kDist2Tolerance, &e2x, &e2y, &e2w);
+    M4f e2Bad = mad(e2x, e2x, e2y * e2y) < kDist2Tolerance;
+    correct_bad_edges(e2Bad, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have
     // x2d = (x + a*e1x + b*e2x) / (w + a*e1w + b*e2w) and
@@ -1018,10 +1020,12 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
         V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
         V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
         V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
+        correct_bad_edges(e1Bad, &e1u, &e1v, &e1r);
 
         V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
         V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
         V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
+        correct_bad_edges(e2Bad, &e2u, &e2v, &e2r);
 
         fU += a * e1u + b * e2u;
         fV += a * e1v + b * e2v;
