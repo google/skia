@@ -1000,16 +1000,16 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     return true;
 }
 
-sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
+sk_sp<SkTypefaceProxy> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
     memcpy(&wire, buf, sizeof(wire));
     return this->addTypeface(wire);
 }
 
-sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
+sk_sp<SkTypefaceProxy> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
-    if (typeface) return *typeface;
+    if (typeface != nullptr) { return *typeface; }
 
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(
             wire.typefaceID, wire.glyphCount, wire.style, wire.isFixed,

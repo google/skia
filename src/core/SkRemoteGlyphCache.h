@@ -212,7 +212,7 @@ public:
 
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
     // data is invalid.
-    SK_SPI sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
+    SK_SPI sk_sp<SkTypefaceProxy> deserializeTypeface(const void* data, size_t length);
 
     // Deserializes the strike data from a SkStrikeServer. All messages generated
     // from a server when serializing the ops must be deserialized before the op
@@ -224,9 +224,9 @@ private:
     class DiscardableStrikePinner;
 
     static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
-    sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
+    sk_sp<SkTypefaceProxy> addTypeface(const WireTypeface& wire);
 
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
+    SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fRemoteFontIdToTypeface;
     sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
     SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;

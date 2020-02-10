@@ -289,7 +289,7 @@ public:
     void        getImage(const SkGlyph&);
     bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkFontMetrics*);
-
+`
     /** Return the size in bytes of the associated gamma lookup table
      */
     static size_t GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
