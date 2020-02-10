@@ -955,10 +955,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             auto scaler = SkStrikeCache::CreateScalerContext(*client_desc, effects, *tf);
             strike = fStrikeCache->createStrikeExclusive(
                     *client_desc, std::move(scaler), &fontMetrics,
-                    std::make_unique<DiscardableStrikePinner>(spec.discardableHandleId,
-                                                                fDiscardableHandleManager));
-            auto proxyContext = static_cast<SkScalerContextProxy*>(strike->getScalerContext());
-            proxyContext->initCache(strike.get(), fStrikeCache);
+                    std::make_unique<DiscardableStrikePinner>(
+                            spec.discardableHandleId, fDiscardableHandleManager));
         }
 
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE

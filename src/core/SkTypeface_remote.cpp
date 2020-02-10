@@ -19,14 +19,6 @@ SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
         : SkScalerContext{std::move(tf), effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
-void SkScalerContextProxy::initCache(SkStrike* cache, SkStrikeCache* strikeCache) {
-    SkASSERT(fCache == nullptr);
-    SkASSERT(cache != nullptr);
-
-    fCache = cache;
-    fStrikeCache = strikeCache;
-}
-
 unsigned SkScalerContextProxy::generateGlyphCount()  {
     SK_ABORT("Should never be called.");
 }
