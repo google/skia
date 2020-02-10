@@ -3,33 +3,30 @@ API Reference and Overview
 
 Skia documentation is actively under development.
 
-Full references with examples are available for:
+Some key classes are:
 
-*   [SkAutoCanvasRestore](/user/api/SkAutoCanvasRestore_Reference) - Canvas save stack manager
-*   [SkBitmap](/user/api/SkBitmap_Reference) - two-dimensional raster pixel array
-*   [SkBlendMode](/user/api/SkBlendMode_Reference) - pixel color arithmetic
-*   [SkCanvas](/user/api/SkCanvas_Reference) - drawing context
-*   [SkColor](/user/api/SkColor_Reference) - color encoding using integer numbers
-*   [SkColor4f](/user/api/SkColor4f_Reference) - color encoding using floating point numbers
-*   [SkFont](/user/api/SkFont_Reference) - text style and typeface
-*   [SkImage](/user/api/SkImage_Reference) - two dimensional array of pixels to draw
-*   [SkImageInfo](/user/api/SkImageInfo_Reference) - pixel dimensions and characteristics
-*   [SkIPoint](/user/api/SkIPoint_Reference) - two integer coordinates
-*   [SkIRect](/user/api/SkIRect_Reference) - integer rectangle
-*   [SkMatrix](/user/api/SkMatrix_Reference) - 3x3 transformation matrix
-*   [SkPaint](/user/api/SkPaint_Reference) - color, stroke, font, effects
-*   [SkPath](/user/api/SkPath_Reference) - sequence of connected lines and curves
-*   [SkPicture](/user/api/SkPicture_Reference) - sequence of drawing commands
-*   [SkPixmap](/user/api/SkPixmap_Reference) - pixel map: image info and pixel address
-*   [SkPoint](/user/api/SkPoint_Reference) - two floating point coordinates
-*   [SkRRect](/user/api/SkRRect_Reference) - floating point rounded rectangle
-*   [SkRect](/user/api/SkRect_Reference) - floating point rectangle
-*   [SkRegion](/user/api/SkRegion_Reference) - compressed clipping mask
-*   [SkSurface](/user/api/SkSurface_Reference) - drawing destination
-*   [SkTextBlob](/user/api/SkTextBlob_Reference) - runs of glyphs
-*   [SkTextBlobBuilder](/user/api/SkTextBlobBuilder_Reference) - constructor for runs of glyphs
-
-Check out [a graphical overview of examples](api/catalog.htm)
+*   [SkAutoCanvasRestore](https://api.skia.org/classSkAutoCanvasRestore.html#details) - Canvas save stack manager
+*   [SkBitmap](https://api.skia.org/classSkBitmap.html#details) - two-dimensional raster pixel array
+*   [SkBlendMode](https://api.skia.org/SkBlendMode_8h.html) - pixel color arithmetic
+*   [SkCanvas](https://api.skia.org/classSkCanvas.html#details) - drawing context
+*   [SkColor](https://api.skia.org/SkColor_8h.html) - color encoding using integer numbers
+*   [SkFont](https://api.skia.org/classSkFont.html#details) - text style and typeface
+*   [SkImage](https://api.skia.org/classSkImage.html#details) - two dimensional array of pixels to draw
+*   [SkImageInfo](https://api.skia.org/structSkImageInfo.html#details) - pixel dimensions and characteristics
+*   [SkIPoint](https://api.skia.org/structSkIPoint.html#details) - two integer coordinates
+*   [SkIRect](https://api.skia.org/structSkIRect.html#details) - integer rectangle
+*   [SkMatrix](https://api.skia.org/classSkMatrix.html#details) - 3x3 transformation matrix
+*   [SkPaint](https://api.skia.org/classSkPaint.html#details) - color, stroke, font, effects
+*   [SkPath](https://api.skia.org/classSkPath.html#details) - sequence of connected lines and curves
+*   [SkPicture](https://api.skia.org/classSkPicture.html#details) - sequence of drawing commands
+*   [SkPixmap](https://api.skia.org/classSkPixmap.html#details) - pixel map: image info and pixel address
+*   [SkPoint](https://api.skia.org/structSkPoint.html#details) - two floating point coordinates
+*   [SkRRect](https://api.skia.org/classSkRRect.html#details) - floating point rounded rectangle
+*   [SkRect](https://api.skia.org/structSkRect.html#details) - floating point rectangle
+*   [SkRegion](https://api.skia.org/classSkRegion.html#details) - compressed clipping mask
+*   [SkSurface](https://api.skia.org/classSkSurface.html#details) - drawing destination
+*   [SkTextBlob](https://api.skia.org/classSkTextBlob.html#details) - runs of glyphs
+*   [SkTextBlobBuilder](https://api.skia.org/classSkTextBlobBuilder.html#details) - constructor for runs of glyphs
 
 All public APIs are indexed by Doxygen.
 
