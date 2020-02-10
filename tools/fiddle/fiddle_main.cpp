@@ -122,6 +122,7 @@ static bool setup_backend_objects(GrContext* context,
                                   const SkBitmap& bm,
                                   const DrawOptions& options) {
     if (!context) {
+        fputs("Context is null.\n", stderr);
         return false;
     }
 
@@ -137,15 +138,18 @@ static bool setup_backend_objects(GrContext* context,
         SkPixmap originalPixmap;
         SkPixmap* pixmap = &originalPixmap;
         if (!bm.peekPixels(&originalPixmap)) {
+            fputs("Unable to peekPixels.\n", stderr);
             return false;
         }
 
         SkAutoPixmapStorage rgbaPixmap;
         if (kN32_SkColorType != kRGBA_8888_SkColorType) {
             if (!rgbaPixmap.tryAlloc(bm.info().makeColorType(kRGBA_8888_SkColorType))) {
+                fputs("Unable to alloc rgbaPixmap.\n", stderr);
                 return false;
             }
             if (!bm.readPixels(rgbaPixmap)) {
+                fputs("Unable to read rgbaPixmap.\n", stderr);
                 return false;
             }
             pixmap = &rgbaPixmap;
@@ -167,11 +171,13 @@ static bool setup_backend_objects(GrContext* context,
                 bm.dimensions(), format, GrColorType::kRGBA_8888, GrRenderable::kNo, 1,
                 SkBudgeted::kNo, GrProtected::kNo, texels.get(), mipLevelCount);
         if (!backingTexture) {
+            fputs("Failed to create backingTexture.\n", stderr);
             return false;
         }
 
         backEndTexture = backingTexture->getBackendTexture();
         if (!backEndTexture.isValid()) {
+            fputs("BackingTexture is invalid.\n", stderr);
             return false;
         }
     }
@@ -189,6 +195,7 @@ static bool setup_backend_objects(GrContext* context,
                 bm.dimensions(), renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
                 options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, &level0, 1);
         if (!tmp || !tmp->asRenderTarget()) {
+            fputs("GrTexture is invalid.\n", stderr);
             return false;
         }
 
@@ -196,6 +203,7 @@ static bool setup_backend_objects(GrContext* context,
 
         backEndRenderTarget = backingRenderTarget->getBackendRenderTarget();
         if (!backEndRenderTarget.isValid()) {
+            fputs("BackEndRenderTarget is invalid.\n", stderr);
             return false;
         }
     }
@@ -219,11 +227,13 @@ static bool setup_backend_objects(GrContext* context,
                 options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, texels.get(),
                 mipLevelCount);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
+            fputs("backingTextureRenderTarget is invalid.\n", stderr);
             return false;
         }
 
         backEndTextureRenderTarget = backingTextureRenderTarget->getBackendTexture();
         if (!backEndTextureRenderTarget.isValid()) {
+            fputs("backEndTextureRenderTarget is invalid.\n", stderr);
             return false;
         }
     }
