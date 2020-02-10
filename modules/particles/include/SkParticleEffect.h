@@ -14,7 +14,6 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
 #include "modules/particles/include/SkParticleData.h"
 
 #include <memory>
@@ -64,6 +63,8 @@ public:
     //   float  spin  = 0;               // Angular velocity, in (radians / second)
     //   float4 color = { 1, 1, 1, 1 };  // RGBA color
     //   float  frame = 0;               // Normalized sprite index for multi-frame drawables
+    //   uint   flags = 0;               // Arbitrary state for use by script
+    //   uint   seed  = 0;               // Random seed, used with rand() (see below)
     // };
     //
     // Particle functions are defined in fParticleCode, and get a mutable Particle struct, as well
@@ -79,11 +80,15 @@ public:
     //   float  spin;
     //   float4 color;
     //   float  frame;
+    //   uint   flags;
+    //   uint   seed;
     // };
     //
-    // All functions have access to a global variable named 'rand'. Every read of 'rand' returns a
-    // random floating point value in [0, 1). For particle functions, the state is rewound after
-    // each update, so calls to 'rand' will return consistent values from one update to the next.
+    // All functions have access to a global function named 'rand'. It takes a uint seed value,
+    // which it uses and updates (using a linear congruential RNG). It returns a random floating
+    // point value in [0, 1]. Typical usage is to pass the particle or effect's seed value to rand.
+    // For particle functions, the seed is rewound after each update, so calls to 'rand(p.seed)'
+    // will return consistent values from one update to the next.
     //
     // Finally, there is one global uniform values available, 'dt'. This is a floating point
     // number of seconds that have elapsed since the last update.
@@ -133,11 +138,12 @@ private:
 
 class SkParticleEffect : public SkRefCnt {
 public:
-    SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
+    SkParticleEffect(sk_sp<SkParticleEffectParams> params);
 
     // Start playing this effect, specifying initial values for the emitter's properties
     void start(double now, bool looping, SkPoint position, SkVector heading, float scale,
-               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags);
+               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags,
+               uint32_t seed);
 
     // Start playing this effect, with default values for the emitter's properties
     void start(double now, bool looping) {
@@ -149,7 +155,8 @@ public:
                     0.0f,                        // spin
                     { 1.0f, 1.0f, 1.0f, 1.0f },  // color
                     0.0f,                        // sprite frame
-                    0);                          // flags
+                    0,                           // flags
+                    0);                          // seed
     }
 
     void update(double now);
@@ -205,8 +212,6 @@ private:
 
     sk_sp<SkParticleEffectParams>        fParams;
 
-    SkRandom fRandom;
-
     bool   fLooping;
     int    fCount;
     double fLastTime;
@@ -230,11 +235,12 @@ private:
         SkColor4f fColor;
         float     fFrame;
         uint32_t  fFlags;
+        uint32_t  fRandom;
     };
     EffectState fState;
 
-    SkParticles             fParticles;
-    SkAutoTMalloc<SkRandom> fStableRandoms;
+    SkParticles          fParticles;
+    SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
     int fCapacity;

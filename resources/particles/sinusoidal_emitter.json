@@ -16,9 +16,9 @@
    "Code": [
       "void spawn(inout Particle p) {",
       "  p.pos.y += sin(effect.age * 6.28) * 40;",
-      "  p.lifetime = 2 + (rand * 2);",
-      "  p.vel.x = (30 * rand) + 50;",
-      "  p.vel.y = (20 * rand) - 10;",
+      "  p.lifetime = 2 + (rand(p.seed) * 2);",
+      "  p.vel.x = (30 * rand(p.seed)) + 50;",
+      "  p.vel.y = (20 * rand(p.seed)) - 10;",
       "}",
       "",
       "void update(inout Particle p) {",
@@ -26,7 +26,7 @@
       "  p.color.g = 1 - p.age;",
       "  float s1 = 0.5 + (1.5 * p.age);",
       "  float s2 = 1.0 + (-0.75 * p.age);",
-      "  p.scale = s1 + (s2 - s1) * rand;",
+      "  p.scale = s1 + (s2 - s1) * rand(p.seed);",
       "  p.vel.y += 20.0 * dt;",
       "}",
       ""
