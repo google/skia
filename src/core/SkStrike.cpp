@@ -16,13 +16,24 @@
 #include "src/core/SkEnumerate.h"
 #include <cctype>
 
+static SkFontMetrics use_or_generate_metrics(
+        const SkFontMetrics* metrics, SkScalerContext* context) {
+    SkFontMetrics answer;
+    if (metrics == nullptr) {
+        context->getFontMetrics(&answer);
+    } else {
+        answer = *metrics;
+    }
+    return answer;
+}
+
 SkStrike::SkStrike(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
-    const SkFontMetrics& fontMetrics)
+    const SkFontMetrics* fontMetrics)
         : fDesc{desc}
         , fScalerContext{std::move(scaler)}
-        , fFontMetrics{fontMetrics}
+        , fFontMetrics{use_or_generate_metrics(fontMetrics, fScalerContext.get())}
         , fRoundingSpec{fScalerContext->isSubpixel(),
                         fScalerContext->computeAxisAlignmentForHText()} {
     SkASSERT(fScalerContext != nullptr);

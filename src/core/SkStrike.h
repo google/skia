@@ -37,7 +37,7 @@ class SkStrike final : public SkStrikeForGPU {
 public:
     SkStrike(const SkDescriptor& desc,
              std::unique_ptr<SkScalerContext> scaler,
-             const SkFontMetrics&);
+             const SkFontMetrics* metrics = nullptr);
 
     // Return a glyph.  Create it if it doesn't exist, and initialize with the prototype.
     SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p, void* image = nullptr) SK_EXCLUDES(fMu);
