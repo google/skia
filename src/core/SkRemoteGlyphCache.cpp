@@ -952,7 +952,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
             SkScalerContextEffects effects;
-            auto scaler = SkStrikeCache::CreateScalerContext(*client_desc, effects, *tf);
+            auto scaler = tf->createScalerContext(effects, client_desc);
             strike = fStrikeCache->createStrikeExclusive(
                     *client_desc, std::move(scaler), &fontMetrics,
                     std::make_unique<DiscardableStrikePinner>(
