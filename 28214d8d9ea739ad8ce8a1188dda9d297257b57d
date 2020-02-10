@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cec9ca41_46e07323",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-10T21:14:37Z",
+      "side": 1,
+      "message": "Seeing this made me wonder if we should use unique keys to get proxy views rather than proxies. It\u0027s hard to imagine a scenario where we\u0027d cache a proxy to be used with a different color type when it was found in the cache.\n\nI just wanted to throw that out there as a potential future direction, not asking for any change in this CL.",
+      "range": {
+        "startLine": 352,
+        "startChar": 53,
+        "endLine": 352,
+        "endChar": 81
+      },
+      "revId": "28214d8d9ea739ad8ce8a1188dda9d297257b57d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
