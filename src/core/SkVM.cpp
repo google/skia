@@ -350,46 +350,48 @@ namespace skvm {
         }
     }
 
-    std::vector<OptimizedInstruction> Builder::optimize(/*TODO bool jit*/) const {
+    std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
         // First specialize for our target backend.
         Builder specialized;
         for (int i = 0; i < (int)fProgram.size(); i++) {
             Builder::Instruction inst = fProgram[i];
 
             #if defined(SK_CPU_X86)
-            Op imm_op;
-            switch (inst.op) {
-                default: break;
+            if (for_jit) {
+                Op imm_op;
+                switch (inst.op) {
+                    default: break;
 
-                case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
-                case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
-                case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
-                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
-                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
-                case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
-                case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
-                case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
+                    case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
+                    case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
+                    case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
+                    case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
+                    case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
+                    case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
+                    case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
+                    case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
 
-                try_imm_x_and_y:
-                    if (int bits; /*TODO jit &&*/this->allImm(inst.x, &bits)) {
-                        inst.op   = imm_op;
-                        inst.x    = inst.y;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } else
-                try_imm_y:
-                    if (int bits; /*TODO jit &&*/this->allImm(inst.y, &bits)) {
-                        inst.op   = imm_op;
-                        inst.y    = NA;
-                        inst.immy = bits;
-                    } break;
+                    try_imm_x_and_y:
+                        if (int bits; this->allImm(inst.x, &bits)) {
+                            inst.op   = imm_op;
+                            inst.x    = inst.y;
+                            inst.y    = NA;
+                            inst.immy = bits;
+                        } else
+                    try_imm_y:
+                        if (int bits; this->allImm(inst.y, &bits)) {
+                            inst.op   = imm_op;
+                            inst.y    = NA;
+                            inst.immy = bits;
+                        } break;
 
-                case Op::bit_clear:
-                    if (int bits; /*TODO jit &&*/this->allImm(inst.y, &bits)) {
-                        inst.op   = Op::bit_and_imm;
-                        inst.y    = NA;
-                        inst.immy = ~bits;
-                    } break;
+                    case Op::bit_clear:
+                        if (int bits; this->allImm(inst.y, &bits)) {
+                            inst.op   = Op::bit_and_imm;
+                            inst.y    = NA;
+                            inst.immy = ~bits;
+                        } break;
+                }
             }
             #endif
             SkDEBUGCODE(Val id =) specialized.push(inst.op,
@@ -504,7 +506,7 @@ namespace skvm {
             *SkStrAppendU32(buf+9, this->hash()) = '\0';
             debug_name = buf;
         }
-        return {this->optimize(), fStrides, debug_name};
+        return {this->optimize(false), this->optimize(true), fStrides, debug_name};
     }
 
     uint64_t Builder::hash() const {
@@ -1788,31 +1790,15 @@ namespace skvm {
                     CASE(Op::min_f32): r(d).f32 = min(r(x).f32, r(y).f32); break;
                     CASE(Op::max_f32): r(d).f32 = max(r(x).f32, r(y).f32); break;
 
-                    CASE(Op::add_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = r(x).f32 + tmp.f32;
-                    } break;
-                    CASE(Op::sub_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = r(x).f32 - tmp.f32;
-                    } break;
-                    CASE(Op::mul_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = r(x).f32 * tmp.f32;
-                    } break;
-                    CASE(Op::min_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = min(r(x).f32, tmp.f32);
-                    } break;
-                    CASE(Op::max_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = max(r(x).f32, tmp.f32);
-                    } break;
+                    // These _imm instructions are all x86/JIT only.
+                    CASE(Op::add_f32_imm):
+                    CASE(Op::sub_f32_imm):
+                    CASE(Op::mul_f32_imm):
+                    CASE(Op::min_f32_imm):
+                    CASE(Op::max_f32_imm):
+                    CASE(Op::bit_and_imm):
+                    CASE(Op::bit_or_imm ):
+                    CASE(Op::bit_xor_imm): SkUNREACHABLE; break;
 
                     CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
@@ -1853,10 +1839,6 @@ namespace skvm {
                     CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;
                     CASE(Op::bit_xor  ): r(d).i32 = r(x).i32 ^  r(y).i32; break;
                     CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
-
-                    CASE(Op::bit_and_imm): r(d).i32 = r(x).i32 & immy; break;
-                    CASE(Op::bit_or_imm ): r(d).i32 = r(x).i32 | immy; break;
-                    CASE(Op::bit_xor_imm): r(d).i32 = r(x).i32 ^ immy; break;
 
                     CASE(Op::select): r(d).i32 = skvx::if_then_else(r(x).i32, r(y).i32, r(z).i32);
                                       break;
@@ -1934,14 +1916,15 @@ namespace skvm {
 
     Program::Program() {}
 
-    Program::Program(const std::vector<OptimizedInstruction>& instructions,
+    Program::Program(const std::vector<OptimizedInstruction>& interpreter,
+                     const std::vector<OptimizedInstruction>& jit,
                      const std::vector<int>& strides,
                      const char* debug_name)
         : fStrides(strides)
     {
-        this->setupInterpreter(instructions);
+        this->setupInterpreter(interpreter);
     #if 1 && defined(SKVM_JIT)
-        this->setupJIT(instructions, debug_name);
+        this->setupJIT(jit, debug_name);
     #endif
     }
 
@@ -2492,8 +2475,15 @@ namespace skvm {
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
 
-                // We should not see _imm ops on ARM.
-                case Op::mul_f32_imm: SkUNREACHABLE; break;
+                // These _imm instructions are all x86/JIT only.
+                case  Op::add_f32_imm :
+                case  Op::sub_f32_imm :
+                case  Op::mul_f32_imm :
+                case  Op::min_f32_imm :
+                case  Op::max_f32_imm :
+                case  Op::bit_and_imm :
+                case  Op::bit_or_imm  :
+                case  Op::bit_xor_imm : SkUNREACHABLE; break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
