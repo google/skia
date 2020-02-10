@@ -93,6 +93,6 @@ bool CheckSolidPixels(const SkColor4f& col,
  * resource are both used on a single thread.
  */
 void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
-                                  GrTextureProxy* proxy,
+                                  GrSurfaceProxy* proxy,
                                   int32_t expectedProxyRefs,
                                   int32_t expectedBackingRefs);

@@ -294,7 +294,7 @@ bool CheckSolidPixels(const SkColor4f& col, const SkPixmap& pixmap,
 }
 
 void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
-                                  GrTextureProxy* proxy,
+                                  GrSurfaceProxy* proxy,
                                   int32_t expectedProxyRefs,
                                   int32_t expectedBackingRefs) {
     int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
