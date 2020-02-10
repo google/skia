@@ -401,10 +401,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     SkScalerContextEffects noeffects;
     SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, noeffects, &ad);
 
-    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, ad.getDesc(), true);
-    if (!ctx) {
-        return false;
-    }
+    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, ad.getDesc());
 
     SkFontMetrics fm;
     ctx->getFontMetrics(&fm);

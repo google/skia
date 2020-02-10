@@ -325,8 +325,7 @@ public:
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
     std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
-                                                         const SkDescriptor*,
-                                                         bool allowFailure = false) const;
+                                                         const SkDescriptor*) const;
 
     /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
