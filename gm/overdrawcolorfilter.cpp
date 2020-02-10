@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
@@ -36,7 +37,9 @@ class OverdrawColorFilter : public skiagm::GM {
 
     void onDraw(SkCanvas* canvas) override {
         static const SkPMColor colors[SkOverdrawColorFilter::kNumColors] = {
-                0x80800000, 0x80008000, 0x80000080, 0x80808000, 0x80008080, 0x80800080,
+            SkPackARGB32(0x80,0x80,0,0),    SkPackARGB32(0x80,0,0x80,0),
+            SkPackARGB32(0x80,0,0,0x80),    SkPackARGB32(0x80,0x80,0x800,0),
+            SkPackARGB32(0x80,0,0x80,0x80), SkPackARGB32(0x80,0x80,0,0x80),
         };
 
         SkPaint paint;
