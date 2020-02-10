@@ -86,7 +86,7 @@ group("base_manifest") {
     "lib/libvulkan.so=${sdk_dist_path}/libvulkan.so",
     "lib/VkLayer_khronos_validation.so=${sdk_dist_path}/VkLayer_khronos_validation.so",
 
-    "data/vulkan/explicit_layer.d/VkLayer_khronos_validation.json=${layer_path}/data/vulkan/explicit_layer.d/VkLayer_khronos_validation.json"
+    "data/vulkan/explicit_layer.d/VkLayer_khronos_validation.json=${layer_path}/data/vulkan/explicit_layer.d/VkLayer_khronos_validation.json",
   ]
 
   # TODO(rosasco): Add 2 lines when generated_file() switch is implemented
