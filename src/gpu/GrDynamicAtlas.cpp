@@ -182,7 +182,8 @@ std::unique_ptr<GrRenderTargetContext> GrDynamicAtlas::instantiate(
 #endif
         fBackingTexture = std::move(backingTexture);
     }
-    auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, fColorType, nullptr, nullptr);
+    auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, kTextureOrigin, fColorType,
+                                                  nullptr, nullptr);
     if (!rtc) {
 #if GR_TEST_UTILS
         if (!onFlushRP->testingOnly_getSuppressAllocationWarnings())
