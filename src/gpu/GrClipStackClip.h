@@ -51,11 +51,11 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    sk_sp<GrTextureProxy> createAlphaClipMask(GrRecordingContext*, const GrReducedClip&) const;
+    GrSurfaceProxyView createAlphaClipMask(GrRecordingContext*, const GrReducedClip&) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    sk_sp<GrTextureProxy> createSoftwareClipMask(GrRecordingContext*, const GrReducedClip&,
-                                                 GrRenderTargetContext*) const;
+    GrSurfaceProxyView createSoftwareClipMask(GrRecordingContext*, const GrReducedClip&,
+                                              GrRenderTargetContext*) const;
 
     static bool UseSWOnlyPath(GrRecordingContext*,
                               bool hasUserStencilSettings,

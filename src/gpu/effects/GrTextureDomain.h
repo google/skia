@@ -233,7 +233,7 @@ protected:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView,
                                                      const SkIRect& subset,
                                                      const SkIPoint& deviceSpaceOffset);
 
@@ -254,12 +254,11 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    TextureSampler fTextureSampler;
     GrTextureDomain fTextureDomain;
+    TextureSampler fTextureSampler;
     SkIPoint fDeviceSpaceOffset;
 
-    GrDeviceSpaceTextureDecalFragmentProcessor(sk_sp<GrSurfaceProxy>,
-                                               const SkIRect&, const SkIPoint&);
+    GrDeviceSpaceTextureDecalFragmentProcessor(GrSurfaceProxyView, const SkIRect&, const SkIPoint&);
     GrDeviceSpaceTextureDecalFragmentProcessor(const GrDeviceSpaceTextureDecalFragmentProcessor&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
