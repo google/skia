@@ -51,7 +51,10 @@ def compile_fn(api, checkout_root, out_dir):
       'target_cpu': target_arch,
       'werror': True
   }
-  if configuration != 'Debug':
+
+  if configuration == 'Debug':
+    args['extra_cflags'].append('-O1')
+  else:
     args['is_debug'] = False
 
   if 'NoGPU' in extra_tokens:
