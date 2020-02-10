@@ -362,7 +362,6 @@ namespace skvm {
                     default: break;
 
                     case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
-                    case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
                     case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
                     case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
                     case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
@@ -376,10 +375,15 @@ namespace skvm {
                             inst.x    = inst.y;
                             inst.y    = NA;
                             inst.immy = bits;
-                        } else
-                    try_imm_y:
-                        if (int bits; this->allImm(inst.y, &bits)) {
+                        } else if (int bits; this->allImm(inst.y, &bits)) {
                             inst.op   = imm_op;
+                            inst.y    = NA;
+                            inst.immy = bits;
+                        } break;
+
+                    case Op::sub_f32:
+                        if (int bits; this->allImm(inst.y, &bits)) {
+                            inst.op   = Op::sub_f32_imm;
                             inst.y    = NA;
                             inst.immy = bits;
                         } break;
