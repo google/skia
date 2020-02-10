@@ -26,6 +26,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkLeanWindows.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
@@ -2028,7 +2029,14 @@ SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEff
     auto ctx = std::make_unique<SkScalerContext_GDI>(
             sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        return nullptr;
+        ctx.reset();
+        SkStrikeCache::PurgeAll();
+        ctx = std::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+        if (!ctx->isValid()) {
+            return SkScalerContext::MakeEmptyContext(
+                    sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+        }
     }
     return ctx.release();
 }
