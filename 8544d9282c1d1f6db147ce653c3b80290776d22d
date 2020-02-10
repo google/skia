@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05ddae62_3b787627",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-10T15:05:20Z",
+      "side": 1,
+      "message": "These #if-#else-#endif segments can be simplified to just #define like we do for G and A, I think.  It\u0027s a silent no-op if we redefine them to the same value, and we\u0027ll get a warning-as-error if we redefine them to anything but that same original value.",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 6
+      },
+      "revId": "8544d9282c1d1f6db147ce653c3b80290776d22d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
