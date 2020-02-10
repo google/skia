@@ -361,7 +361,7 @@ namespace skvm {
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-        std::vector<OptimizedInstruction> optimize() const;
+        std::vector<OptimizedInstruction> optimize(bool for_jit=false) const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
@@ -617,8 +617,12 @@ namespace skvm {
             union { Reg z; int immz; };
         };
 
-        Program(const std::vector<OptimizedInstruction>& instructions,
-                const std::vector<int>                 & strides,
+        Program(const std::vector<OptimizedInstruction>& interpreter,
+                const std::vector<int>& strides);
+
+        Program(const std::vector<OptimizedInstruction>& interpreter,
+                const std::vector<OptimizedInstruction>& jit,
+                const std::vector<int>& strides,
                 const char* debug_name);
 
         Program();
