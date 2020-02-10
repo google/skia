@@ -624,7 +624,10 @@ private:
 
     int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& domain) {
         DrawQuad extra;
-        int quadCount = GrQuadUtils::ClipToW0(quad, &extra);
+        // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
+        // no inset/outset math that requires w > 0.
+        int quadCount = quad->fEdgeFlags != GrQuadAAFlags::kNone ?
+                GrQuadUtils::ClipToW0(quad, &extra) : 1;
         if (quadCount == 0) {
             // We can't discard the op at this point, but disable AA flags so it won't go through
             // inset/outset processing

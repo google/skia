@@ -86,7 +86,10 @@ public:
                         IsHairline::kNo);
 
         DrawQuad extra;
-        int count = GrQuadUtils::ClipToW0(quad, &extra);
+        // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
+        // no inset/outset math that requires w > 0.
+        int count = quad->fEdgeFlags != GrQuadAAFlags::kNone ? GrQuadUtils::ClipToW0(quad, &extra)
+                                                             : 1;
         if (count == 0) {
             // We can't discard the op at this point, but disable AA flags so it won't go through
             // inset/outset processing
@@ -379,7 +382,8 @@ private:
         newBounds.joinPossiblyEmptyRect(quad->fDevice.bounds());
 
         DrawQuad extra;
-        int count = GrQuadUtils::ClipToW0(quad, &extra);
+        int count = quad->fEdgeFlags != GrQuadAAFlags::kNone ? GrQuadUtils::ClipToW0(quad, &extra)
+                                                             : 1;
         if (count == 0 ) {
             // Just skip the append (trivial success)
             return true;
