@@ -9635,6 +9635,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9659,6 +9663,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9680,7 +9689,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9713,6 +9723,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9737,6 +9751,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9758,7 +9777,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9860,6 +9880,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9884,6 +9908,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9905,7 +9934,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9938,6 +9968,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9962,6 +9996,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9983,7 +10022,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10016,6 +10056,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10040,6 +10084,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -10061,7 +10110,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10094,6 +10144,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10118,6 +10172,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -10139,7 +10198,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10172,6 +10232,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10196,6 +10260,11 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -10217,7 +10286,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10250,6 +10320,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10272,6 +10346,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10290,7 +10369,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10323,6 +10403,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10345,6 +10429,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10363,7 +10452,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10396,6 +10486,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10418,6 +10512,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10436,7 +10535,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10481,6 +10581,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10518,6 +10622,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10536,7 +10645,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10568,6 +10678,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10590,6 +10704,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10608,7 +10727,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10641,6 +10761,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10663,6 +10787,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10681,7 +10810,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10714,6 +10844,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10736,6 +10870,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10754,7 +10893,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10799,6 +10939,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10836,6 +10980,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10854,7 +11003,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10886,6 +11036,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10908,6 +11062,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10926,7 +11085,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10959,6 +11119,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10981,6 +11145,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10999,7 +11168,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11032,6 +11202,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -11054,6 +11228,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -11072,7 +11251,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.14.6",
-        "pool:Skia"
+        "pool:Skia",
+        "id:vm331-m9"
       ],
       "env_prefixes": {
         "PATH": [

@@ -96,7 +96,7 @@ def compile_fn(api, checkout_root, out_dir):
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
-  cc, cxx = None, None
+  cc, cxx, ccache = None, None, None
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
@@ -143,8 +143,14 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_generate_workarounds'] = 'true'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if api.vars.is_linux and 'Tidy' not in extra_tokens:
-    args['cc_wrapper'] = '"%s"' % api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
+  if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
+    if api.vars.is_linux:
+      ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
+    else:
+      ccache = api.vars.slave_dir.join('ccache_mac', 'bin', 'ccache')
+
+    args['cc_wrapper'] = '"%s"' % ccache
+
     env['CCACHE_DIR'] = api.vars.cache_dir.join('ccache')
     # Compilers are unpacked from cipd with bogus timestamps, only contribute
     # compiler content to hashes. If Ninja ever uses absolute paths to changing
@@ -152,6 +158,9 @@ def compile_fn(api, checkout_root, out_dir):
     env['CCACHE_COMPILERCHECK'] = 'content'
     # As of 2020-02-07, the sum of each Debian9-Clang-x86
     # non-flutter/android/chromebook build takes less than 75G cache space.
+    # TODO should be different for linux, mac, etc. probably use a dict.  Also:
+    # linux probably needs to get bigger when we add non-default.py stuff,
+    # android and chrome are likely big.
     env['CCACHE_MAXSIZE'] = '75G'
     env['CCACHE_MAXFILES'] = '0'
 
@@ -338,6 +347,8 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      if 'cc_wrapper' in args:
+        api.run(api.step, 'ccache stats', cmd=[ccache, '-s'])
 
 
 def copy_build_products(api, src, dst):
