@@ -61,6 +61,11 @@ public:
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     bool isLogging() const {return fIsLogging;}
+    SkScalerContextProxy* createScalerContextProxy(const SkScalerContextEffects& effects,
+                                                   const SkDescriptor* desc) {
+            return new SkScalerContextProxy(
+                sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects, desc, fDiscardableManager);
+    }
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); }
@@ -133,7 +138,6 @@ private:
     const int                                       fGlyphCount;
     const bool                                      fIsLogging;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
-
 
     typedef SkTypeface INHERITED;
 };
