@@ -523,7 +523,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         draw_clip_elements_to_mask_helper(helper, reducedClip.maskElements(), reducedClip.scissor(),
                                           reducedClip.initialState());
 
-        proxy = helper.toTextureProxy(context, SkBackingFit::kApprox);
+        proxy = helper.toTextureView(context, SkBackingFit::kApprox).asTextureProxyRef();
     }
 
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);

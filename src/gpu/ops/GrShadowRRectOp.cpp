@@ -638,7 +638,7 @@ private:
 
 namespace GrShadowRRectOp {
 
-static sk_sp<GrTextureProxy> create_falloff_texture(GrRecordingContext* context) {
+static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* context) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 0, "Shadow Gaussian Falloff");
@@ -646,36 +646,35 @@ static sk_sp<GrTextureProxy> create_falloff_texture(GrRecordingContext* context)
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
-            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
-    if (!falloffTexture) {
-        static const int kWidth = 128;
-        static const size_t kRowBytes = kWidth*GrColorTypeBytesPerPixel(GrColorType::kAlpha_8);
-        SkImageInfo ii = SkImageInfo::MakeA8(kWidth, 1);
-
-        SkBitmap bitmap;
-        bitmap.allocPixels(ii, kRowBytes);
-
-        unsigned char* values = (unsigned char*) bitmap.getPixels();
-        for (int i = 0; i < 128; ++i) {
-            SkScalar d = SK_Scalar1 - i/SkIntToScalar(127);
-            values[i] = SkScalarRoundToInt((SkScalarExp(-4*d*d) - 0.018f)*255);
-        }
-        bitmap.setImmutable();
-
-        GrBitmapTextureMaker maker(context, bitmap);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
-        SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
-
-        falloffTexture = view.asTextureProxyRef();
-        if (!falloffTexture) {
-            return nullptr;
-        }
-
-        proxyProvider->assignUniqueKeyToProxy(key, falloffTexture.get());
+    if (sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
+                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(falloffTexture->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(falloffTexture), kTopLeft_GrSurfaceOrigin, swizzle};
     }
 
-    return falloffTexture;
+    static const int kWidth = 128;
+    static const size_t kRowBytes = kWidth * GrColorTypeBytesPerPixel(GrColorType::kAlpha_8);
+    SkImageInfo ii = SkImageInfo::MakeA8(kWidth, 1);
+
+    SkBitmap bitmap;
+    bitmap.allocPixels(ii, kRowBytes);
+
+    unsigned char* values = (unsigned char*)bitmap.getPixels();
+    for (int i = 0; i < 128; ++i) {
+        SkScalar d = SK_Scalar1 - i / SkIntToScalar(127);
+        values[i] = SkScalarRoundToInt((SkScalarExp(-4 * d * d) - 0.018f) * 255);
+    }
+    bitmap.setImmutable();
+
+    GrBitmapTextureMaker maker(context, bitmap);
+    auto[view, grCT] = maker.view(GrMipMapped::kNo);
+    SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
+
+    if (view) {
+        proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+    }
+    return view;
 }
 
 
@@ -688,14 +687,10 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
-    sk_sp<GrTextureProxy> falloffTexture = create_falloff_texture(context);
-    if (!falloffTexture) {
+    GrSurfaceProxyView falloffView = create_falloff_texture(context);
+    if (!falloffView) {
         return nullptr;
     }
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(falloffTexture->backendFormat(),
-                                                                  GrColorType::kAlpha_8);
-
-    GrSurfaceProxyView falloffView(std::move(falloffTexture), kTopLeft_GrSurfaceOrigin, swizzle);
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
