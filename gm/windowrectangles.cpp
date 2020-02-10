@@ -174,16 +174,16 @@ private:
  */
 class AlphaOnlyClip final : public MaskOnlyClipBase {
 public:
-    AlphaOnlyClip(sk_sp<GrTextureProxy> mask, int x, int y) : fMask(mask), fX(x), fY(y) {}
+    AlphaOnlyClip(GrSurfaceProxyView mask, int x, int y) : fMask(std::move(mask)), fX(x), fY(y) {}
 
 private:
     bool apply(GrRecordingContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
         out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(
-                fMask, SkIRect::MakeSize(fMask->dimensions()), {fX, fY}));
+                fMask, SkIRect::MakeSize(fMask.proxy()->dimensions()), {fX, fY}));
         return true;
     }
-    sk_sp<GrTextureProxy> fMask;
+    GrSurfaceProxyView fMask;
     int fX;
     int fY;
 };
@@ -250,7 +250,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // Now visualize the alpha mask by drawing a rect over the area where it is defined. The regions
     // inside window rectangles or outside the scissor should still have the initial checkerboard
     // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
-    AlphaOnlyClip clip(maskRTC->asTextureProxyRef(), x, y);
+    AlphaOnlyClip clip(maskRTC->readSurfaceView(), x, y);
     rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                   SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
