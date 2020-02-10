@@ -123,18 +123,6 @@ CanvasKit.onRuntimeInitialized = function() {
     ];
   };
 
-  // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
-  //  with a 1x4 matrix that post-translates those 4 channels.
-  // For example, the following is the layout with the scale (S) and post-transform
-  // (PT) items indicated.
-  // RS,  0,  0,  0 | RPT
-  //  0, GS,  0,  0 | GPT
-  //  0,  0, BS,  0 | BPT
-  //  0,  0,  0, AS | APT
-  //
-  // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
-  // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
-
   var rScale = 0;
   var gScale = 6;
   var bScale = 12;
