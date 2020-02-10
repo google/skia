@@ -320,13 +320,11 @@ public:
     std::unique_ptr<SkFontData> makeFontData() const;
 
     /**
-     *  Return a scalercontext for the given descriptor. If this fails, then
-     *  if allowFailure is true, this returns NULL, else it returns a
+     *  Return a scalercontext for the given descriptor. It may return a
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
     std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
-                                                         const SkDescriptor*,
-                                                         bool allowFailure = false) const;
+                                                         const SkDescriptor*) const;
 
     /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
@@ -361,6 +359,7 @@ protected:
     /** Sets the font style. If used, must be called in the constructor. */
     void setFontStyle(SkFontStyle style) { fStyle = style; }
 
+    // Must return a valid scaler context. It can not return nullptr.
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;

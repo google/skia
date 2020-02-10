@@ -86,9 +86,6 @@ public:
                                                   const SkScalerContextEffects& effects,
                                                   const SkTypeface& typeface) override;
 
-    static std::unique_ptr<SkScalerContext> CreateScalerContext(
-            const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
-
     static void PurgeAll();
     static void ValidateGlyphCacheDataSize();
     static void Dump();
