@@ -22,6 +22,30 @@
       "revId": "155b2405a99b282935d44ff05fcf068c113062d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "066c1f63_593c60c5",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2020-02-11T22:14:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8bfc7f8_16f2e56d",
+      "range": {
+        "startLine": 532,
+        "startChar": 0,
+        "endLine": 532,
+        "endChar": 88
+      },
+      "revId": "155b2405a99b282935d44ff05fcf068c113062d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
