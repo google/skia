@@ -585,6 +585,9 @@ template <typename T> static inline T SkTAbs(T value) {
 }
 
 /** @return value pinned (clamped) between min and max, inclusively.
+
+    NOTE: Unlike std::clamp, SkTPin has well-defined behavior if 'value' is a
+          floating point NaN. In that case, 'max' is returned.
 */
 template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
     return value < min ? min : (value < max ? value : max);
