@@ -324,7 +324,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
 
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
@@ -337,17 +337,13 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrPro
     SkScalar bias = d->fRandom->nextSScalar1();
     SkIPoint kernelOffset = SkIPoint::Make(d->fRandom->nextRangeU(0, kernelSize.width()),
                                            d->fRandom->nextRangeU(0, kernelSize.height()));
-    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
-                                       d->fRandom->nextRangeU(0, proxy->height()),
-                                       d->fRandom->nextRangeU(0, proxy->width()),
-                                       d->fRandom->nextRangeU(0, proxy->height()));
+    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, view.width()),
+                                       d->fRandom->nextRangeU(0, view.height()),
+                                       d->fRandom->nextRangeU(0, view.width()),
+                                       d->fRandom->nextRangeU(0, view.height()));
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrMatrixConvolutionEffect::Make(std::move(view),
                                            bounds,

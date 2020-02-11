@@ -81,9 +81,9 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<GrSurfaceProxyView>& views,
                                                      const SkTArray<sk_sp<GrGpuBuffer>>& buffers) {
-        return std::unique_ptr<GrFragmentProcessor>(new TestFP(proxies, buffers));
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(views, buffers));
     }
 
     const char* name() const override { return "test"; }
@@ -98,11 +98,11 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+    TestFP(const SkTArray<GrSurfaceProxyView>& views,
            const SkTArray<sk_sp<GrGpuBuffer>>& buffers)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
-        for (const auto& proxy : proxies) {
-            fSamplers.emplace_back(proxy);
+        for (const auto& view : views) {
+            fSamplers.emplace_back(view);
         }
         this->setTextureSamplerCnt(fSamplers.count());
     }
@@ -166,10 +166,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
                 {
-                    SkTArray<sk_sp<GrTextureProxy>> proxies;
+                    SkTArray<GrSurfaceProxyView> views;
                     SkTArray<sk_sp<GrGpuBuffer>> buffers;
-                    proxies.push_back(proxy);
-                    auto fp = TestFP::Make(std::move(proxies), std::move(buffers));
+                    views.push_back({proxy, kTopLeft_GrSurfaceOrigin, swizzle});
+                    auto fp = TestFP::Make(std::move(views), std::move(buffers));
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
                     }
@@ -261,7 +261,7 @@ void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcess
 bool init_test_textures(GrResourceProvider* resourceProvider,
                         GrRecordingContext* context,
                         SkRandom* random,
-                        GrProcessorTestData::ProxyInfo proxies[2]) {
+                        GrProcessorTestData::ViewInfo views[2]) {
     static const int kTestTextureSize = 256;
 
     {
@@ -285,7 +285,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[0] = {view.asTextureProxyRef(), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
+        views[0] = {view, GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
 
     {
@@ -308,7 +308,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[1] = {view.asTextureProxyRef(), GrColorType::kAlpha_8, kPremul_SkAlphaType};
+        views[1] = {view, GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
 
     return true;
@@ -496,12 +496,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize});
 
-    GrProcessorTestData::ProxyInfo proxies[2];
-    if (!init_test_textures(resourceProvider, context, &random, proxies)) {
+    GrProcessorTestData::ViewInfo views[2];
+    if (!init_test_textures(resourceProvider, context, &random, views)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, 2, proxies);
+    GrProcessorTestData testData(&random, context, 2, views);
 
     // Coverage optimization uses three frames with a linearly transformed input texture.  The first
     // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
@@ -730,12 +730,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize});
 
-    GrProcessorTestData::ProxyInfo proxies[2];
-    if (!init_test_textures(resourceProvider, context, &random, proxies)) {
+    GrProcessorTestData::ViewInfo views[2];
+    if (!init_test_textures(resourceProvider, context, &random, views)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, 2, proxies);
+    GrProcessorTestData testData(&random, context, 2, views);
 
     auto inputTexture = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
     std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);

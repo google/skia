@@ -1705,7 +1705,7 @@ static SkImageFilterLight* create_random_light(SkRandom* random) {
 }
 
 std::unique_ptr<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar kd = d->fRandom->nextUScalar1();
     sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
@@ -1713,15 +1713,11 @@ std::unique_ptr<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProce
     for (int i = 0; i < 9; i++) {
         matrix[i] = d->fRandom->nextUScalar1();
     }
-    SkIRect srcBounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
-                                          d->fRandom->nextRangeU(0, proxy->height()),
-                                          d->fRandom->nextRangeU(0, proxy->width()),
-                                          d->fRandom->nextRangeU(0, proxy->height()));
+    SkIRect srcBounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, view.width()),
+                                          d->fRandom->nextRangeU(0, view.height()),
+                                          d->fRandom->nextRangeU(0, view.width()),
+                                          d->fRandom->nextRangeU(0, view.height()));
     BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrDiffuseLightingEffect::Make(std::move(view), std::move(light), surfaceScale, matrix,
                                          kd, mode, &srcBounds);
@@ -1926,7 +1922,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar ks = d->fRandom->nextUScalar1();
     SkScalar shininess = d->fRandom->nextUScalar1();
@@ -1936,14 +1932,10 @@ std::unique_ptr<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProc
         matrix[i] = d->fRandom->nextUScalar1();
     }
     BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
-    SkIRect srcBounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
-                                          d->fRandom->nextRangeU(0, proxy->height()),
-                                          d->fRandom->nextRangeU(0, proxy->width()),
-                                          d->fRandom->nextRangeU(0, proxy->height()));
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    SkIRect srcBounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, view.width()),
+                                          d->fRandom->nextRangeU(0, view.height()),
+                                          d->fRandom->nextRangeU(0, view.width()),
+                                          d->fRandom->nextRangeU(0, view.height()));
 
     return GrSpecularLightingEffect::Make(std::move(view), std::move(light), surfaceScale, matrix,
                                           ks, shininess, mode, &srcBounds);
