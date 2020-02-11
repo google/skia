@@ -170,7 +170,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:    blitter->fDitherRate =  1/255.0f; break;
             case kRGB_101010x_SkColorType:
-            case kRGBA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
+            case kRGBA_1010102_SkColorType:
+            case kBGR_101010x_SkColorType:
+            case kBGRA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
         }
         // TODO: for constant colors, we could try to measure the effect of dithering, and if
         //       it has no value (i.e. all variations result in the same 32bit color, then we
