@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70e45dbb_94973e20",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3923,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-11T13:11:47Z",
+      "side": 1,
+      "message": "close never explicitly adds a point, so this check seems unneeded.",
+      "range": {
+        "startLine": 3923,
+        "startChar": 34,
+        "endLine": 3923,
+        "endChar": 45
+      },
+      "revId": "465eea6b33e1a8c1f03584d3802f75e90bad4aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
