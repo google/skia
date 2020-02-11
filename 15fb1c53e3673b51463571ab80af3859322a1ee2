@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef91873e_ecab60a2",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-11T17:24:18Z",
+      "side": 1,
+      "message": "I don\u0027t understand why this can\u0027t be sk_ref_sp(this)? Why all the casting?",
+      "range": {
+        "startLine": 2035,
+        "startChar": 12,
+        "endLine": 2035,
+        "endChar": 57
+      },
+      "revId": "15fb1c53e3673b51463571ab80af3859322a1ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
