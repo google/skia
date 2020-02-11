@@ -112,8 +112,6 @@ DEF_TEST(PictureNegativeSpace, r) {
         auto pic = recorder.finishRecordingAsPicture();
         REPORTER_ASSERT(r, pic->approximateOpCount() == 5);
         REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
-
-        REPORTER_ASSERT(r, base->getRootBound() == (SkRect{-20,-20,-10,-10}));
     }
 
     {
