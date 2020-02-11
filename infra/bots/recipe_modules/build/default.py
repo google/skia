@@ -96,7 +96,7 @@ def compile_fn(api, checkout_root, out_dir):
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
-  cc, cxx = None, None
+  cc, cxx, ccache = None, None, None
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
@@ -143,17 +143,26 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_generate_workarounds'] = 'true'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if api.vars.is_linux and 'Tidy' not in extra_tokens:
-    args['cc_wrapper'] = '"%s"' % api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
+  if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
+    if api.vars.is_linux:
+      ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
+      # As of 2020-02-07, the sum of each Debian9-Clang-x86
+      # non-flutter/android/chromebook build takes less than 75G cache space.
+      env['CCACHE_MAXSIZE'] = '75G'
+    else:
+      ccache = api.vars.slave_dir.join('ccache_mac', 'bin', 'ccache')
+      # As of 2020-02-10, the sum of each Build-Mac-Clang- non-android build
+      # takes ~30G cache space.
+      env['CCACHE_MAXSIZE'] = '50G'
+
+    args['cc_wrapper'] = '"%s"' % ccache
+
     env['CCACHE_DIR'] = api.vars.cache_dir.join('ccache')
+    env['CCACHE_MAXFILES'] = '0'
     # Compilers are unpacked from cipd with bogus timestamps, only contribute
     # compiler content to hashes. If Ninja ever uses absolute paths to changing
     # directories we'll also need to set a CCACHE_BASEDIR.
     env['CCACHE_COMPILERCHECK'] = 'content'
-    # As of 2020-02-07, the sum of each Debian9-Clang-x86
-    # non-flutter/android/chromebook build takes less than 75G cache space.
-    env['CCACHE_MAXSIZE'] = '75G'
-    env['CCACHE_MAXFILES'] = '0'
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
@@ -335,9 +344,13 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
+      if ccache:
+        api.run(api.step, 'ccache stats-start', cmd=[ccache, '-s'])
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      if ccache:
+        api.run(api.step, 'ccache stats-end', cmd=[ccache, '-s'])
 
 
 def copy_build_products(api, src, dst):

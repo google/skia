@@ -9635,6 +9635,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9657,6 +9661,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9713,6 +9722,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9735,6 +9748,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9860,6 +9878,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9882,6 +9904,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9938,6 +9965,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9960,6 +9991,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -10016,6 +10052,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10038,6 +10078,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -10094,6 +10139,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10116,6 +10165,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -10172,6 +10226,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10194,6 +10252,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -10250,6 +10313,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10272,6 +10339,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10323,6 +10395,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10345,6 +10421,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10396,6 +10477,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10418,6 +10503,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10481,6 +10571,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10518,6 +10612,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10568,6 +10667,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10590,6 +10693,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10641,6 +10749,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10663,6 +10775,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10714,6 +10831,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10736,6 +10857,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10799,6 +10925,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10836,6 +10966,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10886,6 +11021,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10908,6 +11047,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -10959,6 +11103,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -10981,6 +11129,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -11032,6 +11185,10 @@
         {
           "name": "xcode",
           "path": "cache/Xcode.app"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -11054,6 +11211,11 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
         }
       ],
       "command": [

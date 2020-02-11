@@ -224,13 +224,34 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
-      "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
+      "[START_DIR]/ccache_mac/bin/ccache",
+      "-s"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
+      "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.13",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-start"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "10.13",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -245,11 +266,32 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "10.13",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_mac/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
+      "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.13",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-end"
   },
   {
     "cmd": [
