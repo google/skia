@@ -1262,6 +1262,10 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         this->conicTo(mapped[0], mapped[1], w);
         startTheta = endTheta;
     }
+
+    // The final point should match the input point (by definition); replace it to
+    // ensure that rounding errors in the above math don't cause any problems.
+    this->setLastPt(x, y);
     return *this;
 }
 
