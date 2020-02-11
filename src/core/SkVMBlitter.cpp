@@ -319,7 +319,6 @@ namespace {
 
             float dither_rate = 0.0f;
             switch (params.colorType) {
-                default:                        dither_rate =      0.0f; break;
                 case kARGB_4444_SkColorType:    dither_rate =   1/15.0f; break;
                 case   kRGB_565_SkColorType:    dither_rate =   1/63.0f; break;
                 case    kGray_8_SkColorType:
@@ -327,7 +326,21 @@ namespace {
                 case kRGBA_8888_SkColorType:
                 case kBGRA_8888_SkColorType:    dither_rate =  1/255.0f; break;
                 case kRGB_101010x_SkColorType:
-                case kRGBA_1010102_SkColorType: dither_rate = 1/1023.0f; break;
+                case kRGBA_1010102_SkColorType:
+                case kBGR_101010x_SkColorType:
+                case kBGRA_1010102_SkColorType: dither_rate = 1/1023.0f; break;
+
+                case kUnknown_SkColorType:
+                case kAlpha_8_SkColorType:
+                case kRGBA_F16_SkColorType:
+                case kRGBA_F16Norm_SkColorType:
+                case kRGBA_F32_SkColorType:
+                case kR8G8_unorm_SkColorType:
+                case kA16_float_SkColorType:
+                case kA16_unorm_SkColorType:
+                case kR16G16_float_SkColorType:
+                case kR16G16_unorm_SkColorType:
+                case kR16G16B16A16_unorm_SkColorType: dither_rate = 0.0f; break;
             }
             if (params.dither && dither_rate > 0) {
                 // See SkRasterPipeline dither stage.

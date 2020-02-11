@@ -76,7 +76,9 @@ enum SkColorType {
     kRGB_888x_SkColorType,     //!< pixel with 8 bits each for red, green, blue; in 32-bit word
     kBGRA_8888_SkColorType,    //!< pixel with 8 bits for blue, green, red, alpha; in 32-bit word
     kRGBA_1010102_SkColorType, //!< 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word
+    kBGRA_1010102_SkColorType, //!< 10 bits for blue, green, red; 2 bits for alpha; in 32-bit word
     kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
+    kBGR_101010x_SkColorType,  //!< pixel with 10 bits each for blue, green, red; in 32-bit word
     kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
     kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha; in 64-bit word
     kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
@@ -126,15 +128,6 @@ SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
     Returns false only if alphaType is kUnknown_SkAlphaType, color type is not
     kUnknown_SkColorType, and SkColorType is not always opaque. If false is returned,
     canonical is ignored.
-
-    For kUnknown_SkColorType: set canonical to kUnknown_SkAlphaType and return true.
-    For kAlpha_8_SkColorType: set canonical to kPremul_SkAlphaType or
-    kOpaque_SkAlphaType and return true if alphaType is not kUnknown_SkAlphaType.
-    For kRGB_565_SkColorType, kRGB_888x_SkColorType, kRGB_101010x_SkColorType, and
-    kGray_8_SkColorType: set canonical to kOpaque_SkAlphaType and return true.
-    For kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-    kRGBA_1010102_SkColorType, and kRGBA_F16_SkColorType: set canonical to alphaType
-    and return true if alphaType is not kUnknown_SkAlphaType.
 
     @param canonical  storage for SkAlphaType
     @return           true if valid SkAlphaType can be associated with colorType

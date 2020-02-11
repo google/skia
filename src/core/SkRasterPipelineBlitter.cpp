@@ -162,7 +162,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // to zero.  We need to decide if we're going to dither now to keep is_constant accurate.
     if (paint.isDither()) {
         switch (dst.info().colorType()) {
-            default:                        blitter->fDitherRate =      0.0f; break;
             case kARGB_4444_SkColorType:    blitter->fDitherRate =   1/15.0f; break;
             case   kRGB_565_SkColorType:    blitter->fDitherRate =   1/63.0f; break;
             case    kGray_8_SkColorType:
@@ -170,7 +169,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:    blitter->fDitherRate =  1/255.0f; break;
             case kRGB_101010x_SkColorType:
-            case kRGBA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
+            case kRGBA_1010102_SkColorType:
+            case kBGR_101010x_SkColorType:
+            case kBGRA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
+
+            case kUnknown_SkColorType:
+            case kAlpha_8_SkColorType:
+            case kRGBA_F16_SkColorType:
+            case kRGBA_F16Norm_SkColorType:
+            case kRGBA_F32_SkColorType:
+            case kR8G8_unorm_SkColorType:
+            case kA16_float_SkColorType:
+            case kA16_unorm_SkColorType:
+            case kR16G16_float_SkColorType:
+            case kR16G16_unorm_SkColorType:
+            case kR16G16B16A16_unorm_SkColorType: blitter->fDitherRate = 0.0f; break;
         }
         // TODO: for constant colors, we could try to measure the effect of dithering, and if
         //       it has no value (i.e. all variations result in the same 32bit color, then we

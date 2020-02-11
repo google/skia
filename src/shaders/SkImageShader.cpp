@@ -460,8 +460,15 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::gather_8888,    ctx);
                                             p->append(SkRasterPipeline::force_opaque       ); break;
 
+            case kBGRA_1010102_SkColorType: p->append(SkRasterPipeline::gather_1010102, ctx);
+                                            p->append(SkRasterPipeline::swap_rb            ); break;
+
             case kRGB_101010x_SkColorType:  p->append(SkRasterPipeline::gather_1010102, ctx);
                                             p->append(SkRasterPipeline::force_opaque       ); break;
+
+            case kBGR_101010x_SkColorType:  p->append(SkRasterPipeline::gather_1010102, ctx);
+                                            p->append(SkRasterPipeline::force_opaque       );
+                                            p->append(SkRasterPipeline::swap_rb            ); break;
 
             case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx);
                                             p->append(SkRasterPipeline::swap_rb            ); break;

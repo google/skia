@@ -592,6 +592,8 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kBGRA_8888_SkColorType:          return 8;
         case kRGBA_1010102_SkColorType:       return 10;
         case kRGB_101010x_SkColorType:        return 10;
+        case kBGRA_1010102_SkColorType:       return 10;
+        case kBGR_101010x_SkColorType:        return 10;
         case kGray_8_SkColorType:             return 8;   // counting gray as "rgb"
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
@@ -617,6 +619,8 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kBGRA_8888_SkColorType:          return 8;
         case kRGBA_1010102_SkColorType:       return 2;
         case kRGB_101010x_SkColorType:        return 0;
+        case kBGRA_1010102_SkColorType:       return 2;
+        case kBGR_101010x_SkColorType:        return 0;
         case kGray_8_SkColorType:             return 0;
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
@@ -693,8 +697,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         } else if (!rules.fAllowUnpremulRead && readAT == kUnpremul_SkAlphaType) {
             REPORTER_ASSERT(reporter, !success);
         } else if (!success) {
-            // TODO: Support kRGB_101010x at all in GPU.
-            if (readCT != kRGB_101010x_SkColorType) {
+            // TODO: Support RGB/BGR 101010x, BGRA 1010102 on the GPU.
+            if (SkColorTypeToGrColorType(readCT) != GrColorType::kUnknown) {
                 ERRORF(reporter,
                        "Read failed. Src CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
                        "Rect [%d, %d, %d, %d], CS conversion: %d\n",
@@ -811,7 +815,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         // We could but 1010102 premul is kind of dubious anyway. So for now just keep the data
         // opaque.
         if (srcAT != kOpaque_SkAlphaType &&
-            (srcAT == kPremul_SkAlphaType && srcCT != kRGBA_1010102_SkColorType)) {
+            (srcAT == kPremul_SkAlphaType && srcCT != kRGBA_1010102_SkColorType
+                                          && srcCT != kBGRA_1010102_SkColorType)) {
             static constexpr SkColor kColors3[] = {SK_ColorWHITE,
                                                    SK_ColorWHITE,
                                                    0x60FFFFFF,
