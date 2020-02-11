@@ -594,8 +594,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { kRGBA_1010102_SkColorType,      { .25f, .5f, .75f, 1.0f }},
-        // The kRGB_101010x_SkColorType has no Ganesh correlate
+        // RGB/BGR 101010x and BGRA 1010102 have no Ganesh correlate
         { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
+        { kBGRA_1010102_SkColorType,      { 0, 0.5f, 0, 0.5f }     },
+        { kBGR_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
         { kGray_8_SkColorType,            kGrayCol                 },
         { kRGBA_F16Norm_SkColorType,      SkColors::kLtGray        },
         { kRGBA_F16_SkColorType,          SkColors::kYellow        },
