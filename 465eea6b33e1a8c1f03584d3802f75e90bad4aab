@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6158ad37_26289e9c",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-11T13:14:39Z",
+      "side": 1,
+      "message": "I believe segments can\u0027t be 0, so we could also just move the assignment down to here, outside of the loop, and just overwrite the last point in the path.",
+      "range": {
+        "startLine": 1274,
+        "startChar": 4,
+        "endLine": 1274,
+        "endChar": 10
+      },
+      "revId": "465eea6b33e1a8c1f03584d3802f75e90bad4aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70e45dbb_94973e20",
         "filename": "tests/PathTest.cpp",
         "patchSetId": 3
