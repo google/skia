@@ -25,6 +25,8 @@ static const char* colortype_name(SkColorType ct) {
         case kBGRA_8888_SkColorType:          return "BGRA_8888";
         case kRGBA_1010102_SkColorType:       return "RGBA_1010102";
         case kRGB_101010x_SkColorType:        return "RGB_101010x";
+        case kBGRA_1010102_SkColorType:       return "BGRA_1010102";
+        case kBGR_101010x_SkColorType:        return "BGR_101010x";
         case kGray_8_SkColorType:             return "Gray_8";
         case kRGBA_F16Norm_SkColorType:       return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:           return "RGBA_F16";
