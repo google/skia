@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.4.1 // indirect
 	go.chromium.org/luci v0.0.0-20200210224117-fdb2e4cfcb7d // indirect
-	go.skia.org/infra v0.0.0-20200211023108-445a70917a73
+	go.skia.org/infra v0.0.0-20200211192256-3e17474acf14
 	golang.org/x/exp v0.0.0-20200207192155-f17229e696bd // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/tools v0.0.0-20200211045251-2de505fc5306 // indirect
