@@ -13,8 +13,8 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/geometry/GrQuad.h"
 
-using V4f = skvx::Vec<4, float>;
 using M4f = skvx::Vec<4, int32_t>;
+using V4f = skvx::Vec<4, float>;
 
 #define AI SK_ALWAYS_INLINE
 
