@@ -42,6 +42,8 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
     }
 
 #ifdef SK_DEBUG
+    SkASSERT(GrPrimitiveType::kPatches != programInfo.primitiveType() ||
+             this->gpu()->caps()->shaderCaps()->tessellationSupport());
     SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
              this->gpu()->caps()->instanceAttribSupport());
     SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||

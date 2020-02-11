@@ -435,7 +435,7 @@ void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
     // the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex invocation
     // receives either the shape's x or y values as inputs, which it forwards to the geometry
     // shader.
-    GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
+    GrMesh& mesh = out->push_back();
     mesh.setNonIndexedNonInstanced(instanceCount * 2);
     mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
 }

@@ -398,8 +398,6 @@ void ConfigureMesh(const GrCaps& caps, GrMesh* mesh, const VertexSpec& spec,
                    sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset) {
     SkASSERT(vertexBuffer);
 
-    mesh->setPrimitiveType(spec.primitiveType());
-
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
         SkASSERT(!indexBuffer);
 

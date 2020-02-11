@@ -128,7 +128,7 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
             pipelineState->bindTextures(fActiveRenderCmdEncoder);
         }
 
-        mesh.sendToGpu(this);
+        mesh.sendToGpu(programInfo.primitiveType(), this);
     }
 
     fActiveRenderCmdEncoder = nil;
@@ -280,15 +280,17 @@ void GrMtlOpsRenderPass::bindGeometry(const GrBuffer* vertexBuffer,
     }
 }
 
-void GrMtlOpsRenderPass::sendArrayMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex) {
+void GrMtlOpsRenderPass::sendArrayMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh,
+                                            int vertexCount, int baseVertex) {
     this->bindGeometry(mesh.vertexBuffer(), 0, nullptr);
 
-    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(mesh.primitiveType())
+    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
                                 vertexStart:baseVertex
                                 vertexCount:vertexCount];
 }
 
-void GrMtlOpsRenderPass::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
+void GrMtlOpsRenderPass::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh,
+                                              int indexCount, int baseIndex,
                                               uint16_t /*minIndexValue*/,
                                               uint16_t /*maxIndexValue*/, int baseVertex) {
     this->bindGeometry(mesh.vertexBuffer(), fCurrentVertexStride*baseVertex, nullptr);
@@ -305,7 +307,7 @@ void GrMtlOpsRenderPass::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount
     SkASSERT(mesh.primitiveRestart() == GrPrimitiveRestart::kNo);
     size_t indexOffset = static_cast<const GrMtlBuffer*>(mesh.indexBuffer())->offset() +
                          sizeof(uint16_t) * baseIndex;
-    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(mesh.primitiveType())
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
                                        indexBuffer:mtlIndexBuffer
@@ -313,12 +315,13 @@ void GrMtlOpsRenderPass::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount
     fGpu->stats()->incNumDraws();
 }
 
-void GrMtlOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex,
-                                                int instanceCount, int baseInstance) {
+void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh,
+                                                int vertexCount, int baseVertex, int instanceCount,
+                                                int baseInstance) {
     this->bindGeometry(mesh.vertexBuffer(), 0, mesh.instanceBuffer());
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(mesh.primitiveType())
+        [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
                                     vertexStart:baseVertex
                                     vertexCount:vertexCount
                                   instanceCount:instanceCount
@@ -328,7 +331,8 @@ void GrMtlOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCo
     }
 }
 
-void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount,
+void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
+                                                       const GrMesh& mesh, int indexCount,
                                                        int baseIndex, int baseVertex,
                                                        int instanceCount, int baseInstance) {
     this->bindGeometry(mesh.vertexBuffer(), 0, mesh.instanceBuffer());
@@ -347,7 +351,7 @@ void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int i
                          sizeof(uint16_t) * baseIndex;
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(mesh.primitiveType())
+        [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
                                             indexCount:indexCount
                                              indexType:MTLIndexTypeUInt16
                                            indexBuffer:mtlIndexBuffer
