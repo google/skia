@@ -16,18 +16,80 @@ CanvasKit.onRuntimeInitialized = function() {
   // have a mapPoints() function (which could maybe be tacked on here).
   // If DOMMatrix catches on, it would be worth re-considering this usage.
   CanvasKit.SkMatrix = {};
-  function sdot(a, b, c, d, e, f) {
-    e = e || 0;
-    f = f || 0;
-    return a * b + c * d + e * f;
+  function sdot() { // to be called with an even number of scalar args
+    var acc = 0;
+    for (let i=0; i < arguments.length-1; i+=2) {
+      acc += arguments[i] * arguments[i+1];
+    }
+    return acc;
   }
 
+
+  // private general matrix functions used in both 3x3s and 4x4s
+  // return a square identity matrix of size n.
+  let identityN = function(n) {
+    let size = n*n;
+    let m = Array(size);
+    while(size--) m[size] = !(size%(n+1))*1;
+    return m;
+  }
+
+  // Stride, a funciton for compactly representing several ways of copying an array into another.
+  // Write vector `v` into matrix `m`. `m` is a matrix encoded as an array in row-major
+  // order. It's width is passed as `width`. `v` is an array of length N-1. An element of `v`
+  // is copied into `m` starting at `offset` and moving `colStride` cols right each row.
+  //
+  // For example, a width of 4, offset of 3, and stride of -1 would put the vector here.
+  // _ _ 0 _
+  // _ 1 _ _
+  // 2 _ _ _
+  // _ _ _ 3
+  //
+  let stride = function(v, m, width, offset, colStride) {
+    for (let i=0; i<v.length; i++) {
+      m[i * width +
+        (i * colstride + offset + width) % width
+      ] = v[i];
+    }
+    return m;
+  }
+
+  // // vecN is an array of floats representing the vector to translate
+  // // or scale by. Passing a vector of length n gets you a matrix of (n+1) by (n+1)
+  // //
+  // // Translate
+  // // 1, 0, x,
+  // // 0, 1, y,
+  // // 0, 0, 1,
+  // let translatedN = function(vecN, m) {
+  //   m = m || identityN(vecN.length+1);
+  //   return(stride(vecN, m, 1, 1);
+  // }
+
+  // // scaled by vecN
+  // // x, 0, 0,
+  // // 0, y, 0,
+  // // 0, 0, 1,
+  // let scaledN = function(vecN, m) {
+  //   m = m || identityN(vecN.length+1);
+  //   return(stride(vecN, m, 0, 2);
+  // }
+
+  // // Scale by vecN, about a point
+  // // x, 0, px - sx * px,
+  // // 0, y, py - sy * py,
+  // // 0, 0, 1,
+  // let scaledAboutPointN = function(vecN, point) {
+  //   let trans = Array(vecN.length);
+  //   for (let i=0; i<vecN.length; i++) {
+  //     trans[i] = point[i] - vecN[i] * point[i}
+  //   }
+  //   return translatedN(trans, scaledN(vecN));
+  // }
+
+
   CanvasKit.SkMatrix.identity = function() {
-    return [
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1,
-    ];
+    return identityN(3);
   };
 
   // Return the inverse (if it exists) of this matrix.
@@ -98,30 +160,82 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkMatrix.scaled = function(sx, sy, px, py) {
     px = px || 0;
     py = py || 0;
-    return [
-      sx, 0, px - sx * px,
-      0, sy, py - sy * py,
-      0,  0,            1,
-    ];
+    let m = stride([sx, sy], identityN(3), 3, 0, 1);
+    return stride([px-sx*px, py-sy*py], m, 3, 2, 0);
   };
 
   CanvasKit.SkMatrix.skewed = function(kx, ky, px, py) {
     px = px || 0;
     py = py || 0;
-    return [
-      1, kx, -kx * px,
-      ky, 1, -ky * py,
-      0,  0,        1,
-    ];
+    let m = stride([kx, ky], identityN(3), 3, 1, -1);
+    return stride([-kx*px, -ky*py], m, 3, 2, 0);
   };
 
   CanvasKit.SkMatrix.translated = function(dx, dy) {
-    return [
-      1, 0, dx,
-      0, 1, dy,
-      0, 0,  1,
-    ];
+    return stride(arguments, identityN(3), 3, 2, 0);
   };
+
+  // Functions for manipulating 4x4 matrices. Accepted in place of SkM44 in canvas methods, for
+  // the same reasons as the 3x3 matrices above.
+
+  CanvasKit.SkM44.identity = function() {
+    return identityN(4);
+  }
+
+  // Anything named vec below is an array of length 3 representing a vector/point in 3D space.
+  // expects an array of length 3
+  CanvasKit.SkM44.translated = function(vec) {
+    return stride(vec, identityN(4), 4, 3, 0);
+  }
+  CanvasKit.SkM44.scaled = function(vec) {
+    return stride(vec, identityN(4), 4, 0, 1);
+  }
+  // axis is an array of length 3, and must be normalized
+  CanvasKit.SkM44.rotatedUnitSinCos = function(axisVec, cosAngle, sinAngle) {
+    const x = axis[0];
+    const y = axis[1];
+    const z = axis[3];
+    const c = cosAngle;
+    const s = sinAngle;
+    const t = 1 - c;
+    return [
+      t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
+      t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
+      t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
+      0,           0,           0,           1
+    ];
+  }
+  // axis is a 3-vec and need not be normalized.
+  CanvasKit.SkM44.rotated = function(axisVec, radians) {
+    return CanvasKit.SkM44.rotatedUnitSinCos(
+      normalized(axisVec), Math.cos(radians), Math.sin(radians));
+  }
+  CanvasKit.SkM44.lookat = function(eyeVec, centerVec, upVec) {
+
+  }
+  // all arugments are scalars
+  CanvasKit.SkM44.perspective = function(near, far, angle) {
+    if (far <= near) {
+      throw "far must be greater than near when constructing SkM44 using perspective.";
+    }
+    const dInv = 1 / (far - near);
+    const halfAngle = angle / 2;
+    const cot = Math.cos(halfAngle) / Math.sin(halfAngle);
+    return [
+      cot, 0,   0,               0,
+      0,   cot, 0,               0,
+      0,   0,   (far+near)*dInv, 2*far*near*dInv,
+      0,   0,   -1,              1,
+    ];
+  }
+  // returns the scalar at the given row and column
+  CanvasKit.SkM44.rc = function(m, r, c) {
+    return m[r*4+c];
+  }
+  // TODO generalize if possible
+  CanvasKit.SkM44.multiply = function() {}
+  CanvasKit.SkM44.invert = function() {}
+
 
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
@@ -135,11 +249,6 @@ CanvasKit.onRuntimeInitialized = function() {
   // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
   // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
 
-  var rScale = 0;
-  var gScale = 6;
-  var bScale = 12;
-  var aScale = 18;
-
   var rPostTrans = 4;
   var gPostTrans = 9;
   var bPostTrans = 14;
@@ -147,21 +256,11 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkColorMatrix = {};
   CanvasKit.SkColorMatrix.identity = function() {
-    var m = new Float32Array(20);
-    m[rScale] = 1;
-    m[gScale] = 1;
-    m[bScale] = 1;
-    m[aScale] = 1;
-    return m;
+    return stride([1,1,1,1], new Float32Array(20), 5, 0, 6);
   }
 
   CanvasKit.SkColorMatrix.scaled = function(rs, gs, bs, as) {
-    var m = new Float32Array(20);
-    m[rScale] = rs;
-    m[gScale] = gs;
-    m[bScale] = bs;
-    m[aScale] = as;
-    return m;
+    return stride(arguments, new Float32Array(20), 5, 0, 6);
   }
 
   var rotateIndices = [

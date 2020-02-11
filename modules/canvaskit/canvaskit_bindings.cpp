@@ -44,6 +44,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
+#include "include/private/SkM44.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -91,6 +92,7 @@ using Bone        = SkVertices::Bone;
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
 #endif
 
+// 3x3 Matrices
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
     SkScalar skewY,  scaleY, transY;
@@ -110,6 +112,7 @@ SimpleMatrix toSimpleSkMatrix(const SkMatrix& sm) {
     return m;
 }
 
+// Surface creation structs and helpers
 struct SimpleImageInfo {
     int width;
     int height;
@@ -1024,7 +1027,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
-        }));
+        }))
+        // Experimental 4x4 matrix functions
+        .function("experimental_saveCamera",
+            select_overload<int (const SkM44&, const SkM44&)>(&SkCanvas::experimental_saveCamera))
+        .function("experimental_concat44",
+            select_overload<void (const SkM44&)>(&SkCanvas::experimental_concat44))
+        .function("experimental_getLocalToDevice",
+            select_overload<SkM44()const>(&SkCanvas::experimental_getLocalToDevice))
+        .function("experimental_getLocalToWorld",
+            select_overload<SkM44()const>(&SkCanvas::experimental_getLocalToWorld))
+        .function("experimental_getLocalToCamera",
+            select_overload<SkM44()const>(&SkCanvas::experimental_getLocalToCamera));
+
 
     class_<SkColorFilter>("SkColorFilter")
         .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
@@ -1502,6 +1517,37 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return reinterpret_cast<uintptr_t>(self.texCoords());
         }));
 
+    // Experimental 4x4 matrices and supporting vector objects
+    class_<SkM44>("SkM44")
+        .constructor<>()
+        .constructor<SkM44>()
+        //.constructor<SkM44, SkM44>() // does a multiply
+        .class_function("Translate", &SkM44::Translate)
+        .class_function("Scale", &SkM44::Scale)
+        .class_function("Rotate", &SkM44::Rotate)
+        .function("multiply", optional_override([](const SkM44& self, const SkM44& other)->SkM44 {
+            return self*other;
+        }))
+        .function("setIdentity", &SkM44::setIdentity)
+        .function("invert", &SkM44::invert, allow_raw_pointers())
+        // A method that accesses the scalar at a particular row and column.
+        .function("rc", &SkM44::rc)
+        // move these two Makers into the SkM44 namespace
+        .class_function("Sk3LookAt", &Sk3LookAt)
+        .class_function("Sk3Perspective", &Sk3Perspective)
+        .function("transpose", &SkM44::transpose)
+        .function("setRotateUnitSinCos", &SkM44::setRotateUnitSinCos)
+        .function("setRotate", &SkM44::setRotate);
+
+    class_<SkV3>("SkV3")
+        .constructor<SkScalar, SkScalar, SkScalar>()
+        .function("dot", &SkV3::dot)
+        .function("cross", &SkV3::cross)
+        .function("timesScalar", optional_override([](SkV3& self, SkScalar s)->SkV3 {
+            return self*s;
+        }))
+        .function("length", &SkV3::length);
+
     enum_<SkAlphaType>("AlphaType")
         .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)
         .value("Premul",   SkAlphaType::kPremul_SkAlphaType)
@@ -1632,7 +1678,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     // A value object is much simpler than a class - it is returned as a JS
     // object and does not require delete().
-    // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+    // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
     value_object<ShapedTextOpts>("ShapedTextOpts")
         .field("font",        &ShapedTextOpts::font)
         .field("leftToRight", &ShapedTextOpts::leftToRight)
@@ -1726,7 +1772,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     constant("TRANSPARENT", SK_ColorTRANSPARENT);
     constant("RED",         SK_ColorRED);
+    constant("GREEN",       SK_ColorGREEN);
     constant("BLUE",        SK_ColorBLUE);
+    constant("MAGENTA",     SK_ColorMAGENTA);
     constant("YELLOW",      SK_ColorYELLOW);
     constant("CYAN",        SK_ColorCYAN);
     constant("BLACK",       SK_ColorBLACK);
