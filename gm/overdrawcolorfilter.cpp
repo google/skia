@@ -35,12 +35,12 @@ class OverdrawColorFilter : public skiagm::GM {
     SkISize onISize() override { return {200, 400}; }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkPMColor colors[SkOverdrawColorFilter::kNumColors] = {
-                0x80800000, 0x80008000, 0x80000080, 0x80808000, 0x80008080, 0x80800080,
+        static const SkColor colors[SkOverdrawColorFilter::kNumColors] = {
+                0x80FF0000, 0x8000FF00, 0x800000FF, 0x80FFFF00, 0x8000FFFF, 0x80FF00FF,
         };
 
         SkPaint paint;
-        sk_sp<SkColorFilter> colorFilter = SkOverdrawColorFilter::Make(colors);
+        sk_sp<SkColorFilter> colorFilter = SkOverdrawColorFilter::MakeWithSkColors(colors);
         paint.setColorFilter(colorFilter);
 
         SkImageInfo info = SkImageInfo::MakeA8(100, 100);
