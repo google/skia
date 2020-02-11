@@ -50,13 +50,34 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
-      "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" target_cpu=\"arm\" target_os=\"ios\" werror=true"
+      "[START_DIR]/ccache_mac/bin/ccache",
+      "-s"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
+      "CHROME_HEADLESS": "1",
+      "IPHONEOS_DEPLOYMENT_TARGET": "10.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-start"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm-Debug-iOS/Debug",
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" target_cpu=\"arm\" target_os=\"ios\" werror=true"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "10.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -71,11 +92,32 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "10.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_mac/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "50G",
+      "CHROME_HEADLESS": "1",
+      "IPHONEOS_DEPLOYMENT_TARGET": "10.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-end"
   },
   {
     "cmd": [
