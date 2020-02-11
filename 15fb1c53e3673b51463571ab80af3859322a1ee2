@@ -46,6 +46,30 @@
       "revId": "15fb1c53e3673b51463571ab80af3859322a1ee2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21b874d1_f95dd6cf",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-11T19:24:41Z",
+      "side": 1,
+      "message": "Fixed all call sites missing casts.",
+      "parentUuid": "fe829161_033c8579",
+      "range": {
+        "startLine": 2035,
+        "startChar": 12,
+        "endLine": 2035,
+        "endChar": 57
+      },
+      "revId": "15fb1c53e3673b51463571ab80af3859322a1ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
