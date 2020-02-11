@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a679bb60_95fbc25f",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-11T11:25:32Z",
+      "side": 1,
+      "message": "Nit: indent",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 6
+      },
+      "revId": "ac654f1cf7032acc1159423d0caab10db17b3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
