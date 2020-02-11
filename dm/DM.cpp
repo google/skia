@@ -957,23 +957,25 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) return new sink(__VA_ARGS__)
 
     if (FLAGS_cpu) {
-        SINK("g8",      RasterSink, kGray_8_SkColorType);
-        SINK("565",     RasterSink, kRGB_565_SkColorType);
-        SINK("4444",    RasterSink, kARGB_4444_SkColorType);
-        SINK("8888",    RasterSink, kN32_SkColorType);
-        SINK("rgba",    RasterSink, kRGBA_8888_SkColorType);
-        SINK("bgra",    RasterSink, kBGRA_8888_SkColorType);
-        SINK("rgbx",    RasterSink, kRGB_888x_SkColorType);
-        SINK("1010102", RasterSink, kRGBA_1010102_SkColorType);
-        SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
-        SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
-        SINK("skp",     SKPSink);
-        SINK("svg",     SVGSink);
-        SINK("null",    NullSink);
-        SINK("xps",     XPSSink);
-        SINK("pdfa",    PDFSink, true,  SK_ScalarDefaultRasterDPI);
-        SINK("pdf300",  PDFSink, false, 300);
-        SINK("jsdebug", DebugSink);
+        SINK("g8",          RasterSink, kGray_8_SkColorType);
+        SINK("565",         RasterSink, kRGB_565_SkColorType);
+        SINK("4444",        RasterSink, kARGB_4444_SkColorType);
+        SINK("8888",        RasterSink, kN32_SkColorType);
+        SINK("rgba",        RasterSink, kRGBA_8888_SkColorType);
+        SINK("bgra",        RasterSink, kBGRA_8888_SkColorType);
+        SINK("rgbx",        RasterSink, kRGB_888x_SkColorType);
+        SINK("1010102",     RasterSink, kRGBA_1010102_SkColorType);
+        SINK("101010x",     RasterSink, kRGB_101010x_SkColorType);
+        SINK("bgra1010102", RasterSink, kBGRA_1010102_SkColorType);
+        SINK("bgr101010x",  RasterSink, kBGR_101010x_SkColorType);
+        SINK("pdf",         PDFSink, false, SK_ScalarDefaultRasterDPI);
+        SINK("skp",         SKPSink);
+        SINK("svg",         SVGSink);
+        SINK("null",        NullSink);
+        SINK("xps",         XPSSink);
+        SINK("pdfa",        PDFSink, true,  SK_ScalarDefaultRasterDPI);
+        SINK("pdf300",      PDFSink, false, 300);
+        SINK("jsdebug",     DebugSink);
 
         // Configs relevant to color management testing (and 8888 for reference).
 
