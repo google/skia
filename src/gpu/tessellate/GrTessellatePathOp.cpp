@@ -148,7 +148,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* state, const GrAppliedH
 
     if (fCubicInstanceBuffer) {
         // Here we treat the cubic instance buffer as tessellation patches to stencil the curves.
-        GrMesh mesh(GrPrimitiveType::kPatches, 4);
+        GrMesh mesh;
         mesh.setNonIndexedNonInstanced(fCubicInstanceCount * 4);
         mesh.setVertexData(fCubicInstanceBuffer, fBaseCubicInstance * 4);
         GrStencilCubicShader(fViewMatrix).issueDraw(
@@ -244,7 +244,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state, GrAppliedClip&& cl
             // At this point, every pixel is filled in except the ones touched by curves. Issue a
             // final cover pass over the curves by drawing their convex hulls. This will fill in any
             // remaining samples and reset the stencil buffer.
-            GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+            GrMesh mesh;
             mesh.setInstanced(fCubicInstanceBuffer, fCubicInstanceCount, fBaseCubicInstance, 4);
             pipeline.setUserStencil(&kTestAndResetStencil);
             GrFillCubicHullShader(fViewMatrix, fColor).issueDraw(
@@ -252,7 +252,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state, GrAppliedClip&& cl
         }
     } else {
         // There is not a fill shader for the path. Just draw a bounding box.
-        GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+        GrMesh mesh;
         mesh.setNonIndexedNonInstanced(4);
         pipeline.setUserStencil(&kTestAndResetStencil);
         GrFillBoundingBoxShader(fViewMatrix, fColor, fPath.getBounds()).issueDraw(

@@ -166,10 +166,7 @@ public:
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
-    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
-        return this->allocator()->make<GrMesh>(primitiveType);
-    }
-
+    GrMesh* allocMesh() { return this->allocator()->make<GrMesh>(); }
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
     static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,

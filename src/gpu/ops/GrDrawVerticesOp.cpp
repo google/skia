@@ -500,7 +500,7 @@ void DrawVerticesOp::drawVertices(Target* target,
                                   int firstVertex,
                                   sk_sp<const GrBuffer> indexBuffer,
                                   int firstIndex) {
-    GrMesh* mesh = target->allocMesh(this->primitiveType());
+    GrMesh* mesh = target->allocMesh();
     if (this->isIndexed()) {
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
                          GrPrimitiveRestart::kNo);
