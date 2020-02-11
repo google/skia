@@ -102,13 +102,6 @@ public:
         @param width               width of promised gpu texture
         @param height              height of promised gpu texture
         @param mipMapped           mip mapped state of promised gpu texture
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType           one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                                   kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                                   kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param alphaType           one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                                   kPremul_SkAlphaType, kUnpremul_SkAlphaType
         @param colorSpace          range of colors; may be nullptr
         @param textureFulfillProc  function called to get actual gpu texture
         @param textureReleaseProc  function called when texture can be released

@@ -160,22 +160,8 @@ public:
      */
     SkISize dimensions() const { return fInfo.dimensions(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
-
-        @return  SkColorType in SkImageInfo
-    */
     SkColorType colorType() const { return fInfo.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
-
-        @return  SkAlphaType in SkImageInfo
-    */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
@@ -676,8 +662,6 @@ public:
         kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
 
         @param dst            SkImageInfo and pixel address to write to
-        @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
-                              kMedium_SkFilterQuality, kHigh_SkFilterQuality
         @return               true if pixels are scaled to fit dst
 
         example: https://fiddle.skia.org/c/@Pixmap_scalePixels

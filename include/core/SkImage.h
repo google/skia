@@ -319,16 +319,6 @@ public:
 
         @param context         GPU context
         @param backendTexture  texture residing on GPU
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param alphaType       one of:
-                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -351,17 +341,6 @@ public:
 
         @param context             GPU context
         @param backendTexture      texture residing on GPU
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType           one of:
-                                   kUnknown_SkColorType, kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                                   kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                                   kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
-                                   kRGB_101010x_SkColorType, kGray_8_SkColorType,
-                                   kRGBA_F16_SkColorType
-        @param alphaType           one of:
-                                   kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                                   kUnpremul_SkAlphaType
         @param colorSpace          This describes the color space of this image's contents, as
                                    seen after sampling. In general, if the format of the backend
                                    texture is SRGB, some linear colorSpace should be supplied
@@ -392,7 +371,6 @@ public:
 
         @param context             the GPU context
         @param backendTexture      a texture already allocated by the GPU
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param alphaType           This characterizes the nature of the alpha values in the
                                    backend texture. For opaque compressed formats (e.g., ETC1)
                                    this should usually be set to kOpaque_SkAlphaType.
@@ -452,17 +430,6 @@ public:
 
         @param context         GPU context
         @param backendTexture  texture residing on GPU
-        @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType,
-                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                               kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
-                               kRGB_101010x_SkColorType, kGray_8_SkColorType,
-                               kRGBA_F16_SkColorType
-        @param alphaType       one of:
-                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -483,8 +450,7 @@ public:
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
                                in that texture, maps to each component of YUVA.
         @param imageSize       size of the resulting image
-        @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
-                               kTopLeft_GrSurfaceOrigin
+        @param imageOrigin     origin of the resulting image.
         @param imageColorSpace range of colors of the resulting image; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -506,9 +472,7 @@ public:
         @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
                                   in that texture, maps to each component of YUVA.
         @param imageSize          size of the resulting image
-        @param imageOrigin        origin of the resulting image. One of:
-                                            kBottomLeft_GrSurfaceOrigin,
-                                            kTopLeft_GrSurfaceOrigin
+        @param imageOrigin        origin of the resulting image.
         @param backendTexture     the resource that stores the final pixels
         @param imageColorSpace    range of colors of the resulting image; may be nullptr
         @param textureReleaseProc function called when backendTexture can be released
@@ -537,8 +501,7 @@ public:
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
                                in that texture, maps to each component of YUVA.
         @param imageSize       size of the resulting image
-        @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
-                               kTopLeft_GrSurfaceOrigin
+        @param imageOrigin     origin of the resulting image.
         @param imageColorSpace range of colors of the resulting image; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -567,8 +530,7 @@ public:
         @param yuvaIndices            array indicating which pixmap in yuvaPixmaps, and channel
                                       in that pixmap, maps to each component of YUVA.
         @param imageSize              size of the resulting image
-        @param imageOrigin            origin of the resulting image. One of:
-                                            kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param imageOrigin            origin of the resulting image.
         @param buildMips              create internal YUVA textures as mip map if true
         @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
         @param imageColorSpace        range of colors of the resulting image; may be nullptr
@@ -607,7 +569,6 @@ public:
         @param context         GPU context
         @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures    array of YUV textures on GPU
-        @param imageOrigin     one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param imageColorSpace range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -627,7 +588,6 @@ public:
         @param context            GPU context
         @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures       array of YUV textures on GPU
-        @param imageOrigin        one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param backendTexture     the resource that stores the final pixels
         @param imageColorSpace    range of colors; may be nullptr
         @param textureReleaseProc function called when backendTexture can be released
@@ -676,11 +636,7 @@ public:
         Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param alphaType       one of:
-                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
-        @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @return                created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromAHardwareBuffer(
@@ -696,7 +652,6 @@ public:
 
         @param pixmap          SkPixmap that contains data to be uploaded to the AHardwareBuffer
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @return                created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromAHardwareBufferWithData(
@@ -745,9 +700,7 @@ public:
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
+    /** Returns SkAlphaType.
 
         SkAlphaType returned was a parameter to an SkImage constructor,
         or was parsed from encoded data.
@@ -890,7 +843,6 @@ public:
 
         @param context  the context on which to flush pending usages of the image.
         @param info     flush options
-        @return         one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
      */
     GrSemaphoresSubmitted flush(GrContext* context, const GrFlushInfo& flushInfo);
 
@@ -906,8 +858,6 @@ public:
         If origin in not nullptr, copies location of content drawn into SkImage.
 
         @param flushPendingGrContextIO  flag to flush outstanding requests
-        @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
-                                        kBottomLeft_GrSurfaceOrigin; or nullptr
         @return                         back-end API texture handle; invalid on failure
     */
     GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
@@ -959,7 +909,6 @@ public:
         @param dstRowBytes  destination row length
         @param srcX         column index whose absolute value is less than width()
         @param srcY         row index whose absolute value is less than height()
-        @param cachingHint  one of: kAllow_CachingHint, kDisallow_CachingHint
         @return             true if pixels are copied to dstPixels
     */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -992,7 +941,6 @@ public:
         @param dst          destination SkPixmap: SkImageInfo, pixels, row bytes
         @param srcX         column index whose absolute value is less than width()
         @param srcY         row index whose absolute value is less than height()
-        @param cachingHint  one of: kAllow_CachingHint, kDisallow_CachingHint
         @return             true if pixels are copied to dst
     */
     bool readPixels(const SkPixmap& dst, int srcX, int srcY,
@@ -1021,9 +969,6 @@ public:
         If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
 
         @param dst            destination SkPixmap: SkImageInfo, pixels, row bytes
-        @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
-                              kMedium_SkFilterQuality, kHigh_SkFilterQuality
-        @param cachingHint    one of: kAllow_CachingHint, kDisallow_CachingHint
         @return               true if pixels are scaled to fit dst
     */
     bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
@@ -1129,7 +1074,6 @@ public:
         If cachingHint is kAllow_CachingHint, pixels may be retained locally.
         If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
 
-        @param cachingHint    one of: kAllow_CachingHint, kDisallow_CachingHint
         @return  raster image, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeRasterImage

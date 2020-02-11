@@ -372,9 +372,6 @@ public:
         Returns true if replaced SkRegion is not empty.
 
         @param rect  SkIRect operand
-        @param op    operator, one of:
-                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                     kReplace_Op
         @return      false if result is empty
     */
     bool op(const SkIRect& rect, Op op) {
@@ -391,9 +388,6 @@ public:
         Returns true if replaced SkRegion is not empty.
 
         @param rgn  SkRegion operand
-        @param op   operator, one of:
-                    kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                    kReplace_Op
         @return     false if result is empty
     */
     bool op(const SkRegion& rgn, Op op) { return this->op(*this, rgn, op); }
@@ -403,9 +397,6 @@ public:
 
         @param rect  SkIRect operand
         @param rgn   SkRegion operand
-        @param op    operator, one of:
-                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                     kReplace_Op
         @return      false if result is empty
 
         example: https://fiddle.skia.org/c/@Region_op_4
@@ -417,9 +408,6 @@ public:
 
         @param rgn   SkRegion operand
         @param rect  SkIRect operand
-        @param op    operator, one of:
-                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                     kReplace_Op
         @return      false if result is empty
 
         example: https://fiddle.skia.org/c/@Region_op_5
@@ -431,9 +419,6 @@ public:
 
         @param rgna  SkRegion operand
         @param rgnb  SkRegion operand
-        @param op    operator, one of:
-                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
-                     kReplace_Op
         @return      false if result is empty
 
         example: https://fiddle.skia.org/c/@Region_op_6

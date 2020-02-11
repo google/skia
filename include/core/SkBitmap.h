@@ -145,22 +145,8 @@ public:
     */
     int height() const { return fPixmap.height(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
-
-        @return  SkColorType in SkImageInfo
-    */
     SkColorType colorType() const { return fPixmap.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
-
-        @return  SkAlphaType in SkImageInfo
-    */
     SkAlphaType alphaType() const { return fPixmap.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
@@ -262,9 +248,6 @@ public:
         This changes SkAlphaType in SkPixelRef; all bitmaps sharing SkPixelRef
         are affected.
 
-        @param alphaType  one of:
-                          kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                          kUnpremul_SkAlphaType
         @return           true if SkAlphaType is set
 
         example: https://fiddle.skia.org/c/@Bitmap_setAlphaType
