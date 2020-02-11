@@ -23,9 +23,10 @@ class SK_API SkOverdrawColorFilter : public SkColorFilter {
 public:
     static constexpr int kNumColors = 6;
 
-    static sk_sp<SkOverdrawColorFilter> Make(const SkPMColor colors[kNumColors]) {
-        return sk_sp<SkOverdrawColorFilter>(new SkOverdrawColorFilter(colors));
-    }
+    // For historical reasons, this version of Make() assumes the array is RGBA-premul
+    static sk_sp<SkColorFilter> Make(const uint32_t colors[kNumColors]);
+
+    static sk_sp<SkColorFilter> MakeWithSkColors(const SkColor colors[kNumColors]);
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
@@ -40,9 +41,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkOverdrawColorFilter)
 
-    SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
-        memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
-    }
+    SkOverdrawColorFilter(const SkPMColor colors[kNumColors]);
 
     bool onAppendStages(const SkStageRec&, bool) const override;
 
