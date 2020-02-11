@@ -21,6 +21,8 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kRGB_888x_SkColorType:           return 4;
         case kRGBA_1010102_SkColorType:       return 4;
         case kRGB_101010x_SkColorType:        return 4;
+        case kBGRA_1010102_SkColorType:       return 4;
+        case kBGR_101010x_SkColorType:        return 4;
         case kGray_8_SkColorType:             return 1;
         case kRGBA_F16Norm_SkColorType:       return 8;
         case kRGBA_F16_SkColorType:           return 8;
