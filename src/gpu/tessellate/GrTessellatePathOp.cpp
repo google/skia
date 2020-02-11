@@ -84,7 +84,6 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     }
 
     // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
-
     if ((fPathVertexCount = GrPathParser::EmitCenterWedgePatches(fPath, &pathVertexAllocator))) {
         fStencilPathShader = state->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
     }

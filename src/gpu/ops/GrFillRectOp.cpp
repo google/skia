@@ -21,7 +21,6 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 
@@ -65,20 +64,21 @@ public:
                                           GrPaint&& paint,
                                           GrAAType aaType,
                                           DrawQuad* quad,
-                                          const GrUserStencilSettings* stencilSettings) {
+                                          const GrUserStencilSettings* stencilSettings,
+                                          Helper::InputFlags inputFlags) {
         // Clean up deviations between aaType and edgeAA
         GrQuadUtils::ResolveAAType(aaType, quad->fEdgeFlags, quad->fDevice,
                                    &aaType, &quad->fEdgeFlags);
         return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), aaType, quad,
-                                                 stencilSettings);
+                                                 stencilSettings, inputFlags);
     }
 
     // aaType is passed to Helper in the initializer list, so incongruities between aaType and
     // edgeFlags must be resolved prior to calling this constructor.
     FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, GrAAType aaType,
-               DrawQuad* quad, const GrUserStencilSettings* stencil)
+               DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil)
+            , fHelper(args, aaType, stencil, inputFlags)
             , fQuads(1, !fHelper.isTrivial()) {
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
@@ -425,8 +425,10 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::Make(GrRecordingContext* context,
                                              GrPaint&& paint,
                                              GrAAType aaType,
                                              DrawQuad* quad,
-                                             const GrUserStencilSettings* stencil) {
-    return FillRectOp::Make(context, std::move(paint), aaType, std::move(quad), stencil);
+                                             const GrUserStencilSettings* stencil,
+                                             InputFlags inputFlags) {
+    return FillRectOp::Make(context, std::move(paint), aaType, std::move(quad), stencil,
+                            inputFlags);
 }
 
 std::unique_ptr<GrDrawOp> GrFillRectOp::MakeNonAARect(GrRecordingContext* context,
@@ -435,7 +437,8 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeNonAARect(GrRecordingContext* contex
                                                       const SkRect& rect,
                                                       const GrUserStencilSettings* stencil) {
     DrawQuad quad{GrQuad::MakeFromRect(rect, view), GrQuad(rect), GrQuadAAFlags::kNone};
-    return FillRectOp::Make(context, std::move(paint), GrAAType::kNone, &quad, stencil);
+    return FillRectOp::Make(context, std::move(paint), GrAAType::kNone, &quad, stencil,
+                            InputFlags::kNone);
 }
 
 std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
@@ -454,7 +457,7 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
                   quads[0].fAAFlags};
     paint.setColor4f(quads[0].fColor);
     std::unique_ptr<GrDrawOp> op = FillRectOp::Make(context, std::move(paint), aaType,
-                                                    &quad, stencilSettings);
+                                                    &quad, stencilSettings, InputFlags::kNone);
     FillRectOp* fillRects = op->cast<FillRectOp>();
 
     *numConsumed = 1;

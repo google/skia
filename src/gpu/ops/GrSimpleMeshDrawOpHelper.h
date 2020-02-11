@@ -42,6 +42,7 @@ public:
     enum class InputFlags : uint8_t {
         kNone = 0,
         kSnapVerticesToPixelCenters = (uint8_t)GrPipeline::InputFlags::kSnapVerticesToPixelCenters,
+        kConservativeRaster = (uint8_t)GrPipeline::InputFlags::kConservativeRaster,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
 

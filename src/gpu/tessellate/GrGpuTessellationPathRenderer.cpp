@@ -12,8 +12,9 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
 
@@ -173,18 +174,39 @@ void GrGpuTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlu
         }
     }
 
-    // The next draw will be the final op in the renderTargetContext. So if Ganesh is planning
-    // to discard the stencil values anyway, then we might not actually need to reset the
-    // stencil values back to zero.
-    bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass() ||
-                            rtc->numSamples() <= 1;  // Need a stencil reset for mixed samples.
+    // Finally, draw a fullscreen rect to convert our stencilled paths into alpha coverage masks.
+    auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
 
-    // Draw a fullscreen rect to convert our stencilled paths into alpha coverage masks.
+    // This will be the final op in the renderTargetContext. So if Ganesh is planning to discard the
+    // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
+    bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass();
+
+    if (rtc->numSamples() <= 1) {
+        // We are mixed sampled. We need to enable conservative raster and ensure stencil values get
+        // reset in order to avoid artifacts along the diagonal of the atlas.
+        fillRectFlags |= GrFillRectOp::InputFlags::kConservativeRaster;
+        mustResetStencil = true;
+    }
+
+    SkRect coverRect = SkRect::MakeIWH(fAtlas.drawBounds().width(), fAtlas.drawBounds().height());
+    const GrUserStencilSettings* stencil;
+    if (mustResetStencil) {
+        // Outset the cover rect in case there are T-junctions in the path bounds.
+        coverRect.outset(1, 1);
+        stencil = &kTestAndResetStencil;
+    } else {
+        stencil = &kTestStencil;
+    }
+
+    GrQuad coverQuad(coverRect);
+    DrawQuad drawQuad{coverQuad, coverQuad, GrQuadAAFlags::kAll};
+
     GrPaint paint;
     paint.setColor4f(SK_PMColor4fWHITE);
-    SkRect drawRect = SkRect::MakeIWH(fAtlas.drawBounds().width(), fAtlas.drawBounds().height());
-    rtc->priv().stencilRect(GrNoClip(), (mustResetStencil) ? &kTestAndResetStencil : &kTestStencil,
-                            std::move(paint), GrAA::kYes, SkMatrix::I(), drawRect, nullptr);
+
+    auto coverOp = GrFillRectOp::Make(rtc->surfPriv().getContext(), std::move(paint),
+                                      GrAAType::kMSAA, &drawQuad, stencil, fillRectFlags);
+    rtc->addDrawOp(GrNoClip(), std::move(coverOp));
 
     if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
         onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->asTextureProxy()),

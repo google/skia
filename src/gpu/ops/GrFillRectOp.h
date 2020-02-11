@@ -10,6 +10,7 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 class GrDrawOp;
 class GrPaint;
@@ -27,12 +28,14 @@ struct SkRect;
  */
 class GrFillRectOp {
 public:
+    using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           GrAAType aaType,
                                           DrawQuad* quad,
-                                          const GrUserStencilSettings* stencil = nullptr);
+                                          const GrUserStencilSettings* stencil = nullptr,
+                                          InputFlags = InputFlags::kNone);
 
     // Utility function to create a non-AA rect transformed by view. This is used commonly enough
     // in testing and GMs that manage ops without going through GrRTC that it's worth the
