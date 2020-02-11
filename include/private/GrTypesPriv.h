@@ -865,6 +865,8 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGBA_F16_SkColorType:           return GrColorType::kRGBA_F16;
         case kRGBA_1010102_SkColorType:       return GrColorType::kRGBA_1010102;
         case kRGB_101010x_SkColorType:        return GrColorType::kUnknown;
+        case kBGRA_1010102_SkColorType:       return GrColorType::kUnknown;
+        case kBGR_101010x_SkColorType:        return GrColorType::kUnknown;
         case kRGBA_F32_SkColorType:           return GrColorType::kRGBA_F32;
         case kR8G8_unorm_SkColorType:         return GrColorType::kRG_88;
         case kA16_unorm_SkColorType:          return GrColorType::kAlpha_16;
