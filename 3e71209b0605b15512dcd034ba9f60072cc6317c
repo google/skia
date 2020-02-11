@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d9da1c6_74704143",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-11T18:22:24Z",
+      "side": 1,
+      "message": "Is there any good way to monitor the cache size and fire an alert if it needs adjustment?\n\nWe may need more data before we know the answer to this. Maybe file a bug?",
+      "range": {
+        "startLine": 151,
+        "startChar": 30,
+        "endLine": 151,
+        "endChar": 35
+      },
+      "revId": "3e71209b0605b15512dcd034ba9f60072cc6317c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
