@@ -158,7 +158,7 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = target->allocMesh();
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 

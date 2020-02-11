@@ -1396,7 +1396,7 @@ private:
             currStartVertex += circle_type_to_vert_count(circle.fStroked);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = target->allocMesh();
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
@@ -1693,7 +1693,7 @@ private:
             currStartVertex += circle_type_to_vert_count(true);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = target->allocMesh();
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
@@ -2633,7 +2633,7 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = target->allocMesh();
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);

@@ -748,7 +748,7 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
     int endIdx = batch.fNonScissorEndInstances->fStrokes[numSegmentsLog2];
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        GrMesh& mesh = fMeshesBuffer.emplace_back(GrPrimitiveType::kTriangleStrip);
+        GrMesh& mesh = fMeshesBuffer.push_back();
         mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                           numStripVertices);
         fScissorsBuffer.push_back(drawBounds);
@@ -762,7 +762,7 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
         endIdx = subBatch.fEndInstances->fStrokes[numSegmentsLog2];
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            GrMesh& mesh = fMeshesBuffer.emplace_back(GrPrimitiveType::kTriangleStrip);
+            GrMesh& mesh = fMeshesBuffer.push_back();
             mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                               numStripVertices);
             fScissorsBuffer.push_back(subBatch.fScissor);

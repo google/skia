@@ -809,7 +809,6 @@ private:
             GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                meshes[j].setPrimitiveType(GrPrimitiveType::kTriangles);
                 meshes[j].setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0,
                                      draw.fVertexCnt - 1, GrPrimitiveRestart::kNo);
                 meshes[j].setVertexData(vertexBuffer, firstVertex);

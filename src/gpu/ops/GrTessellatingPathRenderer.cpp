@@ -364,7 +364,7 @@ private:
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
                                                               : GrPrimitiveType::kTriangles;
 
-        GrMesh* mesh = target->allocMesh(primitiveType);
+        GrMesh* mesh = target->allocMesh();
         mesh->setNonIndexedNonInstanced(count);
         mesh->setVertexData(std::move(vb), firstVertex);
         target->recordDraw(gp, mesh, 1, primitiveType);

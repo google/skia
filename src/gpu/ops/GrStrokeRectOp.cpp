@@ -221,7 +221,7 @@ private:
             vertex[4].set(fRect.fLeft, fRect.fTop);
         }
 
-        GrMesh* mesh = target->allocMesh(primType);
+        GrMesh* mesh = target->allocMesh();
         mesh->setNonIndexedNonInstanced(vertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         target->recordDraw(gp, mesh, 1, primType);

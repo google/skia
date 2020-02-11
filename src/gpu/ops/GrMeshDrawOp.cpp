@@ -42,7 +42,7 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
         return;
     }
     SkASSERT(vertexBuffer);
-    fMesh = target->allocMesh(primitiveType);
+    fMesh = target->allocMesh();
     fPrimitiveType = primitiveType;
 
     SkASSERT(maxRepetitions ==

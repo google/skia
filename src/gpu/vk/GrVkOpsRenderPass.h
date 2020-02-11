@@ -75,20 +75,23 @@ private:
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
-    void sendArrayMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex) final {
+    void sendArrayMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh, int vertexCount,
+                            int baseVertex) final {
         SkASSERT(!mesh.instanceBuffer());
-        this->sendInstancedMeshToGpu(mesh, vertexCount, baseVertex, 1, 0);
+        this->sendInstancedMeshToGpu(primitiveType, mesh, vertexCount, baseVertex, 1, 0);
     }
-    void sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
-                              uint16_t minIndexValue, uint16_t maxIndexValue,
+    void sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh, int indexCount,
+                              int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
                               int baseVertex) final {
         SkASSERT(!mesh.instanceBuffer());
-        this->sendIndexedInstancedMeshToGpu(mesh, indexCount, baseIndex, baseVertex, 1, 0);
+        this->sendIndexedInstancedMeshToGpu(primitiveType, mesh, indexCount, baseIndex, baseVertex,
+                                            1, 0);
     }
-    void sendInstancedMeshToGpu(const GrMesh&, int vertexCount, int baseVertex, int instanceCount,
-                                int baseInstance) final;
-    void sendIndexedInstancedMeshToGpu(const GrMesh&, int indexCount, int baseIndex, int baseVertex,
-                                       int instanceCount, int baseInstance) final;
+    void sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int vertexCount, int baseVertex,
+                                int instanceCount, int baseInstance) final;
+    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int indexCount,
+                                       int baseIndex, int baseVertex, int instanceCount,
+                                       int baseInstance) final;
 
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 

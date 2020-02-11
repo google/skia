@@ -147,7 +147,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
                                stencilResolveSettings);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
-    GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+    GrMesh mesh;
     mesh.setInstanced(fResources->refStencilResolveBuffer(),
                       fEndStencilResolveInstance - fBaseStencilResolveInstance,
                       fBaseStencilResolveInstance, 4);

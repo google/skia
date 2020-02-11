@@ -269,7 +269,7 @@ private:
         SkASSERT(indexCount <= fIndicesInChunk);
 
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
-            GrMesh* mesh = fTarget->allocMesh(fPrimitiveType);
+            GrMesh* mesh = fTarget->allocMesh();
             if (!this->isIndexed()) {
                 mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
