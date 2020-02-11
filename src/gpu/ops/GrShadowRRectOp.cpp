@@ -596,7 +596,7 @@ private:
         auto fixedDynamicState = target->makeFixedDynamicState(1);
         fixedDynamicState->fPrimitiveProcessorTextures[0] = fFalloffView.proxy();
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = target->allocMesh();
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);

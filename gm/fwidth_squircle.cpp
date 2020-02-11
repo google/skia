@@ -217,7 +217,7 @@ private:
                                                           GrPrimitiveType::kTriangleStrip);
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+        GrMesh mesh;
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
 

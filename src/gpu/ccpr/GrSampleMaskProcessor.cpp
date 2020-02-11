@@ -97,7 +97,7 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles: {
-            GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
+            GrMesh& mesh = out->push_back();
             mesh.setNonIndexedNonInstanced(instanceCount * 3);
             mesh.setVertexData(std::move(instanceBuffer), baseInstance * 3);
             break;
@@ -105,7 +105,7 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
         case PrimitiveType::kQuadratics:
         case PrimitiveType::kCubics:
         case PrimitiveType::kConics: {
-            GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangleStrip);
+            GrMesh& mesh = out->push_back();
             mesh.setInstanced(std::move(instanceBuffer), instanceCount, baseInstance, 4);
             break;
         }
