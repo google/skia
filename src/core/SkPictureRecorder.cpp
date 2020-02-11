@@ -85,10 +85,12 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         bbh->insert(bounds, fRecord->count());
 
         // Now that we've calculated content bounds, we can update fCullRect, often trimming it.
-        // TODO: get updated fCullRect from bounds instead of forcing the BBH to return it?
-        SkRect bbhBound = bbh->getRootBound();
+        SkRect bbhBound = SkRect::MakeEmpty();
+        for (int i = 0; i < fRecord->count(); i++) {
+            bbhBound.join(bounds[i]);
+        }
         SkASSERT((bbhBound.isEmpty() || fCullRect.contains(bbhBound))
-            || (bbhBound.isEmpty() && fCullRect.isEmpty()));
+              || (bbhBound.isEmpty() && fCullRect.isEmpty()));
         fCullRect = bbhBound;
     }
 

@@ -9,14 +9,6 @@
 
 SkRTree::SkRTree() : fCount(0) {}
 
-SkRect SkRTree::getRootBound() const {
-    if (fCount) {
-        return fRoot.fBounds;
-    } else {
-        return SkRect::MakeEmpty();
-    }
-}
-
 void SkRTree::insert(const SkRect boundsArray[], int N) {
     SkASSERT(0 == fCount);
 

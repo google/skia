@@ -468,13 +468,6 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == finalCullRect.fTop);
     REPORTER_ASSERT(reporter, 100 == finalCullRect.fBottom);
     REPORTER_ASSERT(reporter, 100 == finalCullRect.fRight);
-
-    auto pictureBBH = (const SkBBoxHierarchy_Base*)picture->bbh();
-    SkRect bbhCullRect = pictureBBH->getRootBound();
-    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fLeft);
-    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fTop);
-    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fBottom);
-    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fRight);
 }
 
 
@@ -668,9 +661,8 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
 
 struct CountingBBH : public SkBBoxHierarchy_Base {
     mutable int searchCalls;
-    SkRect rootBound;
 
-    CountingBBH(const SkRect& bound) : searchCalls(0), rootBound(bound) {}
+    CountingBBH() : searchCalls(0) {}
 
     void search(const SkRect& query, SkTDArray<int>* results) const override {
         this->searchCalls++;
@@ -678,7 +670,6 @@ struct CountingBBH : public SkBBoxHierarchy_Base {
 
     void insert(const SkRect[], int) override {}
     virtual size_t bytesUsed() const override { return 0; }
-    SkRect getRootBound() const override { return rootBound; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
@@ -695,7 +686,7 @@ private:
 DEF_TEST(Picture_SkipBBH, r) {
     SkRect bound = SkRect::MakeWH(320, 240);
 
-    auto bbh = sk_make_sp<CountingBBH>(bound);
+    auto bbh = sk_make_sp<CountingBBH>();
     SpoonFedBBHFactory factory(bbh);
 
     SkPictureRecorder recorder;
