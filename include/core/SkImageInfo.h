@@ -42,16 +42,12 @@ enum SkAlphaType {
     kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, //!< last valid value
 };
 
-/** Returns true if SkAlphaType equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
-    hint that the SkColorType is opaque, or that all alpha values are set to
-    their 1.0 equivalent. If SkAlphaType is kOpaque_SkAlphaType, and SkColorType is not
-    opaque, then the result of drawing any pixel with a alpha value less than
-    1.0 is undefined.
+/** Returns true if SkAlphaType equals kOpaque_SkAlphaType.
 
-    @param at  one of:
-               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-               kUnpremul_SkAlphaType
-    @return    true if at equals kOpaque_SkAlphaType
+    kOpaque_SkAlphaType is a hint that the SkColorType is opaque, or that all
+    alpha values are set to their 1.0 equivalent. If SkAlphaType is
+    kOpaque_SkAlphaType, and SkColorType is not opaque, then the result of
+    drawing any pixel with a alpha value less than 1.0 is undefined.
 */
 static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     return kOpaque_SkAlphaType == at;
@@ -112,11 +108,6 @@ enum SkColorType {
 /** Returns the number of bytes required to store a pixel, including unused padding.
     Returns zero if ct is kUnknown_SkColorType or invalid.
 
-    @param ct  one of:
-               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-               kGray_8_SkColorType, kRGBA_F16_SkColorType
     @return    bytes per pixel
 */
 SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
@@ -124,11 +115,6 @@ SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
 /** Returns true if SkColorType always decodes alpha to 1.0, making the pixel
     fully opaque. If true, SkColorType does not reserve bits to encode alpha.
 
-    @param ct  one of:
-               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-               kGray_8_SkColorType, kRGBA_F16_SkColorType
     @return    true if alpha is always set to 1.0
 */
 SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
@@ -150,14 +136,6 @@ SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
     kRGBA_1010102_SkColorType, and kRGBA_F16_SkColorType: set canonical to alphaType
     and return true if alphaType is not kUnknown_SkAlphaType.
 
-    @param colorType  one of:
-                      kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                      kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                      kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                      kGray_8_SkColorType, kRGBA_F16_SkColorType
-    @param alphaType  one of:
-                      kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                      kUnpremul_SkAlphaType
     @param canonical  storage for SkAlphaType
     @return           true if valid SkAlphaType can be associated with colorType
 */
@@ -318,14 +296,6 @@ public:
 
         @param width   pixel column count; must be zero or greater
         @param height  pixel row count; must be zero or greater
-        @param ct      one of:
-                       kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                       kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                       kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                       kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param at      one of:
-                       kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                       kUnpremul_SkAlphaType
         @param cs      range of colors; may be nullptr
         @return        created SkImageInfo
     */
@@ -367,9 +337,6 @@ public:
 
         @param width   pixel column count; must be zero or greater
         @param height  pixel row count; must be zero or greater
-        @param at      one of:
-                       kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                       kUnpremul_SkAlphaType
         @param cs      range of colors; may be nullptr
         @return        created SkImageInfo
     */
@@ -386,9 +353,6 @@ public:
 
         @param width   pixel column count; must be zero or greater
         @param height  pixel row count; must be zero or greater
-        @param at      one of:
-                       kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                       kUnpremul_SkAlphaType
         @return        created SkImageInfo
 
         example: https://fiddle.skia.org/c/@ImageInfo_MakeS32
@@ -488,22 +452,8 @@ public:
     */
     int height() const { return fDimensions.height(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
-
-        @return  SkColorType
-    */
     SkColorType colorType() const { return fColorInfo.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
-
-        @return  SkAlphaType
-    */
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors. The reference count of
@@ -593,9 +543,6 @@ public:
         Created SkImageInfo contains newAlphaType even if it is incompatible with
         SkColorType, in which case SkAlphaType in SkImageInfo is ignored.
 
-        @param newAlphaType  one of:
-                             kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                             kUnpremul_SkAlphaType
         @return              created SkImageInfo
     */
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
@@ -605,11 +552,6 @@ public:
     /** Creates SkImageInfo with same SkAlphaType, SkColorSpace, width, and height,
         with SkColorType set to newColorType.
 
-        @param newColorType  one of:
-                             kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                             kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                             kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
-                             kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType
         @return              created SkImageInfo
     */
     SkImageInfo makeColorType(SkColorType newColorType) const {
