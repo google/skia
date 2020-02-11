@@ -133,12 +133,15 @@ public:
             : fBuilder(builder)
             , fPrevContext(builder->fPropertyObserverContext) {
             if (fBuilder->fPropertyObserver) {
-                this->updateContext(builder->fPropertyObserver.get(), obj);
+                auto observer = builder->fPropertyObserver.get();
+                this->updateContext(observer, obj);
+                observer->onEnterNode(fBuilder->fPropertyObserverContext);
             }
         }
 
         ~AutoPropertyTracker() {
             if (fBuilder->fPropertyObserver) {
+                fBuilder->fPropertyObserver->onLeavingNode(fBuilder->fPropertyObserverContext);
                 fBuilder->fPropertyObserverContext = fPrevContext;
             }
         }
