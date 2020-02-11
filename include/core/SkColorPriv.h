@@ -66,25 +66,7 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SK_BGRA_R32_SHIFT   16
 #define SK_BGRA_A32_SHIFT   24
 
-#if defined(SK_PMCOLOR_IS_RGBA) || defined(SK_PMCOLOR_IS_BGRA)
-    #error "Configure PMCOLOR by setting SK_R32_SHIFT."
-#endif
-
-// Deduce which SK_PMCOLOR_IS_ to define from the _SHIFT defines
-
-#if (SK_A32_SHIFT == SK_RGBA_A32_SHIFT && \
-     SK_R32_SHIFT == SK_RGBA_R32_SHIFT && \
-     SK_G32_SHIFT == SK_RGBA_G32_SHIFT && \
-     SK_B32_SHIFT == SK_RGBA_B32_SHIFT)
-    #define SK_PMCOLOR_IS_RGBA
-#elif (SK_A32_SHIFT == SK_BGRA_A32_SHIFT && \
-       SK_R32_SHIFT == SK_BGRA_R32_SHIFT && \
-       SK_G32_SHIFT == SK_BGRA_G32_SHIFT && \
-       SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
-    #define SK_PMCOLOR_IS_BGRA
-#else
-    #error "need 32bit packing to be either RGBA or BGRA"
-#endif
+#define SK_PMCOLOR_IS_BGRA
 
 #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)
 #define SkGetPackedR32(packed)      ((uint32_t)((packed) << (24 - SK_R32_SHIFT)) >> 24)
