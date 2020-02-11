@@ -106,6 +106,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
+        case kBGR_101010x_SkColorType:
             return 1;
         case kAlpha_8_SkColorType:
             value = static_cast<const uint8_t*>(srcPtr)[0] * (1.0f/255);
@@ -127,7 +128,8 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kBGRA_8888_SkColorType:
             value = static_cast<const uint8_t*>(srcPtr)[3] * (1.0f/255);
             break;
-        case kRGBA_1010102_SkColorType: {
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType: {
             uint32_t u32 = static_cast<const uint32_t*>(srcPtr)[0];
             value = (u32 >> 30) * (1.0f/3);
             break;
@@ -450,6 +452,7 @@ bool SkPixmap::computeIsOpaque() const {
         case kR16G16_float_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
+        case kBGR_101010x_SkColorType:
             return true;
             break;
         case kARGB_4444_SkColorType: {
@@ -504,7 +507,8 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return true;
         }
-        case kRGBA_1010102_SkColorType: {
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType: {
             uint32_t c = ~0;
             for (int y = 0; y < height; ++y) {
                 const uint32_t* row = this->addr32(0, y);
