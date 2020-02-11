@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3bb5d26_d3d38104",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-11T21:08:26Z",
+      "side": 1,
+      "message": "Why turn this around from the way it was before? Seems simpler to read as\n\nif (metrics) {\n  answer \u003d *metrics;\n} else {\n  context-\u003egetFontMetrics(\u0026answer);\n}\n\none fewer negation to keep in my head.",
+      "range": {
+        "startLine": 22,
+        "startChar": 4,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "4018bfd0896c019a2d3dab986d41525a07908a8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
