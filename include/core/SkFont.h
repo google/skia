@@ -164,30 +164,20 @@ public:
     void setBaselineSnap(bool baselineSnap);
 
     /** Whether edge pixels draw opaque or with partial transparency.
-
-        @return  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
     */
     Edging getEdging() const { return (Edging)fEdging; }
 
     /** Requests, but does not require, that edge pixels draw opaque or with
         partial transparency.
-
-        @param edging  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
     */
     void setEdging(Edging edging);
 
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
-
-        @param hintingLevel  one of: SkFontHinting::kNone, SkFontHinting::kSlight,
-                                     SkFontHinting::kNormal, SkFontHinting::kFull
     */
     void setHinting(SkFontHinting hintingLevel);
 
     /** Returns level of glyph outline adjustment.
-
-        @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
-                         SkFontHinting::kFull
      */
     SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
 
@@ -300,8 +290,6 @@ public:
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
-                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param glyphs        storage for glyph indices; may be nullptr
         @param maxGlyphCount storage capacity
         @return              number of glyphs represented by text of length byteLength
@@ -328,8 +316,6 @@ public:
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
-        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
-                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @return              number of glyphs represented by text of length byteLength
     */
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
@@ -342,8 +328,6 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
-                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @return            number of glyphs represented by text of length byteLength
     */
@@ -359,8 +343,6 @@ public:
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
-        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
-                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @param paint       optional; may be nullptr
         @return            number of glyphs represented by text of length byteLength

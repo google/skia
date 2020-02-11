@@ -187,14 +187,7 @@ public:
 
         @param context             GPU context
         @param backendTexture      texture residing on GPU
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt           samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType           one of:
-                                   kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                                   kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                                   kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                                   kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                                   kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace          range of colors; may be nullptr
         @param surfaceProps        LCD striping orientation and setting for device independent
                                    fonts; may be nullptr
@@ -225,15 +218,6 @@ public:
 
         @param context                  GPU context
         @param backendRenderTarget      GPU intermediate memory buffer
-        @param origin                   one of:
-                                        kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType                one of:
-                                        kUnknown_SkColorType, kAlpha_8_SkColorType,
-                                        kRGB_565_SkColorType,
-                                        kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                                        kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                                        kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                                        kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace               range of colors
         @param surfaceProps             LCD striping orientation and setting for device independent
                                         fonts; may be nullptr
@@ -267,14 +251,7 @@ public:
 
         @param context         GPU context
         @param backendTexture  texture residing on GPU
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
@@ -303,7 +280,6 @@ public:
 
         @param context         GPU context
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
@@ -328,14 +304,7 @@ public:
 
         @param context         GPU context
         @param layer           GrMTLHandle (expected to be a CAMetalLayer*)
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
@@ -363,14 +332,7 @@ public:
 
         @param context         GPU context
         @param layer           GrMTLHandle (expected to be a MTKView*)
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
@@ -404,11 +366,9 @@ public:
         If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
         @param context               GPU context
-        @param budgeted              one of: SkBudgeted::kNo, SkBudgeted::kYes
         @param imageInfo             width, height, SkColorType, SkAlphaType, SkColorSpace;
                                      width, or height, or both, may be zero
         @param sampleCount           samples per pixel, or 0 to disable full scene anti-aliasing
-        @param surfaceOrigin         one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param surfaceProps          LCD striping orientation and setting for device independent
                                      fonts; may be nullptr
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
@@ -434,7 +394,6 @@ public:
         SkSurface bottom-left corner is pinned to the origin.
 
         @param context      GPU context
-        @param budgeted     one of: SkBudgeted::kNo, SkBudgeted::kYes
         @param imageInfo    width, height, SkColorType, SkAlphaType, SkColorSpace,
                             of raster surface; width, or height, or both, may be zero
         @param sampleCount  samples per pixel, or 0 to disable multi-sample anti-aliasing
@@ -458,7 +417,6 @@ public:
         SkSurface bottom-left corner is pinned to the origin.
 
         @param context    GPU context
-        @param budgeted   one of: SkBudgeted::kNo, SkBudgeted::kYes
         @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
                           of raster surface; width, or height, or both, may be zero
         @return           SkSurface if all parameters are valid; otherwise, nullptr
@@ -477,7 +435,6 @@ public:
 
         @param context           GPU context
         @param characterization  description of the desired SkSurface
-        @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
         @return                  SkSurface if all parameters are valid; otherwise, nullptr
     */
     static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
@@ -570,8 +527,6 @@ public:
 
         TODO: Can kRetain_ContentChangeMode be deprecated?
 
-        @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
-
         example: https://fiddle.skia.org/c/@Surface_notifyContentWillChange
     */
     void notifyContentWillChange(ContentChangeMode mode);
@@ -603,9 +558,6 @@ public:
 
         The returned GrBackendTexture should be discarded if the SkSurface is drawn to or deleted.
 
-        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                    kFlushWrite_BackendHandleAccess,
-                                    kDiscardWrite_BackendHandleAccess
         @return                     GPU texture reference; invalid on failure
     */
     GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
@@ -617,9 +569,6 @@ public:
         The returned GrBackendRenderTarget should be discarded if the SkSurface is drawn to
         or deleted.
 
-        @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                    kFlushWrite_BackendHandleAccess,
-                                    kDiscardWrite_BackendHandleAccess
         @return                     GPU render target reference; invalid on failure
     */
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
@@ -631,7 +580,6 @@ public:
         the original.
 
         @param backendTexture      the new backing texture for the surface.
-        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
      */
@@ -992,7 +940,6 @@ public:
 
         @param access  type of access the call will do on the backend object after flush
         @param info    flush options
-        @return        one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
 
