@@ -39,8 +39,8 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext*
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> mask(
-            find_or_create_rrect_blur_mask(context, rrectToDraw, dimensions, xformedSigma));
+    GrSurfaceProxyView mask =
+            find_or_create_rrect_blur_mask(context, rrectToDraw, dimensions, xformedSigma);
     if (!mask) {
         return nullptr;
     }

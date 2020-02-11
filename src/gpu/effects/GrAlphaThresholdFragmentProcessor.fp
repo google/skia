@@ -18,12 +18,12 @@ in uniform half outerThreshold;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView mask,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                mask, innerThreshold, outerThreshold, bounds));
+                std::move(mask), innerThreshold, outerThreshold, bounds));
     }
 }
 
@@ -72,6 +72,11 @@ void main() {
     uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskProxy), innerThresh, outerThresh,
+
+    GrSurfaceOrigin origin = maskProxy->origin();
+    GrSwizzle swizzle = maskProxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(maskProxy), origin, swizzle);
+
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(view), innerThresh, outerThresh,
                                                    bounds);
 }

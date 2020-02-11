@@ -95,7 +95,7 @@ struct Layout {
         kSkIPoint,
         kSkMatrix,
         kSkM44,
-        kGrSurfaceProxy,
+        kGrSurfaceProxyView,
         kGrFragmentProcessor,
     };
 
@@ -177,8 +177,8 @@ struct Layout {
                 return "SkMatrix";
             case CType::kSkM44:
                 return "SkM44";
-            case CType::kGrSurfaceProxy:
-                return "sk_sp<GrSurfaceProxy>";
+            case CType::kGrSurfaceProxyView:
+                return "GrSurfaceProxyView";
             case CType::kGrFragmentProcessor:
                 return "std::unique_ptr<GrFragmentProcessor>";
             default:

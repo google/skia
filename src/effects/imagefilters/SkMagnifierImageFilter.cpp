@@ -138,7 +138,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
                                              (1.f - invYZoom) * input->subset().y());
 
         // TODO: Update generated fp file Make functions to take views instead of proxies
-        auto fp = GrMagnifierEffect::Make(inputView.detachProxy(),
+        auto fp = GrMagnifierEffect::Make(std::move(inputView),
                                           bounds,
                                           srcRect,
                                           invXZoom,

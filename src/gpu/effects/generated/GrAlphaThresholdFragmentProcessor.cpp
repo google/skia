@@ -122,7 +122,12 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskProxy), innerThresh, outerThresh,
+
+    GrSurfaceOrigin origin = maskProxy->origin();
+    GrSwizzle swizzle = maskProxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(maskProxy), origin, swizzle);
+
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(view), innerThresh, outerThresh,
                                                    bounds);
 }
 #endif
