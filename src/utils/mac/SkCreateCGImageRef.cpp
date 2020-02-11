@@ -92,8 +92,8 @@ static std::unique_ptr<SkBitmap> prepare_for_image_ref(const SkBitmap& bm,
     if (upscaleTo32) {
         std::unique_ptr<SkBitmap> copy(new SkBitmap);
         // here we make a deep copy of the pixels, since CG won't take our
-        // 565 directly
-        copy->allocPixels(bm.info().makeColorType(kN32_SkColorType));
+        // 565 directly, so we always go to RGBA
+        copy->allocPixels(bm.info().makeColorType(kRGBA_8888_SkColorType));
         bm.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0);
         return copy;
     }
