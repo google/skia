@@ -29,8 +29,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrTextureProxy> CreateIntegralTexture(GrRecordingContext* context,
-                                                       float sixSigma) {
+    static GrSurfaceProxyView CreateIntegralTexture(GrRecordingContext* context, float sixSigma) {
         // The texture we're producing represents the integral of a normal distribution over a
         // six-sigma range centered at zero. We want enough resolution so that the linear
         // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
@@ -46,34 +45,36 @@ public:
         builder.finish();
 
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
-        if (!proxy) {
-            SkBitmap bitmap;
-            if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
-                return nullptr;
-            }
-            *bitmap.getAddr8(0, 0) = 255;
-            const float invWidth = 1.f / width;
-            for (int i = 1; i < width - 1; ++i) {
-                float x = (i + 0.5f) * invWidth;
-                x = (-6 * x + 3) * SK_ScalarRoot2Over2;
-                float integral = 0.5f * (std::erf(x) + 1.f);
-                *bitmap.getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
-            }
-            *bitmap.getAddr8(width - 1, 0) = 0;
-            bitmap.setImmutable();
-
-            GrBitmapTextureMaker maker(context, bitmap);
-            auto[view, grCT] = maker.view(GrMipMapped::kNo);
-            if (!view.proxy()) {
-                return nullptr;
-            }
-            proxy = view.asTextureProxyRef();
-            SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-            proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
+        if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
+                    key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                       GrColorType::kAlpha_8);
+            return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
         }
-        return proxy;
+
+        SkBitmap bitmap;
+        if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
+            return {};
+        }
+        *bitmap.getAddr8(0, 0) = 255;
+        const float invWidth = 1.f / width;
+        for (int i = 1; i < width - 1; ++i) {
+            float x = (i + 0.5f) * invWidth;
+            x = (-6 * x + 3) * SK_ScalarRoot2Over2;
+            float integral = 0.5f * (std::erf(x) + 1.f);
+            *bitmap.getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
+        }
+        *bitmap.getAddr8(width - 1, 0) = 0;
+        bitmap.setImmutable();
+
+        GrBitmapTextureMaker maker(context, bitmap);
+        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        if (!view) {
+            return {};
+        }
+        SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+        return view;
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
@@ -91,7 +92,7 @@ public:
         }
 
         const float sixSigma = 6 * sigma;
-        auto integral = CreateIntegralTexture(context, sixSigma);
+        GrSurfaceProxyView integral = CreateIntegralTexture(context, sixSigma);
         if (!integral) {
             return nullptr;
         }
@@ -125,7 +126,7 @@ public:
     bool isFast;
 
 private:
-    GrRectBlurEffect(SkRect rect, sk_sp<GrSurfaceProxy> integral, float invSixSigma, bool isFast,
+    GrRectBlurEffect(SkRect rect, GrSurfaceProxyView integral, float invSixSigma, bool isFast,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)

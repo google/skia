@@ -290,7 +290,7 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
-            new ColorTableEffect(sk_ref_sp(fTextureSampler.view().proxy())));
+            new ColorTableEffect(fTextureSampler.view()));
     }
 
 private:
@@ -300,10 +300,10 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    ColorTableEffect(sk_sp<GrSurfaceProxy> proxy)
+    ColorTableEffect(GrSurfaceProxyView view)
             : INHERITED(kColorTableEffect_ClassID,
                         kNone_OptimizationFlags) // Not bothering with table-specific optimizations.
-            , fTextureSampler(std::move(proxy)) {
+            , fTextureSampler(std::move(view)) {
         this->setTextureSamplerCnt(1);
     }
 
@@ -378,11 +378,11 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* 
     SkASSERT(bitmap.isImmutable());
 
     auto view = GrMakeCachedBitmapProxyView(context, bitmap);
-    if (!view.proxy()) {
+    if (!view) {
         return nullptr;
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(view.detachProxy()));
+    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(view)));
 }
 
 void ColorTableEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

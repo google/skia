@@ -19,12 +19,12 @@ class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView mask,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                mask, innerThreshold, outerThreshold, bounds));
+                std::move(mask), innerThreshold, outerThreshold, bounds));
     }
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -35,12 +35,12 @@ public:
     float outerThreshold;
 
 private:
-    GrAlphaThresholdFragmentProcessor(sk_sp<GrSurfaceProxy> mask, float innerThreshold,
+    GrAlphaThresholdFragmentProcessor(GrSurfaceProxyView mask, float innerThreshold,
                                       float outerThreshold, const SkIRect& bounds)
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , maskCoordTransform(
                       SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                      mask.get())
+                      mask.proxy())
             , mask(std::move(mask))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {

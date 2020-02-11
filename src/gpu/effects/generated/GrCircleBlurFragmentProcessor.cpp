@@ -166,12 +166,12 @@ static void create_half_plane_profile(uint8_t* profile, int profileWidth) {
     profile[profileWidth - 1] = 0;
 }
 
-static sk_sp<GrTextureProxy> create_profile_texture(GrRecordingContext* context,
-                                                    const SkRect& circle, float sigma,
-                                                    float* solidRadius, float* textureRadius) {
+static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context, const SkRect& circle,
+                                                 float sigma, float* solidRadius,
+                                                 float* textureRadius) {
     float circleR = circle.width() / 2.0f;
     if (circleR < SK_ScalarNearlyZero) {
-        return nullptr;
+        return {};
     }
     // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
     // profile texture (binned by powers of 2).
@@ -208,45 +208,46 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrRecordingContext* context,
     builder.finish();
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(
-            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
-    if (!blurProfile) {
-        static constexpr int kProfileTextureWidth = 512;
-
-        SkBitmap bm;
-        if (!bm.tryAllocPixels(SkImageInfo::MakeA8(kProfileTextureWidth, 1))) {
-            return nullptr;
-        }
-
-        if (useHalfPlaneApprox) {
-            create_half_plane_profile(bm.getAddr8(0, 0), kProfileTextureWidth);
-        } else {
-            // Rescale params to the size of the texture we're creating.
-            SkScalar scale = kProfileTextureWidth / *textureRadius;
-            create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
-                                  kProfileTextureWidth);
-        }
-
-        bm.setImmutable();
-
-        GrBitmapTextureMaker maker(context, bm);
-        auto[blurView, grCT] = maker.view(GrMipMapped::kNo);
-        blurProfile = blurView.asTextureProxyRef();
-        if (!blurProfile) {
-            return nullptr;
-        }
-        proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
+    if (sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(
+                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(blurProfile->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(blurProfile), kTopLeft_GrSurfaceOrigin, swizzle};
     }
 
-    return blurProfile;
+    static constexpr int kProfileTextureWidth = 512;
+
+    SkBitmap bm;
+    if (!bm.tryAllocPixels(SkImageInfo::MakeA8(kProfileTextureWidth, 1))) {
+        return {};
+    }
+
+    if (useHalfPlaneApprox) {
+        create_half_plane_profile(bm.getAddr8(0, 0), kProfileTextureWidth);
+    } else {
+        // Rescale params to the size of the texture we're creating.
+        SkScalar scale = kProfileTextureWidth / *textureRadius;
+        create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
+                              kProfileTextureWidth);
+    }
+
+    bm.setImmutable();
+
+    GrBitmapTextureMaker maker(context, bm);
+    auto[blurView, grCT] = maker.view(GrMipMapped::kNo);
+    if (!blurView) {
+        return {};
+    }
+    proxyProvider->assignUniqueKeyToProxy(key, blurView.asTextureProxy());
+    return blurView;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
         GrRecordingContext* context, const SkRect& circle, float sigma) {
     float solidRadius;
     float textureRadius;
-    sk_sp<GrTextureProxy> profile(
-            create_profile_texture(context, circle, sigma, &solidRadius, &textureRadius));
+    GrSurfaceProxyView profile =
+            create_profile_texture(context, circle, sigma, &solidRadius, &textureRadius);
     if (!profile) {
         return nullptr;
     }
