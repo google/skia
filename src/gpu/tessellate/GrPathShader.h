@@ -35,7 +35,7 @@ public:
                    const GrPipeline::FixedDynamicState* fixedDynamicState,
                    sk_sp<const GrBuffer> vertexBuffer, int vertexCount, int baseVertex,
                    const SkRect& bounds) {
-        GrMesh mesh(fPrimitiveType, fTessellationPatchVertexCount);
+        GrMesh mesh;
         mesh.setNonIndexedNonInstanced(vertexCount);
         mesh.setVertexData(std::move(vertexBuffer), baseVertex);
         this->issueDraw(state, pipeline, fixedDynamicState, mesh, bounds);
@@ -44,8 +44,6 @@ public:
     void issueDraw(GrOpFlushState* state, const GrPipeline* pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState, const GrMesh& mesh,
                    const SkRect& bounds) {
-        SkASSERT(mesh.primitiveType() == fPrimitiveType);
-        SkASSERT(mesh.tessellationPatchVertexCount() == fTessellationPatchVertexCount);
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->view()->origin(),
                                   pipeline, this, fixedDynamicState, nullptr, 0,

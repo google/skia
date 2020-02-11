@@ -627,14 +627,16 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
             }
         }
         SkASSERT(pipelineState);
-        mesh.sendToGpu(this);
+        mesh.sendToGpu(programInfo.primitiveType(), this);
     }
 
     fCurrentCBIsEmpty = false;
 }
 
-void GrVkOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex,
-                                               int instanceCount, int baseInstance) {
+void GrVkOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh, int vertexCount,
+                                               int baseVertex, int instanceCount,
+                                               int baseInstance)
+{
     SkASSERT(!mesh.vertexBuffer() || !mesh.vertexBuffer()->isCpuBuffer());
     SkASSERT(!mesh.instanceBuffer() || !mesh.instanceBuffer()->isCpuBuffer());
     auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(mesh.vertexBuffer());
@@ -644,8 +646,8 @@ void GrVkOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCou
     fGpu->stats()->incNumDraws();
 }
 
-void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount,
-                                                      int baseIndex, int baseVertex,
+void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh,
+                                                      int indexCount, int baseIndex, int baseVertex,
                                                       int instanceCount, int baseInstance) {
     SkASSERT(mesh.primitiveRestart() == GrPrimitiveRestart::kNo);
     SkASSERT(!mesh.vertexBuffer() || !mesh.vertexBuffer()->isCpuBuffer());

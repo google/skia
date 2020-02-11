@@ -313,20 +313,21 @@ private:
                             state->drawOpArgs().outputSwizzle());
         GrPipeline::FixedDynamicState fixedDynamicState;
 
-        GrMesh mesh(GrPrimitiveType::kPatches);
+        GrMesh mesh;
+        int tessellationPatchVertexCount;
         std::unique_ptr<GrGeometryProcessor> shader;
         if (fTriPositions) {
             if (!fVertexBuffer) {
                 return;
             }
-            mesh.setTessellationPatchVertexCount(3);
+            tessellationPatchVertexCount = 3;
             mesh.setNonIndexedNonInstanced(3);
             mesh.setVertexData(fVertexBuffer, fBaseVertex);
             shader = std::make_unique<TessellationTestTriShader>(fViewMatrix);
         } else {
             // Use a mismatched number of vertices in the input patch vs output.
             // (The tessellation control shader will output one vertex per patch.)
-            mesh.setTessellationPatchVertexCount(5);
+            tessellationPatchVertexCount = 5;
             mesh.setNonIndexedNonInstanced(5);
             shader = std::make_unique<TessellationTestRectShader>(fViewMatrix);
         }
@@ -334,7 +335,7 @@ private:
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->view()->origin(),
                                   &pipeline, shader.get(), &fixedDynamicState, nullptr, 0,
-                                  GrPrimitiveType::kPatches, mesh.tessellationPatchVertexCount());
+                                  GrPrimitiveType::kPatches, tessellationPatchVertexCount);
 
         state->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(kWidth, kHeight));
     }

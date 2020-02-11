@@ -184,7 +184,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
                               &shader, &fixedDynamicState, nullptr, 0,
                               GrPrimitiveType::kTriangleStrip);
 
-    GrMesh mesh(GrPrimitiveType::kTriangleStrip);
+    GrMesh mesh;
     mesh.setInstanced(fInstanceBuffer, fInstanceCount, fBaseInstance, 4);
     state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
 }

@@ -805,7 +805,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                                                flushState->dstProxyView());
     }
 
-    GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
+    GrMesh* mesh = flushState->allocator()->make<GrMesh>();
     mesh->setIndexedInstanced(std::move(fIndexBuffer), fIndexCount,
                               std::move(fInstanceBuffer), fInstanceCount,
                               fBaseInstance, GrPrimitiveRestart::kNo);

@@ -535,7 +535,7 @@ void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
     SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
              fTriangleType == GrPrimitiveType::kTriangleStrip);
 
-    GrMesh& mesh = out->emplace_back(fTriangleType);
+    GrMesh& mesh = out->push_back();
     auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
     mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),
                              instanceCount, baseInstance, primitiveRestart);
