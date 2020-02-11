@@ -82,7 +82,11 @@ void main() {
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    auto effect = GrMagnifierEffect::Make(std::move(proxy),
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
+    auto effect = GrMagnifierEffect::Make(std::move(view),
                                           bounds,
                                           srcRect,
                                           srcRect.width() / bounds.width(),
