@@ -98,7 +98,7 @@ Samples
   </figure>
 
   <h3>SKSL for writing custom shaders</h3>
-  <a href="https://jsfiddle.skia.org/canvaskit/7572cf75c7669d074b9ae5e168e18a204c4efcfca23edd4bd8460b6bd2c3e72c"
+  <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
     target=_blank rel=noopener>
     <canvas id=shader1 width=512 height=512></canvas>
   </a>
