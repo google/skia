@@ -108,7 +108,6 @@ IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> sy
 , fSymbolTable(symbolTable)
 , fLoopLevel(0)
 , fSwitchLevel(0)
-, fTmpCount(0)
 , fErrors(errorReporter) {}
 
 void IRGenerator::pushSymbolTable() {
@@ -143,9 +142,6 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 
 void IRGenerator::start(const Program::Settings* settings,
                         std::vector<std::unique_ptr<ProgramElement>>* inherited) {
-    if (fStarted) {
-        this->popSymbolTable();
-    }
     fSettings = settings;
     fCapsMap.clear();
     if (settings->fCaps) {
@@ -890,12 +886,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         bool needInvocationIDWorkaround = fInvocations != -1 && fd.fName == "main" &&
                                           fSettings->fCaps &&
                                           !fSettings->fCaps->gsInvocationsSupport();
-        SkASSERT(!fExtraVars.size());
         std::unique_ptr<Block> body = this->convertBlock(*iter);
-        for (auto& v : fExtraVars) {
-            body->fStatements.insert(body->fStatements.begin(), std::move(v));
-        }
-        fExtraVars.clear();
         fCurrentFunction = nullptr;
         if (!body) {
             return;

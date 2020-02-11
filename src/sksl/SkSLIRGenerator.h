@@ -145,7 +145,6 @@ private:
     std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
     // returns a statement which converts sk_Position from device to normalized coordinates
     std::unique_ptr<Statement> getNormalizeSkPositionCode();
-    void removeSampleMask(std::vector<std::unique_ptr<ProgramElement>>* out);
 
     void checkValid(const Expression& expr);
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
@@ -160,12 +159,8 @@ private:
     // Symbols which have definitions in the include files. The bool tells us whether this
     // intrinsic has been included already.
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
-    // holds extra temp variable declarations needed for the current function
-    std::vector<std::unique_ptr<Statement>> fExtraVars;
     int fLoopLevel;
     int fSwitchLevel;
-    // count of temporary variables we have created
-    int fTmpCount;
     ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
@@ -173,7 +168,6 @@ private:
     Variable* fRTAdjust;
     Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
-    bool fStarted = false;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
