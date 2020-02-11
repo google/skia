@@ -42,6 +42,31 @@ void main(inout half4 color) {
 )";
 #endif
 
+#ifdef SK_PMCOLOR_IS_BGRA
+static uint32_t swizzle_rb(uint32_t c) {
+    return SkColorSetARGB(SkColorGetA(c), SkColorGetB(c), SkColorGetG(c), SkColorGetR(c));
+}
+#endif
+
+SkOverdrawColorFilter::SkOverdrawColorFilter(const uint32_t colors[kNumColors], InputType it) {
+    switch (it) {
+        case kInputIsRGBAPremul:
+            for (int i = 0; i < kNumColors; ++i) {
+#ifdef SK_PMCOLOR_IS_BGRA
+                fColors[i] = swizzle_rb(colors[i]);
+#else
+                fColors[i] = colors[i];
+#endif
+            }
+            break;
+    case kInputIsSkColor:
+        for (int i = 0; i < kNumColors; ++i) {
+            fColors[i] = SkPreMultiplyColor(colors[i]);
+        }
+        break;
+    }
+}
+
 bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is_opaque) const {
     struct Ctx : public SkRasterPipeline_CallbackCtx {
         const SkPMColor* colors;
@@ -91,11 +116,11 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorInfo&) const {
     static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
-    SkASSERT(effect->inputSize() == (kNumColors * sizeof(SkColor4f)));
-    auto inputs = SkData::MakeUninitialized(kNumColors * sizeof(SkColor4f));
-    SkColor4f* floatColors = reinterpret_cast<SkColor4f*>(inputs->writable_data());
+    SkASSERT(effect->inputSize() == (kNumColors * sizeof(SkPMColor4f)));
+    auto inputs = SkData::MakeUninitialized(kNumColors * sizeof(SkPMColor4f));
+    SkPMColor4f* floatColors = reinterpret_cast<SkPMColor4f*>(inputs->writable_data());
     for (int i = 0; i < kNumColors; ++i) {
-        floatColors[i] = SkColor4f::FromBytes_RGBA(fColors[i]);
+        floatColors[i] = SkPMColor4f::FromPMColor(fColors[i]);
     }
     return GrSkSLFP::Make(context, effect, "Overdraw", std::move(inputs));
 }
