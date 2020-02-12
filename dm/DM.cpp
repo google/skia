@@ -900,6 +900,7 @@ static bool gather_srcs() {
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     std::unique_ptr<Sink> sink(s);
 
+#if 0
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
         Error draw(SkCanvas* c) const override {
@@ -918,6 +919,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
         info("Could not run %s: %s\n", config.getTag().c_str(), err.c_str());
         exit(1);
     }
+#endif
 
     TaggedSink& ts = gSinks.push_back();
     ts.reset(sink.release());
@@ -944,6 +946,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return new GPUPersistentCacheTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPrecompile()) {
                 return new GPUPrecompileTestingSink(gpuConfig, grCtxOptions);
+            } else if (gpuConfig->getUseDDLs()) {
+                return new GPUDDLSink(gpuConfig, grCtxOptions);
             } else {
                 return new GPUSink(gpuConfig, grCtxOptions);
             }

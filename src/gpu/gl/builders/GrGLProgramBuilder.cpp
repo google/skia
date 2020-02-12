@@ -154,8 +154,10 @@ static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
 static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
-void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const SkSL::String shaders[], bool isSkSL,
+void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
+                                            GrGLuint programID,
+                                            const SkSL::String shaders[],
+                                            bool isSkSL,
                                             SkSL::Program::Settings* settings) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;

@@ -8,6 +8,8 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
+#include "include/private/SkThreadID.h"
+
 #if defined(_M_ARM64)
 
 namespace sk_gpu_test {
@@ -40,6 +42,7 @@ public:
 private:
     void destroyGLContext();
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
@@ -174,10 +177,17 @@ void WinGLTestContext::destroyGLContext() {
     }
 }
 
+void WinGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!wglMakeCurrent(NULL, NULL)) {
+        SkDebugf("Could not null out the rendering context.\n");
+    }
+}
+
 void WinGLTestContext::onPlatformMakeCurrent() const {
     HDC dc;
     HGLRC glrc;
 
+    SkDebugf("on thread %d making %p current\n", SkGetThreadID(), this);
     if (nullptr == fPbufferContext) {
         dc = fDeviceContext;
         glrc = fGlRenderContext;

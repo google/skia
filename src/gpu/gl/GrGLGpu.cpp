@@ -380,7 +380,7 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
 GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         : GrGpu(context)
         , fGLContext(std::move(ctx))
-        , fProgramCache(new ProgramCache(this))
+        , fProgramCache1(new ProgramCache(this))
         , fHWProgramID(0)
         , fTempSrcFBOID(0)
         , fTempDstFBOID(0)
@@ -452,7 +452,7 @@ GrGLGpu::~GrGLGpu() {
         }
     }
 
-    delete fProgramCache;
+    delete fProgramCache1;
     fSamplerObjectCache.reset();
 }
 
@@ -486,8 +486,8 @@ void GrGLGpu::disconnect(DisconnectType type) {
             fSamplerObjectCache->release();
         }
     } else {
-        if (fProgramCache) {
-            fProgramCache->abandon();
+        if (fProgramCache1) {
+            fProgramCache1->abandon();
         }
         if (fSamplerObjectCache) {
             fSamplerObjectCache->abandon();
@@ -495,8 +495,8 @@ void GrGLGpu::disconnect(DisconnectType type) {
     }
 
     fHWProgram.reset();
-    delete fProgramCache;
-    fProgramCache = nullptr;
+    delete fProgramCache1;
+    fProgramCache1 = nullptr;
 
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
@@ -1816,7 +1816,7 @@ void GrGLGpu::disableWindowRectangles() {
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 
-    sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram(renderTarget, programInfo));
+    sk_sp<GrGLProgram> program(fProgramCache1->findOrCreateProgram(renderTarget, programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;

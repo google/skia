@@ -14,7 +14,13 @@
 
 class SK_API SkExecutor {
 public:
+    SkExecutor();
     virtual ~SkExecutor();
+
+    virtual int id() { return fID; }
+    virtual const char* name() const = 0;
+    virtual int numThreads() const = 0;
+    virtual void print() const = 0;
 
     // Create a thread pool SkExecutor with a fixed thread count, by default the number of cores.
     static std::unique_ptr<SkExecutor> MakeFIFOThreadPool(int threads = 0);
@@ -29,6 +35,11 @@ public:
 
     // If it makes sense for this executor, use this thread to execute work for a little while.
     virtual void borrow() {}
+
+private:
+    static uint32_t CreateUniqueID();
+
+    uint32_t fID;
 };
 
 #endif//SkExecutor_DEFINED
