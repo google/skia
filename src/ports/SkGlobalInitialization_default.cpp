@@ -14,6 +14,7 @@
 
 #else
 
+    #include "include/core/SkBBHFactory.h"
     #include "include/core/SkColorFilter.h"
     #include "include/core/SkPathEffect.h"
     #include "include/effects/Sk1DPathEffect.h"
