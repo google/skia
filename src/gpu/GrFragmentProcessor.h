@@ -137,7 +137,7 @@ public:
     bool usesLocalCoords() const {
         // If the processor is sampled with explicit coords then we do not need to apply the
         // coord transforms in the vertex shader to the local coords.
-        return SkToBool(fFlags & kHasCoordTranforms_Flag) &&
+        return SkToBool(fFlags & kHasCoordTransforms_Flag) &&
                SkToBool(fFlags & kCoordTransformsApplyToLocalCoords_Flag);
     }
 
@@ -455,7 +455,7 @@ private:
 
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
-        kHasCoordTranforms_Flag = kFirstPrivateFlag,
+        kHasCoordTransforms_Flag = kFirstPrivateFlag,
         kCoordTransformsApplyToLocalCoords_Flag = kFirstPrivateFlag << 1,
     };
 

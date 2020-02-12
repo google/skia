@@ -71,7 +71,7 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
 
 void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
-    fFlags |= kHasCoordTranforms_Flag;
+    fFlags |= kHasCoordTransforms_Flag;
 }
 
 #ifdef SK_DEBUG
@@ -93,8 +93,8 @@ bool GrFragmentProcessor::isInstantiated() const {
 #endif
 
 int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
-    if (child->fFlags & kHasCoordTranforms_Flag) {
-        fFlags |= kHasCoordTranforms_Flag;
+    if (child->fFlags & kHasCoordTransforms_Flag) {
+        fFlags |= kHasCoordTransforms_Flag;
     }
     fRequestedFeatures |= child->fRequestedFeatures;
 
