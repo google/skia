@@ -26,7 +26,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMiniRecorder.h"
@@ -659,12 +658,12 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     REPORTER_ASSERT(reporter, replayBM.getColor(55, 55) == 0xff800000);
 }
 
-struct CountingBBH : public SkBBoxHierarchy_Base {
+struct CountingBBH : public SkBBoxHierarchy {
     mutable int searchCalls;
 
     CountingBBH() : searchCalls(0) {}
 
-    void search(const SkRect& query, SkTDArray<int>* results) const override {
+    void search(const SkRect& query, std::vector<int>* results) const override {
         this->searchCalls++;
     }
 
@@ -963,10 +962,9 @@ DEF_TEST(Picture_fillsBBH, r) {
         }
         sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
 
-        auto base = (const SkBBoxHierarchy_Base*)bbh.get();
-        SkTDArray<int> results;
-        base->search({0,0, 100,100}, &results);
-        REPORTER_ASSERT(r, results.count() == n,
-                        "results.count() == %d, want %d\n", results.count(), n);
+        std::vector<int> results;
+        bbh->search({0,0, 100,100}, &results);
+        REPORTER_ASSERT(r, (int)results.size() == n,
+                        "results.size() == %d, want %d\n", (int)results.size(), n);
     }
 }

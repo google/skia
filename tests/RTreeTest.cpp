@@ -25,8 +25,8 @@ static SkRect random_rect(SkRandom& rand) {
     return rect;
 }
 
-static bool verify_query(SkRect query, SkRect rects[], SkTDArray<int>& found) {
-    SkTDArray<int> expected;
+static bool verify_query(SkRect query, SkRect rects[], const std::vector<int>& found) {
+    std::vector<int> expected;
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
         if (SkRect::Intersects(query, rects[i])) {
@@ -34,10 +34,10 @@ static bool verify_query(SkRect query, SkRect rects[], SkTDArray<int>& found) {
         }
     }
 
-    if (expected.count() != found.count()) {
+    if (expected.size() != found.size()) {
         return false;
     }
-    if (0 == expected.count()) {
+    if (0 == expected.size()) {
         return true;
     }
     return found == expected;
@@ -46,7 +46,7 @@ static bool verify_query(SkRect query, SkRect rects[], SkTDArray<int>& found) {
 static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, SkRect rects[],
                         const SkRTree& tree) {
     for (size_t i = 0; i < NUM_QUERIES; ++i) {
-        SkTDArray<int> hits;
+        std::vector<int> hits;
         SkRect query = random_rect(rand);
         tree.search(query, &hits);
         REPORTER_ASSERT(reporter, verify_query(query, rects, hits));

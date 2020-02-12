@@ -112,7 +112,6 @@ skia_core_sources = [
   "$_src/core/SkAutoPixmapStorage.h",
   "$_src/core/SkAutoPixmapStorage.cpp",
   "$_src/core/SkBBHFactory.cpp",
-  "$_src/core/SkBBoxHierarchy.h",
   "$_src/core/SkBitmap.cpp",
   "$_src/core/SkBitmapCache.cpp",
   "$_src/core/SkBitmapController.cpp",

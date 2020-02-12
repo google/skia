@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkBBoxHierarchy.h"
+#include "include/core/SkBBHFactory.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkPictureCommon.h"
 #include "src/core/SkRecord.h"
@@ -57,7 +57,7 @@ SkRect SkBigPicture::cullRect()            const { return fCullRect; }
 int    SkBigPicture::approximateOpCount()   const { return fRecord->count(); }
 size_t SkBigPicture::approximateBytesUsed() const {
     size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
-    if (fBBH) { bytes += static_cast<const SkBBoxHierarchy_Base*>(fBBH.get())->bytesUsed(); }
+    if (fBBH) { bytes += fBBH->bytesUsed(); }
     return bytes;
 }
 
