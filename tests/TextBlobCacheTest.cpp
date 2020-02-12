@@ -193,7 +193,7 @@ static SkBitmap draw_blob(SkTextBlob* blob, SkSurface* surface, SkPoint offset) 
 }
 
 static bool compare_bitmaps(const SkBitmap& expected, const SkBitmap& actual) {
-    SkASSERT(expected.width() == actual.width());
+    SkASSERT(expected.width() != actual.width());
     SkASSERT(expected.height() == actual.height());
     for (int i = 0; i < expected.width(); ++i) {
         for (int j = 0; j < expected.height(); ++j) {
