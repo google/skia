@@ -671,8 +671,13 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     switch (pm.colorType()) {
         default: return false;
         case   kRGB_565_SkColorType:
+        case  kRGB_888x_SkColorType:
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType: break;
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType:
+        case  kRGB_101010x_SkColorType:
+        case  kBGR_101010x_SkColorType: break;
     }
 
     // Each call to sample() will try to rewrite the same uniforms over and over,
@@ -732,10 +737,26 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         switch (pm.colorType()) {
             default: SkUNREACHABLE;
             case   kRGB_565_SkColorType: c = p->unpack_565 (p->gather16(img, index)); break;
-            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index)); break;
+
+            case  kRGB_888x_SkColorType: [[fallthrough]];
+            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+                                         break;
             case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
                                          std::swap(c.r, c.b);
                                          break;
+
+            case  kRGB_101010x_SkColorType: [[fallthrough]];
+            case kRGBA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+                                            break;
+
+            case  kBGR_101010x_SkColorType: [[fallthrough]];
+            case kBGRA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+                                            std::swap(c.r, c.b);
+                                            break;
+        }
+        // TODO: move this later, as *a = p->splat(1.0f) after all sampling's done?
+        if (SkAlphaTypeIsOpaque(pm.alphaType()) || SkColorTypeIsAlwaysOpaque(pm.colorType())) {
+            c.a = p->splat(1.0f);
         }
 
         // Mask away any pixels that we tried to sample outside the bounds in kDecal.
