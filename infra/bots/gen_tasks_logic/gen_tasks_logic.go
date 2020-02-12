@@ -630,6 +630,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in iOS mapping.", parts["model"])
 			}
 			d["device_type"] = device
+			// Temporarily use this dimension to ensure we use the old libimobiledevice until recipes are
+			// updated.
+			d["libimobiledevice"] = "1534346785"
 		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
 			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
 				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
