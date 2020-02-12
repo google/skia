@@ -111,7 +111,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
-    auto[maskProxy, ct, at] = testData->randomAlphaOnlyProxy();
+    auto[maskView, ct, at] = testData->randomAlphaOnlyView();
     // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
     float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
     float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
@@ -123,11 +123,7 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
 
-    GrSurfaceOrigin origin = maskProxy->origin();
-    GrSwizzle swizzle = maskProxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(maskProxy), origin, swizzle);
-
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(view), innerThresh, outerThresh,
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskView), innerThresh, outerThresh,
                                                    bounds);
 }
 #endif

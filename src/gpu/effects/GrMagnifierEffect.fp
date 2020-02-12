@@ -71,7 +71,7 @@ void main() {
 }
 
 @test(d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const SkScalar kMaxInset = 20.0f;
@@ -81,10 +81,6 @@ void main() {
 
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     auto effect = GrMagnifierEffect::Make(std::move(view),
                                           bounds,

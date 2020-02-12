@@ -324,7 +324,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
 
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
@@ -335,19 +335,20 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrPro
     }
     SkScalar gain = d->fRandom->nextSScalar1();
     SkScalar bias = d->fRandom->nextSScalar1();
-    SkIPoint kernelOffset = SkIPoint::Make(d->fRandom->nextRangeU(0, kernelSize.width()),
-                                           d->fRandom->nextRangeU(0, kernelSize.height()));
-    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
-                                       d->fRandom->nextRangeU(0, proxy->height()),
-                                       d->fRandom->nextRangeU(0, proxy->width()),
-                                       d->fRandom->nextRangeU(0, proxy->height()));
+
+    uint32_t kernalOffsetX = d->fRandom->nextRangeU(0, kernelSize.width());
+    uint32_t kernalOffsetY = d->fRandom->nextRangeU(0, kernelSize.height());
+    SkIPoint kernelOffset = SkIPoint::Make(kernalOffsetX, kernalOffsetY);
+
+    uint32_t boundsX = d->fRandom->nextRangeU(0, view.width());
+    uint32_t boundsY = d->fRandom->nextRangeU(0, view.height());
+    uint32_t boundsW = d->fRandom->nextRangeU(0, view.width());
+    uint32_t boundsH = d->fRandom->nextRangeU(0, view.height());
+    SkIRect bounds = SkIRect::MakeXYWH(boundsX, boundsY, boundsW, boundsH);
+
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrMatrixConvolutionEffect::Make(std::move(view),
                                            bounds,

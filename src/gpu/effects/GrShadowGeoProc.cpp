@@ -85,10 +85,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomAlphaOnlyProxy();
-    GrSurfaceOrigin origin = proxy->origin();
-    const GrSwizzle& swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    auto [view, ct, at] = d->randomAlphaOnlyView();
 
     return GrRRectShadowGeoProc::Make(d->allocator(), view);
 }

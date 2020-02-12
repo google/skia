@@ -288,7 +288,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomAlphaOnlyProxy();
+    auto [view, ct, at] = d->randomAlphaOnlyView();
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
@@ -305,10 +305,6 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestDat
 #ifdef SK_GAMMA_APPLY_TO_A8
     float lum = d->fRandom->nextF();
 #endif
-    GrSurfaceOrigin origin = proxy->origin();
-    const GrSwizzle& swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-
     return GrDistanceFieldA8TextGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
                                               &view, 1,
                                               samplerState,
@@ -582,7 +578,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomAlphaOnlyProxy();
+    auto [view, ct, at] = d->randomAlphaOnlyView();
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
@@ -595,9 +591,6 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
     if (flags & kSimilarity_DistanceFieldEffectFlag) {
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
-    GrSurfaceOrigin origin = proxy->origin();
-    const GrSwizzle& swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrDistanceFieldPathGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
                                             GrTest::TestMatrix(d->fRandom),
@@ -905,7 +898,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
@@ -920,10 +913,6 @@ GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestDa
     }
     flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
-
-    GrSurfaceOrigin origin = proxy->origin();
-    const GrSwizzle& swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrDistanceFieldLCDTextGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(), &view,
                                                1, samplerState, wa, flags, localMatrix);

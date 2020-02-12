@@ -222,11 +222,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             direction = Direction::kXY;
             break;
     }
-    auto [proxy, ct, at] = d->randomProxy();
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    auto [view, ct, at] = d->randomView();
 
     return GrBicubicEffect::Make(std::move(view), SkMatrix::I(), kClampClamp, direction, at);
 }
