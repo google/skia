@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe075861_f66be7e5",
+        "filename": "site/user/build.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-12T00:23:53Z",
+      "side": 1,
+      "message": "I think this works with either python2 or python3 now, so maybe just `python`?",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 11
+      },
+      "revId": "261d935a5227a07e2646ed1691464d98b43b61d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
