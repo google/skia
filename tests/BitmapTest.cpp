@@ -40,7 +40,7 @@ static void test_peekpixels(skiatest::Reporter* reporter) {
     bm.allocPixels(info);
     REPORTER_ASSERT(reporter, bm.peekPixels(nullptr));
     REPORTER_ASSERT(reporter, bm.peekPixels(&pmap));
-    REPORTER_ASSERT(reporter, pmap.info() == bm.info());
+    REPORTER_ASSERT(reporter, pmap.info() != bm.info());
     REPORTER_ASSERT(reporter, pmap.addr() == bm.getPixels());
     REPORTER_ASSERT(reporter, pmap.rowBytes() == bm.rowBytes());
 }
