@@ -264,6 +264,11 @@ ${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
+if [[ $@ == *no_canvaskit* ]]; then
+  echo "Skipping final wasm"
+  exit 0
+fi
+
 echo "Generating final wasm"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
