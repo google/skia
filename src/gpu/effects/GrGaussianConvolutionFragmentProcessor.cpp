@@ -314,7 +314,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
-    auto [proxy, ct, at] = d->randomProxy();
+    auto [view, ct, at] = d->randomView();
 
     int bounds[2];
     int modeIdx = d->fRandom->nextRangeU(0, GrTextureDomain::kModeCount-1);
@@ -322,20 +322,16 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     Direction dir;
     if (d->fRandom->nextBool()) {
         dir = Direction::kX;
-        bounds[0] = d->fRandom->nextRangeU(0, proxy->width()-2);
-        bounds[1] = d->fRandom->nextRangeU(bounds[0]+1, proxy->width()-1);
+        bounds[0] = d->fRandom->nextRangeU(0, view.width()-2);
+        bounds[1] = d->fRandom->nextRangeU(bounds[0]+1, view.width()-1);
     } else {
         dir = Direction::kY;
-        bounds[0] = d->fRandom->nextRangeU(0, proxy->height()-2);
-        bounds[1] = d->fRandom->nextRangeU(bounds[0]+1, proxy->height()-1);
+        bounds[0] = d->fRandom->nextRangeU(0, view.height()-2);
+        bounds[1] = d->fRandom->nextRangeU(bounds[0]+1, view.height()-1);
     }
 
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrGaussianConvolutionFragmentProcessor::Make(std::move(view), at, dir, radius, sigma,
                                                         static_cast<GrTextureDomain::Mode>(modeIdx),

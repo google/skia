@@ -15,10 +15,10 @@
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random,
                                          GrContext* context,
-                                         int numProxies,
-                                         const ProxyInfo proxies[])
+                                         int numViews,
+                                         const ViewInfo views[])
         : fRandom(random), fContext(context) {
-    fProxies.reset(proxies, numProxies);
+    fViews.reset(views, numViews);
     fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
 }
 
@@ -30,23 +30,23 @@ GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().
 
 const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
 
-GrProcessorTestData::ProxyInfo GrProcessorTestData::randomProxy() {
-    SkASSERT(!fProxies.empty());
-    return fProxies[fRandom->nextULessThan(fProxies.count())];
+GrProcessorTestData::ViewInfo GrProcessorTestData::randomView() {
+    SkASSERT(!fViews.empty());
+    return fViews[fRandom->nextULessThan(fViews.count())];
 }
 
-GrProcessorTestData::ProxyInfo GrProcessorTestData::randomAlphaOnlyProxy() {
+GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
     int numAlphaOnly = 0;
-    for (const auto& [p, ct, at] : fProxies) {
+    for (const auto& [v, ct, at] : fViews) {
         if (GrColorTypeIsAlphaOnly(ct)) {
             ++numAlphaOnly;
         }
     }
     SkASSERT(numAlphaOnly);
     int idx = fRandom->nextULessThan(numAlphaOnly);
-    for (const auto& [p, ct, at] : fProxies) {
+    for (const auto& [v, ct, at] : fViews) {
         if (GrColorTypeIsAlphaOnly(ct) && !idx--) {
-            return {p, ct, at};
+            return {v, ct, at};
         }
     }
     SkUNREACHABLE;

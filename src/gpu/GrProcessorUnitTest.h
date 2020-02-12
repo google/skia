@@ -52,8 +52,8 @@ std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
  */
 class GrProcessorTestData {
 public:
-    using ProxyInfo = std::tuple<sk_sp<GrTextureProxy>, GrColorType, SkAlphaType>;
-    GrProcessorTestData(SkRandom* random, GrContext* context, int numProxies, const ProxyInfo[]);
+    using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
+    GrProcessorTestData(SkRandom* random, GrContext* context, int numProxies, const ViewInfo[]);
 
     GrContext* context() { return fContext; }
     GrResourceProvider* resourceProvider();
@@ -61,14 +61,14 @@ public:
     const GrCaps* caps();
     SkArenaAlloc* allocator() { return fArena.get(); }
 
-    ProxyInfo randomProxy();
-    ProxyInfo randomAlphaOnlyProxy();
+    ViewInfo randomView();
+    ViewInfo randomAlphaOnlyView();
 
     SkRandom* fRandom;
 
 private:
     GrContext* fContext;
-    SkTArray<ProxyInfo> fProxies;
+    SkTArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
 };
 
