@@ -851,6 +851,14 @@ namespace skvm {
         return round(mul(x, splat(limit)));
     }
 
+    Color Builder::unpack_1010102(I32 rgba) {
+        return {
+            from_unorm(10, extract(rgba,  0, splat(0x3ff))),
+            from_unorm(10, extract(rgba, 10, splat(0x3ff))),
+            from_unorm(10, extract(rgba, 20, splat(0x3ff))),
+            from_unorm( 2, extract(rgba, 30, splat(0x3  ))),
+        };
+    }
     Color Builder::unpack_8888(I32 rgba) {
         return {
             from_unorm(8, extract(rgba,  0, splat(0xff))),
