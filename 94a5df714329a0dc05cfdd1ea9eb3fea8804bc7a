@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "516a9ab8_09030c9f",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-12T13:56:53Z",
+      "side": 1,
+      "message": "Not you, but it\u0027d be better to not call random in an arg list where the order of eval is not defined.",
+      "range": {
+        "startLine": 340,
+        "startChar": 0,
+        "endLine": 343,
+        "endChar": 81
+      },
+      "revId": "94a5df714329a0dc05cfdd1ea9eb3fea8804bc7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
