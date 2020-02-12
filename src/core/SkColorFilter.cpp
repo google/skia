@@ -491,6 +491,10 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     }
 
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    if (!effect) {
+        return nullptr;
+    }
+
     return effect->makeColorFilter(std::move(inputs), children.data(), children.size());
 }
 
