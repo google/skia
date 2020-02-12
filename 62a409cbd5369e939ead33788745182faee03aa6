@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2db7191c_a27a8c33",
+        "filename": "tests/SkStrikeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-12T20:39:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31106193_900b7ae9",
+      "revId": "62a409cbd5369e939ead33788745182faee03aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6f60c22_e31a2faf",
         "filename": "tests/SkStrikeTest.cpp",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "62a409cbd5369e939ead33788745182faee03aa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b7205dc_e94be6f5",
+        "filename": "tests/SkStrikeTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-12T20:39:36Z",
+      "side": 1,
+      "message": "Changed the loop to make more strikes to cause fills to happen more.",
+      "parentUuid": "e6f60c22_e31a2faf",
+      "range": {
+        "startLine": 63,
+        "startChar": 28,
+        "endLine": 63,
+        "endChar": 32
+      },
+      "revId": "62a409cbd5369e939ead33788745182faee03aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
