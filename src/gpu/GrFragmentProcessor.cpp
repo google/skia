@@ -431,20 +431,6 @@ GrFragmentProcessor::TextureSampler::TextureSampler(GrSurfaceProxyView view,
                    GrTextureProxy::HighestFilterMode(proxy->backendFormat().textureType())));
 }
 
-GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
-                                                    GrSamplerState samplerState) {
-    SkASSERT(proxy->asTextureProxy());
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    fView = GrSurfaceProxyView(std::move(proxy), origin, swizzle);
-
-    fSamplerState = samplerState;
-    GrSurfaceProxy* surfProxy = this->proxy();
-    fSamplerState.setFilterMode(
-            std::min(samplerState.filter(),
-                   GrTextureProxy::HighestFilterMode(surfProxy->backendFormat().textureType())));
-}
-
 #if GR_TEST_UTILS
 void GrFragmentProcessor::TextureSampler::set(GrSurfaceProxyView view,
                                               GrSamplerState samplerState) {

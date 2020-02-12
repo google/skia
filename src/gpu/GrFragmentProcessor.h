@@ -485,8 +485,6 @@ public:
     explicit TextureSampler(const TextureSampler&) = default;
 
     TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
-    // TODO: Remove this ctor once all uses have been updated to pass in a GrSurfaceProxyView
-    TextureSampler(sk_sp<GrSurfaceProxy>, GrSamplerState = {});
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 

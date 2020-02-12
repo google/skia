@@ -250,7 +250,6 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrContext* context, sk_sp<SkDa
     }
     // TODO: remove asserts when proxy doesn't hold origin or swizzle
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-    SkASSERT(proxy->textureSwizzle() == GrSwizzle());
     GrSurfaceProxyView view(std::move(proxy));
 
     SkColorType colorType = GrCompressionTypeToSkColorType(type);
