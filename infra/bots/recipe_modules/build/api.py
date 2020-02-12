@@ -11,7 +11,6 @@ from recipe_engine import recipe_api
 from . import android
 from . import canvaskit
 from . import chromebook
-from . import chromecast
 from . import cmake
 from . import default
 from . import docker
@@ -32,9 +31,6 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'Chromebook' in b:
       self.compile_fn = chromebook.compile_fn
       self.copy_fn = chromebook.copy_build_products
-    elif 'Chromecast' in b:
-      self.compile_fn = chromecast.compile_fn
-      self.copy_fn = chromecast.copy_build_products
     elif 'Flutter' in b:
       self.compile_fn = flutter.compile_fn
       self.copy_fn = flutter.copy_build_products

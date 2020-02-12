@@ -75,7 +75,7 @@ def dm_flags(api, bot):
     thread_limit = 4
 
   # These bots run out of memory easily.
-  if 'Chromecast' in bot or 'MotoG4' in bot or 'Nexus7' in bot:
+  if 'MotoG4' in bot or 'Nexus7' in bot:
     thread_limit = MAIN_THREAD_ONLY
 
   # Avoid issues with dynamically exceeding resource cache limits.
@@ -84,13 +84,6 @@ def dm_flags(api, bot):
 
   if thread_limit is not None:
     args.extend(['--threads', str(thread_limit)])
-
-  # Android's kernel will occasionally attempt to kill our process, using
-  # SIGINT, in an effort to free up resources. If requested, that signal
-  # is ignored and dm will keep attempting to proceed until we actually
-  # exhaust the available resources.
-  if 'Chromecast' in bot:
-    args.append('--ignoreSigInt')
 
   if 'SwiftShader' in api.vars.extra_tokens:
     configs.extend(['gles', 'glesdft'])
@@ -227,8 +220,7 @@ def dm_flags(api, bot):
     if 'GPU' in bot and ('Nexus7' in bot or
                          'NVIDIA_Shield' in bot or
                          'Nexus5x' in bot or
-                         ('Win10' in bot and 'GTX660' in bot and 'Vulkan' in bot) or
-                         'Chorizo' in bot):
+                         ('Win10' in bot and 'GTX660' in bot and 'Vulkan' in bot)):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
     # skbug.com/9123
@@ -302,9 +294,6 @@ def dm_flags(api, bot):
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
-      configs = ['gles']
-
-    if 'Chromecast' in bot:
       configs = ['gles']
 
     # Test coverage counting path renderer.
@@ -488,7 +477,7 @@ def dm_flags(api, bot):
   # avoid lots of images on Gold.
   blacklist('_ image gen_platf error')
 
-  if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot:
+  if 'Android' in bot or 'iOS' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438
@@ -663,29 +652,6 @@ def dm_flags(api, bot):
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
     match.append('~ReimportImageTextureWithMipLevels')  # skia:8090
 
-  if 'Chromecast' in bot:
-    if 'GPU' in bot:
-      # skia:6687
-      match.append('~animated-image-blurs')
-      match.append('~blur_0.01')
-      match.append('~blur_image_filter')
-      match.append('~check_small_sigma_offset')
-      match.append('~imageblur2')
-      match.append('~lighting')
-      match.append('~longpathdash')
-      match.append('~matrixconvolution')
-      match.append('~textblobmixedsizes_df')
-      match.append('~textblobrandomfont')
-    # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
-    match.append('~bigbitmaprect_')
-    match.append('~DrawBitmapRect')
-    match.append('~drawbitmaprect')
-    match.append('~GM_animated-image-blurs')
-    match.append('~ImageFilterBlurLargeImage')
-    match.append('~savelayer_clipmask')
-    match.append('~TextBlobCache')
-    match.append('~verylarge')
-
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
     match.append('~skbug6653') # skia:6653
@@ -761,10 +727,6 @@ def dm_flags(api, bot):
   if ('IntelIris6100' in bot or 'IntelHD4400' in bot) and 'ANGLE' in bot:
     # skia:6857
     blacklist(['angle_d3d9_es2', 'gm', '_', 'lighting'])
-
-  if 'Chorizo' in bot:
-    # skia:8869
-    blacklist(['_', 'gm', '_', 'compositor_quads_filter'])
 
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
@@ -913,38 +875,25 @@ def test_steps(api):
   properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
   properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
-  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
-    # Due to limited disk space, we only deal with skps and one image.
-    args = [
-      'dm',
-      '--resourcePath', api.flavor.device_dirs.resource_dir,
-      '--skps', api.flavor.device_dirs.skp_dir,
-      '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
-      '--nameByHash',
-      '--dontReduceOpsTaskSplitting',
-      '--properties'
-    ] + properties
-  else:
-    args = [
-      'dm',
-      '--resourcePath', api.flavor.device_dirs.resource_dir,
-      '--skps', api.flavor.device_dirs.skp_dir,
-      '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.images_dir, 'dm'),
-      '--colorImages', api.flavor.device_path_join(
-          api.flavor.device_dirs.images_dir, 'colorspace'),
-      '--nameByHash',
-      '--properties'
-    ] + properties
+  args = [
+    'dm',
+    '--resourcePath', api.flavor.device_dirs.resource_dir,
+    '--skps', api.flavor.device_dirs.skp_dir,
+    '--images', api.flavor.device_path_join(
+        api.flavor.device_dirs.images_dir, 'dm'),
+    '--colorImages', api.flavor.device_path_join(
+        api.flavor.device_dirs.images_dir, 'colorspace'),
+    '--nameByHash',
+    '--properties'
+  ] + properties
 
-    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
-    if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
-      args.extend([
-        '--lotties',
-        api.flavor.device_path_join(
-            api.flavor.device_dirs.resource_dir, 'skottie'),
-        api.flavor.device_dirs.lotties_dir])
+  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    args.extend([
+      '--lotties',
+      api.flavor.device_path_join(
+          api.flavor.device_dirs.resource_dir, 'skottie'),
+      api.flavor.device_dirs.lotties_dir])
 
   args.append('--key')
   keys = key_params(api)
@@ -993,9 +942,7 @@ def RunSteps(api):
     env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
   with api.context(env=env):
     try:
-      if 'Chromecast' in api.vars.builder_name:
-        api.flavor.install(resources=True, skps=True)
-      elif 'Lottie' in api.vars.builder_name:
+      if 'Lottie' in api.vars.builder_name:
         api.flavor.install(resources=True, lotties=True)
       else:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True)
@@ -1023,8 +970,6 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
-  'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
-  'Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
@@ -1103,11 +1048,6 @@ def GenTests(api):
     )
     if 'Win' in builder and not 'LenovoYogaC630' in builder:
       test += api.platform('win', 64)
-
-    if 'Chromecast' in builder:
-      test += api.step_data(
-          'read chromecast ip',
-          stdout=api.raw_io.output('192.168.1.2:5555'))
 
     yield test
 
