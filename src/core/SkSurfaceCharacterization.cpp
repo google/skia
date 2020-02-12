@@ -74,6 +74,29 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
+SkSurfaceCharacterization SkSurfaceCharacterization::createBackendFormat(
+                                                    const GrBackendFormat& backendFormat) const {
+    if (!this->isValid()) {
+        return SkSurfaceCharacterization();
+    }
+
+    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+                                     fImageInfo, backendFormat,
+                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+}
+
+SkSurfaceCharacterization SkSurfaceCharacterization::createFBO0(bool usesGLFBO0) const {
+    if (!this->isValid()) {
+        return SkSurfaceCharacterization();
+    }
+
+    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+                                     fImageInfo, fBackendFormat,
+                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
+                                     usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
+                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+}
 
 bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
     if (!this->isValid() || !backendTex.isValid()) {

@@ -70,6 +70,16 @@ public:
      */
     SkSurfaceCharacterization createColorSpace(sk_sp<SkColorSpace>) const;
 
+    /*
+     * Return a new surface characterization with only the backend format replaced
+     */
+    SkSurfaceCharacterization createBackendFormat(const GrBackendFormat& backendFormat) const;
+
+    /*
+     * Return a new surface characterization with just a different use of FBO0 (in GL)
+     */
+    SkSurfaceCharacterization createFBO0(bool usesGLFBO0) const;
+
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
     size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
@@ -197,6 +207,14 @@ public:
     }
 
     SkSurfaceCharacterization createColorSpace(sk_sp<SkColorSpace>) const {
+        return *this;
+    }
+
+    SkSurfaceCharacterization createBackendFormat(const GrBackendFormat& backendFormat) const {
+        return *this;
+    }
+
+    SkSurfaceCharacterization createFBO0(UsesGLFBO0 usesGLFBO0) const {
         return *this;
     }
 
