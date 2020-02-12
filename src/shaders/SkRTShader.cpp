@@ -117,6 +117,10 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     }
 
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    if (!effect) {
+        return nullptr;
+    }
+
     return effect->makeShader(std::move(inputs), children.data(), children.size(), localMPtr,
                               isOpaque);
 }
