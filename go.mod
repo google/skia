@@ -10,15 +10,16 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.4.1 // indirect
-	go.chromium.org/luci v0.0.0-20200210224117-fdb2e4cfcb7d // indirect
+	go.chromium.org/luci v0.0.0-20200212041154-cb13edcf43ad // indirect
 	go.skia.org/infra v0.0.0-20200211192256-3e17474acf14
 	golang.org/x/exp v0.0.0-20200207192155-f17229e696bd // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200211045251-2de505fc5306 // indirect
+	golang.org/x/tools v0.0.0-20200211205636-11eff242d136 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.17.0
-	google.golang.org/genproto v0.0.0-20200211035748-55294c81d784 // indirect
+	google.golang.org/genproto v0.0.0-20200211111953-2dc5924e3898 // indirect
 	google.golang.org/grpc v1.27.1 // indirect
 )
