@@ -92,8 +92,6 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
 
     GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
 
-    SkASSERT(readSwizzle == proxy->textureSwizzle());
-
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
     GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);
 
@@ -166,8 +164,6 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
             GrSurfaceProxy::UseAllocator::kYes);
 
     GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
-
-    SkASSERT(readSwizzle == proxy->textureSwizzle());
 
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
     GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);

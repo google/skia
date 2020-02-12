@@ -385,7 +385,6 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         if (!tempProxy) {
             return false;
         }
-        SkASSERT(tempProxy->textureSwizzle() == tempReadSwizzle);
         GrSurfaceProxyView tempView(tempProxy, tempOrigin, tempReadSwizzle);
         GrSurfaceContext tempCtx(direct, tempView, colorType, alphaType,
                                  this->colorInfo().refColorSpace());

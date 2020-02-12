@@ -179,7 +179,6 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrSwizzle outputSwizzle = caps->getOutputSwizzle(fCharacterization.backendFormat(),
                                                      grColorType);
-    SkASSERT(readSwizzle == proxy->textureSwizzle());
 
     GrSurfaceProxyView readView(proxy, fCharacterization.origin(), readSwizzle);
     GrSurfaceProxyView outputView(std::move(proxy), fCharacterization.origin(), outputSwizzle);

@@ -242,7 +242,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     SkASSERT(result->getUniqueKey() == key);
     // createWrapped should've added this for us
     SkASSERT(fUniquelyKeyedProxies.find(key));
-    SkASSERT(result->textureSwizzle() ==
+    SkASSERT(result->textureSwizzleDoNotUse() ==
              this->caps()->getReadSwizzle(result->backendFormat(), colorType));
     return result;
 }
