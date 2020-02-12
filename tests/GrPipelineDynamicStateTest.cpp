@@ -169,8 +169,9 @@ private:
                                   nullptr,
                                   &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
 
-        flushState->opsRenderPass()->draw(programInfo, meshes.begin(), 4,
-                                          SkRect::MakeIWH(kScreenSize, kScreenSize));
+        flushState->opsRenderPass()->bindPipeline(programInfo,
+                                                  SkRect::MakeIWH(kScreenSize, kScreenSize));
+        flushState->opsRenderPass()->legacyDraw(programInfo, meshes.begin(), 4);
     }
 
     GrScissorTest               fScissorTest;

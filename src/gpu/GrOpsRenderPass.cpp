@@ -35,32 +35,37 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
-                           const GrMesh meshes[], int meshCount, const SkRect& bounds) {
-    if (!meshCount) {
-        return true;
-    }
-
+void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
 #ifdef SK_DEBUG
-    SkASSERT(GrPrimitiveType::kPatches != programInfo.primitiveType() ||
-             this->gpu()->caps()->shaderCaps()->tessellationSupport());
-    SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
-             this->gpu()->caps()->instanceAttribSupport());
-    SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
-             this->gpu()->caps()->conservativeRasterSupport());
-    SkASSERT(!programInfo.pipeline().isWireframe() ||
-             this->gpu()->caps()->wireframeSupport());
-
-    programInfo.compatibleWithMeshes(meshes, meshCount, *this->gpu()->caps());
+    if (programInfo.primProc().hasInstanceAttributes()) {
+         SkASSERT(this->gpu()->caps()->instanceAttribSupport());
+    }
+    if (programInfo.pipeline().usesConservativeRaster()) {
+        SkASSERT(this->gpu()->caps()->conservativeRasterSupport());
+        // Conservative raster, by default, only supports triangles. Implementations can
+        // optionally indicate that they also support points and lines, but we don't currently
+        // query or track that info.
+        SkASSERT(GrIsPrimTypeTris(programInfo.primitiveType()));
+    }
+    if (programInfo.pipeline().isWireframe()) {
+         SkASSERT(this->gpu()->caps()->wireframeSupport());
+    }
+    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
+        SkASSERT(this->gpu()->caps()->shaderCaps()->tessellationSupport());
+    }
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();
 #endif
 
     if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
-        this->gpu()->stats()->incNumFailedDraws();
-        return false;
+        fValidPipelineBound = false;
+        return;
     }
-    this->onDraw(programInfo, meshes, meshCount, bounds);
+
+    if (!this->onBindPipeline(programInfo, drawBounds)) {
+        fValidPipelineBound = false;
+        return;
+    }
 
 #ifdef SK_DEBUG
     GrProcessor::CustomFeatures processorFeatures = programInfo.requestedFeatures();
@@ -70,5 +75,36 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
                          == fRenderTarget->renderTargetPriv().getSamplePatternKey());
     }
 #endif
+
+    fValidPipelineBound = true;
+}
+
+bool GrOpsRenderPass::legacyDraw(const GrProgramInfo& programInfo, const GrMesh meshes[],
+                                 int meshCount) {
+    if (!fValidPipelineBound) {
+        this->gpu()->stats()->incNumFailedDraws();
+        return false;
+    }
+
+#ifdef SK_DEBUG
+    if (int numDynamicStateArrays = programInfo.numDynamicStateArrays()) {
+        SkASSERT(meshCount == numDynamicStateArrays);
+    }
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(programInfo.primProc().hasVertexAttributes() ==
+                 SkToBool(meshes[i].vertexBuffer()));
+        SkASSERT(programInfo.primProc().hasInstanceAttributes() ==
+                 SkToBool(meshes[i].instanceBuffer()));
+        if (GrPrimitiveRestart::kYes == meshes[i].primitiveRestart()) {
+             this->gpu()->caps()->usePrimitiveRestart();
+        }
+    }
+#endif
+
+    if (!meshCount) {
+        return true;
+    }
+
+    this->onDraw(programInfo, meshes, meshCount);
     return true;
 }
