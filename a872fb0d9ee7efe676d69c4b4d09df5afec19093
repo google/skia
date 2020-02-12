@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41acb858_a31873d9",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T22:05:03Z",
+      "side": 1,
+      "message": "So we don\u0027t want these to be sk_sp\u003cNode\u003e since that leads to stack madness in destroying them. However, if the LRU-ish were a vector\u003csk_sp\u003cNode\u003e\u003e which worked on swaps, that would make things doable.",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 9
+      },
+      "revId": "a872fb0d9ee7efe676d69c4b4d09df5afec19093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "221b995a_31d91c2c",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T22:05:03Z",
+      "side": 1,
+      "message": "In theory we could make this work with sk_sp\u003cNode\u003e by starting at the tail and calling node-\u003ereset() on each (moving in the opposite order of ownership).",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 5
+      },
+      "revId": "a872fb0d9ee7efe676d69c4b4d09df5afec19093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb349af_c608bb2b",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T22:05:03Z",
+      "side": 1,
+      "message": "This will eventually be \"change the node\u0027s location in the lru\" and a \"node-\u003eref\".",
+      "range": {
+        "startLine": 258,
+        "startChar": 18,
+        "endLine": 258,
+        "endChar": 37
+      },
+      "revId": "a872fb0d9ee7efe676d69c4b4d09df5afec19093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1119b810_95e8a94b",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T22:05:03Z",
+      "side": 1,
+      "message": "So eventually, this will just detach and drop the ref internally.",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 44
+      },
+      "revId": "a872fb0d9ee7efe676d69c4b4d09df5afec19093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
