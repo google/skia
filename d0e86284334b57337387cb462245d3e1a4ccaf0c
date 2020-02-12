@@ -93,6 +93,30 @@
       "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31e3083c_f5f86150",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-12T21:41:58Z",
+      "side": 1,
+      "message": "Ah, right, it\u0027s used in the send*MeshToGpu routines. Let me think about that.",
+      "parentUuid": "66f51da9_76e66c85",
+      "range": {
+        "startLine": 53,
+        "startChar": 25,
+        "endLine": 53,
+        "endChar": 39
+      },
+      "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
