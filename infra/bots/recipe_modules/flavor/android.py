@@ -76,10 +76,6 @@ class AndroidFlavor(default.DefaultFlavor):
       "Nexus5x": 600000000,
     }
 
-  def _run(self, title, *cmd, **kwargs):
-    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
-      return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
-
   def _adb(self, title, *cmd, **kwargs):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:

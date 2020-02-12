@@ -487,9 +487,6 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 				ec = append([]string{"Android"}, ec...)
 			}
 			task_os = "Debian9"
-		} else if task_os == "Chromecast" {
-			task_os = "Debian9"
-			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
 			task_os = "Debian9"
@@ -561,21 +558,20 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	}
 	if os, ok := parts["os"]; ok {
 		d["os"], ok = map[string]string{
-			"Android":    "Android",
-			"Chromecast": "Android",
-			"ChromeOS":   "ChromeOS",
-			"Debian9":    DEFAULT_OS_DEBIAN,
-			"Mac":        DEFAULT_OS_MAC,
-			"Mac10.13":   "Mac-10.13.6",
-			"Mac10.14":   "Mac-10.14.3",
-			"Mac10.15":   "Mac-10.15.1",
-			"Ubuntu18":   "Ubuntu-18.04",
-			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-18363",
-			"Win2019":    DEFAULT_OS_WIN,
-			"Win7":       "Windows-7-SP1",
-			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-11.4.1",
+			"Android":  "Android",
+			"ChromeOS": "ChromeOS",
+			"Debian9":  DEFAULT_OS_DEBIAN,
+			"Mac":      DEFAULT_OS_MAC,
+			"Mac10.13": "Mac-10.13.6",
+			"Mac10.14": "Mac-10.14.3",
+			"Mac10.15": "Mac-10.15.1",
+			"Ubuntu18": "Ubuntu-18.04",
+			"Win":      DEFAULT_OS_WIN,
+			"Win10":    "Windows-10-18363",
+			"Win2019":  DEFAULT_OS_WIN,
+			"Win7":     "Windows-7-SP1",
+			"Win8":     "Windows-8.1-SP0",
+			"iOS":      "iOS-11.4.1",
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
@@ -596,12 +592,11 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
-		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
+		if strings.Contains(parts["os"], "Android") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
 			deviceInfo, ok := map[string][]string{
 				"AndroidOne":      {"sprout", "MOB30Q"},
-				"Chorizo":         {"chorizo", "1.30_109591"},
 				"GalaxyS6":        {"zerofltetmo", "NRD90M_G920TUVS6FRC1"},
 				"GalaxyS7_G930FD": {"herolte", "R16NW_G930FXXS2ERH6"}, // This is Oreo.
 				"GalaxyS9":        {"starlte", "R16NW_G960FXXU2BRJ8"}, // This is Oreo.
@@ -1065,15 +1060,11 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 	// benefit and we don't need the extra complexity, for now
 	rpiOS := []string{"Android", "ChromeOS", "iOS"}
 
-	if o := parts["os"]; strings.Contains(o, "Chromecast") {
-		// Chromecasts don't have enough disk space to fit all of the content,
-		// so we do a subset of the skps.
-		deps = append(deps, ISOLATE_SKP_NAME)
-	} else if e := parts["extra_config"]; strings.Contains(e, "Skpbench") {
+	if e := parts["extra_config"]; strings.Contains(e, "Skpbench") {
 		// Skpbench only needs skps
 		deps = append(deps, ISOLATE_SKP_NAME)
 		deps = append(deps, ISOLATE_MSKP_NAME)
-	} else if In(o, rpiOS) {
+	} else if o := parts["os"]; In(o, rpiOS) {
 		deps = append(deps, ISOLATE_SKP_NAME)
 		deps = append(deps, ISOLATE_SVG_NAME)
 		deps = append(deps, ISOLATE_SKIMAGE_NAME)
@@ -1175,9 +1166,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		} else if !strings.Contains(name, "SKQP") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
-	} else if strings.Contains(name, "Chromecast") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cast_toolchain"))
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Chromebook") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 		if parts["target_arch"] == "x86_64" {

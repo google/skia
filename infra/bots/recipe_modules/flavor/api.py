@@ -10,7 +10,6 @@ from recipe_engine import recipe_api
 
 from . import android
 from . import chromebook
-from . import chromecast
 from . import default
 from . import docker
 from . import ios
@@ -43,10 +42,6 @@ def is_android(vars_api):
   return ('Android' in vars_api.extra_tokens or
           'Android' in vars_api.builder_cfg.get('os', ''))
 
-def is_chromecast(vars_api):
-  return ('Chromecast' in vars_api.extra_tokens or
-          'Chromecast' in vars_api.builder_cfg.get('os', ''))
-
 def is_chromebook(vars_api):
   return ('Chromebook' in vars_api.extra_tokens or
           'ChromeOS' in vars_api.builder_cfg.get('os', ''))
@@ -72,8 +67,6 @@ def is_win_ssh(vars_api):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, vars_api):
     """Return a flavor utils object specific to the given builder."""
-    if is_chromecast(vars_api):
-      return chromecast.ChromecastFlavor(self)
     if is_chromebook(vars_api):
       return chromebook.ChromebookFlavor(self)
     if is_android(vars_api) and not is_test_skqp(vars_api):

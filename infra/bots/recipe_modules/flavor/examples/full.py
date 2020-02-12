@@ -75,7 +75,6 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
-  'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
   'Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
@@ -118,10 +117,6 @@ def GenTests(api):
     )
     if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
       test += api.platform('win', 64)
-    if 'Chromecast' in buildername:
-      test += api.step_data(
-          'read chromecast ip',
-          stdout=api.raw_io.output('192.168.1.2:5555'))
     yield test
 
   builder = 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
