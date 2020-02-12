@@ -494,7 +494,8 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     return anyRenderTasksExecuted;
 }
 
-GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
+GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
+                                                      GrSurfaceOrigin origins[], int numProxies,
                                                       SkSurface::BackendSurfaceAccess access,
                                                       const GrFlushInfo& info) {
     if (this->wasAbandoned()) {
@@ -534,7 +535,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
             if (rtProxy->isMSAADirty()) {
                 SkASSERT(rtProxy->peekRenderTarget());
                 gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
-                                         rtProxy->origin(), GrGpu::ForExternalIO::kYes);
+                                         origins[i], GrGpu::ForExternalIO::kYes);
                 rtProxy->markMSAAResolved();
             }
         }
