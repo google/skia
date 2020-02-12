@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2030e291_c4b68ac8",
+        "filename": "tests/SkStrikeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T21:03:00Z",
+      "side": 1,
+      "message": "So this start the threads at slightly different offsets into the data, but makes them all do the same (large) number of glyphs. So after each thread has its own first go round everything will still be there, and after all the threads have their first go round it will just be reads. I suppose this will catch things anyway, since the states to test really are \u0027empty and contended\u0027, \u0027partial and contended\u0027, and \u0027has what I need and maybe contended\u0027.",
+      "range": {
+        "startLine": 67,
+        "startChar": 69,
+        "endLine": 67,
+        "endChar": 81
+      },
+      "revId": "c40a90a42b243373c5dbbb05a5d558f4e7128fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
