@@ -1886,18 +1886,15 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
-        SkDebugf("Could net get vkformat\n");
         return {};
     }
 
     // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!caps.isVkFormatTexturable(vkFormat)) {
-        SkDebugf("Config is not texturable\n");
         return {};
     }
 
     if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
-        SkDebugf("Can't create BackendTexture that requires Ycbcb sampler.\n");
         return {};
     }
 
@@ -1905,7 +1902,6 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
                                               renderable, mipMapped,
                                               &info, isProtected, data)) {
-        SkDebugf("Failed to create testing only image\n");
         return {};
     }
 
@@ -1927,18 +1923,15 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
 
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
-        SkDebugf("Could net get vkformat\n");
         return {};
     }
 
     // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!caps.isVkFormatTexturable(vkFormat)) {
-        SkDebugf("Config is not texturable\n");
         return {};
     }
 
     if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
-        SkDebugf("Can't create BackendTexture that requires Ycbcb sampler.\n");
         return {};
     }
 
@@ -1946,7 +1939,6 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
                                               GrRenderable::kNo, mipMapped,
                                               &info, isProtected, data)) {
-        SkDebugf("Failed to create testing only image\n");
         return {};
     }
 
