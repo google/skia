@@ -22,6 +22,30 @@
       "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dba8a679_0da1c908",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-12T21:08:06Z",
+      "side": 1,
+      "message": "Agreed.\n\nThe next CL I plan to work on will be to remove dynamic state arrays from GrProgramInfo, and to replace \"drawMeshes\" with looping calls to a \"drawMesh\" method that doesn\u0027t take a programInfo.",
+      "parentUuid": "f24a7628_dd829ba6",
+      "range": {
+        "startLine": 216,
+        "startChar": 8,
+        "endLine": 217,
+        "endChar": 73
+      },
+      "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
