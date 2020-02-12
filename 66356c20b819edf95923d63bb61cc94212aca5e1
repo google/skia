@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8aaba04b_6fd79cd5",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-12T20:42:54Z",
+      "side": 0,
+      "message": "The Chromecast flavor inherited from the android flavor, and made use of this. With them gone, it is unused.",
+      "revId": "66356c20b819edf95923d63bb61cc94212aca5e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
