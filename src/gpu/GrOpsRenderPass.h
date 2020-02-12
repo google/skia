@@ -50,11 +50,16 @@ public:
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
     virtual void end() = 0;
 
-    // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
-    // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
-    // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
-    // number of vertex attributes is too large).
-    bool draw(const GrProgramInfo&, const GrMesh[], int meshCount, const SkRect& bounds);
+    // Updates the internal pipeline state for drawing with the provided GrProgramInfo.
+    // Returns false if the state could not be set.
+    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
+
+    // Draws the given array of meshes using the current pipeline state. The client must call
+    // bindPipeline() before using this method.
+    //
+    // NOTE: This method will soon be replaced by individual calls for each draw type (indexed,
+    // instanced, indexed-patterned, indirect, etc.).
+    void drawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -93,13 +98,23 @@ private:
     virtual GrGpu* gpu() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
-                        const SkRect& bounds) = 0;
+    virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
+
+    // overridden by backend-specific derived class to perform the draw call.
+    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
 
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
+
+    enum class DrawPipelineStatus {
+        kOk = 0,
+        kNotConfigured,
+        kFailedToBind
+    };
+
+    DrawPipelineStatus fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
 
     typedef GrOpsRenderPass INHERITED;
 };
