@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f24a7628_dd829ba6",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-12T21:03:55Z",
+      "side": 1,
+      "message": "From the calling perspective it seems kind of weird to have to pass the program info to bindPipeline() and then again to drawMeshes(). I realize this may be tied up in longer term changes to how dynamic state is specified and am fine with this as a short term compromise. But what is coming WRT program info, bindPipeline(), and the future draw calls?",
+      "range": {
+        "startLine": 216,
+        "startChar": 8,
+        "endLine": 217,
+        "endChar": 73
+      },
+      "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
