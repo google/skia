@@ -50,11 +50,13 @@ public:
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
     virtual void end() = 0;
 
+    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
+
     // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
-    bool draw(const GrProgramInfo&, const GrMesh[], int meshCount, const SkRect& bounds);
+    bool legacyDraw(const GrProgramInfo&, const GrMesh[], int meshCount);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -93,13 +95,23 @@ private:
     virtual GrGpu* gpu() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
-                        const SkRect& bounds) = 0;
+    virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
+
+    // overridden by backend-specific derived class to perform the draw call.
+    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
 
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
+
+    enum class DrawPipelineStatus {
+        kOk = 0,
+        kNotConfigured,
+        kFailedToBind
+    };
+
+    DrawPipelineStatus fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
 
     typedef GrOpsRenderPass INHERITED;
 };

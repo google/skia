@@ -26,41 +26,48 @@ void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     // be redirected to draws instead
     SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(!clip.scissorEnabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
+    fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
     this->onClear(clip, color);
 }
 
 void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     // As above, make sure the stencil clear wasn't supposed to be a draw rect with stencil settings
     SkASSERT(!this->gpu()->caps()->performStencilClearsAsDraws());
+    fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
-                           const GrMesh meshes[], int meshCount, const SkRect& bounds) {
-    if (!meshCount) {
-        return true;
-    }
-
+void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
 #ifdef SK_DEBUG
-    SkASSERT(GrPrimitiveType::kPatches != programInfo.primitiveType() ||
-             this->gpu()->caps()->shaderCaps()->tessellationSupport());
-    SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
-             this->gpu()->caps()->instanceAttribSupport());
-    SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
-             this->gpu()->caps()->conservativeRasterSupport());
-    SkASSERT(!programInfo.pipeline().isWireframe() ||
-             this->gpu()->caps()->wireframeSupport());
-
-    programInfo.compatibleWithMeshes(meshes, meshCount, *this->gpu()->caps());
+    if (programInfo.primProc().hasInstanceAttributes()) {
+         SkASSERT(this->gpu()->caps()->instanceAttribSupport());
+    }
+    if (programInfo.pipeline().usesConservativeRaster()) {
+        SkASSERT(this->gpu()->caps()->conservativeRasterSupport());
+        // Conservative raster, by default, only supports triangles. Implementations can
+        // optionally indicate that they also support points and lines, but we don't currently
+        // query or track that info.
+        SkASSERT(GrIsPrimTypeTris(programInfo.primitiveType()));
+    }
+    if (programInfo.pipeline().isWireframe()) {
+         SkASSERT(this->gpu()->caps()->wireframeSupport());
+    }
+    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
+        SkASSERT(this->gpu()->caps()->shaderCaps()->tessellationSupport());
+    }
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();
 #endif
 
     if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
-        this->gpu()->stats()->incNumFailedDraws();
-        return false;
+        fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
+        return;
     }
-    this->onDraw(programInfo, meshes, meshCount, bounds);
+
+    if (!this->onBindPipeline(programInfo, drawBounds)) {
+        fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
+        return;
+    }
 
 #ifdef SK_DEBUG
     GrProcessor::CustomFeatures processorFeatures = programInfo.requestedFeatures();
@@ -70,5 +77,37 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
                          == fRenderTarget->renderTargetPriv().getSamplePatternKey());
     }
 #endif
+
+    fDrawPipelineStatus = DrawPipelineStatus::kOk;
+}
+
+bool GrOpsRenderPass::legacyDraw(const GrProgramInfo& programInfo, const GrMesh meshes[],
+                                 int meshCount) {
+    if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
+        SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
+        this->gpu()->stats()->incNumFailedDraws();
+        return false;
+    }
+
+#ifdef SK_DEBUG
+    if (int numDynamicStateArrays = programInfo.numDynamicStateArrays()) {
+        SkASSERT(meshCount == numDynamicStateArrays);
+    }
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(programInfo.primProc().hasVertexAttributes() ==
+                 SkToBool(meshes[i].vertexBuffer()));
+        SkASSERT(programInfo.primProc().hasInstanceAttributes() ==
+                 SkToBool(meshes[i].instanceBuffer()));
+        if (GrPrimitiveRestart::kYes == meshes[i].primitiveRestart()) {
+             this->gpu()->caps()->usePrimitiveRestart();
+        }
+    }
+#endif
+
+    if (!meshCount) {
+        return true;
+    }
+
+    this->onDraw(programInfo, meshes, meshCount);
     return true;
 }
