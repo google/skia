@@ -460,7 +460,7 @@ const GrFragmentProcessor::TextureSampler& GrTextureEffect::onTextureSampler(int
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
-    auto [proxy, ct, at] = testData->randomProxy();
+    auto [view, ct, at] = testData->randomView();
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
     if (!testData->caps()->npotTextureTileSupport()) {
@@ -475,9 +475,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return GrTextureEffect::Make(std::move(view), at, matrix, params, *testData->caps());
 }
 #endif

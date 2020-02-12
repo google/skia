@@ -421,19 +421,15 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceTextureDecalFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
-    auto [proxy, at, ct] = d->randomProxy();
+    auto [view, at, ct] = d->randomView();
     SkIRect subset;
-    subset.fLeft = d->fRandom->nextULessThan(proxy->width() - 1);
-    subset.fRight = d->fRandom->nextRangeU(subset.fLeft, proxy->width());
-    subset.fTop = d->fRandom->nextULessThan(proxy->height() - 1);
-    subset.fBottom = d->fRandom->nextRangeU(subset.fTop, proxy->height());
+    subset.fLeft = d->fRandom->nextULessThan(view.width() - 1);
+    subset.fRight = d->fRandom->nextRangeU(subset.fLeft, view.width());
+    subset.fTop = d->fRandom->nextULessThan(view.height() - 1);
+    subset.fBottom = d->fRandom->nextRangeU(subset.fTop, view.height());
     SkIPoint pt;
     pt.fX = d->fRandom->nextULessThan(2048);
     pt.fY = d->fRandom->nextULessThan(2048);
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     return GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(view), subset, pt);
 }

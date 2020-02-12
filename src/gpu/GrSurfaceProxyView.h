@@ -41,6 +41,10 @@ public:
     }
     bool operator!=(const GrSurfaceProxyView& other) const { return !(*this == other); }
 
+    int width() const { return this->proxy()->width(); }
+    int height() const { return this->proxy()->height(); }
+    SkISize dimensions() const { return this->proxy()->dimensions(); }
+
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
     sk_sp<GrSurfaceProxy> refProxy() const { return fProxy; }
 
