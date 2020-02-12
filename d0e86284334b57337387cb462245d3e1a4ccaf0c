@@ -69,6 +69,30 @@
       "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66f51da9_76e66c85",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-12T21:30:00Z",
+      "side": 1,
+      "message": "fActiveRenderCmdEncoder was already part of the class and is used in various other methods. Did we want to update the other methods to acquire it directly as well?",
+      "parentUuid": "4ec3c4ed_27e5b65a",
+      "range": {
+        "startLine": 53,
+        "startChar": 25,
+        "endLine": 53,
+        "endChar": 39
+      },
+      "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
