@@ -169,7 +169,7 @@ GrBicubicEffect::GrBicubicEffect(GrSurfaceProxyView view, const SkMatrix& matrix
         : INHERITED{kGrBicubicEffect_ClassID,
                     ModulateForSamplerOptFlags(
                             alphaType, GrTextureDomain::IsDecalSampled(wrapModes, modeX, modeY))}
-        , fCoordTransform(matrix, view.proxy())
+        , fCoordTransform(matrix, view.proxy(), view.origin())
         , fDomain(view.proxy(), domain, modeX, modeY)
         , fTextureSampler(std::move(view),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))

@@ -29,13 +29,15 @@ public:
      * Create a transformation that maps [0, proxy->width()] x [0, proxy->height()] to a proxy's
      * extent.
      */
-    GrCoordTransform(GrSurfaceProxy* proxy) : fProxy(proxy) {}
+    GrCoordTransform(GrSurfaceProxy* proxy, GrSurfaceOrigin origin)
+            : fProxy(proxy), fOrigin(origin) {}
 
     /**
-     * Create a transformation from a matrix. The proxy origin also implies whether a y-reversal
-     * should be performed.
+     * Create a transformation from a matrix. The origin implies whether a y-reversal should be
+     * performed.
      */
-    GrCoordTransform(const SkMatrix& m, GrSurfaceProxy* proxy) : fProxy(proxy), fMatrix(m) {
+    GrCoordTransform(const SkMatrix& m, GrSurfaceProxy* proxy, GrSurfaceOrigin origin)
+            : fProxy(proxy), fOrigin(origin), fMatrix(m) {
         SkASSERT(proxy);
     }
 
@@ -75,7 +77,7 @@ public:
     bool normalize() const {
         return fProxy && fProxy->backendFormat().textureType() != GrTextureType::kRectangle;
     }
-    bool reverseY() const { return fProxy && fProxy->origin() == kBottomLeft_GrSurfaceOrigin; }
+    bool reverseY() const { return fProxy && fOrigin == kBottomLeft_GrSurfaceOrigin; }
     bool isNoOp() const { return fMatrix.isIdentity() && !this->normalize() && !this->reverseY(); }
 
     // This should only ever be called at flush time after the backing texture has been
@@ -84,6 +86,7 @@ public:
 
 private:
     const GrSurfaceProxy* fProxy = nullptr;
+    GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
     SkMatrix fMatrix = SkMatrix::I();
 };
 

@@ -39,7 +39,7 @@ private:
     GrMagnifierEffect(GrSurfaceProxyView src, SkIRect bounds, SkRect srcRect, float xInvZoom,
                       float yInvZoom, float xInvInset, float yInvInset)
             : INHERITED(kGrMagnifierEffect_ClassID, kNone_OptimizationFlags)
-            , srcCoordTransform(SkMatrix::I(), src.proxy())
+            , srcCoordTransform(SkMatrix::I(), src.proxy(), src.origin())
             , src(std::move(src))
             , bounds(bounds)
             , srcRect(srcRect)

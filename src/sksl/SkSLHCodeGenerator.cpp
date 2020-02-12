@@ -242,7 +242,8 @@ void HCodeGenerator::writeConstructor() {
         const Section& s = *transforms[i];
         String field = CoordTransformName(s.fArgument.c_str(), i);
         if (s.fArgument.size()) {
-            this->writef("\n    , %s(%s, %s.proxy())", field.c_str(), s.fText.c_str(),
+            this->writef("\n    , %s(%s, %s.proxy(), %s.origin())", field.c_str(), s.fText.c_str(),
+                         FieldName(s.fArgument.c_str()).c_str(),
                          FieldName(s.fArgument.c_str()).c_str());
         }
         else {

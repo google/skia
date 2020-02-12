@@ -486,9 +486,10 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fDisplacementTransform(
                 SkMatrix::Concat(SkMatrix::MakeTrans(displSubset.x(), displSubset.y()),
                                  offsetMatrix),
-                displacement.proxy())
+                displacement.proxy(), displacement.origin())
         , fDisplacementSampler(std::move(displacement))
-        , fColorTransform(SkMatrix::MakeTrans(colorSubset.x(), colorSubset.y()), color.proxy())
+        , fColorTransform(SkMatrix::MakeTrans(colorSubset.x(), colorSubset.y()), color.proxy(),
+                          color.origin())
         , fDomain(color.proxy(),
                   GrTextureDomain::MakeTexelDomain(colorSubset,
                                                    GrTextureDomain::kDecal_Mode),
