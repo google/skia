@@ -14,6 +14,7 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrContext.h"
 #include "src/core/SkCachedData.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
 
@@ -24,7 +25,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
+        fContext1->deleteBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
 
@@ -71,42 +72,56 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     return context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
 }
 
-void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
-    for (int i = 0; i < fImageInfo.count(); ++i) {
-        const PromiseImageInfo& info = fImageInfo[i];
+/*
+ * Create an upload data to all the textures required to satisfy a single promise image.
+ * For YUV textures this will result in up to 4 actual textures.
+ */
+void DDLPromiseImageHelper::UploadTexture(GrContext* context, PromiseImageInfo* info) {
+    // DDL TODO: how can we tell if we need mipmapping!
+    if (info->isYUV()) {
+        int numPixmaps;
+        SkAssertResult(SkYUVAIndex::AreValidIndices(info->yuvaIndices(), &numPixmaps));
+        for (int j = 0; j < numPixmaps; ++j) {
+            const SkPixmap& yuvPixmap = info->yuvPixmap(j);
 
-        // DDL TODO: how can we tell if we need mipmapping!
-        if (info.isYUV()) {
-            int numPixmaps;
-            SkAssertResult(SkYUVAIndex::AreValidIndices(info.yuvaIndices(), &numPixmaps));
-            for (int j = 0; j < numPixmaps; ++j) {
-                const SkPixmap& yuvPixmap = info.yuvPixmap(j);
-
-                sk_sp<PromiseImageCallbackContext> callbackContext(
-                                                        new PromiseImageCallbackContext(context));
-
-                callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
-                                                                       info.yuvaIndices(), j));
-                SkASSERT(callbackContext->promiseImageTexture());
-
-                fImageInfo[i].setCallbackContext(j, std::move(callbackContext));
-            }
-        } else {
             sk_sp<PromiseImageCallbackContext> callbackContext(
                                                     new PromiseImageCallbackContext(context));
 
-            const SkBitmap& bm = info.normalBitmap();
+            callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
+                                                                   info->yuvaIndices(), j));
+            SkASSERT(callbackContext->promiseImageTexture());
 
-            GrBackendTexture backendTex = context->createBackendTexture(
-                                                        &bm.pixmap(), 1, GrRenderable::kNo,
-                                                        GrProtected::kNo);
+            info->setCallbackContext(j, std::move(callbackContext));
+        }
+    } else {
+        sk_sp<PromiseImageCallbackContext> callbackContext(
+                                                new PromiseImageCallbackContext(context));
 
-            callbackContext->setBackendTexture(backendTex);
+        const SkBitmap& bm = info->normalBitmap();
 
-            // The GMs sometimes request too large an image
-            //SkAssertResult(callbackContext->backendTexture().isValid());
+        GrBackendTexture backendTex = context->createBackendTexture(
+                                                    &bm.pixmap(), 1, GrRenderable::kNo,
+                                                    GrProtected::kNo);
 
-            fImageInfo[i].setCallbackContext(0, std::move(callbackContext));
+        callbackContext->setBackendTexture(backendTex);
+
+        // The GMs sometimes request too large an image
+        //SkAssertResult(callbackContext->backendTexture().isValid());
+
+        info->setCallbackContext(0, std::move(callbackContext));
+    }
+}
+
+void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
+    if (taskGroup) {
+        taskGroup->batch(fImageInfo.count(),
+                         [&](int i) {
+                             UploadTexture(context, &fImageInfo[i]);
+                         });
+    } else {
+        // TODO: rm this after the DDL-via is removed
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            UploadTexture(context, &fImageInfo[i]);
         }
     }
 }

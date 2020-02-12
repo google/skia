@@ -61,6 +61,7 @@ private:
     static GLXContext CreateBestContext(bool isES, Display* display, GLXFBConfig bestFbc,
                                         GLXContext glxSharedContext);
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
