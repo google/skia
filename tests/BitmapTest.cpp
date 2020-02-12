@@ -295,7 +295,7 @@ DEF_TEST(Bitmap_erase, r) {
 
 static void check_alphas(skiatest::Reporter* reporter, const SkBitmap& bm,
                          bool (*pred)(float expected, float actual), SkColorType ct) {
-    SkASSERT(bm.width() == 16);
+    SkASSERT(bm.width() == 18);
     SkASSERT(bm.height() == 16);
 
     int alpha = 0;
