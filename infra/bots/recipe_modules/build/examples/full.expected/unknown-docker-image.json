@@ -19,7 +19,7 @@
       "    api.build(checkout_root=checkout_root, out_dir=out_dir)",
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/recipe_api.py\", in _inner",
       "    return func(*a, **kw)",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/api.py\", line 61, in __call__",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/api.py\", line 57, in __call__",
       "    self.compile_fn(self.m, checkout_root, out_dir)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/docker.py\", line 85, in compile_fn",
       "    raise Exception('Not implemented: ' + api.vars.builder_name)",

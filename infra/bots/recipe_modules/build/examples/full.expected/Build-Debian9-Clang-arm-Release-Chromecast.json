@@ -7,11 +7,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/cast_toolchain/VERSION",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get cast_toolchain VERSION",
+    "name": "Get clang_linux VERSION",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@VERSION@42@@@",
       "@@@STEP_LOG_END@VERSION@@@"
@@ -33,13 +33,33 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
-      "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Chromecast/Release",
-      "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabihf-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang-9.elf\" cxx=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang++-9.elf\" extra_asmflags=[\"-target\", \"armv7a-cros-linux-gnueabihf\"] extra_cflags=[\"-target\", \"armv7a-cros-linux-gnueabihf\", \"--sysroot\", \"[START_DIR]/cast_toolchain/armv7a/usr/armv7a-cros-linux-gnueabihf\", \"-I[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DSK_NO_COMMAND_BUFFER\", \"-Wno-error=unused-function\", \"-g0\", \"-DDUMMY_cast_toolchain_version=42\", \"-include\", \"[START_DIR]/cache/work/skia/tools/force_older_glibc_math.h\"] extra_ldflags=[\"-target\", \"armv7a-cros-linux-gnueabihf\", \"--sysroot\", \"[START_DIR]/cast_toolchain/armv7a/usr/armv7a-cros-linux-gnueabihf\", \"-static-libstdc++\", \"-static-libgcc\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\", \"-L[START_DIR]/chromebook_arm_gles/lib\", \"-fuse-ld=gold\", \"-B[START_DIR]/cast_toolchain/armv7a/usr/libexec/gcc\"] is_debug=false skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\" werror=true"
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-start"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Chromecast/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] is_debug=false target_cpu=\"arm\" werror=true"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
@@ -49,16 +69,34 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Chromecast/Release",
-      "nanobench",
-      "dm"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Chromecast/Release"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-end"
   },
   {
     "cmd": [
