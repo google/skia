@@ -10,7 +10,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
-#include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 

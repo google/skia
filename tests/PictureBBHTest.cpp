@@ -10,7 +10,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkRectPriv.h"
 
 #include "tests/Test.h"
