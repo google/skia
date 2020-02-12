@@ -636,10 +636,10 @@ void GrGpu::resetTextureBindings() {
 }
 
 void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                GrSurfaceOrigin origin, ForExternalIO forExternalIO) {
+                                ForExternalIO forExternalIO) {
     SkASSERT(target);
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target, resolveRect, origin, forExternalIO);
+    this->onResolveRenderTarget(target, resolveRect, forExternalIO);
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
