@@ -46,6 +46,30 @@
       "revId": "471fa4f0aff244925084cdb77b7858b6c0d89c69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe8af525_bf18aa9d",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-12T14:57:31Z",
+      "side": 0,
+      "message": "Well, see you just need to understand the difference between implicit, explicit, and contextual conversion to bool, in which cases each is applied, and the their interactions with the automatic projections applied by the language. The language designers were just trying to be helpful. In this old code, the conversion to bool inside a confusing infix operator isn\u0027t very clear as an explicit projection. If an explicit projection is to be used, might I suggest one of the following, \u0027bool(maybeMetrics)\u0027 or \u0027static_cast\u003cbool\u003e(maybeMetrics)\u0027 or \u0027bool{maybeMetrics}\u0027 or \u0027(bool)maybeMetrics\u0027 or \u0027!!maybeMetrics\u0027 or ...\n\n/s",
+      "parentUuid": "1702671f_ac93810a",
+      "range": {
+        "startLine": 281,
+        "startChar": 8,
+        "endLine": 281,
+        "endChar": 31
+      },
+      "revId": "471fa4f0aff244925084cdb77b7858b6c0d89c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
