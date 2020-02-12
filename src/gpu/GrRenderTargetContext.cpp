@@ -2164,7 +2164,8 @@ GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAcce
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
 
-    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), access, info);
+    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), this->origin(), access,
+                                                info);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
