@@ -61,13 +61,9 @@ protected:
     }
 
     SkISize onISize() override {
-        int n = GrSamplerState::kWrapModeCount;
-        if (fFilter == GrSamplerState::Filter::kMipMap) {
-            // Account for not supporting kRepeat with mip maps.
-            n -= 1;
-        }
-        int w = kTestPad + 2*n*(kImageSize.width()  + 2 * kDrawPad + kTestPad);
-        int h = kTestPad + 2*n*(kImageSize.height() + 2 * kDrawPad + kTestPad);
+        static constexpr int kN = GrSamplerState::kWrapModeCount;
+        int w = kTestPad + 2*kN*(kImageSize.width()  + 2*kDrawPad + kTestPad);
+        int h = kTestPad + 2*kN*(kImageSize.height() + 2*kDrawPad + kTestPad);
         return {w, h};
     }
 
@@ -130,17 +126,8 @@ protected:
             for (int mx = 0; mx < GrSamplerState::kWrapModeCount; ++mx) {
                 SkScalar x = kDrawPad + kTestPad;
                 auto wmx = static_cast<GrSamplerState::WrapMode>(mx);
-                if (fFilter == GrSamplerState::Filter::kMipMap &&
-                    wmx == GrSamplerState::WrapMode::kRepeat) {
-                    // Repeat mode has LOD selection issues.
-                    continue;
-                }
                 for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                     auto wmy = static_cast<GrSamplerState::WrapMode>(my);
-                    if (fFilter == GrSamplerState::Filter::kMipMap &&
-                        wmy == GrSamplerState::WrapMode::kRepeat) {
-                        continue;
-                    }
                     GrSamplerState sampler(wmx, wmy, fFilter);
                     const auto& caps = *context->priv().caps();
                     auto fp1 = GrTextureEffect::MakeTexelSubset(view,
