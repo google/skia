@@ -14,13 +14,35 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
-DDLTileHelper::TileData::TileData(sk_sp<SkSurface> s, const SkIRect& clip)
-        : fSurface(std::move(s))
+#if 0
+DDLTileHelper::TileData::TileData(sk_sp<SkSurface> dstSurface,
+                                  const SkIRect& clip)
+        : fDstSurface(std::move(dstSurface))
         , fClip(clip) {
-    SkAssertResult(fSurface->characterize(&fCharacterization));
+    SkSurfaceCharacterization tmp;
+    SkAssertResult(fDstSurface->characterize(&tmp));
+    fCharacterization = tmp.createResized(clip.width(), clip.height());
+    SkASSERT(fCharacterization.isValid());
+}
+#endif
+
+void DDLTileHelper::TileData::init(int id, sk_sp<SkSurface> dstSurface, const SkIRect& clip) {
+    fID = id;
+    fDstSurface = std::move(dstSurface);
+    fClip = clip;
+
+    SkSurfaceCharacterization tmp;
+    SkAssertResult(fDstSurface->characterize(&tmp));
+    fCharacterization = tmp.createResized(clip.width(), clip.height());
+    SkASSERT(fCharacterization.isValid());
+}
+
+DDLTileHelper::TileData::~TileData() {
+
 }
 
 void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
@@ -75,18 +97,27 @@ void DDLTileHelper::TileData::createDDL() {
     fDisplayList = recorder.detach();
 }
 
-void DDLTileHelper::TileData::draw() {
-    SkASSERT(fDisplayList);
+void DDLTileHelper::TileData::draw1(GrContext* context) {
+    SkASSERT(fDisplayList && !fImage);
 
-    fSurface->draw(fDisplayList.get());
+    sk_sp<SkSurface> tileSurface = SkSurface::MakeRenderTarget(context, fCharacterization,
+                                                               SkBudgeted::kYes);
+    if (tileSurface) {
+        tileSurface->draw(fDisplayList.get());
+    }
+
+    fImage = tileSurface->makeImageSnapshot();
 }
 
-void DDLTileHelper::TileData::compose(SkCanvas* dst) {
-    sk_sp<SkImage> img = fSurface->makeImageSnapshot();
-    dst->save();
-    dst->clipRect(SkRect::Make(fClip));
-    dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
-    dst->restore();
+// TODO: should we be creating a DDL for the composition step and just adding it at the end?
+void DDLTileHelper::TileData::compose() {
+    SkASSERT(fDstSurface && fImage);
+
+    SkCanvas* canvas = fDstSurface->getCanvas();
+    canvas->save();
+    canvas->clipRect(SkRect::Make(fClip));
+    canvas->drawImage(std::move(fImage), fClip.fLeft, fClip.fTop);
+    canvas->restore();
 }
 
 void DDLTileHelper::TileData::reset() {
@@ -96,10 +127,12 @@ void DDLTileHelper::TileData::reset() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DDLTileHelper::DDLTileHelper(SkCanvas* canvas, const SkIRect& viewport, int numDivisions)
+DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
+                             const SkIRect& viewport,
+                             int numDivisions)
         : fNumDivisions(numDivisions) {
     SkASSERT(fNumDivisions > 0);
-    fTiles.reserve(fNumDivisions*fNumDivisions);
+    fTiles1 = new TileData[this->numTiles()];
 
     int xTileSize = viewport.width()/fNumDivisions;
     int yTileSize = viewport.height()/fNumDivisions;
@@ -115,31 +148,63 @@ DDLTileHelper::DDLTileHelper(SkCanvas* canvas, const SkIRect& viewport, int numD
 
             SkASSERT(viewport.contains(clip));
 
-            SkImageInfo tileII = SkImageInfo::MakeN32Premul(xSize, ySize);
-
-            sk_sp<SkSurface> tileSurface = canvas->makeSurface(tileII);
-
-            // TODO: this is here to deal w/ a resource allocator bug (skbug.com/8007). If all
-            // the DDLs are flushed at the same time (w/o the composition draws) the allocator
-            // feels free to reuse the backing GrSurfaces!
-            tileSurface->flush();
-
-            fTiles.push_back(TileData(std::move(tileSurface), clip));
+            fTiles1[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, clip);
         }
     }
 }
 
 void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
                                      const DDLPromiseImageHelper& helper) {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].createTileSpecificSKP(compressedPictureData, helper);
+    for (int i = 0; i < fNumDivisions*fNumDivisions; ++i) {
+        fTiles1[i].createTileSpecificSKP(compressedPictureData, helper);
     }
 }
 
-void DDLTileHelper::createDDLsInParallel() {
+// On the gpu thread:
+//    precompile any programs
+//    create the drawn image for the tile (by drawing the DDL into a temporary surface)
+//    compose the rendered tile into the main canvas
+static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
+    auto& programData = tile->ddl()->priv().programData();
+
+    // TODO: schedule program compilation as their own tasks
+    for (auto programDatum : programData) {
+        context->priv().compile(programDatum.desc(), programDatum.info());
+    }
+
+    tile->draw1(context);
+
+    tile->compose();
+    SkDebugf("gpu-side %d: done with tile %d\n", SkGetThreadID(), tile->id());
+}
+
+void DDLTileHelper::createDDLsInParallel(SkTaskGroup* recordingTaskGroup,
+                                         SkTaskGroup* gpuTaskGroup,
+                                         GrContext* gpuThreadContext) {
 #if 1
-    SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
-    SkTaskGroup().wait();
+    if (recordingTaskGroup && gpuTaskGroup && gpuThreadContext) {
+        // On a recording thread:
+        //    generate the tile's DDL
+        //    schedule gpu-thread processing of the DDL
+        // Note: a finer grained approach would be add a scheduling task which would evaluate
+        //       which DDLs were ready to be rendered based on their prerequisites
+        for (int i = 0; i < this->numTiles(); ++i) {
+            TileData* tile = &fTiles1[i];
+
+            recordingTaskGroup->add([tile, gpuTaskGroup, gpuThreadContext]() {
+                                        tile->createDDL();
+
+                                        SkDebugf("cpu-side %d: done creating ddl %d\n", SkGetThreadID(), tile->id());
+
+                                        gpuTaskGroup->add([gpuThreadContext, tile]() {
+                                            do_gpu_stuff(gpuThreadContext, tile);
+                                        });
+                                    });
+        }
+    } else {
+        SkTaskGroup().batch(this->numTiles(), [&](int i) { fTiles1[i].createDDL(); });
+        SkTaskGroup().wait();
+    }
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < fTiles.count(); ++i) {
@@ -150,22 +215,22 @@ void DDLTileHelper::createDDLsInParallel() {
 }
 
 void DDLTileHelper::drawAllTilesAndFlush(GrContext* context, bool flush) {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].draw();
+    for (int i = 0; i < this->numTiles(); ++i) {
+        fTiles1[i].draw1(context);
     }
     if (flush) {
         context->flush();
     }
 }
 
-void DDLTileHelper::composeAllTiles(SkCanvas* dstCanvas) {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].compose(dstCanvas);
+void DDLTileHelper::composeAllTiles() {
+    for (int i = 0; i < this->numTiles(); ++i) {
+        fTiles1[i].compose();
     }
 }
 
 void DDLTileHelper::resetAllTiles() {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i].reset();
+    for (int i = 0; i < this->numTiles(); ++i) {
+        fTiles1[i].reset();
     }
 }

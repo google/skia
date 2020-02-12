@@ -78,6 +78,7 @@ static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple th
 DECLARE_int(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
+using sk_gpu_test::ContextInfo;
 
 namespace DM {
 
@@ -1353,6 +1354,63 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStrin
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
 }
 
+sk_sp<SkSurface> GPUSink::createDstSurface(GrContext* context, SkISize size,
+                                           GrBackendTexture* backendTexture,
+                                           GrBackendRenderTarget* backendRT) const {
+    sk_sp<SkSurface> surface;
+
+    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
+    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+
+    const int maxDimension = context->priv().caps()->maxTextureSize();
+    if (maxDimension < SkTMax(size.width(), size.height())) {
+        return nullptr;
+    }
+
+    switch (fSurfType) {
+        case SkCommandLineConfigGpu::SurfType::kDefault:
+            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
+                                                  &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
+            *backendTexture = context->createBackendTexture(
+                info.width(), info.height(), info.colorType(), SkColors::kTransparent,
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+            surface = SkSurface::MakeFromBackendTexture(context, *backendTexture,
+                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
+                                                        fColorType, info.refColorSpace(), &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
+            if (1 == fSampleCount) {
+                auto colorType = SkColorTypeToGrColorType(info.colorType());
+                *backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
+                    info.width(), info.height(), colorType);
+                surface = SkSurface::MakeFromBackendRenderTarget(
+                    context, *backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
+                    info.refColorSpace(), &props);
+            }
+            break;
+    }
+
+    return surface;
+}
+
+bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
+    SkCanvas* canvas = surface->getCanvas();
+    SkISize size = surface->imageInfo().dimensions();
+
+    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
+    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
+        info.colorType() == kRGB_888x_SkColorType) {
+        // We don't currently support readbacks into these formats on the GPU backend. Convert to
+        // 32 bit.
+        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
+    }
+    dst->allocPixels(info);
+    return canvas->readPixels(*dst, 0, 0);
+}
+
 Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                       const GrContextOptions& baseOptions,
                       std::function<void(GrContext*)> initContext) const {
@@ -1366,46 +1424,15 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     SkASSERT(exec == grOptions.fExecutor);
 
     GrContextFactory factory(grOptions);
-    const SkISize size = src.size();
-    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
-    sk_sp<SkSurface> surface;
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     if (initContext) {
         initContext(context);
     }
-    const int maxDimension = context->priv().caps()->maxTextureSize();
-    if (maxDimension < SkTMax(size.width(), size.height())) {
-        return Error::Nonfatal("Src too large to create a texture.\n");
-    }
-    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+
     GrBackendTexture backendTexture;
     GrBackendRenderTarget backendRT;
-    switch (fSurfType) {
-        case SkCommandLineConfigGpu::SurfType::kDefault:
-            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
-                                                  &props);
-            break;
-        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            backendTexture = context->createBackendTexture(
-                    info.width(), info.height(), info.colorType(), SkColors::kTransparent,
-                    GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                        fColorType, info.refColorSpace(), &props);
-            break;
-        case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
-            if (1 == fSampleCount) {
-                auto colorType = SkColorTypeToGrColorType(info.colorType());
-                backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
-                        info.width(), info.height(), colorType);
-                surface = SkSurface::MakeFromBackendRenderTarget(
-                        context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
-                        info.refColorSpace(), &props);
-            }
-            break;
-    }
-
+    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size(),
+                                                      &backendTexture, &backendRT);
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -1422,14 +1449,11 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
     }
-    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
-        info.colorType() == kRGB_888x_SkColorType) {
-        // We don't currently support readbacks into these formats on the GPU backend. Convert to
-        // 32 bit.
-        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
+
+    if (!this->readBack(surface.get(), dst)) {
+        return "Could not readback from surface.";
     }
-    dst->allocPixels(info);
-    canvas->readPixels(*dst, 0, 0);
+
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
@@ -1577,6 +1601,167 @@ Error GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* w
     SkASSERT(!replayCache.numCacheMisses());
 
     return compare_bitmaps(reference, *dst);
+}
+
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config,
+                       const GrContextOptions& grCtxOptions)
+    : INHERITED(config, grCtxOptions)
+    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // 2))
+    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
+}
+
+Error GPUDDLSink::ddlDraw(const Src& src,
+                          sk_sp<SkSurface> dstSurface,
+                          SkTaskGroup* recordingTaskGroup,
+                          SkTaskGroup* gpuTaskGroup,
+                          GrContext* gpuThreadCtx) const {
+    constexpr int kNumReplays = 1; // TODO: re-enable this
+
+    auto size = src.size();
+    SkPictureRecorder recorder;
+    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                 SkIntToScalar(size.height())));
+    if (!err.isEmpty()) {
+        return err;
+    }
+    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
+
+    // this is our ultimate final drawing area/rect
+    SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
+
+    DDLPromiseImageHelper promiseImageHelper;
+    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
+    if (!compressedPictureData) {
+        return "GPUDDLSink: Couldn't deflate SkPicture";
+    }
+
+    promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
+    // We draw 'kNumReplays' times, with a clear between.
+    for (int replay = 0; replay < kNumReplays; ++replay) {
+        if (replay > 0) {
+            // Clear the drawing of the previous replay
+            //gpuTaskGroup->add([dstCanvas]() { dstCanvas->clear(SK_ColorTRANSPARENT); });
+        }
+        // First, create all the tiles (including their individual dest surfaces)
+        constexpr int kNumDivisions = 3;
+        DDLTileHelper tiles(dstSurface, viewport, kNumDivisions);
+
+        // Second, reinflate the compressed picture individually for each thread
+        // This recreates the promise SkImages on each replay iteration. We are currently
+        // relying on this to test using a SkPromiseImageTexture to fulfill different
+        // SkImages. On each replay the promise SkImages are recreated in createSKPPerTile.
+        tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+
+        // Third, create the DDLs in parallel
+        tiles.createDDLsInParallel(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+
+        if (replay == kNumReplays - 1) {
+            // This drops the promiseImageHelper's refs on all the promise images if we're in
+            // the last run.
+            promiseImageHelper.reset();
+        }
+
+        gpuTaskGroup->add([gpuThreadCtx]() {
+                             gpuThreadCtx->flush();
+                             SkDebugf("scheduled flush on %d\n", SkGetThreadID());
+                          });
+    }
+    return "";
+}
+
+Error GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* log) const {
+    GrContextOptions contextOptions = this->baseContextOptions();
+    src.modifyGrContextOptions(&contextOptions);
+    contextOptions.fPersistentCache = nullptr;
+    contextOptions.fExecutor = nullptr;
+
+    GrContextFactory factory(contextOptions);
+
+    ContextInfo mainCtxInfo1 = factory.getContextInfo(this->contextType(), this->contextOverrides());
+    sk_gpu_test::TestContext* mainTestCtx1 = mainCtxInfo1.testContext();
+    GrContext* mainCtx = mainCtxInfo1.grContext();
+    if (!mainCtx) {
+        return "Could not create context.";
+    }
+
+    ContextInfo otherCtxInfo = factory.getSharedContextInfo(mainCtx);
+    sk_gpu_test::TestContext* otherTestCtx = otherCtxInfo.testContext();
+    GrContext* otherCtx = otherCtxInfo.grContext();
+    if (!otherCtx) {
+        return "Cound not create shared context.";
+    }
+
+    SkASSERT(mainCtx->priv().getGpu());
+    SkASSERT(otherCtx->priv().getGpu());
+
+    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
+    SkTaskGroup gpuTaskGroup(*fGPUThread);
+
+    // Currently 'otherCtx' is current. Make an SkSurface with it.
+    GrBackendTexture backendTexture;
+    GrBackendRenderTarget backendRT;
+    sk_sp<SkSurface> surface = this->createDstSurface(otherCtx, src.size(),
+                                                      &backendTexture, &backendRT);
+    if (!surface) {
+        return "Could not create a surface.";
+    }
+
+    // 'otherCtx' is being shifted to the gpuThread. Leave the main thread w/o
+    // a context.
+    otherTestCtx->makeNotCurrent();
+
+    // Job one for the GPU thread is to make the 'otherCtx' current!
+    gpuTaskGroup.add([otherTestCtx] {
+                         otherTestCtx->makeCurrent();
+                         SkDebugf("Make current on gpuThread %d\n", SkGetThreadID());
+                     });
+
+    // start timer - not really since 'ddlDraw' has picture manipulation crud
+    Error err = this->ddlDraw(src, surface,
+                              &recordingTaskGroup, &gpuTaskGroup,
+                              otherCtx);
+
+    gpuTaskGroup.add([otherTestCtx] {
+                         otherTestCtx->makeNotCurrent();
+                         SkDebugf("Make not current on gpuThread %d\n", SkGetThreadID());
+                     });
+
+    SkDebugf("All work is scheduled - about to wait 1\n");
+    recordingTaskGroup.wait(); // This should be a no-op at this point
+    SkDebugf("All work is scheduled - about to wait 2\n");
+    gpuTaskGroup.wait();
+    SkDebugf("Done waiting\n");
+
+    // end timer
+
+    if (!err.isEmpty()) {
+        return err;
+    }
+
+    otherTestCtx->makeCurrent();
+
+    surface->flush();
+    if (FLAGS_gpuStats) {
+        mainCtx->priv().dumpCacheStats(log);
+        otherCtx->priv().dumpCacheStats(log);
+
+        mainCtx->priv().dumpGpuStats(log);
+        otherCtx->priv().dumpGpuStats(log);
+    }
+
+    if (!this->readBack(surface.get(), dst)) {
+        return "Could not readback from surface.";
+    }
+
+    surface.reset();
+    if (backendTexture.isValid()) {
+        mainCtx->deleteBackendTexture(backendTexture);
+    }
+    if (backendRT.isValid()) {
+        mainCtx->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+    }
+
+    return "";
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1881,16 +2066,21 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
-        return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
+        return "ViaDDL: Couldn't deflate SkPicture";
     }
     auto draw = [&](SkCanvas* canvas) -> Error {
         GrContext* context = canvas->getGrContext();
         if (!context || !context->priv().getGpu()) {
-            return SkStringPrintf("DDLs are GPU only");
+            return "ViaDDL: DDLs are GPU only";
         }
+        SkSurface* tmp = canvas->getSurface();
+        if (!tmp) {
+            return "ViaDDL: cannot get surface from canvas";
+        }
+        sk_sp<SkSurface> surface = sk_ref_sp(tmp);
 
         // This is here bc this is the first point where we have access to the context
-        promiseImageHelper.uploadAllToGPU(context);
+        promiseImageHelper.uploadAllToGPU(nullptr, context);
         // We draw N times, with a clear between.
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {
@@ -1898,7 +2088,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(canvas, viewport, fNumDivisions);
+            DDLTileHelper tiles(surface, viewport, fNumDivisions);
 
             // Second, reinflate the compressed picture individually for each thread
             // This recreates the promise SkImages on each replay iteration. We are currently
@@ -1923,7 +2113,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
             // matches Chrome but costs us a copy
-            tiles.composeAllTiles(canvas);
+            tiles.composeAllTiles();
             context->flush();
         }
         return "";
