@@ -10,6 +10,7 @@
 #include <cctype>
 
 #include "include/core/SkGraphics.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMutex.h"
@@ -17,7 +18,7 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkStrike.h"
 
-class SkStrikeCache::Node final : public SkStrikeForGPU {
+class SkStrikeCache::Node final : public SkRefCnt, public SkStrikeForGPU {
 public:
     Node(SkStrikeCache* strikeCache,
          const SkDescriptor& desc,
@@ -135,7 +136,7 @@ SkStrikeCache::~SkStrikeCache() {
     Node* node = fHead;
     while (node) {
         Node* next = node->fNext;
-        delete node;
+        node->unref();
         node = next;
     }
 }
@@ -398,7 +399,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
             bytesFreed += node->fStrike.getMemoryUsed();
             countFreed += 1;
             this->internalDetachCache(node);
-            delete node;
+            node->unref();
         }
         node = prev;
     }
