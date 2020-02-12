@@ -155,7 +155,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrSurfaceProxyView srcView,
         // To advertise either the modulation or opaqueness optimizations we'd have to examine the
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
-        , fCoordTransform(srcView.proxy())
+        , fCoordTransform(srcView.proxy(), srcView.origin())
         , fDomain(srcView.proxy(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
                   tileMode, tileMode)
         , fTextureSampler(std::move(srcView))

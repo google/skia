@@ -414,7 +414,7 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
                                  const SkMatrix& matrix, const Sampling& sampling)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, sampling.usesDecal()))
-        , fCoordTransform(matrix, view.proxy())
+        , fCoordTransform(matrix, view.proxy(), view.origin())
         , fSampler(std::move(view), sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]} {

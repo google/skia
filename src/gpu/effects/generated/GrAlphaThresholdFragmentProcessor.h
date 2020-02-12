@@ -40,7 +40,7 @@ private:
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , maskCoordTransform(
                       SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                      mask.proxy())
+                      mask.proxy(), mask.origin())
             , mask(std::move(mask))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {

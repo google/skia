@@ -224,7 +224,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
                     ModulateForSamplerOptFlags(alphaType, mode == GrTextureDomain::kDecal_Mode))
-        , fCoordTransform(view.proxy())
+        , fCoordTransform(view.proxy(), view.origin())
         , fTextureSampler(std::move(view))
         , fRadius(radius)
         , fDirection(direction)

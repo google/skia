@@ -400,7 +400,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
                                        MorphType type,
                                        const float range[2])
         : INHERITED(kGrMorphologyEffect_ClassID, ModulateForClampedSamplerOptFlags(srcAlphaType))
-        , fCoordTransform(view.proxy())
+        , fCoordTransform(view.proxy(), view.origin())
         , fTextureSampler(std::move(view))
         , fDirection(direction)
         , fRadius(radius)

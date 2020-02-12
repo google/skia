@@ -1615,7 +1615,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
                                    const SkIRect* srcBounds)
         // Perhaps this could advertise the opaque or coverage-as-alpha optimizations?
         : INHERITED(classID, kNone_OptimizationFlags)
-        , fCoordTransform(view.proxy())
+        , fCoordTransform(view.proxy(), view.origin())
         , fDomain(create_domain(view.proxy(), srcBounds, GrTextureDomain::kDecal_Mode))
         , fTextureSampler(std::move(view))
         , fLight(std::move(light))
