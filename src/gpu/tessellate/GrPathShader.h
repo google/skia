@@ -48,7 +48,8 @@ public:
                                   state->proxy()->backendFormat(), state->view()->origin(),
                                   pipeline, this, fixedDynamicState, nullptr, 0,
                                   fPrimitiveType, fTessellationPatchVertexCount);
-        state->opsRenderPass()->draw(programInfo, &mesh, 1, bounds);
+        state->opsRenderPass()->bindPipeline(programInfo, bounds);
+        state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
     }
 
 private:
