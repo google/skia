@@ -542,8 +542,9 @@ namespace skvm {
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
-        Color unpack_8888(I32 rgba);
-        Color unpack_565 (I32 bgr );  // bottom 16 bits
+        Color unpack_1010102(I32 rgba);
+        Color unpack_8888   (I32 rgba);
+        Color unpack_565    (I32 bgr );  // bottom 16 bits
 
         void   premul(F32* r, F32* g, F32* b, F32 a);
         void unpremul(F32* r, F32* g, F32* b, F32 a);

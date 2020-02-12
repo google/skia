@@ -671,8 +671,13 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     switch (pm.colorType()) {
         default: return false;
         case   kRGB_565_SkColorType:
+        case  kRGB_888x_SkColorType:
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType: break;
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType:
+        case  kRGB_101010x_SkColorType:
+        case  kBGR_101010x_SkColorType: break;
     }
 
     // We can exploit image opacity to skip work unpacking alpha channels.
@@ -736,10 +741,22 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         switch (pm.colorType()) {
             default: SkUNREACHABLE;
             case   kRGB_565_SkColorType: c = p->unpack_565 (p->gather16(img, index)); break;
-            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index)); break;
+
+            case  kRGB_888x_SkColorType: [[fallthrough]];
+            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+                                         break;
             case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
                                          std::swap(c.r, c.b);
                                          break;
+
+            case  kRGB_101010x_SkColorType: [[fallthrough]];
+            case kRGBA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+                                            break;
+
+            case  kBGR_101010x_SkColorType: [[fallthrough]];
+            case kBGRA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+                                            std::swap(c.r, c.b);
+                                            break;
         }
         // If we know the image is opaque, jump right to alpha = 1.0f, skipping work to unpack it.
         if (input_is_opaque) {
