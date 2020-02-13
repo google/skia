@@ -93,14 +93,13 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
-                                        GrSurfaceOrigin origins[],
                                         int cnt,
                                         SkSurface::BackendSurfaceAccess access,
                                         const GrFlushInfo& info);
-    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy, GrSurfaceOrigin origin,
+    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy,
                                        SkSurface::BackendSurfaceAccess access,
                                        const GrFlushInfo& info) {
-        return this->flushSurfaces(&proxy, &origin, 1, access, info);
+        return this->flushSurfaces(&proxy, 1, access, info);
     }
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
