@@ -625,15 +625,13 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
 }
 
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                    GrSurfaceOrigin resolveOrigin, ForExternalIO forExternalIO) {
+                                    ForExternalIO forExternalIO) {
     SkASSERT(target->numSamples() > 1);
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
     SkASSERT(rt->msaaImage());
 
-    auto nativeResolveRect = GrNativeRect::MakeRelativeTo(
-            resolveOrigin, target->height(), resolveRect);
-    this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
-                       SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
+    this->resolveImage(target, rt, resolveRect,
+                       SkIPoint::Make(resolveRect.x(), resolveRect.y()));
 
     if (ForExternalIO::kYes == forExternalIO) {
         // This resolve is called when we are preparing an msaa surface for external I/O. It is

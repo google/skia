@@ -60,10 +60,10 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
     SkIRect targetUpdateBounds;
     if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps, &targetUpdateBounds)) {
         GrSurfaceProxy* proxy = fTargetView.proxy();
-        SkASSERT(SkIRect::MakeSize(proxy->dimensions()).contains(targetUpdateBounds));
         if (proxy->requiresManualMSAAResolve()) {
             SkASSERT(fTargetView.asRenderTargetProxy());
-            fTargetView.asRenderTargetProxy()->markMSAADirty(targetUpdateBounds);
+            fTargetView.asRenderTargetProxy()->markMSAADirty(targetUpdateBounds,
+                                                             fTargetView.origin());
         }
         GrTextureProxy* textureProxy = fTargetView.asTextureProxy();
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
@@ -168,9 +168,7 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         if (!fTextureResolveTask) {
             fTextureResolveTask = textureResolveManager.newTextureResolveRenderTask(caps);
         }
-        fTextureResolveTask->addProxy(
-                GrSurfaceProxyView(sk_ref_sp(dependedOn), dependedOn->origin(), GrSwizzle()),
-                resolveFlags, caps);
+        fTextureResolveTask->addProxy(sk_ref_sp(dependedOn), resolveFlags, caps);
 
         // addProxy() should have closed the texture proxy's previous task.
         SkASSERT(!dependedOnTask || dependedOnTask->isClosed());

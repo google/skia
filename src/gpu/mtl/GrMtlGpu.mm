@@ -1366,7 +1366,7 @@ void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
     }
 }
 
-void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
+void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&,
                                      ForExternalIO forExternalIO) {
     this->resolveTexture(static_cast<GrMtlRenderTarget*>(target)->mtlResolveTexture(),
                          static_cast<GrMtlRenderTarget*>(target)->mtlColorTexture());
