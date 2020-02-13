@@ -46,6 +46,30 @@
       "revId": "261d935a5227a07e2646ed1691464d98b43b61d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4acbd9da_13fbd116",
+        "filename": "site/user/build.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-02-13T21:33:56Z",
+      "side": 1,
+      "message": "To confirm, I\u0027ve tested that both Python 2 and 3 work.",
+      "parentUuid": "6dd3845d_e3f6da67",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 11
+      },
+      "revId": "261d935a5227a07e2646ed1691464d98b43b61d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
