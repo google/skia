@@ -1,0 +1,389 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15944d9c_9e030b4a",
+        "filename": "gm/texelsubset.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "For these continues, I wonder if it would be worth still adjusting by x and y and leaving a gap or a N/A message. That way subsequent rows/cols will still be lined up with the other filter versions, making it easier to toggle back and forth and see the effect of the filter mode?",
+      "range": {
+        "startLine": 133,
+        "startChar": 16,
+        "endLine": 143,
+        "endChar": 21
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6540e05_48bea38f",
+        "filename": "gm/texelsubset.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "It\u0027s a little weird to me that the inner loop updates the Y wrap mode, but moves along the x axis. I think that\u0027s part of what has made parsing the GM\u0027s output confusing for me in the past. Maybe we switch it so that the inner loop is the X wrap mode? It would be a more churn in the gold images, but this CL already changes how they will be drawn anyways.",
+      "range": {
+        "startLine": 166,
+        "startChar": 19,
+        "endLine": 166,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5f18150_0d36eca6",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Comment along the lines of \"The domain will not access outside the subset, so kClamp produces the same result as the original Mode; kClamp is always supported by HW, so avoid shader filtering\". I am assuming that\u0027s why you were able to drop the \u0027canDoHW\u0027 condition on the if, right?",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ecf95d_f4b2cd4d",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Remove?",
+      "range": {
+        "startLine": 239,
+        "startChar": 56,
+        "endLine": 241,
+        "endChar": 84
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "364b4390_c6d00661",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "output of 0",
+      "range": {
+        "startLine": 246,
+        "startChar": 29,
+        "endLine": 246,
+        "endChar": 31
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9cb7977_d82f38aa",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Not sure this is consistent with modeUsesClamp() below. Maybe \u0027Clamp the coordinates to the clamp rect (usually 0.5 inset of the subset rect), unless it\u0027s Decal with Nearest\u0027 (main difference is Repeat also gets clamped, if I\u0027m reading the code correctly).\n\nWhat is the reason again that kDecal+kNearest doesn\u0027t need to be clamped? Because any bad sample, similar to what we saw with kClamp+kNearest, will probably be forced to transparent black by the later subset test?",
+      "range": {
+        "startLine": 247,
+        "startChar": 22,
+        "endLine": 249,
+        "endChar": 25
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "649c38d7_2f5d2ede",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "isn\u0027t this always true?  Should this return instead, \u0027m !\u003d kNone \u0026\u0026 m !\u003d kDecal\u0027? Basically every shader mode needs to clamp, except for kDecal, which is handled in step 3) with special filtering? Or is it meant to be strict \u0027\u003e\u0027?",
+      "range": {
+        "startLine": 275,
+        "startChar": 55,
+        "endLine": 275,
+        "endChar": 81
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e850d24_2b9d82dc",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "I like this idea a lot.",
+      "range": {
+        "startLine": 296,
+        "startChar": 65,
+        "endLine": 296,
+        "endChar": 96
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef51b41a_8955c020",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "zw holds 1/w, 1/h so multiplication normalizes. xy holds w,h so multiplications de-normalizes. Something along those lines might be good here, where use normUni, or at the declaration of normUni, otherwise having to get to onSetData() is pretty far in order to understand what\u0027s going on in this function.",
+      "range": {
+        "startLine": 310,
+        "startChar": 51,
+        "endLine": 310,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "641fdbbe_93747d87",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Add a linebreak/comment to help readability, // Calculate mix amount for complex filterlogic",
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a1ecfe7_ee63e4f9",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "// Will not be emitted for kDecalFilter",
+      "range": {
+        "startLine": 384,
+        "startChar": 20,
+        "endLine": 384,
+        "endChar": 73
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ad9d2d1_8460b957",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Line break and add // kRepeatBilerp logic for main sample and wrapped sample",
+      "range": {
+        "startLine": 406,
+        "startChar": 15,
+        "endLine": 406,
+        "endChar": 67
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b81f52dd_5fbbd28e",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Line break and // kDecalFilter mixing logic between sampled color and transparent black",
+      "range": {
+        "startLine": 420,
+        "startChar": 16,
+        "endLine": 420,
+        "endChar": 66
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e1841b9_4bfc9c05",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Line break and // kDecalNearest logic to hard switch between sampled color and transparent black.",
+      "range": {
+        "startLine": 428,
+        "startChar": 16,
+        "endLine": 428,
+        "endChar": 67
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3edb6daf_d783426f",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "If subsetUni is only valid when clampUni is valid, we could run into issues with \"Decal+Nearest\" not needing to clamp (if I\u0027ve followed things properly), but wanting the subset since it\u0027s Decal.",
+      "range": {
+        "startLine": 450,
+        "startChar": 16,
+        "endLine": 450,
+        "endChar": 35
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22147cad_1bdfe4eb",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "This could go away, if you agree with the below comment.",
+      "range": {
+        "startLine": 473,
+        "startChar": 24,
+        "endLine": 473,
+        "endChar": 46
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f28d4da2_e01b287e",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:31:10Z",
+      "side": 1,
+      "message": "Maybe put this in the else, to help make it clear that we\u0027re only pre-normalizing the subset+clamp when there\u0027s no in-shader normalization via the uniform",
+      "range": {
+        "startLine": 475,
+        "startChar": 20,
+        "endLine": 482,
+        "endChar": 40
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
