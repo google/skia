@@ -180,7 +180,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     SkASSERT(shader.instanceStride() == Instance::Stride(fUsesLocalCoords));
 
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                              state->proxy()->backendFormat(), state->proxy()->origin(), &pipeline,
+                              state->proxy()->backendFormat(), state->view()->origin(), &pipeline,
                               &shader, &fixedDynamicState, nullptr, 0,
                               GrPrimitiveType::kTriangleStrip);
 

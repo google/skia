@@ -36,7 +36,6 @@ void GrCCClipPath::init(
                 SkASSERT(texture);
                 SkASSERT(texture->backendFormat() == format);
                 SkASSERT(texture->asRenderTarget()->numSamples() == sampleCount);
-                SkASSERT(textureProxy->origin() == kTopLeft_GrSurfaceOrigin);
 
                 fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
                 fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),

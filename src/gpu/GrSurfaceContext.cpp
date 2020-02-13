@@ -240,7 +240,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
         return tempCtx->readPixels(dstInfo, dst, rowBytes, {0, 0}, direct);
     }
 
-    bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
+    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
 
     auto supportedRead = caps->supportedReadPixelsColorType(
             this->colorInfo().colorType(), srcProxy->backendFormat(), dstInfo.colorType());
@@ -378,7 +378,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         // we can use a draw instead which doesn't have this origin restriction. Thus for render
         // targets we will use top left and otherwise we will make the origins match.
         GrSurfaceOrigin tempOrigin =
-                this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
+                this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
                 format, srcInfo.dimensions(), tempReadSwizzle, GrRenderable::kNo, 1, tempOrigin,
                 GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
@@ -436,7 +436,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
             caps->supportedWritePixelsColorType(this->colorInfo().colorType(),
                                                 dstProxy->backendFormat(),
                                                 srcInfo.colorType()).fColorType;
-    bool flip = dstProxy->origin() == kBottomLeft_GrSurfaceOrigin;
+    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
     bool makeTight = !caps->writePixelsRowBytesSupport() && rowBytes != tightRowBytes;
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (srcInfo.colorType() != allowedColorType) || flip;
@@ -709,7 +709,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
         return {};
     }
     auto srcRect = rect;
-    bool flip = proxy->origin() == kBottomLeft_GrSurfaceOrigin;
+    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
     if (flip) {
         srcRect = SkIRect::MakeLTRB(rect.fLeft, this->height() - rect.fBottom, rect.fRight,
                                     this->height() - rect.fTop);
