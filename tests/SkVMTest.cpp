@@ -1306,6 +1306,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.fmax4s(A::v4, A::v3, A::v1);
 
         a.fmla4s(A::v4, A::v3, A::v1);
+        a.fmls4s(A::v4, A::v3, A::v1);
 
         a.fcmeq4s(A::v4, A::v3, A::v1);
         a.fcmgt4s(A::v4, A::v3, A::v1);
@@ -1336,6 +1337,7 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0xf4,0x21,0x4e,
 
         0x64,0xcc,0x21,0x4e,
+        0x64,0xcc,0xa1,0x4e,
 
         0x64,0xe4,0x21,0x4e,
         0x64,0xe4,0xa1,0x6e,

@@ -184,6 +184,9 @@ namespace skvm {
         // d += n*m
         void fmla4s(V d, V n, V m);
 
+        // d -= n*m
+        void fmls4s(V d, V n, V m);
+
         // d = op(n,imm)
         using DOpNImm = void(V d, V n, int imm);
         DOpNImm sli4s,
