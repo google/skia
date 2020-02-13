@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50ceadc0_1a9fd823",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T19:20:22Z",
+      "side": 1,
+      "message": "nit (maybe): could do pushRect(s.asScalars(), fSubsetUni) and not copy into a separate array. But maybe not since that returns SkScalar[] and not necessarily float[].",
+      "range": {
+        "startLine": 504,
+        "startChar": 16,
+        "endLine": 505,
+        "endChar": 45
+      },
+      "revId": "6cd12941d87625a0d78861df1dfba82a42a6b3bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
