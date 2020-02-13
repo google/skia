@@ -22,6 +22,30 @@
       "revId": "807f1e9cc6dceaf6ed983621e60c0cffc7fe30b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d922fcdc_97ee0702",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-13T13:19:35Z",
+      "side": 1,
+      "message": "Ah, my mental model was that each branch had its own CQ config, but apparently that\u0027s several years out of date.",
+      "parentUuid": "5d475ea1_320ac44b",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "807f1e9cc6dceaf6ed983621e60c0cffc7fe30b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
