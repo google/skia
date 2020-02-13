@@ -25072,6 +25072,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25092,7 +25097,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25139,6 +25144,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25159,7 +25169,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25206,6 +25216,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25226,7 +25241,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25273,6 +25288,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25293,7 +25313,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25340,6 +25360,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25360,7 +25385,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25407,6 +25432,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25427,7 +25457,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25474,6 +25504,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25494,7 +25529,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -25541,6 +25576,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -25561,7 +25601,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48171,6 +48211,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48191,7 +48236,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48238,6 +48283,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48258,7 +48308,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48305,6 +48355,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48325,7 +48380,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48372,6 +48427,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48392,7 +48452,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48439,6 +48499,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48459,7 +48524,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48506,6 +48571,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48526,7 +48596,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48573,6 +48643,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48593,7 +48668,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48640,6 +48715,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48660,7 +48740,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48707,6 +48787,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48727,7 +48812,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48774,6 +48859,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48794,7 +48884,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48841,6 +48931,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48861,7 +48956,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48908,6 +49003,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48928,7 +49028,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -48975,6 +49075,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -48995,7 +49100,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -49042,6 +49147,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -49062,7 +49172,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -49109,6 +49219,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -49129,7 +49244,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -49176,6 +49291,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-11.4",
+          "path": "ios-dev-image-11.4",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -49196,7 +49316,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "libimobiledevice:1534346785",
+        "libimobiledevice:1581532013",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
