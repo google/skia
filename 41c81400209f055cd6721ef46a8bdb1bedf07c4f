@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60bf3b4d_91578d63",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-13T17:24:15Z",
+      "side": 1,
+      "message": "+1",
+      "range": {
+        "startLine": 740,
+        "startChar": 11,
+        "endLine": 740,
+        "endChar": 15
+      },
+      "revId": "41c81400209f055cd6721ef46a8bdb1bedf07c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
