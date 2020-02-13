@@ -25,9 +25,9 @@
 #define HEIGHT 500
 
 // These are treated as RGBA_premul
-static const uint32_t kOverdrawColors[6] = {
-        0x00000000, 0x5f00005f, 0x2f2f0000, 0x2f002f00, 0x3f00003f, 0x7f00007f,
-};
+//static const uint32_t kOverdrawColors[6] = {
+//        0x00000000, 0x5f00005f, 0x2f2f0000, 0x2f002f00, 0x3f00003f, 0x7f00007f,
+//};
 
 
 DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
@@ -52,7 +52,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
 
     // Draw overdraw colors to the canvas.  The color filter will convert counts to colors.
     SkPaint paint;
-    paint.setColorFilter(SkOverdrawColorFilter::Make(kOverdrawColors));
+//    paint.setColorFilter(SkOverdrawColorFilter::Make(kOverdrawColors));
     canvas->drawImage(counts.get(), 0.0f, 0.0f, &paint);
     canvas->drawString("This is some text:", 180, 300, SkFont(), SkPaint());
 }
