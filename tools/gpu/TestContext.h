@@ -45,6 +45,7 @@ public:
         return true;
     }
 
+    void makeNotCurrent() const;
     void makeCurrent() const;
 
     /**
@@ -106,6 +107,7 @@ protected:
     /** This should destroy the 3D context. */
     virtual void teardown();
 
+    virtual void onPlatformMakeNotCurrent() const = 0;
     virtual void onPlatformMakeCurrent() const = 0;
     /**
      * Subclasses should implement such that the returned function will cause the current context

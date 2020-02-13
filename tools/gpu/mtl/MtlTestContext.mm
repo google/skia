@@ -108,6 +108,7 @@ private:
         fFenceSync.reset(new MtlFenceSync(queue));
     }
 
+    void onPlatformMakeNotCurrent() const override {}
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}

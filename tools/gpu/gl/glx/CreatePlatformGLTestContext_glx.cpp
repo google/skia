@@ -61,6 +61,7 @@ private:
     static GLXContext CreateBestContext(bool isES, Display* display, GLXFBConfig bestFbc,
                                         GLXContext glxSharedContext);
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
@@ -346,6 +347,12 @@ GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXF
     // Restore the original error handler.
     XSetErrorHandler(oldHandler);
     return context;
+}
+
+void GLXGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!glXMakeCurrent(fDisplay, None , nullptr)) {
+        SkDebugf("Could not reset the context.\n");
+    }
 }
 
 void GLXGLTestContext::onPlatformMakeCurrent() const {

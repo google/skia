@@ -40,6 +40,7 @@ public:
 private:
     void destroyGLContext();
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
@@ -171,6 +172,12 @@ void WinGLTestContext::destroyGLContext() {
     if (fWindow) {
         DestroyWindow(fWindow);
         fWindow = 0;
+    }
+}
+
+void WinGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!wglMakeCurrent(NULL, NULL)) {
+        SkDebugf("Could not null out the rendering context.\n");
     }
 }
 

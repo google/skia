@@ -337,6 +337,15 @@ void CommandBufferGLTestContext::destroyGLContext() {
     fDisplay = EGL_NO_DISPLAY;
 }
 
+void CommandBufferGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!gfFunctionsLoadedSuccessfully) {
+        return;
+    }
+    if (!TLSCurrentObjects::MakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        SkDebugf("Command Buffer: Could not null out current EGL context.\n");
+    }
+}
+
 void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
