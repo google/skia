@@ -229,11 +229,6 @@
         "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES"
       ]
     },
-    "Build-Debian9-Clang-x86_64-Debug-MSAN": {
-      "tasks": [
-        "Build-Debian9-Clang-x86_64-Debug-MSAN"
-      ]
-    },
     "Build-Debian9-Clang-x86_64-Debug-OpenCL": {
       "tasks": [
         "Build-Debian9-Clang-x86_64-Debug-OpenCL"
@@ -257,11 +252,6 @@
     "Build-Debian9-Clang-x86_64-Debug-SkVM_ASAN": {
       "tasks": [
         "Build-Debian9-Clang-x86_64-Debug-SkVM_ASAN"
-      ]
-    },
-    "Build-Debian9-Clang-x86_64-Debug-SkVM_MSAN": {
-      "tasks": [
-        "Build-Debian9-Clang-x86_64-Debug-SkVM_MSAN"
       ]
     },
     "Build-Debian9-Clang-x86_64-Debug-Static": {
@@ -372,6 +362,11 @@
     "Build-Debian9-Clang-x86_64-Release-SwiftShader": {
       "tasks": [
         "Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      ]
+    },
+    "Build-Debian9-Clang-x86_64-Release-SwiftShader_MSAN": {
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Release-SwiftShader_MSAN"
       ]
     },
     "Build-Debian9-Clang-x86_64-Release-TSAN": {
@@ -1987,16 +1982,6 @@
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN": {
-      "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN"
-      ]
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_BonusConfigs": {
-      "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_BonusConfigs"
-      ]
-    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "tasks": [
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts"
@@ -2020,11 +2005,6 @@
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_ASAN": {
       "tasks": [
         "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_ASAN"
-      ]
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_MSAN": {
-      "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_MSAN"
       ]
     },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs": {
@@ -2120,6 +2100,11 @@
     "Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader": {
       "tasks": [
         "Upload-Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader"
+      ]
+    },
+    "Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_MSAN": {
+      "tasks": [
+        "Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_MSAN"
       ]
     },
     "Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All": {
@@ -6481,85 +6466,6 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Debian9-Clang-x86_64-Debug-MSAN": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "ccache",
-          "path": "cache/ccache"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:19"
-        },
-        {
-          "name": "skia/bots/ccache_linux",
-          "path": "ccache_linux",
-          "version": "version:1"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-MSAN\",\"swarm_out_dir\":\"build\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highcpu-64",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "idempotent": true,
-      "io_timeout_ns": 3600000000000,
-      "isolate": "compile.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "build"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Build-Debian9-Clang-x86_64-Debug-OpenCL": {
       "caches": [
         {
@@ -6931,85 +6837,6 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SkVM_ASAN\",\"swarm_out_dir\":\"build\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highcpu-64",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "idempotent": true,
-      "io_timeout_ns": 3600000000000,
-      "isolate": "compile.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "build"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Build-Debian9-Clang-x86_64-Debug-SkVM_MSAN": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "ccache",
-          "path": "cache/ccache"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:19"
-        },
-        {
-          "name": "skia/bots/ccache_linux",
-          "path": "ccache_linux",
-          "version": "version:1"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-SkVM_MSAN\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -8812,6 +8639,90 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SwiftShader\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-x86_64-Release-SwiftShader_MSAN": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:19"
+        },
+        {
+          "name": "skia/bots/cmake_linux",
+          "path": "cmake_linux",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-SwiftShader_MSAN\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -32735,174 +32646,6 @@
         "test"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:224"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:19"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-x86_64-Debug-MSAN"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-standard-16",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_BonusConfigs": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:224"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:19"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_BonusConfigs\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-x86_64-Debug-MSAN"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-standard-16",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
-    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
@@ -33297,90 +33040,6 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_MSAN": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:224"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:19"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_MSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-x86_64-Debug-SkVM_MSAN"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-standard-16",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "outputs": [
@@ -34912,6 +34571,90 @@
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_MSAN": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c674023879026da0993d36df8c96153cfd31e5a1"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:224"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:19"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_MSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-SwiftShader_MSAN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 32400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
