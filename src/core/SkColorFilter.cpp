@@ -484,15 +484,20 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
 
-    std::vector<sk_sp<SkColorFilter>> children;
-    children.resize(buffer.read32());
-    for (size_t i = 0; i < children.size(); ++i) {
-        children[i] = buffer.readColorFilter();
-    }
-
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
     if (!effect) {
         return nullptr;
+    }
+
+    size_t childCount = buffer.read32();
+    if (childCount != effect->children().count()) {
+        return nullptr;
+    }
+
+    std::vector<sk_sp<SkColorFilter>> children;
+    children.resize(childCount);
+    for (size_t i = 0; i < children.size(); ++i) {
+        children[i] = buffer.readColorFilter();
     }
 
     return effect->makeColorFilter(std::move(inputs), children.data(), children.size());

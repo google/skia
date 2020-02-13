@@ -110,15 +110,20 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    std::vector<sk_sp<SkShader>> children;
-    children.resize(buffer.read32());
-    for (size_t i = 0; i < children.size(); ++i) {
-        children[i] = buffer.readShader();
-    }
-
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
     if (!effect) {
         return nullptr;
+    }
+
+    size_t childCount = buffer.read32();
+    if (childCount != effect->children().count()) {
+        return nullptr;
+    }
+
+    std::vector<sk_sp<SkShader>> children;
+    children.resize(childCount);
+    for (size_t i = 0; i < children.size(); ++i) {
+        children[i] = buffer.readShader();
     }
 
     return effect->makeShader(std::move(inputs), children.data(), children.size(), localMPtr,
