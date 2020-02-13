@@ -16,6 +16,24 @@
       "revId": "66356c20b819edf95923d63bb61cc94212aca5e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba6ee788_960c768f",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-13T11:27:19Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "8aaba04b_6fd79cd5",
+      "revId": "66356c20b819edf95923d63bb61cc94212aca5e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
