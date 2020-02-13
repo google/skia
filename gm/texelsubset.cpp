@@ -63,8 +63,8 @@ protected:
 
     SkISize onISize() override {
         static constexpr int kN = GrSamplerState::kWrapModeCount;
-        int w = kTestPad + 2*kN * (kImageSize.width()  + 2*kDrawPad + kTestPad);
-        int h = kTestPad + 2*kN * (kImageSize.height() + 2*kDrawPad + kTestPad);
+        int w = kTestPad + 2*kN*(kImageSize.width()  + 2*kDrawPad + kTestPad);
+        int h = kTestPad + 2*kN*(kImageSize.height() + 2*kDrawPad + kTestPad);
         return {w, h};
     }
 
@@ -134,29 +134,19 @@ protected:
 
                     GrSamplerState sampler(wmx, wmy, fFilter);
 
-                    // kRepeat doesn't work with MIP map filtering yet.
-                    bool shouldWork =
-                            fFilter != GrSamplerState::Filter::kMipMap ||
-                            (sampler.wrapModeX() != GrSamplerState::WrapMode::kRepeat &&
-                             sampler.wrapModeY() != GrSamplerState::WrapMode::kRepeat);
-
                     drawRect = localRect.makeOffset(x, y);
 
                     std::unique_ptr<GrFragmentProcessor> fp1;
-                    if (shouldWork) {
-                        fp1 = GrTextureEffect::MakeTexelSubset(view,
-                                                               fBitmap.alphaType(),
-                                                               textureMatrices[tm],
-                                                               sampler,
-                                                               texelSubset,
-                                                               caps);
-                        if (!fp1) {
-                            continue;
-                        }
-                    } else {
-                        fp1 = GrConstColorProcessor::Make(
-                                {0, 0, 0, 0.3f}, GrConstColorProcessor::InputMode::kModulateRGBA);
+                    fp1 = GrTextureEffect::MakeTexelSubset(view,
+                                                           fBitmap.alphaType(),
+                                                           textureMatrices[tm],
+                                                           sampler,
+                                                           texelSubset,
+                                                           caps);
+                    if (!fp1) {
+                        continue;
                     }
+
                     // Throw a translate in the local matrix just to test having something other
                     // than identity. Compensate with an offset local rect.
                     static constexpr SkVector kT = {-100, 300};
