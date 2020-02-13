@@ -22,6 +22,30 @@
       "revId": "6cd12941d87625a0d78861df1dfba82a42a6b3bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58c812b4_1a6817d0",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T19:31:13Z",
+      "side": 1,
+      "message": "That was my reason why not... also pushRect modifies the values in place. The alternative I considered was pass SkRect by value and modify it in pushRect. But either way someone is paying for a copy and I mildly liked pushRect better with indices rather than .fLeft, etc.",
+      "parentUuid": "50ceadc0_1a9fd823",
+      "range": {
+        "startLine": 504,
+        "startChar": 16,
+        "endLine": 505,
+        "endChar": 45
+      },
+      "revId": "6cd12941d87625a0d78861df1dfba82a42a6b3bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
