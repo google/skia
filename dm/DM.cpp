@@ -915,7 +915,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     SkString log;
     Result result = sink->draw(justOneRect, &bitmap, &stream, &log);
     if (result.isFatal()) {
-        info("Could not run %s: %s\n", config.getTag().c_str(), result.c_str());
+        info("Could not run %s: %s\n%s\n", config.getTag().c_str(), result.c_str(), log.c_str());
         exit(1);
     }
 
