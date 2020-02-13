@@ -276,11 +276,11 @@ namespace {
                                              break;
             }
 
-            // When a destination is tagged opaque, we may assume it both starts and stays fully
-            // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
-            // optional, and sometimes helps cut a small amount of work in these programs.
-            const bool force_opaque = true && params.alphaType == kOpaque_SkAlphaType;
-            if (force_opaque) {
+            // When a destination is known opaque, we may assume it both starts and stays fully
+            // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
+            const bool dst_is_opaque = SkAlphaTypeIsOpaque(params.alphaType)
+                                    || SkColorTypeIsAlwaysOpaque(params.colorType);
+            if (dst_is_opaque) {
                 dst.a = splat(1.0f);
             } else if (params.alphaType == kUnpremul_SkAlphaType) {
                 premul(&dst.r, &dst.g, &dst.b, dst.a);
@@ -311,7 +311,7 @@ namespace {
                 src.b = clamp(src.b, splat(0.0f), splat(1.0f));
                 src.a = clamp(src.a, splat(0.0f), splat(1.0f));
             }
-            if (force_opaque) {
+            if (dst_is_opaque) {
                 src.a = splat(1.0f);
             } else if (params.alphaType == kUnpremul_SkAlphaType) {
                 unpremul(&src.r, &src.g, &src.b, src.a);
