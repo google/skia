@@ -26,6 +26,7 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "tools/Resources.h"
 #include "tools/gpu/TestOps.h"
 
@@ -61,13 +62,9 @@ protected:
     }
 
     SkISize onISize() override {
-        int n = GrSamplerState::kWrapModeCount;
-        if (fFilter != GrSamplerState::Filter::kNearest) {
-            // Account for not supporting kMirror or kMirrorRepeat with filtering.
-            n -= 2;
-        }
-        int w = kTestPad + 2 * n * (kImageSize.width()  + 2 * kDrawPad + kTestPad);
-        int h = kTestPad + 2 * n * (kImageSize.height() + 2 * kDrawPad + kTestPad);
+        static constexpr int kN = GrSamplerState::kWrapModeCount;
+        int w = kTestPad + 2*kN * (kImageSize.width()  + 2*kDrawPad + kTestPad);
+        int h = kTestPad + 2*kN * (kImageSize.height() + 2*kDrawPad + kTestPad);
         return {w, h};
     }
 
@@ -127,35 +124,37 @@ protected:
         SkScalar y = kDrawPad + kTestPad;
         SkRect drawRect;
         for (int tm = 0; tm < textureMatrices.count(); ++tm) {
-            for (int mx = 0; mx < GrSamplerState::kWrapModeCount; ++mx) {
+            for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                 SkScalar x = kDrawPad + kTestPad;
-                auto wmx = static_cast<GrSamplerState::WrapMode>(mx);
-                if (fFilter != GrSamplerState::Filter::kNearest &&
-                    (wmx == GrSamplerState::WrapMode::kRepeat ||
-                     wmx == GrSamplerState::WrapMode::kMirrorRepeat)) {
-                    // [Mirror] Repeat mode doesn't produce correct results with bilerp
-                    // filtering
-                    continue;
-                }
-                for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
-                    auto wmy = static_cast<GrSamplerState::WrapMode>(my);
-                    if (fFilter != GrSamplerState::Filter::kNearest &&
-                        (wmy == GrSamplerState::WrapMode::kRepeat ||
-                         wmy == GrSamplerState::WrapMode::kMirrorRepeat)) {
-                        continue;
-                    }
-                    GrSamplerState sampler(wmx, wmy, fFilter);
+                auto wmy = static_cast<GrSamplerState::WrapMode>(my);
+                for (int mx = 0; mx < GrSamplerState::kWrapModeCount; ++mx) {
+                    auto wmx = static_cast<GrSamplerState::WrapMode>(mx);
+
                     const auto& caps = *context->priv().caps();
-                    auto fp1 = GrTextureEffect::MakeTexelSubset(view,
-                                                                fBitmap.alphaType(),
-                                                                textureMatrices[tm],
-                                                                sampler,
-                                                                texelSubset,
-                                                                caps);
-                    if (!fp1) {
-                        continue;
-                    }
+
+                    GrSamplerState sampler(wmx, wmy, fFilter);
+
+                    // kRepeat and kMirrorRepeat don't currently work with filtering.
+                    bool shouldWork =
+                            fFilter == GrSamplerState::Filter::kNearest || !sampler.isRepeated();
+
                     drawRect = localRect.makeOffset(x, y);
+
+                    std::unique_ptr<GrFragmentProcessor> fp1;
+                    if (shouldWork) {
+                        fp1 = GrTextureEffect::MakeTexelSubset(view,
+                                                               fBitmap.alphaType(),
+                                                               textureMatrices[tm],
+                                                               sampler,
+                                                               texelSubset,
+                                                               caps);
+                        if (!fp1) {
+                            continue;
+                        }
+                    } else {
+                        fp1 = GrConstColorProcessor::Make(
+                                {0, 0, 0, 0.3f}, GrConstColorProcessor::InputMode::kModulateRGBA);
+                    }
                     // Throw a translate in the local matrix just to test having something other
                     // than identity. Compensate with an offset local rect.
                     static constexpr SkVector kT = {-100, 300};
@@ -166,14 +165,15 @@ protected:
                                                                   SkMatrix::MakeTrans(-kT))) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
+
                     x += localRect.width() + kTestPad;
 
+                    // Now draw with a subsetted proxy using fixed function texture sampling
+                    // rather than a texture subset as a comparison.
+                    drawRect = localRect.makeOffset(x, y);
                     SkMatrix subsetTextureMatrix = SkMatrix::Concat(
                             SkMatrix::MakeTrans(-texelSubset.topLeft()), textureMatrices[tm]);
 
-                    // Now draw with a subsetted proxy using fixed function texture sampling rather
-                    // than a texture subset as a comparison.
-                    drawRect = localRect.makeOffset(x, y);
                     auto fp2 = GrTextureEffect::Make(subsetView, fBitmap.alphaType(),
                                                      subsetTextureMatrix,
                                                      GrSamplerState(wmx, wmy, fFilter), caps);
@@ -181,14 +181,15 @@ protected:
                                                                   localRect)) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
-                    if (my < GrSamplerState::kWrapModeCount - 1) {
+
+                    if (mx < GrSamplerState::kWrapModeCount - 1) {
                         SkScalar midX =
                                 SkScalarFloorToScalar(drawRect.right() + kTestPad/2.f) + 0.5f;
                         canvas->drawLine({midX, -1}, {midX, (float)size.fHeight+1}, {});
                     }
                     x += localRect.width() + kTestPad;
                 }
-                if (mx < GrSamplerState::kWrapModeCount - 1) {
+                if (my < GrSamplerState::kWrapModeCount - 1) {
                     SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;
                     canvas->drawLine({-1, midY}, {(float)size.fWidth+1, midY}, {});
                 }
