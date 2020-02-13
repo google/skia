@@ -42,6 +42,7 @@ SK_C_API bool sk_typeface_get_kerning_pair_adjustments(const sk_typeface_t* type
 SK_C_API sk_string_t* sk_typeface_get_family_name(const sk_typeface_t* typeface);
 SK_C_API sk_stream_asset_t* sk_typeface_open_stream(const sk_typeface_t* typeface, int* ttcIndex);
 
+
 // font manager
 
 SK_C_API sk_fontmgr_t* sk_fontmgr_create_default(void);

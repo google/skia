@@ -195,7 +195,7 @@ int sk_fontstyle_get_width(const sk_fontstyle_t* fs) {
 }
 
 sk_font_style_slant_t sk_fontstyle_get_slant(const sk_fontstyle_t* fs) {
-    return(sk_font_style_slant_t)AsFontStyle(fs)->slant();
+    return (sk_font_style_slant_t)AsFontStyle(fs)->slant();
 }
 
 

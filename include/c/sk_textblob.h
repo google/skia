@@ -14,11 +14,15 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+// sk_textblob_t
+
 SK_C_API void sk_textblob_ref(const sk_textblob_t* blob);
 SK_C_API void sk_textblob_unref(const sk_textblob_t* blob);
 SK_C_API uint32_t sk_textblob_get_unique_id(const sk_textblob_t* blob);
 SK_C_API void sk_textblob_get_bounds(const sk_textblob_t* blob, sk_rect_t* bounds);
 SK_C_API int sk_textblob_get_intercepts(const sk_textblob_t* blob, const float bounds[2], float intervals[], const sk_paint_t* paint);
+
+// sk_textblob_builder_t
 
 SK_C_API sk_textblob_builder_t* sk_textblob_builder_new(void);
 SK_C_API void sk_textblob_builder_delete(sk_textblob_builder_t* builder);

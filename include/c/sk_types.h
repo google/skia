@@ -219,6 +219,9 @@ typedef struct sk_surface_t sk_surface_t;
     clipping areas for drawing.
 */
 typedef struct sk_region_t sk_region_t;
+typedef struct sk_region_iterator_t sk_region_iterator_t;
+typedef struct sk_region_cliperator_t sk_region_cliperator_t;
+typedef struct sk_region_spanerator_t sk_region_spanerator_t;
 
 typedef enum {
     CLEAR_SK_BLENDMODE,
