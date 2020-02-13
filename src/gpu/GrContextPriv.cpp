@@ -40,8 +40,7 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[],
-                                                   GrSurfaceOrigin origins[], int numProxies,
+GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
                                                    const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     RETURN_VALUE_IF_ABANDONED(GrSemaphoresSubmitted::kNo)
@@ -53,12 +52,11 @@ GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[],
         ASSERT_OWNED_PROXY(proxies[i]);
     }
     return fContext->drawingManager()->flushSurfaces(
-            proxies, origins, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info);
 }
 
-void GrContextPriv::flushSurface(GrSurfaceProxy* proxy, GrSurfaceOrigin origin) {
-    SkASSERT(proxy);
-    this->flushSurfaces(&proxy, &origin, 1, {});
+void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
+    this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
 void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {

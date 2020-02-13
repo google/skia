@@ -240,7 +240,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
         return tempCtx->readPixels(dstInfo, dst, rowBytes, {0, 0}, direct);
     }
 
-    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
+    bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
 
     auto supportedRead = caps->supportedReadPixelsColorType(
             this->colorInfo().colorType(), srcProxy->backendFormat(), dstInfo.colorType());
@@ -267,7 +267,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
         pt.fY = flip ? srcSurface->height() - pt.fY - dstInfo.height() : pt.fY;
     }
 
-    direct->priv().flushSurface(srcProxy, this->origin());
+    direct->priv().flushSurface(srcProxy);
 
     if (!direct->priv().getGpu()->readPixels(srcSurface, pt.fX, pt.fY, dstInfo.width(),
                                              dstInfo.height(), this->colorInfo().colorType(),
@@ -378,7 +378,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         // we can use a draw instead which doesn't have this origin restriction. Thus for render
         // targets we will use top left and otherwise we will make the origins match.
         GrSurfaceOrigin tempOrigin =
-                this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
+                this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
                 format, srcInfo.dimensions(), tempReadSwizzle, GrRenderable::kNo, 1, tempOrigin,
                 GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
@@ -436,7 +436,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
             caps->supportedWritePixelsColorType(this->colorInfo().colorType(),
                                                 dstProxy->backendFormat(),
                                                 srcInfo.colorType()).fColorType;
-    bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
+    bool flip = dstProxy->origin() == kBottomLeft_GrSurfaceOrigin;
     bool makeTight = !caps->writePixelsRowBytesSupport() && rowBytes != tightRowBytes;
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (srcInfo.colorType() != allowedColorType) || flip;
@@ -462,11 +462,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
     // giving the drawing manager the chance of skipping the flush (i.e., by passing in the
     // destination proxy)
     // TODO: should this policy decision just be moved into the drawing manager?
-    if (caps->preferVRAMUseOverFlushes()) {
-        direct->priv().flushSurface(dstProxy, this->origin());
-    } else {
-        direct->priv().flushSurface();
-    }
+    direct->priv().flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
 
     return direct->priv().getGpu()->writePixels(dstSurface, pt.fX, pt.fY, srcInfo.width(),
                                                 srcInfo.height(), this->colorInfo().colorType(),

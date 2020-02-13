@@ -71,8 +71,7 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo
     }
 
     GrSurfaceProxy* p[1] = {fView.proxy()};
-    GrSurfaceOrigin origin = fView.origin();
-    return context->priv().flushSurfaces(p, &origin, 1, info);
+    return context->priv().flushSurfaces(p, 1, info);
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
@@ -561,7 +560,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     sk_sp<GrTexture> texture = sk_ref_sp(view.proxy()->peekTexture());
 
     // Flush any writes or uploads
-    context->priv().flushSurface(view.proxy(), view.origin());
+    context->priv().flushSurface(view.proxy());
     GrGpu* gpu = context->priv().getGpu();
 
     std::unique_ptr<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
@@ -698,11 +697,8 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
         return false;
     }
 
-    const GrSurfaceProxyView* view = as_IB(image)->view(ctx);
-    SkASSERT(view);
-
     // Flush any pending IO on the texture.
-    ctx->priv().flushSurface(view->proxy(), view->origin());
+    ctx->priv().flushSurface(as_IB(image)->peekProxy());
 
     // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
     // image is not unique, or if the texture wraps an external object.
@@ -719,11 +715,8 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
             return false;
         }
 
-        view = as_IB(image)->view(ctx);
-        SkASSERT(view);
-
         // Flush to ensure that the copy is completed before we return the texture.
-        ctx->priv().flushSurface(view->proxy(), view->origin());
+        ctx->priv().flushSurface(as_IB(image)->peekProxy());
     }
 
     SkASSERT(!texture->resourcePriv().refsWrappedObjects());
