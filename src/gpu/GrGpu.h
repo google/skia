@@ -195,10 +195,9 @@ public:
     };
 
     /**
-     * Resolves MSAA.
+     * Resolves MSAA. The resolveRect must already be in the native destination space.
      */
-    void resolveRenderTarget(GrRenderTarget*, const SkIRect& resolveRect, GrSurfaceOrigin,
-                             ForExternalIO);
+    void resolveRenderTarget(GrRenderTarget*, const SkIRect& resolveRect, ForExternalIO);
 
     /**
      * Uses the base of the texture to recompute the contents of the other levels.
@@ -725,7 +724,7 @@ private:
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                       GrSurfaceOrigin resolveOrigin, ForExternalIO) = 0;
+                                       ForExternalIO) = 0;
 
     // overridden by backend specific derived class to perform mip map level regeneration.
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;

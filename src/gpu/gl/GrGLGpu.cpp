@@ -2507,7 +2507,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType, const
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                    GrSurfaceOrigin resolveOrigin, ForExternalIO) {
+                                    ForExternalIO) {
     // Some extensions automatically resolves the texture when it is read.
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
 
@@ -2524,7 +2524,9 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         // Apple's extension uses the scissor as the blit bounds.
         GrScissorState scissorState;
         scissorState.set(resolveRect);
-        this->flushScissor(scissorState, rt->width(), rt->height(), resolveOrigin);
+        // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
+        // happens inside flushScissor since resolveRect is already in native device coordinates.
+        this->flushScissor(scissorState, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
@@ -2536,12 +2538,10 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
             r = target->width();
             t = target->height();
         } else {
-            auto rect = GrNativeRect::MakeRelativeTo(
-                    resolveOrigin, rt->height(), resolveRect);
-            l = rect.fX;
-            b = rect.fY;
-            r = rect.fX + rect.fWidth;
-            t = rect.fY + rect.fHeight;
+            l = resolveRect.x();
+            b = resolveRect.y();
+            r = resolveRect.x() + resolveRect.width();
+            t = resolveRect.y() + resolveRect.height();
         }
 
         // BlitFrameBuffer respects the scissor, so disable it.

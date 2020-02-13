@@ -10,6 +10,7 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -58,10 +59,12 @@ public:
 
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
-    void markMSAADirty(const SkIRect& dirtyRect) {
+    void markMSAADirty(const SkIRect& dirtyRect, GrSurfaceOrigin origin) {
         SkASSERT(SkIRect::MakeSize(this->dimensions()).contains(dirtyRect));
         SkASSERT(this->requiresManualMSAAResolve());
-        fMSAADirtyRect.join(dirtyRect);
+        auto nativeRect = GrNativeRect::MakeRelativeTo(
+                origin, this->backingStoreDimensions().height(), dirtyRect);
+        fMSAADirtyRect.join(nativeRect.asSkIRect());
     }
     void markMSAAResolved() {
         SkASSERT(this->requiresManualMSAAResolve());

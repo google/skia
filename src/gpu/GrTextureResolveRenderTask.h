@@ -15,7 +15,7 @@ public:
     GrTextureResolveRenderTask() : GrRenderTask() {}
     ~GrTextureResolveRenderTask() override;
 
-    void addProxy(GrSurfaceProxyView proxyView, GrSurfaceProxy::ResolveFlags, const GrCaps&);
+    void addProxy(sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
@@ -39,9 +39,9 @@ private:
 #endif
 
     struct Resolve {
-        Resolve(GrSurfaceProxyView proxyView, GrSurfaceProxy::ResolveFlags flags)
-                : fProxyView(std::move(proxyView)), fFlags(flags) {}
-        GrSurfaceProxyView fProxyView;
+        Resolve(sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags)
+                : fProxy(std::move(proxy)), fFlags(flags) {}
+        sk_sp<GrSurfaceProxy> fProxy;
         GrSurfaceProxy::ResolveFlags fFlags;
         SkIRect fMSAAResolveRect;
     };
