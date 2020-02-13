@@ -301,10 +301,10 @@ namespace {
             if (src_in_gamut) {
                 // An in-gamut src blended with an in-gamut dst should stay in gamut.
                 // Being in-gamut implies all channels are in [0,1], so no need to clamp.
+                assert_true(eq(src.r, clamp(src.r, splat(0.0f), splat(1.0f))));
+                assert_true(eq(src.g, clamp(src.g, splat(0.0f), splat(1.0f))));
+                assert_true(eq(src.b, clamp(src.b, splat(0.0f), splat(1.0f))));
                 assert_true(eq(src.a, clamp(src.a, splat(0.0f), splat(1.0f))));
-                assert_true(eq(src.r, clamp(src.r, splat(0.0f), src.a)));
-                assert_true(eq(src.g, clamp(src.g, splat(0.0f), src.a)));
-                assert_true(eq(src.b, clamp(src.b, splat(0.0f), src.a)));
             } else if (SkColorTypeIsNormalized(params.colorType)) {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));
