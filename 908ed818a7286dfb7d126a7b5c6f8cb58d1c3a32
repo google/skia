@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18ba7b26_d14cc7ed",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-13T22:25:00Z",
+      "side": 1,
+      "message": "I\u0027ll get rid of this parameter in the next change.",
+      "range": {
+        "startLine": 158,
+        "startChar": 76,
+        "endLine": 158,
+        "endChar": 83
+      },
+      "revId": "908ed818a7286dfb7d126a7b5c6f8cb58d1c3a32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
