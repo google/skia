@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "588c9375_e2622cd8",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-13T17:58:16Z",
+      "side": 0,
+      "message": "No way to keep this error text?",
+      "range": {
+        "startLine": 1393,
+        "startChar": 15,
+        "endLine": 1393,
+        "endChar": 68
+      },
+      "revId": "7c81245a1834aac94db39380ffe2a3cd647246a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
