@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29490140_22b64fe9",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:54:12Z",
+      "side": 1,
+      "message": "nit: in",
+      "range": {
+        "startLine": 198,
+        "startChar": 54,
+        "endLine": 198,
+        "endChar": 56
+      },
+      "revId": "092988fee144a4e7a525bef3ac62e5bd634d626b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aae3b06c_cdceb3fa",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2528,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T15:54:12Z",
+      "side": 1,
+      "message": "add(?): since resolveRect is already in native device coordinates",
+      "range": {
+        "startLine": 2527,
+        "startChar": 11,
+        "endLine": 2528,
+        "endChar": 38
+      },
+      "revId": "092988fee144a4e7a525bef3ac62e5bd634d626b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
