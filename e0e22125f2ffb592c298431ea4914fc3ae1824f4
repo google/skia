@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26180b9d_9f8a0e8b",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-13T20:38:01Z",
+      "side": 1,
+      "message": "Is it worth noting that if we could query the gradients for inCoord and pass them to the sample call to override the gradients of the clamped coord, this would be simpler, but that functionality isn\u0027t available everywhere?",
+      "range": {
+        "startLine": 333,
+        "startChar": 32,
+        "endLine": 340,
+        "endChar": 98
+      },
+      "revId": "e0e22125f2ffb592c298431ea4914fc3ae1824f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
