@@ -5,6 +5,9 @@
 
 #include "include/core/SkDocument.h"
 
+#include <vector>
+
+#include "include/core/SkColor.h"
 #include "include/core/SkMilestone.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -71,6 +74,53 @@ enum class DocumentStructureType {
     kForm,        //!< Form control (not like an HTML FORM element)
 };
 
+enum class AttributeType {
+    kInteger,
+    kFloat,
+    kString,
+    kFloatArray,
+    kStringArray,
+};
+
+/** An attribute that applies to a node in the PDF structure tree. */
+struct Attribute {
+    Attribute(const char* owner, const char* name, int value)
+        : fOwner(owner), fName(name), fType(AttributeType::kInteger), fIntValue(value) {}
+    Attribute(const char* owner, const char* name, float value)
+        : fOwner(owner), fName(name), fType(AttributeType::kFloat), fFloatValue(value) {}
+    Attribute(const char* owner, const char* name, const char* value)
+        : fOwner(owner), fName(name), fType(AttributeType::kString), fStringValue(value) {}
+    Attribute(const char* owner, const char* name, std::vector<float>&& value)
+        : fOwner(owner),
+          fName(name),
+          fType(AttributeType::kFloatArray),
+          fFloatArrayValue(value) {}
+    Attribute(const char* owner, const char* name, std::vector<SkString>&& value)
+        : fOwner(owner),
+          fName(name),
+          fType(AttributeType::kStringArray),
+          fStringArrayValue(value) {}
+
+    // Attribute owner from PDF32000_2008 14.8.5.2,
+    // e.g. "Layout", "List", "Table", etc.
+    SkString fOwner;
+
+    // Attribute names from PDF32000_2008 14.8.5,
+    // e.g. "BBox", "RowSpan".src/pdf/SkPDFTag.cpp
+    SkString fName;
+
+    // The value type.
+    AttributeType fType;
+
+    // In the future, use std::variant here when C++17 is supported
+    // (like a union that supports non-POD types).
+    int fIntValue;
+    float fFloatValue;
+    SkString fStringValue;
+    std::vector<float> fFloatArrayValue;
+    std::vector<SkString> fStringArrayValue;
+};
+
 /** A node in a PDF structure tree, giving a semantic representation
     of the content.  Each node ID is associated with content
     by passing the SkCanvas and node ID to SkPDF::SetNodeId() when drawing.
@@ -78,9 +128,10 @@ enum class DocumentStructureType {
 */
 struct StructureElementNode {
     const StructureElementNode* fChildren = nullptr;
-    size_t fChildCount;
-    int fNodeId;
-    DocumentStructureType fType;
+    size_t fChildCount = 0;
+    int fNodeId = 0;
+    DocumentStructureType fType = DocumentStructureType::kNonStruct;
+    std::vector<Attribute> fAttributes;
 };
 
 /** Optional metadata to be passed into the PDF factory function.
