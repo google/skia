@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e82a51c2_b2fa7a49",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-13T15:08:06Z",
+      "side": 1,
+      "message": "need to mark the buffer as invalid.\n\nbuffer.validate(false);\nreturn nullptr;",
+      "range": {
+        "startLine": 494,
+        "startChar": 15,
+        "endLine": 494,
+        "endChar": 22
+      },
+      "revId": "6a7e782d6fb8ae6f5564cf2c62020e98e7d2cc65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
