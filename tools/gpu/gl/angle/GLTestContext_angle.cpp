@@ -101,6 +101,7 @@ public:
 private:
     void destroyGLContext();
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
@@ -446,6 +447,12 @@ void ANGLEGLContext::destroyGLContext() {
         fWindow = 0;
     }
 #endif
+}
+
+void ANGLEGLContext::onPlatformMakeNotCurrent() const {
+    if (!eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        SkDebugf("Could not reset the context 0x%x.\n", eglGetError());
+    }
 }
 
 void ANGLEGLContext::onPlatformMakeCurrent() const {

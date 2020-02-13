@@ -233,6 +233,7 @@ private:
         fFenceSync.reset(new DawnFenceSync(fDevice));
     }
 
+    void onPlatformMakeNotCurrent() const override {}
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
     void onPlatformSwapBuffers() const override {}
