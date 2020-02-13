@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7efed95_e04255ca",
+        "filename": "src/gpu/GrOpsRenderPass.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-13T18:42:43Z",
+      "side": 1,
+      "message": "Should we set DrawPipelineStatus::kNotConfigured here as well?",
+      "range": {
+        "startLine": 77,
+        "startChar": 17,
+        "endLine": 77,
+        "endChar": 32
+      },
+      "revId": "a463c806158267fe26d4f91b3a9f2fdc7cd064cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
