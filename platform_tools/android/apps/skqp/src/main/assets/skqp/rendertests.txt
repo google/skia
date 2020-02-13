@@ -560,7 +560,7 @@ savelayer_initfromprev,-1
 savelayer_maskfilter,-1
 savelayer_unclipped,0
 savelayer_with_backdrop,-1
-scale-pixels,0
+scale-pixels,-1
 scaled_tilemode_bitmap,0
 scaled_tilemode_gradient,0
 scaled_tilemodes,1
