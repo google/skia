@@ -79,6 +79,7 @@ static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple th
 DECLARE_int(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
+using sk_gpu_test::ContextInfo;
 
 namespace DM {
 
@@ -1368,6 +1369,58 @@ Result GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStri
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
 }
 
+sk_sp<SkSurface> GPUSink::createDstSurface(GrContext* context, SkISize size,
+                                           GrBackendTexture* backendTexture,
+                                           GrBackendRenderTarget* backendRT) const {
+    sk_sp<SkSurface> surface;
+
+    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
+    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+
+    switch (fSurfType) {
+        case SkCommandLineConfigGpu::SurfType::kDefault:
+            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
+                                                  &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
+            *backendTexture = context->createBackendTexture(
+                info.width(), info.height(), info.colorType(), SkColors::kTransparent,
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+            surface = SkSurface::MakeFromBackendTexture(context, *backendTexture,
+                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
+                                                        fColorType, info.refColorSpace(), &props);
+            break;
+        case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
+            if (1 == fSampleCount) {
+                auto colorType = SkColorTypeToGrColorType(info.colorType());
+                *backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
+                    info.width(), info.height(), colorType);
+                surface = SkSurface::MakeFromBackendRenderTarget(
+                    context, *backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
+                    info.refColorSpace(), &props);
+            }
+            break;
+    }
+
+    return surface;
+}
+
+bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
+    SkCanvas* canvas = surface->getCanvas();
+    SkISize size = surface->imageInfo().dimensions();
+
+    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
+    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
+        info.colorType() == kRGB_888x_SkColorType) {
+        // We don't currently support readbacks into these formats on the GPU backend. Convert to
+        // 32 bit.
+        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
+    }
+    dst->allocPixels(info);
+    return canvas->readPixels(*dst, 0, 0);
+}
+
 Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        const GrContextOptions& baseOptions,
                        std::function<void(GrContext*)> initContext) const {
@@ -1381,46 +1434,20 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     SkASSERT(exec == grOptions.fExecutor);
 
     GrContextFactory factory(grOptions);
-    const SkISize size = src.size();
-    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
-    sk_sp<SkSurface> surface;
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     if (initContext) {
         initContext(context);
     }
+
     const int maxDimension = context->priv().caps()->maxTextureSize();
-    if (maxDimension < std::max(size.width(), size.height())) {
+    if (maxDimension < std::max(src.size().width(), src.size().height())) {
         return Result::Skip("Src too large to create a texture.\n");
     }
-    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+
     GrBackendTexture backendTexture;
     GrBackendRenderTarget backendRT;
-    switch (fSurfType) {
-        case SkCommandLineConfigGpu::SurfType::kDefault:
-            surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, fSampleCount,
-                                                  &props);
-            break;
-        case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            backendTexture = context->createBackendTexture(
-                    info.width(), info.height(), info.colorType(), SkColors::kTransparent,
-                    GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                        fColorType, info.refColorSpace(), &props);
-            break;
-        case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
-            if (1 == fSampleCount) {
-                auto colorType = SkColorTypeToGrColorType(info.colorType());
-                backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
-                        info.width(), info.height(), colorType);
-                surface = SkSurface::MakeFromBackendRenderTarget(
-                        context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
-                        info.refColorSpace(), &props);
-            }
-            break;
-    }
-
+    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size(),
+                                                      &backendTexture, &backendRT);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1437,14 +1464,9 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
     }
-    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
-        info.colorType() == kRGB_888x_SkColorType) {
-        // We don't currently support readbacks into these formats on the GPU backend. Convert to
-        // 32 bit.
-        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
-    }
-    dst->allocPixels(info);
-    canvas->readPixels(*dst, 0, 0);
+
+    this->readBack(surface.get(), dst);
+
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {

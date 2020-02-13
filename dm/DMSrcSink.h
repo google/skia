@@ -366,7 +366,7 @@ public:
                   std::function<void(GrContext*)> initContext = nullptr) const;
 
     sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
-    const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() {
+    const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() const {
         return fContextOverrides;
     }
     SkCommandLineConfigGpu::SurfType surfType() const { return fSurfType; }
@@ -382,6 +382,11 @@ public:
     SkColorInfo colorInfo() const override {
         return SkColorInfo(fColorType, fAlphaType, fColorSpace);
     }
+
+protected:
+    sk_sp<SkSurface> createDstSurface(GrContext*, SkISize size, GrBackendTexture*,
+                                      GrBackendRenderTarget*) const;
+    bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
