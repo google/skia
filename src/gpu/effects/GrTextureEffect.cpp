@@ -102,13 +102,6 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
     auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY);
 
-    if (filter == Filter::kMipMap && (x.fShaderMode == ShaderMode::kRepeat ||
-                                      y.fShaderMode == ShaderMode::kRepeat)) {
-        // Have not yet implemented necessary shader filter code to get LOD selection
-        // correct with kRepeat.
-        filter = Filter::kBilerp;
-    }
-
     fHWSampler = {x.fHWMode, y.fHWMode, filter};
     fShaderModes[0] = x.fShaderMode;
     fShaderModes[1] = y.fShaderMode;
@@ -203,8 +196,7 @@ GrTextureEffect::FilterLogic GrTextureEffect::GetFilterLogic(ShaderMode mode,
                 case GrSamplerState::Filter::kBilerp:
                     return FilterLogic::kRepeatBilerp;
                 case GrSamplerState::Filter::kMipMap:
-                    // return FilterLogic::kRepeatMipMap;
-                    SkUNREACHABLE;
+                    return FilterLogic::kRepeatMipMap;
             }
             SkUNREACHABLE;
         case ShaderMode::kDecal:
@@ -308,7 +300,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 }
 
                 // Generates a string to read at a coordinate, normalizing coords if necessary.
-                auto read = [fb, norm, &sampler = args.fTexSamplers[0]](const char* coord) {
+                auto read = [&](const char* coord) {
                     SkString result;
                     SkString normCoord;
                     if (norm) {
@@ -316,15 +308,17 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     } else {
                         normCoord = coord;
                     }
-                    fb->appendTextureLookup(&result, sampler, normCoord.c_str());
+                    fb->appendTextureLookup(&result, args.fTexSamplers[0], normCoord.c_str());
                     return result;
                 };
 
                 // Implements coord wrapping for kRepeat and kMirrorRepeat
-                auto subsetCoord = [fb, subsetName](ShaderMode mode,
-                                                    const char* coordSwizzle,
-                                                    const char* subsetStartSwizzle,
-                                                    const char* subsetStopSwizzle) {
+                auto subsetCoord = [&](ShaderMode mode,
+                                       const char* coordSwizzle,
+                                       const char* subsetStartSwizzle,
+                                       const char* subsetStopSwizzle,
+                                       const char* extraCoord,
+                                       const char* coordWeight) {
                     switch (mode) {
                         // These modes either don't use the subset rect or don't need to map the
                         // coords to be within the subset.
@@ -335,12 +329,47 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                                             coordSwizzle);
                             break;
                         case ShaderMode::kRepeat:
-                            fb->codeAppendf(
-                                    "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
-                                    "%s.%s;",
-                                    coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle,
-                                    subsetName, subsetStopSwizzle, subsetName, subsetStartSwizzle,
-                                    subsetName, subsetStartSwizzle);
+                            if (filter == Filter::kMipMap) {
+                                // The approach here is to generate two sets of texture coords that
+                                // are both "moving" at the same speed (if not direction) as
+                                // inCoords. We accomplish that by using two out of phase mirror
+                                // repeat coords. We will always sample using both coords but the
+                                // read from the upward sloping one is selected using a weight
+                                // that transitions from one set to the other near the reflection
+                                // point. Like the coords, the weight is a saw-tooth function,
+                                // phase-shifted, vertically translated, and then clamped to 0..1.
+                                // TODO: Skip this and use textureGrad() when available.
+                                SkASSERT(extraCoord);
+                                SkASSERT(coordWeight);
+                                fb->codeAppend("{");
+                                fb->codeAppendf("float w = %s.%s - %s.%s;", subsetName,
+                                                subsetStopSwizzle, subsetName, subsetStartSwizzle);
+                                fb->codeAppendf("float w2 = 2 * w;");
+                                fb->codeAppendf("float d = inCoord.%s - %s.%s;", coordSwizzle,
+                                                subsetName, subsetStartSwizzle);
+                                fb->codeAppend("float m = mod(d, w2);");
+                                fb->codeAppend("float o = mix(m, w2 - m, step(w, m));");
+                                fb->codeAppendf("subsetCoord.%s = o + %s.%s;", coordSwizzle,
+                                                subsetName, subsetStartSwizzle);
+                                fb->codeAppendf("%s = w - o + %s.%s;", extraCoord, subsetName,
+                                                subsetStartSwizzle);
+                                // coordWeight is used as the third param of mix() to blend between a
+                                // sample taken using subsetCoord and a sample at extraCoord.
+                                fb->codeAppend("float hw = w/2;");
+                                fb->codeAppend("float n = mod(d - hw, w2);");
+                                fb->codeAppendf(
+                                        "%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + "
+                                        "0.5));",
+                                        coordWeight);
+                                fb->codeAppend("}");
+                            } else {
+                                fb->codeAppendf(
+                                        "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
+                                        "%s.%s;",
+                                        coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle,
+                                        subsetName, subsetStopSwizzle, subsetName,
+                                        subsetStartSwizzle, subsetName, subsetStartSwizzle);
+                            }
                             break;
                         case ShaderMode::kMirrorRepeat: {
                             fb->codeAppend("{");
@@ -357,10 +386,10 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     }
                 };
 
-                auto clampCoord = [fb, clampName](bool clamp,
-                                                  const char* coordSwizzle,
-                                                  const char* clampStartSwizzle,
-                                                  const char* clampStopSwizzle) {
+                auto clampCoord = [&](bool clamp,
+                                      const char* coordSwizzle,
+                                      const char* clampStartSwizzle,
+                                      const char* clampStopSwizzle) {
                     if (clamp) {
                         fb->codeAppendf("clampedCoord.%s = clamp(subsetCoord.%s, %s.%s, %s.%s);",
                                         coordSwizzle, coordSwizzle, clampName, clampStartSwizzle,
@@ -371,14 +400,68 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     }
                 };
 
+                // Insert vars for extra coords and blending weights for kRepeatMipMap.
+                const char* extraRepeatCoordX  = nullptr;
+                const char* repeatCoordWeightX = nullptr;
+                const char* extraRepeatCoordY  = nullptr;
+                const char* repeatCoordWeightY = nullptr;
+                if (filterLogic[0] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppend("float extraRepeatCoordX; half repeatCoordWeightX;");
+                    extraRepeatCoordX   = "extraRepeatCoordX";
+                    repeatCoordWeightX  = "repeatCoordWeightX";
+                }
+                if (filterLogic[1] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppend("float extraRepeatCoordY; half repeatCoordWeightY;");
+                    extraRepeatCoordY   = "extraRepeatCoordY";
+                    repeatCoordWeightY  = "repeatCoordWeightY";
+                }
+
+                // Apply subset rect and clamp rect to coords.
                 fb->codeAppend("float2 subsetCoord;");
-                subsetCoord(te.fShaderModes[0], "x", "x", "z");
-                subsetCoord(te.fShaderModes[1], "y", "y", "w");
+                subsetCoord(te.fShaderModes[0], "x", "x", "z", extraRepeatCoordX,
+                            repeatCoordWeightX);
+                subsetCoord(te.fShaderModes[1], "y", "y", "w", extraRepeatCoordY,
+                            repeatCoordWeightY);
                 fb->codeAppend("float2 clampedCoord;");
                 clampCoord(useClamp[0], "x", "x", "z");
                 clampCoord(useClamp[1], "y", "y", "w");
 
-                fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
+                // Additional clamping for the extra coords for kRepeatMipMap.
+                if (filterLogic[0] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);",
+                                    clampName, clampName);
+                }
+                if (filterLogic[1] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppendf("extraRepeatCoordY = clamp(extraRepeatCoordY, %s.y, %s.w);",
+                                    clampName, clampName);
+                }
+
+                // Do the 2 or 4 texture reads for kRepeatMipMap and then apply the weight(s)
+                // to blend between them. If neither direction is kRepeatMipMap do a single
+                // read at clampedCoord.
+                if (filterLogic[0] == FilterLogic::kRepeatMipMap &&
+                    filterLogic[1] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppendf(
+                            "half4 textureColor ="
+                            "   mix(mix(%s, %s, repeatCoordWeightX),"
+                            "       mix(%s, %s, repeatCoordWeightX),"
+                            "       repeatCoordWeightY);",
+                            read("clampedCoord").c_str(),
+                            read("float2(extraRepeatCoordX, clampedCoord.y)").c_str(),
+                            read("float2(clampedCoord.x, extraRepeatCoordY)").c_str(),
+                            read("float2(extraRepeatCoordX, extraRepeatCoordY)").c_str());
+
+                } else if (filterLogic[0] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightX);",
+                                    read("clampedCoord").c_str(),
+                                    read("float2(extraRepeatCoordX, clampedCoord.y)").c_str());
+                } else if (filterLogic[1] == FilterLogic::kRepeatMipMap) {
+                    fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightY);",
+                                    read("clampedCoord").c_str(),
+                                    read("float2(clampedCoord.x, extraRepeatCoordY)").c_str());
+                } else {
+                    fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
+                }
 
                 // Strings for extra texture reads used only in kRepeatBilerp
                 SkString repeatBilerpReadX;

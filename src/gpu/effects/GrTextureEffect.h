@@ -117,7 +117,7 @@ private:
     enum class FilterLogic {
         kNone,          // The shader isn't specialized for the filter.
         kRepeatBilerp,  // Filter across the subset boundary for kRepeat mode
-        // kRepeatMipMap, // Logic for LOD selection with kRepeat mode. Not yet implemented.
+        kRepeatMipMap,  // Logic for LOD selection with kRepeat mode.
         kDecalFilter,   // Logic for fading to transparent black when filtering with kDecal.
         kDecalNearest,  // Logic for hard transition to transparent black when not filtering.
     };
