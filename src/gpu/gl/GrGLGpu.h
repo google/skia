@@ -126,8 +126,13 @@ public:
             const GrRenderTarget* rt, int width, int height, int numStencilSamples) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
+    bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
+        sk_sp<GrGLProgram> tmp = fProgramCache1->findOrCreateProgram(desc, programInfo);
+        return SkToBool(tmp);
+    }
+
     bool precompileShader(const SkData& key, const SkData& data) override {
-        return fProgramCache->precompileShader(key, data);
+        return fProgramCache1->precompileShader(key, data);
     }
 
 #if GR_TEST_UTILS
@@ -138,7 +143,7 @@ public:
 
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
 
-    void resetShaderCacheForTesting() const override { fProgramCache->reset(); }
+    void resetShaderCacheForTesting() const override { fProgramCache1->reset(); }
 
     void testingOnly_flushGpuAndSync() override;
 #endif
@@ -319,10 +324,18 @@ private:
         void abandon();
         void reset();
         sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*, const GrProgramInfo&);
+        sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc& desc,
+                                               const GrProgramInfo& programInfo) {
+            return this->findOrCreateProgram(nullptr, desc, programInfo);
+        }
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:
         struct Entry;
+
+        sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*,
+                                               const GrProgramDesc&,
+                                               const GrProgramInfo&);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
@@ -422,7 +435,7 @@ private:
     std::unique_ptr<GrGLContext> fGLContext;
 
     // GL program-related state
-    ProgramCache*               fProgramCache;
+    ProgramCache*               fProgramCache1;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State

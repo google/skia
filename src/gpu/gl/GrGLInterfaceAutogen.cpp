@@ -19,6 +19,9 @@ GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 }
 
+GrGLInterface::~GrGLInterface() {
+}
+
 #define RETURN_FALSE_INTERFACE                                                 \
     SkDEBUGF("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); \
     return false
