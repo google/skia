@@ -333,6 +333,10 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     if (usePerspective) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
         fMatrix->mapHomogeneousPoints(dev3, vertices, vertexCount);
+        // similar to the bounds check for 2d points (below)
+        if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
+            return;
+        }
     } else {
         devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
         fMatrix->mapPoints(devVerts, vertices, vertexCount);
