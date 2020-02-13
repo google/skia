@@ -127,6 +127,8 @@ public:
 
     ByteCodeResult toByteCode(const void* inputs);
 
+    static void RegisterFlattenables();
+
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
                     std::unique_ptr<SkSL::Program> baseProgram,
