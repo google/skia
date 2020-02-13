@@ -63,6 +63,7 @@ public:
 private:
     void destroyGLContext();
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
@@ -299,6 +300,12 @@ std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
         ctx->makeCurrent();
     }
     return ctx;
+}
+
+void EGLGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT )) {
+        SkDebugf("Could not reset the context.\n");
+    }
 }
 
 void EGLGLTestContext::onPlatformMakeCurrent() const {
