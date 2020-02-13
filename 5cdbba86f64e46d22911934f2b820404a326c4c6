@@ -22,6 +22,30 @@
       "revId": "5cdbba86f64e46d22911934f2b820404a326c4c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e092a021_2fc024d1",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-13T15:30:43Z",
+      "side": 1,
+      "message": "I didn\u0027t even see that... this file doesn\u0027t generally get a lot of review. On the other hand\n\ngit grep \u0027static inline\u0027 | grep \u0027.cpp\u0027 | wc -l\n\nproduces 320, so maybe we should put up a CL for that?",
+      "parentUuid": "80bb2211_c7e9a810",
+      "range": {
+        "startLine": 615,
+        "startChar": 7,
+        "endLine": 615,
+        "endChar": 13
+      },
+      "revId": "5cdbba86f64e46d22911934f2b820404a326c4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
