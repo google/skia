@@ -117,6 +117,30 @@
       "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c050a3b_fe606db7",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-13T15:19:53Z",
+      "side": 1,
+      "message": "I think it makes the most sense to treat fActiveRenderCmdEncoder as both a sentinel and a convenience member. So the invariant coming into onBindPipeline() is that fActiveRenderCmdEncoder should be nil, and coming into onDraw() is that it should be equal to the current renderCmdEncoder on the command buffer.\n\nThe issue that we\u0027re trying to work around is that the command buffer can only have one encoder active at a time.",
+      "parentUuid": "31e3083c_f5f86150",
+      "range": {
+        "startLine": 53,
+        "startChar": 25,
+        "endLine": 53,
+        "endChar": 39
+      },
+      "revId": "d0e86284334b57337387cb462245d3e1a4ccaf0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
