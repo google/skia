@@ -639,7 +639,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["cpu"] = "x86-64-Haswell_GCE"
 			d["os"] = DEFAULT_OS_LINUX_GCE
-			d["machine_type"] = MACHINE_TYPE_SMALL
+			d["machine_type"] = MACHINE_TYPE_MEDIUM
 		} else if strings.Contains(parts["extra_config"], "SKQP") && parts["cpu_or_gpu_value"] == "Emulator" {
 			if parts["model"] != "NUC7i5BNK" || d["os"] != DEFAULT_OS_DEBIAN {
 				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])

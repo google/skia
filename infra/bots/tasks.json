@@ -34025,7 +34025,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highmem-2",
+        "machine_type:n1-standard-16",
         "os:Debian-9.8",
         "pool:Skia"
       ],
@@ -34109,7 +34109,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highmem-2",
+        "machine_type:n1-standard-16",
         "os:Debian-9.8",
         "pool:Skia"
       ],
@@ -34188,7 +34188,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highmem-2",
+        "machine_type:n1-standard-16",
         "os:Debian-9.8",
         "pool:Skia"
       ],
@@ -34272,7 +34272,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highmem-2",
+        "machine_type:n1-standard-16",
         "os:Debian-9.8",
         "pool:Skia"
       ],
