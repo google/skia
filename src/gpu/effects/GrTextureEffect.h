@@ -100,8 +100,8 @@ private:
         GrSamplerState fHWSampler;
         ShaderMode fShaderModes[2] = {ShaderMode::kNone, ShaderMode::kNone};
         SkRect fShaderSubset = {0, 0, 0, 0};
+        SkRect fShaderClamp  = {0, 0, 0, 0};
         Sampling(GrSamplerState::Filter filter) : fHWSampler(filter) {}
-        Sampling(GrSamplerState, SkISize, const GrCaps&);
         Sampling(const GrSurfaceProxy& proxy,
                  GrSamplerState sampler,
                  const SkRect&,
@@ -110,9 +110,23 @@ private:
         inline bool usesDecal() const;
     };
 
+    /**
+     * Sometimes the implementation of a ShaderMode depends on which GrSamplerState::Filter is
+     * used.
+     */
+    enum class FilterLogic {
+        kNone,          // The shader isn't specialized for the filter.
+        kRepeatBilerp,  // Filter across the subset boundary for kRepeat mode
+        // kRepeatMipMap, // Logic for LOD selection with kRepeat mode. Not yet implemented.
+        kDecalFilter,   // Logic for fading to transparent black when filtering with kDecal.
+        kDecalNearest,  // Logic for hard transition to transparent black when not filtering.
+    };
+    static FilterLogic GetFilterLogic(ShaderMode mode, GrSamplerState::Filter filter);
+
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
     SkRect fSubset;
+    SkRect fClamp;
     ShaderMode fShaderModes[2];
 
     inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const SkMatrix&, const Sampling&);
