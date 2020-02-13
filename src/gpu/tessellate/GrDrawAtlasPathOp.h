@@ -22,7 +22,6 @@ public:
             , fAtlasProxy(std::move(atlasProxy))
             , fInstanceList(devIBounds, devToAtlasOffset, paint.getColor4f(), viewMatrix)
             , fProcessors(std::move(paint)) {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fAtlasProxy->origin());
         this->setBounds(SkRect::Make(devIBounds), HasAABloat::kYes, IsHairline::kNo);
     }
 

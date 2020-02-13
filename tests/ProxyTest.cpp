@@ -28,10 +28,8 @@
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceProxy* proxy,
-                          GrSurfaceOrigin origin,
                           int width, int height,
                           SkBudgeted budgeted) {
-    REPORTER_ASSERT(reporter, proxy->origin() == origin);
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
     REPORTER_ASSERT(reporter, !proxy->uniqueID().isInvalid());
@@ -156,8 +154,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     // pre-instantiation size then the check is skipped.
                                     proxy->gpuMemorySize(caps);
 
-                                    check_surface(reporter, proxy.get(), origin,
-                                                  widthHeight, widthHeight, budgeted);
+                                    check_surface(reporter, proxy.get(), widthHeight, widthHeight,
+                                                  budgeted);
                                     int supportedSamples =
                                             caps.getRenderTargetSampleCount(numSamples, format);
                                     check_rendertarget(reporter, caps, resourceProvider,
@@ -192,8 +190,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     // pre-instantiation size then the check is skipped.
                                     proxy->gpuMemorySize(caps);
 
-                                    check_surface(reporter, proxy.get(), origin,
-                                                  widthHeight, widthHeight, budgeted);
+                                    check_surface(reporter, proxy.get(), widthHeight, widthHeight,
+                                                  budgeted);
                                     check_texture(reporter, resourceProvider,
                                                   proxy->asTextureProxy(), fit);
                                 }
@@ -232,8 +230,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 sk_sp<GrSurfaceProxy> sProxy(
                         proxyProvider->wrapBackendRenderTarget(backendRT, grColorType,
                                                                origin, nullptr, nullptr));
-                check_surface(reporter, sProxy.get(), origin, kWidthHeight, kWidthHeight,
-                              SkBudgeted::kNo);
+                check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                 static constexpr int kExpectedNumSamples = 1;
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    kExpectedNumSamples, SkBackingFit::kExact,
@@ -262,8 +259,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     sk_sp<GrSurfaceProxy> sProxy(
                             proxyProvider->wrapBackendRenderTarget(backendRT, grColorType,
                                                                    origin, nullptr, nullptr));
-                    check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                    check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight,
+                                  SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact, 0);
@@ -286,8 +283,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         continue;  // This can fail on Mesa
                     }
 
-                    check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                    check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight,
+                                  SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact,
@@ -315,8 +312,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         continue;  // This can fail on Mesa
                     }
 
-                    check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                    check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight,
+                                  SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact,
@@ -344,8 +341,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         continue;
                     }
 
-                    check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                    check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight,
+                                  SkBudgeted::kNo);
                     check_texture(reporter, resourceProvider, sProxy->asTextureProxy(),
                                   SkBackingFit::kExact);
 
