@@ -22,6 +22,30 @@
       "revId": "54085712a5518d0367f90ca30ba4b8e1faee85f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23f5d47f_77639194",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-13T23:37:21Z",
+      "side": 1,
+      "message": "I definitely didn\u0027t so I guess clang format must have. I don\u0027t set any special rules, I just grab the version from fetch-clang-format and run that",
+      "parentUuid": "c63afe91_034c6471",
+      "range": {
+        "startLine": 158,
+        "startChar": 12,
+        "endLine": 161,
+        "endChar": 13
+      },
+      "revId": "54085712a5518d0367f90ca30ba4b8e1faee85f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
