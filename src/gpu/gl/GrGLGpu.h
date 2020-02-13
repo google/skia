@@ -269,7 +269,7 @@ private:
     void unbindCpuToGpuXferBuffer();
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
+                               ForExternalIO) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
