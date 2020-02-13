@@ -13,6 +13,7 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/text/TextValue.h"
 
+#include <tuple>
 #include <vector>
 
 namespace skottie {
@@ -49,215 +50,231 @@ class KeyframeAnimatorBase : public sksg::Animator {
 protected:
     KeyframeAnimatorBase() = default;
 
-    struct KeyframeRec {
-        float t0, t1;
-        int   vidx0, vidx1, // v0/v1 indices
-              cmidx;        // cubic map index
+    struct KFInfo {
+        float    weight;       // vidx0..vidx1 weight [0..1]
+        uint32_t vidx0, vidx1;
 
-        bool contains(float t) const { return t0 <= t && t <= t1; }
         bool isConstant() const { return vidx0 == vidx1; }
-        bool isValid() const {
-            SkASSERT(t0 <= t1);
-            // Constant frames don't need/use t1 and vidx1.
-            return t0 < t1 || this->isConstant();
-        }
     };
 
-    const KeyframeRec& frame(float t) {
-        if (!fCachedRec || !fCachedRec->contains(t)) {
-            fCachedRec = findFrame(t);
+    KFInfo getKFInfo(float t) {
+        SkASSERT(!fKFs.empty());
+
+        if (t <= fKFs.front().t) {
+            return { 0, fKFs.front().v_idx, fKFs.front().v_idx };
         }
-        return *fCachedRec;
-    }
 
-    bool isEmpty() const { return fRecs.empty(); }
+        if (t >= fKFs.back().t) {
+            return { 0, fKFs.back().v_idx, fKFs.back().v_idx };
+        }
 
-    float localT(const KeyframeRec& rec, float t) const {
-        SkASSERT(rec.isValid());
-        SkASSERT(!rec.isConstant());
-        SkASSERT(t > rec.t0 && t < rec.t1);
+        if (!fCachedInterval[0] || !Contains(fCachedInterval[0], fCachedInterval[1], t)) {
+            std::tie(fCachedInterval[0], fCachedInterval[1]) = this->find_interval(t);
+        }
 
-        auto lt = (t - rec.t0) / (rec.t1 - rec.t0);
+        SkASSERT(Contains(fCachedInterval[0], fCachedInterval[1], t));
 
-        return rec.cmidx < 0
-            ? lt
-            : fCubicMaps[SkToSizeT(rec.cmidx)].computeYFromX(lt);
+        if (fCachedInterval[0]->mapping == KFRec::kConstantMapping) {
+            return { 0, fCachedInterval[0]->v_idx, fCachedInterval[0]->v_idx };
+        }
+
+        KFInfo kf_info = {
+            (t - fCachedInterval[0]->t) / (fCachedInterval[1]->t - fCachedInterval[0]->t),
+            fCachedInterval[0]->v_idx,
+            fCachedInterval[1]->v_idx,
+        };
+
+        if (fCachedInterval[0]->mapping != KFRec::kLinearMapping && !kf_info.isConstant()) {
+            // Optional non-linear t mapping.
+            SkASSERT(fCachedInterval[0]->mapping >= KFRec::kCubicIndexOffset);
+            const auto mapper_index =
+                    SkToSizeT(fCachedInterval[0]->mapping - KFRec::kCubicIndexOffset);
+            kf_info.weight = fCMs[mapper_index].computeYFromX(kf_info.weight);
+        }
+
+        return kf_info;
     }
 
     virtual int parseValue(const AnimationBuilder&, const skjson::Value&) = 0;
 
-    void parseKeyFrames(const AnimationBuilder& abuilder, const skjson::ArrayValue& jframes) {
-        // Logically, a keyframe is defined as a (t0, t1, v0, v1) tuple: a given value
-        // is interpolated in the [v0..v1] interval over the [t0..t1] time span.
+    bool parseKeyFrames(const AnimationBuilder& abuilder, const skjson::ArrayValue& jkfs) {
+        // Keyframe format:
         //
-        // There are three interestingly-different keyframe formats handled here.
+        // [                        // array of
+        //   {
+        //     "t": <float>         // keyframe time
+        //     "s": <T>             // keyframe value
+        //     "h": <bool>          // optional constant/hold keyframe marker
+        //     "i": [<float,float>] // optional "in" Bezier control point
+        //     "o": [<float,float>] // optional "out" Bezier control point
+        //   },
+        //   ...
+        // ]
         //
-        // 1) Legacy keyframe format
+        // Legacy keyframe format:
         //
-        //      - normal keyframes specify t0 ("t"), v0 ("s") and v1 ("e")
-        //      - last frame only specifies a t0
-        //      - t1[frame] == t0[frame + 1]
-        //      - the last entry (where we cannot determine t1) is ignored
+        // [                        // array of
+        //   {
+        //     "t": <float>         // keyframe time
+        //     "s": <T>             // keyframe start value
+        //     "e": <T>             // keyframe end value
+        //     "h": <bool>          // optional constant/hold keyframe marker (constant mapping)
+        //     "i": [<float,float>] // optional "in" Bezier control point (cubic mapping)
+        //     "o": [<float,float>] // optional "out" Bezier control point (cubic mapping)
+        //   },
+        //   ...
+        //   {
+        //     "t": <float>         // last keyframe only specifies a t
+        //                          // the value is prev. keyframe end value
+        //   }
+        // ]
         //
-        // 2) Regular (new) keyframe format
-        //
-        //      - all keyframes specify t0 ("t") and v0 ("s")
-        //      - t1[frame] == t0[frame + 1]
-        //      - v1[frame] == v0[frame + 1]
-        //      - the last entry (where we cannot determine t1/v1) is ignored
-        //
-        // 3) Text value keyframe format
-        //
-        //      - similar to case #2, all keyframes specify t0 & v0
-        //      - unlike case #2, all keyframes are assumed to be constant (v1 == v0),
-        //        and the last frame is not discarded (its t1 is assumed -> inf)
-        //
+        // Note: the legacy format contains duplicates, as normal frames are contiguous:
+        //       frame(n).e == frame(n+1).s
 
+        // Tracks previous cubic map parameters (for deduping).
         SkPoint prev_c0 = { 0, 0 },
-                prev_c1 = prev_c0;
+                prev_c1 = { 0, 0 };
 
-        fRecs.reserve(std::max<size_t>(jframes.size(), 1) - 1);
-
-        for (const skjson::ObjectValue* jframe : jframes) {
-            if (!jframe) continue;
-
-            float t0;
-            if (!Parse<float>((*jframe)["t"], &t0))
-                continue;
-
-            const auto v0_idx = this->parseValue(abuilder, (*jframe)["s"]),
-                       v1_idx = this->parseValue(abuilder, (*jframe)["e"]);
-
-            if (!fRecs.empty()) {
-                if (fRecs.back().t1 >= t0) {
-                    abuilder.log(Logger::Level::kWarning, nullptr,
-                                 "Ignoring out-of-order key frame (t:%f < t:%f).",
-                                 t0, fRecs.back().t1);
-                    continue;
-                }
-
-                // Back-fill t1 and v1 (if needed).
-                auto& prev = fRecs.back();
-                prev.t1 = t0;
-
-                // Previous keyframe did not specify an end value (case #2, #3).
-                if (prev.vidx1 < 0) {
-                    // If this frame has no v0, we're in case #3 (constant text value),
-                    // otherwise case #2 (v0 for current frame is the same as prev frame v1).
-                    prev.vidx1 = v0_idx < 0 ? prev.vidx0 : v0_idx;
-                }
+        const auto parse_mapping = [&](const skjson::ObjectValue& jkf) {
+            if (ParseDefault(jkf["h"], false)) {
+                return KFRec::kConstantMapping;
             }
 
-            // Start value 's' is required.
-            if (v0_idx < 0)
-                continue;
-
-            if ((v1_idx < 0) && ParseDefault((*jframe)["h"], false)) {
-                // Constant keyframe ("h": true).
-                fRecs.push_back({t0, t0, v0_idx, v0_idx, -1 });
-                continue;
+            SkPoint c0, c1;
+            if (!Parse(jkf["o"], &c0) ||
+                !Parse(jkf["i"], &c1) ||
+                SkCubicMap::IsLinear(c0, c1)) {
+                return KFRec::kLinearMapping;
             }
 
-            const auto cubic_mapper_index = [&]() -> int {
-                // Do we have non-linear control points?
-                SkPoint c0, c1;
-                if (!Parse((*jframe)["o"], &c0) ||
-                    !Parse((*jframe)["i"], &c1) ||
-                    SkCubicMap::IsLinear(c0, c1)) {
-                    // No need for a cubic mapper.
-                    return -1;
-                }
+            // De-dupe sequential cubic mappers.
+            if (c0 != prev_c0 || c1 != prev_c1 || fCMs.empty()) {
+                fCMs.emplace_back(c0, c1);
+                prev_c0 = c0;
+                prev_c1 = c1;
+            }
 
-                // De-dupe sequential cubic mappers.
-                if (c0 != prev_c0 || c1 != prev_c1) {
-                    fCubicMaps.emplace_back(c0, c1);
-                    prev_c0 = c0;
-                    prev_c1 = c1;
-                }
+            SkASSERT(!fCMs.empty());
+            return SkToU32(fCMs.size()) - 1 + KFRec::kCubicIndexOffset;
+        };
 
-                SkASSERT(!fCubicMaps.empty());
-                return SkToInt(fCubicMaps.size()) - 1;
-            };
+        const auto parse_value = [&](const skjson::ObjectValue& jkf, size_t i) {
+            auto v_idx = this->parseValue(abuilder, jkf["s"]);
 
-            fRecs.push_back({t0, t0, v0_idx, v1_idx, cubic_mapper_index()});
+            // A missing value is only OK for the last legacy KF
+            // (where it is pulled from prev KF 'end' value).
+            if (v_idx < 0 && i > 0 && i == jkfs.size() - 1) {
+                const skjson::ObjectValue* prev_kf = jkfs[i - 1];
+                SkASSERT(prev_kf);
+                v_idx = this->parseValue(abuilder, (*prev_kf)["e"]);
+            }
+
+            return v_idx;
+        };
+
+        fKFs.reserve(jkfs.size());
+
+        for (size_t i = 0; i < jkfs.size(); ++i) {
+            const skjson::ObjectValue* jkf = jkfs[i];
+            if (!jkf) {
+                return false;
+            }
+
+            float t;
+            if (!Parse<float>((*jkf)["t"], &t)) {
+                return false;
+            }
+
+            if (!fKFs.empty() && t <= fKFs.back().t) {
+                // Ts must be strictly monotonic.
+                return false;
+            }
+
+            auto v_idx = parse_value(*jkf, i);
+            if (v_idx < 0) {
+                return false;
+            }
+
+            fKFs.push_back({ t, SkToU32(v_idx), parse_mapping(*jkf) });
         }
 
-        if (!fRecs.empty()) {
-            auto& last = fRecs.back();
+        SkASSERT(fKFs.size() == jkfs.size());
+        fCMs.shrink_to_fit();
 
-            // If the last entry has only a v0, we're in case #3 - make it a constant frame.
-            if (last.vidx0 >= 0 && last.vidx1 < 0) {
-                last.vidx1 = last.vidx0;
-                last.t1 = last.t0;
-            }
-
-            // If we couldn't determine a valid t1 for the last frame, discard it
-            // (most likely the last frame entry for all 3 cases).
-            if (!last.isValid()) {
-                fRecs.pop_back();
-            }
-        }
-
-        fRecs.shrink_to_fit();
-        fCubicMaps.shrink_to_fit();
-
-        SkASSERT(fRecs.empty() || fRecs.back().isValid());
+        return true;
     }
 
 private:
-    const KeyframeRec* findFrame(float t) const {
-        SkASSERT(!fRecs.empty());
+    struct KFRec {
+        float    t;
+        uint32_t v_idx;
+        uint32_t mapping; // 0 -> constant
+                          // 1 -> linear
+                          // n -> cubic: fCMs[n-2]
 
-        auto f0 = &fRecs.front(),
-             f1 = &fRecs.back();
+        static constexpr uint32_t kConstantMapping  = 0;
+        static constexpr uint32_t kLinearMapping    = 1;
+        static constexpr uint32_t kCubicIndexOffset = 2;
+    };
 
-        SkASSERT(f0->isValid());
-        SkASSERT(f1->isValid());
+    // Check |t| against [kf0.t .. kf1.t), where kf0 and kf1 are sequential keyframes.
+    static bool Contains(const KFRec* kf0, const KFRec* kf1, float t) {
+        SkASSERT(kf0 + 1 == kf1);
+        SkASSERT(kf0->t < kf1->t);
 
-        if (t < f0->t0) {
-            return f0;
-        }
+        return kf0->t <= t && t < kf1->t;
+    }
 
-        if (t > f1->t1) {
-            return f1;
-        }
+    std::tuple<const KFRec*, const KFRec*> find_interval(float t) const {
+        SkASSERT(fKFs.size() > 1);
 
-        while (f0 != f1) {
-            SkASSERT(f0 < f1);
-            SkASSERT(t >= f0->t0 && t <= f1->t1);
+        auto kf0 = &fKFs.front(),
+             kf1 = &fKFs.back();
 
-            const auto f = f0 + (f1 - f0) / 2;
-            SkASSERT(f->isValid());
+        // Binary-search, until we reduce to sequential keyframes.
+        while (kf0 + 1 != kf1) {
+            SkASSERT(kf0 < kf1);
+            SkASSERT(kf0->t <= t && t <= kf1->t);
 
-            if (t > f->t1) {
-                f0 = f + 1;
+            const auto mid_kf = kf0 + (kf1 - kf0) / 2;
+
+            if (t >= mid_kf->t) {
+                kf0 = mid_kf;
             } else {
-                f1 = f;
+                kf1 = mid_kf;
             }
         }
 
-        SkASSERT(f0 == f1);
-        SkASSERT(f0->contains(t));
+        SkASSERT(Contains(kf0, kf1, t));
 
-        return f0;
+        return std::make_tuple(kf0, kf1);
     }
 
-    std::vector<KeyframeRec> fRecs;
-    std::vector<SkCubicMap>  fCubicMaps;
-    const KeyframeRec*       fCachedRec = nullptr;
+    std::vector<KFRec>      fKFs;
+    std::vector<SkCubicMap> fCMs;
+    mutable const KFRec*    fCachedInterval[2] = { nullptr, nullptr };
 };
 
 template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
     static sk_sp<KeyframeAnimator> Make(const AnimationBuilder& abuilder,
-                                        const skjson::ArrayValue* jv,
+                                        const skjson::ArrayValue* jkfs,
                                         T* target_value) {
-        if (!jv) return nullptr;
+        if (!jkfs || jkfs->size() < 1) {
+            return nullptr;
+        }
 
-        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(abuilder, *jv, target_value));
+        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(target_value));
 
-        return animator->isEmpty() ? nullptr : animator;
+        animator->fValues.reserve(jkfs->size());
+        if (!animator->parseKeyFrames(abuilder, *jkfs)) {
+            return nullptr;
+        }
+        animator->fValues.shrink_to_fit();
+
+        return animator;
     }
 
     bool isConstant() const {
@@ -266,18 +283,8 @@ public:
     }
 
 private:
-    KeyframeAnimator(const AnimationBuilder& abuilder,
-                     const skjson::ArrayValue& jframes,
-                     T* target_value)
-        : fTarget(target_value) {
-        // Generally, each keyframe holds two values (start, end) and a cubic mapper. Except
-        // the last frame, which only holds a marker timestamp.  Then, the values series is
-        // contiguous (keyframe[i].end == keyframe[i + 1].start), and we dedupe them.
-        //   => we'll store (keyframes.size) values and (keyframe.size - 1) recs and cubic maps.
-        fValues.reserve(jframes.size());
-        this->parseKeyFrames(abuilder, jframes);
-        fValues.shrink_to_fit();
-    }
+    explicit KeyframeAnimator(T* target_value)
+        : fTarget(target_value) {}
 
     int parseValue(const AnimationBuilder& abuilder, const skjson::Value& jv) override {
         T val;
@@ -294,21 +301,16 @@ private:
     }
 
     void onTick(float t) override {
-        const auto& rec = this->frame(t);
-        SkASSERT(rec.isValid());
+        const auto& kf = this->getKFInfo(t);
 
-        if (rec.isConstant() || t <= rec.t0) {
-            *fTarget = fValues[SkToSizeT(rec.vidx0)];
-            return;
-        } else if (t >= rec.t1) {
-            *fTarget = fValues[SkToSizeT(rec.vidx1)];
-            return;
+        if (kf.isConstant()) {
+            *fTarget = fValues[SkToSizeT(kf.vidx0)];
+        } else {
+            ValueTraits<T>::Lerp(fValues[kf.vidx0],
+                                 fValues[kf.vidx1],
+                                 kf.weight,
+                                 fTarget);
         }
-
-        ValueTraits<T>::Lerp(fValues[SkToSizeT(rec.vidx0)],
-                             fValues[SkToSizeT(rec.vidx1)],
-                             this->localT(rec, t),
-                             fTarget);
     }
 
     std::vector<T> fValues;
