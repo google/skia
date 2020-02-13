@@ -110,7 +110,6 @@ protected:
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&,
                    SkISize,
-                   GrSurfaceOrigin,
                    GrMipMapped,
                    GrMipMapsStatus,
                    const GrSwizzle& textureSwizzle,
@@ -133,7 +132,6 @@ protected:
     GrTextureProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
                    SkISize,
-                   GrSurfaceOrigin,
                    GrMipMapped,
                    GrMipMapsStatus,
                    const GrSwizzle& textureSwizzle,
@@ -144,7 +142,7 @@ protected:
                    UseAllocator);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle&, UseAllocator);
+    GrTextureProxy(sk_sp<GrSurface>, const GrSwizzle&, UseAllocator);
 
     ~GrTextureProxy() override;
 

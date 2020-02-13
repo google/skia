@@ -28,9 +28,8 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
                                                                  GrRenderable::kYes);
     GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
     return proxyProvider->createProxy(format, {kWidthHeight, kWidthHeight}, swizzle,
-                                      GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
-                                      GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrProtected::kNo);
+                                      GrRenderable::kYes, 1, GrMipMapped::kNo,
+                                      SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
@@ -38,7 +37,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
 
     return proxyProvider->testingOnly_createInstantiatedProxy(
             {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1,
-            kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
+            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {

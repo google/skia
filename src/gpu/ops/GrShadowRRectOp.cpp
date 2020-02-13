@@ -646,8 +646,8 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* context) {
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    if (sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+    if (sk_sp<GrTextureProxy> falloffTexture =
+                proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(falloffTexture->backendFormat(),
                                                                    GrColorType::kAlpha_8);
         return {std::move(falloffTexture), kTopLeft_GrSurfaceOrigin, swizzle};
