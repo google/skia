@@ -34,8 +34,10 @@ public:
     int numDraws() const { return fNumDraws; }
 
 private:
-    void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
-                const SkRect& bounds) override {
+    bool onBindPipeline(const GrProgramInfo&, const SkRect&) override {
+        return true;
+    }
+    void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) override {
         this->markRenderTargetDirty();
         ++fNumDraws;
     }
