@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "467c8617_07df78fa",
+        "filename": "gm/texelsubset.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Good idea. Done in a prelude CL.",
+      "parentUuid": "15944d9c_9e030b4a",
+      "range": {
+        "startLine": 133,
+        "startChar": 16,
+        "endLine": 143,
+        "endChar": 21
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6540e05_48bea38f",
         "filename": "gm/texelsubset.cpp",
         "patchSetId": 21
@@ -45,6 +69,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35ee8cd9_8a02ae5c",
+        "filename": "gm/texelsubset.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "This bothered me for a while as well and I\u0027ve just been ignoring it. Done in prelude CL.",
+      "parentUuid": "d6540e05_48bea38f",
+      "range": {
+        "startLine": 166,
+        "startChar": 19,
+        "endLine": 166,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ab37e557_0ddc990c",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "yep. Added comment",
+      "parentUuid": "e5f18150_0d36eca6",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8ecf95d_f4b2cd4d",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -91,6 +163,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "565102c3_15ecfbc5",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8ecf95d_f4b2cd4d",
+      "range": {
+        "startLine": 239,
+        "startChar": 56,
+        "endLine": 241,
+        "endChar": 84
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "caf43e9e_ad6057db",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "364b4390_c6d00661",
+      "range": {
+        "startLine": 246,
+        "startChar": 29,
+        "endLine": 246,
+        "endChar": 31
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9cb7977_d82f38aa",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -137,6 +257,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcda9bda_56f0cd75",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Right the bad sample will be excluded by the subset shader logic so we don\u0027t need a separate clamp set. Updated this comment.",
+      "parentUuid": "c9cb7977_d82f38aa",
+      "range": {
+        "startLine": 247,
+        "startChar": 22,
+        "endLine": 249,
+        "endChar": 25
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "7d6e962f_aa3a8340",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Should be been strict \u003e",
+      "parentUuid": "649c38d7_2f5d2ede",
+      "range": {
+        "startLine": 275,
+        "startChar": 55,
+        "endLine": 275,
+        "endChar": 81
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e850d24_2b9d82dc",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -183,6 +351,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cacee3ff_61e45518",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7e850d24_2b9d82dc",
+      "range": {
+        "startLine": 296,
+        "startChar": 65,
+        "endLine": 296,
+        "endChar": 96
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "e97d61b0_104d24df",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done (added comment where uniform was inserted).",
+      "parentUuid": "ef51b41a_8955c020",
+      "range": {
+        "startLine": 310,
+        "startChar": 51,
+        "endLine": 310,
+        "endChar": 54
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "641fdbbe_93747d87",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -223,6 +439,24 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5748e3f3_9b6e6e1d",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "641fdbbe_93747d87",
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -249,6 +483,30 @@
     },
     {
       "key": {
+        "uuid": "945e11a4_bf328d76",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a1ecfe7_ee63e4f9",
+      "range": {
+        "startLine": 384,
+        "startChar": 20,
+        "endLine": 384,
+        "endChar": 73
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ad9d2d1_8460b957",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -269,6 +527,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "731d3df8_c67a4e38",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad9d2d1_8460b957",
+      "range": {
+        "startLine": 406,
+        "startChar": 15,
+        "endLine": 406,
+        "endChar": 67
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -295,6 +577,30 @@
     },
     {
       "key": {
+        "uuid": "37bb868c_45de0f82",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b81f52dd_5fbbd28e",
+      "range": {
+        "startLine": 420,
+        "startChar": 16,
+        "endLine": 420,
+        "endChar": 66
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e1841b9_4bfc9c05",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -315,6 +621,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6be7e85a_eaf3654f",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e1841b9_4bfc9c05",
+      "range": {
+        "startLine": 428,
+        "startChar": 16,
+        "endLine": 428,
+        "endChar": 67
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -341,6 +671,30 @@
     },
     {
       "key": {
+        "uuid": "2fcbd034_5a09f616",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Right... I kept planning to restructure this a bit but then I guess I never had to because of the above \u003e\u003d bug.",
+      "parentUuid": "3edb6daf_d783426f",
+      "range": {
+        "startLine": 450,
+        "startChar": 16,
+        "endLine": 450,
+        "endChar": 35
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22147cad_1bdfe4eb",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -364,6 +718,30 @@
     },
     {
       "key": {
+        "uuid": "2368d5c0_ef3f2116",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22147cad_1bdfe4eb",
+      "range": {
+        "startLine": 473,
+        "startChar": 24,
+        "endLine": 473,
+        "endChar": 46
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f28d4da2_e01b287e",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 21
@@ -384,6 +762,30 @@
       "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d112b7e2_9a4bd039",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-13T18:55:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f28d4da2_e01b287e",
+      "range": {
+        "startLine": 475,
+        "startChar": 20,
+        "endLine": 482,
+        "endChar": 40
+      },
+      "revId": "899f295049686d82c9a4cbe85ed96817e4f6b7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
