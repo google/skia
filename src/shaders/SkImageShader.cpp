@@ -680,6 +680,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         case  kBGR_101010x_SkColorType: break;
     }
 
+    // We can exploit image opacity to skip work unpacking alpha channels.
+    const bool input_is_opaque = SkAlphaTypeIsOpaque(pm.alphaType())
+                              || SkColorTypeIsAlwaysOpaque(pm.colorType());
+
     // Each call to sample() will try to rewrite the same uniforms over and over,
     // so remember where we start and reset back there each time.  That way each
     // sample() call uses the same uniform offsets.
@@ -754,8 +758,8 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                                             std::swap(c.r, c.b);
                                             break;
         }
-        // TODO: move this later, as *a = p->splat(1.0f) after all sampling's done?
-        if (SkAlphaTypeIsOpaque(pm.alphaType()) || SkColorTypeIsAlwaysOpaque(pm.colorType())) {
+        // If we know the image is opaque, jump right to alpha = 1.0f, skipping work to unpack it.
+        if (input_is_opaque) {
             c.a = p->splat(1.0f);
         }
 
@@ -768,6 +772,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             c.g = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g)));
             c.b = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b)));
             c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
+            // Notice that even if input_is_opaque, c.a might now be 0.
         }
 
         return c;
@@ -849,7 +854,17 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                 *a = p->mad(c.a,w, *a);
             }
         }
+    }
 
+    // If the input is opaque and we're not in decal mode, that means the output is too.
+    // Forcing *a to 1.0 here will retroactively skip any work we did to interpolate sample alphas.
+    if (input_is_opaque
+            && fTileModeX != SkTileMode::kDecal
+            && fTileModeY != SkTileMode::kDecal) {
+        *a = p->splat(1.0f);
+    }
+
+    if (quality == kHigh_SkFilterQuality) {
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
         *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
 
