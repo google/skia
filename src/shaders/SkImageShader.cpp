@@ -737,6 +737,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                                          std::swap(c.r, c.b);
                                          break;
         }
+        // TODO: move this later, as *a = p->splat(1.0f) after all sampling's done?
+        if (SkAlphaTypeIsOpaque(pm.alphaType()) || SkColorTypeIsAlwaysOpaque(pm.colorType())) {
+            c.a = p->splat(1.0f);
+        }
 
         // Mask away any pixels that we tried to sample outside the bounds in kDecal.
         if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
