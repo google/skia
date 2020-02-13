@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80bb2211_c7e9a810",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-13T14:32:58Z",
+      "side": 1,
+      "message": "inline?",
+      "range": {
+        "startLine": 615,
+        "startChar": 7,
+        "endLine": 615,
+        "endChar": 13
+      },
+      "revId": "5cdbba86f64e46d22911934f2b820404a326c4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
