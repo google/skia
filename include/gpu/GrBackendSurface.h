@@ -36,6 +36,12 @@ class SkString;
 
 #if !SK_SUPPORT_GPU
 
+// SkSurfaceCharacterization always needs a minimal version of this
+class SK_API GrBackendFormat {
+public:
+    bool isValid() const { return false; }
+};
+
 // SkSurface and SkImage rely on a minimal version of these always being available
 class SK_API GrBackendTexture {
 public:
