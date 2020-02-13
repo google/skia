@@ -134,9 +134,11 @@ protected:
 
                     GrSamplerState sampler(wmx, wmy, fFilter);
 
-                    // kRepeat and kMirrorRepeat don't currently work with filtering.
+                    // kRepeat doesn't work with MIP map filtering yet.
                     bool shouldWork =
-                            fFilter == GrSamplerState::Filter::kNearest || !sampler.isRepeated();
+                            fFilter != GrSamplerState::Filter::kMipMap ||
+                            (sampler.wrapModeX() != GrSamplerState::WrapMode::kRepeat &&
+                             sampler.wrapModeY() != GrSamplerState::WrapMode::kRepeat);
 
                     drawRect = localRect.makeOffset(x, y);
 
