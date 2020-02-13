@@ -3908,6 +3908,20 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     p.reset();
     p.arcTo(noOvalHeight, 0, 360, false);
     REPORTER_ASSERT(reporter, p.isEmpty());
+
+#ifndef SK_LEGACY_PATH_ARCTO_ENDPOINT
+    // Inspired by http://code.google.com/p/chromium/issues/detail?id=1001768
+    {
+      p.reset();
+      p.moveTo(216, 216);
+      p.arcTo(216, 108, 0, SkPath::ArcSize::kLarge_ArcSize, SkPathDirection::kCW, 216, 0);
+      p.arcTo(270, 135, 0, SkPath::ArcSize::kLarge_ArcSize, SkPathDirection::kCCW, 216, 216);
+
+      // The 'arcTo' call should end up exactly at the starting location.
+      int n = p.countPoints();
+      REPORTER_ASSERT(reporter, p.getPoint(0) == p.getPoint(n - 1));
+    }
+#endif
 }
 
 static void test_addPath(skiatest::Reporter* reporter) {
