@@ -813,9 +813,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
         auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
         auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
         auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
-                std::move(idleTexture), GrColorType::kRGBA_8888, rtc->asSurfaceProxy()->origin());
+                std::move(idleTexture), GrColorType::kRGBA_8888, rtc->origin());
         context->flush();
-        SkAssertResult(rtc->testCopy(proxy.get(), rtc->asSurfaceProxy()->origin()));
+        SkAssertResult(rtc->testCopy(proxy.get(), rtc->origin()));
         proxy.reset();
         REPORTER_ASSERT(reporter, flags == 0);
 

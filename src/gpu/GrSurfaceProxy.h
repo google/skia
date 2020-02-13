@@ -133,11 +133,6 @@ public:
         return SkRect::Make(this->backingStoreDimensions());
     }
 
-    GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
-        return fOrigin;
-    }
-
     // Do not call this. It will shortly be removed and is just needed for a couple cases where we
     // are getting a proxy from the cache and cannot be certain what the GrColorType of the proxy.
     const GrSwizzle& textureSwizzleDoNotUse() const { return fTextureSwizzle; }

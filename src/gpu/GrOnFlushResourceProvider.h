@@ -70,7 +70,7 @@ public:
                                                                    sk_sp<SkColorSpace>,
                                                                    const SkSurfaceProps*);
 
-    void addTextureResolveTask(sk_sp<GrTextureProxy>, GrSurfaceProxy::ResolveFlags);
+    void addTextureResolveTask(sk_sp<GrTextureProxy>,  GrSurfaceProxy::ResolveFlags);
 
     // Proxy unique key management. See GrProxyProvider.h.
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);

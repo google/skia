@@ -336,7 +336,6 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromVulkanSeco
         return nullptr;
     }
 
-    SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
     return GrRenderTargetContext::Make(context, SkColorTypeToGrColorType(imageInfo.colorType()),
                                        imageInfo.refColorSpace(), std::move(proxy),
                                        kTopLeft_GrSurfaceOrigin, props);
