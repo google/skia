@@ -51,8 +51,8 @@ public:
 
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-        if (sk_sp<GrTextureProxy> mask = proxyProvider->findOrCreateProxyByUniqueKey(
-                    key, GrColorType::kAlpha_8, kBottomLeft_GrSurfaceOrigin)) {
+        if (sk_sp<GrTextureProxy> mask =
+                    proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mask->backendFormat(),
                                                                        GrColorType::kAlpha_8);
             return {std::move(mask), kBottomLeft_GrSurfaceOrigin, swizzle};

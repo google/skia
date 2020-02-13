@@ -351,8 +351,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
         SkAlphaType alphaType, GrSurfaceProxyView mipmapView, GrSamplerState::Filter filter) {
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
             mipmapView.proxy()->backendFormat(), {1, 1}, mipmapView.swizzle(), GrRenderable::kYes,
-            1, mipmapView.origin(), GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
-            GrProtected::kNo);
+            1, GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
             context, colorType, nullptr, std::move(renderTarget), kTopLeft_GrSurfaceOrigin,
@@ -397,8 +396,8 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, {4, 4}, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-                GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                format, {4, 4}, swizzle, GrRenderable::kYes, 1, GrMipMapped::kYes,
+                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

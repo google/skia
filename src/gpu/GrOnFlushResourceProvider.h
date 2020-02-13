@@ -79,7 +79,6 @@ public:
     // GrColorType is necessary to set the proxy's texture swizzle.
     sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
                                                        GrColorType,
-                                                       GrSurfaceOrigin,
                                                        UseAllocator);
 
     bool instatiateProxy(GrSurfaceProxy*);
