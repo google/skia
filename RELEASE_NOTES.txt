@@ -30,6 +30,9 @@ Milestone 82
   * Added SkCodec:: and SkAndroidCodec::getICCProfile for reporting the native
     ICC profile of an encoded image, even if it doesn't map to an SkColorSpace.
 
+  * SkSurface::ReplaceBackendTexture takes ContentChangeMode as a parameter,
+    which allow callers to specify whether retain a copy of the current content.
+
 * * *
 
 Milestone 81

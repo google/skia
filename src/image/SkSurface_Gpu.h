@@ -27,7 +27,7 @@ public:
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
-    bool onReplaceBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, TextureReleaseProc,
+    bool onReplaceBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, ContentChangeMode, TextureReleaseProc,
                                  ReleaseContext) override;
 
     SkCanvas* onNewCanvas() override;
