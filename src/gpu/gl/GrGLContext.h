@@ -29,7 +29,7 @@ public:
     GrGLContextInfo(const GrGLContextInfo&) = delete;
     GrGLContextInfo& operator=(const GrGLContextInfo&) = delete;
 
-    virtual ~GrGLContextInfo() {}
+    virtual ~GrGLContextInfo() { fInterface = nullptr; }
 
     GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fGLVersion; }
