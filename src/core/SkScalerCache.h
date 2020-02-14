@@ -23,11 +23,11 @@
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
 // holds the glyphs for that strike.
 
-class SkStrike final : public SkStrikeForGPU {
+class SkScalerCache {
 public:
-    SkStrike(const SkDescriptor& desc,
-             std::unique_ptr<SkScalerContext> scaler,
-             const SkFontMetrics* metrics = nullptr);
+    SkScalerCache(const SkDescriptor& desc,
+                  std::unique_ptr<SkScalerContext> scaler,
+                  const SkFontMetrics* metrics = nullptr);
 
     // Lookup (or create if needed) the toGlyph using toID. If that glyph is not initialized with
     // an image, then use the information in from to initialize the width, height top, left,
@@ -51,11 +51,6 @@ public:
         return fFontMetrics;
     }
 
-    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
-        return fRoundingSpec;
-    }
-
-    const SkDescriptor& getDescriptor() const override;
 
     SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
                                    const SkGlyph* results[]) SK_EXCLUDES(fMu);
@@ -68,16 +63,21 @@ public:
 
     void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) SK_EXCLUDES(fMu);
 
+    // SkStrikeForGPU APIs
+    const SkGlyphPositionRoundingSpec& roundingSpec() const {
+        return fRoundingSpec;
+    }
+
+    const SkDescriptor& getDescriptor() const;
+
     void prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override SK_EXCLUDES(fMu);
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
     void prepareForSDFTDrawing(
-            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override SK_EXCLUDES(fMu);
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
     void prepareForPathDrawing(
-            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override SK_EXCLUDES(fMu);
-
-    void onAboutToExitScope() override;
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const SK_EXCLUDES(fMu) {
@@ -98,7 +98,7 @@ public:
 
     class AutoValidate : SkNoncopyable {
     public:
-        AutoValidate(const SkStrike* cache) : fCache(cache) {
+        AutoValidate(const SkScalerCache* cache) : fCache(cache) {
             if (fCache) {
                 fCache->validate();
             }
@@ -112,7 +112,7 @@ public:
             fCache = nullptr;
         }
     private:
-        const SkStrike* fCache;
+        const SkScalerCache* fCache;
     };
 
 private:
@@ -173,7 +173,7 @@ private:
     SkArenaAlloc            fAlloc SK_GUARDED_BY(fMu) {kMinAllocAmount};
 
     // Tracks (approx) how much ram is tied-up in this strike.
-    size_t                  fMemoryUsed SK_GUARDED_BY(fMu) {sizeof(SkStrike)};
+    size_t                  fMemoryUsed SK_GUARDED_BY(fMu) {sizeof(SkScalerCache)};
 };
 
 #endif  // SkStrike_DEFINED

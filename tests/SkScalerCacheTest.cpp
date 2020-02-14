@@ -7,7 +7,7 @@
 
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
@@ -27,7 +27,7 @@ private:
     std::atomic<int> fThreadCount;
 };
 
-DEF_TEST(SkStrikeMultiThread, Reporter) {
+DEF_TEST(SkScalerCacheMultiThread, Reporter) {
     sk_sp<SkTypeface> typeface =
             ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
     static constexpr int kThreadCount = 4;
@@ -59,7 +59,7 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
         SkScalerContextEffects effects;
         std::unique_ptr<SkScalerContext> ctx{
                 typeface->createScalerContext(effects, &strikeSpec.descriptor())};
-        SkStrike strike{strikeSpec.descriptor(), std::move(ctx)};
+        SkScalerCache scalerCache{strikeSpec.descriptor(), std::move(ctx)};
 
         auto perThread = [&](int threadIndex) {
             barrier.waitForAll();
@@ -73,8 +73,8 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
                 rejects.setSource(local);
 
                 drawable.startDevice(rejects.source(), {0, 0}, SkMatrix::I(),
-                                     strike.roundingSpec());
-                strike.prepareForMaskDrawing(&drawable, &rejects);
+                                     scalerCache.roundingSpec());
+                scalerCache.prepareForMaskDrawing(&drawable, &rejects);
                 rejects.flipRejectsToSource();
                 drawable.reset();
             }
