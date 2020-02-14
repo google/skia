@@ -583,7 +583,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     ddl->fArenas = std::move(fContext->priv().detachArenas());
 
-    fContext->priv().detachProgramInfos(&ddl->fProgramInfos);
+    fContext->priv().detachProgramData(&ddl->fProgramData);
 
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
