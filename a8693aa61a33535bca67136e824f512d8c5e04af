@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dc8b1bc6_14bf65b3",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-02-14T17:05:11Z",
+      "side": 1,
+      "message": "I\u0027m fine with making it a class and making the fields private.\n\nI\u0027m not sure that AttributeList is actually cleaner than\nstd::vector\u003cAttribute\u003e, do you have a strong preference for\nAttributeList?\n\nActually an even better solution would be if each Attribute\nactually just stored a SkPDFDict in it. Are we allowed to use\nunique_ptr?\n\nThen it\u0027d look like this:\n\n// forward-declare skia-internal class\nclass SkPDFDict;\n\nclass Attribute {\n  public:\n    Attribute(owner, name, value);\n    ...\n\n  private:\n    std::unique_ptr\u003cSkPDFDict\u003e impl_;\n}",
+      "parentUuid": "0b0aa88d_f8299d1a",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 0
+      },
+      "revId": "a8693aa61a33535bca67136e824f512d8c5e04af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6eea519b_7bf37a07",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 4
