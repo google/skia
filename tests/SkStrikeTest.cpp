@@ -59,7 +59,7 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
         SkScalerContextEffects effects;
         std::unique_ptr<SkScalerContext> ctx{
                 typeface->createScalerContext(effects, &strikeSpec.descriptor())};
-        SkStrike strike{strikeSpec.descriptor(), std::move(ctx)};
+        SkScalerCache strike{strikeSpec.descriptor(), std::move(ctx)};
 
         auto perThread = [&](int threadIndex) {
             barrier.waitForAll();

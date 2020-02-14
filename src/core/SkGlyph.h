@@ -17,7 +17,6 @@
 #include "src/core/SkMask.h"
 
 class SkArenaAlloc;
-class SkStrike;
 class SkScalerContext;
 
 // needs to be != to any valid SkMask::Format
