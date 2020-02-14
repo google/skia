@@ -633,13 +633,6 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// Temporarily use this dimension to ensure we use the old libimobiledevice until recipes are
 			// updated.
 			d["libimobiledevice"] = "1534346785"
-		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
-			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
-				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
-			}
-			d["cpu"] = "x86-64-Haswell_GCE"
-			d["os"] = DEFAULT_OS_LINUX_GCE
-			d["machine_type"] = MACHINE_TYPE_MEDIUM
 		} else if strings.Contains(parts["extra_config"], "SKQP") && parts["cpu_or_gpu_value"] == "Emulator" {
 			if parts["model"] != "NUC7i5BNK" || d["os"] != DEFAULT_OS_DEBIAN {
 				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])
@@ -652,7 +645,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// So, we run on bare metal machines in the Skolo (that should also have KVM).
 			d["kvm"] = "1"
 			d["docker_installed"] = "true"
-		} else if parts["cpu_or_gpu"] == "CPU" {
+		} else if parts["cpu_or_gpu"] == "CPU" || strings.Contains(parts["extra_config"], "SwiftShader") {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
 					"Golo":      "x86-64-E5-2670",
@@ -669,6 +662,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				},
 				"Snapdragon850": {
 					"LenovoYogaC630": "arm64-64-Snapdragon850",
+				},
+				"SwiftShader": {
+					"GCE": "x86-64-Haswell_GCE",
 				},
 			}[parts["cpu_or_gpu_value"]]
 			if !ok {
