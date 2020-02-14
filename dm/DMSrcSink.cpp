@@ -1927,8 +1927,13 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     auto draw = [&](SkCanvas* canvas) -> Result {
         GrContext* context = canvas->getGrContext();
         if (!context || !context->priv().getGpu()) {
-            return Result::Fatal("DDLs are GPU only");
+            return Result::Fatal("ViaDDL: DDLs are GPU only");
         }
+        SkSurface* tmp = canvas->getSurface();
+        if (!tmp) {
+            return Result::Fatal("ViaDDL: cannot get surface from canvas");
+        }
+        sk_sp<SkSurface> surface = sk_ref_sp(tmp);
 
         // This is here bc this is the first point where we have access to the context
         promiseImageHelper.uploadAllToGPU(context);
@@ -1939,7 +1944,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(canvas, viewport, fNumDivisions);
+            DDLTileHelper tiles(surface, viewport, fNumDivisions);
 
             // Second, reinflate the compressed picture individually for each thread
             // This recreates the promise SkImages on each replay iteration. We are currently
@@ -1964,7 +1969,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
             // matches Chrome but costs us a copy
-            tiles.composeAllTiles(canvas);
+            tiles.composeAllTiles();
             context->flush();
         }
         return Result::Ok();
