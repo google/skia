@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9079da86_8a4779b2",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-14T20:49:02Z",
+      "side": 1,
+      "message": "oh no, not in order! have to run the script...",
+      "revId": "3786dfb78a4d01fc374bdc495a2e1dad13ad7063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e400a7ff_3012e069",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-14T20:49:02Z",
+      "side": 1,
+      "message": "sp. Of course, why is everything way over here?",
+      "range": {
+        "startLine": 235,
+        "startChar": 23,
+        "endLine": 235,
+        "endChar": 25
+      },
+      "revId": "3786dfb78a4d01fc374bdc495a2e1dad13ad7063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
