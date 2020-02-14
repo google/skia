@@ -82,7 +82,7 @@ GrBackendRenderTarget SkSurface_Base::onGetBackendRenderTarget(BackendHandleAcce
 }
 
 bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
-                                             GrSurfaceOrigin,
+                                             GrSurfaceOrigin, ContentChangeMode,
                                              TextureReleaseProc,
                                              ReleaseContext) {
     return false;
@@ -431,10 +431,10 @@ GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess acce
 }
 
 bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
-                                      GrSurfaceOrigin origin,
+                                      GrSurfaceOrigin origin, ContentChangeMode mode,
                                       TextureReleaseProc textureReleaseProc,
                                       ReleaseContext releaseContext) {
-    return asSB(this)->onReplaceBackendTexture(backendTexture, origin, textureReleaseProc,
+    return asSB(this)->onReplaceBackendTexture(backendTexture, origin, mode, textureReleaseProc,
                                                releaseContext);
 }
 

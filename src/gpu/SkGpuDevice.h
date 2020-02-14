@@ -26,6 +26,7 @@ class GrTextureProducer;
 struct GrCachedLayer;
 
 class SkSpecialImage;
+class SkSurface;
 
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
@@ -64,9 +65,9 @@ public:
     // set all pixels to 0
     void clearAll();
 
-    void replaceRenderTargetContext(bool shouldRetainContent);
+    void replaceRenderTargetContext(SkSurface::ContentChangeMode mode);
     void replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext>,
-                                    bool shouldRetainContent);
+                                    SkSurface::ContentChangeMode mode);
 
     GrRenderTargetContext* accessRenderTargetContext() override;
 

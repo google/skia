@@ -23,6 +23,7 @@ public:
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
     virtual bool onReplaceBackendTexture(const GrBackendTexture&,
                                          GrSurfaceOrigin,
+                                         ContentChangeMode,
                                          TextureReleaseProc,
                                          ReleaseContext);
     /**
