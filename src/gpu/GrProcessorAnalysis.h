@@ -95,7 +95,7 @@ public:
     GrColorFragmentProcessorAnalysis() = delete;
 
     GrColorFragmentProcessorAnalysis(const GrProcessorAnalysisColor& input,
-                                     const GrFragmentProcessor* const* processors,
+                                     std::unique_ptr<GrFragmentProcessor> const fps[],
                                      int cnt);
 
     bool isOpaque() const { return fIsOpaque; }
