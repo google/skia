@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82ab5020_e5dd2748",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:46:01Z",
+      "side": 1,
+      "message": "Is this whole clause needed at all?",
+      "range": {
+        "startLine": 636,
+        "startChar": 2,
+        "endLine": 642,
+        "endChar": 42
+      },
+      "revId": "f4db76700094811667603bf6c90f818cd66186db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
