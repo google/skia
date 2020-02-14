@@ -22,56 +22,73 @@ class SkSurfaceCharacterization;
 
 class DDLTileHelper {
 public:
-    // TileData class encapsulates the information and behavior for a single tile/thread in
-    // a DDL rendering.
+    // The TileData class encapsulates the information and behavior of a single tile when
+    // rendering with DDLs.
     class TileData {
     public:
-        TileData(sk_sp<SkSurface>, const SkIRect& clip);
+        TileData() {}
+        ~TileData();
 
-        // This method can be invoked in parallel
-        // In each thread we will reconvert the compressedPictureData into an SkPicture
-        // replacing each image-index with a promise image.
+        void init(int id, sk_sp<SkSurface> dstSurface, const SkIRect& clip);
+
+        // Convert the compressedPictureData into an SkPicture replacing each image-index
+        // with a promise image.
         void createTileSpecificSKP(SkData* compressedPictureData,
                                    const DDLPromiseImageHelper& helper);
 
-        // This method can be invoked in parallel
-        // Create the per-tile DDL from the per-tile SKP
+        // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
-        // This method operates serially and replays the recorded DDL into the tile surface.
-        void draw();
+        // Replay the recorded DDL into the tile surface - creating 'fImage'.
+        void draw(GrContext*);
 
-        // This method also operates serially and composes the results of replaying the DDL into
-        // the final destination surface.
-        void compose(SkCanvas* dst);
+        // Draw the result of replaying the DDL (i.e., 'fImage') into the
+        // final destination surface ('fDstSurface').
+        void compose();
 
         void reset();
 
+        int id() const { return fID; }
+
     private:
-        sk_sp<SkSurface>                       fSurface;
-        SkSurfaceCharacterization              fCharacterization;
-        SkIRect                                fClip;    // in the device space of the dest canvas
-        sk_sp<SkPicture>                       fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
-                                                               // reconstituted picture
+        int                       fID = -1;
+        sk_sp<SkSurface>          fDstSurface;       // the ultimate target for composition
+        SkSurfaceCharacterization fCharacterization; // characterization for the tile's surface
+        SkIRect                   fClip;             // in the device space of the 'fDstSurface'
+
+        sk_sp<SkImage>            fImage;            // the result of replaying the DDL
+        sk_sp<SkPicture>          fReconstitutedPicture;
+        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
+                                                     // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
 
-    DDLTileHelper(SkCanvas* canvas, const SkIRect& viewport, int numDivisions);
+    DDLTileHelper(sk_sp<SkSurface> dstSurface,
+                  const SkIRect& viewport,
+                  int numDivisions);
+    ~DDLTileHelper() {
+        delete[] fTiles;
+    }
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+
+    void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
+                             SkTaskGroup* gpuTaskGroup,
+                             GrContext* gpuThreadContext);
 
     void createDDLsInParallel();
 
     void drawAllTilesAndFlush(GrContext*, bool flush);
 
-    void composeAllTiles(SkCanvas* dstCanvas);
+    void composeAllTiles();
 
     void resetAllTiles();
 
+    int numTiles() const { return fNumDivisions * fNumDivisions; }
+
 private:
     int                fNumDivisions; // number of tiles along a side
-    SkTArray<TileData> fTiles;
+    TileData*          fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 };
 
 #endif
