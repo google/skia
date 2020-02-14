@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkEffectPriv.h"
@@ -44,41 +45,38 @@ void main(inout half4 color) {
 
 #ifdef SK_PMCOLOR_IS_BGRA
 static uint32_t swizzle_rb(uint32_t c) {
+    // c is not SkColor per-se, but these macros will correctly swap r/b channels
     return SkColorSetARGB(SkColorGetA(c), SkColorGetB(c), SkColorGetG(c), SkColorGetR(c));
 }
 #endif
 
+// Legacy factory, will go away
 sk_sp<SkColorFilter> SkOverdrawColorFilter::Make(const uint32_t rgba[kNumColors]) {
-    SkPMColor pm[kNumColors];
+    SkColor colors[kNumColors];
     for (int i = 0; i < kNumColors; ++i) {
 #ifdef SK_PMCOLOR_IS_BGRA
-        pm[i] = swizzle_rb(rgba[i]);
+        colors[i] = SkUnPreMultiply::PMColorToColor(swizzle_rb(rgba[i]));
 #else
-        pm[i] = rgba[i];
+        colors[i] = SkUnPreMultiply::PMColorToColor(rgba[i]);
 #endif
     }
-    return sk_sp<SkColorFilter>(new SkOverdrawColorFilter(pm));
+    return MakeWithSkColors(colors);
 }
 
-sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor colors[kNumColors]) {
-    SkPMColor pm[kNumColors];
-    for (int i = 0; i < kNumColors; ++i) {
-        pm[i] = SkPreMultiplyColor(colors[i]);
+static void convert_to_pm4f(SkPMColor4f dst[], const SkColor src[]) {
+    for (int i = 0; i < SkOverdrawColorFilter::kNumColors; ++i) {
+        dst[i] = SkColor4f::FromColor(src[i]).premul();
     }
-    return sk_sp<SkColorFilter>(new SkOverdrawColorFilter(pm));
-}
-
-SkOverdrawColorFilter::SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
-    memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
 }
 
 bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is_opaque) const {
     struct Ctx : public SkRasterPipeline_CallbackCtx {
-        const SkPMColor* colors;
+        SkPMColor4f colors[kNumColors];
     };
     // TODO: do we care about transforming to dstCS?
     auto ctx = rec.fAlloc->make<Ctx>();
-    ctx->colors = fColors;
+    convert_to_pm4f(ctx->colors, fColors);
+
     ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
         auto ctx = (Ctx*)arg;
         auto pixels = (SkPMColor4f*)ctx->rgba;
@@ -87,7 +85,7 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
             if (alpha >= kNumColors) {
                 alpha = kNumColors - 1;
             }
-            pixels[i] = SkPMColor4f::FromPMColor(ctx->colors[alpha]);
+            pixels[i] = ctx->colors[alpha];
         }
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
@@ -122,11 +120,10 @@ std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorInfo&) const {
     static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
     SkASSERT(effect->inputSize() == (kNumColors * sizeof(SkPMColor4f)));
+
     auto inputs = SkData::MakeUninitialized(kNumColors * sizeof(SkPMColor4f));
-    SkPMColor4f* floatColors = reinterpret_cast<SkPMColor4f*>(inputs->writable_data());
-    for (int i = 0; i < kNumColors; ++i) {
-        floatColors[i] = SkPMColor4f::FromPMColor(fColors[i]);
-    }
+    convert_to_pm4f(reinterpret_cast<SkPMColor4f*>(inputs->writable_data()), fColors);
+
     return GrSkSLFP::Make(context, effect, "Overdraw", std::move(inputs));
 }
 
