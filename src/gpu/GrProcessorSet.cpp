@@ -171,10 +171,9 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     GrProcessorSet::Analysis analysis;
     analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
 
-    const std::unique_ptr<const GrFragmentProcessor>* fps =
+    const std::unique_ptr<GrFragmentProcessor>* fps =
             fFragmentProcessors.get() + fFragmentProcessorOffset;
-    GrColorFragmentProcessorAnalysis colorAnalysis(
-            colorInput, unique_ptr_address_as_pointer_address(fps), fColorFragmentProcessorCnt);
+    GrColorFragmentProcessorAnalysis colorAnalysis(colorInput, fps, fColorFragmentProcessorCnt);
     fps += fColorFragmentProcessorCnt;
     int n = this->numCoverageFragmentProcessors();
     bool hasCoverageFP = n > 0;

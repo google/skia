@@ -94,7 +94,7 @@ public:
      *
      * The array elements with be moved.
      */
-    static std::unique_ptr<GrFragmentProcessor> RunInSeries(std::unique_ptr<GrFragmentProcessor>*,
+    static std::unique_ptr<GrFragmentProcessor> RunInSeries(std::unique_ptr<GrFragmentProcessor>[],
                                                             int cnt);
 
     /**

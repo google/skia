@@ -727,12 +727,6 @@ enum class GrBackendObjectOwnership : bool {
     kOwned = true
 };
 
-template <typename T>
-T* const* unique_ptr_address_as_pointer_address(std::unique_ptr<T> const* up) {
-    static_assert(sizeof(T*) == sizeof(std::unique_ptr<T>), "unique_ptr not expected size.");
-    return reinterpret_cast<T* const*>(up);
-}
-
 /*
  * Object for CPU-GPU synchronization
  */

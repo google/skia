@@ -295,7 +295,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
-        std::unique_ptr<GrFragmentProcessor>* series, int cnt) {
+        std::unique_ptr<GrFragmentProcessor> series[], int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
     public:
         static std::unique_ptr<GrFragmentProcessor> Make(
@@ -372,8 +372,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcessorAnalysisColor inputColor;
     inputColor.setToUnknown();
-    GrColorFragmentProcessorAnalysis info(inputColor, unique_ptr_address_as_pointer_address(series),
-                                          cnt);
+    GrColorFragmentProcessorAnalysis info(inputColor, series, cnt);
     SkTArray<std::unique_ptr<GrFragmentProcessor>> replacementSeries;
     SkPMColor4f knownColor;
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
