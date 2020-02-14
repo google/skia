@@ -39,11 +39,98 @@ public:
 };
 
 class SkStrikeCache final : public SkStrikeForGPUCacheInterface {
-    class Node;
-
 public:
     SkStrikeCache() = default;
     ~SkStrikeCache() override;
+
+    class Node final : public SkRefCnt, public SkStrikeForGPU {
+    public:
+        Node(SkStrikeCache* strikeCache,
+             const SkDescriptor& desc,
+             std::unique_ptr<SkScalerContext> scaler,
+             const SkFontMetrics* metrics,
+             std::unique_ptr<SkStrikePinner> pinner)
+                : fStrikeCache{strikeCache}
+                , fStrike{desc, std::move(scaler), metrics}
+                , fPinner{std::move(pinner)} {}
+
+        SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
+            return fStrike.mergeGlyphAndImage(toID, from);
+        }
+
+        const SkPath* preparePath(SkGlyph* glyph, const SkPath* path) {
+            return fStrike.preparePath(glyph, path);
+        }
+
+        SkScalerContext* getScalerContext() const {
+            return fStrike.getScalerContext();
+        }
+
+        int countCachedGlyphs() {
+            return fStrike.countCachedGlyphs();
+        }
+
+        void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
+                            SkGlyph* glyph, SkScalar* array, int* count) {
+            fStrike.findIntercepts(bounds, scale, xPos, glyph, array, count);
+        }
+
+        const SkFontMetrics& getFontMetrics() const {
+            return fStrike.getFontMetrics();
+        }
+
+        SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
+                                       const SkGlyph* results[]) {
+            return fStrike.metrics(glyphIDs, results);
+        }
+
+        SkSpan<const SkGlyph*> preparePaths(SkSpan<const SkGlyphID> glyphIDs,
+                                            const SkGlyph* results[]) {
+            return fStrike.preparePaths(glyphIDs, results);
+        }
+
+        SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
+                                             const SkGlyph* results[]) {
+            return fStrike.prepareImages(glyphIDs, results);
+        }
+
+        void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
+            return fStrike.prepareForDrawingMasksCPU(drawables);
+        }
+
+        const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+            return fStrike.roundingSpec();
+        }
+
+        const SkDescriptor& getDescriptor() const override {
+            return fStrike.getDescriptor();
+        }
+
+        void prepareForMaskDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForMaskDrawing(drawbles, rejects);
+        }
+
+        void prepareForSDFTDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForSDFTDrawing(drawbles, rejects);
+        }
+
+        void prepareForPathDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForPathDrawing(drawbles, rejects);
+        }
+
+        void onAboutToExitScope() override {
+            fStrikeCache->attachNode(this);
+        }
+
+        SkStrikeCache* const            fStrikeCache;
+        Node*                           fNext{nullptr};
+        Node*                           fPrev{nullptr};
+        SkScalerCache                   fStrike;
+        std::unique_ptr<SkStrikePinner> fPinner;
+    };  // Node
 
     class ExclusiveStrikePtr {
     public:
@@ -55,9 +142,9 @@ public:
         ExclusiveStrikePtr& operator = (ExclusiveStrikePtr&&);
         ~ExclusiveStrikePtr();
 
-        SkStrike* get() const;
-        SkStrike* operator -> () const;
-        SkStrike& operator *  () const;
+        Node* get() const;
+        Node* operator -> () const;
+        Node& operator *  () const;
         explicit operator bool () const;
         friend bool operator == (const ExclusiveStrikePtr&, const ExclusiveStrikePtr&);
         friend bool operator == (const ExclusiveStrikePtr&, decltype(nullptr));
@@ -142,7 +229,7 @@ private:
     // Returns number of bytes freed.
     size_t internalPurge(size_t minBytesNeeded = 0) SK_REQUIRES(fLock);
 
-    void forEachStrike(std::function<void(const SkStrike&)> visitor) const;
+    void forEachStrike(std::function<void(const Node&)> visitor) const;
 
     mutable SkSpinlock fLock;
     Node*              fHead SK_GUARDED_BY(fLock) {nullptr};
@@ -155,5 +242,6 @@ private:
 };
 
 using SkExclusiveStrikePtr = SkStrikeCache::ExclusiveStrikePtr;
+using SkStrike = SkStrikeCache::Node;
 
 #endif  // SkStrikeCache_DEFINED
