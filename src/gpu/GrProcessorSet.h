@@ -187,7 +187,7 @@ private:
         return fXP.fFactory;
     }
 
-    SkAutoSTArray<4, std::unique_ptr<const GrFragmentProcessor>> fFragmentProcessors;
+    SkAutoSTArray<4, std::unique_ptr<GrFragmentProcessor>> fFragmentProcessors;
     XP fXP;
     uint8_t fColorFragmentProcessorCnt = 0;
     uint8_t fFragmentProcessorOffset = 0;
