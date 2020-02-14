@@ -22,6 +22,30 @@
       "revId": "f4db76700094811667603bf6c90f818cd66186db",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e359dbd_de5b33ab",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-14T15:48:01Z",
+      "side": 1,
+      "message": "Yes. It was decided that SwiftShader tasks should be GPU tasks rather than CPU tasks, so it needs to be special-cased since we can\u0027t handle it with the GPU logic below. Maybe we could handle it in the CPU clause, though.",
+      "parentUuid": "82ab5020_e5dd2748",
+      "range": {
+        "startLine": 636,
+        "startChar": 2,
+        "endLine": 642,
+        "endChar": 42
+      },
+      "revId": "f4db76700094811667603bf6c90f818cd66186db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
