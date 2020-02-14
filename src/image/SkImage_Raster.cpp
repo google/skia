@@ -38,6 +38,12 @@ public:
     static bool ValidArgs(const SkImageInfo& info, size_t rowBytes, size_t* minSize) {
         const int maxDimension = SK_MaxS32 >> 2;
 
+        // TODO(mtklein): eliminate anything here that setInfo() has already checked.
+        SkBitmap dummy;
+        if (!dummy.setInfo(info, rowBytes)) {
+            return false;
+        }
+
         if (info.width() <= 0 || info.height() <= 0) {
             return false;
         }
