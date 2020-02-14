@@ -21,7 +21,7 @@ class SkPDFTagTree {
 public:
     SkPDFTagTree();
     ~SkPDFTagTree();
-    void init(const SkPDF::StructureElementNode*);
+    void init(SkPDF::StructureElementNode*);
     void reset();
     int getMarkIdForNodeId(int nodeId, unsigned pageIndex);
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
