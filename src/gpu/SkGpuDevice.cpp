@@ -216,12 +216,12 @@ void SkGpuDevice::clearAll() {
 }
 
 void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext> rtc,
-                                             bool shouldRetainContent) {
+                                             SkSurface::ContentChangeMode mode) {
     SkASSERT(rtc->width() == this->width());
     SkASSERT(rtc->height() == this->height());
     SkASSERT(rtc->numSamples() == fRenderTargetContext->numSamples());
     SkASSERT(rtc->asSurfaceProxy()->priv().isExact());
-    if (shouldRetainContent) {
+    if (mode == SkSurface::kRetain_ContentChangeMode) {
         if (this->context()->abandoned()) {
             return;
         }
@@ -235,7 +235,7 @@ void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetConte
     fRenderTargetContext = std::move(rtc);
 }
 
-void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
+void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) {
     ASSERT_SINGLE_OWNER
 
     SkBudgeted budgeted = fRenderTargetContext->priv().isBudgeted();
@@ -252,7 +252,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     if (!newRTC) {
         return;
     }
-    this->replaceRenderTargetContext(std::move(newRTC), shouldRetainContent);
+    this->replaceRenderTargetContext(std::move(newRTC), mode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
