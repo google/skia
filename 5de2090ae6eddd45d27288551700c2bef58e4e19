@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5b130f59_cab14201",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2020-02-14T23:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dece439d_3853ed46",
+      "range": {
+        "startLine": 34,
+        "startChar": 72,
+        "endLine": 34,
+        "endChar": 79
+      },
+      "revId": "5de2090ae6eddd45d27288551700c2bef58e4e19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fe692b7_9ecc86da",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "5de2090ae6eddd45d27288551700c2bef58e4e19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c71035f_482f8a6c",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2020-02-14T23:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fe692b7_9ecc86da",
+      "range": {
+        "startLine": 588,
+        "startChar": 31,
+        "endLine": 588,
+        "endChar": 48
+      },
+      "revId": "5de2090ae6eddd45d27288551700c2bef58e4e19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
