@@ -29,14 +29,11 @@ GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurf
 }
 
 GrMtlOpsRenderPass::~GrMtlOpsRenderPass() {
-    SkASSERT(nil == fActiveRenderCmdEncoder);
 }
 
 void GrMtlOpsRenderPass::precreateCmdEncoder() {
     // For clears, we may not have an associated draw. So we prepare a cmdEncoder that
     // will be submitted whether there's a draw or not.
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-
     SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
             fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     SkASSERT(nil != cmdEncoder);
@@ -49,6 +46,7 @@ void GrMtlOpsRenderPass::submit() {
     SkIRect iBounds;
     fBounds.roundOut(&iBounds);
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
+    fActiveRenderCmdEncoder = nil;
 }
 
 GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo) {
@@ -78,10 +76,10 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         return;
     }
 
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(
-            fRenderPassDesc, pipelineState, this);
-    SkASSERT(fActiveRenderCmdEncoder);
+    if (!fActiveRenderCmdEncoder) {
+        fActiveRenderCmdEncoder =
+                fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
+    }
 
     [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
     pipelineState->setDrawState(fActiveRenderCmdEncoder,
@@ -131,7 +129,6 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         mesh.sendToGpu(programInfo.primitiveType(), this);
     }
 
-    fActiveRenderCmdEncoder = nil;
     fBounds.join(bounds);
 }
 
@@ -162,6 +159,15 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool inside
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
     this->precreateCmdEncoder();
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
+}
+
+void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
+    // TODO: this could be more efficient
+    state->doUpload(upload);
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
 }
 
 void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
@@ -240,6 +246,8 @@ void GrMtlOpsRenderPass::setupRenderPass(
     } else {
         fBounds.setEmpty();
     }
+
+    fActiveRenderCmdEncoder = nil;
 }
 
 static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
