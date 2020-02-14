@@ -22,6 +22,30 @@
       "revId": "4b6e28d7dc22f1e512da2bf12117b5c4e4f314e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6504a3b6_d316403b",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-02-14T22:30:54Z",
+      "side": 1,
+      "message": "Good point - I made SkPDFTagTree a friend instead so that it can access\nfAttrs directly, is that better?",
+      "parentUuid": "647c8bf0_3bce2ab4",
+      "range": {
+        "startLine": 97,
+        "startChar": 9,
+        "endLine": 97,
+        "endChar": 19
+      },
+      "revId": "4b6e28d7dc22f1e512da2bf12117b5c4e4f314e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
