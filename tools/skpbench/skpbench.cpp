@@ -224,13 +224,13 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSyn
 }
 
 static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
-                              GrContext* context, SkCanvas* finalCanvas,
+                              GrContext* context, sk_sp<SkSurface> surface,
                               SkPicture* inputPicture, std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    SkIRect viewport = finalCanvas->imageInfo().bounds();
+    SkIRect viewport = surface->imageInfo().bounds();
 
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture);
@@ -240,7 +240,7 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
 
     promiseImageHelper.uploadAllToGPU(context);
 
-    DDLTileHelper tiles(finalCanvas, viewport, FLAGS_ddlTilingWidthHeight);
+    DDLTileHelper tiles(surface, viewport, FLAGS_ddlTilingWidthHeight);
 
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
@@ -267,7 +267,7 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
-        tiles.composeAllTiles(finalCanvas);
+        tiles.composeAllTiles();
     }
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
@@ -553,7 +553,7 @@ int main(int argc, char** argv) {
     }
     if (!FLAGS_gpuClock) {
         if (FLAGS_ddl) {
-            run_ddl_benchmark(testCtx->fenceSync(), ctx, canvas, skp.get(), &samples);
+            run_ddl_benchmark(testCtx->fenceSync(), ctx, surface, skp.get(), &samples);
         } else if (!mskp) {
             auto s = std::make_unique<StaticSkp>(skp);
             run_benchmark(testCtx->fenceSync(), surface.get(), s.get(), &samples);
