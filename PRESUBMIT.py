@@ -169,11 +169,12 @@ def _CheckGNFormatted(input_api, output_api):
       continue
 
     gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
+    gn = os.path.join(input_api.PresubmitLocalPath(), 'bin', gn)
     cmd = [gn, 'format', '--dry-run', f.LocalPath()]
     try:
       subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
-      fix = 'gn format ' + f.LocalPath()
+      fix = 'bin/gn format ' + f.LocalPath()
       results.append(output_api.PresubmitError(
           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
   return results
