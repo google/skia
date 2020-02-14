@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b0aa88d_f8299d1a",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-14T16:58:06Z",
+      "side": 1,
+      "message": "Do we need all of these specialized constructors *and* exposing all of the private fields?\n\nCould we in fact just get away with\n\nclass AttributeList {\npublic:\n    void appendInt(owner, name, value);\n    void appendFloat(owner, name, value);\n    void appendIntArray(owner, name, value);\n    void appendFloatArray(owner, name, value);\n\nprivate:\n    ...\n};\n\nStructureElementNode {\n    ...\n    AttributeList fAttributes;\n};\n\n?",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 0
+      },
+      "revId": "a8693aa61a33535bca67136e824f512d8c5e04af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eea519b_7bf37a07",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-14T16:58:06Z",
+      "side": 1,
+      "message": "see nit below",
+      "range": {
+        "startLine": 209,
+        "startChar": 36,
+        "endLine": 209,
+        "endChar": 37
+      },
+      "revId": "a8693aa61a33535bca67136e824f512d8c5e04af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57e2900e_19af0c9b",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-14T16:58:06Z",
+      "side": 1,
+      "message": "nit: skia always uses { } in for and if statements.\n\nfor (...) {\n   even_just_one_line;\n}",
+      "range": {
+        "startLine": 217,
+        "startChar": 45,
+        "endLine": 217,
+        "endChar": 62
+      },
+      "revId": "a8693aa61a33535bca67136e824f512d8c5e04af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
