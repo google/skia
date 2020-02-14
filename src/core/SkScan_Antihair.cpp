@@ -74,8 +74,14 @@ static void call_hline_blitter(SkBlitter* blitter, int x, int y, int count,
     int16_t runs[HLINE_STACK_BUFFER + 1];
     uint8_t  aa[HLINE_STACK_BUFFER];
 
-    aa[0] = ApplyGamma(gGammaTable, alpha);
     do {
+        // In theory, we should be able to just do this once (outside of the loop),
+        // since aa[] and runs[] are supposed" to be const when we call the blitter.
+        // In reality, some wrapper-blitters (e.g. SkRgnClipBlitter) cast away that
+        // constness, and modify the buffers in-place. Hence the need to be defensive
+        // here and reseed the aa value.
+        aa[0] = ApplyGamma(gGammaTable, alpha);
+
         int n = count;
         if (n > HLINE_STACK_BUFFER) {
             n = HLINE_STACK_BUFFER;
