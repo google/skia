@@ -585,6 +585,7 @@ public:
      */
     bool replaceBackendTexture(const GrBackendTexture& backendTexture,
                                GrSurfaceOrigin origin,
+                               ContentChangeMode mode = kRetain_ContentChangeMode,
                                TextureReleaseProc textureReleaseProc = nullptr,
                                ReleaseContext releaseContext = nullptr);
 
