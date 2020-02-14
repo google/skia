@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e412bd2c_3adabf0d",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "a good name for this might be Value?",
+      "range": {
+        "startLine": 65,
+        "startChar": 11,
+        "endLine": 65,
+        "endChar": 15
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f25e0f72_85af7b7d",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "0.0f and -0.0f?",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65bc5157_152891e7",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "Is it still true that these are always indices and the values are always stored externally?  If so might make sense to stick to some sort of int for these?",
+      "range": {
+        "startLine": 81,
+        "startChar": 31,
+        "endLine": 81,
+        "endChar": 75
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "338f7dc0_238ff71e",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "Might want to spin off making this change as its own CL?  Seems like it\u0027s independent of how it\u0027s stored?",
+      "range": {
+        "startLine": 237,
+        "startChar": 8,
+        "endLine": 242,
+        "endChar": 0
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00f2060c_a284ee5d",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "Probably also fine to just leave this as KeyframeAnimator?  Generic\u0027s kind of implicit?",
+      "range": {
+        "startLine": 331,
+        "startChar": 6,
+        "endLine": 331,
+        "endChar": 29
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a36b403_a1d52c5c",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "I think these can be static make_animator()?",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3400136_23fc9886",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "If you drop the \u003cT\u003e below, I think this could also just be a simple overload (taking priority over the template base case) by removing the template \u003c\u003e here.  Doesn\u0027t really make a difference, except perhaps it shows nothing funny\u0027s going on that would really require a specialized template.",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f19662a4_f17980b3",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-14T14:57:10Z",
+      "side": 1,
+      "message": "this part can be inferred, right?",
+      "range": {
+        "startLine": 470,
+        "startChar": 32,
+        "endLine": 470,
+        "endChar": 35
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
