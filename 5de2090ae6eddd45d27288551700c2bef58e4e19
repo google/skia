@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dece439d_3853ed46",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2020-02-14T22:53:10Z",
+      "side": 1,
+      "message": "content",
+      "range": {
+        "startLine": 34,
+        "startChar": 72,
+        "endLine": 34,
+        "endChar": 79
+      },
+      "revId": "5de2090ae6eddd45d27288551700c2bef58e4e19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fe692b7_9ecc86da",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2020-02-14T22:53:10Z",
+      "side": 1,
+      "message": "nit: Add it to the param list above.",
+      "range": {
+        "startLine": 588,
+        "startChar": 31,
+        "endLine": 588,
+        "endChar": 48
+      },
+      "revId": "5de2090ae6eddd45d27288551700c2bef58e4e19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
