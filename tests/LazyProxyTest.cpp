@@ -101,8 +101,7 @@ public:
                         }
                     },
                     format, readSwizzle, GrRenderable::kNo, 1, GrProtected::kNo,
-                    kTopLeft_GrSurfaceOrigin, *proxyProvider->caps(),
-                    GrSurfaceProxy::UseAllocator::kYes);
+                    *proxyProvider->caps(), GrSurfaceProxy::UseAllocator::kYes);
 
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
                             GrOp::IsHairline::kNo);
@@ -141,7 +140,7 @@ public:
                         fAtlas->instantiate(rp);
                         return sk_ref_sp(fAtlas->peekTexture());
                     },
-                    format, readSwizzle, GrRenderable::kYes, 1, GrProtected::kNo, kOrigin,
+                    format, readSwizzle, GrRenderable::kYes, 1, GrProtected::kNo,
                     *proxyProvider->caps(), GrSurfaceProxy::UseAllocator::kYes);
             fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, readSwizzle),
                         GrSamplerState::Filter::kNearest);
@@ -275,7 +274,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             GrSwizzle readSwizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
                     TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
-                    readSwizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                    readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
                     GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
                     SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
                     GrSurfaceProxy::UseAllocator::kYes);
@@ -348,10 +347,9 @@ private:
                                               SkBudgeted::kNo, GrProtected::kNo),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, desc, readSwizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
-                SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-                GrSurfaceProxy::UseAllocator::kYes);
+                format, desc, readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
+                GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
+                SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 
         SkASSERT(fLazyProxy.get());
 

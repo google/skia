@@ -288,7 +288,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         SkASSERT(yuvaTextures[textureIndex].isValid());
 
         auto proxy = proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex], grColorType,
-                                                       imageOrigin,  kBorrow_GrWrapOwnership,
+                                                       kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, kRead_GrIOType);
         if (!proxy) {
             return false;
@@ -357,7 +357,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
-        GrContext* context, int width, int height, GrSurfaceOrigin origin, GrColorType colorType,
+        GrContext* context, int width, int height, GrColorType colorType,
         GrBackendFormat backendFormat, GrMipMapped mipMapped,
         PromiseImageTextureFulfillProc fulfillProc, PromiseImageTextureReleaseProc releaseProc,
         PromiseImageTextureDoneProc doneProc, PromiseImageTextureContext textureContext,
@@ -531,9 +531,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     // The promise API provides no way for the client to indicated that the texture is protected.
-    return proxyProvider->createLazyProxy(std::move(callback), backendFormat, {width, height},
-                                          readSwizzle, GrRenderable::kNo, 1, origin, mipMapped,
-                                          mipMapsStatus, GrInternalSurfaceFlags::kReadOnly,
-                                          SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-                                          GrSurfaceProxy::UseAllocator::kYes);
+    return proxyProvider->createLazyProxy(
+            std::move(callback), backendFormat, {width, height}, readSwizzle, GrRenderable::kNo, 1,
+            mipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
+            SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }

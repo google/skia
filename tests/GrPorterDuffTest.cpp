@@ -1004,8 +1004,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrXferProcessor::DstProxyView fakeDstProxyView;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
-                backendTex, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin,
-                kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType);
+                backendTex, GrColorType::kRGBA_8888, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                kRead_GrIOType);
         GrSwizzle swizzle = caps.getReadSwizzle(backendTex.getBackendFormat(),
                                                    GrColorType::kRGBA_8888);
         fakeDstProxyView.setProxyView({std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle});

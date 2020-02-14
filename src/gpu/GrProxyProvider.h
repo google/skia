@@ -50,7 +50,7 @@ public:
     /*
      * Finds a proxy by unique key.
      */
-    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&);
 
     /*
      * Finds a proxy by unique key or creates a new one that wraps a resource matching the unique
@@ -60,7 +60,6 @@ public:
      */
     sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
                                                        GrColorType colorType,
-                                                       GrSurfaceOrigin,
                                                        UseAllocator = UseAllocator::kYes);
 
     /*
@@ -78,7 +77,6 @@ public:
                                       GrSwizzle readSwizzle,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
-                                      GrSurfaceOrigin,
                                       GrMipMapped,
                                       SkBackingFit,
                                       SkBudgeted,
@@ -104,29 +102,26 @@ public:
      * Create a texture proxy that wraps a (non-renderable) backend texture. GrIOType must be
      * kRead or kRW.
      */
-    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrColorType, GrSurfaceOrigin,
-                                             GrWrapOwnership, GrWrapCacheable, GrIOType,
-                                             ReleaseProc = nullptr, ReleaseContext = nullptr);
+    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
+                                             GrWrapCacheable, GrIOType, ReleaseProc = nullptr,
+                                             ReleaseContext = nullptr);
 
-    sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                                       GrWrapOwnership, GrWrapCacheable,
-                                                       ReleaseProc = nullptr,
+    sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+                                                       GrWrapCacheable, ReleaseProc = nullptr,
                                                        ReleaseContext = nullptr);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
      */
-    sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                                       int sampleCnt, GrColorType,
-                                                       GrWrapOwnership, GrWrapCacheable,
-                                                       ReleaseProc = nullptr,
+    sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
+                                                       GrColorType, GrWrapOwnership,
+                                                       GrWrapCacheable, ReleaseProc = nullptr,
                                                        ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend render target
      */
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrColorType,
-                                                  GrSurfaceOrigin,
                                                   ReleaseProc = nullptr, ReleaseContext = nullptr);
 
     /*
@@ -134,7 +129,6 @@ public:
      */
     sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                            GrColorType,
-                                                           GrSurfaceOrigin,
                                                            int sampleCnt);
 
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
@@ -165,7 +159,6 @@ public:
                                           GrSwizzle readSwizzle,
                                           GrRenderable,
                                           int renderTargetSampleCnt,
-                                          GrSurfaceOrigin,
                                           GrMipMapped,
                                           GrMipMapsStatus,
                                           GrInternalSurfaceFlags,
@@ -180,7 +173,6 @@ public:
                                                            SkISize dimensions,
                                                            GrSwizzle readSwizzle,
                                                            int renderTargetSampleCnt,
-                                                           GrSurfaceOrigin origin,
                                                            GrInternalSurfaceFlags,
                                                            const TextureInfo*,
                                                            GrMipMapsStatus,
@@ -200,7 +192,6 @@ public:
                                                     GrRenderable,
                                                     int renderTargetSampleCnt,
                                                     GrProtected,
-                                                    GrSurfaceOrigin,
                                                     const GrCaps&,
                                                     UseAllocator);
 
@@ -251,7 +242,6 @@ public:
                                                               const GrBackendFormat& format,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
-                                                              GrSurfaceOrigin origin,
                                                               SkBackingFit fit,
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);
@@ -261,12 +251,11 @@ public:
                                                               GrColorType colorType,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
-                                                              GrSurfaceOrigin origin,
                                                               SkBackingFit fit,
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);
 
-    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrColorType, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrColorType);
 #endif
 
 private:
@@ -290,7 +279,7 @@ private:
                                                       GrColorType colorType);
 
     // GrColorType is used to determine the proxy's texture swizzle.
-    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType, GrSurfaceOrigin origin,
+    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType,
                                         UseAllocator useAllocator);
 
     struct UniquelyKeyedProxyHashTraits {

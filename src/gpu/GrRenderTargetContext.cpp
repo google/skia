@@ -184,8 +184,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, dimensions, swizzle, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit,
-            budgeted, isProtected);
+            format, dimensions, swizzle, GrRenderable::kYes, sampleCnt, mipMapped, fit, budgeted,
+            isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -276,8 +276,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTex
         ReleaseContext releaseCtx) {
     SkASSERT(sampleCnt > 0);
     sk_sp<GrTextureProxy> proxy(context->priv().proxyProvider()->wrapRenderableBackendTexture(
-            tex, origin, sampleCnt, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-            releaseProc, releaseCtx));
+            tex, sampleCnt, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseProc,
+            releaseCtx));
     if (!proxy) {
         return nullptr;
     }
@@ -296,7 +296,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTex
         const SkSurfaceProps* surfaceProps) {
     SkASSERT(sampleCnt > 0);
     sk_sp<GrSurfaceProxy> proxy(context->priv().proxyProvider()->wrapBackendTextureAsRenderTarget(
-            tex, colorType, origin, sampleCnt));
+            tex, colorType, sampleCnt));
     if (!proxy) {
         return nullptr;
     }
@@ -315,7 +315,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendRen
         ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
     sk_sp<GrSurfaceProxy> proxy(context->priv().proxyProvider()->wrapBackendRenderTarget(
-            rt, colorType, origin, releaseProc, releaseCtx));
+            rt, colorType, releaseProc, releaseCtx));
     if (!proxy) {
         return nullptr;
     }

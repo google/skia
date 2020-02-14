@@ -162,8 +162,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                        format, kDims, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                        GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                        format, kDims, swizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
+                        SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
                 {
                     SkTArray<GrSurfaceProxyView> views;

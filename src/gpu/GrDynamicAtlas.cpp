@@ -64,7 +64,7 @@ sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
 
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
             std::move(instantiate), format, readSwizzle, GrRenderable::kYes, sampleCount,
-            GrProtected::kNo, kTextureOrigin, caps, useAllocator);
+            GrProtected::kNo, caps, useAllocator);
 
     return proxy;
 }

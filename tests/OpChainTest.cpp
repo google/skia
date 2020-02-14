@@ -175,8 +175,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
 
     static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, kDims, swizzle, GrRenderable::kYes, 1, kOrigin, GrMipMapped::kNo,
-            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+            format, kDims, swizzle, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBackingFit::kExact,
+            SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
 

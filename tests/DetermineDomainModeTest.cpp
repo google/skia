@@ -146,8 +146,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     return proxyProvider->createProxy(format, {size, size}, swizzle, GrRenderable::kNo, 1,
-                                      kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
-                                      SkBudgeted::kYes, GrProtected::kNo);
+                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

@@ -349,8 +349,8 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+    if (sk_sp<GrTextureProxy> proxy =
+                proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                    GrColorType::kAlpha_8);
         return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
@@ -464,8 +464,8 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 
-    if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+    if (sk_sp<GrTextureProxy> proxy =
+                proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                    GrColorType::kAlpha_8);
         return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
@@ -495,7 +495,6 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
                                                 swizzle,
                                                 GrRenderable::kNo,
                                                 1,
-                                                kTopLeft_GrSurfaceOrigin,
                                                 GrMipMapped::kNo,
                                                 SkBackingFit::kApprox,
                                                 SkBudgeted::kYes,

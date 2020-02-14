@@ -26,9 +26,8 @@ sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     return context->priv().proxyProvider()->createProxy(
-            format, kDimensions, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-            GrInternalSurfaceFlags::kNone);
+            format, kDimensions, swizzle, GrRenderable::kYes, 1, GrMipMapped::kNo,
+            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
 
 typedef GrQuadAAFlags (*PerQuadAAFunc)(int i);

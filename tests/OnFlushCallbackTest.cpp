@@ -330,7 +330,6 @@ public:
                 GrRenderable::kYes,
                 1,
                 GrProtected::kNo,
-                kBottomLeft_GrSurfaceOrigin,
                 *proxyProvider->caps(),
                 GrSurfaceProxy::UseAllocator::kNo);
 

@@ -18,7 +18,6 @@
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrSurfaceOrigin origin,
                                GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
                                const GrSwizzle& textureSwizzle,
@@ -27,7 +26,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator)
-        : INHERITED(format, dimensions, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
+        : INHERITED(format, dimensions, GrRenderable::kNo, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
@@ -40,7 +39,6 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrSurfaceOrigin origin,
                                GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
                                const GrSwizzle& texSwizzle,
@@ -49,8 +47,8 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator)
-        : INHERITED(std::move(callback), format, dimensions, GrRenderable::kNo, origin, texSwizzle,
-                    fit, budgeted, isProtected, surfaceFlags, useAllocator)
+        : INHERITED(std::move(callback), format, dimensions, GrRenderable::kNo, texSwizzle, fit,
+                    budgeted, isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)
@@ -60,10 +58,9 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
 
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
-                               GrSurfaceOrigin origin,
                                const GrSwizzle& textureSwizzle,
                                UseAllocator useAllocator)
-        : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact, useAllocator)
+        : INHERITED(std::move(surf), textureSwizzle, SkBackingFit::kExact, useAllocator)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
         , fMipMapsStatus(fTarget->asTexture()->texturePriv().mipMapsStatus())
                   SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))

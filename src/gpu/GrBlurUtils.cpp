@@ -83,8 +83,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
     if (key.isValid()) {
         // TODO: this cache look up is duplicated in draw_shape_with_mask_filter for gpu
         static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
-        auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8,
-                                                                        kCacheOrigin);
+        auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8);
         if (filteredMask) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
                     filteredMask->backendFormat(), GrColorType::kAlpha_8);
@@ -402,8 +401,8 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         if (maskKey.isValid()) {
             // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
             static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
-            auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(
-                    maskKey, GrColorType::kAlpha_8, kCacheOrigin);
+            auto filteredMask =
+                    proxyProvider->findOrCreateProxyByUniqueKey(maskKey, GrColorType::kAlpha_8);
             if (filteredMask) {
                 GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
                         filteredMask->backendFormat(), GrColorType::kAlpha_8);

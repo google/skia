@@ -32,7 +32,6 @@ private:
                                const GrBackendFormat&,
                                SkISize,
                                int sampleCnt,
-                               GrSurfaceOrigin,
                                GrMipMapped,
                                GrMipMapsStatus,
                                const GrSwizzle& textureSwizzle,
@@ -48,7 +47,6 @@ private:
                                const GrBackendFormat&,
                                SkISize,
                                int sampleCnt,
-                               GrSurfaceOrigin,
                                GrMipMapped,
                                GrMipMapsStatus,
                                const GrSwizzle& textureSwizzle,
@@ -60,7 +58,6 @@ private:
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>,
-                               GrSurfaceOrigin,
                                const GrSwizzle& textureSwizzle,
                                UseAllocator);
 
