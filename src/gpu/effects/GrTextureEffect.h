@@ -39,29 +39,6 @@ public:
      * outside the window. More specifically, we treat the MIP map case exactly like the
      * bilerp case in terms of how the final texture coords are computed.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(GrSurfaceProxyView,
-                                                                SkAlphaType,
-                                                                const SkMatrix&,
-                                                                GrSamplerState,
-                                                                const SkIRect& subset,
-                                                                const GrCaps& caps);
-    /**
-     * The same as above but also takes a 'domain' that specifies any known limit on the post-
-     * matrix texture coords that will be used to sample the texture. Specifying this requires
-     * knowledge of how this effect will be nested into a paint, the local coords used with the
-     * draw, etc. It is only used to attempt to optimize away the shader subset calculations.
-     */
-    static std::unique_ptr<GrFragmentProcessor> MakeTexelSubset(GrSurfaceProxyView,
-                                                                SkAlphaType,
-                                                                const SkMatrix&,
-                                                                GrSamplerState,
-                                                                const SkIRect& subset,
-                                                                const SkRect& domain,
-                                                                const GrCaps& caps);
-
-    /**
-     * This is similar to MakeTexelSubset but takes a float rather than integer subset rect.
-     */
     static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
                                                            const SkMatrix&,

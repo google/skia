@@ -136,29 +136,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceProxyView view,
-                                                                      SkAlphaType alphaType,
-                                                                      const SkMatrix& matrix,
-                                                                      GrSamplerState sampler,
-                                                                      const SkIRect& subset,
-                                                                      const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), nullptr, caps);
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
-}
-
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceProxyView view,
-                                                                      SkAlphaType alphaType,
-                                                                      const SkMatrix& matrix,
-                                                                      GrSamplerState sampler,
-                                                                      const SkIRect& subset,
-                                                                      const SkRect& domain,
-                                                                      const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), &domain, caps);
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
-}
-
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyView view,
                                                                  SkAlphaType alphaType,
                                                                  const SkMatrix& matrix,

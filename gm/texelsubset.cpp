@@ -137,12 +137,12 @@ protected:
                     drawRect = localRect.makeOffset(x, y);
 
                     std::unique_ptr<GrFragmentProcessor> fp1;
-                    fp1 = GrTextureEffect::MakeTexelSubset(view,
-                                                           fBitmap.alphaType(),
-                                                           textureMatrices[tm],
-                                                           sampler,
-                                                           texelSubset,
-                                                           caps);
+                    fp1 = GrTextureEffect::MakeSubset(view,
+                                                      fBitmap.alphaType(),
+                                                      textureMatrices[tm],
+                                                      sampler,
+                                                      SkRect::Make(texelSubset),
+                                                      caps);
                     if (!fp1) {
                         continue;
                     }

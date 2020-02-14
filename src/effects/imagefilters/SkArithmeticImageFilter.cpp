@@ -353,12 +353,12 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                            GrSamplerState::Filter::kNearest);
 
     if (background) {
-        SkIRect bgSubset = background->subset();
+        SkRect bgSubset = SkRect::Make(background->subset());
         SkMatrix backgroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
-        bgFP = GrTextureEffect::MakeTexelSubset(std::move(backgroundView), background->alphaType(),
-                                                backgroundMatrix, sampler, bgSubset, caps);
+        bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
+                                           backgroundMatrix, sampler, bgSubset, caps);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
                                              background->alphaType(),
                                              ctx.colorSpace());
@@ -368,13 +368,12 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     if (foreground) {
-        SkIRect fgSubset = foreground->subset();
+        SkRect fgSubset = SkRect::Make(foreground->subset());
         SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
-        auto fgFP =
-                GrTextureEffect::MakeTexelSubset(std::move(foregroundView), foreground->alphaType(),
-                                                 foregroundMatrix, sampler, fgSubset, caps);
+        auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),
+                                                foregroundMatrix, sampler, fgSubset, caps);
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
                                              foreground->getColorSpace(),
                                              foreground->alphaType(),

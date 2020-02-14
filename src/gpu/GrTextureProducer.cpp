@@ -60,9 +60,9 @@ GrSurfaceProxyView GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     GrPaint paint;
 
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, copyParams.fFilter);
-    auto boundsRect = SkIRect::MakeSize(proxy->dimensions());
-    auto fp = GrTextureEffect::MakeTexelSubset(std::move(inputView), kUnknown_SkAlphaType,
-                                               SkMatrix::I(), sampler, boundsRect, localRect, caps);
+    auto boundsRect = SkRect::Make(proxy->dimensions());
+    auto fp = GrTextureEffect::MakeSubset(std::move(inputView), kUnknown_SkAlphaType, SkMatrix::I(),
+                                          sampler, boundsRect, localRect, caps);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
