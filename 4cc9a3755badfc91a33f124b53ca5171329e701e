@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "152f8e61_95cc8ff7",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e412bd2c_3adabf0d",
+      "range": {
+        "startLine": 65,
+        "startChar": 11,
+        "endLine": 65,
+        "endChar": 15
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f25e0f72_85af7b7d",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 3
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fb9dc58d_248cc52f",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Gah, I just knew that assert was pointing in the general direction of my foot :)  Maybe it\u0027s obvious enough that I don\u0027t need to \"prove\" it?  Dropped.",
+      "parentUuid": "f25e0f72_85af7b7d",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65bc5157_152891e7",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 3
@@ -53,6 +95,30 @@
       "writtenOn": "2020-02-14T14:57:10Z",
       "side": 1,
       "message": "Is it still true that these are always indices and the values are always stored externally?  If so might make sense to stick to some sort of int for these?",
+      "range": {
+        "startLine": 81,
+        "startChar": 31,
+        "endLine": 81,
+        "endChar": 75
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e541cc6a_e69124cf",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Yup, that comment is now obsolete. Prolly ok to just remove.",
+      "parentUuid": "65bc5157_152891e7",
       "range": {
         "startLine": 81,
         "startChar": 31,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "d02bfb06_83e39be1",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "It\u0027s related in a roundabout way: with external storage, a clever way to detect constant values is to look at the size of the storage array - thanks to tail-deduping, if all values are equal we end up storing exactly one value (see previous KeyframeAnimator::isConstant).\n\nFor inline storage we no longer get this for free, and have to check each \"value\".  But we kinda need to do it in the type-independent base class, and if we do it for inline values we get it for external values too - so we might as well drop the old method.\n\n(note that in the end this \"isConstant\" bit of information is used to discard the animator altogether, so it doesn\u0027t matter much how it\u0027s determined/encoded as long as it\u0027s cheap - see line 477)\n\nAll that said, it\u0027s certainly a change we can spin off if you think it\u0027s clearer - it just won\u0027t have any interesting effects on its own.",
+      "parentUuid": "338f7dc0_238ff71e",
+      "range": {
+        "startLine": 237,
+        "startChar": 8,
+        "endLine": 242,
+        "endChar": 0
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00f2060c_a284ee5d",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 3
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "97327a23_3253abc3",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00f2060c_a284ee5d",
+      "range": {
+        "startLine": 331,
+        "startChar": 6,
+        "endLine": 331,
+        "endChar": 29
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a36b403_a1d52c5c",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 3
@@ -122,6 +236,24 @@
       "writtenOn": "2020-02-14T14:57:10Z",
       "side": 1,
       "message": "I think these can be static make_animator()?",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e55ce0e0_1a89f4d4",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "I get the overload below, but did you mean the base template also?\n\nOr make it explicit for the remaining 3 types?  I have some plans to specialize vector values and possibly shape values too, so in the end that\u0027s prolly where it will end up.",
+      "parentUuid": "5a36b403_a1d52c5c",
       "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -145,6 +277,24 @@
     },
     {
       "key": {
+        "uuid": "7fd842ef_e30e00b7",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3400136_23fc9886",
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f19662a4_f17980b3",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 3
@@ -165,6 +315,30 @@
       "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e40ef7f_1f983e33",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-14T20:33:48Z",
+      "side": 1,
+      "message": "Indeed, removed.",
+      "parentUuid": "f19662a4_f17980b3",
+      "range": {
+        "startLine": 470,
+        "startChar": 32,
+        "endLine": 470,
+        "endChar": 35
+      },
+      "revId": "4cc9a3755badfc91a33f124b53ca5171329e701e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
