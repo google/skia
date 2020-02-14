@@ -20,7 +20,7 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkSpan.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"

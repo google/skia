@@ -14,7 +14,7 @@
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTLazy.h"
