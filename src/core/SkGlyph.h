@@ -183,7 +183,6 @@ public:
     // SkGlyph() is used for testing.
     constexpr SkGlyph() : fID{SkPackedGlyphID()} { }
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
-    explicit SkGlyph(const SkGlyphPrototype& p);
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
     SkScalar advanceX() const { return fAdvanceX; }
@@ -354,25 +353,6 @@ private:
     int8_t    fForceBW = 0;
 
     const SkPackedGlyphID fID;
-};
-
-struct SkGlyphPrototype {
-    SkPackedGlyphID id;
-
-    float           advanceX = 0,
-                    advanceY = 0;
-
-    // The width and height of the glyph mask.
-    uint16_t        width  = 0,
-                    height = 0;
-
-    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
-    int16_t         left = 0,
-                    top  = 0;
-
-    SkMask::Format  maskFormat = SkMask::kBW_Format;
-
-    bool            forceBW = false;
 };
 
 #endif

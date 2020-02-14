@@ -20,30 +20,14 @@
 #include "src/core/SkStrikeForGPU.h"
 #include <memory>
 
-/** \class SkGlyphCache
+// This class represents a strike: a specific combination of typeface, size, matrix, etc., and
+// holds the glyphs for that strike.
 
-    This class represents a strike: a specific combination of typeface, size, matrix, etc., and
-    holds the glyphs for that strike. Calling any of the getGlyphID... methods will
-    return the requested glyph, either instantly if it is already cached, or by first generating
-    it and then adding it to the strike.
-
-    The strikes are held in a global list, available to all threads. To interact with one, call
-    either Find{OrCreate}Exclusive().
-
-    The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
-    when they go out of scope.
-*/
 class SkStrike final : public SkStrikeForGPU {
 public:
     SkStrike(const SkDescriptor& desc,
              std::unique_ptr<SkScalerContext> scaler,
              const SkFontMetrics* metrics = nullptr);
-
-    // Return a glyph.  Create it if it doesn't exist, and initialize with the prototype.
-    SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p, void* image = nullptr) SK_EXCLUDES(fMu);
-
-    // Return a glyph or nullptr if it does not exits in the strike.
-    SkGlyph* glyphOrNull(SkPackedGlyphID id) const SK_EXCLUDES(fMu);
 
     // Lookup (or create if needed) the toGlyph using toID. If that glyph is not initialized with
     // an image, then use the information in from to initialize the width, height top, left,
@@ -63,9 +47,6 @@ public:
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                         SkGlyph* , SkScalar* array, int* count) SK_EXCLUDES(fMu);
 
-
-    /** Return the vertical metrics for this strike.
-    */
     const SkFontMetrics& getFontMetrics() const {
         return fFontMetrics;
     }
@@ -86,8 +67,6 @@ public:
                                          const SkGlyph* results[]) SK_EXCLUDES(fMu);
 
     void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) SK_EXCLUDES(fMu);
-
-    void prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables) SK_EXCLUDES(fMu);
 
     void prepareForMaskDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override SK_EXCLUDES(fMu);

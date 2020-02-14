@@ -63,25 +63,6 @@ SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
     return glyph;
 }
 
-SkGlyph* SkStrike::glyphFromPrototype(const SkGlyphPrototype& p, void* image) {
-    SkAutoMutexExclusive lock{fMu};
-    SkGlyph* glyph = fGlyphMap.findOrNull(p.id);
-    if (glyph == nullptr) {
-        fMemoryUsed += sizeof(SkGlyph);
-        glyph = fAlloc.make<SkGlyph>(p);
-        fGlyphMap.set(glyph);
-    }
-    if (glyph->setImage(&fAlloc, image)) {
-        fMemoryUsed += glyph->imageSize();
-    }
-    return glyph;
-}
-
-SkGlyph* SkStrike::glyphOrNull(SkPackedGlyphID id) const {
-    SkAutoMutexExclusive lock{fMu};
-    return this->internalGlyphOrNull(id);
-}
-
 const SkPath* SkStrike::preparePath(SkGlyph* glyph) {
     if (glyph->setPath(&fAlloc, fScalerContext.get())) {
         fMemoryUsed += glyph->path()->approximateBytesUsed();
@@ -187,18 +168,6 @@ void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
             // If the glyph is too large, then no image is created.
             if (this->prepareImage(glyph) != nullptr) {
                 drawables->push_back(glyph, i);
-            }
-        });
-}
-
-void SkStrike::prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables) {
-    SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
-        [&](size_t i, SkGlyph* glyph, SkPoint pos) SK_REQUIRES(fMu) {
-            const SkPath* path = this->preparePath(glyph);
-            // The glyph my not have a path.
-            if (path != nullptr) {
-                drawables->push_back(path, i);
             }
         });
 }
