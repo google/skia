@@ -59,7 +59,7 @@ SkStrikeCache::ExclusiveStrikePtr::~ExclusiveStrikePtr() {
 }
 
 SkStrike* SkStrikeCache::ExclusiveStrikePtr::get() const {
-    return &fNode->fStrike;
+    return fNode;
 }
 
 SkStrike* SkStrikeCache::ExclusiveStrikePtr::operator -> () const {
@@ -132,8 +132,8 @@ void SkStrikeCache::Dump() {
 
     int counter = 0;
 
-    auto visitor = [&counter](const SkStrike& cache) {
-        const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
+    auto visitor = [&counter](const Node& node) {
+        const SkScalerContextRec& rec = node.fStrike.getScalerContext()->getRec();
 
         SkDebugf("index %d\n", counter);
         SkDebugf("%s", rec.dump().c_str());
@@ -161,9 +161,9 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
         return;
     }
 
-    auto visitor = [&dump](const SkStrike& cache) {
-        const SkTypeface* face = cache.getScalerContext()->getTypeface();
-        const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
+    auto visitor = [&dump](const Node& node) {
+        const SkTypeface* face = node.fStrike.getScalerContext()->getTypeface();
+        const SkScalerContextRec& rec = node.fStrike.getScalerContext()->getRec();
 
         SkString fontName;
         face->getFamilyName(&fontName);
@@ -175,12 +175,12 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
         }
 
         SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &cache);
+                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &node);
 
         dump->dumpNumericValue(dumpName.c_str(),
-                               "size", "bytes", cache.getMemoryUsed());
+                               "size", "bytes", node.fStrike.getMemoryUsed());
         dump->dumpNumericValue(dumpName.c_str(),
-                               "glyph_count", "objects", cache.countCachedGlyphs());
+                               "glyph_count", "objects", node.fStrike.countCachedGlyphs());
         dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
     };
 
@@ -305,13 +305,13 @@ int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
     return prevLimit;
 }
 
-void SkStrikeCache::forEachStrike(std::function<void(const SkStrike&)> visitor) const {
+void SkStrikeCache::forEachStrike(std::function<void(const Node&)> visitor) const {
     SkAutoSpinlock ac(fLock);
 
     this->validate();
 
     for (Node* node = fHead; node != nullptr; node = node->fNext) {
-        visitor(node->fStrike);
+        visitor(*node);
     }
 }
 
@@ -414,7 +414,7 @@ void SkStrikeCache::ValidateGlyphCacheDataSize() {
 #ifdef SK_DEBUG
 void SkStrikeCache::validateGlyphCacheDataSize() const {
     this->forEachStrike(
-            [](const SkStrike& cache) { cache.forceValidate();
+            [](const Node& node) { node.fStrike.forceValidate();
     });
 }
 #endif
