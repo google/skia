@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "caee853e_e94f4c18",
+        "filename": "src/core/SkScan_Antihair.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-14T19:31:37Z",
+      "side": 1,
+      "message": "s/Cloip/Clip",
+      "range": {
+        "startLine": 80,
+        "startChar": 56,
+        "endLine": 80,
+        "endChar": 61
+      },
+      "revId": "f24b843cbfdae105b8909f811fb929bba298a45a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
