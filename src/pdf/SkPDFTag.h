@@ -21,12 +21,17 @@ class SkPDFTagTree {
 public:
     SkPDFTagTree();
     ~SkPDFTagTree();
-    void init(const SkPDF::StructureElementNode*);
+    void init(SkPDF::StructureElementNode*);
     void reset();
     int getMarkIdForNodeId(int nodeId, unsigned pageIndex);
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
 
 private:
+    static void Copy(SkPDF::StructureElementNode& node,
+                     SkPDFTagNode* dst,
+                     SkArenaAlloc* arena,
+                     SkTHashMap<int, SkPDFTagNode*>* nodeMap);
+
     SkArenaAlloc fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;

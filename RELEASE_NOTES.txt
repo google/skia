@@ -23,6 +23,9 @@ Milestone 82
     related calls is treated as a request to do no color correction at decode
     time.
 
+  * Add new APIs to add attributes to document structure node when
+    creating a tagged PDF.
+
   * Remove CGFontRef parameter from SkCreateTypefaceFromCTFont.
     Use CTFontManagerCreateFontDescriptorFromData instead of
     CGFontCreateWithDataProvider to create CTFonts to avoid memory use issues.
