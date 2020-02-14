@@ -417,7 +417,6 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               swizzle,
                                                               GrRenderable::kNo,
                                                               1,
-                                                              origin,
                                                               GrMipMapped::kNo,
                                                               SkBackingFit::kExact,
                                                               SkBudgeted::kYes,

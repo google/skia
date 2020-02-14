@@ -81,10 +81,9 @@ void GrOnFlushResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) 
 sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
         const GrUniqueKey& key,
         GrColorType colorType,
-        GrSurfaceOrigin origin,
         UseAllocator useAllocator) {
     auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
-    return proxyProvider->findOrCreateProxyByUniqueKey(key, colorType, origin, useAllocator);
+    return proxyProvider->findOrCreateProxyByUniqueKey(key, colorType, useAllocator);
 }
 
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
