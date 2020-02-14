@@ -586,7 +586,7 @@ public:
     bool replaceBackendTexture(const GrBackendTexture& backendTexture,
                                GrSurfaceOrigin origin,
                                TextureReleaseProc textureReleaseProc = nullptr,
-                               ReleaseContext releaseContext = nullptr);
+                               ReleaseContext releaseContext = nullptr, bool need_retained_copy = true);
 
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface

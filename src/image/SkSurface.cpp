@@ -84,7 +84,7 @@ GrBackendRenderTarget SkSurface_Base::onGetBackendRenderTarget(BackendHandleAcce
 bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
                                              GrSurfaceOrigin,
                                              TextureReleaseProc,
-                                             ReleaseContext) {
+                                             ReleaseContext, bool need_retained_copy) {
     return false;
 }
 
@@ -433,9 +433,9 @@ GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess acce
 bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
                                       GrSurfaceOrigin origin,
                                       TextureReleaseProc textureReleaseProc,
-                                      ReleaseContext releaseContext) {
+                                      ReleaseContext releaseContext, bool need_retained_copy) {
     return asSB(this)->onReplaceBackendTexture(backendTexture, origin, textureReleaseProc,
-                                               releaseContext);
+                                               releaseContext, need_retained_copy);
 }
 
 void SkSurface::flush() {

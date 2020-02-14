@@ -535,7 +535,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
 
 bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTexture,
                                             GrSurfaceOrigin origin, TextureReleaseProc releaseProc,
-                                            ReleaseContext releaseContext) {
+                                            ReleaseContext releaseContext, bool need_retained_copy) {
     auto context = this->fDevice->context();
     if (context->abandoned()) {
         return false;
@@ -578,7 +578,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     if (!rtc) {
         return false;
     }
-    fDevice->replaceRenderTargetContext(std::move(rtc), true);
+    fDevice->replaceRenderTargetContext(std::move(rtc), need_retained_copy);
     return true;
 }
 
