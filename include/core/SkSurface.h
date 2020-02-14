@@ -579,12 +579,14 @@ public:
         used. The GrBackendFormat and dimensions of replacement texture must match that of
         the original.
 
-        @param backendTexture      the new backing texture for the surface.
+        @param backendTexture      the new backing texture for the surface
+        @param mode                Retain or discard current Content
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
      */
     bool replaceBackendTexture(const GrBackendTexture& backendTexture,
                                GrSurfaceOrigin origin,
+                               ContentChangeMode mode = kRetain_ContentChangeMode,
                                TextureReleaseProc textureReleaseProc = nullptr,
                                ReleaseContext releaseContext = nullptr);
 
