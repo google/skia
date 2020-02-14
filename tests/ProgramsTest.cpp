@@ -268,8 +268,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                                                             GrRenderable::kYes);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
         auto proxy = proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kYes, 1,
-                                                kBottomLeft_GrSurfaceOrigin, mipMapped,
-                                                SkBackingFit::kExact, SkBudgeted::kNo,
+                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         views[0] = {{std::move(proxy), kBottomLeft_GrSurfaceOrigin, swizzle},
                     GrColorType::kRGBA_8888, kPremul_SkAlphaType};
@@ -281,8 +280,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                                                             GrRenderable::kNo);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
         auto proxy = proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kNo, 1,
-                                                kTopLeft_GrSurfaceOrigin, mipMapped,
-                                                SkBackingFit::kExact, SkBudgeted::kNo,
+                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         views[1] = {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle},
                       GrColorType::kAlpha_8, kPremul_SkAlphaType};

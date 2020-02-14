@@ -80,8 +80,8 @@ protected:
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
-            GrContext*, int width, int height, GrSurfaceOrigin, GrColorType, GrBackendFormat,
-            GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
+            GrContext*, int width, int height, GrColorType, GrBackendFormat, GrMipMapped,
+            PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,

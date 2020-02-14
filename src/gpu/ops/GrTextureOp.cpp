@@ -1294,7 +1294,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, dims, swizzle, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
+            format, dims, swizzle, GrRenderable::kNo, 1, mipMapped, fit, SkBudgeted::kNo,
             GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);

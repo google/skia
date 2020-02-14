@@ -208,8 +208,8 @@ static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context, co
     builder.finish();
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    if (sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(
-                key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin)) {
+    if (sk_sp<GrTextureProxy> blurProfile =
+                proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(blurProfile->backendFormat(),
                                                                    GrColorType::kAlpha_8);
         return {std::move(blurProfile), kTopLeft_GrSurfaceOrigin, swizzle};
