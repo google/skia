@@ -637,13 +637,10 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             } else if (nextH == srcH) {
                 dir = GrBicubicEffect::Direction::kX;
             }
-            if (srcW != texView.proxy()->width() || srcH != texView.proxy()->height()) {
-                auto domain = GrTextureDomain::MakeTexelDomain(
-                        SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
-                fp = GrBicubicEffect::Make(std::move(texView), matrix, domain, dir, prevAlphaType);
-            } else {
-                fp = GrBicubicEffect::Make(std::move(texView), matrix, dir, prevAlphaType);
-            }
+            static constexpr GrSamplerState::WrapMode kWM = GrSamplerState::WrapMode::kClamp;
+            auto subset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
+            fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix, kWM, kWM,
+                                             subset, dir, *this->caps());
             if (xform) {
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
             }
