@@ -22,6 +22,29 @@
       "revId": "908ed818a7286dfb7d126a7b5c6f8cb58d1c3a32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac976c9c_ef0c0489",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-14T14:50:14Z",
+      "side": 1,
+      "message": "So not sure about how metal orders things, but I would have guessed you need to close the current command encoder, then do the upload, then start the new command encoder. This is to make sure the first set of draws use the old atlas data and second set the new atlas data. How is that ordering enforced here?\n\nAlso if I\u0027m following the logic in getRenderCommandEncoder and compatible right, it seems like that could easily just return us the same renderEncoder again. Don\u0027t we need a different one? With your change here do we ever need the compatible checks in there (i.e. always return a new one)?",
+      "range": {
+        "startLine": 163,
+        "startChar": 4,
+        "endLine": 165,
+        "endChar": 90
+      },
+      "revId": "908ed818a7286dfb7d126a7b5c6f8cb58d1c3a32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
