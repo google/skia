@@ -11,7 +11,7 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRemoteGlyphCache.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkSurfacePriv.h"
