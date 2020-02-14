@@ -249,7 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
     auto blob = make_blob();
 
     for (int y = 40; y < kScreenDim - 40; y++) {
-        SkBitmap base = draw_blob(blob.get(), surface.get(), {40, y + 0.0f});
+        SkBitmap base = draw_blob(blob.get(), nullptr, {40, y + 0.0f});
         SkBitmap half = draw_blob(blob.get(), surface.get(), {40, y + 0.5f});
         SkBitmap unit = draw_blob(blob.get(), surface.get(), {40, y + 1.0f});
         bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
