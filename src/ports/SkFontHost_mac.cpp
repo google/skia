@@ -1056,25 +1056,26 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
     // as other uses of CTFontCreateWithGraphicsFont which is that such CTFonts should not escape
     // the scaler context, since they aren't 'normal'.
 
-    SkUniqueCFRef<CFMutableDictionaryRef> attr(
-    CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
-                              &kCFTypeDictionaryKeyCallBacks,
-                              &kCFTypeDictionaryValueCallBacks));
+    SkUniqueCFRef<CTFontDescriptorRef> originalDesc(CTFontCopyFontDescriptor(baseFont));
+    SkUniqueCFRef<CFDictionaryRef> originalAttr(CTFontDescriptorCopyAttributes(originalDesc.get()));
+
+    SkUniqueCFRef<CFMutableDictionaryRef> attr(CFDictionaryCreateMutableCopy(
+            kCFAllocatorDefault, 0, originalAttr.get()));
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
     }
     add_notrak_attr(attr.get());
 
-    SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
-
     // The attributes parameter to CTFontCreateWithGraphicsFont *must* not set variations.
     // If it sets variations then with fonts with variation axes the copy will fail in
     // CGFontVariationFromDictCallback when it assumes kCGFontVariationAxisName is CFNumberRef
     // which it quite obviously is not (in 10.11, fixed by 10.14).
+    CFDictionaryRemoveValue(attr.get(), kCTFontVariationAttribute);
 
     // However, the attributes parameter to CTFontCreateWithGraphicsFont *must* not be nullptr.
     // If it is then variable system fonts will only work on named instances on 10.14 and earlier.
+    SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
