@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e4835aff_5f189ffd",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-14T20:55:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9079da86_8a4779b2",
+      "revId": "3786dfb78a4d01fc374bdc495a2e1dad13ad7063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e400a7ff_3012e069",
         "filename": "src/core/SkStrikeCache.h",
         "patchSetId": 4
@@ -39,6 +57,30 @@
       "revId": "3786dfb78a4d01fc374bdc495a2e1dad13ad7063",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7220c9d5_ad687477",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-14T20:55:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e400a7ff_3012e069",
+      "range": {
+        "startLine": 235,
+        "startChar": 23,
+        "endLine": 235,
+        "endChar": 25
+      },
+      "revId": "3786dfb78a4d01fc374bdc495a2e1dad13ad7063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
