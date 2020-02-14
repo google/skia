@@ -35,7 +35,6 @@ class Serializer;
 enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
 class SkAutoDescriptor;
-class SkStrike;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkStrikeCache;

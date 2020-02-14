@@ -13,7 +13,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
