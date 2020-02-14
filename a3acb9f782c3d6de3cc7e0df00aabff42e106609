@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "877771cc_d227ff88",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-14T21:02:08Z",
+      "side": 1,
+      "message": "Seems like you have to add cases to switch statements to appease the clang warning gods.",
+      "range": {
+        "startLine": 139,
+        "startChar": 3,
+        "endLine": 139,
+        "endChar": 14
+      },
+      "revId": "a3acb9f782c3d6de3cc7e0df00aabff42e106609",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7021da0a_db79ab74",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-14T21:02:08Z",
+      "side": 1,
+      "message": "Seeing this in action is really testing my resolve to camel case all acronyms. Would it be so horrible to use \"Direct3D\"? Maybe I\u0027ll just get used to it...",
+      "range": {
+        "startLine": 257,
+        "startChar": 12,
+        "endLine": 257,
+        "endChar": 15
+      },
+      "revId": "a3acb9f782c3d6de3cc7e0df00aabff42e106609",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
