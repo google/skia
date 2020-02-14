@@ -14,6 +14,8 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrContext.h"
 #include "src/core/SkCachedData.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
 
@@ -31,6 +33,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
 void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
         const GrBackendTexture& backendTexture) {
     SkASSERT(!fPromiseImageTexture);
+    SkASSERT(fBackendFormat == backendTexture.getBackendFormat());
     fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
 }
 
@@ -71,42 +74,107 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     return context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
 }
 
-void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
-    for (int i = 0; i < fImageInfo.count(); ++i) {
-        const PromiseImageInfo& info = fImageInfo[i];
+/*
+ * Create backend textures and upload data to them for all the textures required to satisfy
+ * a single promise image.
+ * For YUV textures this will result in up to 4 actual textures.
+ */
+void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
+                                                            PromiseImageInfo* info) {
+    SkASSERT(context->priv().asDirectContext());
 
-        // DDL TODO: how can we tell if we need mipmapping!
+    // DDL TODO: how can we tell if we need mipmapping!
+    if (info->isYUV()) {
+        int numPixmaps;
+        SkAssertResult(SkYUVAIndex::AreValidIndices(info->yuvaIndices(), &numPixmaps));
+        for (int j = 0; j < numPixmaps; ++j) {
+            const SkPixmap& yuvPixmap = info->yuvPixmap(j);
+
+            PromiseImageCallbackContext* callbackContext = info->callbackContext(j);
+            SkASSERT(callbackContext);
+
+            callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
+                                                                   info->yuvaIndices(), j));
+            SkASSERT(callbackContext->promiseImageTexture());
+        }
+    } else {
+        PromiseImageCallbackContext* callbackContext = info->callbackContext(0);
+        if (!callbackContext) {
+            // This texture would've been too large to fit on the GPU
+            return;
+        }
+
+        const SkBitmap& bm = info->normalBitmap();
+
+        GrBackendTexture backendTex = context->createBackendTexture(
+                                                    &bm.pixmap(), 1, GrRenderable::kNo,
+                                                    GrProtected::kNo);
+        SkASSERT(backendTex.isValid());
+
+        callbackContext->setBackendTexture(backendTex);
+    }
+}
+
+void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
+    const GrCaps* caps = context->priv().caps();
+    const int maxDimension = caps->maxTextureSize();
+
+    for (int i = 0; i < fImageInfo.count(); ++i) {
+        PromiseImageInfo& info = fImageInfo[i];
+
         if (info.isYUV()) {
             int numPixmaps;
             SkAssertResult(SkYUVAIndex::AreValidIndices(info.yuvaIndices(), &numPixmaps));
+
             for (int j = 0; j < numPixmaps; ++j) {
                 const SkPixmap& yuvPixmap = info.yuvPixmap(j);
 
+                GrBackendFormat backendFormat = context->defaultBackendFormat(yuvPixmap.colorType(),
+                                                                              GrRenderable::kNo);
+
                 sk_sp<PromiseImageCallbackContext> callbackContext(
-                                                        new PromiseImageCallbackContext(context));
+                    new PromiseImageCallbackContext(context, backendFormat));
 
-                callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
-                                                                       info.yuvaIndices(), j));
-                SkASSERT(callbackContext->promiseImageTexture());
-
-                fImageInfo[i].setCallbackContext(j, std::move(callbackContext));
+                info.setCallbackContext(j, std::move(callbackContext));
             }
         } else {
-            sk_sp<PromiseImageCallbackContext> callbackContext(
-                                                    new PromiseImageCallbackContext(context));
-
             const SkBitmap& bm = info.normalBitmap();
 
-            GrBackendTexture backendTex = context->createBackendTexture(
-                                                        &bm.pixmap(), 1, GrRenderable::kNo,
-                                                        GrProtected::kNo);
+            // TODO: explicitly mark the PromiseImageInfo as too big and check in uploadAllToGPU
+            if (maxDimension < std::max(bm.width(), bm.height())) {
+                // This won't fit on the GPU. Fallback to a raster-backed image per tile.
+                continue;
+            }
 
-            callbackContext->setBackendTexture(backendTex);
+            GrBackendFormat backendFormat = context->defaultBackendFormat(bm.pixmap().colorType(),
+                                                                          GrRenderable::kNo);
+            if (!caps->isFormatTexturable(backendFormat)) {
+                continue;
+            }
 
-            // The GMs sometimes request too large an image
-            //SkAssertResult(callbackContext->backendTexture().isValid());
 
-            fImageInfo[i].setCallbackContext(0, std::move(callbackContext));
+            sk_sp<PromiseImageCallbackContext> callbackContext(
+                new PromiseImageCallbackContext(context, backendFormat));
+
+            info.setCallbackContext(0, std::move(callbackContext));
+        }
+    }
+}
+
+void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
+    SkASSERT(context->priv().asDirectContext());
+
+    if (taskGroup) {
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            PromiseImageInfo* info = &fImageInfo[i];
+
+            taskGroup->add([context, info]() {
+                              CreateBETexturesForPromiseImage(context, info);
+                           });
+        }
+    } else {
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            CreateBETexturesForPromiseImage(context, &fImageInfo[i]);
         }
     }
 }
@@ -119,7 +187,7 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 
     SkDeserialProcs procs;
     procs.fImageCtx = (void*) &perRecorderContext;
-    procs.fImageProc = PromiseImageCreator;
+    procs.fImageProc = CreatePromiseImages;
 
     return SkPicture::MakeFromData(compressedPictureData, &procs);
 }
@@ -127,7 +195,7 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 // This generates promise images to replace the indices in the compressed picture. This
 // reconstitution is performed separately in each thread so we end up with multiple
 // promise images referring to the same GrBackendTexture.
-sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
+sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                                           size_t length, void* ctxIn) {
     PerRecorderContext* perRecorderContext = static_cast<PerRecorderContext*>(ctxIn);
     const DDLPromiseImageHelper* helper = perRecorderContext->fHelper;
@@ -142,13 +210,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     const DDLPromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
-    if (!curImage.promiseTexture(0)) {
-        SkASSERT(!curImage.isYUV());
-        // We weren't able to make a backend texture for this SkImage. In this case we create
-        // a separate bitmap-backed image for each thread.
+    // If there is no callback context that means 'createCallbackContexts' determined the
+    // texture wouldn't fit on the GPU. Create a separate bitmap-backed image for each thread.
+    if (!curImage.isYUV() && !curImage.callbackContext(0)) {
         SkASSERT(curImage.normalBitmap().isImmutable());
         return SkImage::MakeFromBitmap(curImage.normalBitmap());
     }
+
     SkASSERT(curImage.index() == *indexPtr);
 
     sk_sp<SkImage> image;
@@ -160,8 +228,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         int textureCount;
         SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
         for (int i = 0; i < textureCount; ++i) {
-            const GrBackendTexture& backendTex = curImage.promiseTexture(i)->backendTexture();
-            backendFormats[i] = backendTex.getBackendFormat();
+            backendFormats[i] = curImage.backendFormat(i);
             SkASSERT(backendFormats[i].isValid());
             contexts[i] = curImage.refCallbackContext(i).release();
             sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
@@ -198,8 +265,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         }
 #endif
     } else {
-        const GrBackendTexture& backendTex = curImage.promiseTexture(0)->backendTexture();
-        GrBackendFormat backendFormat = backendTex.getBackendFormat();
+        GrBackendFormat backendFormat = curImage.backendFormat(0);
         SkASSERT(backendFormat.isValid());
 
         // Each DDL recorder gets its own ref on the promise callback context for the

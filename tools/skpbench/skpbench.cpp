@@ -238,7 +238,9 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
         exitf(ExitErr::kUnavailable, "DDL: conversion of skp failed");
     }
 
-    promiseImageHelper.uploadAllToGPU(context);
+    promiseImageHelper.createCallbackContexts(context);
+
+    promiseImageHelper.uploadAllToGPU(nullptr, context);
 
     DDLTileHelper tiles(surface, viewport, FLAGS_ddlTilingWidthHeight);
 

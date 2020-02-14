@@ -1931,8 +1931,10 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         }
         sk_sp<SkSurface> surface = sk_ref_sp(tmp);
 
+        promiseImageHelper.createCallbackContexts(context);
+
         // This is here bc this is the first point where we have access to the context
-        promiseImageHelper.uploadAllToGPU(context);
+        promiseImageHelper.uploadAllToGPU(nullptr, context);
         // We draw N times, with a clear between.
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {

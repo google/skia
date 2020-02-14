@@ -53,7 +53,9 @@ public:
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
     sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
 
-    void uploadAllToGPU(GrContext* context);
+    void createCallbackContexts(GrContext*);
+
+    void uploadAllToGPU(SkTaskGroup*, GrContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
@@ -73,9 +75,13 @@ private:
     // it drops all of its refs (via "reset").
     class PromiseImageCallbackContext : public SkRefCnt {
     public:
-        PromiseImageCallbackContext(GrContext* context) : fContext(context) {}
+        PromiseImageCallbackContext(GrContext* context, GrBackendFormat backendFormat)
+                : fContext(context)
+                , fBackendFormat(backendFormat) {}
 
         ~PromiseImageCallbackContext();
+
+        const GrBackendFormat& backendFormat() const { return fBackendFormat; }
 
         void setBackendTexture(const GrBackendTexture& backendTexture);
 
@@ -101,17 +107,18 @@ private:
         void wasAddedToImage() { fNumImages++; }
 
         const SkPromiseImageTexture* promiseImageTexture() const {
-          return fPromiseImageTexture.get();
+            return fPromiseImageTexture.get();
         }
 
     private:
-        GrContext* fContext;
+        GrContext*                   fContext;
+        GrBackendFormat              fBackendFormat;
         sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
-        int fNumImages = 0;
-        int fTotalFulfills = 0;
-        int fTotalReleases = 0;
-        int fUnreleasedFulfills = 0;
-        int fDoneCnt = 0;
+        int                          fNumImages = 0;
+        int                          fTotalFulfills = 0;
+        int                          fTotalReleases = 0;
+        int                          fUnreleasedFulfills = 0;
+        int                          fDoneCnt = 0;
 
         typedef SkRefCnt INHERITED;
     };
@@ -169,6 +176,10 @@ private:
             return fCallbackContexts[index];
         }
 
+        const GrBackendFormat& backendFormat(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
+            return fCallbackContexts[index]->backendFormat();
+        }
         const SkPromiseImageTexture* promiseTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->promiseImageTexture();
@@ -216,6 +227,8 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
+    static void CreateBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
+
     static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
         return callbackContext->fulfill();
@@ -232,7 +245,7 @@ private:
         callbackContext->unref();
     }
 
-    static sk_sp<SkImage> PromiseImageCreator(const void* rawData, size_t length, void* ctxIn);
+    static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
