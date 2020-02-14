@@ -162,12 +162,23 @@ def _InfraTests(input_api, output_api):
 
 def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
-  results = []
+  files = []
   for f in input_api.AffectedFiles():
-    if (not f.LocalPath().endswith('.gn') and
-        not f.LocalPath().endswith('.gni')):
-      continue
+    if (f.LocalPath().endswith('.gn') or
+        f.LocalPath().endswith('.gni')):
+      files.append(f)
+  if not files:
+    return []
 
+  cmd = ['python', os.path.join('bin', 'fetch-gn')]
+  try:
+    subprocess.check_output(cmd)
+  except subprocess.CalledProcessError as e:
+    return [output_api.PresubmitError(
+        '`%s` failed:\n%s' % (' '.join(cmd), e.output))]
+
+  results = []
+  for f in files:
     gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
     gn = os.path.join(input_api.PresubmitLocalPath(), 'bin', gn)
     cmd = [gn, 'format', '--dry-run', f.LocalPath()]
