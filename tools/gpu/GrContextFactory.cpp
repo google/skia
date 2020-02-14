@@ -13,7 +13,7 @@
 #endif
 
 #if SK_ANGLE
-    #include "tools/gpu/gl/angle/GLTestContext_angle.h"
+#include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #endif
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 #ifdef SK_VULKAN
@@ -21,6 +21,9 @@
 #endif
 #ifdef SK_METAL
 #include "tools/gpu/mtl/MtlTestContext.h"
+#endif
+#ifdef SK_DIRECT3D
+#include "tools/gpu/d3d/D3dTestContext.h"
 #endif
 #ifdef SK_DAWN
 #include "tools/gpu/dawn/DawnTestContext.h"
@@ -31,28 +34,24 @@
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
 extern "C" {
-    // NVIDIA documents that the presence and value of this symbol programmatically enable the high
-    // performance GPU in laptops with switchable graphics.
-    //   https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
-    // From testing, including this symbol, even if it is set to 0, we still get the NVIDIA GPU.
-    _declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+// NVIDIA documents that the presence and value of this symbol programmatically enable the high
+// performance GPU in laptops with switchable graphics.
+//   https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
+// From testing, including this symbol, even if it is set to 0, we still get the NVIDIA GPU.
+_declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 
-    // AMD has a similar mechanism, although I don't have an AMD laptop, so this is untested.
-    //   https://community.amd.com/thread/169965
-    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+// AMD has a similar mechanism, although I don't have an AMD laptop, so this is untested.
+//   https://community.amd.com/thread/169965
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
 
 namespace sk_gpu_test {
-GrContextFactory::GrContextFactory() { }
+GrContextFactory::GrContextFactory() {}
 
-GrContextFactory::GrContextFactory(const GrContextOptions& opts)
-    : fGlobalOptions(opts) {
-}
+GrContextFactory::GrContextFactory(const GrContextOptions& opts) : fGlobalOptions(opts) {}
 
-GrContextFactory::~GrContextFactory() {
-    this->destroyContexts();
-}
+GrContextFactory::~GrContextFactory() { this->destroyContexts(); }
 
 void GrContextFactory::destroyContexts() {
     // We must delete the test contexts in reverse order so that any child context is finished and
@@ -92,7 +91,7 @@ void GrContextFactory::abandonContexts() {
                 context.fGrContext->abandonContext();
             }
             if (context.fTestContext) {
-                delete(context.fTestContext);
+                delete (context.fTestContext);
                 context.fTestContext = nullptr;
             }
             if (!requiresEarlyAbandon) {
@@ -136,10 +135,8 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 
     for (int i = 0; i < fContexts.count(); ++i) {
         Context& context = fContexts[i];
-        if (context.fType == type &&
-            context.fOverrides == overrides &&
-            context.fShareContext == shareContext &&
-            context.fShareIndex == shareIndex &&
+        if (context.fType == type && context.fOverrides == overrides &&
+            context.fShareContext == shareContext && context.fShareIndex == shareIndex &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
             return ContextInfo(context.fType, context.fTestContext, context.fGrContext,
@@ -164,8 +161,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     switch (backend) {
 #ifdef SK_GL
         case GrBackendApi::kOpenGL: {
-            GLTestContext* glShareContext = masterContext
-                    ? static_cast<GLTestContext*>(masterContext->fTestContext) : nullptr;
+            GLTestContext* glShareContext =
+                    masterContext ? static_cast<GLTestContext*>(masterContext->fTestContext)
+                                  : nullptr;
             GLTestContext* glCtx;
             switch (type) {
                 case kGL_ContextType:
@@ -177,23 +175,28 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 #if SK_ANGLE
                 case kANGLE_D3D9_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2,
-                                                 glShareContext).release();
+                                                 glShareContext)
+                                    .release();
                     break;
                 case kANGLE_D3D11_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2,
-                                                 glShareContext).release();
+                                                 glShareContext)
+                                    .release();
                     break;
                 case kANGLE_D3D11_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3,
-                                                 glShareContext).release();
+                                                 glShareContext)
+                                    .release();
                     break;
                 case kANGLE_GL_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2,
-                                                 glShareContext).release();
+                                                 glShareContext)
+                                    .release();
                     break;
                 case kANGLE_GL_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
-                                                 glShareContext).release();
+                                                 glShareContext)
+                                    .release();
                     break;
 #endif
 #ifndef SK_NO_COMMAND_BUFFER
@@ -213,8 +216,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 #endif  // SK_GL
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
-            VkTestContext* vkSharedContext = masterContext
-                    ? static_cast<VkTestContext*>(masterContext->fTestContext) : nullptr;
+            VkTestContext* vkSharedContext =
+                    masterContext ? static_cast<VkTestContext*>(masterContext->fTestContext)
+                                  : nullptr;
             SkASSERT(kVulkan_ContextType == type);
             testCtx.reset(CreatePlatformVkTestContext(vkSharedContext));
             if (!testCtx) {
@@ -237,8 +241,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal: {
-            MtlTestContext* mtlSharedContext = masterContext
-                    ? static_cast<MtlTestContext*>(masterContext->fTestContext) : nullptr;
+            MtlTestContext* mtlSharedContext =
+                    masterContext ? static_cast<MtlTestContext*>(masterContext->fTestContext)
+                                  : nullptr;
             SkASSERT(kMetal_ContextType == type);
             testCtx.reset(CreatePlatformMtlTestContext(mtlSharedContext));
             if (!testCtx) {
@@ -247,10 +252,24 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             break;
         }
 #endif
+#ifdef SK_DIRECT3D
+        case GrBackendApi::kDirect3D: {
+            D3dTestContext* d3dSharedContext =
+                    masterContext ? static_cast<D3dTestContext*>(masterContext->fTestContext)
+                                  : nullptr;
+            SkASSERT(kDirect3D_ContextType == type);
+            testCtx.reset(CreatePlatformD3dTestContext(d3dSharedContext));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            break;
+        }
+#endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn: {
-            DawnTestContext* dawnSharedContext = masterContext
-                    ? static_cast<DawnTestContext*>(masterContext->fTestContext) : nullptr;
+            DawnTestContext* dawnSharedContext =
+                    masterContext ? static_cast<DawnTestContext*>(masterContext->fTestContext)
+                                  : nullptr;
             testCtx.reset(CreatePlatformDawnTestContext(dawnSharedContext));
             if (!testCtx) {
                 return ContextInfo();
