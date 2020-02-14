@@ -39,11 +39,54 @@ public:
 };
 
 class SkStrikeCache final : public SkStrikeForGPUCacheInterface {
-    class Node;
-
 public:
     SkStrikeCache() = default;
     ~SkStrikeCache() override;
+
+    class Node final : public SkRefCnt, public SkStrikeForGPU {
+    public:
+        Node(SkStrikeCache* strikeCache,
+             const SkDescriptor& desc,
+             std::unique_ptr<SkScalerContext> scaler,
+             const SkFontMetrics* metrics,
+             std::unique_ptr<SkStrikePinner> pinner)
+                : fStrikeCache{strikeCache}
+                , fStrike{desc, std::move(scaler), metrics}
+                , fPinner{std::move(pinner)} {}
+
+        const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+            return fStrike.roundingSpec();
+        }
+
+        const SkDescriptor& getDescriptor() const override {
+            return fStrike.getDescriptor();
+        }
+
+        void prepareForMaskDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForMaskDrawing(drawbles, rejects);
+        }
+
+        void prepareForSDFTDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForSDFTDrawing(drawbles, rejects);
+        }
+
+        void prepareForPathDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            fStrike.prepareForPathDrawing(drawbles, rejects);
+        }
+
+        void onAboutToExitScope() override {
+            fStrikeCache->attachNode(this);
+        }
+
+        SkStrikeCache* const            fStrikeCache;
+        Node*                           fNext{nullptr};
+        Node*                           fPrev{nullptr};
+        SkStrike                        fStrike;
+        std::unique_ptr<SkStrikePinner> fPinner;
+    };  // Node
 
     class ExclusiveStrikePtr {
     public:
