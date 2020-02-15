@@ -200,6 +200,7 @@ protected:
     }
 
 class CCPR_cleanup : public CCPRTest {
+protected:
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
 
@@ -235,6 +236,10 @@ DEF_CCPR_TEST(CCPR_cleanup)
 class CCPR_cleanupWithTexAllocFail : public CCPR_cleanup {
     void customizeOptions(GrMockOptions* mockOptions, GrContextOptions*) override {
         mockOptions->fFailTextureAllocations = true;
+    }
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        ((GrRecordingContext*)ccpr.ctx())->priv().incrSuppressWarningMessages();
+        this->CCPR_cleanup::onRun(reporter, ccpr);
     }
 };
 DEF_CCPR_TEST(CCPR_cleanupWithTexAllocFail)

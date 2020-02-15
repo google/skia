@@ -94,9 +94,7 @@ public:
     const GrCaps* caps() const;
     GrOpMemoryPool* opMemoryPool() const;
 
-#if GR_TEST_UTILS
-    bool testingOnly_getSuppressAllocationWarnings() const;
-#endif
+    void printWarningMessage(const char* msg) const;
 
 private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
