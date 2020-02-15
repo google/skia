@@ -79,7 +79,6 @@ static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple th
 DECLARE_int(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
-using sk_gpu_test::ContextInfo;
 
 namespace DM {
 
