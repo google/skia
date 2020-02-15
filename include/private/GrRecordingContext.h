@@ -37,12 +37,6 @@ public:
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;
 
-#if GR_TEST_UTILS
-    // Used by tests that induce intentional allocation failures, in order to keep the output clean.
-    void testingOnly_setSuppressAllocationWarnings() { fSuppressAllocationWarnings = true; }
-    bool testingOnly_getSuppressAllocationWarnings() const { return fSuppressAllocationWarnings; }
-#endif
-
     // The collection of specialized memory arenas for different types of data recorded by a
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
@@ -148,7 +142,7 @@ private:
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
 #ifdef GR_TEST_UTILS
-    bool fSuppressAllocationWarnings = false;
+    int fSuppressWarningMessages = 0;
 #endif
 
     typedef GrImageContext INHERITED;

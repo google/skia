@@ -185,13 +185,9 @@ std::unique_ptr<GrRenderTargetContext> GrDynamicAtlas::instantiate(
     auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, kTextureOrigin, fColorType,
                                                   nullptr, nullptr);
     if (!rtc) {
-#if GR_TEST_UTILS
-        if (!onFlushRP->testingOnly_getSuppressAllocationWarnings())
-#endif
-        {
-            SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some masks will not be drawn.\n",
-                     fWidth, fHeight);
-        }
+        onFlushRP->printWarningMessage(SkStringPrintf(
+                "WARNING: failed to allocate a %ix%i atlas. Some masks will not be drawn.\n",
+                fWidth, fHeight).c_str());
         return nullptr;
     }
 
