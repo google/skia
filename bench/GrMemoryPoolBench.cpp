@@ -168,7 +168,7 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         std::unique_ptr<GrMemoryPool> pool;
         if (fPoolSize > 0) {
-            pool = GrMemoryPool::Make(fPoolSize, fPoolSize);
+            pool = GrMemoryPool::Make(fPoolSize);
         } // else keep it null to test regular new/delete performance
 
         fProc(pool.get(), loops);
