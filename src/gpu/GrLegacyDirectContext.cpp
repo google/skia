@@ -170,12 +170,6 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
         return nullptr;
     }
 
-#if GR_TEST_UTILS
-    if (mockOptions && mockOptions->fFailTextureAllocations) {
-        context->testingOnly_setSuppressAllocationWarnings();
-    }
-#endif
-
     return context;
 }
 

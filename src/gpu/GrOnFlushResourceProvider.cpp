@@ -143,8 +143,6 @@ GrOpMemoryPool* GrOnFlushResourceProvider::opMemoryPool() const {
     return fDrawingMgr->getContext()->priv().opMemoryPool();
 }
 
-#if GR_TEST_UTILS
-bool GrOnFlushResourceProvider::testingOnly_getSuppressAllocationWarnings() const {
-    return fDrawingMgr->getContext()->testingOnly_getSuppressAllocationWarnings();
+void GrOnFlushResourceProvider::printWarningMessage(const char* msg) const {
+    fDrawingMgr->getContext()->priv().printWarningMessage(msg);
 }
-#endif

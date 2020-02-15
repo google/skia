@@ -72,6 +72,33 @@ public:
     // In order to make progress we temporarily need a way to break CL impasses.
     GrContext* backdoor();
 
+#if GR_TEST_UTILS
+    // Used by tests that intentionally exercise codepaths that print warning messages, in order to
+    // not confuse users with output that looks like a testing failure.
+    class AutoSuppressWarningMessages {
+    public:
+        AutoSuppressWarningMessages(GrRecordingContext* context) : fContext(context) {
+            ++fContext->fSuppressWarningMessages;
+        }
+        ~AutoSuppressWarningMessages() {
+            --fContext->fSuppressWarningMessages;
+        }
+    private:
+        GrRecordingContext* fContext;
+    };
+    void incrSuppressWarningMessages() { ++fContext->fSuppressWarningMessages; }
+    void decrSuppressWarningMessages() { --fContext->fSuppressWarningMessages; }
+#endif
+
+    void printWarningMessage(const char* msg) const {
+#if GR_TEST_UTILS
+        if (fContext->fSuppressWarningMessages > 0) {
+            return;
+        }
+#endif
+        SkDebugf(msg);
+    }
+
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
     GrRecordingContextPriv(const GrRecordingContextPriv&); // unimpl

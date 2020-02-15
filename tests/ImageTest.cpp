@@ -28,6 +28,7 @@
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Base.h"
@@ -962,6 +963,9 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         // Case #6: Verify that only one context can be using the image at a time
         {
+            // Suppress warnings about trying to use a texture on two GrContexts.
+            GrRecordingContextPriv::AutoSuppressWarningMessages aswm(otherCtx);
+
             testContext->makeCurrent();
             sk_sp<SkImage> refImg(imageMaker(ctx));
 
