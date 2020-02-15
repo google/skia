@@ -102,7 +102,7 @@ void DDLTileHelper::TileData::compose() {
     SkCanvas* canvas = fDstSurface->getCanvas();
     canvas->save();
     canvas->clipRect(SkRect::Make(fClip));
-    canvas->drawImage(std::move(fImage), fClip.fLeft, fClip.fTop);
+    canvas->drawImage(fImage, fClip.fLeft, fClip.fTop);
     canvas->restore();
 }
 
