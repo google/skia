@@ -23,10 +23,6 @@ class SK_API SkOverdrawColorFilter : public SkColorFilter {
 public:
     static constexpr int kNumColors = 6;
 
-    // DEPRECATED
-    // For historical reasons, this version of Make() assumes the array is RGBA-premul
-    static sk_sp<SkColorFilter> Make(const uint32_t colors[kNumColors]);
-
     static sk_sp<SkColorFilter> MakeWithSkColors(const SkColor colors[kNumColors]) {
         return sk_sp<SkColorFilter>(new SkOverdrawColorFilter(colors));
     }
