@@ -31,7 +31,7 @@ const char* SKSL_TEST_SRC = R"(
     }
 )";
 
-DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 512, 256) {
+DEF_SIMPLE_GM(runtimecolorfilter, canvas, 512, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
