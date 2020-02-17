@@ -51,7 +51,7 @@ public:
             // only assert we're unique if we're not empty
             SkASSERT(this->unique());
         }
-        return fPtr;
+        return const_cast<void*>(fPtr);
     }
 
     /**
@@ -161,7 +161,7 @@ private:
     friend class SkNVRefCnt<SkData>;
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
-    void*       fPtr;
+    const void* fPtr;
     size_t      fSize;
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);

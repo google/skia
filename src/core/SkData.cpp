@@ -13,22 +13,22 @@
 #include "src/core/SkWriteBuffer.h"
 #include <new>
 
-SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
-    fPtr = const_cast<void*>(ptr);
-    fSize = size;
-    fReleaseProc = proc;
-    fReleaseProcContext = context;
-}
+SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context)
+    : fReleaseProc(proc)
+    , fReleaseProcContext(context)
+    , fPtr(ptr)
+    , fSize(size)
+{}
 
 /** This constructor means we are inline with our fPtr's contents.
  *  Thus we set fPtr to point right after this.
  */
-SkData::SkData(size_t size) {
-    fPtr = (char*)(this + 1);   // contents are immediately after this
-    fSize = size;
-    fReleaseProc = nullptr;
-    fReleaseProcContext = nullptr;
-}
+SkData::SkData(size_t size)
+    : fReleaseProc(nullptr)
+    , fReleaseProcContext(nullptr)
+    , fPtr((const char*)(this + 1))
+    , fSize(size)
+{}
 
 SkData::~SkData() {
     if (fReleaseProc) {
@@ -37,11 +37,18 @@ SkData::~SkData() {
 }
 
 bool SkData::equals(const SkData* other) const {
+    if (this == other) {
+        return true;
+    }
     if (nullptr == other) {
         return false;
     }
 
-    return fSize == other->fSize && !memcmp(fPtr, other->fPtr, fSize);
+    // guard against calling memcmp with nullptr (if one of us is empty)
+    if (fSize != other->fSize) {
+        return false;
+    }
+    return fSize == 0 || !memcmp(fPtr, other->fPtr, fSize);
 }
 
 size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
