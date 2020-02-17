@@ -680,6 +680,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int stencilBits,
                                              const GrVkImageInfo& vkInfo)
         : GrBackendRenderTarget(width, height, sampleCnt, vkInfo) {
+    // TODO: Do we want to set fFramebufferOnly here based on vkInfo usage flags? Some thing like this:
+    //  fFramebufferOnly = ((VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_SAMPLED_BIT) & vkInfo.fImageUsageFlags) ? false : true;
     // This is a deprecated constructor that takes a bogus stencil bits.
     SkASSERT(0 == stencilBits);
 }

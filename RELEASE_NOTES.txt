@@ -7,6 +7,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Added VkImageUsageFlags to GrVkImageInfo struct.
+
   * Added two new helper methods to SkSurfaceCharacterization: createBackendFormat and
     createFBO0. These make it easier for clients to create new surface characterizations that
     differ only a little from an existing surface characterization.

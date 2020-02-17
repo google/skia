@@ -317,8 +317,8 @@ sk_sp<SkImage> VkYcbcrSamplerTestHelper::createI420Image(skiatest::Reporter* rep
                                       formatProperties.linearTilingFeatures);
     GrVkAlloc alloc(fImageMemory, 0 /* offset */, requirements.size, 0 /* flags */);
     GrVkImageInfo imageInfo(fImage, alloc, VK_IMAGE_TILING_LINEAR, VK_IMAGE_LAYOUT_UNDEFINED,
-                            vkImageInfo.format, 1 /* levelCount */, VK_QUEUE_FAMILY_IGNORED,
-                            GrProtected::kNo, ycbcrInfo);
+                            vkImageInfo.format, vkImageInfo.usage, 1 /* levelCount */,
+                            VK_QUEUE_FAMILY_IGNORED, GrProtected::kNo, ycbcrInfo);
 
     texture = GrBackendTexture(kImageWidth, kImageHeight, imageInfo);
     sk_sp<SkImage> image = SkImage::MakeFromTexture(fGrContext.get(),

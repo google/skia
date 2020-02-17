@@ -132,9 +132,7 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
         msImageDesc.fLevels = 1;
         msImageDesc.fSamples = sampleCnt;
         msImageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-        msImageDesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        msImageDesc.fUsageFlags = info.fImageUsageFlags;
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &views.msInfo)) {
@@ -217,6 +215,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
     // Adopted textures require both image and allocation because we're responsible for freeing
     SkASSERT(VK_NULL_HANDLE != info.fImage &&
              (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
+    // TODO: Do we want to assert any usage flag(s)? Make sure SAMPLE usage is set?
 
     GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kDirty
                                                          : GrMipMapsStatus::kNotAllocated;

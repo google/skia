@@ -1615,14 +1615,11 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    VkImageUsageFlags usageFlags = 0;
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (texturable == GrTexturable::kYes) {
-        usageFlags |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        SkASSERT(info->fImageUsageFlags | VK_IMAGE_USAGE_SAMPLED_BIT);
     }
     if (renderable == GrRenderable::kYes) {
-        usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        SkASSERT(info->fImageUsageFlags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
     }
 
     GrVkImage::ImageDesc imageDesc;
@@ -1633,7 +1630,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     imageDesc.fLevels = numMipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    imageDesc.fUsageFlags = usageFlags;
+    imageDesc.fUsageFlags = info->fImageUsageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     imageDesc.fIsProtected = fProtectedContext;
 

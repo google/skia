@@ -36,6 +36,7 @@ When using the Vulkan backend, GrVkImageInfo is used to construct GrBackendTextu
 and GrBackendRenderTarget objects that in turn are used to create SkSurface and SkImage
 objects that refer to VkImages created by the Skia client.
 
+<!-- TOOD: These details appear outdated and need to be updated -->
 The GrBackendObject returned by SkImage::getTextureHandle(),
 SkSurface::getTextureHandle(), and SkSurface::getRenderTargetHandle() should be
 interpreted as a GrVkImageInfo*. This allows a client to get the backing VkImage
