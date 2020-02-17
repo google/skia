@@ -22,6 +22,30 @@
       "revId": "b28099a6c2d31b7bff232bb646d564bb5397f61a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c6c1811_45b99f7f",
+        "filename": "src/core/SkData.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-17T16:55:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcc86373_81dde910",
+      "range": {
+        "startLine": 51,
+        "startChar": 26,
+        "endLine": 51,
+        "endChar": 32
+      },
+      "revId": "b28099a6c2d31b7bff232bb646d564bb5397f61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
