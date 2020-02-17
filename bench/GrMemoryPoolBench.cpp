@@ -45,7 +45,7 @@ static void run_stack(GrMemoryPool* pool, int loops) {
         for (int j = 0; j < kMaxObjects; ++j) {
             objs[j] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
         }
-        // Pop N objects off in LIFO order
+if (pool) pool->printStats();        // Pop N objects off in LIFO order
         for (int j = kMaxObjects - 1; j >= 0; --j) {
             if (pool) {
                 pool->release(objs[j]);
@@ -69,6 +69,7 @@ static void run_queue(GrMemoryPool* pool, int loops) {
         for (int j = 0; j < kMaxObjects; ++j) {
             objs[j] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
         }
+        if (pool) pool->printStats();
         // Pop N objects off in FIFO order
         for (int j = 0; j < kMaxObjects; ++j) {
             if (pool) {
@@ -90,6 +91,7 @@ static void run_pushpop(GrMemoryPool* pool, int loops) {
     T* objs[kMaxObjects];
     for (int i = 0; i < loops; ++i) {
         // Push N objects into the pool (or heap if pool is null)
+        // objs[0] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
         for (int j = 0; j < kMaxObjects; ++j) {
             if (pool) {
                 objs[j] = (T*) pool->allocate(sizeof(T));
@@ -99,8 +101,9 @@ static void run_pushpop(GrMemoryPool* pool, int loops) {
                 delete objs[j];
             }
         }
-
-        // Everything has been cleaned up for the next loop
+        // if (pool) pool->release(objs[0]);
+        // else delete objs[0];
+if (pool) pool->printStats();        // Everything has been cleaned up for the next loop
     }
 }
 
@@ -123,10 +126,10 @@ static void run_random(GrMemoryPool* pool, int loops) {
         objs[j] = nullptr;
     };
 
-    SkRandom r;
     for (int i = 0; i < loops; ++i) {
         // Execute 2*kMaxObjects operations, which should average to N create and N destroy,
         // followed by a small number of remaining deletions.
+        SkRandom r;
         for (int j = 0; j < 2 * kMaxObjects; ++j) {
             int k = r.nextRangeU(0, kMaxObjects-1);
             if (objs[k]) {
@@ -136,7 +139,7 @@ static void run_random(GrMemoryPool* pool, int loops) {
                 objs[k] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
             }
         }
-
+if (pool) pool->printStats();
         // Ensure everything is null for the next loop
         for (int j = 0; j < kMaxObjects; ++j) {
             if (objs[j]) {
