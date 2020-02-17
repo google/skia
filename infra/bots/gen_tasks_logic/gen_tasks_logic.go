@@ -576,6 +576,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
+		if os == "iOS" && parts["model"] == "iPhone11" {
+			d["os"] = "iOS-13.2.3"
+		}
 		if os == "Win10" && parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 v1709.
 			d["os"] = "Windows-10-16299"
@@ -624,6 +627,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
+				"iPhone11":  "iPhone12,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 			if !ok {
@@ -1120,6 +1124,8 @@ func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
 			ver := dim[len(prefix)+1:]
 			if strings.HasPrefix(ver, "11.4") {
 				t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset("ios-dev-image-11.4"))
+			} else if strings.HasPrefix(ver, "13.2") {
+				t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset("ios-dev-image-13.2"))
 			} else {
 				glog.Fatalf("You must add a CIPD package containing the iOS dev image corresponding to version %s; see ios-dev-image-11.4 for an example.", ver)
 			}
