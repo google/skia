@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkDeque.h"
+#include "include/private/SkDeque.h"
 #include "include/private/SkMalloc.h"
 
 struct SkDeque::Block {
