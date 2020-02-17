@@ -208,6 +208,25 @@ DEF_TEST(Data, reporter) {
     test_files(reporter);
 }
 
+DEF_TEST(Data_empty, reporter) {
+    sk_sp<SkData> array[] = {
+        SkData::MakeEmpty(),
+        SkData::MakeUninitialized(0),
+        SkData::MakeFromMalloc(sk_malloc_throw(0), 0),
+        SkData::MakeWithCopy("", 0),
+        SkData::MakeWithProc(nullptr, 0, [](const void*, void*){}, nullptr),
+        SkData::MakeWithoutCopy(nullptr, 0),
+    };
+    constexpr int N = SK_ARRAY_COUNT(array);
+
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, array[i]->size() == 0);
+        for (int j = 0; j < N; ++j) {
+            REPORTER_ASSERT(reporter, array[i]->equals(array[j].get()));
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char gABC[] = "abcdefghijklmnopqrstuvwxyz";
