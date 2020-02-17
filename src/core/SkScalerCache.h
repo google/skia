@@ -133,14 +133,14 @@ private:
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
-    SkGlyph* glyph(SkPackedGlyphID packedID) SK_REQUIRES(fMu);
+    SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 
     // If the path has never been set, then use the scaler context to add the glyph.
     const SkPath* preparePath(SkGlyph*) SK_REQUIRES(fMu);
 
-    SkGlyph* internalGlyphOrNull(SkPackedGlyphID packedID) const SK_REQUIRES(fMu);
+    SkGlyph* internalGlyphOrNull(SkPackedGlyphID) const SK_REQUIRES(fMu);
 
     enum PathDetail {
         kMetricsOnly,
