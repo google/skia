@@ -302,14 +302,17 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
         : nullptr;
 }
 
-sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs,
+sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
                                                       sk_sp<SkColorFilter> children[],
                                                       size_t childCount) {
     extern sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect>, sk_sp<SkData>,
                                                          sk_sp<SkColorFilter>[], size_t);
 
-    return inputs && inputs->size() == this->inputSize() && childCount == fChildren.size()
-        ? SkMakeRuntimeColorFilter(sk_ref_sp(this), std::move(inputs), children, childCount)
+    if (!uniforms) {
+        uniforms = SkData::MakeEmpty();
+    }
+    return uniforms->size() == this->inputSize() && childCount == fChildren.size()
+        ? SkMakeRuntimeColorFilter(sk_ref_sp(this), std::move(uniforms), children, childCount)
         : nullptr;
 }
 
