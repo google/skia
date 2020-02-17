@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcc86373_81dde910",
+        "filename": "src/core/SkData.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-17T16:51:42Z",
+      "side": 1,
+      "message": "Maybe sk_careful_memcmp in SkMalloc.h?",
+      "range": {
+        "startLine": 51,
+        "startChar": 26,
+        "endLine": 51,
+        "endChar": 32
+      },
+      "revId": "b28099a6c2d31b7bff232bb646d564bb5397f61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
