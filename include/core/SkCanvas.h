@@ -11,7 +11,6 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkDeque.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -26,6 +25,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/private/SkDeque.h"
 #include "include/private/SkM44.h"
 #include "include/private/SkMacros.h"
 

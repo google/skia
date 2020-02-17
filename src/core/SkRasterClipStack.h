@@ -9,7 +9,7 @@
 #define SkRasterClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
-#include "include/core/SkDeque.h"
+#include "include/private/SkDeque.h"
 #include "src/core/SkRasterClip.h"
 #include <new>
 
