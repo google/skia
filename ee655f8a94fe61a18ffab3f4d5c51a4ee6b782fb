@@ -22,6 +22,30 @@
       "revId": "ee655f8a94fe61a18ffab3f4d5c51a4ee6b782fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97eb9ef6_f667a8ac",
+        "filename": "src/core/SkScan_Antihair.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-18T16:52:48Z",
+      "side": 1,
+      "message": "I\u0027ll take a look.\n\nI thought at one point we used to point directly into a mask for the aa[] buffer, and the mask was in a cache, but maybe we don\u0027t do that anymore.",
+      "parentUuid": "bebf6404_be44b242",
+      "range": {
+        "startLine": 78,
+        "startChar": 1,
+        "endLine": 83,
+        "endChar": 47
+      },
+      "revId": "ee655f8a94fe61a18ffab3f4d5c51a4ee6b782fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
