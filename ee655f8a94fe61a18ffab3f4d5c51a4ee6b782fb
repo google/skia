@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bebf6404_be44b242",
+        "filename": "src/core/SkScan_Antihair.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-18T15:52:21Z",
+      "side": 1,
+      "message": "I think we should probably change the signature of the blitters.  We\u0027d not need this comment if we just actually removed the const.",
+      "range": {
+        "startLine": 78,
+        "startChar": 1,
+        "endLine": 83,
+        "endChar": 47
+      },
+      "revId": "ee655f8a94fe61a18ffab3f4d5c51a4ee6b782fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
