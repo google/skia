@@ -597,6 +597,16 @@ optional("gpu") {
     }
   }
 
+  if (skia_use_direct3d) {
+    public_defines += [ "SK_DIRECT3D" ]
+    sources += skia_direct3d_sources
+    libs += [
+      "d3d12.lib",
+      "dxgi.lib",
+      "d3dcompiler.lib",
+    ]
+  }
+
   cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
@@ -1371,6 +1381,9 @@ if (skia_enable_tools) {
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+    }
+    if (skia_use_direct3d) {
+      sources += [ "tools/gpu/d3d/D3DTestContext.cpp" ]
     }
     if (skia_use_dawn) {
       public_deps += [ "//third_party/dawn:dawn_headers" ]

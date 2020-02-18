@@ -228,6 +228,29 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 }
 #endif
 
+#ifdef SK_DIRECT3D
+sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeDirect3D(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
+                                         const GrContextOptions& options) {
+    return nullptr;
+    //sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDirect3D, options));
+
+    //context->fGpu = GrD3DGpu::Make(backendContext, options, context.get());
+    //if (!context->fGpu) {
+    //    return nullptr;
+    //}
+
+    //if (!context->init(context->fGpu->refCaps())) {
+    //    return nullptr;
+    //}
+    //return context;
+}
+#endif
+
 #ifdef SK_DAWN
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
     GrContextOptions defaultOptions;
