@@ -40,7 +40,7 @@ public:
         void createDDL();
 
         // Replay the recorded DDL into the tile surface - creating 'fImage'.
-        void draw(GrContext*);
+        void draw1(GrContext*);
 
         // Draw the result of replaying the DDL (i.e., 'fImage') into the
         // final destination surface ('fDstSurface').
@@ -49,6 +49,8 @@ public:
         void reset();
 
         int id() const { return fID; }
+
+        SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
 
     private:
         int                       fID = -1;
