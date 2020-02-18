@@ -2097,6 +2097,54 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView28 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph28"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "AAAAA BBBBB CCCCC DDDDD EEEEE FFFFF GGGGG HHHHH IIIII JJJJJ KKKKK LLLLL MMMMM NNNNN OOOOO PPPPP QQQQQ";
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+
+        /*
+        for (auto s = 1; s < 200; ++s) {
+            paragraph->layout(360 + s);
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(400, 0);
+            paragraph->layout(360 - s);
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(-400, paragraph->getHeight() + 10);
+        }
+        */
+        auto s = 186;
+        paragraph->layout(360 - s);
+        paragraph->paint(canvas, 0, 0);
+        /*
+        paragraph->layout(360);
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 400);
+        paragraph->layout(354.333);
+        paragraph->paint(canvas, 0, 0);
+        */
+    }
+
+private:
+    typedef Sample INHERITED;
+    bool direction;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2123,5 +2171,6 @@ DEF_SAMPLE(return new ParagraphView22();)
 DEF_SAMPLE(return new ParagraphView23();)
 DEF_SAMPLE(return new ParagraphView24();)
 DEF_SAMPLE(return new ParagraphView25();)
-//DEF_SAMPLE(return new ParagraphView26();)
-//DEF_SAMPLE(return new ParagraphView27();)
+DEF_SAMPLE(return new ParagraphView26();)
+DEF_SAMPLE(return new ParagraphView27();)
+DEF_SAMPLE(return new ParagraphView28();)

@@ -47,7 +47,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextWordLength);
-                fTooLongWord = true;
+                if (fClusters.endPos() - fClusters.startPos() > 1 ||
+                    fWords.empty()) {
+                    fTooLongWord = true;
+                } else {
+                    // Even if the word is too long there is a very little space on this line.
+                    // let's deal with it on the next line.
+                }
             }
 
             if (cluster->width() > maxWidth) {
