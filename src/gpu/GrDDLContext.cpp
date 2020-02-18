@@ -84,14 +84,14 @@ private:
         }
 
         GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
-        if (desc.isValid()) {
+        if (!desc.isValid()) {
             return;
         }
 
         fProgramInfoMap.add(desc, programInfo);
     }
 
-    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) final {
+    void detachProgramData(SkTDArray<ProgramData>* dst) final {
         SkASSERT(dst->isEmpty());
 
         fProgramInfoMap.toArray(dst);
@@ -100,6 +100,7 @@ private:
 
 private:
     class ProgramInfoMap : public ::SkNoncopyable {
+        typedef const GrProgramDesc  CacheKey;
         typedef const GrProgramInfo* CacheValue;
 
     public:
@@ -108,7 +109,8 @@ private:
         ProgramInfoMap() : fMap(10) {}
         ~ProgramInfoMap() {}
 
-        void add(const GrProgramDesc& desc, const GrProgramInfo* programInfo) {
+        // TODO: this is doing a lot of reallocating of the ProgramDesc!
+        void add(CacheKey& desc, const GrProgramInfo* programInfo) {
             SkASSERT(desc.isValid());
 
             const CacheValue* preExisting = fMap.find(desc);
@@ -119,20 +121,20 @@ private:
             fMap.insert(desc, programInfo);
         }
 
-        void toArray(SkTDArray<const GrProgramInfo*>* dst) {
-            fMap.foreach([dst](CacheValue* programInfo) {
-                             dst->push_back(*programInfo);
+        void toArray(SkTDArray<ProgramData>* dst) {
+            fMap.foreach([dst](CacheKey* programDesc, CacheValue* programInfo) {
+                             dst->push_back(ProgramData(new GrProgramDesc(*programDesc), *programInfo));
                          });
         }
 
     private:
         struct DescHash {
-            uint32_t operator()(const GrProgramDesc& desc) const {
+            uint32_t operator()(CacheKey& desc) const {
                 return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
             }
         };
 
-        SkLRUCache<GrProgramDesc, CacheValue, DescHash> fMap;
+        SkLRUCache<CacheKey, CacheValue, DescHash> fMap;
     };
 
     ProgramInfoMap fProgramInfoMap;

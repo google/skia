@@ -552,6 +552,8 @@ public:
      */
     virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
 
+    virtual bool compile(const GrProgramDesc&, const GrProgramInfo&) = 0;
+
     virtual bool precompileShader(const SkData& key, const SkData& data) { return false; }
 
 #if GR_TEST_UTILS
