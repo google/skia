@@ -16,6 +16,24 @@
       "revId": "0faeb2f6fce4b7321ce07471bc381a35e1864110",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0d8cd76_8dc389d1",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-18T18:06:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62f46d77_fa2fa50b",
+      "revId": "0faeb2f6fce4b7321ce07471bc381a35e1864110",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
