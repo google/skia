@@ -51,6 +51,7 @@ private:
 
 public:
     GrGLInterface();
+    ~GrGLInterface() override;
 
     // Validates that the GrGLInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for both the GL version and any advertised

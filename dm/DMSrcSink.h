@@ -15,6 +15,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -447,6 +448,25 @@ public:
     }
 
 private:
+    typedef GPUSink INHERITED;
+};
+
+class GPUDDLSink : public GPUSink {
+public:
+    GPUDDLSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    Result ddlDraw(const Src&,
+                   sk_sp<SkSurface> dstSurface,
+                   SkTaskGroup* recordingTaskGroup,
+                   SkTaskGroup* gpuTaskGroup,
+                   GrContext* gpuCtx) const;
+
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    std::unique_ptr<SkExecutor> fGPUThread;
+
     typedef GPUSink INHERITED;
 };
 
