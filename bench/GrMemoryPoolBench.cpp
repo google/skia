@@ -45,7 +45,6 @@ static void run_stack(GrMemoryPool* pool, int loops) {
         for (int j = 0; j < kMaxObjects; ++j) {
             objs[j] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
         }
-        // Pop N objects off in LIFO order
         for (int j = kMaxObjects - 1; j >= 0; --j) {
             if (pool) {
                 pool->release(objs[j]);
@@ -99,8 +98,6 @@ static void run_pushpop(GrMemoryPool* pool, int loops) {
                 delete objs[j];
             }
         }
-
-        // Everything has been cleaned up for the next loop
     }
 }
 
@@ -136,7 +133,6 @@ static void run_random(GrMemoryPool* pool, int loops) {
                 objs[k] = pool ? (T*) pool->allocate(sizeof(T)) : new T;
             }
         }
-
         // Ensure everything is null for the next loop
         for (int j = 0; j < kMaxObjects; ++j) {
             if (objs[j]) {
