@@ -150,7 +150,7 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
     if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
         return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
     } else {
-        return fp;
+        return std::move(fp);
     }
 }
 #endif

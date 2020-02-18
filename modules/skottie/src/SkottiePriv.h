@@ -121,7 +121,7 @@ public:
             auto node = adapter->node();
             this->attachDiscardableAdapter(std::move(adapter));
 
-            return node;
+            return std::move(node);
         }
 
         return nullptr;

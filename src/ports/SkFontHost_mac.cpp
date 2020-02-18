@@ -2194,7 +2194,7 @@ static SkUniqueCFRef<CFDictionaryRef> ct_variation_from_cg_variation(CFDictionar
 
         CFDictionaryAddValue(ctVariation.get(), axisTag, axisValue);
     }
-    return ctVariation;
+    return std::move(ctVariation);
 }
 
 int SkTypeface_Mac::onGetVariationDesignPosition(

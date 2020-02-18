@@ -197,7 +197,7 @@ static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEn
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }
-    return surfaceContext;
+    return std::move(surfaceContext);
 }
 
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,

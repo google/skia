@@ -419,7 +419,7 @@ public:
             }
             fp->addChild(std::move(childFP));
         }
-        return fp;
+        return std::move(fp);
     }
 #endif
 
