@@ -264,12 +264,14 @@ sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
     if (!this->validate(fReader.isAvailable(numBytes))) {
         return nullptr;
     }
+    if (numBytes == 0) {
+        return SkData::MakeEmpty();
+    }
 
     SkAutoMalloc buffer(numBytes);
     if (!this->readByteArray(buffer.get(), numBytes)) {
         return nullptr;
     }
-
     return SkData::MakeFromMalloc(buffer.release(), numBytes);
 }
 
