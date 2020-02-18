@@ -24,6 +24,7 @@ class GrCaps;
 class GrClientMappedBufferManager;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
+struct GrD3DBackendContext;
 class GrFragmentProcessor;
 struct GrGLInterface;
 class GrGpu;
@@ -56,7 +57,7 @@ public:
     static sk_sp<GrContext> MakeGL();
 
     /**
-     * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive unitl the returned
+     * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
      * GrContext is first destroyed or abandoned.
      */
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
@@ -71,6 +72,16 @@ public:
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
     static sk_sp<GrContext> MakeMetal(void* device, void* queue);
+#endif
+
+#ifdef SK_DIRECT3D
+    /**
+     * Makes a GrContext which uses Direct3D as the backend. The Direct3D context
+     * must be kept alive until the returned GrContext is first destroyed or abandoned.
+     */
+    static sk_sp<GrContext> MakeDirect3D(const GrD3DBackendContext&,
+                                         const GrContextOptions& options);
+    static sk_sp<GrContext> MakeDirect3D(const GrD3DBackendContext&);
 #endif
 
 #ifdef SK_DAWN
