@@ -36,43 +36,17 @@ static bool is_not_subset(const SkBitmap& bm) {
 class SkImage_Raster : public SkImage_Base {
 public:
     static bool ValidArgs(const SkImageInfo& info, size_t rowBytes, size_t* minSize) {
-        const int maxDimension = SK_MaxS32 >> 2;
-
-        // TODO(mtklein): eliminate anything here that setInfo() has already checked.
-        SkBitmap dummy;
-        if (!dummy.setInfo(info, rowBytes)) {
-            return false;
+        if (SkBitmap bm; bm.setInfo(info, rowBytes)) {
+            size_t size = bm.info().computeByteSize(bm.rowBytes());
+            if (SkImageInfo::ByteSizeOverflowed(size)) {
+                return false;
+            }
+            if (minSize) {
+                *minSize = size;
+            }
+            return true;
         }
-
-        if (info.width() <= 0 || info.height() <= 0) {
-            return false;
-        }
-        if (info.width() > maxDimension || info.height() > maxDimension) {
-            return false;
-        }
-        if ((unsigned)info.colorType() > (unsigned)kLastEnum_SkColorType) {
-            return false;
-        }
-        if ((unsigned)info.alphaType() > (unsigned)kLastEnum_SkAlphaType) {
-            return false;
-        }
-
-        if (kUnknown_SkColorType == info.colorType()) {
-            return false;
-        }
-        if (!info.validRowBytes(rowBytes)) {
-            return false;
-        }
-
-        size_t size = info.computeByteSize(rowBytes);
-        if (SkImageInfo::ByteSizeOverflowed(size)) {
-            return false;
-        }
-
-        if (minSize) {
-            *minSize = size;
-        }
-        return true;
+        return false;
     }
 
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb,

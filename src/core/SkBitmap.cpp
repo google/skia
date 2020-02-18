@@ -106,36 +106,43 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
-    SkAlphaType newAT = info.alphaType();
-    if (!SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAT)) {
-        return reset_return_false(this);
-    }
-    // don't look at info.alphaType(), since newAT is the real value...
+bool SkBitmap::setInfo(const SkImageInfo& arg, size_t rowBytes) {
+    SkImageInfo info = arg;
 
-    // require that rowBytes fit in 31bits
-    int64_t mrb = info.minRowBytes64();
-    if (!SkTFitsIn<int32_t>(mrb)) {
-        return reset_return_false(this);
-    }
-    if (!SkTFitsIn<int32_t>(rowBytes)) {
+    // Can't do anything if we don't know how the pixels work, or if there are no pixels!
+    if (info.colorType() == kUnknown_SkColorType ||
+        info.alphaType() == kUnknown_SkAlphaType ||
+        info.width()  <= 0                       ||
+        info.height() <= 0) {
         return reset_return_false(this);
     }
 
-    if (info.width() < 0 || info.height() < 0) {
+    // Check SkColorType and SkAlphaType make sense together,
+    // maybe normalizing the alpha type for the color type (e.g. 565 premul becomes 565 opaque).
+    if (SkAlphaType norm; SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &norm)) {
+        info = info.makeAlphaType(norm);
+    } else {
         return reset_return_false(this);
     }
 
-    if (kUnknown_SkColorType == info.colorType()) {
-        rowBytes = 0;
-    } else if (0 == rowBytes) {
-        rowBytes = (size_t)mrb;
-    } else if (!info.validRowBytes(rowBytes)) {
+    // Work out the actual value of rowBytes, where 0 auto-calculates the minimum.
+    {
+        uint64_t rb64 = rowBytes;
+        if (rb64 == 0) {
+            rb64 = info.minRowBytes64();
+        }
+        // I'm not sure why we require rowBytes fits in 31 bits and not just size_t, but we do.
+        if (!SkTFitsIn<int32_t>(rb64)) {
+            return reset_return_false(this);
+        }
+        rowBytes = SkTo<size_t>(rb64);
+    }
+    if (!info.validRowBytes(rowBytes)) {
         return reset_return_false(this);
     }
 
-    fPixelRef = nullptr;  // Free pixels.
-    fPixmap.reset(info.makeAlphaType(newAT), nullptr, SkToU32(rowBytes));
+    fPixelRef.reset(nullptr);
+    fPixmap.reset(info, nullptr, rowBytes);
     SkDEBUGCODE(this->validate();)
     return true;
 }
