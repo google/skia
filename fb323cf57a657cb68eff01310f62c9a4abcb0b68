@@ -22,6 +22,30 @@
       "revId": "fb323cf57a657cb68eff01310f62c9a4abcb0b68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b2e8b65_b1819e2b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-18T19:54:37Z",
+      "side": 1,
+      "message": "It looks like unique_ptr can just do its thing - removed.",
+      "parentUuid": "99832e25_e6352d98",
+      "range": {
+        "startLine": 455,
+        "startChar": 4,
+        "endLine": 455,
+        "endChar": 26
+      },
+      "revId": "fb323cf57a657cb68eff01310f62c9a4abcb0b68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
