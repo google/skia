@@ -265,11 +265,17 @@ sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
         return nullptr;
     }
 
+    // We explicitly check for empty here. It is slightly more efficient, since MakeEmpty()
+    // can share a singleton, but also readByteArray() does not like a nullptr for its
+    // src buffer, and SkAutoMalloc returns one for zero size.
+    if (numBytes == 0) {
+        return SkData::MakeEmpty();
+    }
+
     SkAutoMalloc buffer(numBytes);
     if (!this->readByteArray(buffer.get(), numBytes)) {
         return nullptr;
     }
-
     return SkData::MakeFromMalloc(buffer.release(), numBytes);
 }
 
