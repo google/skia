@@ -136,7 +136,7 @@ SkRect TextLine::calculateBoundaries() {
         }
         clusterShift += cluster->width();
         for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
-            auto posX = run->posX(i);
+            auto posX = run->positionX(i);
             auto posY = run->posY(i);
             auto bounds = run->getBounds(i);
             bounds.offset(posX + runShift, posY);
@@ -724,6 +724,9 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     result.clip.offset(textStartInLine, 0);
 
     if (compareRound(result.clip.fRight, fAdvance.fX) > 0 && !includeGhostSpaces) {
+        // There are few cases when we need it.
+        // The most important one: we measure the text with spaces at the end
+        // and we should ignore these spaces
         result.clippingNeeded = true;
         result.clip.fRight = fAdvance.fX;
     }

@@ -2097,6 +2097,117 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView28 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph28"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "AAAAA BBBBB CCCCC DDDDD EEEEE FFFFF GGGGG HHHHH IIIII JJJJJ KKKKK LLLLL MMMMM NNNNN OOOOO PPPPP QQQQQ";
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        auto s = 186;
+        paragraph->layout(360 - s);
+        paragraph->paint(canvas, 0, 0);
+        /*
+        paragraph->layout(360);
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 400);
+        paragraph->layout(354.333);
+        paragraph->paint(canvas, 0, 0);
+        */
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView29 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph29"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "PESTO";
+        canvas->drawColor(SK_ColorWHITE);
+
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kCenter);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(48);
+        text_style.setFontStyle(SkFontStyle::Bold());
+        text_style.setLetterSpacing(3);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        auto w = width() / 2;
+        paragraph->layout(w);
+        paragraph->paint(canvas, 0, 0);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, width() / 2, paragraph->getHeight()), paint);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView30 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph30"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "test text with space at end   ";
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kCenter);
+        auto collection = getFontCollection();
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(48);
+
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+
+        auto width = this->width();
+        paragraph->layout(width);
+        SkDebugf("%f: %f %f\n", width, paragraph->getMinIntrinsicWidth(), paragraph->getMaxIntrinsicWidth());
+        paragraph->paint(canvas, 0, 0);
+        auto boxes = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        for (auto& b : boxes) {
+            SkDebugf("box[%f:%f * %f:%f] %s\n",
+                    b.rect.fLeft, b.rect.fRight, b.rect.fTop, b.rect.fBottom,
+                    b.direction == TextDirection::kRtl ? "rtl" : "ltr");
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2123,5 +2234,8 @@ DEF_SAMPLE(return new ParagraphView22();)
 DEF_SAMPLE(return new ParagraphView23();)
 DEF_SAMPLE(return new ParagraphView24();)
 DEF_SAMPLE(return new ParagraphView25();)
-//DEF_SAMPLE(return new ParagraphView26();)
-//DEF_SAMPLE(return new ParagraphView27();)
+DEF_SAMPLE(return new ParagraphView26();)
+DEF_SAMPLE(return new ParagraphView27();)
+DEF_SAMPLE(return new ParagraphView28();)
+DEF_SAMPLE(return new ParagraphView29();)
+DEF_SAMPLE(return new ParagraphView30();)

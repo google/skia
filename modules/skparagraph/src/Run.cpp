@@ -334,7 +334,7 @@ SkScalar Cluster::trimmedWidth(size_t pos) const {
     // Find the width until the pos and return the min between trimmedWidth and the width(pos)
     // We don't have to take in account cluster shift since it's the same for 0 and for pos
     auto& run = fMaster->run(fRunIndex);
-    return std::min(run.positionX(pos) - run.positionX(fStart), fWidth - fSpacing);
+    return std::min(run.positionX(pos) - run.positionX(fStart), fWidth);
 }
 
 SkScalar Run::positionX(size_t pos) const {
