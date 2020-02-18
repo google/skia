@@ -231,6 +231,30 @@ protected:
     int     fIndex;
 };
 
+#if 0
+class GrDeviceSpaceEffect : public GrFragmentProcessor {
+public:
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
+                                                     SkMatrix& deviceSpaceMatrix);
+
+    const char* name() const override { return "DeviceSpaceEffect"; }
+
+private:
+    SkMatrix fMatrix;
+
+    GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor>, SkMatrix& deviceSpaceMatrix);
+    GrDeviceSpaceEffect(const GrDeviceSpaceEffect&);
+
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+
+    // Since we always use decal mode, there is no need for key data.
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+
+    bool onIsEqual(const GrFragmentProcessor& fp) const override;
+
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+};
+#endif
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView,

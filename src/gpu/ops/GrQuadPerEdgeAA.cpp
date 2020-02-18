@@ -620,6 +620,28 @@ public:
                                          args.fUniformHandler,
                                          gp.fLocalCoord.asShaderVar(),
                                          args.fFPCoordTransformHandler);
+                } else {
+                    while (*args.fFPCoordTransformHandler) {
+                        auto [ct, fp] = args.fFPCoordTransformHandler->get();
+                        SkASSERT(!fp.coordTransformsApplyToLocalCoords());
+                        if (ct.isNoOp()) {
+                            args.fFPCoordTransformHandler->omitCoordsForCurrCoordTransform();
+                        } else {
+                            SkString strUniName;
+                            strUniName.printf("CoordTransformMatrix_%d", i);
+                            const char* uniName;
+                            fInstalledTransforms.push_back().fHandle = uniformHandler
+                                    ->addUniform(kVertex_GrShaderFlag,
+                                                 kFloat3x3_GrSLType,
+                                                 strUniName.c_str(),
+                                                 &uniName)
+                                    .toIndex();
+
+                            // TODO: Need to put uniform matrix in here
+                            args.fFPCoordTransformHandler->specifyCoordsForCurrCoordTransform()
+                        }
+                        ++*args.fFPCoordTransformHandler;
+                    }
                 }
 
                 // Solid color before any texturing gets modulated in

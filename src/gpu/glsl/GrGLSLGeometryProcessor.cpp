@@ -62,17 +62,21 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                              const GrShaderVar& localCoordsVar,
                                              const SkMatrix& localMatrix,
                                              FPCoordTransformHandler* handler) {
-    SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
-    SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()) ||
-             3 == GrSLTypeVecLength(localCoordsVar.getType()));
+    auto getLocalCoordVec3Name = [&localCoordsVar, localCoords = SkString()]() mutable {
+        SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
+        SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()) ||
+                 3 == GrSLTypeVecLength(localCoordsVar.getType()));
+        if (localCoords.isEmpty()) {
+            bool threeComponentLocalCoords = 3 == GrSLTypeVecLength(localCoordsVar.getType());
+            if (threeComponentLocalCoords) {
+                localCoords = localCoordsVar.getName();
+            } else {
+                localCoords.printf("float3(%s, 1)", localCoordsVar.c_str());
+            }
+        }
+        return localCoords;
+    };
 
-    bool threeComponentLocalCoords = 3 == GrSLTypeVecLength(localCoordsVar.getType());
-    SkString localCoords;
-    if (threeComponentLocalCoords) {
-        localCoords = localCoordsVar.getName();
-    } else {
-        localCoords.printf("float3(%s, 1)", localCoordsVar.c_str());
-    }
     for (int i = 0; *handler; ++*handler, ++i) {
         auto [coordTransform, fp] = handler->get();
         if (coordTransform.isNoOp() && !fp.coordTransformsApplyToLocalCoords()) {
@@ -89,14 +93,15 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                                                             &uniName)
                                                                .toIndex();
             GrSLType varyingType = kFloat2_GrSLType;
-            if (localMatrix.hasPerspective() || coordTransform.matrix().hasPerspective() ||
-                threeComponentLocalCoords) {
-                varyingType = kFloat3_GrSLType;
-            }
-            SkString strVaryingName;
-            strVaryingName.printf("TransformedCoords_%d", i);
-            GrGLSLVarying v(varyingType);
             if (fp.coordTransformsApplyToLocalCoords()) {
+                bool threeComponentLocalCoords = 3 == GrSLTypeVecLength(localCoordsVar.getType());
+                if (localMatrix.hasPerspective() || coordTransform.matrix().hasPerspective() ||
+                    threeComponentLocalCoords) {
+                    varyingType = kFloat3_GrSLType;
+                }
+                SkString strVaryingName;
+                strVaryingName.printf("TransformedCoords_%d", i);
+                GrGLSLVarying v(varyingType);
                 varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
                 if (kFloat2_GrSLType == varyingType) {
