@@ -127,11 +127,14 @@ public:
 
     ByteCodeResult toByteCode(const void* inputs);
 
+    static void RegisterFlattenables();
+
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
                     std::unique_ptr<SkSL::Program> baseProgram,
                     std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
                     size_t uniformSize);
+    ~SkRuntimeEffect();
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs);
