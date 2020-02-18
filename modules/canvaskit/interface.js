@@ -16,29 +16,65 @@ CanvasKit.onRuntimeInitialized = function() {
   // have a mapPoints() function (which could maybe be tacked on here).
   // If DOMMatrix catches on, it would be worth re-considering this usage.
   CanvasKit.SkMatrix = {};
-  function sdot(a, b, c, d, e, f) {
-    e = e || 0;
-    f = f || 0;
-    return a * b + c * d + e * f;
+  function sdot() { // to be called with an even number of scalar args
+    var acc = 0;
+    for (let i=0; i < arguments.length-1; i+=2) {
+      acc += arguments[i] * arguments[i+1];
+    }
+    return acc;
+  }
+
+
+  // private general matrix functions used in both 3x3s and 4x4s
+  // return a square identity matrix of size n.
+  let identityN = function(n) {
+    let size = n*n;
+    let m = Array(size);
+    while(size--) m[size] = !(size%(n+1))*1;
+    return m;
+  }
+
+  // Stride, a function for compactly representing several ways of copying an array into another.
+  // Write vector `v` into matrix `m`. `m` is a matrix encoded as an array in row-major
+  // order. It's width is passed as `width`. `v` is an array with length < (m.length/width).
+  // An element of `v` is copied into `m` starting at `offset` and moving `colStride` cols right
+  // each row.
+  //
+  // For example, a width of 4, offset of 3, and stride of -1 would put the vector here.
+  // _ _ 0 _
+  // _ 1 _ _
+  // 2 _ _ _
+  // _ _ _ 3
+  //
+  let stride = function(v, m, width, offset, colStride) {
+    for (let i=0; i<v.length; i++) {
+      m[i * width +
+        (i * colStride + offset + width) % width
+      ] = v[i];
+    }
+    return m;
   }
 
   CanvasKit.SkMatrix.identity = function() {
-    return [
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1,
-    ];
+    return identityN(3);
   };
 
   // Return the inverse (if it exists) of this matrix.
   // Otherwise, return the identity.
   CanvasKit.SkMatrix.invert = function(m) {
+    // find the determinant by the sarrus rule.
     var det = m[0]*m[4]*m[8] + m[1]*m[5]*m[6] + m[2]*m[3]*m[7]
             - m[2]*m[4]*m[6] - m[1]*m[3]*m[8] - m[0]*m[5]*m[7];
     if (!det) {
       SkDebug('Warning, uninvertible matrix');
       return CanvasKit.SkMatrix.identity();
     }
+    // return the inverse by the formula adj(m)/det
+    // adj (adjugate) of a 3x3 is the transpose of it's cofactor matrix.
+    // a cofactor matrix is a matrix where each term is +-det(N) where matrix N is the 2x2 formed
+    // by removing the row and column we're currently setting from the source.
+    // the sign alternates in a checkerboard pattern with a + at the top left.
+    // that's all been unrolled here.
     return [
       (m[4]*m[8] - m[5]*m[7])/det, (m[2]*m[7] - m[1]*m[8])/det, (m[1]*m[5] - m[2]*m[4])/det,
       (m[5]*m[6] - m[3]*m[8])/det, (m[0]*m[8] - m[2]*m[6])/det, (m[2]*m[3] - m[0]*m[5])/det,
@@ -67,18 +103,55 @@ CanvasKit.onRuntimeInitialized = function() {
     return ptArr;
   };
 
-  CanvasKit.SkMatrix.multiply = function(m1, m2) {
-    var result = [0,0,0, 0,0,0, 0,0,0];
-    for (var r = 0; r < 3; r++) {
-      for (var c = 0; c < 3; c++) {
-        // m1 and m2 are 1D arrays pretending to be 2D arrays
-        result[3*r + c] = sdot(m1[3*r + 0], m2[3*0 + c],
-                               m1[3*r + 1], m2[3*1 + c],
-                               m1[3*r + 2], m2[3*2 + c]);
+  isnumber = function(val) { return val !== NaN; };
+
+  // gereralized iterative algorithm for multiplying two matrices.
+  multiply = function(m1, m2, size) {
+
+    if (!m1.every(isnumber) || !m2.every(isnumber)) {
+      throw `some members of matrices are NaN m1=${m1}, m2=${m2}`;
+    }
+    if (m1.length !== m2.length) {
+      throw "undefined for matrices of different size."
+    }
+    if (size*size !== m1.length) {
+      console.trace();
+      throw "undefined for non-square matrices. array size was "+size;
+    }
+
+    var result = Array(m1.length);
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        // accumulate a sum of m1[r,k]*m2[k, c]
+        let acc = 0;
+        for (let k = 0; k < size; k++) {
+          acc += m1[size * r + k] * m2[size * k + c];
+        }
+        result[r * size + c] = acc;
       }
     }
     return result;
-  }
+  };
+
+  // Accept an integer indicating the size of the matrices being multiplied (3 for 3x3), and any
+  // number of matrices following it.
+  multiplyMany = function(size) {
+    if (arguments.length < 3) {
+      throw "multiplication expected two or more matrices"
+    }
+    let result = multiply(arguments[1], arguments[2], size);
+    let next = 3;
+    while (next < arguments.length) {
+      result = multiply(result, arguments[next], size);
+      next++;
+    }
+    return result;
+  };
+
+  // Accept any number 3x3 of matrices as arguments, multiply them together left-to-right
+  CanvasKit.SkMatrix.multiply = function() {
+    return multiplyMany(3, ...arguments);
+  };
 
   // Return a matrix representing a rotation by n radians.
   // px, py optionally say which point the rotation should be around
@@ -98,30 +171,237 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkMatrix.scaled = function(sx, sy, px, py) {
     px = px || 0;
     py = py || 0;
-    return [
-      sx, 0, px - sx * px,
-      0, sy, py - sy * py,
-      0,  0,            1,
-    ];
+    let m = stride([sx, sy], identityN(3), 3, 0, 1);
+    return stride([px-sx*px, py-sy*py], m, 3, 2, 0);
   };
 
   CanvasKit.SkMatrix.skewed = function(kx, ky, px, py) {
     px = px || 0;
     py = py || 0;
-    return [
-      1, kx, -kx * px,
-      ky, 1, -ky * py,
-      0,  0,        1,
-    ];
+    let m = stride([kx, ky], identityN(3), 3, 1, -1);
+    return stride([-kx*px, -ky*py], m, 3, 2, 0);
   };
 
   CanvasKit.SkMatrix.translated = function(dx, dy) {
-    return [
-      1, 0, dx,
-      0, 1, dy,
-      0, 0,  1,
-    ];
+    return stride(arguments, identityN(3), 3, 2, 0);
   };
+
+  // Functions for manipulating vectors of any length.
+  CanvasKit.Vector = {};
+  CanvasKit.Vector.dot = function(a, b) {
+    if (a.length !== b.length) {
+      throw `Cannot perform dot product on arrays of different length (${a.length} vs ${b.length})`;
+    }
+    return a.map((v, i) => { return v*b[i] }).reduce((acc, cur) => { return acc + cur; })
+  }
+  CanvasKit.Vector.lengthSquared = function(v) {
+    return CanvasKit.Vector.dot(v, v);
+  }
+  CanvasKit.Vector.length = function(v) {
+    return Math.sqrt(CanvasKit.Vector.lengthSquared(v));
+  }
+  CanvasKit.Vector.mulScalar = function(v, s) {
+    return v.map(i => { return i*s });
+  }
+  CanvasKit.Vector.add = function(a, b) {
+    return a.map((v, i) => { return v+b[i] })
+  }
+  CanvasKit.Vector.sub = function(a, b) {
+    return a.map((v, i) => { return v-b[i]; });
+  }
+  CanvasKit.Vector.normalize = function(v) {
+    return CanvasKit.Vector.mulScalar(v, 1/CanvasKit.Vector.length(v));
+  }
+  CanvasKit.Vector.cross = function(a, b) {
+    if (a.length !== 3 || a.length !== 3) {
+      throw `Cross product is only defined for 3-dimensional vectors (a.length=${a.length}, b.length=${b.length})`;
+    }
+    return [
+      a[1]*b[2] - a[2]*b[1],
+      a[2]*b[0] - a[0]*b[2],
+      a[0]*b[1] - a[1]*b[0],
+    ];
+  }
+
+  // Functions for creating and manipulating 4x4 matrices. Accepted in place of SkM44 in canvas
+  // methods, for the same reasons as the 3x3 matrices above.
+  CanvasKit.SkM44 = {};
+  // Create a 4x4 identity matrix
+  CanvasKit.SkM44.identity = function() {
+    return identityN(4);
+  }
+
+  // Anything named vec below is an array of length 3 representing a vector/point in 3D space.
+  // Create a 4x4 matrix representing a translate by the provided 3-vec
+  CanvasKit.SkM44.translated = function(vec) {
+    return stride(vec, identityN(4), 4, 3, 0);
+  }
+  // Create a 4x4 matrix representing a scaling by the provided 3-vec
+  CanvasKit.SkM44.scaled = function(vec) {
+    return stride(vec, identityN(4), 4, 0, 1);
+  }
+  // Create a 4x4 matrix representing a rotation about the provided axis 3-vec.
+  // axis does not need to be normalized.
+  CanvasKit.SkM44.rotated = function(axisVec, radians) {
+    return CanvasKit.SkM44.rotatedUnitSinCos(
+      CanvasKit.Vector.normalize(axisVec), Math.sin(radians), Math.cos(radians));
+  }
+  // Create a 4x4 matrix representing a rotation about the provided normalized axis 3-vec.
+  // Rotation is provided redundantly as both sin and cos values.
+  // This rotate can be used when you already have the cosAngle and sinAngle values
+  // so you don't have to atan(cos/sin) to call roatated() which expects an angle in radians.
+  // this does no checking! Behavior for invalid sin or cos values or non-normalized axis vectors
+  // is incorrect. Prefer rotate().
+  CanvasKit.SkM44.rotatedUnitSinCos = function(axisVec, sinAngle, cosAngle) {
+    const x = axisVec[0];
+    const y = axisVec[1];
+    const z = axisVec[2];
+    const c = cosAngle;
+    const s = sinAngle;
+    const t = 1 - c;
+    return [
+      t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
+      t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
+      t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
+      0,           0,           0,           1
+    ];
+  }
+  // Create a 4x4 matrix representing a camera at eyeVec, pointed at centerVec.
+  CanvasKit.SkM44.lookat = function(eyeVec, centerVec, upVec) {
+    const f = CanvasKit.Vector.normalize(CanvasKit.Vector.sub(centerVec, eyeVec));
+    const u = CanvasKit.Vector.normalize(upVec);
+    const s = CanvasKit.Vector.normalize(CanvasKit.Vector.cross(f, u));
+
+    let m = CanvasKit.SkM44.identity();
+    // set each column's top three numbers
+    stride(s,                                 m, 4, 0, 0);
+    stride(CanvasKit.Vector.cross(s, f),      m, 4, 1, 0);
+    stride(CanvasKit.Vector.mulScalar(f, -1), m, 4, 2, 0);
+    stride(eyeVec,                            m, 4, 3, 0);
+
+    if (!CanvasKit.SkM44.invert(m)) {
+      return CanvasKit.SkM44.identity();
+    }
+    return m
+  }
+  // Create a 4x4 matrix representing a perspective. All arguments are scalars.
+  // angle is in radians.
+  CanvasKit.SkM44.perspective = function(near, far, angle) {
+    if (far <= near) {
+      throw "far must be greater than near when constructing SkM44 using perspective.";
+    }
+    const dInv = 1 / (far - near);
+    const halfAngle = angle / 2;
+    const cot = Math.cos(halfAngle) / Math.sin(halfAngle);
+    return [
+      cot, 0,   0,               0,
+      0,   cot, 0,               0,
+      0,   0,   (far+near)*dInv, 2*far*near*dInv,
+      0,   0,   -1,              1,
+    ];
+  }
+  // Returns the number at the given row and column in matrix m.
+  CanvasKit.SkM44.rc = function(m, r, c) {
+    return m[r*4+c];
+  }
+  // Accepts any number of 4x4 matrix arguments, multiplies them left to right.
+  CanvasKit.SkM44.multiply = function() {
+    return multiplyMany(4, ...arguments);
+  }
+
+  // Invert the 4x4 matrix if it is invertible and return true. if not, return false.
+  // taken from SkM44.cpp (altered to use row-major order)
+  // result us stored in m if matrix is invertible
+  CanvasKit.SkM44.invert = function(m) {
+    if (!m.every(isnumber)) {
+      throw `some members of matrix are NaN m=${m}`;
+    }
+
+    const a00 = m[0];
+    const a01 = m[4];
+    const a02 = m[8];
+    const a03 = m[12];
+    const a10 = m[1];
+    const a11 = m[5];
+    const a12 = m[9];
+    const a13 = m[13];
+    const a20 = m[2];
+    const a21 = m[6];
+    const a22 = m[10];
+    const a23 = m[14];
+    const a30 = m[3];
+    const a31 = m[7];
+    const a32 = m[11];
+    const a33 = m[15];
+
+    let b00 = a00 * a11 - a01 * a10;
+    let b01 = a00 * a12 - a02 * a10;
+    let b02 = a00 * a13 - a03 * a10;
+    let b03 = a01 * a12 - a02 * a11;
+    let b04 = a01 * a13 - a03 * a11;
+    let b05 = a02 * a13 - a03 * a12;
+    let b06 = a20 * a31 - a21 * a30;
+    let b07 = a20 * a32 - a22 * a30;
+    let b08 = a20 * a33 - a23 * a30;
+    let b09 = a21 * a32 - a22 * a31;
+    let b10 = a21 * a33 - a23 * a31;
+    let b11 = a22 * a33 - a23 * a32;
+
+    // calculate determinate
+    const det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    const invdet = 1.0 / det;
+
+    // bail out if the matrix is not invertible
+    if (det === 0 || invdet === Infinity) {
+        return false;
+    }
+
+    b00 *= invdet;
+    b01 *= invdet;
+    b02 *= invdet;
+    b03 *= invdet;
+    b04 *= invdet;
+    b05 *= invdet;
+    b06 *= invdet;
+    b07 *= invdet;
+    b08 *= invdet;
+    b09 *= invdet;
+    b10 *= invdet;
+    b11 *= invdet;
+
+    // store result in row major order
+    const tmp = [
+      a11 * b11 - a12 * b10 + a13 * b09,
+      a12 * b08 - a10 * b11 - a13 * b07,
+      a10 * b10 - a11 * b08 + a13 * b06,
+      a11 * b07 - a10 * b09 - a12 * b06,
+
+      a02 * b10 - a01 * b11 - a03 * b09,
+      a00 * b11 - a02 * b08 + a03 * b07,
+      a01 * b08 - a00 * b10 - a03 * b06,
+      a00 * b09 - a01 * b07 + a02 * b06,
+
+      a31 * b05 - a32 * b04 + a33 * b03,
+      a32 * b02 - a30 * b05 - a33 * b01,
+      a30 * b04 - a31 * b02 + a33 * b00,
+      a31 * b01 - a30 * b03 - a32 * b00,
+
+      a22 * b04 - a21 * b05 - a23 * b03,
+      a20 * b05 - a22 * b02 + a23 * b01,
+      a21 * b02 - a20 * b04 - a23 * b00,
+      a20 * b03 - a21 * b01 + a22 * b00,
+    ];
+
+    if (!tmp.every((val) => { return val !== NaN && val !== Infinity && val !== -Infinity; })) {
+      console.log(`inverted matrix has some infinities or NaN ${tmp}`);
+      return false;
+    }
+    for (let i=0; i<16; i++){
+      m[i] = tmp[i];
+    }
+    return true;
+  }
+
 
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
@@ -135,11 +415,6 @@ CanvasKit.onRuntimeInitialized = function() {
   // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
   // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
 
-  var rScale = 0;
-  var gScale = 6;
-  var bScale = 12;
-  var aScale = 18;
-
   var rPostTrans = 4;
   var gPostTrans = 9;
   var bPostTrans = 14;
@@ -147,21 +422,11 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkColorMatrix = {};
   CanvasKit.SkColorMatrix.identity = function() {
-    var m = new Float32Array(20);
-    m[rScale] = 1;
-    m[gScale] = 1;
-    m[bScale] = 1;
-    m[aScale] = 1;
-    return m;
+    return stride([1,1,1,1], new Float32Array(20), 5, 0, 6);
   }
 
   CanvasKit.SkColorMatrix.scaled = function(rs, gs, bs, as) {
-    var m = new Float32Array(20);
-    m[rScale] = rs;
-    m[gScale] = gs;
-    m[bScale] = bs;
-    m[aScale] = as;
-    return m;
+    return stride(arguments, new Float32Array(20), 5, 0, 6);
   }
 
   var rotateIndices = [
