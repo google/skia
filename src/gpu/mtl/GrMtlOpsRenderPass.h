@@ -33,7 +33,10 @@ public:
 
     void initRenderState(id<MTLRenderCommandEncoder>);
 
-    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
+    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
+        // TODO: this could be more efficient
+        state->doUpload(upload);
+    }
     void submit();
 
 private:

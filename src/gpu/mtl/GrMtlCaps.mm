@@ -1057,7 +1057,7 @@ GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget* rt,
     }
 #endif
 
-    b.add32(rt->renderTargetPriv().getStencilAttachment()
+    b.add32(programInfo.pipeline().isStencilEnabled()
                                  ? this->preferredStencilFormat().fInternalFormat
                                  : MTLPixelFormatInvalid);
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
