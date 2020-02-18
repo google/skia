@@ -7,7 +7,7 @@
 
 #include "src/gpu/mock/GrMockCaps.h"
 
-#include "src/gpu/GrProgramDesc.h"
+#include "include/private/GrProgramDesc.h"
 
 GrProgramDesc GrMockCaps::makeDesc(const GrRenderTarget* rt,
                                    const GrProgramInfo& programInfo) const {

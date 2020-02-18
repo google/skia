@@ -8,10 +8,10 @@
 #include "src/gpu/gl/GrGLCaps.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrProgramDesc.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"

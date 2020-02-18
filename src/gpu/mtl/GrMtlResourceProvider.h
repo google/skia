@@ -8,10 +8,10 @@
 #ifndef GrMtlResourceProvider_DEFINED
 #define GrMtlResourceProvider_DEFINED
 
+#include "include/private/GrProgramDesc.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"

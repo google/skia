@@ -8,9 +8,9 @@
 #include "src/gpu/gl/GrGLGpu.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrProgramDesc.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
@@ -32,7 +32,7 @@ GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
 GrGLGpu::ProgramCache::~ProgramCache() {}
 
 void GrGLGpu::ProgramCache::abandon() {
-    fMap.foreach([](std::unique_ptr<Entry>* e) {
+    fMap.foreach([](GrProgramDesc*, std::unique_ptr<Entry>* e) {
         if ((*e)->fProgram) {
             (*e)->fProgram->abandon();
         }
@@ -51,7 +51,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
 
     GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
     if (!desc.isValid()) {
-        GrCapsDebugf(fGpu->caps(), "Failed to gl program descriptor!\n");
+        GrCapsDebugf(&caps, "Failed to gl program descriptor!\n");
         return nullptr;
     }
 

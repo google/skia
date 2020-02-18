@@ -9,11 +9,11 @@
 #define GrVkResourceProvider_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrProgramDesc.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrResourceHandle.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"

@@ -7,7 +7,7 @@
 
 #include "src/gpu/dawn/GrDawnCaps.h"
 
-#include "src/gpu/GrProgramDesc.h"
+#include "include/private/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"

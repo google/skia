@@ -9,9 +9,9 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrProgramDesc.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"

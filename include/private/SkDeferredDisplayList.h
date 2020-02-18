@@ -39,10 +39,10 @@ public:
     // can outlive the DDL.
     class SK_API LazyProxyData : public SkRefCnt {
     public:
-        // Upon being replayed - this field will be filled in (by the DrawingManager) with the proxy
-        // backing the destination SkSurface. Note that, since there is no good place to clear it
-        // it can become a dangling pointer.
-        GrRenderTargetProxy*     fReplayDest = nullptr;
+        // Upon being replayed - this field will be filled in (by the DrawingManager) with the
+        // proxy backing the destination SkSurface. Note that, since there is no good place to
+        // clear it, it can become a dangling pointer.
+        GrRenderTargetProxy* fReplayDest = nullptr;
     };
 #else
     class SK_API LazyProxyData : public SkRefCnt {};
@@ -62,10 +62,8 @@ public:
 
 private:
 #if SK_SUPPORT_GPU
-    // TODO: we should probably also store the GrProgramDescs - since we already have
-    // them
-    SK_API const SkTDArray<const GrProgramInfo*>& programInfos() const {
-        return fProgramInfos;
+    SK_API const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+        return fProgramData;
     }
 #endif
 
@@ -85,9 +83,7 @@ private:
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
-    // The program infos should be stored in 'fRecordTimeData' so do not need to be ref counted
-    // or deleted in the destructor.
-    SkTDArray<const GrProgramInfo*> fProgramInfos;
+    SkTArray<GrRecordingContext::ProgramData> fProgramData;
 #endif
     sk_sp<LazyProxyData>            fLazyProxyData;
 };
