@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99832e25_e6352d98",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-18T18:41:51Z",
+      "side": 1,
+      "message": "do you need to make this call or can we just let unique_ptr do its thing?",
+      "range": {
+        "startLine": 455,
+        "startChar": 4,
+        "endLine": 455,
+        "endChar": 26
+      },
+      "revId": "fb323cf57a657cb68eff01310f62c9a4abcb0b68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
