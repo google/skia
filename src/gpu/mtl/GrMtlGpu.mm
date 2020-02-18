@@ -497,7 +497,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
                            levelClearMask);
     }
 
-    return tex;
+    return std::move(tex);
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
@@ -608,7 +608,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
 #endif
 
-    return tex;
+    return std::move(tex);
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex) {
