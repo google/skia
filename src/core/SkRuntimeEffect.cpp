@@ -328,7 +328,7 @@ public:
             }
             fp->addChild(std::move(childFP));
         }
-        return fp;
+        return std::move(fp);
     }
 #endif
 
@@ -438,7 +438,7 @@ public:
         if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
             return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
         } else {
-            return fp;
+            return std::move(fp);
         }
     }
 #endif
