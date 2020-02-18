@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e20c314_7a12cdab",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-18T21:29:41Z",
+      "side": 1,
+      "message": "So these asserts should be true for now, but eventually won\u0027t be.",
+      "range": {
+        "startLine": 60,
+        "startChar": 12,
+        "endLine": 60,
+        "endChar": 65
+      },
+      "revId": "3eada6cf7165d3cfa394701d8a2e60a8bc1a2f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
