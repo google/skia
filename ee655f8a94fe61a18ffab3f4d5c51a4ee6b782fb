@@ -46,6 +46,30 @@
       "revId": "ee655f8a94fe61a18ffab3f4d5c51a4ee6b782fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d504a72c_4a5468ff",
+        "filename": "src/core/SkScan_Antihair.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-18T16:54:35Z",
+      "side": 1,
+      "message": "If we do that, won\u0027t using one of those wrapper blitters change our masks?\n\nMaybe we can split off calls, one const, one not.",
+      "parentUuid": "97eb9ef6_f667a8ac",
+      "range": {
+        "startLine": 78,
+        "startChar": 1,
+        "endLine": 83,
+        "endChar": 47
+      },
+      "revId": "ee655f8a94fe61a18ffab3f4d5c51a4ee6b782fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
