@@ -102,7 +102,7 @@ sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
         auto pic = sk_make_sp<SkMiniPicture<T>>(cull, std::move(*op)); \
         op->~T();                                                      \
         fState = State::kEmpty;                                        \
-        return pic;                                                    \
+        return std::move(pic);                                         \
     }
 
     static SkOnce once;
