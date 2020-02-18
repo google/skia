@@ -46,21 +46,22 @@ SkScalerCache::SkScalerCache(
 #endif
 
 // -- glyph creation -------------------------------------------------------------------------------
-SkGlyph* SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
+std::tuple<SkGlyph*, size_t> SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
     fMemoryUsed += sizeof(SkGlyph);
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
     fGlyphMap.set(glyph);
-    return glyph;
+    return {glyph, sizeof(SkGlyph)};
 }
 
-SkGlyph* SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
+std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
     VALIDATE();
     SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
+    size_t bytes = 0;
     if (glyph == nullptr) {
-        glyph = this->makeGlyph(packedGlyphID);
+        std::tie(glyph, bytes) = this->makeGlyph(packedGlyphID);
         fScalerContext->getMetrics(glyph);
     }
-    return glyph;
+    return {glyph, bytes};
 }
 
 const SkPath* SkScalerCache::preparePath(SkGlyph* glyph) {
@@ -150,15 +151,18 @@ SkScalerCache::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGly
 }
 
 template <typename Fn>
-void SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+    size_t total = 0;
     for (auto [i, packedID, pos] : SkMakeEnumerate(drawables->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyph = this->glyph(packedID);
+            auto [glyph, size] = this->glyph(packedID);
+            total += size;
             if (!glyph->isEmpty()) {
                 fn(i, glyph, pos);
             }
         }
     }
+    return total;
 }
 
 void SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
@@ -173,10 +177,10 @@ void SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) 
 }
 
 // Note: this does not actually fill out the image. That happens at atlas building time.
-void SkScalerCache::prepareForMaskDrawing(
+size_t SkScalerCache::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) {
             if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
                 drawables->push_back(glyph, i);
@@ -184,12 +188,13 @@ void SkScalerCache::prepareForMaskDrawing(
                 rejects->reject(i);
             }
         });
+    return delta;
 }
 
-void SkScalerCache::prepareForSDFTDrawing(
+size_t SkScalerCache::prepareForSDFTDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) {
             if (SkStrikeForGPU::CanDrawAsSDFT(*glyph)) {
                 drawables->push_back(glyph, i);
@@ -197,9 +202,10 @@ void SkScalerCache::prepareForSDFTDrawing(
                 rejects->reject(i);
             }
         });
+    return delta;
 }
 
-void SkScalerCache::prepareForPathDrawing(
+size_t SkScalerCache::prepareForPathDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
     this->commonFilterLoop(drawables,

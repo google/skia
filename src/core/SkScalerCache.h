@@ -70,13 +70,13 @@ public:
 
     const SkDescriptor& getDescriptor() const;
 
-    void prepareForMaskDrawing(
+    size_t prepareForMaskDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
-    void prepareForSDFTDrawing(
+    size_t prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
-    void prepareForPathDrawing(
+    size_t prepareForPathDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
     /** Return the approx RAM usage for this cache. */
@@ -126,14 +126,14 @@ private:
         }
     };
 
-    SkGlyph* makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
+    std::tuple<SkGlyph*, size_t> makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     template <typename Fn>
-    void commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) SK_REQUIRES(fMu);
+    size_t commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) SK_REQUIRES(fMu);
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
-    SkGlyph* glyph(SkPackedGlyphID packedID) SK_REQUIRES(fMu);
+    std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID packedID) SK_REQUIRES(fMu);
 
     const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 
