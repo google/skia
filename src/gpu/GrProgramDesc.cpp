@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrProgramDesc.h"
+#include "include/private/GrProgramDesc.h"
 
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTo.h"
