@@ -163,6 +163,11 @@ public:
     void commit();
 
     SkRect getBounds(size_t pos) const { return fBounds[pos]; }
+
+    void resetShifts() {
+        for (auto& r: fShifts) { r = 0; }
+        fSpaced = false;
+    }
 private:
     friend class ParagraphImpl;
     friend class TextLine;
