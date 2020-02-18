@@ -47,7 +47,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextWordLength);
-                fTooLongWord = true;
+                if (fClusters.endPos() - fClusters.startPos() > 1 ||
+                    fWords.empty()) {
+                    fTooLongWord = true;
+                } else {
+                    // Even if the word is too long there is a very little space on this line.
+                    // let's deal with it on the next line.
+                }
             }
 
             if (cluster->width() > maxWidth) {
@@ -255,6 +261,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 needEllipsis && !fHardLineBreak);
 
         softLineMaxIntrinsicWidth += widthWithSpaces;
+
         fMaxIntrinsicWidth = std::max(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
         if (fHardLineBreak) {
             softLineMaxIntrinsicWidth = 0;
@@ -283,6 +290,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     // We finished formatting the text but we need to scan the rest for some numbers
+    // TODO: make it a case of a normal flow
     if (fEndLine.endCluster() != nullptr) {
         auto lastWordLength = 0.0f;
         auto cluster = fEndLine.endCluster();
@@ -291,7 +299,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             if (cluster->isHardBreak()) {
                 fMaxIntrinsicWidth = std::max(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
                 softLineMaxIntrinsicWidth = 0;
-
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
                 lastWordLength = 0;
             } else if (cluster->isWhitespaces()) {
