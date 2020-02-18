@@ -51,8 +51,8 @@ public:
         fContext->recordProgramInfo(programInfo);
     }
 
-    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) {
-        fContext->detachProgramInfos(dst);
+    void detachProgramData(SkTArray<GrRecordingContext::ProgramData>* dst) {
+        fContext->detachProgramData(dst);
     }
 
     GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }

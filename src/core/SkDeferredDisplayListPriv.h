@@ -31,6 +31,10 @@ public:
 #endif
     }
 
+    const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+        return fDDL->programData();
+    }
+
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
     SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&);            // unimpl
