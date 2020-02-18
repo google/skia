@@ -179,7 +179,7 @@ def _CheckGNFormatted(input_api, output_api):
 
   results = []
   for f in files:
-    gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
+    gn = 'gn.exe' if 'win32' in sys.platform else 'gn'
     gn = os.path.join(input_api.PresubmitLocalPath(), 'bin', gn)
     cmd = [gn, 'format', '--dry-run', f.LocalPath()]
     try:
