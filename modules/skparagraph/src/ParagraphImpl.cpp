@@ -131,8 +131,16 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fRunShifts.reset();
         this->fClusters.reset();
     } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
-        // We can use the results from SkShaper but have to break lines again
+        // We can use the results from SkShaper but have to do EVERYTHING ELSE again
+        this->fClusters.reset();
+        this->fRunShifts.reset();
         fState = kShaped;
+
+        this->buildClusterTable();
+        fState = kClusterized;
+
+        this->markLineBreaks(); // Just because it's on cluster table
+        fState = kMarked;
     }
 
     if (fState < kShaped) {
@@ -165,6 +173,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             return;
         }
         if (fState < kShaped) {
+            this->resetRunShifts();
             fState = kShaped;
         } else {
             layout(floorWidth);
@@ -433,9 +442,6 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
         // We had to go through shaping though because we need all the measurement numbers
         fLines.reset();
         return;
-    }
-    if (effectiveAlign == TextAlign::kJustify) {
-        this->resetRunShifts();
     }
 
     for (auto& line : fLines) {
@@ -1075,7 +1081,10 @@ Block& ParagraphImpl::block(BlockIndex blockIndex) {
 void ParagraphImpl::resetRunShifts() {
     fRunShifts.resize(fRuns.size());
     for (size_t i = 0; i < fRuns.size(); ++i) {
-        fRunShifts[i].fShifts.push_back_n(fRuns[i].size() + 1, 0.0);
+        auto& run = fRuns[i];
+        run.resetShifts();
+        fRunShifts[i].fShifts.reset();
+        fRunShifts[i].fShifts.push_back_n(run.size() + 1, 0.0);
     }
 }
 
