@@ -452,7 +452,7 @@ GrGLGpu::~GrGLGpu() {
         }
     }
 
-    delete fProgramCache;
+    fProgramCache.reset();
     fSamplerObjectCache.reset();
 }
 
@@ -495,8 +495,7 @@ void GrGLGpu::disconnect(DisconnectType type) {
     }
 
     fHWProgram.reset();
-    delete fProgramCache;
-    fProgramCache = nullptr;
+    fProgramCache.reset();
 
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
