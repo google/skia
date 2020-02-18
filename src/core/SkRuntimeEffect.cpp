@@ -558,7 +558,10 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
                                             sk_sp<SkShader> children[], size_t childCount,
                                             const SkMatrix* localMatrix, bool isOpaque) {
-    return inputs && inputs->size() == this->inputSize() && childCount == fChildren.size()
+    if (!inputs) {
+        inputs = SkData::MakeEmpty();
+    }
+    return inputs->size() == this->inputSize() && childCount == fChildren.size()
         ? sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this), std::move(inputs), localMatrix,
                                          children, childCount, isOpaque))
         : nullptr;
@@ -567,7 +570,10 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs,
                                                       sk_sp<SkColorFilter> children[],
                                                       size_t childCount) {
-    return inputs && inputs->size() == this->inputSize() && childCount == fChildren.size()
+    if (!inputs) {
+        inputs = SkData::MakeEmpty();
+    }
+    return inputs->size() == this->inputSize() && childCount == fChildren.size()
         ? sk_sp<SkColorFilter>(new SkRuntimeColorFilter(sk_ref_sp(this), std::move(inputs),
                                                         children, childCount))
         : nullptr;
