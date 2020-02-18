@@ -903,7 +903,7 @@ std::unique_ptr<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
     if (!stream->isValid()) {
         return nullptr;
     }
-    return stream;
+    return std::move(stream);
 }
 
 // Declared in SkStreamPriv.h:
