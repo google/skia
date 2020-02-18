@@ -422,7 +422,7 @@ private:
     std::unique_ptr<GrGLContext> fGLContext;
 
     // GL program-related state
-    ProgramCache*               fProgramCache;
+    std::unique_ptr<ProgramCache> fProgramCache;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State
