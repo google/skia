@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "656bccb8_67b1d76d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-18T14:10:11Z",
+      "side": 1,
+      "message": "I\u0027ve been intentionally calling this inputs (rather than uniforms), because it also includes \u0027in\u0027 variables.",
+      "range": {
+        "startLine": 305,
+        "startChar": 68,
+        "endLine": 305,
+        "endChar": 76
+      },
+      "revId": "48375c4fbafb58a600b85ac5c55d46d9abc7726a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
