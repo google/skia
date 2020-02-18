@@ -46,36 +46,39 @@ SkScalerCache::SkScalerCache(
 #endif
 
 // -- glyph creation -------------------------------------------------------------------------------
-SkGlyph* SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
-    fMemoryUsed += sizeof(SkGlyph);
+std::tuple<SkGlyph*, size_t> SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
     fGlyphMap.set(glyph);
-    return glyph;
+    return {glyph, sizeof(SkGlyph)};
 }
 
-SkGlyph* SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
+std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
     VALIDATE();
     SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
+    size_t bytes = 0;
     if (glyph == nullptr) {
-        glyph = this->makeGlyph(packedGlyphID);
+        std::tie(glyph, bytes) = this->makeGlyph(packedGlyphID);
         fScalerContext->getMetrics(glyph);
     }
-    return glyph;
+    return {glyph, bytes};
 }
 
-const SkPath* SkScalerCache::preparePath(SkGlyph* glyph) {
+std::tuple<const SkPath*, size_t> SkScalerCache::preparePath(SkGlyph* glyph) {
+    size_t delta = 0;
     if (glyph->setPath(&fAlloc, fScalerContext.get())) {
-        fMemoryUsed += glyph->path()->approximateBytesUsed();
+        delta = glyph->path()->approximateBytesUsed();
     }
-    return glyph->path();
+    return {glyph->path(), delta};
 }
 
-const SkPath* SkScalerCache::preparePath(SkGlyph* glyph, const SkPath* path) {
+std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(SkGlyph* glyph, const SkPath* path) {
     SkAutoMutexExclusive lock{fMu};
+    size_t pathDelta = 0;
     if (glyph->setPath(&fAlloc, path)) {
-        fMemoryUsed += glyph->path()->approximateBytesUsed();
+        pathDelta = glyph->path()->approximateBytesUsed();
     }
-    return glyph->path();
+    fMemoryUsed += pathDelta;
+    return {glyph->path(), pathDelta};
 }
 
 const SkDescriptor& SkScalerCache::getDescriptor() const {
@@ -87,96 +90,116 @@ int SkScalerCache::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
-SkGlyph* SkScalerCache::internalGlyphOrNull(SkPackedGlyphID id) const {
-    return fGlyphMap.findOrNull(id);
-}
-
-SkSpan<const SkGlyph*> SkScalerCache::internalPrepare(
+std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::internalPrepare(
         SkSpan<const SkGlyphID> glyphIDs, PathDetail pathDetail, const SkGlyph** results) {
     const SkGlyph** cursor = results;
+    size_t delta = 0;
     for (auto glyphID : glyphIDs) {
-        SkGlyph* glyphPtr = this->glyph(SkPackedGlyphID{glyphID});
+        auto [glyph, size] = this->glyph(SkPackedGlyphID{glyphID});
+        delta += size;
         if (pathDetail == kMetricsAndPath) {
-            this->preparePath(glyphPtr);
+            auto [_, pathSize] = this->preparePath(glyph);
+            delta += pathSize;
         }
-        *cursor++ = glyphPtr;
+        *cursor++ = glyph;
     }
 
-    return {results, glyphIDs.size()};
+    return {{results, glyphIDs.size()}, delta};
 }
 
-const void* SkScalerCache::prepareImage(SkGlyph* glyph) {
+std::tuple<const void*, size_t> SkScalerCache::prepareImage(SkGlyph* glyph) {
+    size_t delta = 0;
     if (glyph->setImage(&fAlloc, fScalerContext.get())) {
-        fMemoryUsed += glyph->imageSize();
+        delta = glyph->imageSize();
     }
-    return glyph->image();
+    return {glyph->image(), delta};
 }
 
-SkGlyph* SkScalerCache::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
+std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
+        SkPackedGlyphID toID, const SkGlyph& from) {
     SkAutoMutexExclusive lock{fMu};
+    size_t delta = 0;
+    size_t imageDelta = 0;
     SkGlyph* glyph = fGlyphMap.findOrNull(toID);
     if (glyph == nullptr) {
-        glyph = this->makeGlyph(toID);
+        std::tie(glyph, delta) = this->makeGlyph(toID);
     }
     if (glyph->setMetricsAndImage(&fAlloc, from)) {
-        fMemoryUsed += glyph->imageSize();
+        imageDelta= glyph->imageSize();
     }
-    return glyph;
+    fMemoryUsed += delta + imageDelta;
+    return {glyph, delta + imageDelta};
 }
 
-SkSpan<const SkGlyph*> SkScalerCache::metrics(SkSpan<const SkGlyphID> glyphIDs,
-                                         const SkGlyph* results[]) {
+std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::metrics(
+        SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
     SkAutoMutexExclusive lock{fMu};
-    return this->internalPrepare(glyphIDs, kMetricsOnly, results);
+    auto [glyphs, delta] = this->internalPrepare(glyphIDs, kMetricsOnly, results);
+    fMemoryUsed += delta;
+    return {glyphs, delta};
 }
 
-SkSpan<const SkGlyph*> SkScalerCache::preparePaths(SkSpan<const SkGlyphID> glyphIDs,
-                                              const SkGlyph* results[]) {
+std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::preparePaths(
+        SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
     SkAutoMutexExclusive lock{fMu};
-    return this->internalPrepare(glyphIDs, kMetricsAndPath, results);
+    auto [glyphs, delta] = this->internalPrepare(glyphIDs, kMetricsAndPath, results);
+    fMemoryUsed += delta;
+    return {glyphs, delta};
 }
 
-SkSpan<const SkGlyph*>
-SkScalerCache::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* results[]) {
+std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareImages(
+        SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* results[]) {
     const SkGlyph** cursor = results;
     SkAutoMutexExclusive lock{fMu};
+    size_t delta = 0;
     for (auto glyphID : glyphIDs) {
-        SkGlyph* glyphPtr = this->glyph(glyphID);
-        (void)this->prepareImage(glyphPtr);
-        *cursor++ = glyphPtr;
+        auto[glyph, glyphSize] = this->glyph(glyphID);
+        auto[_, imageSize] = this->prepareImage(glyph);
+        delta += glyphSize + imageSize;
+        *cursor++ = glyph;
     }
 
-    return {results, glyphIDs.size()};
+    fMemoryUsed += delta;
+    return {{results, glyphIDs.size()}, delta};
 }
 
 template <typename Fn>
-void SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+    size_t total = 0;
     for (auto [i, packedID, pos] : SkMakeEnumerate(drawables->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyph = this->glyph(packedID);
+            auto [glyph, size] = this->glyph(packedID);
+            total += size;
             if (!glyph->isEmpty()) {
                 fn(i, glyph, pos);
             }
         }
     }
+    return total;
 }
 
-void SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
+size_t SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t imageDelta = 0;
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) SK_REQUIRES(fMu) {
             // If the glyph is too large, then no image is created.
-            if (this->prepareImage(glyph) != nullptr) {
+            auto [image, imageSize] = this->prepareImage(glyph);
+            if (image != nullptr) {
                 drawables->push_back(glyph, i);
+                imageDelta += imageSize;
             }
         });
+
+    fMemoryUsed += delta + imageDelta;
+    return delta + imageDelta;
 }
 
 // Note: this does not actually fill out the image. That happens at atlas building time.
-void SkScalerCache::prepareForMaskDrawing(
+size_t SkScalerCache::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) {
             if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
                 drawables->push_back(glyph, i);
@@ -184,12 +207,14 @@ void SkScalerCache::prepareForMaskDrawing(
                 rejects->reject(i);
             }
         });
+    fMemoryUsed += delta;
+    return delta;
 }
 
-void SkScalerCache::prepareForSDFTDrawing(
+size_t SkScalerCache::prepareForSDFTDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) {
             if (SkStrikeForGPU::CanDrawAsSDFT(*glyph)) {
                 drawables->push_back(glyph, i);
@@ -197,15 +222,19 @@ void SkScalerCache::prepareForSDFTDrawing(
                 rejects->reject(i);
             }
         });
+    fMemoryUsed += delta;
+    return delta;
 }
 
-void SkScalerCache::prepareForPathDrawing(
+size_t SkScalerCache::prepareForPathDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     SkAutoMutexExclusive lock{fMu};
-    this->commonFilterLoop(drawables,
+    size_t pathDelta = 0;
+    size_t delta = this->commonFilterLoop(drawables,
         [&](size_t i, SkGlyph* glyph, SkPoint pos) SK_REQUIRES(fMu) {
             if (!glyph->isColor()) {
-                const SkPath* path = this->preparePath(glyph);
+                auto [path, pathSize] = this->preparePath(glyph);
+                pathDelta += pathSize;
                 if (path != nullptr) {
                     // Save off the path to draw later.
                     drawables->push_back(path, i);
@@ -218,6 +247,8 @@ void SkScalerCache::prepareForPathDrawing(
                 rejects->reject(i, glyph->maxDimension());
             }
         });
+    fMemoryUsed += delta + pathDelta;
+    return delta + pathDelta;
 }
 
 void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,

@@ -33,10 +33,12 @@ public:
     // an image, then use the information in from to initialize the width, height top, left,
     // format and image of the toGlyph. This is mainly used preserving the glyph if it was
     // created by a search of desperation.
-    SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) SK_EXCLUDES(fMu);
+    std::tuple<SkGlyph*, size_t> mergeGlyphAndImage(
+            SkPackedGlyphID toID, const SkGlyph& from) SK_EXCLUDES(fMu);
 
     // If the path has never been set, then add a path to glyph.
-    const SkPath* preparePath(SkGlyph* glyph, const SkPath* path) SK_EXCLUDES(fMu);
+    std::tuple<const SkPath*, size_t> mergePath(
+            SkGlyph* glyph, const SkPath* path) SK_EXCLUDES(fMu);
 
     /** Return the number of glyphs currently cached. */
     int countCachedGlyphs() const SK_EXCLUDES(fMu);
@@ -51,17 +53,16 @@ public:
         return fFontMetrics;
     }
 
+    std::tuple<SkSpan<const SkGlyph*>, size_t> metrics(
+            SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fMu);
 
-    SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
-                                   const SkGlyph* results[]) SK_EXCLUDES(fMu);
+    std::tuple<SkSpan<const SkGlyph*>, size_t> preparePaths(
+            SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fMu);
 
-    SkSpan<const SkGlyph*> preparePaths(SkSpan<const SkGlyphID> glyphIDs,
-                                        const SkGlyph* results[]) SK_EXCLUDES(fMu);
+    std::tuple<SkSpan<const SkGlyph*>, size_t> prepareImages(
+            SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fMu);
 
-    SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
-                                         const SkGlyph* results[]) SK_EXCLUDES(fMu);
-
-    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) SK_EXCLUDES(fMu);
+    size_t prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) SK_EXCLUDES(fMu);
 
     // SkStrikeForGPU APIs
     const SkGlyphPositionRoundingSpec& roundingSpec() const {
@@ -70,13 +71,13 @@ public:
 
     const SkDescriptor& getDescriptor() const;
 
-    void prepareForMaskDrawing(
+    size_t prepareForMaskDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
-    void prepareForSDFTDrawing(
+    size_t prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
-    void prepareForPathDrawing(
+    size_t prepareForPathDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
     /** Return the approx RAM usage for this cache. */
@@ -126,21 +127,19 @@ private:
         }
     };
 
-    SkGlyph* makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
+    std::tuple<SkGlyph*, size_t> makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     template <typename Fn>
-    void commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) SK_REQUIRES(fMu);
+    size_t commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) SK_REQUIRES(fMu);
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
-    SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
+    std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
-    const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
+    std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 
     // If the path has never been set, then use the scaler context to add the glyph.
-    const SkPath* preparePath(SkGlyph*) SK_REQUIRES(fMu);
-
-    SkGlyph* internalGlyphOrNull(SkPackedGlyphID) const SK_REQUIRES(fMu);
+    std::tuple<const SkPath*, size_t> preparePath(SkGlyph*) SK_REQUIRES(fMu);
 
     enum PathDetail {
         kMetricsOnly,
@@ -148,7 +147,7 @@ private:
     };
 
     // internalPrepare will only be called with a mutex already held.
-    SkSpan<const SkGlyph*> internalPrepare(
+    std::tuple<SkSpan<const SkGlyph*>, size_t> internalPrepare(
             SkSpan<const SkGlyphID> glyphIDs,
             PathDetail pathDetail,
             const SkGlyph** results) SK_REQUIRES(fMu);
