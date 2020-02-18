@@ -193,11 +193,10 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
     SkASSERT(view.asTextureProxy());
     const auto& caps = *fContext->priv().caps();
     SkAlphaType srcAlphaType = this->alphaType();
+    auto wm = fDomainNeedsDecal ? GrSamplerState::WrapMode::kClampToBorder
+                                : GrSamplerState::WrapMode::kClamp;
     if (filterOrNullForBicubic) {
-        GrSamplerState::WrapMode wrapMode = fDomainNeedsDecal
-                                                    ? GrSamplerState::WrapMode::kClampToBorder
-                                                    : GrSamplerState::WrapMode::kClamp;
-        GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
+        GrSamplerState samplerState(wm, *filterOrNullForBicubic);
         if (kNoDomain_DomainMode == domainMode) {
             return GrTextureEffect::Make(std::move(view), srcAlphaType, textureMatrix, samplerState,
                                          caps);
@@ -205,23 +204,15 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
         return GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix,
                                            samplerState, domain, caps);
     } else {
-        static const GrSamplerState::WrapMode kClampClamp[] = {
-                GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-        static const GrSamplerState::WrapMode kDecalDecal[] = {
-                GrSamplerState::WrapMode::kClampToBorder, GrSamplerState::WrapMode::kClampToBorder};
 
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        bool clampToBorderSupport = caps.clampToBorderSupport();
-        if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
-            GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
-                                         : GrTextureDomain::kClamp_Mode;
-            return GrBicubicEffect::Make(std::move(view), textureMatrix, kClampClamp, wrapMode,
-                                         wrapMode, kDir, srcAlphaType,
-                                         kDomain_DomainMode == domainMode ? &domain : nullptr);
+        const auto& caps = *fContext->priv().caps();
+        if (kDomain_DomainMode == domainMode) {
+            return GrBicubicEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix, wm, wm,
+                                               domain, kDir, caps);
         } else {
-            return GrBicubicEffect::Make(std::move(view), textureMatrix,
-                                         fDomainNeedsDecal ? kDecalDecal : kClampClamp, kDir,
-                                         srcAlphaType);
+            return GrBicubicEffect::Make(std::move(view), srcAlphaType, textureMatrix, wm, wm, kDir,
+                                         caps);
         }
     }
 }

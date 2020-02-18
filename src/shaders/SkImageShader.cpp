@@ -201,8 +201,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    GrSamplerState::WrapMode wrapModes[] = {tile_mode_to_wrap_mode(fTileModeX),
-                                            tile_mode_to_wrap_mode(fTileModeY)};
+    GrSamplerState::WrapMode wm[] = {tile_mode_to_wrap_mode(fTileModeX),
+                                     tile_mode_to_wrap_mode(fTileModeY)};
 
     // Must set wrap and filter on the sampler before requesting a texture. In two places below
     // we check the matrix scale factors to determine how to interpret the filter quality setting.
@@ -212,7 +212,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
             fImage->width(), fImage->height(), args.fFilterQuality, *args.fViewMatrix, *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-    GrSamplerState samplerState(wrapModes, textureFilterMode);
+    GrSamplerState samplerState(wm, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, samplerState, scaleAdjust);
     if (!view) {
@@ -227,24 +227,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
-        // If either domainX or domainY are un-ignored, a texture domain effect has to be used to
-        // implement the decal mode (while leaving non-decal axes alone). The wrap mode originally
-        // clamp-to-border is reset to clamp since the hw cannot implement it directly.
-        GrTextureDomain::Mode domainX = GrTextureDomain::kIgnore_Mode;
-        GrTextureDomain::Mode domainY = GrTextureDomain::kIgnore_Mode;
-        if (!caps.clampToBorderSupport()) {
-            if (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder) {
-                domainX = GrTextureDomain::kDecal_Mode;
-                wrapModes[0] = GrSamplerState::WrapMode::kClamp;
-            }
-            if (wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) {
-                domainY = GrTextureDomain::kDecal_Mode;
-                wrapModes[1] = GrSamplerState::WrapMode::kClamp;
-            }
-        }
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(view), lmInverse, wrapModes, domainX, domainY, kDir,
-                                      srcAlphaType);
+        inner = GrBicubicEffect::Make(std::move(view), srcAlphaType, lmInverse, wm[0], wm[1], kDir,
+                                      caps);
     } else {
         inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
     }
