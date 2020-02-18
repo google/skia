@@ -102,14 +102,6 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
 
 static bool isBGRA(const GrBackendFormat& format) {
     switch (format.backend()) {
-        case GrBackendApi::kMetal:
-#ifdef SK_METAL
-            return GrMtlFormatIsBGRA(format.asMtlFormat());
-#else
-            return false;
-#endif
-        case GrBackendApi::kDawn:
-            return false;
         case GrBackendApi::kOpenGL:
 #ifdef SK_GL
             return format.asGLFormat() == GrGLFormat::kBGRA8;
@@ -125,6 +117,20 @@ static bool isBGRA(const GrBackendFormat& format) {
             return false;
 #endif
         }
+        case GrBackendApi::kMetal:
+#ifdef SK_METAL
+            return GrMtlFormatIsBGRA(format.asMtlFormat());
+#else
+            return false;
+#endif
+        case GrBackendApi::kDirect3D:
+#ifdef SK_DIRECT3D
+            return false; // TODO
+#else
+            return false;
+#endif
+        case GrBackendApi::kDawn:
+            return false;
         case GrBackendApi::kMock: {
             SkImage::CompressionType compression = format.asMockCompressionType();
             if (compression != SkImage::CompressionType::kNone) {
@@ -139,10 +145,6 @@ static bool isBGRA(const GrBackendFormat& format) {
 
 static bool isRGB(const GrBackendFormat& format) {
     switch (format.backend()) {
-        case GrBackendApi::kMetal:
-            return false;  // Metal doesn't even pretend to support this
-        case GrBackendApi::kDawn:
-            return false;
         case GrBackendApi::kOpenGL:
 #ifdef SK_GL
             return format.asGLFormat() == GrGLFormat::kRGB8;
@@ -158,6 +160,12 @@ static bool isRGB(const GrBackendFormat& format) {
             return false;
 #endif
         }
+        case GrBackendApi::kMetal:
+            return false;  // Metal doesn't even pretend to support this
+        case GrBackendApi::kDirect3D:
+            return false;  // Not supported in Direct3D 12
+        case GrBackendApi::kDawn:
+            return false;
         case GrBackendApi::kMock:
             return false;  // No GrColorType::kRGB_888
     }

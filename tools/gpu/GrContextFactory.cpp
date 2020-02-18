@@ -13,7 +13,7 @@
 #endif
 
 #if SK_ANGLE
-    #include "tools/gpu/gl/angle/GLTestContext_angle.h"
+#include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #endif
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 #ifdef SK_VULKAN
@@ -21,6 +21,9 @@
 #endif
 #ifdef SK_METAL
 #include "tools/gpu/mtl/MtlTestContext.h"
+#endif
+#ifdef SK_DIRECT3D
+#include "tools/gpu/d3d/D3DTestContext.h"
 #endif
 #ifdef SK_DAWN
 #include "tools/gpu/dawn/DawnTestContext.h"
@@ -241,6 +244,18 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     ? static_cast<MtlTestContext*>(masterContext->fTestContext) : nullptr;
             SkASSERT(kMetal_ContextType == type);
             testCtx.reset(CreatePlatformMtlTestContext(mtlSharedContext));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            break;
+        }
+#endif
+#ifdef SK_DIRECT3D
+        case GrBackendApi::kDirect3D: {
+            D3DTestContext* d3dSharedContext = masterContext
+                    ? static_cast<D3DTestContext*>(masterContext->fTestContext) : nullptr;
+            SkASSERT(kDirect3D_ContextType == type);
+            testCtx.reset(CreatePlatformD3DTestContext(d3dSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }

@@ -726,6 +726,9 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkVertexBuffer.h",
 ]
 
+skia_direct3d_sources = [
+]
+
 skia_dawn_sources = [
   "$_include/gpu/dawn/GrDawnTypes.h",
   "$_src/gpu/dawn/GrDawnBuffer.cpp",

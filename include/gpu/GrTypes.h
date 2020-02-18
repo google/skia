@@ -133,10 +133,11 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
  * Possible 3D APIs that may be used by Ganesh.
  */
 enum class GrBackendApi : unsigned {
-    kMetal,
-    kDawn,
     kOpenGL,
     kVulkan,
+    kMetal,
+    kDirect3D,
+    kDawn,
     /**
      * Mock is a backend that does not draw anything. It is used for unit tests
      * and to measure CPU overhead.
