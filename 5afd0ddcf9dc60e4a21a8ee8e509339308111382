@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a9f07a3_87f07b47",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-18T17:41:41Z",
+      "side": 1,
+      "message": "#include \"include/private/SkNoncopyable.h\"\n\nAttributeList : SkNoncopyable {",
+      "range": {
+        "startLine": 80,
+        "startChar": 13,
+        "endLine": 80,
+        "endChar": 26
+      },
+      "revId": "5afd0ddcf9dc60e4a21a8ee8e509339308111382",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
