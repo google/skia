@@ -509,19 +509,11 @@ struct LightOnSphere {
     }
 };
 
-class SampleBump3D : public Sample3DView {
+class SampleCubeBase : public Sample3DView {
     enum {
         DX = 400,
         DY = 300
     };
-
-    SkRRect fRR;
-    LightOnSphere fLight = {{200 + DX, 200 + DY}, 800, 12};
-
-    VSphere fSphere;
-
-    sk_sp<SkShader> fBmpShader, fImgShader;
-    sk_sp<SkRuntimeEffect> fEffect;
 
     SkM44 fWorldToClick,
           fClickToWorld;
@@ -529,52 +521,22 @@ class SampleBump3D : public Sample3DView {
     SkM44 fRotation,        // part of model
           fClickRotation;  // temp during a click/drag
 
+protected:
+    enum Flags {
+        kCanRunOnCPU    = 1 << 0,
+        kShowLightDome  = 1 << 1,
+    };
+
+    LightOnSphere fLight = {{200 + DX, 200 + DY}, 800, 12};
+
+    VSphere fSphere;
+    Flags   fFlags;
+
 public:
-    SampleBump3D() : fSphere({200 + DX, 200 + DY}, 400) {}
-
-    SkString name() override { return SkString("bump3d"); }
-
-    void onOnceBeforeDraw() override {
-        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
-        auto img = GetResourceAsImage("images/brickwork-texture.jpg");
-        fImgShader = img->makeShader(SkMatrix::MakeScale(2, 2));
-        img = GetResourceAsImage("images/brickwork_normal-map.jpg");
-        fBmpShader = img->makeShader(SkMatrix::MakeScale(2, 2));
-
-        const char code[] = R"(
-            in fragmentProcessor color_map;
-            in fragmentProcessor normal_map;
-
-            uniform float4x4 localToWorld;
-            uniform float4x4 localToWorldAdjInv;
-            uniform float3   lightPos;
-
-            float3 convert_normal_sample(half4 c) {
-                float3 n = 2 * c.rgb - 1;
-                n.y = -n.y;
-                return n;
-            }
-
-            void main(float2 p, inout half4 color) {
-                float3 norm = convert_normal_sample(sample(normal_map, p));
-                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
-
-                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
-                float3 light_dir = normalize(lightPos - plane_pos);
-
-                float ambient = 0.2;
-                float dp = dot(plane_norm, light_dir);
-                float scale = min(ambient + max(dp, 0), 1);
-
-                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
-            }
-        )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
-        if (!effect) {
-            SkDebugf("runtime error %s\n", error.c_str());
-        }
-        fEffect = effect;
-    }
+    SampleCubeBase(Flags flags)
+        : fSphere({200 + DX, 200 + DY}, 400)
+        , fFlags(flags)
+    {}
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {
@@ -584,40 +546,7 @@ public:
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m, SkColor color) {
-        SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
-
-        canvas->experimental_concat44(trans * fRot * m * inv(trans));
-
-        // wonder if the runtimeeffect can do this reject? (in a setup function)
-        if (!front(canvas->experimental_getLocalToDevice())) {
-            return;
-        }
-
-        auto adj_inv = [](const SkM44& m) {
-            SkM44 inv;
-            SkAssertResult(m.invert(&inv));
-            return inv.transpose();
-        };
-
-        struct Uniforms {
-            SkM44  fLocalToWorld;
-            SkM44  fLocalToWorldAdjInv;
-            SkV3   fLightPos;
-        } uni;
-        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
-        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
-        uni.fLightPos = fLight.computeWorldPos(fSphere);
-
-        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
-        sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
-
-        SkPaint paint;
-        paint.setColor(color);
-        paint.setShader(fEffect->makeShader(data, children, 2, nullptr, true));
-
-        canvas->drawRRect(fRR, paint);
-    }
+    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
 
     void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
         auto l2d = canvas->experimental_getLocalToDevice();
@@ -626,7 +555,7 @@ public:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        if (canvas->getGrContext() == nullptr) {
+        if (!canvas->getGrContext() && !(fFlags & kCanRunOnCPU)) {
             return;
         }
         SkM44 clickM = canvas->experimental_getLocalToDevice();
@@ -638,16 +567,25 @@ public:
 
         this->setClickToWorld(canvas, clickM);
 
-        for (auto f : faces) {
-            SkAutoCanvasRestore acr(canvas, true);
-            this->drawContent(canvas, fClickRotation * fRotation * f.asM44(200), f.fColor);
+        for (bool drawFront : {false, true}) {
+            int index = 0;
+            for (auto f : faces) {
+                SkAutoCanvasRestore acr(canvas, true);
+
+                SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+                SkM44 m = fClickRotation * fRotation * f.asM44(200);
+
+                canvas->experimental_concat44(trans * fRot * m * inv(trans));
+                this->drawContent(canvas, f.fColor, index++, drawFront);
+            }
         }
 
         canvas->restore();  // camera
         canvas->restore();  // center the content in the window
 
-        fLight.draw(canvas);
-        {
+        if (fFlags & kShowLightDome){
+            fLight.draw(canvas);
+
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setStyle(SkPaint::kStroke_Style);
@@ -697,4 +635,137 @@ public:
         return true;
     }
 };
+
+class SampleBump3D : public SampleCubeBase {
+    sk_sp<SkShader>        fBmpShader, fImgShader;
+    sk_sp<SkRuntimeEffect> fEffect;
+    SkRRect                fRR;
+
+public:
+    SampleBump3D() : SampleCubeBase(kShowLightDome) {}
+
+    SkString name() override { return SkString("bump3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        auto img = GetResourceAsImage("images/brickwork-texture.jpg");
+        fImgShader = img->makeShader(SkMatrix::MakeScale(2, 2));
+        img = GetResourceAsImage("images/brickwork_normal-map.jpg");
+        fBmpShader = img->makeShader(SkMatrix::MakeScale(2, 2));
+
+        const char code[] = R"(
+            in fragmentProcessor color_map;
+            in fragmentProcessor normal_map;
+
+            uniform float4x4 localToWorld;
+            uniform float4x4 localToWorldAdjInv;
+            uniform float3   lightPos;
+
+            float3 convert_normal_sample(half4 c) {
+                float3 n = 2 * c.rgb - 1;
+                n.y = -n.y;
+                return n;
+            }
+
+            void main(float2 p, inout half4 color) {
+                float3 norm = convert_normal_sample(sample(normal_map, p));
+                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+
+                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+                float3 light_dir = normalize(lightPos - plane_pos);
+
+                float ambient = 0.2;
+                float dp = dot(plane_norm, light_dir);
+                float scale = min(ambient + max(dp, 0), 1);
+
+                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+        if (!drawFront || !front(canvas->experimental_getLocalToDevice())) {
+            return;
+        }
+
+        auto adj_inv = [](const SkM44& m) {
+            SkM44 inv;
+            SkAssertResult(m.invert(&inv));
+            return inv.transpose();
+        };
+
+        struct Uniforms {
+            SkM44  fLocalToWorld;
+            SkM44  fLocalToWorldAdjInv;
+            SkV3   fLightPos;
+        } uni;
+        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
+        uni.fLightPos = fLight.computeWorldPos(fSphere);
+
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+        sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
+
+        SkPaint paint;
+        paint.setColor(color);
+        paint.setShader(fEffect->makeShader(data, children, 2, nullptr, true));
+
+        canvas->drawRRect(fRR, paint);
+    }
+};
 DEF_SAMPLE( return new SampleBump3D; )
+
+#include "modules/skottie/include/Skottie.h"
+
+class SampleSkottieCube : public SampleCubeBase {
+    sk_sp<skottie::Animation> fAnim[6];
+
+public:
+    SampleSkottieCube() : SampleCubeBase(kCanRunOnCPU) {}
+
+    SkString name() override { return SkString("skottie3d"); }
+
+    void onOnceBeforeDraw() override {
+        const char* files[] = {
+            "skottie/skottie-chained-mattes.json",
+            "skottie/skottie-gradient-ramp.json",
+            "skottie/skottie_sample_2.json",
+            "skottie/skottie-3d-3planes.json",
+            "skottie/skottie-text-animator-4.json",
+            "skottie/skottie-motiontile-effect-phase.json",
+
+        };
+        for (unsigned i = 0; i < SK_ARRAY_COUNT(files); ++i) {
+            if (auto stream = GetResourceAsStream(files[i])) {
+                fAnim[i] = skottie::Animation::Make(stream.get());
+            }
+        }
+    }
+
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+        if (!drawFront || !front(canvas->experimental_getLocalToDevice())) {
+            return;
+        }
+
+        SkPaint paint;
+        paint.setColor(color);
+        SkRect r = {0, 0, 400, 400};
+        canvas->drawRect(r, paint);
+        fAnim[index]->render(canvas, &r);
+    }
+
+    bool onAnimate(double nanos) override {
+        for (auto& anim : fAnim) {
+            SkScalar dur = anim->duration();
+            SkScalar t = fmod(1e-9 * nanos, dur) / dur;
+            anim->seek(t);
+        }
+        return true;
+    }
+};
+DEF_SAMPLE( return new SampleSkottieCube; )
