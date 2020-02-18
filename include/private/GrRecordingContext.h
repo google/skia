@@ -10,12 +10,14 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrImageContext.h"
+//#include "src/gpu/GrProgramDesc.h"
 
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
+class GrProgramDesc;
 class GrProgramInfo;
 class GrRecordingContextPriv;
 class GrStrikeCache;
@@ -60,8 +62,9 @@ public:
     };
 
 protected:
-    friend class GrRecordingContextPriv; // for hidden functions
-    friend class SkDeferredDisplayList;  // for OwnedArenas;
+    friend class GrRecordingContextPriv;    // for hidden functions
+    friend class SkDeferredDisplayList;     // for OwnedArenas
+    friend class SkDeferredDisplayListPriv; // for ProgramData
 
     // Like Arenas, but preserves ownership of the underlying pools.
     class OwnedArenas {
@@ -91,6 +94,23 @@ protected:
     // match that of the DDL.
     OwnedArenas&& detachArenas();
 
+    struct ProgramData {
+        ProgramData(std::unique_ptr<const GrProgramDesc>, const GrProgramInfo*);
+        ProgramData(ProgramData&&);
+        ProgramData(const ProgramData&) = delete;
+        ~ProgramData();
+
+        const GrProgramDesc& desc() const { return *fDesc; }
+        const GrProgramInfo& info() const { return *fInfo; }
+
+    private:
+        // TODO: store the GrProgramDescs in the 'fRecordTimeData' arena
+        std::unique_ptr<const GrProgramDesc> fDesc;
+        // The program infos should be stored in 'fRecordTimeData' so do not need to be ref
+        // counted or deleted in the destructor.
+        const GrProgramInfo* fInfo = nullptr;
+    };
+
     // This entry point gives the recording context a chance to cache the provided
     // programInfo. The DDL context takes this opportunity to store programInfos as a sidecar
     // to the DDL.
@@ -100,7 +120,7 @@ protected:
     // of the programInfos matches the intended use. For example, in DDL-record mode it
     // is known that all the programInfos will have been allocated in an arena with the
     // same lifetime at the DDL itself.
-    virtual void detachProgramInfos(SkTDArray<const GrProgramInfo*>*) {}
+    virtual void detachProgramData(SkTArray<ProgramData>*) {}
 
     GrStrikeCache* getGrStrikeCache() { return fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache();
