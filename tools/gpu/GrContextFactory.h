@@ -41,6 +41,7 @@ public:
         kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
         kVulkan_ContextType,         //! Vulkan
         kMetal_ContextType,          //! Metal
+        kDirect3D_ContextType,       //! Direct3D 12
         kDawn_ContextType,           //! Dawn
         kMock_ContextType,           //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
