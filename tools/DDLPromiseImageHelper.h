@@ -76,7 +76,7 @@ private:
     class PromiseImageCallbackContext : public SkRefCnt {
     public:
         PromiseImageCallbackContext(GrContext* context, GrBackendFormat backendFormat)
-                : fContext(context)
+                : fContext1(context)
                 , fBackendFormat(backendFormat) {}
 
         ~PromiseImageCallbackContext();
@@ -85,12 +85,12 @@ private:
 
         void setBackendTexture(const GrBackendTexture& backendTexture);
 
-        sk_sp<SkPromiseImageTexture> fulfill() {
-            SkASSERT(fPromiseImageTexture);
+        sk_sp<SkPromiseImageTexture> fulfill1() {
+            SkASSERT(fPromiseImageTexture1);
             SkASSERT(fUnreleasedFulfills >= 0);
             ++fUnreleasedFulfills;
             ++fTotalFulfills;
-            return fPromiseImageTexture;
+            return fPromiseImageTexture1;
         }
 
         void release() {
@@ -107,13 +107,13 @@ private:
         void wasAddedToImage() { fNumImages++; }
 
         const SkPromiseImageTexture* promiseImageTexture() const {
-            return fPromiseImageTexture.get();
+            return fPromiseImageTexture1.get();
         }
 
     private:
-        GrContext*                   fContext;
+        GrContext*                   fContext1;
         GrBackendFormat              fBackendFormat;
-        sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
+        sk_sp<SkPromiseImageTexture> fPromiseImageTexture1;
         int                          fNumImages = 0;
         int                          fTotalFulfills = 0;
         int                          fTotalReleases = 0;
@@ -231,7 +231,7 @@ private:
 
     static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        return callbackContext->fulfill();
+        return callbackContext->fulfill1();
     }
 
     static void PromiseImageReleaseProc(void* textureContext) {

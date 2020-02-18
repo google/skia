@@ -25,16 +25,16 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(fTotalReleases == fTotalFulfills);
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
-    if (fPromiseImageTexture) {
-        fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
+    if (fPromiseImageTexture1) {
+        fContext1->deleteBackendTexture(fPromiseImageTexture1->backendTexture());
     }
 }
 
 void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
         const GrBackendTexture& backendTexture) {
-    SkASSERT(!fPromiseImageTexture);
+    SkASSERT(!fPromiseImageTexture1);
     SkASSERT(fBackendFormat == backendTexture.getBackendFormat());
-    fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
+    fPromiseImageTexture1 = SkPromiseImageTexture::Make(backendTexture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
     }
 }
 
-void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
+    void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
     SkASSERT(context->priv().asDirectContext());
 
     if (taskGroup) {
@@ -169,10 +169,12 @@ void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* co
             PromiseImageInfo* info = &fImageInfo[i];
 
             taskGroup->add([context, info]() {
+                              SkDebugf("on thread %d Create BET for %d\n", SkGetThreadID(), info->index());
                               CreateBETexturesForPromiseImage(context, info);
                            });
         }
     } else {
+        // TODO: rm this after the DDL-via is removed
         for (int i = 0; i < fImageInfo.count(); ++i) {
             CreateBETexturesForPromiseImage(context, &fImageInfo[i]);
         }
