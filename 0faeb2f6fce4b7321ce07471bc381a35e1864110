@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62f46d77_fa2fa50b",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-18T18:03:50Z",
+      "side": 1,
+      "message": "This doesn\u0027t do anything useful anymore.  Either check for each anim in the loop, or drop?",
+      "revId": "0faeb2f6fce4b7321ce07471bc381a35e1864110",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
