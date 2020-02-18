@@ -6,6 +6,8 @@
  */
 #include "tests/Test.h"
 
+#ifdef SK_SUPPORT_PDF
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkStream.h"
@@ -165,3 +167,4 @@ DEF_TEST(SkPDF_tagged, r) {
 
     outputStream.flush();
 }
+#endif
