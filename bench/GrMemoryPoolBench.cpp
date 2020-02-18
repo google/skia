@@ -99,9 +99,9 @@ static void run_pushpop(GrMemoryPool* pool, int loops) {
                 delete objs[j];
             }
         }
-
-        // Everything has been cleaned up for the next loop
     }
+
+    // Everything has been cleaned up for the next loop
 }
 
 // N object creations and destructions are invoked in random order.
