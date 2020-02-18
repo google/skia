@@ -22,6 +22,8 @@ class GrShaderCaps;
  */
 class GrProgramDesc {
 public:
+    GrProgramDesc(const GrProgramDesc& other) : fKey(other.fKey) {}   // for SkLRUCache
+
     bool isValid() const { return !fKey.empty(); }
 
     // Returns this as a uint32_t array to be used as a key in the program cache.

@@ -13,6 +13,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -23,6 +24,19 @@
 
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+
+GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
+                                             const GrProgramInfo* info)
+        : fDesc(std::move(desc))
+        , fInfo(info) {
+}
+
+GrRecordingContext::ProgramData::ProgramData(ProgramData&& other)
+        : fDesc(std::move(other.fDesc))
+        , fInfo(other.fInfo) {
+}
+
+GrRecordingContext::ProgramData::~ProgramData() {}
 
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
