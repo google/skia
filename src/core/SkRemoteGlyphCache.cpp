@@ -993,7 +993,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 pathPtr = &path;
             }
 
-            strike->preparePath(allocatedGlyph, pathPtr);
+            strike->mergePath(allocatedGlyph, pathPtr);
         }
     }
 
