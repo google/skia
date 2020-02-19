@@ -88,19 +88,10 @@ struct VSphere {
         SkV3 u = this->computeUnitV3(a);
         SkV3 v = this->computeUnitV3(b);
         SkV3 axis = u.cross(v);
-        SkScalar sinValue = axis.length();
-        SkScalar cosValue = u.dot(v);
+        SkScalar length = axis.length();
 
-        auto angle_from_sincos = [](SkScalar s, SkScalar c) {
-            SkScalar angle = acos(c);
-            if (s < 0) {
-                angle = -angle;
-            }
-            return angle;
-        };
-
-        if (!SkScalarNearlyZero(sinValue)) {
-            return {axis * (1.0f / sinValue), angle_from_sincos(sinValue, cosValue)};
+        if (!SkScalarNearlyZero(length)) {
+            return {axis * (1.0f / length), acos(u.dot(v))};
         }
         return {{0, 0, 0}, 0};
     }
