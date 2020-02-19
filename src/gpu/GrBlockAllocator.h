@@ -134,6 +134,10 @@ public:
         int             fMetadata;
     };
 
+    // Smallest value of fCursor, this will automatically repurpose any alignment padding that
+    // the compiler introduced if the first allocation is aligned less than max_align_t.
+    static constexpr int kDataStart = offsetof(Block, fMetadata) + sizeof(int);
+
     // The size of the head block is determined by 'additionalPreallocBytes'. Subsequent heap blocks
     // are determined by 'policy' and 'blockIncrementBytes', although 'blockIncrementBytes' will be
     // aligned to std::max_align_t.
@@ -215,6 +219,9 @@ public:
     const Block* currentBlock() const { return fTail; }
     Block* currentBlock() { return fTail; }
 
+    const Block* headBlock() const { return &fHead; }
+    Block* headBlock() { return &fHead; }
+
     /**
      * Return the block that owns the allocated 'ptr'. Assuming that earlier, an allocation was
      * returned as {b, start, alignedOffset, end}, and 'p = b->ptr(alignedOffset)', then a call
@@ -271,9 +278,6 @@ public:
 #endif
 
 private:
-    // Smallest value of fCursor, this will automatically repurpose any alignment padding that
-    // the compiler introduced if the first allocation is aligned less than max_align_t.
-    static constexpr int kDataStart = offsetof(Block, fMetadata) + sizeof(int);
     static constexpr int kBlockIncrementUnits = alignof(std::max_align_t);
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the

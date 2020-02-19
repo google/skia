@@ -116,14 +116,8 @@ public:
     GrCCAtlas& front() { SkASSERT(!this->empty()); return fAtlases.front(); }
     GrCCAtlas& current() { SkASSERT(!this->empty()); return fAtlases.back(); }
 
-    class Iter {
-    public:
-        Iter(GrCCAtlasStack& stack) : fImpl(&stack.fAtlases) {}
-        bool next() { return fImpl.next(); }
-        GrCCAtlas* operator->() const { return fImpl.get(); }
-    private:
-        typename GrTAllocator<GrCCAtlas>::Iter fImpl;
-    };
+    GrTAllocator<GrCCAtlas>::Iter atlases() { return fAtlases.items(); }
+    GrTAllocator<GrCCAtlas>::CIter atlases() const { return fAtlases.items(); }
 
     // Adds a rect to the current atlas and returns the offset from device space to atlas space.
     // Call current() to get the atlas it was added to.
