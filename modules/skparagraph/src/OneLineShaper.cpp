@@ -44,7 +44,7 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
     auto& front = fUnresolvedBlocks.front();    // The one we need to resolve
     auto& back = fUnresolvedBlocks.back();      // The one we have from shaper
     if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 &&
-        front.fText.width() == back.fText.width()) {
+        front.fText == back.fText) {
         // The entire block remains unresolved!
         if (front.fRun != nullptr) {
             back.fRun = front.fRun;
@@ -394,24 +394,37 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
     std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(textStyle.getFontFamilies(), textStyle.getFontStyle());
 
     for (const auto& typeface : typefaces) {
-        if (!visitor(typeface))
+        if (!visitor(typeface)) {
+            // Resolved everything
             return;
+        }
     }
 
     if (fParagraph->fFontCollection->fontFallbackEnabled()) {
         // Give fallback a clue
-        SkASSERT(!fUnresolvedBlocks.empty());
-        auto unresolvedRange = fUnresolvedBlocks.front().fText;
-        auto unresolvedText = fParagraph->text(unresolvedRange);
-        const char* ch = unresolvedText.begin();
-        SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
+        // Some unresolved subblocks might be resolved with different fallback fonts
+        while (!fUnresolvedBlocks.empty()) {
+            auto unresolvedRange = fUnresolvedBlocks.front().fText;
+            auto unresolvedText = fParagraph->text(unresolvedRange);
+            const char* ch = unresolvedText.begin();
+            SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
 
-        auto typeface = fParagraph->fFontCollection->defaultFallback(
-                unicode, textStyle.getFontStyle(), textStyle.getLocale());
+            auto typeface = fParagraph->fFontCollection->defaultFallback(
+                    unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
-        if (typeface != nullptr) {
-            if (!visitor(typeface)) {
+            if (typeface == nullptr) {
                 return;
+            }
+
+            if (!visitor(typeface)) {
+                // Resolved everything
+                return;
+            } else {
+                // Check if anything was resolved and stop it it was not
+                auto last = fUnresolvedBlocks.back();
+                if (unresolvedRange == last.fText) {
+                    return;
+                }
             }
         }
     }
