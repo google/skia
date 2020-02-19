@@ -794,3 +794,22 @@ DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
     storage.realloc(storage_size);
     REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) != 0u);
 }
+
+#include "src/core/SkAutoMalloc.h"
+
+DEF_TEST(ReadBuffer_empty, reporter) {
+    SkBinaryWriteBuffer writer;
+    writer.writeInt(123);
+    writer.writeDataAsByteArray(SkData::MakeEmpty().get());
+    writer.writeInt(321);
+
+    size_t size = writer.bytesWritten();
+    SkAutoMalloc storage(size);
+    writer.writeToMemory(storage.get());
+
+    SkReadBuffer reader(storage.get(), size);
+    REPORTER_ASSERT(reporter, reader.readInt() == 123);
+    auto data = reader.readByteArrayAsData();
+    REPORTER_ASSERT(reporter, data->size() == 0);
+    REPORTER_ASSERT(reporter, reader.readInt() == 321);
+}
