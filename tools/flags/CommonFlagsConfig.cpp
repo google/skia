@@ -108,6 +108,9 @@ static const struct {
     { "mtlmsaa4",              "gpu", "api=metal,samples=4" },
     { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
 #endif
+#ifdef SK_DIRECT3D
+    { "d3d",                   "gpu", "api=direct3d" },
+#endif
 };
 // clang-format on
 
@@ -270,6 +273,12 @@ static bool parse_option_gpu_api(const SkString&                      value,
 #ifdef SK_METAL
     if (value.equals("metal")) {
         *outContextType = GrContextFactory::kMetal_ContextType;
+        return true;
+    }
+#endif
+#ifdef SK_DIRECT3D
+    if (value.equals("direct3d")) {
+        *outContextType = GrContextFactory::kDirect3D_ContextType;
         return true;
     }
 #endif
