@@ -27,6 +27,7 @@
     #include "include/effects/SkLumaColorFilter.h"
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
+    #include "include/effects/SkRuntimeEffect.h"
     #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
     #include "src/core/SkColorFilter_Matrix.h"
@@ -45,7 +46,6 @@
     #include "src/shaders/SkLightingShader.h"
     #include "src/shaders/SkLocalMatrixShader.h"
     #include "src/shaders/SkPictureShader.h"
-    #include "src/shaders/SkRTShader.h"
     #include "src/shaders/SkShaderBase.h"
 
     #include "include/effects/SkImageFilters.h"
@@ -70,7 +70,6 @@
         SK_REGISTER_FLATTENABLE(SkEmptyShader);
         SK_REGISTER_FLATTENABLE(SkLocalMatrixShader);
         SK_REGISTER_FLATTENABLE(SkPictureShader);
-        SK_REGISTER_FLATTENABLE(SkRTShader);
         SkGradientShader::RegisterFlattenables();
         SkLightingShader::RegisterFlattenables();
         SkPerlinNoiseShader::RegisterFlattenables();
@@ -83,6 +82,9 @@
         SkHighContrastFilter::RegisterFlattenables();
         SkOverdrawColorFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
+
+        // Shader & color filter.
+        SkRuntimeEffect::RegisterFlattenables();
 
         // Mask filters.
         SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter);
