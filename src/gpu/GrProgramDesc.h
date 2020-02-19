@@ -67,6 +67,7 @@ public:
 
 protected:
     friend class GrDawnCaps;
+    friend class GrD3DCaps;
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;

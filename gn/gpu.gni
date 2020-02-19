@@ -727,6 +727,10 @@ skia_vk_sources = [
 ]
 
 skia_direct3d_sources = [
+  "$_src/gpu/d3d/GrD3DCaps.cpp",
+  "$_src/gpu/d3d/GrD3DCaps.h",
+  "$_src/gpu/d3d/GrD3DGpu.cpp",
+  "$_src/gpu/d3d/GrD3DGpu.h",
 ]
 
 skia_dawn_sources = [
