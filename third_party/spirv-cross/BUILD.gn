@@ -22,6 +22,9 @@ static_library("spirv_cross") {
       "/wd4715",
     ]
   }
+  if (is_clang) {
+    cflags += [ "-Wno-nonportable-include-path" ]
+  }
 
   sources = rebase_path([
                           "GLSL.std.450.h",
