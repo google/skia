@@ -599,6 +599,7 @@ optional("gpu") {
 
   if (skia_use_direct3d) {
     public_defines += [ "SK_DIRECT3D" ]
+    deps += [ "//third_party/spirv-cross:spirv_cross" ]
     sources += skia_direct3d_sources
     libs += [
       "d3d12.lib",
