@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "328b4583_477d4c7c",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T21:17:04Z",
+      "side": 1,
+      "message": "The EGL code can run on systems with desktop GL (e.g. Linux machine) as well. We could either bail of not ES or update this to check for version 3.2 or GL_ARB_fence_sync.",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 5
+      },
+      "revId": "88a79cf90aed0b70dad758f1ae43413f32be3a86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34c68ab7_055ced4a",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T21:17:04Z",
+      "side": 1,
+      "message": "Do we need to check for EGL fence support?",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 59
+      },
+      "revId": "88a79cf90aed0b70dad758f1ae43413f32be3a86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
