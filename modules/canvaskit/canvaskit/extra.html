@@ -7,8 +7,6 @@
 <style>
   canvas {
     border: 1px dashed #AAA;
-    width: 300px;
-    height: 300px;
   }
 
 </style>
@@ -35,7 +33,7 @@
 
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
-<canvas id=skp width=300 height=300></canvas>
+<canvas id=skp width=500 height=500></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -140,7 +138,7 @@
     });
   });
 
-  fetch('./red_line.skp').then((response) => response.arrayBuffer()).then((buffer) => {
+  fetch('./picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
     skpData = buffer;
     SkpExample(CanvasKit, skpData);
   });
@@ -418,6 +416,11 @@ const curves = {
 
     function drawFrame(canvas) {
       canvas.clear(CanvasKit.TRANSPARENT);
+      // this particular file has a path drawing at (68,582) that's 1300x1300 pixels
+      // scale it down to 600x600 and translate it to fit.
+      var scale = 500.0/1300;
+      canvas.scale(scale, scale);
+      canvas.translate(-68, -582);
       canvas.drawPicture(pic);
     }
     // Intentionally just draw frame once
