@@ -344,6 +344,9 @@ config("warnings") {
 
       # It'd be nice to fix these and turn this on:
       "/wd5041",  # out-of-line definition for constexpr static data member is not needed and is deprecated in C++17
+
+      # Disable warnings about unknown attributes.
+      "/wd5030",
     ]
   } else {
     cflags += [
@@ -354,6 +357,7 @@ config("warnings") {
       "-Wsign-compare",
       "-Wvla",
 
+      "-Wno-attributes",
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
     ]
