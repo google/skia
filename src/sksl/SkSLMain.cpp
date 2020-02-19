@@ -95,24 +95,6 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".hlsl")) {
-        SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", argv[2]);
-            exit(4);
-        }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        SkSL::String hlsl;
-        if (!program || !compiler.toHLSL(*program, &hlsl)) {
-            printf("%s", compiler.errorText().c_str());
-            exit(3);
-        }
-        out.writeString(hlsl);
-        if (!out.close()) {
-            printf("error writing '%s'\n", argv[2]);
-            exit(4);
-        }
     } else if (name.endsWith(".metal")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;

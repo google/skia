@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLMetalCodeGenerator.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/SkSLSPIRVCodeGenerator.h"
-#include "src/sksl/SkSLSPIRVtoHLSL.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -1561,15 +1560,6 @@ bool Compiler::toGLSL(Program& program, String* out) {
         *out = buffer.str();
     }
     return result;
-}
-
-bool Compiler::toHLSL(Program& program, String* out) {
-    String spirv;
-    if (!this->toSPIRV(program, &spirv)) {
-        return false;
-    }
-
-    return SPIRVtoHLSL(spirv, out);
 }
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
