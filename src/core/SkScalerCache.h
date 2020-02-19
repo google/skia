@@ -9,16 +9,17 @@
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
-#include "include/core/SkPaint.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeForGPU.h"
 #include <memory>
+
+class SkScalerContext;
 
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
 // holds the glyphs for that strike.
@@ -80,41 +81,13 @@ public:
     size_t prepareForPathDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
-    /** Return the approx RAM usage for this cache. */
-    size_t getMemoryUsed() const SK_EXCLUDES(fMu) {
-        SkAutoMutexExclusive lock{fMu};
-        return fMemoryUsed;
-    }
-
     void dump() const SK_EXCLUDES(fMu);
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 #ifdef SK_DEBUG
-    void forceValidate() const SK_EXCLUDES(fMu);
-    void validate() const;
-#else
-    void validate() const {}
+    size_t recalculateMemoryUsed() const SK_EXCLUDES(fMu);
 #endif
-
-    class AutoValidate : SkNoncopyable {
-    public:
-        AutoValidate(const SkScalerCache* cache) : fCache(cache) {
-            if (fCache) {
-                fCache->validate();
-            }
-        }
-        ~AutoValidate() {
-            if (fCache) {
-                fCache->validate();
-            }
-        }
-        void forget() {
-            fCache = nullptr;
-        }
-    private:
-        const SkScalerCache* fCache;
-    };
 
 private:
     class GlyphMapHashTraits {
@@ -170,9 +143,6 @@ private:
     static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
 
     SkArenaAlloc            fAlloc SK_GUARDED_BY(fMu) {kMinAllocAmount};
-
-    // Tracks (approx) how much ram is tied-up in this strike.
-    size_t                  fMemoryUsed SK_GUARDED_BY(fMu) {sizeof(SkScalerCache)};
 };
 
 #endif  // SkStrike_DEFINED
