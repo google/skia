@@ -69,6 +69,8 @@ private:
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
+    void setupFenceSync(sk_sp<const GrGLInterface>);
+
     PFNEGLCREATEIMAGEKHRPROC fEglCreateImageProc = nullptr;
     PFNEGLDESTROYIMAGEKHRPROC fEglDestroyImageProc = nullptr;
 
@@ -207,6 +209,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
+        this->setupFenceSync(gl);
+
         if (!gl->validate()) {
             SkDebugf("Failed to validate gl interface.\n");
             this->destroyGLContext();
@@ -222,6 +226,128 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
+}
+
+namespace {
+
+struct EGLFenceData {
+    EGLSyncKHR fSync;
+    EGLDisplay fDisplay;
+};
+
+GrGLsync glFenceSyncEmulateEGL(GrGLenum condition, GrGLbitfield flags) {
+    SkASSERT(condition == GR_GL_SYNC_GPU_COMMANDS_COMPLETE);
+    SkASSERT(flags == 0);
+
+    EGLFenceData* data = new EGLFenceData;
+
+    data->fDisplay = eglGetCurrentDisplay();
+
+    static const auto grEGLCreateSyncKHR =
+            (PFNEGLCREATESYNCKHRPROC)eglGetProcAddress("eglCreateSyncKHR");
+    data->fSync = grEGLCreateSyncKHR(data->fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+
+    return reinterpret_cast<GrGLsync>(data);
+}
+
+void glDeleteSyncEmulateEGL(GrGLsync sync) {
+    EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+    static const auto fEGLDestroySyncKHR =
+            (PFNEGLDESTROYSYNCKHRPROC)eglGetProcAddress("eglDestroySyncKHR");
+    fEGLDestroySyncKHR(data->fDisplay, data->fSync);
+    delete data;
+}
+
+GrGLenum glClientWaitSyncEmulateEGL(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout) {
+    EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+
+    EGLint egl_flags = 0;
+
+    if (flags & GR_GL_SYNC_FLUSH_COMMANDS_BIT) {
+        egl_flags |= EGL_SYNC_FLUSH_COMMANDS_BIT_KHR;
+    }
+
+    static const auto grEGLClientWaitSyncKHR =
+            (PFNEGLCLIENTWAITSYNCKHRPROC)eglGetProcAddress("eglClientWaitSyncKHR");
+    EGLint result = grEGLClientWaitSyncKHR(data->fDisplay, data->fSync, egl_flags, timeout);
+
+    switch (result) {
+        case EGL_CONDITION_SATISFIED_KHR:
+            return GR_GL_CONDITION_SATISFIED;
+        case EGL_TIMEOUT_EXPIRED_KHR:
+            return GR_GL_TIMEOUT_EXPIRED;
+        case EGL_FALSE:
+            return GR_GL_WAIT_FAILED;
+    }
+    SkUNREACHABLE;
+}
+
+void glWaitSyncEmulateEGL(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+
+    SkASSERT(timeout == GR_GL_TIMEOUT_IGNORED);
+    SkASSERT(flags == 0);
+
+    static const auto grEGLWaitSyncKHR = (PFNEGLWAITSYNCKHRPROC)eglGetProcAddress("eglWaitSyncKHR");
+    if (!grEGLWaitSyncKHR) {
+        static const auto grEGLClientWaitSyncKHR =
+                (PFNEGLCLIENTWAITSYNCKHRPROC)eglGetProcAddress("eglClientWaitSyncKHR");
+        grEGLClientWaitSyncKHR(data->fDisplay, data->fSync, 0, EGL_FOREVER_KHR);
+        return;
+    }
+
+    SkDEBUGCODE(EGLint result =) grEGLWaitSyncKHR(data->fDisplay, data->fSync, 0);
+    SkASSERT(result);
+}
+
+GrGLboolean glIsSyncEmulateEGL(GrGLsync sync) {
+    SkASSERT(false);
+    return true;
+}
+
+}  // namespace
+
+static bool supports_egl_extension(EGLDisplay display, const char* extension) {
+    size_t extensionLength = strlen(extension);
+    const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
+    while (const char* match = strstr(extensionsStr, extension)) {
+        // Ensure the string we found is its own extension, not a substring of a larger extension
+        // (e.g. GL_ARB_occlusion_query / GL_ARB_occlusion_query2).
+        if ((match == extensionsStr || match[-1] == ' ') &&
+            (match[extensionLength] == ' ' || match[extensionLength] == '\0')) {
+            return true;
+        }
+        extensionsStr = match + extensionLength;
+    }
+    return false;
+}
+
+void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
+    GrGLInterface* glInt = const_cast<GrGLInterface*>(interface.get());
+
+
+    if (kGL_GrGLStandard == glInt->fStandard) {
+        if (GrGLGetVersion(glInt) >= GR_GL_VER(3,2) || glInt->hasExtension("GL_ARB_sync")) {
+            return;
+        }
+    } else {
+        if (glInt->hasExtension("GL_APPLE_sync") || glInt->hasExtension("GL_NV_fence") ||
+            GrGLGetVersion(glInt) >= GR_GL_VER(3, 0)) {
+            return;
+        }
+    }
+
+    if (!supports_egl_extension(fDisplay, "EGL_KHR_fence_sync")) {
+        return;
+    }
+
+    // Fake out glSync using eglSync
+    glInt->fExtensions.add("GL_APPLE_sync");
+    glInt->fFunctions.fFenceSync = glFenceSyncEmulateEGL;
+    glInt->fFunctions.fIsSync = glIsSyncEmulateEGL;
+    glInt->fFunctions.fClientWaitSync = glClientWaitSyncEmulateEGL;
+    glInt->fFunctions.fWaitSync = glWaitSyncEmulateEGL;
+    glInt->fFunctions.fDeleteSync = glDeleteSyncEmulateEGL;
 }
 
 EGLGLTestContext::~EGLGLTestContext() {
@@ -329,21 +455,6 @@ void EGLGLTestContext::onPlatformSwapBuffers() const {
 
 GrGLFuncPtr EGLGLTestContext::onPlatformGetProcAddress(const char* procName) const {
     return eglGetProcAddress(procName);
-}
-
-static bool supports_egl_extension(EGLDisplay display, const char* extension) {
-    size_t extensionLength = strlen(extension);
-    const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
-    while (const char* match = strstr(extensionsStr, extension)) {
-        // Ensure the string we found is its own extension, not a substring of a larger extension
-        // (e.g. GL_ARB_occlusion_query / GL_ARB_occlusion_query2).
-        if ((match == extensionsStr || match[-1] == ' ') &&
-            (match[extensionLength] == ' ' || match[extensionLength] == '\0')) {
-            return true;
-        }
-        extensionsStr = match + extensionLength;
-    }
-    return false;
 }
 
 std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
