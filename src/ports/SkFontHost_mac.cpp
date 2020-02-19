@@ -1042,20 +1042,9 @@ static void add_notrak_attr(CFMutableDictionaryRef attr) {
     CFDictionarySetValue(attr, SkCTFontUnscaledTrackingAttribute, unscaledTrackingNumber.get());
 }
 
-// CTFontCreateCopyWithAttributes or CTFontCreateCopyWithSymbolicTraits cannot be used on 10.10
-// and later, as they will return different underlying fonts depending on the size requested.
-// It is not possible to use descriptors with CTFontCreateWithFontDescriptor, since that does not
-// work with non-system fonts. As a result, create the strike specific CTFonts from the underlying
-// CGFont.
 static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
                                                          OpszVariation opsz)
 {
-    SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
-
-    // Because we cannot setup the CTFont descriptor to match, the same restriction applies here
-    // as other uses of CTFontCreateWithGraphicsFont which is that such CTFonts should not escape
-    // the scaler context, since they aren't 'normal'.
-
     SkUniqueCFRef<CFMutableDictionaryRef> attr(
     CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
                               &kCFTypeDictionaryKeyCallBacks,
@@ -1063,21 +1052,43 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
+#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
+    } else {
+        // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
+        // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
+        // On at least 10.11 the glyph ids in these fonts became non-interchangable.
+        // To keep glyph ids stable over size changes, preserve the optical size.
+        // In 10.15 this was replaced with use of variable fonts with an opsz axis.
+        // A CTFont backed by multiple fonts picked by opsz where the multiple backing fonts are
+        // variable fonts with opsz axis and non-interchangeable glyph ids would break the
+        // opsz.isSet branch above, but hopefully that never happens.
+        // See https://crbug.com/524646 .
+        CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
+        SkUniqueCFRef<CFTypeRef> opsz(CTFontCopyAttribute(baseFont, SkCTFontOpticalSizeAttribute));
+        double opsz_val;
+        if (!opsz ||
+            CFGetTypeID(opsz.get()) != CFNumberGetTypeID() ||
+            !CFNumberGetValue(static_cast<CFNumberRef>(opsz.get()),kCFNumberDoubleType,&opsz_val) ||
+            opsz_val <= 0)
+        {
+            opsz_val = CTFontGetSize(baseFont);
+        }
+        add_opsz_attr(attr.get(), opsz_val);
+#endif
     }
     add_notrak_attr(attr.get());
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
-    // The attributes parameter to CTFontCreateWithGraphicsFont *must* not set variations.
-    // If it sets variations then with fonts with variation axes the copy will fail in
-    // CGFontVariationFromDictCallback when it assumes kCGFontVariationAxisName is CFNumberRef
-    // which it quite obviously is not (in 10.11, fixed by 10.14).
-
-    // However, the attributes parameter to CTFontCreateWithGraphicsFont *must* not be nullptr.
-    // If it is then variable system fonts will only work on named instances on 10.14 and earlier.
-
+#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
+    return SkUniqueCFRef<CTFontRef>(
+            CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
+#else
+    SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
+
+#endif
 }
 
 SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
@@ -1108,7 +1119,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     }
 
     // The transform contains everything except the requested text size.
-    // Some properties, like 'trak', are based on the text size (before applying the matrix).
+    // Some properties, like 'trak', are based on the optical text size.
     CGFloat textSize = ScalarToCG(scale.y());
     fCTFont = ctfont_create_exact_copy(ctFont, textSize,
                                        ((SkTypeface_Mac*)this->getTypeface())->fOpszVariation);
