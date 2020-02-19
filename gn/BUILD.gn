@@ -354,6 +354,7 @@ config("warnings") {
       "-Wsign-compare",
       "-Wvla",
 
+      "-Wno-attributes",
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
     ]
