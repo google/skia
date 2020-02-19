@@ -169,7 +169,6 @@ tests_sources = [
   "$_tests/PDFMetadataAttributeTest.cpp",
   "$_tests/PDFOpaqueSrcModeToSrcOverTest.cpp",
   "$_tests/PDFPrimitivesTest.cpp",
-  "$_tests/PDFTaggedTableTest.cpp",
   "$_tests/PDFTaggedTest.cpp",
   "$_tests/PackBitsTest.cpp",
   "$_tests/PackedConfigsTextureTest.cpp",
