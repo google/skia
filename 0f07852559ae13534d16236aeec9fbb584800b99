@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "18118f94_0877cf27",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-19T16:39:25Z",
+      "side": 1,
+      "message": "Using a signed value does not mean it can\u0027t overflow. Int overflow is undefined behavior, so the compiler can assume you took measures to avoid undefined behavior. Since we are using 2s-complement an overflow becomes negative. So, to avoid undefined behavior you must check for overflow.",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "222601ca_5e783e0f",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -71,6 +94,29 @@
     },
     {
       "key": {
+        "uuid": "ad831e73_b4f44b27",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-19T16:39:25Z",
+      "side": 1,
+      "message": "I don\u0027t understand the need for alignas. Are these to be allocated on the stack? If they will always be malloc, then they are on max_align_t alignment already.",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 44
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "533d77fe_deb6dc2f",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -133,6 +179,52 @@
         "startChar": 12,
         "endLine": 109,
         "endChar": 65
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2af802ed_3cd7d81a",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-19T16:39:25Z",
+      "side": 1,
+      "message": "What does Padding mean?",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 75
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc25c9c_7b9db541",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-19T16:39:25Z",
+      "side": 1,
+      "message": "Is this the start of the data?",
+      "range": {
+        "startLine": 134,
+        "startChar": 24,
+        "endLine": 134,
+        "endChar": 34
       },
       "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
