@@ -178,7 +178,7 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
                 "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &strike);
 
         dump->dumpNumericValue(dumpName.c_str(),
-                               "size", "bytes", strike.fScalerCache.getMemoryUsed());
+                               "size", "bytes", strike.fMemoryUsed);
         dump->dumpNumericValue(dumpName.c_str(),
                                "glyph_count", "objects",
                                strike.fScalerCache.countCachedGlyphs());
@@ -196,7 +196,6 @@ void SkStrikeCache::attachStrike(Strike* strike) {
     SkAutoSpinlock ac(fLock);
 
     this->validate();
-    strike->fScalerCache.validate();
 
     this->internalAttachToHead(strike);
     this->internalPurge();
@@ -352,7 +351,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
         // Only delete if the strike is not pinned.
         if (strike->fPinner == nullptr || strike->fPinner->canDelete()) {
-            bytesFreed += strike->fScalerCache.getMemoryUsed();
+            bytesFreed += strike->fMemoryUsed;
             countFreed += 1;
             this->internalDetachStrike(strike);
             strike->unref();
@@ -385,13 +384,13 @@ void SkStrikeCache::internalAttachToHead(Strike* strike) {
     }
 
     fCacheCount += 1;
-    fTotalMemoryUsed += strike->fScalerCache.getMemoryUsed();
+    fTotalMemoryUsed += strike->fMemoryUsed;
 }
 
 void SkStrikeCache::internalDetachStrike(Strike* strike) {
     SkASSERT(fCacheCount > 0);
     fCacheCount -= 1;
-    fTotalMemoryUsed -= strike->fScalerCache.getMemoryUsed();
+    fTotalMemoryUsed -= strike->fMemoryUsed;
 
     if (strike->fPrev) {
         strike->fPrev->fNext = strike->fNext;
@@ -415,8 +414,9 @@ void SkStrikeCache::ValidateGlyphCacheDataSize() {
 #ifdef SK_DEBUG
 void SkStrikeCache::validateGlyphCacheDataSize() const {
     this->forEachStrike(
-            [](const Strike& strike) { strike.fScalerCache.forceValidate();
-    });
+            [](const Strike& strike) {
+                SkASSERT(strike.fMemoryUsed == strike.fScalerCache.recalculateMemoryUsed());
+            });
 }
 #endif
 
@@ -427,7 +427,7 @@ void SkStrikeCache::validate() const {
 
     const Strike* strike = fHead;
     while (strike != nullptr) {
-        computedBytes += strike->fScalerCache.getMemoryUsed();
+        computedBytes += strike->fMemoryUsed;
         computedCount += 1;
         strike = strike->fNext;
     }

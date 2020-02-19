@@ -57,14 +57,14 @@ public:
         SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
             auto [glyph, delta] = fScalerCache.mergeGlyphAndImage(toID, from);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
             return glyph;
         }
 
         const SkPath* mergePath(SkGlyph* glyph, const SkPath* path) {
             auto [glyphPath, delta] = fScalerCache.mergePath(glyph, path);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
             return glyphPath;
         }
 
@@ -85,7 +85,7 @@ public:
                                        const SkGlyph* results[]) {
             auto [glyphs, delta] = fScalerCache.metrics(glyphIDs, results);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
             return glyphs;
         }
 
@@ -93,7 +93,7 @@ public:
                                             const SkGlyph* results[]) {
             auto [glyphs, delta] = fScalerCache.preparePaths(glyphIDs, results);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
             return glyphs;
         }
 
@@ -101,14 +101,14 @@ public:
                                              const SkGlyph* results[]) {
             auto [glyphs, delta] = fScalerCache.prepareImages(glyphIDs, results);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
             return glyphs;
         }
 
         void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
             size_t delta = fScalerCache.prepareForDrawingMasksCPU(drawables);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
         }
 
         const SkGlyphPositionRoundingSpec& roundingSpec() const override {
@@ -123,21 +123,21 @@ public:
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
             size_t delta = fScalerCache.prepareForMaskDrawing(drawbles, rejects);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
         }
 
         void prepareForSDFTDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
             size_t delta = fScalerCache.prepareForSDFTDrawing(drawbles, rejects);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
         }
 
         void prepareForPathDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
             size_t delta = fScalerCache.prepareForPathDrawing(drawbles, rejects);
             fMemoryUsed += delta;
-            SkASSERT(fMemoryUsed = fScalerCache.getMemoryUsed());
+            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
         }
 
         void onAboutToExitScope() override {
@@ -149,7 +149,7 @@ public:
         Strike*                         fPrev{nullptr};
         SkScalerCache                   fScalerCache;
         std::unique_ptr<SkStrikePinner> fPinner;
-        size_t                          fMemoryUsed{0};
+        size_t                          fMemoryUsed{sizeof(SkScalerCache)};
     };  // Strike
 
     class ExclusiveStrikePtr {
