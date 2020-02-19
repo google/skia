@@ -111,6 +111,11 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         }
     }
 
+    if (v->fResize != Shaper::ResizePolicy::kNone && v->fBox.isEmpty()) {
+        abuilder->log(Logger::Level::kWarning, jtxt, "Auto-scaled text requires a paragraph box.");
+        v->fResize = Shaper::ResizePolicy::kNone;
+    }
+
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
                                   const internal::AnimationBuilder* abuilder,
                                   SkColor* c) {
