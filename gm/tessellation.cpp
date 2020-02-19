@@ -337,7 +337,8 @@ private:
                                   &pipeline, shader.get(), &fixedDynamicState, nullptr, 0,
                                   GrPrimitiveType::kPatches, tessellationPatchVertexCount);
 
-        state->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(kWidth, kHeight));
+        state->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
+        state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
     }
 
     const SkMatrix fViewMatrix;

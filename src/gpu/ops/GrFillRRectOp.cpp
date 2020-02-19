@@ -815,7 +815,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                               fBaseInstance, GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(fVertexBuffer));
 
-    flushState->opsRenderPass()->draw(*fProgramInfo, mesh, 1, this->bounds());
+    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, this->bounds());
+    flushState->opsRenderPass()->drawMeshes(*fProgramInfo, mesh, 1);
 }
 
 // Will the given corner look good if we use HW derivatives?
