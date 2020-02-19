@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5fe51549_45d7f631",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d5d1a2e_8ca986b8",
+      "range": {
+        "startLine": 18,
+        "startChar": 1,
+        "endLine": 18,
+        "endChar": 2
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "291018bf_8cb470e9",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a69a35_814d3695",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "For the same reasons SkMatrix is not used directly everywhere. When binding a c++ class with emscripten, users on the Javascript side must call delete() on the object or it remains in wasm memory. this makes expressions that create and pass a temporary matrix more verbose. we instead create these Simple* objects and bind them to a value array so they can be used naturally in such expressions without having to call delete()",
+      "parentUuid": "291018bf_8cb470e9",
+      "range": {
+        "startLine": 117,
+        "startChar": 12,
+        "endLine": 117,
+        "endChar": 13
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cf020424_09bd23db",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e8caf95_5bc488e7",
+      "range": {
+        "startLine": 124,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 12
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52f40b03_cf2d6b86",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e0caead_d8ef60d8",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1778,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Lets settle it before CanvasKit 1.0",
+      "parentUuid": "52f40b03_cf2d6b86",
+      "range": {
+        "startLine": 1778,
+        "startChar": 28,
+        "endLine": 1778,
+        "endChar": 33
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -478,6 +574,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dd6acaa_4c1858d6",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bcd45e0_60b6d23d",
+      "range": {
+        "startLine": 112,
+        "startChar": 6,
+        "endLine": 112,
+        "endChar": 66
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -963,6 +1083,30 @@
     },
     {
       "key": {
+        "uuid": "6e5980ba_e571cc13",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0066979_93c4284d",
+      "range": {
+        "startLine": 396,
+        "startChar": 6,
+        "endLine": 396,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bac9135e_78262a9e",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -1080,6 +1224,30 @@
     },
     {
       "key": {
+        "uuid": "02ee8325_9effdf71",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "template strings appear to be unsupported by the closure compiler",
+      "parentUuid": "34f5e3f9_3b5c8e9e",
+      "range": {
+        "startLine": 1,
+        "startChar": 36,
+        "endLine": 1,
+        "endChar": 38
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5f742b8_65812b6f",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1103,6 +1271,30 @@
     },
     {
       "key": {
+        "uuid": "d6df259c_774dbf59",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "No good reason, but I\u0027ve increased it to 14, the largest number that passes.",
+      "parentUuid": "b5f742b8_65812b6f",
+      "range": {
+        "startLine": 6,
+        "startChar": 44,
+        "endLine": 6,
+        "endChar": 76
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1cc241be_1a693a04",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1117,6 +1309,24 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90b6fe7d_17412a6d",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cc241be_1a693a04",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1143,6 +1353,30 @@
     },
     {
       "key": {
+        "uuid": "3553fdd7_f8d2bbd7",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddfbfe29_ab452690",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 32
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42c96e9e_7fc84d82",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1163,6 +1397,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38131e56_b93c7838",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42c96e9e_7fc84d82",
+      "range": {
+        "startLine": 56,
+        "startChar": 6,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1189,6 +1447,30 @@
     },
     {
       "key": {
+        "uuid": "ed651a69_8154a723",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac309da4_b6a25bef",
+      "range": {
+        "startLine": 79,
+        "startChar": 22,
+        "endLine": 79,
+        "endChar": 26
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75ba56ba_ef2edb86",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1200,6 +1482,30 @@
       "writtenOn": "2020-02-19T13:25:18Z",
       "side": 1,
       "message": "\"Don\u0027t put logic in tests\", just hard-code these values. Maybe pick a different angle to have nicer numbers?\n\ngo/tott/510",
+      "range": {
+        "startLine": 145,
+        "startChar": 16,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b4333ab_d4a60ca5",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "How about this? probably some of the nicest numbers we can get while still rotating around all the axes (which I think is necessary to fully test the code)",
+      "parentUuid": "75ba56ba_ef2edb86",
       "range": {
         "startLine": 145,
         "startChar": 16,
@@ -1232,6 +1538,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6ae652c_2af1a1df",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49c6a206_0db2beb3",
+      "range": {
+        "startLine": 168,
+        "startChar": 21,
+        "endLine": 168,
+        "endChar": 33
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
