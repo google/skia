@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "222601ca_5e783e0f",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "Wouldn\u0027t this be:\ntemplate\u003csize_t N\u003e class Foo {",
+      "range": {
+        "startLine": 43,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 25
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bda53515_5bbaffd0",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "Does this not need to be aligned?",
+      "range": {
+        "startLine": 45,
+        "startChar": 10,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2101669_b6e8b3ce",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "move this above the comment (about ByteRange)?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "533d77fe_deb6dc2f",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "If you\u0027re calling this 4 bytes, maybe int32_t?",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 11
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bc79b24_40674a29",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "This sounds like it\u0027s saying that the range remains valid if false was returned. I\u0027m wondering if you have use cases that rely on this. It seems a little simpler to say the caller should always assume it may be invalid.",
+      "range": {
+        "startLine": 100,
+        "startChar": 11,
+        "endLine": 101,
+        "endChar": 89
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6fea58c_fb1581e0",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "or larger?",
+      "range": {
+        "startLine": 109,
+        "startChar": 12,
+        "endLine": 109,
+        "endChar": 65
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a85f9356_8a18ae17",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "I think you should mark this class final if it is assuming that this+1 is the start of preallocated space. (and remove references to subclasses in the comments to this file).",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 81
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e5a326c_10009700",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "If I hadn\u0027t just read what totalSize() is I\u0027d think this returned that value. Maybe totalSpaceInUse()?",
+      "range": {
+        "startLine": 165,
+        "startChar": 11,
+        "endLine": 165,
+        "endChar": 30
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db3a4efe_14c65da3",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "It seems a little odd here that the constness of the ptr is tied to the constness of the block. One is about the constness of the data that the user stored in this and the other is about manipulating the allocator. Could they both take const void* ptr\u003e",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 5
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f0d2cb_cb510381",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "😊",
+      "range": {
+        "startLine": 267,
+        "startChar": 43,
+        "endLine": 267,
+        "endChar": 53
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c336d0c9_2c3d2f08",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-19T14:45:18Z",
+      "side": 1,
+      "message": "I think our convention is to just use a single row of /s between class implementations.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 99
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
