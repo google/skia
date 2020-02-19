@@ -117,6 +117,30 @@
     },
     {
       "key": {
+        "uuid": "497e72c7_36b85101",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00152d5f_b7e9f759",
+      "range": {
+        "startLine": 21,
+        "startChar": 9,
+        "endLine": 21,
+        "endChar": 12
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3f3cf69_820102c8",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -140,6 +164,30 @@
     },
     {
       "key": {
+        "uuid": "654036a6_cb1015cd",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3f3cf69_820102c8",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 29
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32a5d83c_44e2f0a1",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -154,6 +202,24 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0882a90_e335242e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32a5d83c_44e2f0a1",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -180,6 +246,30 @@
     },
     {
       "key": {
+        "uuid": "940240e8_ee9414fa",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "No, I just invented it for this file to generalize what was occuring in several other functions.",
+      "parentUuid": "d5d22489_183462cc",
+      "range": {
+        "startLine": 37,
+        "startChar": 5,
+        "endLine": 37,
+        "endChar": 11
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52cc2528_4ebade34",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -203,6 +293,30 @@
     },
     {
       "key": {
+        "uuid": "73ecd7be_98e1e423",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52cc2528_4ebade34",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 16
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdb00bde_72fffd77",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -223,6 +337,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2373573d_8c02b218",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdb00bde_72fffd77",
+      "range": {
+        "startLine": 51,
+        "startChar": 11,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -269,6 +407,54 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee645936_00267624",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4ce1184_9ded1e98",
+      "range": {
+        "startLine": 65,
+        "startChar": 35,
+        "endLine": 65,
+        "endChar": 47
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "274fbdf6_8bbb0861",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b11270a_04ac8a78",
+      "range": {
+        "startLine": 65,
+        "startChar": 7,
+        "endLine": 65,
+        "endChar": 8
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -341,6 +527,54 @@
     },
     {
       "key": {
+        "uuid": "39c86cde_e6b655d9",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e82f19c_65a9f108",
+      "range": {
+        "startLine": 115,
+        "startChar": 53,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4be433ce_24b20934",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3742aa46_7b5c340f",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 115,
+        "endChar": 13
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70297076_c79cb809",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -364,6 +598,30 @@
     },
     {
       "key": {
+        "uuid": "ae589c5f_26935cc8",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70297076_c79cb809",
+      "range": {
+        "startLine": 118,
+        "startChar": 6,
+        "endLine": 118,
+        "endChar": 21
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8b1f894_c25bdf47",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -375,6 +633,30 @@
       "writtenOn": "2020-02-19T13:25:18Z",
       "side": 1,
       "message": "Add a reminder that matrix multiplication is associative, so the order of multiplication is arbitrary and does not matter:\nhttps://en.wikipedia.org/wiki/Matrix_multiplication#Associativity",
+      "range": {
+        "startLine": 151,
+        "startChar": 76,
+        "endLine": 151,
+        "endChar": 89
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9ecd2c0_6a3f2da3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "But the order of the arguments does matter because it\u0027s not commutative.",
+      "parentUuid": "d8b1f894_c25bdf47",
       "range": {
         "startLine": 151,
         "startChar": 76,
@@ -410,6 +692,30 @@
     },
     {
       "key": {
+        "uuid": "274f63ee_43ef4aea",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "64e0dfe7_90d45ba9",
+      "range": {
+        "startLine": 190,
+        "startChar": 12,
+        "endLine": 190,
+        "endChar": 18
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1479e16a_52e99da8",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -433,6 +739,30 @@
     },
     {
       "key": {
+        "uuid": "edc405c2_236e5eab",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "The cube example used it to prevent an extra sqrt operation. it\u0027s an optimization when used that way.",
+      "parentUuid": "1479e16a_52e99da8",
+      "range": {
+        "startLine": 197,
+        "startChar": 19,
+        "endLine": 197,
+        "endChar": 32
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfc08e09_5b648a88",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -450,6 +780,24 @@
     },
     {
       "key": {
+        "uuid": "a10e9bd9_e7ced3a4",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfc08e09_5b648a88",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "169405bd_572e984c",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -461,6 +809,30 @@
       "writtenOn": "2020-02-19T13:25:18Z",
       "side": 1,
       "message": "Why does this break the pattern of doing it in place when everything else seems to just return the result?",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e21fd81_efab9e71",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "It needs to return a boolean instead to indicate whether the matrix was invertible. CanvasKit.SkMatrix.invert is the one that breaks from the trend of it\u0027s C++ cousins by warning and returning identity in the case of an uninvertible matrix.",
+      "parentUuid": "169405bd_572e984c",
       "range": {
         "startLine": 314,
         "startChar": 12,
@@ -493,6 +865,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efc044c3_0f0d51a7",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8998fed_3d4f2277",
+      "range": {
+        "startLine": 316,
+        "startChar": 8,
+        "endLine": 316,
+        "endChar": 26
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -530,6 +926,30 @@
       "writtenOn": "2020-02-19T13:25:18Z",
       "side": 1,
       "message": "I\u0027m not sure this change improves readability. If I need to understand what is going on, I now have to do the math or set breakpoints.  Same for scaled below - WDYT?",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18e4fd2d_8d45579b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T20:43:29Z",
+      "side": 1,
+      "message": "I agree compactness might be bad for readability. the most readable is the visually obvious form where one can see where each term went.\nreturn [\n  1, 0, 0, 0, 0,\n  0, 1, 0, 0, 0,\n  0, 0, 1, 0, 0,\n  0, 0, 0, 1, 0,\n]\nWould you prefer that?",
+      "parentUuid": "bac9135e_78262a9e",
       "range": {
         "startLine": 425,
         "startChar": 11,
