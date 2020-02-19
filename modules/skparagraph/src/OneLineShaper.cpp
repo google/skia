@@ -44,7 +44,7 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
     auto& front = fUnresolvedBlocks.front();    // The one we need to resolve
     auto& back = fUnresolvedBlocks.back();      // The one we have from shaper
     if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 &&
-        front.fText.width() == back.fText.width()) {
+        front.fText == back.fText) {
         // The entire block remains unresolved!
         if (front.fRun != nullptr) {
             back.fRun = front.fRun;
@@ -394,24 +394,26 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
     std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(textStyle.getFontFamilies(), textStyle.getFontStyle());
 
     for (const auto& typeface : typefaces) {
-        if (!visitor(typeface))
+        if (!visitor(typeface, false))
             return;
     }
 
     if (fParagraph->fFontCollection->fontFallbackEnabled()) {
         // Give fallback a clue
-        SkASSERT(!fUnresolvedBlocks.empty());
-        auto unresolvedRange = fUnresolvedBlocks.front().fText;
-        auto unresolvedText = fParagraph->text(unresolvedRange);
-        const char* ch = unresolvedText.begin();
-        SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
+        // Some unresolved subblocks might be resolved with different fallback fonts
+        while (!fUnresolvedBlocks.empty()) {
+            auto unresolvedRange = fUnresolvedBlocks.front().fText;
+            auto unresolvedText = fParagraph->text(unresolvedRange);
+            const char* ch = unresolvedText.begin();
+            SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
 
-        auto typeface = fParagraph->fFontCollection->defaultFallback(
-                unicode, textStyle.getFontStyle(), textStyle.getLocale());
+            auto typeface = fParagraph->fFontCollection->defaultFallback(
+                    unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
-        if (typeface != nullptr) {
-            if (!visitor(typeface)) {
-                return;
+            if (typeface != nullptr) {
+                if (!visitor(typeface, true)) {
+                    return;
+                }
             }
         }
     }
@@ -517,7 +519,7 @@ bool OneLineShaper::shape() {
             fCurrentText = block.fRange;
             fUnresolvedBlocks.emplace(RunBlock(block.fRange));
 
-            matchResolvedFonts(block.fStyle, [&](sk_sp<SkTypeface> typeface) {
+            matchResolvedFonts(block.fStyle, [&](sk_sp<SkTypeface> typeface, bool isFallback) {
                 // Create one more font to try
                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
                 font.setEdging(SkFont::Edging::kAntiAlias);
@@ -538,6 +540,7 @@ bool OneLineShaper::shape() {
 
                 // Walk through all the currently unresolved blocks
                 // (ignoring those that appear later)
+                auto front = fUnresolvedBlocks.front();
                 auto count = fUnresolvedBlocks.size();
                 while (count-- > 0) {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
@@ -554,6 +557,17 @@ bool OneLineShaper::shape() {
                             fontIter, bidiIter,*scriptIter, langIter,
                             features.data(), features.size(),
                             limitlessWidth, this);
+
+                    if (isFallback && fUnresolvedBlocks.size() > 1) {
+                        // Check if we resolved anything at all with a fallback font
+                        // If not let's stop
+                        // (that could happen because we resolve the font by one UTF8)
+                        auto& back = fUnresolvedBlocks.back();
+                        if (front.fText == back.fText) {
+                            this->dropUnresolved();
+                            return false;
+                        }
+                    }
 
                     // Take off the queue the block we tried to resolved -
                     // whatever happened, we have now smaller pieces of it to deal with
