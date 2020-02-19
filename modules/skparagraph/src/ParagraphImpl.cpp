@@ -933,6 +933,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
                 auto clusterIndex8 = context.run->fClusterIndexes[found];
+                auto clusterEnd8 = context.run->fClusterIndexes[found + 1];
+                TextRange clusterText (clusterIndex8, clusterEnd8);
 
                 // Find the grapheme positions in codepoints that contains the point
                 auto codepoint = std::lower_bound(
@@ -941,21 +943,29 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
 
                 auto codepointIndex = codepoint - fCodePoints.begin();
-                auto codepoints = fGraphemes16[codepoint->fGrapheme].fCodepointRange;
+                CodepointRange codepoints(codepointIndex, codepointIndex);
+                for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
+                    auto& cp = fCodePoints[codepoints.end];
+                    if (cp.fTextIndex >= clusterText.end) {
+                        break;
+                    }
+                }
                 auto graphemeSize = codepoints.width();
 
                 // We only need to inspect one glyph (maybe not even the entire glyph)
                 SkScalar center;
+                bool insideGlyph = false;
                 if (graphemeSize > 1) {
-                    auto averageCodepoint = glyphWidth / graphemeSize;
-                    auto codepointStart = glyphStart + averageCodepoint * (codepointIndex - codepoints.start);
-                    auto codepointEnd = codepointStart + averageCodepoint;
-                    center = (codepointStart + codepointEnd) / 2;
+                    auto averageCodepointWidth = glyphWidth / graphemeSize;
+                    auto delta = dx - glyphStart;
+                    auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
+                    insideGlyph = delta > averageCodepointWidth;
+                    center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
+                    codepointIndex += insideIndex;
                 } else {
-                    SkASSERT(graphemeSize == 1);
                     center = glyphStart + glyphWidth / 2;
                 }
-                if ((dx < center) == context.run->leftToRight()) {
+                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
                     result = { SkToS32(codepointIndex), kDownstream };
                 } else {
                     result = { SkToS32(codepointIndex + 1), kUpstream };

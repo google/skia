@@ -60,7 +60,7 @@ private:
     using ShapeSingleFontVisitor = std::function<void(Block, SkTArray<SkShaper::Feature>)>;
     void iterateThroughFontStyles(TextRange textRange, SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
 
-    using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
+    using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface, bool isFallback)>;
     void matchResolvedFonts(const TextStyle& textStyle, const TypefaceVisitor& visitor);
 #ifdef SK_DEBUG
     void printState();
