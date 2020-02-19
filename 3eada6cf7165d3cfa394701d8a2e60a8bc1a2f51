@@ -22,6 +22,30 @@
       "revId": "3eada6cf7165d3cfa394701d8a2e60a8bc1a2f51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edfa9be9_3a7df1b9",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-19T04:09:22Z",
+      "side": 1,
+      "message": "That\u0027s right. This is to cross check that both SkStrike and SkScalerCache produce the same answers.",
+      "parentUuid": "3e20c314_7a12cdab",
+      "range": {
+        "startLine": 60,
+        "startChar": 12,
+        "endLine": 60,
+        "endChar": 65
+      },
+      "revId": "3eada6cf7165d3cfa394701d8a2e60a8bc1a2f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
