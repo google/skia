@@ -32,6 +32,7 @@ skia_sksl_gpu_sources = [
   "$_src/sksl/SkSLOutputStream.cpp",
   "$_src/sksl/SkSLPipelineStageCodeGenerator.cpp",
   "$_src/sksl/SkSLSPIRVCodeGenerator.cpp",
+  "$_src/sksl/SkSLSPIRVtoHLSL.cpp",
 ]
 
 skia_gpu_processor_sources = [
