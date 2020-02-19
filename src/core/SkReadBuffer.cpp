@@ -135,7 +135,7 @@ uint8_t SkReadBuffer::peekByte() {
 
 bool SkReadBuffer::readPad32(void* buffer, size_t bytes) {
     if (const void* src = this->skip(bytes)) {
-        memcpy(buffer, src, bytes);
+        sk_careful_memcpy(buffer, src, bytes);
         return true;
     }
     return false;
@@ -269,7 +269,6 @@ sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
     if (!this->readByteArray(buffer.get(), numBytes)) {
         return nullptr;
     }
-
     return SkData::MakeFromMalloc(buffer.release(), numBytes);
 }
 
