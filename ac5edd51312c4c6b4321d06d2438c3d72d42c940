@@ -16,6 +16,29 @@
       "revId": "ac5edd51312c4c6b4321d06d2438c3d72d42c940",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae0a4d07_abb8969a",
+        "filename": "src/sksl/SkSLSPIRVtoHLSL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-19T16:51:14Z",
+      "side": 1,
+      "message": "I am kind of wondering, given how heavily this all leans on spirv_cross, whether it\u0027s important for SkSL to provide this functionality at all?  Can\u0027t we just provide the spirv then users of SkSL can just as easily convert themselves?  I\u0027m clearly missing the big picture here.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 16
+      },
+      "revId": "ac5edd51312c4c6b4321d06d2438c3d72d42c940",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
