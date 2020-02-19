@@ -813,6 +813,30 @@
     },
     {
       "key": {
+        "uuid": "c09ec579_c4f13477",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:13:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7e8ad48_503960bf",
+      "range": {
+        "startLine": 151,
+        "startChar": 76,
+        "endLine": 151,
+        "endChar": 89
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64e0dfe7_90d45ba9",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -1013,6 +1037,30 @@
     },
     {
       "key": {
+        "uuid": "a0ce8287_75dc6db2",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:13:17Z",
+      "side": 1,
+      "message": "The rotating cube example makes use of the returned boolean indicating whether the result is invertible, in one case to throw an error, and in one case to silently use an identity matrix instead. At least in this example, the client needs to control what to do about uninvertible matrices.\nThere\u0027s also the option of returning an object with {invertible:true, result:[1,2,3,4....]}",
+      "parentUuid": "1686e348_10ff17fa",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8998fed_3d4f2277",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -1166,6 +1214,30 @@
       "side": 1,
       "message": "I do believe the long form is more readable (and possibly more performant because it\u0027s just a constant?), so let\u0027s go with that.",
       "parentUuid": "18e4fd2d_8d45579b",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e847a643_4a58caa8",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-19T22:13:17Z",
+      "side": 1,
+      "message": "Why was Float32Array used here, and would it matter if I returned the un-specified number type instead?",
+      "parentUuid": "a1c4f1b4_2bd4f8fe",
       "range": {
         "startLine": 425,
         "startChar": 11,
