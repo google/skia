@@ -39,6 +39,30 @@
       "revId": "ac5edd51312c4c6b4321d06d2438c3d72d42c940",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ee71cc0_8f564272",
+        "filename": "src/sksl/SkSLSPIRVtoHLSL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-19T17:17:17Z",
+      "side": 1,
+      "message": "This is our temporary (but maybe short-to-medium term) solution for the now in-progress D3D backend.",
+      "parentUuid": "ae0a4d07_abb8969a",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 16
+      },
+      "revId": "ac5edd51312c4c6b4321d06d2438c3d72d42c940",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
