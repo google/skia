@@ -16,6 +16,24 @@
       "revId": "1795c3bcea5f79bbdd87e9b88a3faf074950d4e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf1ce885_563eeb44",
+        "filename": "third_party/spirv-cross/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-19T14:27:50Z",
+      "side": 1,
+      "message": "Ah, yeah. I suspect that Stephen just didn\u0027t know about that when he originally added this (and I forgot). I\u0027ll do that.",
+      "parentUuid": "9c40eb56_24b0ac3a",
+      "revId": "1795c3bcea5f79bbdd87e9b88a3faf074950d4e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
