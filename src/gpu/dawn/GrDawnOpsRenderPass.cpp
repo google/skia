@@ -169,12 +169,12 @@ void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
             fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
         }
         this->applyState(program.get(), programInfo);
-        meshes[i].sendToGpu(this);
+        meshes[i].sendToGpu(programInfo.primitiveType(), this);
     }
 }
 
-void GrDawnOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount,
-                                                 int baseVertex, int instanceCount,
+void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh,
+                                                 int vertexCount, int baseVertex, int instanceCount,
                                                  int baseInstance) {
     wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer())->get();
     fPassEncoder.SetVertexBuffer(0, vb);
@@ -182,9 +182,10 @@ void GrDawnOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexC
     fGpu->stats()->incNumDraws();
 }
 
-void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount,
-                                                        int baseIndex, int baseVertex,
-                                                        int instanceCount, int baseInstance) {
+void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh,
+                                                        int indexCount, int baseIndex,
+                                                        int baseVertex, int instanceCount,
+                                                        int baseInstance) {
     wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer())->get();
     wgpu::Buffer ib = static_cast<const GrDawnBuffer*>(mesh.indexBuffer())->get();
     fPassEncoder.SetIndexBuffer(ib);
