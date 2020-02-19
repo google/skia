@@ -140,6 +140,9 @@ struct SkPDFTagNode {
     SkTArray<MarkedContentInfo> fMarkedContent;
     int fNodeId;
     SkPDF::DocumentStructureType fType;
+    SkString fTypeString;
+    SkString fAlt;
+    SkString fLang;
     SkPDFIndirectReference fRef;
     enum State {
         kUnknown,
@@ -159,15 +162,31 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
                         SkArenaAlloc* arena,
                         SkTHashMap<int, SkPDFTagNode*>* nodeMap) {
     nodeMap->set(node.fNodeId, dst);
-    size_t childCount = node.fChildCount;
-    SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
-    dst->fChildCount = childCount;
     dst->fNodeId = node.fNodeId;
     dst->fType = node.fType;
-    dst->fChildren = children;
-    for (size_t i = 0; i < childCount; ++i) {
-        Copy(node.fChildren[i], &children[i], arena, nodeMap);
+    dst->fTypeString = node.fTypeString;
+    dst->fAlt = node.fAlt;
+    dst->fLang = node.fLang;
+
+    // Temporarily support both raw fChildren and fChildVector.
+    if (node.fChildren) {
+        size_t childCount = node.fChildCount;
+        SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
+        dst->fChildCount = childCount;
+        dst->fChildren = children;
+        for (size_t i = 0; i < childCount; ++i) {
+            Copy(node.fChildren[i], &children[i], arena, nodeMap);
+        }
+    } else {
+        size_t childCount = node.fChildVector.size();
+        SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
+        dst->fChildCount = childCount;
+        dst->fChildren = children;
+        for (size_t i = 0; i < childCount; ++i) {
+            Copy(*node.fChildVector[i], &children[i], arena, nodeMap);
+        }
     }
+
     dst->fAttributes = std::move(node.fAttributes.fAttrs);
 }
 
@@ -248,7 +267,17 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     }
     node->fRef = ref;
     SkPDFDict dict("StructElem");
-    dict.insertName("S", tag_name_from_type(node->fType));
+    if (!node->fTypeString.isEmpty()) {
+        dict.insertName("S", node->fTypeString.c_str());
+    } else {
+        dict.insertName("S", tag_name_from_type(node->fType));
+    }
+    if (!node->fAlt.isEmpty()) {
+        dict.insertName("Alt", node->fAlt);
+    }
+    if (!node->fLang.isEmpty()) {
+        dict.insertName("Lang", node->fLang);
+    }
     dict.insertRef("P", parent);
     dict.insertObject("K", std::move(kids));
     SkString idString;
