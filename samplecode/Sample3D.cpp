@@ -79,18 +79,35 @@ struct VSphere {
         return {v.x, v.y, z};
     }
 
-    SkM44 computeRotation(SkVec2 a, SkVec2 b) {
+    struct RotateInfo {
+        SkV3    fAxis;
+        SkScalar fAngle;
+    };
+
+    RotateInfo computeRotationInfo(SkVec2 a, SkVec2 b) const {
         SkV3 u = this->computeUnitV3(a);
         SkV3 v = this->computeUnitV3(b);
         SkV3 axis = u.cross(v);
         SkScalar sinValue = axis.length();
         SkScalar cosValue = u.dot(v);
 
-        SkM44 m;
+        auto angle_from_sincos = [](SkScalar s, SkScalar c) {
+            SkScalar angle = acos(c);
+            if (s < 0) {
+                angle = -angle;
+            }
+            return angle;
+        };
+
         if (!SkScalarNearlyZero(sinValue)) {
-            m.setRotateUnitSinCos(axis * (1.0f / sinValue), sinValue, cosValue);
+            return {axis * (1.0f / sinValue), angle_from_sincos(sinValue, cosValue)};
         }
-        return m;
+        return {{0, 0, 0}, 0};
+    }
+
+    SkM44 computeRotation(SkVec2 a, SkVec2 b) const {
+        auto [axis, angle] = this->computeRotationInfo(a, b);
+        return SkM44::Rotate(axis, angle);
     }
 };
 
@@ -509,6 +526,69 @@ struct LightOnSphere {
     }
 };
 
+#include "include/core/SkTime.h"
+
+class RotateAnimator {
+    SkV3        fAxis = {0, 0, 0};
+    SkScalar    fAngle = 0,
+                fPrevAngle = 1234567;
+    double      fNow = 0,
+                fPrevNow = 0;
+
+    SkScalar    fAngleSpeed = 0,
+                fAngleSign = 1;
+
+    static constexpr double kSlowDown = 4;
+    static constexpr SkScalar kMaxSpeed = 16;
+
+public:
+    void update(SkV3 axis, SkScalar angle) {
+        if (angle != fPrevAngle) {
+            fPrevAngle = fAngle;
+            fAngle = angle;
+
+            fPrevNow = fNow;
+            fNow = SkTime::GetSecs();
+
+            fAxis = axis;
+        }
+    }
+
+    SkM44 rotation() {
+        if (fAngleSpeed > 0) {
+            double now = SkTime::GetSecs();
+            double dtime = now - fPrevNow;
+            fPrevNow = now;
+            double delta = fAngleSign * fAngleSpeed * dtime;
+            fAngle += delta;
+            fAngleSpeed -= kSlowDown * dtime;
+            if (fAngleSpeed < 0) {
+                fAngleSpeed = 0;
+            }
+        }
+        return SkM44::Rotate(fAxis, fAngle);
+
+    }
+
+    void start() {
+        if (fPrevNow != fNow) {
+            fAngleSpeed = (fAngle - fPrevAngle) / (fNow - fPrevNow);
+            fAngleSign = fAngleSpeed < 0 ? -1 : 1;
+            fAngleSpeed = std::min(kMaxSpeed, std::abs(fAngleSpeed));
+        } else {
+            fAngleSpeed = 0;
+        }
+        fPrevNow = SkTime::GetSecs();
+        fAngle = 0;
+    }
+
+    void reset() {
+        fAngleSpeed = 0;
+        fAngle = 0;
+        fPrevAngle = 1234567;
+    }
+};
+
 class SampleCubeBase : public Sample3DView {
     enum {
         DX = 400,
@@ -518,8 +598,9 @@ class SampleCubeBase : public Sample3DView {
     SkM44 fWorldToClick,
           fClickToWorld;
 
-    SkM44 fRotation,        // part of model
-          fClickRotation;  // temp during a click/drag
+    SkM44 fRotation;        // part of model
+
+    RotateAnimator fRotateAnimator;
 
 protected:
     enum Flags {
@@ -573,7 +654,7 @@ public:
                 SkAutoCanvasRestore acr(canvas, true);
 
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
-                SkM44 m = fClickRotation * fRotation * f.asM44(200);
+                SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
                 canvas->experimental_concat44(trans * fRot * m * inv(trans));
                 this->drawContent(canvas, f.fColor, index++, drawFront);
@@ -608,6 +689,9 @@ public:
         if (fSphere.contains({x, y})) {
             Click* c = new Click();
             c->fMeta.setS32("type", 1);
+
+            fRotation = fRotateAnimator.rotation() * fRotation;
+            fRotateAnimator.reset();
             return c;
         }
         return nullptr;
@@ -624,16 +708,26 @@ public:
         }
         if (click->fMeta.hasS32("type", 1)) {
             if (click->fState == skui::InputState::kUp) {
-                fRotation = fClickRotation * fRotation;
-                fClickRotation.setIdentity();
+                fRotation = fRotateAnimator.rotation() * fRotation;
+                fRotateAnimator.start();
             } else {
-                fClickRotation = fSphere.computeRotation({click->fOrig.fX, click->fOrig.fY},
-                                                          {click->fCurr.fX, click->fCurr.fY});
+                auto [axis, angle] = fSphere.computeRotationInfo(
+                                                {click->fOrig.fX, click->fOrig.fY},
+                                                {click->fCurr.fX, click->fCurr.fY});
+                fRotateAnimator.update(axis, angle);
             }
             return true;
         }
         return true;
     }
+
+    bool onAnimate(double nanos) override {
+        // handle fling
+        return this->INHERITED::onAnimate(nanos);
+    }
+
+private:
+    typedef Sample3DView INHERITED;
 };
 
 class SampleBump3D : public SampleCubeBase {
