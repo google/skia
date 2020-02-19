@@ -2177,16 +2177,18 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const char* text = "test text with space at end   ";
+        const char* text = "ABCDE\nABCDE";
         canvas->drawColor(SK_ColorWHITE);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kCenter);
         auto collection = getFontCollection();
+        SkPaint red;
+        red.setColor(SK_ColorRED);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
         text_style.setFontSize(48);
+        text_style.setBackgroundColor(red);
 
         ParagraphBuilderImpl builder(paragraph_style, collection);
         builder.pushStyle(text_style);
@@ -2194,15 +2196,14 @@ protected:
         auto paragraph = builder.Build();
 
         auto width = this->width();
-        paragraph->layout(width);
-        SkDebugf("%f: %f %f\n", width, paragraph->getMinIntrinsicWidth(), paragraph->getMaxIntrinsicWidth());
+        paragraph->layout(width/4);
         paragraph->paint(canvas, 0, 0);
-        auto boxes = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        for (auto& b : boxes) {
-            SkDebugf("box[%f:%f * %f:%f] %s\n",
-                    b.rect.fLeft, b.rect.fRight, b.rect.fTop, b.rect.fBottom,
-                    b.direction == TextDirection::kRtl ? "rtl" : "ltr");
-        }
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth(), paragraph->getHeight()), paint);
     }
 
 private:
