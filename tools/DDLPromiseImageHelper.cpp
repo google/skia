@@ -169,6 +169,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* co
             PromiseImageInfo* info = &fImageInfo[i];
 
             taskGroup->add([context, info]() {
+                              SkDebugf("on thread %d Create BET for %d\n", SkGetThreadID(), info->index());
                               CreateBETexturesForPromiseImage(context, info);
                            });
         }
