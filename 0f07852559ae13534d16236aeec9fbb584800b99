@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c7210392_fafa4db5",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "I did not mean to imply that because it\u0027s a signed value means it\u0027s not overflowing, but that because we impose a smaller upper bound that is checked in allocate(), that we can then reason about the range of signed int values that are produced during the arithmetic, and statically assert that none of those would overflow given the one runtime check that is performed.\n\nBecause we have that assert, it is then convenient to switch to signed ints instead of size_t for any small performance gain that might bring.",
+      "parentUuid": "18118f94_0877cf27",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "222601ca_5e783e0f",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -59,6 +83,30 @@
       "writtenOn": "2020-02-19T14:45:18Z",
       "side": 1,
       "message": "Does this not need to be aligned?",
+      "range": {
+        "startLine": 45,
+        "startChar": 10,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b92fc3_d642876e",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "I have been operating on the thought that it doesn\u0027t because the GrBlockAllocator will start its cursor tracking at the beginning of the fHead field (aligned on max_align_t), and the move in to any appended storage. Even that were unaligned, the block allocator will calculate an aligned offset into it.",
+      "parentUuid": "bda53515_5bbaffd0",
       "range": {
         "startLine": 45,
         "startChar": 10,
@@ -117,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "127b6ccf_81b64e51",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "They may be allocated on the stack or as a regular field of some outer class.",
+      "parentUuid": "ad831e73_b4f44b27",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 44
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "533d77fe_deb6dc2f",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -140,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "bde28370_294503b1",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "I struggled with using int vs. int32_t. The biggest reason for using int was to be the most performant int type on the system, which is not necessarily int32_t. But since int32_t is the lower limit the allocation constraint relies on, I tended to refer to ints as being 4 bytes in the docs.\n\nI can switch to using int32_t explicitly pretty easily if we want to go that route.",
+      "parentUuid": "533d77fe_deb6dc2f",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 11
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0bc79b24_40674a29",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -151,6 +247,30 @@
       "writtenOn": "2020-02-19T14:45:18Z",
       "side": 1,
       "message": "This sounds like it\u0027s saying that the range remains valid if false was returned. I\u0027m wondering if you have use cases that rely on this. It seems a little simpler to say the caller should always assume it may be invalid.",
+      "range": {
+        "startLine": 100,
+        "startChar": 11,
+        "endLine": 101,
+        "endChar": 89
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d9cf767_55f2226f",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "I don\u0027t have use cases for that, so I\u0027ll do your simplification.",
+      "parentUuid": "0bc79b24_40674a29",
       "range": {
         "startLine": 100,
         "startChar": 11,
@@ -209,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "cab76e94_f0b3b26e",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "It\u0027s a fixed amount of bytes that are added per allocation, as an opt-in choice for users of GrBlockAllocator that need to track per-allocation data. It is described in more detail in GrBlockAllocator::allocate\u003c\u003e",
+      "parentUuid": "2af802ed_3cd7d81a",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 75
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7fc25c9c_7b9db541",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 26
@@ -220,6 +364,30 @@
       "writtenOn": "2020-02-19T16:39:25Z",
       "side": 1,
       "message": "Is this the start of the data?",
+      "range": {
+        "startLine": 134,
+        "startChar": 24,
+        "endLine": 134,
+        "endChar": 34
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4343ad3d_ab332f16",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "It is the last field before the start of the data. Every refactoring use case that I\u0027ve planned to use GrBlockAllocator in, the wrapping types need a small amount of per-block storage. Often this is tracking some sort of live count, as in GrMemoryPool, but it may represent a last-allocated offset, or last-offset to something that needs a destructor invoked.\n\nTheoretically, the wrapping classes could always make their own initial allocation for this metadata, but having a field that would always start at 0 and be available ended up being very convenient.",
+      "parentUuid": "7fc25c9c_7b9db541",
       "range": {
         "startLine": 134,
         "startChar": 24,
@@ -289,6 +457,30 @@
       "writtenOn": "2020-02-19T14:45:18Z",
       "side": 1,
       "message": "It seems a little odd here that the constness of the ptr is tied to the constness of the block. One is about the constness of the data that the user stored in this and the other is about manipulating the allocator. Could they both take const void* ptr\u003e",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 5
+      },
+      "revId": "0f07852559ae13534d16236aeec9fbb584800b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0def7c1_119136e4",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-19T18:23:16Z",
+      "side": 1,
+      "message": "Yes, I think that\u0027s good.",
+      "parentUuid": "db3a4efe_14c65da3",
       "range": {
         "startLine": 231,
         "startChar": 0,
