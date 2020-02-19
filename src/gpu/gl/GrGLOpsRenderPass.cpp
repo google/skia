@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
 void GrGLOpsRenderPass::set(GrRenderTarget* rt, const SkIRect& contentBounds,

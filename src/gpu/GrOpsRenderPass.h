@@ -51,15 +51,34 @@ public:
     virtual void end() = 0;
 
     // Updates the internal pipeline state for drawing with the provided GrProgramInfo.
-    // Returns false if the state could not be set.
+    // Enters an internal "bad" state if the state could not be set.
     void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
+
+    // The scissor rect is always dynamic state (from this class's perspective) and therefore not
+    // stored on GrPipeline. If scissor test is enabled on the current pipeline, then the client
+    // must always call setScissorRect() before drawing. The scissor rect may also be updated
+    // between draws without having to bind a new pipeline.
+    void setScissorRect(const SkIRect&);
+
+    // When GrProgramInfo indicates fixed primitive processor textures, the textures stored on the
+    // GrPrimitiveProcesssor get bound during bindPipeline(). Otherwise, the client must call
+    // updatePrimProcTextureBindings() before drawing. The texture bindings on existing primitive
+    // processor samplers may also be updated between draws without having to bind a new pipeline.
+    // We enter an internal "bad" state if the new texture bindings failed.
+    void updatePrimProcTextureBindings(const GrPrimitiveProcessor&, const GrPipeline&,
+                                       const GrSurfaceProxy* const[]);
 
     // Draws the given array of meshes using the current pipeline state. The client must call
     // bindPipeline() before using this method.
     //
-    // NOTE: This method will soon be replaced by individual calls for each draw type (indexed,
-    // instanced, indexed-patterned, indirect, etc.).
+    // NOTE: This method will soon be deleted. While it continues to exist, it takes care of calling
+    // "setScissor" and "updatePrimProcTextureBindings" on the client's behalf.
     void drawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount);
+
+    // Draws the given array of mesh using the current pipeline state. The client must call
+    // bindPipeline(), followed setScissor() and updatePrimProcTextureBindings() if necessary,
+    // before using this method.
+    void drawMesh(GrPrimitiveType, const GrMesh&);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -99,7 +118,10 @@ private:
 
     // overridden by backend-specific derived class to perform the rendering command.
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
-    virtual void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) = 0;
+    virtual void onSetScissorRect(const SkIRect&) = 0;
+    virtual bool onUpdatePrimProcTextureBindings(const GrPrimitiveProcessor&, const GrPipeline&,
+                                                 const GrSurfaceProxy* const[]) = 0;
+    virtual void onDrawMesh(GrPrimitiveType, const GrMesh&) = 0;
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
     virtual void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
@@ -111,6 +133,20 @@ private:
     };
 
     DrawPipelineStatus fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
+    GrXferBarrierType fXferBarrierType;
+
+#ifdef SK_DEBUG
+    enum class DynamicStateStatus {
+        kDisabled,
+        kUninitialized,
+        kConfigured
+    };
+
+    DynamicStateStatus fScissorStatus = DynamicStateStatus::kDisabled;
+    DynamicStateStatus fPrimProxTextureBindingStatus = DynamicStateStatus::kDisabled;
+    bool fHasVertexAttributes = false;
+    bool fHasInstanceAttributes = false;
+#endif
 
     typedef GrOpsRenderPass INHERITED;
 };
