@@ -1,0 +1,653 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d5d1a2e_8ca986b8",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "nit: include dashes for each entry",
+      "range": {
+        "startLine": 18,
+        "startChar": 1,
+        "endLine": 18,
+        "endChar": 2
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00152d5f_b7e9f759",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "You can\u0027t use let or const in the JS code here. The closure compiler/minifier requires \"old\" JS when in Release mode.\n\n(let/const are fine in tests)",
+      "range": {
+        "startLine": 21,
+        "startChar": 9,
+        "endLine": 21,
+        "endChar": 12
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3f3cf69_820102c8",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Declare these non-exported functions as function name(), e.g. function identityN(n)  (being consistent with sdot)",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 29
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32a5d83c_44e2f0a1",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "\"Clear is better than clever\" - a golang saying\n\nAlways use braces:\nhttps://engdoc.corp.google.com/eng/doc/devguide/js/styleguide.md?cl\u003dhead#formatting-braces-all\n\nThe inside of that loop would be a lot clearer if you wrote it with an if statement (or maybe a ternary operator).",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d22489_183462cc",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Is this a technique you learned about from the Skia code? If so, it would be nice to reference that.",
+      "range": {
+        "startLine": 37,
+        "startChar": 5,
+        "endLine": 37,
+        "endChar": 11
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52cc2528_4ebade34",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "nit: \"Its\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 16
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdb00bde_72fffd77",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Add a comment on the end of line 51 // y coordinate\nand then on 52 // x coordinate",
+      "range": {
+        "startLine": 51,
+        "startChar": 11,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ce1184_9ded1e98",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "optional: include a link to wikipedia or some other reference?",
+      "range": {
+        "startLine": 65,
+        "startChar": 35,
+        "endLine": 65,
+        "endChar": 47
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b11270a_04ac8a78",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "nit: Write your comments as full sentences (capitalize first letters, end with periods, etc). Here and in other places.",
+      "range": {
+        "startLine": 65,
+        "startChar": 7,
+        "endLine": 65,
+        "endChar": 8
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bcd45e0_60b6d23d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Something to consider for the purpose of code size - it would be nice to not have these strings in the release build unless they are critical.  One way to have debug \"asserts\" is to use SkDebug for the message (which is a no-op function in the release mode, allowing the minifier to remove the strings) and `return null` or `throw 0`.\n\nWhat do you think?",
+      "range": {
+        "startLine": 112,
+        "startChar": 6,
+        "endLine": 112,
+        "endChar": 66
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3742aa46_7b5c340f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Use single quotes: https://engdoc.corp.google.com/eng/doc/devguide/js/styleguide.md?cl\u003dhead#formatting-braces-all",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 115,
+        "endChar": 13
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e82f19c_65a9f108",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Make sure you end statements with semicolons: http://go/js-style#formatting-semicolons-are-required\n\n(here and other places)",
+      "range": {
+        "startLine": 115,
+        "startChar": 53,
+        "endLine": 115,
+        "endChar": 55
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70297076_c79cb809",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 118,
+        "startChar": 6,
+        "endLine": 118,
+        "endChar": 21
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8b1f894_c25bdf47",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Add a reminder that matrix multiplication is associative, so the order of multiplication is arbitrary and does not matter:\nhttps://en.wikipedia.org/wiki/Matrix_multiplication#Associativity",
+      "range": {
+        "startLine": 151,
+        "startChar": 76,
+        "endLine": 151,
+        "endChar": 89
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64e0dfe7_90d45ba9",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "If this is based off of code in Skia land, linking to that would be nice",
+      "range": {
+        "startLine": 190,
+        "startChar": 12,
+        "endLine": 190,
+        "endChar": 18
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1479e16a_52e99da8",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Is this useful to export?",
+      "range": {
+        "startLine": 197,
+        "startChar": 19,
+        "endLine": 197,
+        "endChar": 32
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfc08e09_5b648a88",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Add a comment indicating this code was translated from the C++ code",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "169405bd_572e984c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Why does this break the pattern of doing it in place when everything else seems to just return the result?",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8998fed_3d4f2277",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Maybe we should add a Debug/Release constant to debug.js and release.js that would allow us to compile out these assert-like checks from release mode.  Something like\nif (isDebug \u0026\u0026 !m.every(isnumber)) {\n...",
+      "range": {
+        "startLine": 316,
+        "startChar": 8,
+        "endLine": 316,
+        "endChar": 26
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0066979_93c4284d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "use SkDebug if you want this message to not be in release mode. Otherwise, I\u0027d use something like console.warn or console.error",
+      "range": {
+        "startLine": 396,
+        "startChar": 6,
+        "endLine": 396,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bac9135e_78262a9e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure this change improves readability. If I need to understand what is going on, I now have to do the math or set breakpoints.  Same for scaled below - WDYT?",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34f5e3f9_3b5c8e9e",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "As per http://go/js-style#features-strings-use-single-quotes \"if a string contains a single quote character, consider using a template string to avoid having to escape the quote.\"",
+      "range": {
+        "startLine": 1,
+        "startChar": 36,
+        "endLine": 1,
+        "endChar": 38
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5f742b8_65812b6f",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Why was 9 chosen?",
+      "range": {
+        "startLine": 6,
+        "startChar": 44,
+        "endLine": 6,
+        "endChar": 76
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cc241be_1a693a04",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "Add a describe(\u00273x3 matrices\u0027, function() {\n\nand wrap all the 3x3 tests in it. Same for the 4x4 tests",
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddfbfe29_ab452690",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "If there\u0027s just one promise, you can do LoadCanvasKit.then...\n\nPromse.all should only be needed when loading things like fonts/images",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 32
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42c96e9e_7fc84d82",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "\"use const by default\" - https://engdoc.corp.google.com/eng/doc/devguide/js/styleguide.md?cl\u003dhead#features-use-const-and-let\n\nHere and other places",
+      "range": {
+        "startLine": 56,
+        "startChar": 6,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac309da4_b6a25bef",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "nit: its",
+      "range": {
+        "startLine": 79,
+        "startChar": 22,
+        "endLine": 79,
+        "endChar": 26
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75ba56ba_ef2edb86",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "\"Don\u0027t put logic in tests\", just hard-code these values. Maybe pick a different angle to have nicer numbers?\n\ngo/tott/510",
+      "range": {
+        "startLine": 145,
+        "startChar": 16,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49c6a206_0db2beb3",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T13:25:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 168,
+        "startChar": 21,
+        "endLine": 168,
+        "endChar": 33
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
