@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "361e1811_159ed7a1",
+        "filename": "src/sksl/SkSLSPIRVtoHLSL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-19T16:49:10Z",
+      "side": 1,
+      "message": "Possibly something like this to get going?\n\n#if __has_include(...)\n   \u003cthis\u003e\n#else\n   namespace SkSL { bool SPIRVtoHLSL(...) { return false; } }\n#endif\n\nor do it with a GN arg and #defines?",
+      "revId": "ac5edd51312c4c6b4321d06d2438c3d72d42c940",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
