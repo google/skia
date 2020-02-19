@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8431f0eb_cd4bf162",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T21:11:30Z",
+      "side": 1,
+      "message": "nit: space this \"i \u003d 0\" (and the +\u003d too) (here and below)",
+      "range": {
+        "startLine": 21,
+        "startChar": 13,
+        "endLine": 21,
+        "endChar": 16
+      },
+      "revId": "3b41c1807106680790eb5bb8cfa3f8cddc2b41e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b86cf1e1_9443ca06",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T21:11:30Z",
+      "side": 1,
+      "message": "nit: parens around the question of a non-trivial ternary \"question\" and use \u003d\u003d\u003d",
+      "range": {
+        "startLine": 34,
+        "startChar": 16,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "3b41c1807106680790eb5bb8cfa3f8cddc2b41e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

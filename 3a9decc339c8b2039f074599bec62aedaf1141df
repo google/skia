@@ -669,6 +669,30 @@
     },
     {
       "key": {
+        "uuid": "d7e8ad48_503960bf",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T21:11:30Z",
+      "side": 1,
+      "message": "order of arguments does matter. If we multiply them left to right or right to left, *that* does not matter",
+      "parentUuid": "c9ecd2c0_6a3f2da3",
+      "range": {
+        "startLine": 151,
+        "startChar": 76,
+        "endLine": 151,
+        "endChar": 89
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64e0dfe7_90d45ba9",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -845,6 +869,30 @@
     },
     {
       "key": {
+        "uuid": "1686e348_10ff17fa",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T21:11:30Z",
+      "side": 1,
+      "message": "Yeah, I think I prefer the warning and return the inverted result, but I don\u0027t have a strong opinion.",
+      "parentUuid": "7e21fd81_efab9e71",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8998fed_3d4f2277",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -950,6 +998,30 @@
       "side": 1,
       "message": "I agree compactness might be bad for readability. the most readable is the visually obvious form where one can see where each term went.\nreturn [\n  1, 0, 0, 0, 0,\n  0, 1, 0, 0, 0,\n  0, 0, 1, 0, 0,\n  0, 0, 0, 1, 0,\n]\nWould you prefer that?",
       "parentUuid": "bac9135e_78262a9e",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1c4f1b4_2bd4f8fe",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-19T21:11:30Z",
+      "side": 1,
+      "message": "I do believe the long form is more readable (and possibly more performant because it\u0027s just a constant?), so let\u0027s go with that.",
+      "parentUuid": "18e4fd2d_8d45579b",
       "range": {
         "startLine": 425,
         "startChar": 11,
