@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c40eb56_24b0ac3a",
+        "filename": "third_party/spirv-cross/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-19T14:24:28Z",
+      "side": 1,
+      "message": "Can we not use the third_party template (or mimic it) to disable all warnings?",
+      "revId": "1795c3bcea5f79bbdd87e9b88a3faf074950d4e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
