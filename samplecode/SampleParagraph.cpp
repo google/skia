@@ -2139,91 +2139,50 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const char* text = "PESTO";
+        const char* text = "ffi";
         canvas->drawColor(SK_ColorWHITE);
 
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(1);
+        auto collection = getFontCollection();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kCenter);
-        auto collection = getFontCollection();
         ParagraphBuilderImpl builder(paragraph_style, collection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(48);
-        text_style.setFontStyle(SkFontStyle::Bold());
-        text_style.setLetterSpacing(3);
+        text_style.setFontSize(60);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        auto w = width() / 2;
-        paragraph->layout(w);
+        paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, width() / 2, paragraph->getHeight()), paint);
+        auto width = paragraph->getLongestLine();
+        auto height = paragraph->getHeight();
+
+        auto f1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
+        auto f2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
+        auto i = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
+
+        SkDebugf("%d(%s) %d(%s) %d(%s)\n",
+                f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
+                f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
+                i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
+
+        auto rf1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+        auto rf2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+        auto rfi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight)[0];
+
+        SkDebugf("f1: [%f:%f] %s\n",
+                rf1.rect.fLeft, rf1.rect.fRight, rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
+        SkDebugf("f2: [%f:%f] %s\n",
+                rf2.rect.fLeft, rf2.rect.fRight, rf2.direction == TextDirection::kRtl ? "rtl" : "ltr");
+        SkDebugf("i:  [%f:%f] %s\n",
+                rfi.rect.fLeft, rfi.rect.fRight, rfi.direction == TextDirection::kRtl ? "rtl" : "ltr");
     }
 
 private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView30 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph30"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
-
-        /*
-         *     text: TextSpan(
-      text: 'aaaa bbbb ',
-      style: TextStyle(fontSize: 48.0),
-      children: <TextSpan>[
-        TextSpan(text: 'cc dd', style:TextStyle(fontFamily: 'serif', fontSize: 64.0)),
-      ],
-    ),
-    textDirection: TextDirection.ltr,
-    textAlign: TextAlign.justify,
-
-         */
-
-        const char* text1 = "aaaa bbbb ";
-        const char* text2 = "cc dd";
-
-        canvas->drawColor(SK_ColorWHITE);
-
-        ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kJustify);
-        auto collection = getFontCollection();
-        SkPaint red;
-        red.setColor(SK_ColorRED);
-        TextStyle text_style;
-        text_style.setColor(SK_ColorBLACK);
-
-        ParagraphBuilderImpl builder(paragraph_style, collection);
-
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(48);
-        builder.pushStyle(text_style);
-        builder.addText(text1);
-
-        text_style.setFontFamilies({SkString("Google Sans")});
-        text_style.setFontSize(64);
-        builder.pushStyle(text_style);
-        builder.addText(text2);
-
-        auto paragraph = builder.Build();
-
-        paragraph->layout(310);
-        paragraph->paint(canvas, 0, 0);
-    }
-
-private:
-    typedef Sample INHERITED;
-};
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2254,4 +2213,3 @@ DEF_SAMPLE(return new ParagraphView26();)
 DEF_SAMPLE(return new ParagraphView27();)
 DEF_SAMPLE(return new ParagraphView28();)
 DEF_SAMPLE(return new ParagraphView29();)
-DEF_SAMPLE(return new ParagraphView30();)

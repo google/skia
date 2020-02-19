@@ -12,6 +12,7 @@ SkUnichar utf8_next(const char** ptr, const char* end) {
     SkUnichar val = SkUTF::NextUTF8(ptr, end);
     return val < 0 ? 0xFFFD : val;
 }
+
 }
 
 namespace skia {
@@ -88,7 +89,7 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
     }
 }
 
-std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool onlyInnerClusters) const {
+std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool extendToClusters) const {
 
     if (text.width() == 0) {
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
@@ -101,19 +102,27 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
     }
     Cluster* start = nullptr;
     Cluster* end = nullptr;
-    if (onlyInnerClusters) {
+    if (extendToClusters) {
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().start >= text.start && start == nullptr) {
-                start = &cluster;
-            }
-            if (cluster.textRange().end <= text.end) {
-                end = &cluster;
-            } else {
+            auto clusterRange = cluster.textRange();
+            if (clusterRange.end <= text.start) {
+                continue;
+            } else if (clusterRange.start >= text.end) {
                 break;
+            }
+
+            TextRange s = TextRange(std::max(clusterRange.start, text.start),
+                                    std::min(clusterRange.end, text.end));
+            if (s.width() > 0) {
+                if (start == nullptr) {
+                    start = &cluster;
+                }
+                end = &cluster;
             }
         }
     } else {
+        // TODO: Do we need to use this branch?..
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
             if (cluster.textRange().end > text.start && start == nullptr) {
