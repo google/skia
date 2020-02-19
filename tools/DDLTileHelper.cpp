@@ -14,6 +14,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
@@ -82,7 +83,7 @@ void DDLTileHelper::TileData::createDDL() {
     fDisplayList = recorder.detach();
 }
 
-void DDLTileHelper::TileData::draw(GrContext* context) {
+void DDLTileHelper::TileData::draw1(GrContext* context) {
     SkASSERT(fDisplayList && !fImage);
 
     sk_sp<SkSurface> tileSurface = SkSurface::MakeRenderTarget(context, fCharacterization,
@@ -146,6 +147,26 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
     }
 }
 
+// On the gpu thread:
+//    precompile any programs
+//    replay the DDL into a surface to make the tile image
+//    compose the tile image into the main canvas
+static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
+    auto& programData = tile->ddl()->priv().programData();
+
+    // TODO: schedule program compilation as their own tasks
+    for (auto& programDatum : programData) {
+        context->priv().compile(programDatum.desc(), programDatum.info());
+    }
+
+    tile->draw1(context);
+
+    // TODO: we should actually have a separate DDL that does
+    // the final composition draw
+    tile->compose();
+    SkDebugf("gpu-side %d: done with tile %d\n", SkGetThreadID(), tile->id());
+}
+
 void DDLTileHelper::createDDLsInParallel() {
 #if 1
     SkTaskGroup().batch(this->numTiles(), [&](int i) { fTiles[i].createDDL(); });
@@ -176,14 +197,18 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                     tile->createDDL();
 
                                     gpuTaskGroup->add([gpuThreadContext, tile]() {
+#if 1
+                                        do_gpu_stuff(gpuThreadContext, tile);
+#else
                                         // On the gpu thread:
                                         //    replay the DDL into a surface to make the tile image
                                         //    compose the tile image into the main canvas
-                                        tile->draw(gpuThreadContext);
+                                        tile->draw1(gpuThreadContext);
 
                                         // TODO: we should actually have a separate DDL that does
                                         // the final composition draw
                                         tile->compose();
+#endif
                                     });
                                 });
     }
@@ -191,7 +216,7 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
 
 void DDLTileHelper::drawAllTilesAndFlush(GrContext* context, bool flush) {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].draw(context);
+        fTiles[i].draw1(context);
     }
     if (flush) {
         context->flush();

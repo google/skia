@@ -17,6 +17,7 @@ class SkDeferredDisplayListPriv;
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/GrProgramDesc.h"
 #include <map>
 class GrOpMemoryPool;
 class GrRenderTask;
@@ -62,6 +63,7 @@ public:
 
 private:
 #if SK_SUPPORT_GPU
+
     SK_API const SkTArray<GrRecordingContext::ProgramData>& programData() const {
         return fProgramData;
     }

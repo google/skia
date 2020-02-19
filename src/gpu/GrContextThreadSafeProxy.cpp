@@ -25,7 +25,9 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
         : INHERITED(backend, options, contextID) {
 }
 
-GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
+GrContextThreadSafeProxy::~GrContextThreadSafeProxy() {
+
+}
 
 bool GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
     return INHERITED::init(std::move(caps));
