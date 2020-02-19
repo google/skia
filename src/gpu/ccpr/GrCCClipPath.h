@@ -40,9 +40,13 @@ public:
     void init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
               GrCCAtlas::CoverageType atlasCoverageType, const GrCaps&);
 
-    void addAccess(const SkIRect& accessRect) {
+    // Replaces this clip path's access rect with the union of it and the provided rect.
+    // Returns the number of pixels added to the access rect as a result of this operation.
+    size_t addAccess(const SkIRect& accessRect) {
         SkASSERT(this->isInitialized());
+        size_t previousNumPixels = fAccessRect.height() * fAccessRect.width();
         fAccessRect.join(accessRect);
+        return fAccessRect.height() * fAccessRect.width() - previousNumPixels;
     }
     GrTextureProxy* atlasLazyProxy() const {
         SkASSERT(this->isInitialized());

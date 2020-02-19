@@ -27,6 +27,7 @@ struct GrCCPerOpsTaskPaths : public SkRefCnt {
     std::map<uint32_t, GrCCClipPath> fClipPaths;
     SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
     sk_sp<const GrCCPerFlushResources> fFlushResources;
+    size_t fPathsSizeInBytes = 0;
 };
 
 #endif

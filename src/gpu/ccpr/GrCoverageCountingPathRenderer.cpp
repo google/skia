@@ -57,16 +57,46 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
     CoverageType coverageType;
     if (IsSupported(caps, &coverageType)) {
         return sk_sp<GrCoverageCountingPathRenderer>(new GrCoverageCountingPathRenderer(
-                coverageType, allowCaching, contextUniqueID));
+                caps, coverageType, allowCaching, contextUniqueID));
     }
     return nullptr;
 }
 
 GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(
-        CoverageType coverageType, AllowCaching allowCaching, uint32_t contextUniqueID)
+        const GrCaps& caps, CoverageType coverageType, AllowCaching allowCaching,
+        uint32_t contextUniqueID)
         : fCoverageType(coverageType) {
     if (AllowCaching::kYes == allowCaching) {
         fPathCache = std::make_unique<GrCCPathCache>(contextUniqueID);
+    }
+    if (CoverageType::kA8_Multisample == fCoverageType) {
+        if (caps.msaaResolvesAutomatically()) {
+            // We have a multisampled render-to-texture extension. This means one alpha and one
+            // stencil per pixel.
+            fNumBytesPerAtlasPixel = 2;
+        } else {
+            fNumBytesPerAtlasPixel = caps.internalMultisampleCount(
+                    caps.getDefaultBackendFormat(GrColorType::kAlpha_8, GrRenderable::kYes));
+            if (caps.mixedSamplesSupport()) {
+                ++fNumBytesPerAtlasPixel;  // One color sample.
+            } else {
+                fNumBytesPerAtlasPixel *= 2;  // Multiple alpha and stencil samples per pixel.
+            }
+        }
+    } else {
+        SkASSERT(CoverageType::kFP16_CoverageCount == fCoverageType);
+        fNumBytesPerAtlasPixel = 2;
+    }
+}
+
+void GrCoverageCountingPathRenderer::mergePendingPaths(const PendingPathsMap& pathsMap) {
+    for (const auto& [opsTaskID, pendingPaths] : pathsMap) {
+        // Ensure there are no duplicate opsTask IDs between the incoming path map and ours.
+        // This should always be true since opsTask IDs are globally unique and these are coming
+        // from different DDL recordings.
+        SkASSERT(fPendingPaths.count(opsTaskID));
+        fPendingPathsSizeInBytes += pendingPaths->fPathsSizeInBytes;
+        fPendingPaths.emplace(opsTaskID, std::move(pendingPaths));
     }
 }
 
@@ -81,6 +111,11 @@ GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
+    // Don't allow the atlases we will eventually build to overrun GPU memory.
+    if (fPendingPathsSizeInBytes > 100 * 1024 * 1024) {
+        return CanDrawPath::kNo;
+    }
+
     const GrShape& shape = *args.fShape;
     // We use "kCoverage", or analytic AA, no mater what the coverage type of our atlas: Even if the
     // atlas is multisampled, that resolves into analytic coverage before we draw the path to the
@@ -182,8 +217,13 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
                                               const DrawPathArgs& args) {
     if (op) {
         auto addToOwningPerOpsTaskPaths = [this](GrOp* op, uint32_t opsTaskID) {
+            GrCCPerOpsTaskPaths* perOpsTaskPaths = this->lookupPendingPaths(opsTaskID);
             op->cast<GrCCDrawPathsOp>()->addToOwningPerOpsTaskPaths(
-                    sk_ref_sp(this->lookupPendingPaths(opsTaskID)));
+                    sk_ref_sp(perOpsTaskPaths));
+            size_t numAddedBytes =
+                    (size_t)(op->bounds().height() * op->bounds().width()) * fNumBytesPerAtlasPixel;
+            perOpsTaskPaths->fPathsSizeInBytes += numAddedBytes;
+            fPendingPathsSizeInBytes += numAddedBytes;
         };
         args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op),
                                              addToOwningPerOpsTaskPaths);
@@ -201,8 +241,9 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         // Nonzero both reference the same coverage count mask.
         key = (key << 1) | (uint32_t)GrFillRuleForSkPath(deviceSpacePath);
     }
-    GrCCClipPath& clipPath =
-            this->lookupPendingPaths(opsTaskID)->fClipPaths[key];
+    GrCCPerOpsTaskPaths* perOpsTaskPaths = this->lookupPendingPaths(opsTaskID);
+    GrCCClipPath& clipPath = perOpsTaskPaths->fClipPaths[key];
+    size_t numAddedPixels;
     if (!clipPath.isInitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
         const SkRect& pathDevBounds = deviceSpacePath.getBounds();
@@ -215,9 +256,13 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         } else {
             clipPath.init(deviceSpacePath, accessRect, fCoverageType, caps);
         }
+        numAddedPixels = accessRect.height() * accessRect.width();
     } else {
-        clipPath.addAccess(accessRect);
+        numAddedPixels = clipPath.addAccess(accessRect);
     }
+    size_t numAddedBytes = numAddedPixels * fNumBytesPerAtlasPixel;
+    perOpsTaskPaths->fPathsSizeInBytes += numAddedBytes;
+    fPendingPathsSizeInBytes += numAddedBytes;
 
     auto isCoverageCount = GrCCClipProcessor::IsCoverageCount(
             CoverageType::kFP16_CoverageCount == fCoverageType);
@@ -257,6 +302,7 @@ void GrCoverageCountingPathRenderer::preFlush(
             continue;  // No paths on this opsTask.
         }
 
+        fPendingPathsSizeInBytes -= iter->second->fPathsSizeInBytes;
         fFlushingPaths.push_back(std::move(iter->second));
         fPendingPaths.erase(iter);
 
@@ -329,6 +375,14 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
         // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
         fFlushingPaths.reset();
     }
+
+#ifdef SK_DEBUG
+    size_t actualPendingBytes = 0;
+    for (const auto& [opsTaskID, pendingPaths] : fPendingPaths) {
+        actualPendingBytes += pendingPaths->fPathsSizeInBytes;
+    }
+    SkASSERT(actualPendingBytes == fPendingPathsSizeInBytes);
+#endif
 
     SkDEBUGCODE(fFlushing = false);
 }

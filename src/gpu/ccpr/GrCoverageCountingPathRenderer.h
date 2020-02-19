@@ -45,20 +45,15 @@ public:
 
     // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpsTaskPaths to the DDL
     // object (detachPendingPaths) and then return them upon replay (mergePendingPaths).
-    PendingPathsMap detachPendingPaths() { return std::move(fPendingPaths); }
-
-    void mergePendingPaths(const PendingPathsMap& paths) {
-#ifdef SK_DEBUG
-        // Ensure there are no duplicate opsTask IDs between the incoming path map and ours.
-        // This should always be true since opsTask IDs are globally unique and these are coming
-        // from different DDL recordings.
-        for (const auto& it : paths) {
-            SkASSERT(!fPendingPaths.count(it.first));
-        }
-#endif
-
-        fPendingPaths.insert(paths.begin(), paths.end());
+    PendingPathsMap detachPendingPaths() {
+        // Clear out fPendingPathsSizeInBytes since we are detaching all pending paths.
+        // FIXME: This is problematic because we can still blow out GPU memory by merging paths from
+        // many DDLs.
+        fPendingPathsSizeInBytes = 0;
+        return std::move(fPendingPaths);
     }
+
+    void mergePendingPaths(const PendingPathsMap& pathsMap);
 
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(
             uint32_t oplistID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
@@ -85,7 +80,8 @@ public:
                                    float* inflationRadius = nullptr);
 
 private:
-    GrCoverageCountingPathRenderer(CoverageType, AllowCaching, uint32_t contextUniqueID);
+    GrCoverageCountingPathRenderer(const GrCaps&, CoverageType, AllowCaching,
+                                   uint32_t contextUniqueID);
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
@@ -98,11 +94,13 @@ private:
     void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
 
     const CoverageType fCoverageType;
+    int fNumBytesPerAtlasPixel;
 
     // fPendingPaths holds the GrCCPerOpsTaskPaths objects that have already been created, but not
     // flushed, and those that are still being created. All GrCCPerOpsTaskPaths objects will first
     // reside in fPendingPaths, then be moved to fFlushingPaths during preFlush().
     PendingPathsMap fPendingPaths;
+    size_t fPendingPathsSizeInBytes = 0;
 
     // fFlushingPaths holds the GrCCPerOpsTaskPaths objects that are currently being flushed.
     // (It will only contain elements when fFlushing is true.)
