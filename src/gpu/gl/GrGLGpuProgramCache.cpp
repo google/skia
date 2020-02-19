@@ -55,6 +55,12 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
         return nullptr;
     }
 
+    return this->findOrCreateProgram(renderTarget, desc, programInfo);
+}
+
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* renderTarget,
+                                                              const GrProgramDesc& desc,
+                                                              const GrProgramInfo& programInfo) {
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
