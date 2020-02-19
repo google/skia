@@ -1753,19 +1753,15 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState, int rtWidth, int 
                            GrSurfaceOrigin rtOrigin) {
     if (scissorState.enabled()) {
         auto scissor = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, scissorState.rect());
-        // if the scissor fully contains the viewport then we fall through and
-        // disable the scissor test.
-        if (!scissor.contains(rtWidth, rtHeight)) {
-            if (fHWScissorSettings.fRect != scissor) {
-                GL_CALL(Scissor(scissor.fX, scissor.fY, scissor.fWidth, scissor.fHeight));
-                fHWScissorSettings.fRect = scissor;
-            }
-            if (kYes_TriState != fHWScissorSettings.fEnabled) {
-                GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-                fHWScissorSettings.fEnabled = kYes_TriState;
-            }
-            return;
+        if (fHWScissorSettings.fRect != scissor) {
+            GL_CALL(Scissor(scissor.fX, scissor.fY, scissor.fWidth, scissor.fHeight));
+            fHWScissorSettings.fRect = scissor;
         }
+        if (kYes_TriState != fHWScissorSettings.fEnabled) {
+            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
+            fHWScissorSettings.fEnabled = kYes_TriState;
+        }
+        return;
     }
 
     // See fall through note above
