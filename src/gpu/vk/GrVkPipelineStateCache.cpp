@@ -89,6 +89,14 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         return nullptr;
     }
 
+    return this->findOrCreatePipeline(renderTarget, desc, programInfo, compatibleRenderPass);
+}
+
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipeline(
+        GrRenderTarget* renderTarget,
+        const GrProgramDesc& desc,
+        const GrProgramInfo& programInfo,
+        VkRenderPass compatibleRenderPass) {
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
