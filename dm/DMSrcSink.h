@@ -450,6 +450,33 @@ private:
     typedef GPUSink INHERITED;
 };
 
+// This sink attempts to better simulate the Chrome DDL use-case. It:
+//    creates the DDLs on separate recording threads
+//    performs all the GPU work on a separate GPU thread
+// In the future this should be expanded to:
+//    upload on a utility thread w/ access to a shared context
+//    compile the programs on the utility thread
+//    perform fine grained scheduling of gpu tasks based on their image and program prerequisites
+//    create a single "compositing" DDL that is replayed last
+class GPUDDLSink : public GPUSink {
+public:
+    GPUDDLSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    Result ddlDraw(const Src&,
+                   sk_sp<SkSurface> dstSurface,
+                   SkTaskGroup* recordingTaskGroup,
+                   SkTaskGroup* gpuTaskGroup,
+                   GrContext* gpuCtx) const;
+
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    std::unique_ptr<SkExecutor> fGPUThread;
+
+    typedef GPUSink INHERITED;
+};
+
 class PDFSink : public Sink {
 public:
     PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(rasterDpi) {}
