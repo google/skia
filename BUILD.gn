@@ -511,6 +511,7 @@ optional("gpu") {
   deps = [
     ":compile_processors",
     ":run_sksllex",
+    "//third_party/spirv-cross:spirv_cross",
   ]
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
