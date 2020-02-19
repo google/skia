@@ -788,9 +788,9 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
                               nullptr,
                               &dynamicStateArrays, 0, GrPrimitiveType::kTriangleStrip);
 
-    flushState->opsRenderPass()->draw(programInfo,
-                                      fMeshesBuffer.begin(), fMeshesBuffer.count(),
-                                      SkRect::Make(drawBounds));
+    flushState->opsRenderPass()->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    flushState->opsRenderPass()->drawMeshes(programInfo, fMeshesBuffer.begin(),
+                                            fMeshesBuffer.count());
     // Don't call reset(), as that also resets the reserve count.
     fMeshesBuffer.pop_back_n(fMeshesBuffer.count());
     fScissorsBuffer.pop_back_n(fScissorsBuffer.count());

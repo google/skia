@@ -150,7 +150,8 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                               fixedDynamicState,
                               nullptr, 0, primitiveType);
 
-    flushState->opsRenderPass()->draw(programInfo, &mesh, 1, bounds);
+    flushState->opsRenderPass()->bindPipeline(programInfo, bounds);
+    flushState->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
 }
 
 void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

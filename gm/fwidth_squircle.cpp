@@ -221,8 +221,8 @@ private:
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
 
-        flushState->opsRenderPass()->draw(*fProgramInfo, &mesh, 1,
-                                          SkRect::MakeIWH(kWidth, kHeight));
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, SkRect::MakeIWH(kWidth, kHeight));
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, &mesh, 1);
 
     }
 

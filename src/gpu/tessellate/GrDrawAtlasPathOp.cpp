@@ -186,5 +186,6 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
 
     GrMesh mesh;
     mesh.setInstanced(fInstanceBuffer, fInstanceCount, fBaseInstance, 4);
-    state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
+    state->opsRenderPass()->bindPipeline(programInfo, this->bounds());
+    state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
 }

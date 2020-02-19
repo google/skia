@@ -1809,6 +1809,11 @@ void GrGLGpu::disableWindowRectangles() {
 }
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+    this->handleDirtyContext();
+
+    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
+        this->flushPatchVertexCount(programInfo.tessellationPatchVertexCount());
+    }
 
     sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram(renderTarget, programInfo));
     if (!program) {
@@ -2350,21 +2355,9 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::draw(GrRenderTarget* renderTarget,
-                   const GrProgramInfo& programInfo,
-                   const GrMesh meshes[],
-                   int meshCount) {
-    this->handleDirtyContext();
-
+void GrGLGpu::drawMeshes(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo,
+                         const GrMesh meshes[], int meshCount) {
     SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
-
-    if (!this->flushGLState(renderTarget, programInfo)) {
-        return;
-    }
-
-    if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
-        this->flushPatchVertexCount(programInfo.tessellationPatchVertexCount());
-    }
 
     bool hasDynamicScissors = programInfo.hasDynamicScissors();
     bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();

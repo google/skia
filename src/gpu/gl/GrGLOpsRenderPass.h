@@ -49,9 +49,13 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void onDraw(const GrProgramInfo& programInfo, const GrMesh mesh[], int meshCount,
-                const SkRect& bounds) override {
-        fGpu->draw(fRenderTarget, programInfo, mesh, meshCount);
+    bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override {
+        return fGpu->flushGLState(fRenderTarget, programInfo);
+    }
+
+    void onDrawMeshes(const GrProgramInfo& programInfo, const GrMesh mesh[],
+                      int meshCount) override {
+        fGpu->drawMeshes(fRenderTarget, programInfo, mesh, meshCount);
     }
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {

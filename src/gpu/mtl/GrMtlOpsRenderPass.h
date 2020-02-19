@@ -39,12 +39,9 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    GrMtlPipelineState* prepareDrawState(const GrProgramInfo&);
+    bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
 
-    void onDraw(const GrProgramInfo& programInfo,
-                const GrMesh mesh[],
-                int meshCount,
-                const SkRect& bounds) override;
+    void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) override;
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
 
@@ -76,6 +73,7 @@ private:
     GrMtlGpu*                   fGpu;
 
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
+    GrMtlPipelineState*         fActivePipelineState = nullptr;
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
     size_t                      fCurrentVertexStride;

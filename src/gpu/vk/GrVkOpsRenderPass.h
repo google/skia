@@ -34,7 +34,7 @@ public:
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
-    void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
+    void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
     bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
@@ -68,10 +68,9 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrProgramInfo&, const SkIRect& renderPassScissorRect);
+    bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
 
-    void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
-                const SkRect& bounds) override;
+    void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) override;
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
@@ -101,6 +100,8 @@ private:
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
+    SkIRect                                     fCurrentPipelineBounds;
+    GrVkPipelineState*                          fCurrentPipelineState = nullptr;
     bool                                        fCurrentCBIsEmpty = true;
     SkIRect                                     fBounds;
     GrVkGpu*                                    fGpu;
