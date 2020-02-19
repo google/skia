@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06eb383c_ada9db7e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "Though practically I don\u0027t think it actually does anything, but in general you should not use TBR lines. We really only use them for reverts or quick trivial bug fixes.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0073a2f1_af1a0139",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "you want this to be \"Bug: skia:9898\" without the skia: it will link to a chromium bug",
+      "range": {
+        "startLine": 18,
+        "startChar": 5,
+        "endLine": 18,
+        "endChar": 9
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3452161_0d7d50db",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "line over 100 chars",
+      "range": {
+        "startLine": 683,
+        "startChar": 100,
+        "endLine": 683,
+        "endChar": 103
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b86e0de_746ebac7",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 684,
+        "startChar": 101,
+        "endLine": 684,
+        "endChar": 131
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c966af3_8e5490f3",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "We have a bunch of calls in GrVkGpu that wrap GrBackendTextures and GrBackendRenderTargets. Each of these calls should be checking the usage values. I think each call calls some versions of check_image_info, check_rt_image_info, or check_texture_image_info. To match our current requirements for images, I think check_image_info should fail if trans_src/dst isn\u0027t on the usage flags. check_rt should fail if renderable isn\u0027t on the usage flags. And check_tex should fail if sampled isn\u0027t on the usage flags.",
+      "range": {
+        "startLine": 1340,
+        "startChar": 22,
+        "endLine": 1340,
+        "endChar": 65
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8d5be37_f0945473",
+        "filename": "src/gpu/vk/GrVkImageView.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "I\u0027ve not looked into VkImageViewUsageCreateInfo before, what are its uses?",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 56
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b37ab57_f9f9c803",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-19T14:32:46Z",
+      "side": 1,
+      "message": "In GrVkRenderTarget ctor I would assert the render usage. In GrVkTexture ctor I would assert sample. Either in both or GrVkImage ctor I would assert trans_src/dst usage. In the future we can relax some of these asserts as we add more general support (i.e. if framebufferOnly we don\u0027t require the transfers flags).",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 83
+      },
+      "revId": "9e8ca41ba75c6b62786974ced0985ebfb3e5e28c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
