@@ -59,6 +59,15 @@ config("default") {
     }
   }
 
+  # Disable warnings about unknown attributes.
+  # (These unknown attribute warnings are on by default, so we don't make
+  # disabling them part of :warnings, as some targets remove :warnings.)
+  if (is_win && !is_clang) {
+    cflags += [ "/wd5030" ]
+  } else {
+    cflags += [ "-Wno-attributes" ]
+  }
+
   if (is_fuchsia && using_fuchsia_sdk) {
     ldflags += [
       "-v",
