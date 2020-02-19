@@ -54,8 +54,8 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   fCurrDraw->fMeshCnt,
                                   fCurrDraw->fPrimitiveType);
 
-        this->opsRenderPass()->draw(programInfo, fCurrDraw->fMeshes,
-                                    fCurrDraw->fMeshCnt, chainBounds);
+        this->opsRenderPass()->bindPipeline(programInfo, chainBounds);
+        this->opsRenderPass()->drawMeshes(programInfo, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
