@@ -258,21 +258,3 @@ void SkScalerCache::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
-#ifdef SK_DEBUG
-size_t SkScalerCache::recalculateMemoryUsed() const {
-    SkAutoMutexExclusive lock{fMu};
-    size_t memoryUsed = sizeof(*this);
-    fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
-        memoryUsed += sizeof(SkGlyph);
-        if (glyphPtr->setImageHasBeenCalled()) {
-            memoryUsed += glyphPtr->imageSize();
-        }
-        if (glyphPtr->setPathHasBeenCalled() && glyphPtr->path() != nullptr) {
-            memoryUsed += glyphPtr->path()->approximateBytesUsed();
-        }
-    });
-    return memoryUsed;
-}
-#endif  // SK_DEBUG
-
-
