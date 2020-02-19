@@ -14,6 +14,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
@@ -158,6 +159,26 @@ void DDLTileHelper::createDDLsInParallel() {
 #endif
 }
 
+// On the gpu thread:
+//    precompile any programs
+//    replay the DDL into a surface to make the tile image
+//    compose the tile image into the main canvas
+static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
+    auto& programData = tile->ddl()->priv().programData();
+
+    // TODO: schedule program compilation as their own tasks
+    for (auto& programDatum : programData) {
+        context->priv().compile(programDatum.desc(), programDatum.info());
+    }
+
+    tile->draw(context);
+
+    // TODO: we should actually have a separate DDL that does
+    // the final composition draw
+    tile->compose();
+    SkDebugf("gpu-side %d: done with tile %d\n", SkGetThreadID(), tile->id());
+}
+
 // We expect to have more than one recording thread but just one gpu thread
 void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
@@ -176,14 +197,18 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                     tile->createDDL();
 
                                     gpuTaskGroup->add([gpuThreadContext, tile]() {
+#if 1
+                                        do_gpu_stuff(gpuThreadContext, tile);
+#else
                                         // On the gpu thread:
                                         //    replay the DDL into a surface to make the tile image
                                         //    compose the tile image into the main canvas
-                                        tile->draw(gpuThreadContext);
+                                        tile->draw1(gpuThreadContext);
 
                                         // TODO: we should actually have a separate DDL that does
                                         // the final composition draw
                                         tile->compose();
+#endif
                                     });
                                 });
     }

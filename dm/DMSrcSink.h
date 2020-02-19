@@ -450,6 +450,25 @@ private:
     typedef GPUSink INHERITED;
 };
 
+class GPUDDLSink : public GPUSink {
+public:
+    GPUDDLSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    Result ddlDraw(const Src&,
+                   sk_sp<SkSurface> dstSurface,
+                   SkTaskGroup* recordingTaskGroup,
+                   SkTaskGroup* gpuTaskGroup,
+                   GrContext* gpuCtx) const;
+
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    std::unique_ptr<SkExecutor> fGPUThread;
+
+    typedef GPUSink INHERITED;
+};
+
 class PDFSink : public Sink {
 public:
     PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(rasterDpi) {}
