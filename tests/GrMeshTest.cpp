@@ -446,8 +446,8 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
                               mtp,
                               nullptr, nullptr, 0, primitiveType);
 
-    fState->opsRenderPass()->draw(programInfo, &mesh, 1,
-                                  SkRect::MakeIWH(kImageWidth, kImageHeight));
+    fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
+    fState->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
 }
 
 static void run_test(GrContext* context, const char* testName, skiatest::Reporter* reporter,
