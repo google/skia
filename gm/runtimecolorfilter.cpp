@@ -21,8 +21,6 @@
 #include <utility>
 
 const char* SKSL_TEST_SRC = R"(
-    uniform half b;
-
     void main(inout half4 color) {
         color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
         color.r = 0;
@@ -35,11 +33,9 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 512, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
-    float b = 0.75;
-    sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
     sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_TEST_SRC)));
 
-    auto cf1 = effect->makeColorFilter(data);
+    auto cf1 = effect->makeColorFilter(nullptr);
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);
