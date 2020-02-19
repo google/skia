@@ -55,16 +55,14 @@ public:
                 , fPinner{std::move(pinner)} {}
 
         SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
-            auto [glyph, delta] = fScalerCache.mergeGlyphAndImage(toID, from);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            auto [glyph, increase] = fScalerCache.mergeGlyphAndImage(toID, from);
+            this->updateDelta(increase);
             return glyph;
         }
 
         const SkPath* mergePath(SkGlyph* glyph, const SkPath* path) {
-            auto [glyphPath, delta] = fScalerCache.mergePath(glyph, path);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            auto [glyphPath, increase] = fScalerCache.mergePath(glyph, path);
+            this->updateDelta(increase);
             return glyphPath;
         }
 
@@ -83,32 +81,28 @@ public:
 
         SkSpan<const SkGlyph*> metrics(SkSpan<const SkGlyphID> glyphIDs,
                                        const SkGlyph* results[]) {
-            auto [glyphs, delta] = fScalerCache.metrics(glyphIDs, results);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            auto [glyphs, increase] = fScalerCache.metrics(glyphIDs, results);
+            this->updateDelta(increase);
             return glyphs;
         }
 
         SkSpan<const SkGlyph*> preparePaths(SkSpan<const SkGlyphID> glyphIDs,
                                             const SkGlyph* results[]) {
-            auto [glyphs, delta] = fScalerCache.preparePaths(glyphIDs, results);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            auto [glyphs, increase] = fScalerCache.preparePaths(glyphIDs, results);
+            this->updateDelta(increase);
             return glyphs;
         }
 
         SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
                                              const SkGlyph* results[]) {
-            auto [glyphs, delta] = fScalerCache.prepareImages(glyphIDs, results);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            auto [glyphs, increase] = fScalerCache.prepareImages(glyphIDs, results);
+            this->updateDelta(increase);
             return glyphs;
         }
 
         void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
-            size_t delta = fScalerCache.prepareForDrawingMasksCPU(drawables);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            size_t increase = fScalerCache.prepareForDrawingMasksCPU(drawables);
+            this->updateDelta(increase);
         }
 
         const SkGlyphPositionRoundingSpec& roundingSpec() const override {
@@ -121,28 +115,27 @@ public:
 
         void prepareForMaskDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-            size_t delta = fScalerCache.prepareForMaskDrawing(drawbles, rejects);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            size_t increase = fScalerCache.prepareForMaskDrawing(drawbles, rejects);
+            this->updateDelta(increase);
         }
 
         void prepareForSDFTDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-            size_t delta = fScalerCache.prepareForSDFTDrawing(drawbles, rejects);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            size_t increase = fScalerCache.prepareForSDFTDrawing(drawbles, rejects);
+            this->updateDelta(increase);
         }
 
         void prepareForPathDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-            size_t delta = fScalerCache.prepareForPathDrawing(drawbles, rejects);
-            fMemoryUsed += delta;
-            SkASSERT(fScalerCache.recalculateMemoryUsed() == fMemoryUsed);
+            size_t increase = fScalerCache.prepareForPathDrawing(drawbles, rejects);
+            this->updateDelta(increase);
         }
 
         void onAboutToExitScope() override {
-            fStrikeCache->attachStrike(this);
+            this->unref();
         }
+
+        void updateDelta(size_t increase);
 
         SkStrikeCache* const            fStrikeCache;
         Strike*                         fNext{nullptr};
@@ -150,17 +143,17 @@ public:
         SkScalerCache                   fScalerCache;
         std::unique_ptr<SkStrikePinner> fPinner;
         size_t                          fMemoryUsed{sizeof(SkScalerCache)};
+        bool                            fRemoved{false};
     };  // Strike
 
     class ExclusiveStrikePtr {
     public:
-        explicit ExclusiveStrikePtr(Strike*);
+        explicit ExclusiveStrikePtr(sk_sp<Strike> strike);
         ExclusiveStrikePtr();
         ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
         ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
         ExclusiveStrikePtr(ExclusiveStrikePtr&&);
         ExclusiveStrikePtr& operator = (ExclusiveStrikePtr&&);
-        ~ExclusiveStrikePtr();
 
         Strike* get() const;
         Strike* operator -> () const;
@@ -171,7 +164,7 @@ public:
         friend bool operator == (decltype(nullptr), const ExclusiveStrikePtr&);
 
     private:
-        Strike* fStrike;
+        sk_sp<Strike> fStrike;
     };
 
     static SkStrikeCache* GlobalStrikeCache();
@@ -194,7 +187,6 @@ public:
                                                   const SkTypeface& typeface) override;
 
     static void PurgeAll();
-    static void ValidateGlyphCacheDataSize();
     static void Dump();
 
     // Dump memory usage statistics of all the attaches caches in the process using the
@@ -213,41 +205,34 @@ public:
 
     int  getCachePointSizeLimit() const;
     int  setCachePointSizeLimit(int limit);
-#ifdef SK_DEBUG
-    // Make sure that each glyph cache's memory tracking and actual memory used are in sync.
-    void validateGlyphCacheDataSize() const;
-#else
-    void validateGlyphCacheDataSize() const {}
-#endif
 
 private:
+    sk_sp<Strike> findStrikeOrNull(const SkDescriptor& desc) SK_EXCLUDES(fLock);
+    sk_sp<Strike> createStrike(
+            const SkDescriptor& desc,
+            std::unique_ptr<SkScalerContext> scaler,
+            SkFontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr) SK_EXCLUDES(fLock);
+    sk_sp<Strike> findOrCreateStrike(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface) SK_EXCLUDES(fLock);
+
+    // The following methods can only be called when mutex is already held.
+    void internalRemoveStrike(Strike* strike) SK_REQUIRES(fLock);
+    void internalAttachToHead(sk_sp<Strike> strike) SK_REQUIRES(fLock);
+
+    // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
+    // and attempt to purge caches to match.
+    // Returns number of bytes freed.
+    size_t internalPurge(size_t minBytesNeeded = 0) SK_REQUIRES(fLock);
+
 #ifdef SK_DEBUG
     // A simple accounting of what each glyph cache reports and the strike cache total.
     void validate() const SK_REQUIRES(fLock);
 #else
     void validate() const {}
 #endif
-
-    Strike* findAndDetachStrike(const SkDescriptor&) SK_EXCLUDES(fLock);
-    Strike* createStrike(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
-    Strike* findOrCreateStrike(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface) SK_EXCLUDES(fLock);
-    void attachStrike(Strike* strike) SK_EXCLUDES(fLock);
-
-    // The following methods can only be called when mutex is already held.
-    void internalDetachStrike(Strike* strike) SK_REQUIRES(fLock);
-    void internalAttachToHead(Strike* strike) SK_REQUIRES(fLock);
-
-    // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
-    // and attempt to purge caches to match.
-    // Returns number of bytes freed.
-    size_t internalPurge(size_t minBytesNeeded = 0) SK_REQUIRES(fLock);
 
     void forEachStrike(std::function<void(const Strike&)> visitor) const;
 
