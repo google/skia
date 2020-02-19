@@ -135,8 +135,6 @@ public:
 
     bool toGLSL(Program& program, String* out);
 
-    bool toHLSL(Program& program, String* out);
-
     bool toMetal(Program& program, OutputStream& out);
 
     bool toMetal(Program& program, String* out);
