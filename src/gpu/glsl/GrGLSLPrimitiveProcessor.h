@@ -30,7 +30,7 @@ public:
     struct TransformVar {
         TransformVar() = default;
 
-        TransformVar(SkString matrixCode, UniformHandle uniformMatrix, GrShaderVar varyingPoint)
+        TransformVar(SkString matrixCode, UniformHandle uniformMatrix, GrShaderVar varyingPoint = {})
             : fMatrixCode(std::move(matrixCode))
             , fUniformMatrix(uniformMatrix)
             , fVaryingPoint(varyingPoint) {}
