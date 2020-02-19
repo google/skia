@@ -133,19 +133,12 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         this->fClusters.reset();
-        this->fRunShifts.reset();
         this->resetRunShifts();
         fState = kShaped;
-
-        this->buildClusterTable();
-        fState = kClusterized;
-
-        this->markLineBreaks(); // Just because it's on cluster table
-        fState = kMarked;
     }
 
     if (fState < kShaped) {
-        fClusters.reset();
+
         fGraphemes.reset();
         this->markGraphemes();
 
@@ -173,23 +166,18 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
             return;
         }
-        if (fState < kShaped) {
-            this->resetRunShifts();
-            fState = kShaped;
-        } else {
-            layout(floorWidth);
-            return;
-        }
 
-        if (fState < kMarked) {
-            this->buildClusterTable();
-            fState = kClusterized;
-            this->markLineBreaks();
-            fState = kMarked;
+        this->fClusters.reset();
+        this->resetRunShifts();
+        fState = kShaped;
+    }
 
-            // Add the paragraph to the cache
-            fFontCollection->getParagraphCache()->updateParagraph(this);
-        }
+    if (fState < kMarked) {
+        this->buildClusterTable();
+        fState = kClusterized;
+
+        this->markLineBreaks();
+        fState = kMarked;
     }
 
     if (fState >= kLineBroken)  {
@@ -377,7 +365,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     // Check the font-resolved text against the cache
     if (fFontCollection->getParagraphCache()->findParagraph(this)) {
-        this->fRunShifts.reset();
         return true;
     }
 
@@ -390,7 +377,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     if (!result) {
         return false;
     } else {
-        this->fRunShifts.reset();
+        // Add the paragraph to the cache
+        fFontCollection->getParagraphCache()->updateParagraph(this);
         return true;
     }
 }

@@ -158,6 +158,9 @@ public:
         for (size_t pos = start; pos < end; ++pos) {
             runShift.fShifts[pos] = shift;
         }
+        if (end == runShift.fShifts.size() - 1) {
+            runShift.fShifts[end] = shift;
+        }
     }
 
     SkScalar posShift(RunIndex index, size_t pos) const {
