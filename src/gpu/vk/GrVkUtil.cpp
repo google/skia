@@ -9,8 +9,11 @@
 
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/sksl/SkSLCompiler.h"
+
+#include "third_party/externals/spirv-cross/spirv_hlsl.hpp"
 
 #ifdef SK_DEBUG
 bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
@@ -138,6 +141,11 @@ bool GrCompileVkShaderModule(GrVkGpu* gpu,
                                    gpu->shaderCompiler()->errorText().c_str());
         return false;
     }
+
+    spirv_cross::CompilerHLSL hlslCompiler((const uint32_t*)outSPIRV->c_str(),
+                                           outSPIRV->size() / sizeof(uint32_t));
+    std::string hlsl = hlslCompiler.compile();
+    SkDebugf("SkSL:\n%s\nHLSL:\n%s\n", GrShaderUtils::PrettyPrint(shaderString).c_str(), hlsl.c_str());
 
     return GrInstallVkShaderModule(gpu, *outSPIRV, stage, shaderModule, stageInfo);
 }
