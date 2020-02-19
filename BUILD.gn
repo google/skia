@@ -444,6 +444,7 @@ if (skia_compile_processors) {
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
+      "//third_party/spirv-cross:spirv_cross",
       "//third_party/spirv-tools:spvtools",
     ]
   }
@@ -511,6 +512,7 @@ optional("gpu") {
   deps = [
     ":compile_processors",
     ":run_sksllex",
+    "//third_party/spirv-cross:spirv_cross",
   ]
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
