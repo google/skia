@@ -16,6 +16,9 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
     return nullptr;
 }
 
+void GrCoverageCountingPathRenderer::mergePendingPaths(const PendingPathsMap&) {
+}
+
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
         uint32_t opsTaskID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
         const GrCaps& caps) {

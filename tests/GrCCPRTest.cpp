@@ -77,6 +77,7 @@ public:
     }
 
     GrContext* ctx() const { return fCtx.get(); }
+    GrRenderTargetContext* rtc() const { return fRTC.get(); }
     GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
 
     bool valid() const { return fCCPR && fRTC; }
@@ -863,6 +864,67 @@ class CCPR_unrefPerOpsTaskPathsBeforeOps : public CCPRTest {
     }
 };
 DEF_CCPR_TEST(CCPR_unrefPerOpsTaskPathsBeforeOps)
+
+class CCPR_checkPendingPathsSizeLimit : public CCPRTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        constexpr static int largePathSize = 2048;
+
+        std::unique_ptr<GrRenderTargetContext> largeRTC = GrRenderTargetContext::Make(
+                ccpr.ctx(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+                {largePathSize, largePathSize});
+
+        SkPath largePath;
+        largePath.setIsVolatile(true);
+        largePath.addRect(0, 0, largePathSize, largePathSize);
+        GrShape largeShape(largePath);
+
+        SkIRect clipBounds = SkIRect::MakeWH(largePathSize, largePathSize);
+
+        SkMatrix matrix = SkMatrix::I();
+
+        GrNoClip noClip;
+
+        GrPathRenderer::CanDrawPathArgs canArgs;
+        canArgs.fCaps = ccpr.ctx()->priv().caps();
+        canArgs.fProxy = ccpr.rtc()->asRenderTargetProxy();
+        canArgs.fClipConservativeBounds = &clipBounds;
+        canArgs.fViewMatrix = &matrix;
+        canArgs.fShape = &largeShape;
+        canArgs.fAAType = GrAAType::kCoverage;
+        canArgs.fTargetIsWrappedVkSecondaryCB = false;
+        canArgs.fHasUserStencilSettings = false;
+
+        int numDraws = 0;
+
+        // Fill the atlas up with paths and make sure we eventually fail.
+        SkASSERT(GrPathRenderer::CanDrawPath::kNo != ccpr.ccpr()->canDrawPath(canArgs));
+        while (GrPathRenderer::CanDrawPath::kNo != ccpr.ccpr()->canDrawPath(canArgs)) {
+            GrPaint paint;
+            ccpr.ccpr()->testingOnly_drawPathDirectly({
+                    ccpr.ctx(), std::move(paint), &GrUserStencilSettings::kUnused, largeRTC.get(),
+                    &noClip, &clipBounds, &matrix, &largeShape, GrAAType::kCoverage, false});
+            if (++numDraws > 1000) {
+                ERRORF(reporter, "drew too many large paths");
+                break;
+            }
+        }
+
+        ccpr.flush();
+
+        // Now fill the atlas up with clip paths and make sure they have the same effect.
+        for (int i = 0; i < numDraws; ++i) {
+            SkASSERT(GrPathRenderer::CanDrawPath::kNo != ccpr.ccpr()->canDrawPath(canArgs));
+            SkPath newPath;
+            newPath.setIsVolatile(true);
+            newPath.addRect(0, 0, largePathSize, largePathSize);
+            GrPaint paint;
+            largeRTC->drawRect(CCPRClip(ccpr.ccpr(), newPath), std::move(paint), GrAA::kYes,
+                               SkMatrix::I(), SkRect::MakeIWH(largePathSize, largePathSize));
+        }
+        SkASSERT(GrPathRenderer::CanDrawPath::kNo == ccpr.ccpr()->canDrawPath(canArgs));
+    }
+};
+DEF_CCPR_TEST(CCPR_checkPendingPathsSizeLimit)
 
 class CCPRRenderingTest {
 public:
