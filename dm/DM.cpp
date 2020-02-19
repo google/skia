@@ -944,6 +944,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return new GPUPersistentCacheTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPrecompile()) {
                 return new GPUPrecompileTestingSink(gpuConfig, grCtxOptions);
+            } else if (gpuConfig->getUseDDLSink()) {
+                return new GPUDDLSink(gpuConfig, grCtxOptions);
             } else {
                 return new GPUSink(gpuConfig, grCtxOptions);
             }

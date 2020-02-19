@@ -79,6 +79,7 @@ static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple th
 DECLARE_int(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
+using sk_gpu_test::ContextInfo;
 
 namespace DM {
 
@@ -1613,6 +1614,148 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     SkASSERT(!replayCache.numCacheMisses());
 
     return compare_bitmaps(reference, *dst);
+}
+
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
+        : INHERITED(config, grCtxOptions)
+    , fRecordingThreadPool(SkExecutor::MakeFIFOThreadPool(2))
+    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
+}
+
+Result GPUDDLSink::ddlDraw(const Src& src,
+                           sk_sp<SkSurface> dstSurface,
+                           SkTaskGroup* recordingTaskGroup,
+                           SkTaskGroup* gpuTaskGroup,
+                           GrContext* gpuThreadCtx) const {
+    auto size = src.size();
+    SkPictureRecorder recorder;
+    Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                     SkIntToScalar(size.height())));
+    if (!result.isOk()) {
+        return result;
+    }
+    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
+
+    // this is our ultimate final drawing area/rect
+    SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
+
+    DDLPromiseImageHelper promiseImageHelper;
+    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
+    if (!compressedPictureData) {
+        return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
+    }
+
+    promiseImageHelper.createCallbackContexts(gpuThreadCtx);
+
+    // TODO: move the image upload to the utility thread
+    promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
+
+    constexpr int kNumDivisions = 3;
+    DDLTileHelper tiles(dstSurface, viewport, kNumDivisions);
+
+    // Reinflate the compressed picture individually for each thread.
+    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+
+    // This should be the only explicit flush for the entire DDL draw
+    gpuTaskGroup->add([gpuThreadCtx]() { gpuThreadCtx->flush(); });
+
+    // All the work is schedule we just need to wait
+    recordingTaskGroup->wait(); // This should be a no-op at this point
+    gpuTaskGroup->wait();
+
+    return Result::Ok();
+}
+
+Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* log) const {
+    GrContextOptions contextOptions = this->baseContextOptions();
+    src.modifyGrContextOptions(&contextOptions);
+    contextOptions.fPersistentCache = nullptr;
+    contextOptions.fExecutor = nullptr;
+
+    GrContextFactory factory(contextOptions);
+
+    // This captures the context destined to be the main gpu context
+    ContextInfo mainCtxInfo = factory.getContextInfo(this->contextType(), this->contextOverrides());
+    sk_gpu_test::TestContext* mainTestCtx = mainCtxInfo.testContext();
+    GrContext* mainCtx = mainCtxInfo.grContext();
+    if (!mainCtx) {
+        return Result::Fatal("Could not create context.");
+    }
+
+    SkASSERT(mainCtx->priv().getGpu());
+
+    // TODO: make use of 'otherCtx' for uploads & compilation
+#if 0
+    // This captures the context destined to be the utility context. It is in a share group
+    // with the main context
+    ContextInfo otherCtxInfo = factory.getSharedContextInfo(mainCtx);
+    sk_gpu_test::TestContext* otherTestCtx = otherCtxInfo.testContext();
+    GrContext* otherCtx = otherCtxInfo.grContext();
+    if (!otherCtx) {
+        return Result::Fatal("Cound not create shared context.");
+    }
+
+    SkASSERT(otherCtx->priv().getGpu());
+#endif
+
+    SkTaskGroup recordingTaskGroup(*fRecordingThreadPool);
+    SkTaskGroup gpuTaskGroup(*fGPUThread);
+
+    // Make sure 'mainCtx' is current
+    mainTestCtx->makeCurrent();
+
+    GrBackendTexture backendTexture;
+    GrBackendRenderTarget backendRT;
+    sk_sp<SkSurface> surface = this->createDstSurface(mainCtx, src.size(),
+                                                      &backendTexture, &backendRT);
+    if (!surface) {
+        return Result::Fatal("Could not create a surface.");
+    }
+
+    // 'mainCtx' is being shifted to the gpuThread. Leave the main thread w/o
+    // a context.
+    mainTestCtx->makeNotCurrent();
+
+    // Job one for the GPU thread is to make 'mainCtx' current!
+    gpuTaskGroup.add([mainTestCtx] { mainTestCtx->makeCurrent(); });
+
+    Result result = this->ddlDraw(src, surface, &recordingTaskGroup, &gpuTaskGroup, mainCtx);
+
+    // ddlDraw schedules a flush on the gpu thread and waits so it is safe to make 'mainCtx'
+    // current here.
+    gpuTaskGroup.add([mainTestCtx] { mainTestCtx->makeNotCurrent(); });
+
+    if (!result.isOk()) {
+        return result;
+    }
+
+    mainTestCtx->makeCurrent();
+
+    if (FLAGS_gpuStats) {
+        mainCtx->priv().dumpCacheStats(log);
+        mainCtx->priv().dumpGpuStats(log);
+
+#if 0
+        otherCtx->priv().dumpCacheStats(log);
+        otherCtx->priv().dumpGpuStats(log);
+#endif
+    }
+
+    if (!this->readBack(surface.get(), dst)) {
+        return Result::Fatal("Could not readback from surface.");
+    }
+
+    surface.reset();
+    if (backendTexture.isValid()) {
+        mainCtx->deleteBackendTexture(backendTexture);
+    }
+    if (backendRT.isValid()) {
+        mainCtx->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+    }
+
+    return Result::Ok();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
