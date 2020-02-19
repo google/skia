@@ -191,6 +191,11 @@ private:
     private:
         struct Entry;
 
+        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
+                                                const GrProgramDesc&,
+                                                const GrProgramInfo&,
+                                                VkRenderPass compatibleRenderPass);
+
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
                 return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);

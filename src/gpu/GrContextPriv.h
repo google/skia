@@ -123,6 +123,8 @@ public:
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
     void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
+    void compile(const GrProgramDesc&, const GrProgramInfo&);
+
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
     GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const {
         return fContext->fShaderErrorHandler;
