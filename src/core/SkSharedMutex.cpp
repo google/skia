@@ -35,7 +35,7 @@
 
     #if defined(DYNAMIC_ANNOTATIONS_WANT_ATTRIBUTE_WEAK)
         #if defined(__GNUC__)
-            #define DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK __attribute__((weak))
+            #define DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK [[gnu::weak]]
         #else
             /* TODO(glider): for Windows support we may want to change this macro in order
                to prepend __declspec(selectany) to the annotations' declarations. */

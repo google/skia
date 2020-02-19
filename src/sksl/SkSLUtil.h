@@ -276,7 +276,7 @@ bool is_assignment(Token::Kind op);
 // '+=' becomes '+')
 Token::Kind remove_assignment(Token::Kind op);
 
-NORETURN void sksl_abort();
+[[noreturn]] void sksl_abort();
 
 } // namespace
 

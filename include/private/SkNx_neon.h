@@ -426,7 +426,7 @@ public:
 template <>
 class SkNx<4, uint8_t> {
 public:
-    typedef uint32_t __attribute__((aligned(1))) unaligned_uint32_t;
+    typedef uint32_t [[gnu::aligned(1)]] unaligned_uint32_t;
 
     AI SkNx(const uint8x8_t& vec) : fVec(vec) {}
 

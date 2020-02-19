@@ -303,12 +303,6 @@ static void test_path_to_region(skiatest::Reporter* reporter) {
     }
 }
 
-#ifdef SK_BUILD_FOR_WIN
-    #define SUPPRESS_VISIBILITY_WARNING
-#else
-    #define SUPPRESS_VISIBILITY_WARNING __attribute__((visibility("hidden")))
-#endif
-
 static void test_path_close_issue1474(skiatest::Reporter* reporter) {
     // This test checks that r{Line,Quad,Conic,Cubic}To following a close()
     // are relative to the point we close to, not relative to the point we close from.
@@ -1824,7 +1818,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     // round-rect radii
     static const SkScalar kRRRadii[] = {SkIntToScalar(5), SkIntToScalar(3)};
 
-    static const struct SUPPRESS_VISIBILITY_WARNING {
+    static const struct [[gnu::visibility("hidden")]] {
         SkRect fQueryRect;
         bool   fInRect;
         bool   fInCircle;
@@ -2811,7 +2805,7 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     SkPath  p;
     uint8_t verbs[32];
 
-    struct SUPPRESS_VISIBILITY_WARNING zeroPathTestData {
+    struct [[gnu::visibility("hidden")]] zeroPathTestData {
         const char* testPath;
         const size_t numResultPts;
         const SkRect resultBound;

@@ -30,7 +30,7 @@
                 #define SKSHAPER_API __declspec(dllimport)
             #endif
         #else
-            #define SKSHAPER_API __attribute__((visibility("default")))
+            #define SKSHAPER_API [[gnu::visibility("default")]]
         #endif
     #else
         #define SKSHAPER_API

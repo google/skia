@@ -1097,12 +1097,6 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     }
 }
 
-#ifdef SK_BUILD_FOR_WIN
-    #define SUPPRESS_VISIBILITY_WARNING
-#else
-    #define SUPPRESS_VISIBILITY_WARNING __attribute__((visibility("hidden")))
-#endif
-
 static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
@@ -1160,7 +1154,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         // list.
 
         // Not passing in tighter bounds is tested for consistency.
-        static const struct SUPPRESS_VISIBILITY_WARNING {
+        static const struct [[gnu::visibility("hidden")]] {
             SkRect testBounds;
             int reducedClipCount;
             uint32_t reducedGenID;

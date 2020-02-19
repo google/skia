@@ -55,7 +55,7 @@
 #if defined(_MSC_VER)
     #define SKVX_ALWAYS_INLINE __forceinline
 #else
-    #define SKVX_ALWAYS_INLINE __attribute__((always_inline))
+    #define SKVX_ALWAYS_INLINE [[gnu::always_inline]]
 #endif
 
 #define SIT   template <       typename T> static inline

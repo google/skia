@@ -13,11 +13,7 @@
 #include "src/sksl/SkSLInterpreter.h"
 
 // Every function in this file should be marked static and inline using SI.
-#if defined(__clang__)
-    #define SI __attribute__((always_inline)) static inline
-#else
-    #define SI static inline
-#endif
+#define SI [[clang::always_inline]] static inline
 
 template <typename Dst, typename Src>
 SI Dst bit_cast(const Src& src) {
@@ -1040,12 +1036,12 @@ static const size_t N = sizeof(F) / sizeof(float);
 #if defined(SK_CPU_ARM32) && defined(JUMPER_IS_NEON)
     // This lets us pass vectors more efficiently on 32-bit ARM.
     // We can still only pass 16 floats, so best as 4x {r,g,b,a}.
-    #define ABI __attribute__((pcs("aapcs-vfp")))
+    #define ABI [[gnu::pcs("aapcs-vfp")]]
     #define JUMPER_NARROW_STAGES 1
 #elif 0 && defined(_MSC_VER) && defined(__clang__) && defined(__x86_64__)
     // SysV ABI makes it very sensible to use wide stages with clang-cl.
     // TODO: crashes during compilation  :(
-    #define ABI __attribute__((sysv_abi))
+    #define ABI [[clang::sysv_abi]]
     #define JUMPER_NARROW_STAGES 0
 #elif defined(_MSC_VER)
     // Even if not vectorized, this lets us pass {r,g,b,a} as registers,

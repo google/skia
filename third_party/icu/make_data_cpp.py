@@ -40,7 +40,7 @@ def convert(fmt, name, src_path, dst_path):
         o.write(footer.format(name))
 
 
-cpp = ('#include <cstdint>\nextern "C" uint32_t {0}[] __attribute__((aligned(16))) = {{\n',
+cpp = ('#include <cstdint>\nextern "C" alignas(16) uint32_t {0}[] = {{\n',
        '', ',', '}};\n')
 
 if __name__ == '__main__':

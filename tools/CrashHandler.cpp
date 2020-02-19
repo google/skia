@@ -65,7 +65,7 @@
         #define BACKTRACE_REQUEST_MAGIC ((uint64_t)0xee726573756d65ee)
 
         // Prints a backtrace, resuming the thread without killing the process.
-        __attribute__((always_inline)) static inline void backtrace_request(void) {
+        [[gnu::always_inline]] static inline void backtrace_request(void) {
           // Two instructions: one that sets a software breakpoint ("int3" on x64,
           // "brk" on arm64) and one that writes the "magic" value in the first
           // register ("a" on x64, "x0" on arm64).

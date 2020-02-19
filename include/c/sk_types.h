@@ -32,7 +32,7 @@
                 #define SK_API __declspec(dllimport)
             #endif
         #else
-            #define SK_API __attribute__((visibility("default")))
+            #define SK_API [[gnu::visibility("default")]]
         #endif
     #else
         #define SK_API

@@ -41,9 +41,9 @@ config("common") {
   if (is_linux) {
     defines += [
       "ANGLE_USE_X11",
-      "GL_APICALL=__attribute__((visibility(\"default\")))",
-      "GL_API=__attribute__((visibility(\"default\")))",
-      "EGLAPI=__attribute__((visibility(\"default\")))",
+      "GL_APICALL=[[gnu::visibility(\"default\")]]",
+      "GL_API=[[gnu::visibility(\"default\")]]",
+      "EGLAPI=[[gnu::visibility(\"default\")]]",
     ]
     cflags_cc += [ "-std=c++14" ]
   } else if (is_win) {
