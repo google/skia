@@ -144,21 +144,7 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
-    void shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift) {
-        auto& cluster = fClusters[index];
-        auto& runShift = fRunShifts[cluster.runIndex()];
-        auto& run = fRuns[cluster.runIndex()];
-        auto start = cluster.startPos();
-        auto end = cluster.endPos();
-        if (!run.leftToRight()) {
-            runShift.fShifts[start] = lastShift;
-            ++start;
-            ++end;
-        }
-        for (size_t pos = start; pos < end; ++pos) {
-            runShift.fShifts[pos] = shift;
-        }
-    }
+    void shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift);
 
     SkScalar posShift(RunIndex index, size_t pos) const {
         if (fRunShifts.count() == 0) return 0.0;

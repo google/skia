@@ -2177,32 +2177,48 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const char* text = "test text with space at end   ";
+        /*
+         *     text: TextSpan(
+      text: 'aaaa bbbb ',
+      style: TextStyle(fontSize: 48.0),
+      children: <TextSpan>[
+        TextSpan(text: 'cc dd', style:TextStyle(fontFamily: 'serif', fontSize: 64.0)),
+      ],
+    ),
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.justify,
+
+         */
+
+        const char* text1 = "aaaa bbbb ";
+        const char* text2 = "cc dd";
+
         canvas->drawColor(SK_ColorWHITE);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kCenter);
+        paragraph_style.setTextAlign(TextAlign::kJustify);
         auto collection = getFontCollection();
+        SkPaint red;
+        red.setColor(SK_ColorRED);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(48);
 
         ParagraphBuilderImpl builder(paragraph_style, collection);
+
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(48);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        builder.addText(text1);
+
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(64);
+        builder.pushStyle(text_style);
+        builder.addText(text2);
+
         auto paragraph = builder.Build();
 
-        auto width = this->width();
-        paragraph->layout(width);
-        SkDebugf("%f: %f %f\n", width, paragraph->getMinIntrinsicWidth(), paragraph->getMaxIntrinsicWidth());
+        paragraph->layout(310);
         paragraph->paint(canvas, 0, 0);
-        auto boxes = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        for (auto& b : boxes) {
-            SkDebugf("box[%f:%f * %f:%f] %s\n",
-                    b.rect.fLeft, b.rect.fRight, b.rect.fTop, b.rect.fBottom,
-                    b.direction == TextDirection::kRtl ? "rtl" : "ltr");
-        }
     }
 
 private:

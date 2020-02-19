@@ -123,7 +123,7 @@ TextLine::TextLine(ParagraphImpl* master,
 
 SkRect TextLine::calculateBoundaries() {
 
-    auto boundaries = SkRect::MakeEmpty();
+    auto boundaries = SkRect::MakeIWH(fAdvance.fX, fAdvance.fY);
     auto clusters = fMaster->clusters(fClusterRange);
     Run* run = nullptr;
     auto runShift = 0.0f;
