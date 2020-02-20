@@ -129,6 +129,10 @@ void GrD3DGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     // TODO
 }
 
+bool GrD3DGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+    return false;
+}
+
 #if GR_TEST_UTILS
 bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     // TODO

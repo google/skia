@@ -153,6 +153,8 @@ private:
                                                       const BackendTextureData*) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
+    bool compile(const GrProgramDesc&, const GrProgramInfo&) override { return false; }
+
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 

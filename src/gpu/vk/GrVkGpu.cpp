@@ -2006,6 +2006,10 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
+bool GrVkGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+    return false;
+}
+
 #if GR_TEST_UTILS
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);

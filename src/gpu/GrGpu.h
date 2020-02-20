@@ -552,6 +552,11 @@ public:
      */
     virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
 
+    /**
+     * In this case we have a program descriptor and a program info but no render target.
+     */
+    virtual bool compile(const GrProgramDesc&, const GrProgramInfo&) = 0;
+
     virtual bool precompileShader(const SkData& key, const SkData& data) { return false; }
 
 #if GR_TEST_UTILS

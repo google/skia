@@ -370,6 +370,10 @@ void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
+bool GrDawnGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
+    return false;
+}
+
 #if GR_TEST_UTILS
 bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     GrDawnTextureInfo info;
