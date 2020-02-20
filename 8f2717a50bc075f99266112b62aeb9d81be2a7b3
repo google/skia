@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f6869a8_ae49fe21",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:18:00Z",
+      "side": 1,
+      "message": "Do not include googleplex.com links in commits or source code (I usually send screenshots as a message on review).",
+      "revId": "8f2717a50bc075f99266112b62aeb9d81be2a7b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
