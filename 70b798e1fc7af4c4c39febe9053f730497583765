@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e80875ea_a2410863",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-20T17:49:59Z",
+      "side": 1,
+      "message": "Well... that didn\u0027t work out well...",
+      "revId": "70b798e1fc7af4c4c39febe9053f730497583765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
