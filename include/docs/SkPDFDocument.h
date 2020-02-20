@@ -108,11 +108,19 @@ private:
     NodeIDs should be unique within each tree.
 */
 struct StructureElementNode {
+    SkString fTypeString;
+    std::vector<std::unique_ptr<StructureElementNode>> fChildVector;
+    int fNodeId = 0;
+    AttributeList fAttributes;
+    SkString fAlt;
+    SkString fLang;
+
+    // Deprecated. Use fChildVector instead.
     StructureElementNode* fChildren = nullptr;
     size_t fChildCount = 0;
-    int fNodeId = 0;
+
+    // Deprecated. Use fTypeString instead.
     DocumentStructureType fType = DocumentStructureType::kNonStruct;
-    AttributeList fAttributes;
 };
 
 /** Optional metadata to be passed into the PDF factory function.
