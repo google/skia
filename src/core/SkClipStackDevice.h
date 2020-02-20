@@ -21,8 +21,6 @@ public:
     SkClipStack& cs() { return fClipStack; }
     const SkClipStack& cs() const { return fClipStack; }
 
-    SkIRect devClipBounds() const;
-
 protected:
     void onSave() override;
     void onRestore() override;
@@ -35,6 +33,7 @@ protected:
     bool onClipIsWideOpen() const override;
     void onAsRgnClip(SkRegion*) const override;
     ClipType onGetClipType() const override;
+    SkIRect onDevClipBounds() const override;
 
 private:
     enum {
