@@ -44,7 +44,7 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
-class SkM44;
+class SkMat4;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -756,7 +756,7 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int experimental_saveCamera(const SkM44& projection, const SkM44& camera);
+    int experimental_saveCamera(const SkMat4& projection, const SkMat4& camera);
     int experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
@@ -881,7 +881,7 @@ public:
     */
     void concat(const SkMatrix& matrix);
 
-    void experimental_concat44(const SkM44&);
+    void experimental_concat44(const SkMat4&);
     void experimental_concat44(const SkScalar[]); // column-major
 
     /** Replaces SkMatrix with matrix.
@@ -2509,9 +2509,9 @@ public:
     */
     SkMatrix getTotalMatrix() const;
 
-    SkM44 experimental_getLocalToDevice() const; // entire matrix stack
-    SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
-    SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
+    SkMat4 experimental_getLocalToDevice() const; // entire matrix stack
+    SkMat4 experimental_getLocalToWorld() const;  // up to but not including top-most camera
+    SkMat4 experimental_getLocalToCamera() const; // up to and including top-most camera
 
     void experimental_getLocalToDevice(SkScalar colMajor[16]) const;
     void experimental_getLocalToWorld(SkScalar colMajor[16]) const;
@@ -2730,10 +2730,10 @@ private:
 
     struct CameraRec {
         MCRec*  fMCRec;         // the saveCamera rec that built us
-        SkM44   fCamera;        // just the user's camera
-        SkM44   fInvPostCamera; // cache of ctm post camera
+        SkMat4  fCamera;        // just the user's camera
+        SkMat4  fInvPostCamera; // cache of ctm post camera
 
-        CameraRec(MCRec* owner, const SkM44& camera);
+        CameraRec(MCRec* owner, const SkMat4& camera);
     };
     std::vector<CameraRec> fCameraStack;
 

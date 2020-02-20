@@ -386,7 +386,7 @@ private:
 
     friend class SkColorSpace;
     friend class SkCanvas;
-    friend class SkM44;
+    friend class SkMat4;
 };
 
 #endif

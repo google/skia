@@ -8,6 +8,7 @@
 #ifndef SkSGTransformPriv_DEFINED
 #define SkSGTransformPriv_DEFINED
 
+#include "include/private/SkM44.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
 namespace sksg {
