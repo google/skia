@@ -41,10 +41,10 @@ private:
     void setScissorState(const GrProgramInfo&);
     void applyState(GrDawnProgram*, const GrProgramInfo& programInfo);
 
-    void onDraw(const GrProgramInfo& programInfo,
-                const GrMesh mesh[],
-                int meshCount,
-                const SkRect& bounds) override;
+    bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
+    void onDrawMeshes(const GrProgramInfo& programInfo,
+                      const GrMesh mesh[],
+                      int meshCount) override;
 
     void sendArrayMeshToGpu(GrPrimitiveType type, const GrMesh& mesh, int vertexCount,
                             int baseVertex) final {
