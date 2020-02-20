@@ -144,9 +144,7 @@ public:
             fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, false});
         }
 
-        // Use the explicit ascent, when specified.
-        // Note: ascent values are negative (relative to the baseline).
-        const auto ascent = fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
+        const auto ascent = this->ascent();
 
         // For visual VAlign modes, we use a hybrid extent box computed as the union of
         // actual visual bounds and the vertical typographical extent.
@@ -228,6 +226,16 @@ public:
             return;
         }
 
+        // In default paragraph mode (VAlign::kTop), AE clips out lines when the baseline
+        // goes below the box lower edge.
+        if (fDesc.fVAlign == Shaper::VAlign::kTop) {
+            // fOffset is relative to the first line baseline.
+            const auto max_offset = fBox.height() + this->ascent(); // NB: ascent is negative
+            if (fOffset.y() > max_offset) {
+                return;
+            }
+        }
+
         // When no text box is present, text is laid out on a single infinite line
         // (modulo explicit line breaks).
         const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
@@ -295,6 +303,12 @@ private:
         case SkTextUtils::kRight_Align:  return -1.0f;
         }
         return 0.0f; // go home, msvc...
+    }
+
+    SkScalar ascent() const {
+        // Use the explicit ascent, when specified.
+        // Note: ascent values are negative (relative to the baseline).
+        return fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
     }
 
     static constexpr SkGlyphID kMissingGlyphID = 0;
