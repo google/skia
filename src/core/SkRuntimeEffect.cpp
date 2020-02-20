@@ -173,7 +173,6 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 #undef RETURN_FAILURE
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
-                                                      std::move(compiler),
                                                       std::move(program),
                                                       std::move(inAndUniformVars),
                                                       std::move(children),
@@ -200,19 +199,18 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
     return element_size(fType) * fCount;
 }
 
-SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
+SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
                                  size_t uniformSize)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
-        , fCompiler(std::move(compiler))
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
         , fChildren(std::move(children))
         , fUniformSize(uniformSize) {
-    SkASSERT(fCompiler && fBaseProgram);
+    SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
     SkASSERT(fUniformSize <= this->inputSize());
 }
@@ -257,10 +255,11 @@ SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& bas
         }
     }
 
-    auto specialized = fCompiler->specialize(baseProgram, inputMap);
-    bool optimized = fCompiler->optimize(*specialized);
+    SkSL::Compiler compiler;
+    auto specialized = compiler.specialize(baseProgram, inputMap);
+    bool optimized = compiler.optimize(*specialized);
     if (!optimized) {
-        return SpecializeResult{nullptr, SkString(fCompiler->errorText().c_str())};
+        return SpecializeResult{nullptr, SkString(compiler.errorText().c_str())};
     }
     return SpecializeResult{std::move(specialized), SkString()};
 }
@@ -273,11 +272,12 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
 
-    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                                 settings);
+    SkSL::Compiler compiler;
+    auto baseProgram = compiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                               SkSL::String(fSkSL.c_str(), fSkSL.size()),
+                                               settings);
     if (!baseProgram) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
+        SkDebugf("%s\n", compiler.errorText().c_str());
         SkASSERT(false);
         return false;
     }
@@ -287,8 +287,8 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
         return false;
     }
 
-    if (!fCompiler->toPipelineStage(*specialized, outArgs)) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
+    if (!compiler.toPipelineStage(*specialized, outArgs)) {
+        SkDebugf("%s\n", compiler.errorText().c_str());
         SkASSERT(false);
         return false;
     }
@@ -302,8 +302,9 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) 
     if (!specialized) {
         return ByteCodeResult{nullptr, errorText};
     }
-    auto byteCode = fCompiler->toByteCode(*specialized);
-    return ByteCodeResult(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
+    SkSL::Compiler compiler;
+    auto byteCode = compiler.toByteCode(*specialized);
+    return ByteCodeResult(std::move(byteCode), SkString(compiler.errorText().c_str()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
