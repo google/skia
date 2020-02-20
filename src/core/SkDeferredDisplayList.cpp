@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkDeferredDisplayListPriv.h"
+
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkArenaAlloc.h"
 #include <utility>
 class SkSurfaceCharacterization;
