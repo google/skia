@@ -62,6 +62,9 @@ public:
                             const GrSurfaceProxy* const primitiveProcessorTextures[],
                             GrVkCommandBuffer*);
 
+    void updatePrimitiveProcessorTextureBindings(const GrPrimitiveProcessor&,
+                                                 const GrSurfaceProxy* const[]);
+
     void bindPipeline(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 
     void addUniformResources(GrVkCommandBuffer&, GrVkSampler*[], GrVkTexture*[], int numTextures);

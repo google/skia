@@ -69,8 +69,10 @@ private:
                       const GrGpuBuffer* instanceBuffer);
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
-
-    void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) override;
+    void onSetScissorRect(const SkIRect&) override;
+    bool onUpdatePrimProcTextureBindings(const GrPrimitiveProcessor&, const GrPipeline&,
+                                         const GrSurfaceProxy* const[]) override;
+    void onDrawMesh(GrPrimitiveType, const GrMesh&) override;
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.

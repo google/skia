@@ -519,7 +519,7 @@ void GrCCFiller::drawFills(
 void GrCCFiller::drawPrimitives(
         GrOpFlushState* flushState, const GrCCCoverageProcessor& proc, const GrPipeline& pipeline,
         BatchID batchID, int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const {
-    SkASSERT(pipeline.isScissorEnabled());
+    SkASSERT(pipeline.isScissorTestEnabled());
 
     // Don't call reset(), as that also resets the reserve count.
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
