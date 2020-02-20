@@ -9,7 +9,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 
-SkIRect SkClipStackDevice::devClipBounds() const {
+SkIRect SkClipStackDevice::onDevClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
     if (!r.isEmpty()) {
         SkASSERT(this->imageInfo().bounds().contains(r));
