@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d54f3cda_a95d4036",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "I don\u0027t see those on the latest PS.",
+      "parentUuid": "5fe51549_45d7f631",
+      "range": {
+        "startLine": 18,
+        "startChar": 1,
+        "endLine": 18,
+        "endChar": 2
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "291018bf_8cb470e9",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 6
@@ -178,6 +202,30 @@
       "side": 1,
       "message": "Lets settle it before CanvasKit 1.0",
       "parentUuid": "52f40b03_cf2d6b86",
+      "range": {
+        "startLine": 1778,
+        "startChar": 28,
+        "endLine": 1778,
+        "endChar": 33
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1554b494_42937c4d",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1778,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6e0caead_d8ef60d8",
       "range": {
         "startLine": 1778,
         "startChar": 28,
@@ -1061,6 +1109,30 @@
     },
     {
       "key": {
+        "uuid": "b661c72f_19861e9f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "Let\u0027s settle on invert returning null if it was not possible and the inverted matrix otherwise. That way we are consistent across all function calls (we should also fix the 3x3 case)",
+      "parentUuid": "a0ce8287_75dc6db2",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8998fed_3d4f2277",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -1250,6 +1322,30 @@
     },
     {
       "key": {
+        "uuid": "ed61d2be_624eb56d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "I\u0027ve been told by external contributors that dealing with typed arrays is generally faster. I would prefer to not change the type we return unless we are intentionally doing so (and mention it in the ChangeLog).",
+      "parentUuid": "e847a643_4a58caa8",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "34f5e3f9_3b5c8e9e",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1320,6 +1416,30 @@
     },
     {
       "key": {
+        "uuid": "71822fe5_574832b1",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "02ee8325_9effdf71",
+      "range": {
+        "startLine": 1,
+        "startChar": 36,
+        "endLine": 1,
+        "endChar": 38
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5f742b8_65812b6f",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1355,6 +1475,30 @@
       "side": 1,
       "message": "No good reason, but I\u0027ve increased it to 14, the largest number that passes.",
       "parentUuid": "b5f742b8_65812b6f",
+      "range": {
+        "startLine": 6,
+        "startChar": 44,
+        "endLine": 6,
+        "endChar": 76
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7eb2fa75_6e371943",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "To avoid flakes, let\u0027s go with 9 or 10 and just comment that this was arbitrarily picked.",
+      "parentUuid": "d6df259c_774dbf59",
       "range": {
         "startLine": 6,
         "startChar": 44,
@@ -1587,6 +1731,30 @@
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2701d60b_d93c5096",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "That\u0027s much better.",
+      "parentUuid": "3b4333ab_d4a60ca5",
+      "range": {
+        "startLine": 145,
+        "startChar": 16,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

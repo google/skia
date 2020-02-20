@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d10585d_a46b90fe",
+        "filename": "modules/canvaskit/debug.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "use var. You might also need to tell Closure that this is a constant \"@const\" so it can do the right thing with optimization (same for release)",
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40ee55b_117ffd46",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "Add a comment here and below that these are defined JS side",
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dae1b7ac_8603e90d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 153,
+        "startChar": 50,
+        "endLine": 153,
+        "endChar": 62
+      },
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7735abf7_db690e02",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-20T14:14:44Z",
+      "side": 1,
+      "message": "const for these declarations",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 158,
+        "endChar": 11
+      },
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
