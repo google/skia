@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ea9c999_94228b20",
+        "filename": "include/core/SkDeferredDisplayList.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T21:17:21Z",
+      "side": 1,
+      "message": "I don\u0027t mean to hold this CL up at all. This is an aside. It occurred to me that maybe an impl pattern might allow us to not have friending and priv classes? Something like:\n\nclass SkDeferredDisplayList {\npublic:\n    // .. actual public SK_API methods..\n\n    class Impl;\n\n\n    Impl* impl();\n\nprivate:\n    std::unique_ptr\u003cImpl\u003e fImpl;\n};\n\nand then in a private header have:\n\nclass SkDeferredDisplayList::Impl {\npublic:\n// All the stuff we need internally.\n\n};\n\nand get rid of all the friending and priv() stuff. The fact that the impl is a long lived object, unlike priv, means below the veil of our public API we can get the impl pointer and pass it around so we wouldn\u0027t need -\u003epriv() all over the place.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 43
+      },
+      "revId": "2a617bb2f23804b68a041f4755027db5c2a0e442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
