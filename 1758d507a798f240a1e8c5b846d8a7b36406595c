@@ -22,6 +22,30 @@
       "revId": "1758d507a798f240a1e8c5b846d8a7b36406595c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f117b4e_47f181cc",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-20T15:29:43Z",
+      "side": 1,
+      "message": "done and removed the Data struct.",
+      "parentUuid": "307b4c69_42a3f5c7",
+      "range": {
+        "startLine": 292,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 48
+      },
+      "revId": "1758d507a798f240a1e8c5b846d8a7b36406595c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
