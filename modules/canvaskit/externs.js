@@ -23,7 +23,7 @@
  */
 
 var CanvasKit = {
-	// public API (i.e. things we declare in the pre-js file)
+	// public API (i.e. things we declare in the pre-js file or in the cpp bindings)
 	Color: function() {},
 	/** @return {CanvasKit.SkRect} */
 	LTRBRect: function() {},
@@ -73,6 +73,7 @@ var CanvasKit = {
 	getDecodeCacheUsageBytes: function() {},
 	getSkDataBytes: function() {},
 	multiplyByAlpha: function() {},
+	parseColorString: function() {},
 	setCurrentContext: function() {},
 	setDecodeCacheLimitBytes: function() {},
 

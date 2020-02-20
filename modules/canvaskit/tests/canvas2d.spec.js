@@ -21,7 +21,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
 
         it('parses hex color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
-                const parseColor = CanvasKit._testing.parseColor;
+                const parseColor = CanvasKit.parseColorString;
                 expect(parseColor('#FED')).toEqual(
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), 1));
                 expect(parseColor('#FEDC')).toEqual(
@@ -35,7 +35,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
         it('parses rgba color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
-                const parseColor = CanvasKit._testing.parseColor;
+                const parseColor = CanvasKit.parseColorString;
                 expect(parseColor('rgba(117, 33, 64, 0.75)')).toEqual(
                     CanvasKit.Color(117, 33, 64, 0.75));
                 expect(parseColor('rgb(117, 33, 64, 0.75)')).toEqual(
@@ -55,6 +55,8 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
         it('parses named color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
+                // Keep this one as the _testing version, because we don't include the large
+                // color map by default.
                 const parseColor = CanvasKit._testing.parseColor;
                 expect(parseColor('grey')).toEqual(
                     CanvasKit.Color(128, 128, 128, 1.0));

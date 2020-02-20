@@ -29,6 +29,76 @@ CanvasKit.getColorComponents = function(color) {
   ]
 }
 
+// parseColorString takes in a CSS color value and returns a CanvasKit.Color
+// (which is just a 32 bit integer, 8 bits per channel). An optional colorMap
+// may be provided which maps custom strings to values (e.g. {'springgreen':4278255487}).
+// In the CanvasKit canvas2d shim layer, we provide this map for processing
+// canvas2d calls, but not here for code size reasons.
+CanvasKit.parseColorString = function(colorStr, colorMap) {
+  colorStr = colorStr.toLowerCase();
+  // See https://drafts.csswg.org/css-color/#typedef-hex-color
+  if (colorStr.startsWith('#')) {
+    var r, g, b, a = 255;
+    switch (colorStr.length) {
+      case 9: // 8 hex chars #RRGGBBAA
+        a = parseInt(colorStr.slice(7, 9), 16);
+      case 7: // 6 hex chars #RRGGBB
+        r = parseInt(colorStr.slice(1, 3), 16);
+        g = parseInt(colorStr.slice(3, 5), 16);
+        b = parseInt(colorStr.slice(5, 7), 16);
+        break;
+      case 5: // 4 hex chars #RGBA
+        // multiplying by 17 is the same effect as
+        // appending another character of the same value
+        // e.g. e => ee == 14 => 238
+        a = parseInt(colorStr.slice(4, 5), 16) * 17;
+      case 4: // 6 hex chars #RGB
+        r = parseInt(colorStr.slice(1, 2), 16) * 17;
+        g = parseInt(colorStr.slice(2, 3), 16) * 17;
+        b = parseInt(colorStr.slice(3, 4), 16) * 17;
+        break;
+    }
+    return CanvasKit.Color(r, g, b, a/255);
+
+  } else if (colorStr.startsWith('rgba')) {
+    // Trim off rgba( and the closing )
+    colorStr = colorStr.slice(5, -1);
+    var nums = colorStr.split(',');
+    return CanvasKit.Color(+nums[0], +nums[1], +nums[2],
+                           valueOrPercent(nums[3]));
+  } else if (colorStr.startsWith('rgb')) {
+    // Trim off rgba( and the closing )
+    colorStr = colorStr.slice(4, -1);
+    var nums = colorStr.split(',');
+    // rgb can take 3 or 4 arguments
+    return CanvasKit.Color(+nums[0], +nums[1], +nums[2],
+                           valueOrPercent(nums[3]));
+  } else if (colorStr.startsWith('gray(')) {
+    // TODO
+  } else if (colorStr.startsWith('hsl')) {
+    // TODO
+  } else if (colorMap) {
+    // Try for named color
+    var nc = colorMap[colorStr];
+    if (nc !== undefined) {
+      return nc;
+    }
+  }
+  SkDebug('unrecognized color ' + colorStr);
+  return CanvasKit.BLACK;
+}
+
+function valueOrPercent(aStr) {
+  if (aStr === undefined) {
+    return 1; // default to opaque.
+  }
+  var a = parseFloat(aStr);
+  if (aStr && aStr.indexOf('%') !== -1) {
+    return a / 100;
+  }
+  return a;
+}
+
 CanvasKit.multiplyByAlpha = function(color, alpha) {
   if (alpha === 1) {
     return color;
