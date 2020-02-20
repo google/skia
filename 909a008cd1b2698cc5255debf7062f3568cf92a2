@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "14814b94_af753b81",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-20T15:06:01Z",
+      "side": 1,
+      "message": "Moved down to lambdas, so don\u0027t think this is an issue anymore.",
+      "parentUuid": "3907bbfc_f9162017",
+      "range": {
+        "startLine": 238,
+        "startChar": 20,
+        "endLine": 238,
+        "endChar": 30
+      },
+      "revId": "909a008cd1b2698cc5255debf7062f3568cf92a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c77d8f1e_426c214f",
         "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2020-02-20T01:11:00Z",
       "side": 1,
       "message": "GrGLFunction supports closures. Could we bind this function pointer to an std::function instead of calling eglGetProcAddress every time?",
+      "revId": "909a008cd1b2698cc5255debf7062f3568cf92a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a66969e5_12f5340d",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-20T15:06:01Z",
+      "side": 1,
+      "message": "Updated how I create the functions, let me know what you think",
+      "parentUuid": "c77d8f1e_426c214f",
       "revId": "909a008cd1b2698cc5255debf7062f3568cf92a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
