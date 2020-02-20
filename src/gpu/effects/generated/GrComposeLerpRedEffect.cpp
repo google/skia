@@ -63,12 +63,23 @@ GrComposeLerpRedEffect::GrComposeLerpRedEffect(const GrComposeLerpRedEffect& src
         , child2_index(src.child2_index)
         , lerp_index(src.lerp_index) {
     if (child1_index >= 0) {
-        this->registerChildProcessor(src.childProcessor(child1_index).clone());
+        auto clone = src.childProcessor(child1_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(child1_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
     }
     if (child2_index >= 0) {
-        this->registerChildProcessor(src.childProcessor(child2_index).clone());
+        auto clone = src.childProcessor(child2_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(child2_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
     }
-    this->registerChildProcessor(src.childProcessor(lerp_index).clone());
+    {
+        auto clone = src.childProcessor(lerp_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(lerp_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrComposeLerpRedEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrComposeLerpRedEffect(*this));
