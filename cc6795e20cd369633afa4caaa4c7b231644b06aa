@@ -22,6 +22,30 @@
       "revId": "cc6795e20cd369633afa4caaa4c7b231644b06aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eb79659_8a9f0e4c",
+        "filename": "src/gpu/GrOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-20T20:01:03Z",
+      "side": 1,
+      "message": "I agree with Brian, I think all texture bindings should happen specifically through a bind texture call. I also don\u0027t really know how I feel about it being an \"update\" call. Like what if we just had a bindTexture(Proxies[], Samplers[]) call on GrOpsRenderPass which set all the textures that draw will need. The given backend can defer binding already bound textures if it is possible or just rebind them all.",
+      "parentUuid": "01a8f528_849bbb35",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 75
+      },
+      "revId": "cc6795e20cd369633afa4caaa4c7b231644b06aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
