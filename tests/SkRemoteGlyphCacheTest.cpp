@@ -403,6 +403,7 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     // Client.
     REPORTER_ASSERT(reporter,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -486,6 +487,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
     compare_blobs(expected, actual, reporter, 1);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -562,6 +564,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
     compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -636,6 +639,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBF
     // interpolation.
     compare_blobs(expected, actual, reporter, 36);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -673,6 +677,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxI
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), nullptr, 0.5);
     compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -718,6 +723,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -807,6 +813,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths, repor
 
         RasterBlob(clientBlob, 500, 500, paint, ctxInfo.grContext());
         REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+        SkStrikeCache::ValidateGlyphCacheDataSize();
         discardableManager->resetCacheMissCounts();
     }
 
