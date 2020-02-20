@@ -27,6 +27,8 @@
     }
 #endif
 
+SkExecutor::SkExecutor() {}
+
 SkExecutor::~SkExecutor() {}
 
 // The default default SkExecutor is an SkTrivialExecutor, which just runs the work right away.
@@ -72,7 +74,10 @@ static inline std::function<void(void)> pop(SkTArray<std::function<void(void)>>*
 template <typename WorkList>
 class SkThreadPool final : public SkExecutor {
 public:
-    explicit SkThreadPool(int threads) {
+    explicit SkThreadPool(int threads, const char* name) : fName(name) {
+        static int sID = 0;
+
+        fID = sID++;
         for (int i = 0; i < threads; i++) {
             fThreads.emplace_back(&Loop, this);
         }
@@ -99,7 +104,7 @@ public:
         fWorkAvailable.signal(1);
     }
 
-    virtual void borrow() override {
+    virtual void borrow1() override {
         // If there is work waiting, do it.
         if (fWorkAvailable.try_wait()) {
             SkAssertResult(this->do_work());

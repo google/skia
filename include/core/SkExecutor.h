@@ -14,6 +14,7 @@
 
 class SK_API SkExecutor {
 public:
+    SkExecutor();
     virtual ~SkExecutor();
 
     // Create a thread pool SkExecutor with a fixed thread count, by default the number of cores.
@@ -28,7 +29,7 @@ public:
     virtual void add(std::function<void(void)>) = 0;
 
     // If it makes sense for this executor, use this thread to execute work for a little while.
-    virtual void borrow() {}
+    virtual void borrow1() {}
 };
 
 #endif//SkExecutor_DEFINED

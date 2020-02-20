@@ -8,7 +8,8 @@
 #include "include/core/SkExecutor.h"
 #include "src/core/SkTaskGroup.h"
 
-SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}
+SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {
+}
 
 void SkTaskGroup::add(std::function<void(void)> fn) {
     fPending.fetch_add(+1, std::memory_order_relaxed);
@@ -39,7 +40,7 @@ void SkTaskGroup::wait() {
     // no thread ever blocks waiting for others to do its work.
     // (We may end up doing work that's not part of our task group.  That's fine.)
     while (!this->done()) {
-        fExecutor.borrow();
+        fExecutor.borrow1();
     }
 }
 

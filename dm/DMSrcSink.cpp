@@ -1618,7 +1618,7 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
 
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeFIFOThreadPool(2))
+    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(2))
     , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
 }
 
