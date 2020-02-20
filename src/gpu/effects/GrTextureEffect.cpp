@@ -193,10 +193,10 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
         void emitCode(EmitArgs& args) override {
             auto te = args.fFp.cast<GrTextureEffect>();
             const char* coords;
-            if (args.fFp.coordTransformsApplyToLocalCoords()) {
-                coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
-            } else {
+            if (args.fFp.isSampledWithExplicitCoords()) {
                 coords = "_coords";
+            } else {
+                coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
             }
             auto* fb = args.fFragBuilder;
             if (te.fShaderModes[0] == ShaderMode::kNone &&
