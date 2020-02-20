@@ -52,3 +52,19 @@ CanvasKit.MakeParticles = function(json, assets) {
 
   return particles;
 };
+
+CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
+CanvasKit._extraInitializations.push(function() {
+
+  CanvasKit.SkParticleEffect.prototype.effectUniforms = function() {
+    var fptr = this._effectUniformPtr();
+    var numFloats = this.getEffectUniformFloatCount();
+    return new Float32Array(CanvasKit.HEAPU8.buffer, fptr, numFloats);
+  }
+
+  CanvasKit.SkParticleEffect.prototype.particleUniforms = function() {
+    var fptr = this._particleUniformPtr();
+    var numFloats = this.getParticleUniformFloatCount();
+    return new Float32Array(CanvasKit.HEAPU8.buffer, fptr, numFloats);
+  }
+});
