@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkMatrix44.h"
 #include "include/core/SkString.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 #include "include/utils/SkRandom.h"
 
 class Matrix44Bench : public Benchmark {

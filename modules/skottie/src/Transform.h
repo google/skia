@@ -8,9 +8,9 @@
 #ifndef SkottieTransform_DEFINED
 #define SkottieTransform_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
-#include "include/private/SkM44.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGTransform.h"

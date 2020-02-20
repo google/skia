@@ -12,7 +12,7 @@
 #include "include/core/SkMatrix44.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 #include "tools/timer/TimeUtils.h"
 
 static SkM44 rotate_axis_angle(SkScalar x, SkScalar y, SkScalar z, SkScalar radians) {
@@ -101,7 +101,7 @@ protected:
                     SkM44::Translate(-radius, -radius);          // center content
 
             canvas->save();
-            canvas->experimental_concat44(model);
+            canvas->concat44(model);
 
             SkPaint fillPaint;
             fillPaint.setAntiAlias(true);

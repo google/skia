@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"

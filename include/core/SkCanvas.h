@@ -13,6 +13,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -26,7 +27,6 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkDeque.h"
-#include "include/private/SkM44.h"
 #include "include/private/SkMacros.h"
 
 #include <cstring>
@@ -44,7 +44,6 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
-class SkM44;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -880,9 +879,17 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_concat
     */
     void concat(const SkMatrix& matrix);
+    void concat44(const SkM44&);
+    void concat44(const SkScalar[]); // column-major
 
-    void experimental_concat44(const SkM44&);
-    void experimental_concat44(const SkScalar[]); // column-major
+#ifdef SK_SUPPORT_EXPERIMENTAL_CANVAS44
+    void experimental_concat44(const SkM44& m) {
+        this->concat44(m);
+    }
+    void experimental_concat44(const SkScalar colMajor[]) {
+        this->concat44(colMajor);
+    }
+#endif
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2508,12 +2515,21 @@ public:
         example: https://fiddle.skia.org/c/@Clip
     */
     SkMatrix getTotalMatrix() const;
+    SkM44 getLocalToDevice() const; // entire matrix stack
+    void getLocalToDevice(SkScalar colMajor[16]) const;
 
-    SkM44 experimental_getLocalToDevice() const; // entire matrix stack
+#ifdef SK_SUPPORT_EXPERIMENTAL_CANVAS44
+    SkM44 experimental_getLocalToDevice() const {
+        return this->getLocalToDevice();
+    }
+    void experimental_getLocalToDevice(SkScalar colMajor[16]) const {
+        this->getLocalToDevice(colMajor);
+    }
+#endif
+
     SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
     SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
 
-    void experimental_getLocalToDevice(SkScalar colMajor[16]) const;
     void experimental_getLocalToWorld(SkScalar colMajor[16]) const;
     void experimental_getLocalToCamera(SkScalar colMajor[16]) const;
 

@@ -94,7 +94,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#ifndef GrTest_DEFINED\n"
              "#define GrTest_DEFINED\n"
              "#include \"include/core/SkTypes.h\"\n"
-             "#include \"include/private/SkM44.h\"\n\n"
+             "#include \"include/core/SkM44.h\"\n\n"
              "#include \"src/gpu/GrCoordTransform.h\"\n"
              "#include \"src/gpu/GrFragmentProcessor.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"

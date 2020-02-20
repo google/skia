@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix44.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
@@ -368,7 +368,7 @@ protected:
                     case kScale_Type:     canvas->scale(1.0001f, 0.9999f); break;
                     case k2x3_Type:       canvas->concat(m); break;
                     case k3x3_Type:       canvas->concat(m); break;
-                    case k4x4_Type:       canvas->experimental_concat44(m4); break;
+                    case k4x4_Type:       canvas->concat44(m4); break;
                 }
             }
             canvas->restore();

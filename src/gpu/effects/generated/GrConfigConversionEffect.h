@@ -11,7 +11,7 @@
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
 #include "include/core/SkTypes.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"

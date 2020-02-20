@@ -11,7 +11,7 @@
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
 #include "include/core/SkTypes.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 
 #include <cmath>
 #include "include/core/SkRect.h"

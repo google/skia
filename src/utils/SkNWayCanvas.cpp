@@ -95,7 +95,7 @@ void SkNWayCanvas::willRestore() {
 void SkNWayCanvas::didConcat44(const SkScalar m[16]) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->experimental_concat44(m);
+        iter->concat44(m);
     }
 }
 

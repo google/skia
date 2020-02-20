@@ -94,7 +94,7 @@ template <> void Draw::draw(const DrawBehind& r) {
 }
 
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
-DRAW(Concat44, experimental_concat44(r.matrix));
+DRAW(Concat44, concat44(r.matrix));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
 DRAW(Scale, scale(r.sx, r.sy));

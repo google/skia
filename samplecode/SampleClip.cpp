@@ -527,7 +527,7 @@ class HalfPlaneView3 : public SampleCameraView {
 
         if (fShowUnclipped) {
             canvas->save();
-            canvas->experimental_concat44(mx);
+            canvas->concat44(mx);
             paint.setAlphaf(0.33f);
             canvas->drawPath(fPath, paint);
             paint.setAlphaf(1.f);
@@ -542,7 +542,7 @@ class HalfPlaneView3 : public SampleCameraView {
             planeColor = SK_ColorRED;
         }
         canvas->save();
-        canvas->experimental_concat44(mx);
+        canvas->concat44(mx);
         canvas->drawPath(*path, paint);
         canvas->restore();
 
@@ -585,7 +585,7 @@ class HalfPlaneCoons : public SampleCameraView {
         SkPaint paint;
 
         canvas->save();
-        canvas->experimental_concat44(this->get44({0, 0, 300, 300}));
+        canvas->concat44(this->get44({0, 0, 300, 300}));
 
         const SkPoint* tex = nullptr;
         const SkColor* col = nullptr;

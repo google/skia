@@ -737,7 +737,7 @@ void SkCanvas::doSave() {
 int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
-    this->experimental_concat44(projection * camera);
+    this->concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     return n;
 }
@@ -1507,20 +1507,20 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::experimental_concat44(const SkScalar m[16]) {
+void SkCanvas::concat44(const SkScalar colMajor[16]) {
     this->checkForDeferredSave();
 
-    fMCRec->fMatrix.preConcat16(m);
+    fMCRec->fMatrix.preConcat16(colMajor);
 
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
-    this->didConcat44(m);
+    this->didConcat44(colMajor);
 }
 
-void SkCanvas::experimental_concat44(const SkM44& m) {
-    this->experimental_concat44(SkMatrixPriv::M44ColMajor(m));
+void SkCanvas::concat44(const SkM44& m) {
+    this->concat44(SkMatrixPriv::M44ColMajor(m));
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
@@ -1825,30 +1825,30 @@ SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
-SkM44 SkCanvas::experimental_getLocalToDevice() const {
+SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
 SkM44 SkCanvas::experimental_getLocalToWorld() const {
     if (fCameraStack.empty()) {
-        return this->experimental_getLocalToDevice();
+        return this->getLocalToDevice();
     } else {
         const auto& top = fCameraStack.back();
-        return top.fInvPostCamera * this->experimental_getLocalToDevice();
+        return top.fInvPostCamera * this->getLocalToDevice();
     }
 }
 
 SkM44 SkCanvas::experimental_getLocalToCamera() const {
     if (fCameraStack.empty()) {
-        return this->experimental_getLocalToDevice();
+        return this->getLocalToDevice();
     } else {
         const auto& top = fCameraStack.back();
-        return top.fCamera * top.fInvPostCamera * this->experimental_getLocalToDevice();
+        return top.fCamera * top.fInvPostCamera * this->getLocalToDevice();
     }
 }
 
-void SkCanvas::experimental_getLocalToDevice(SkScalar colMajor[16]) const {
-    this->experimental_getLocalToDevice().getColMajor(colMajor);
+void SkCanvas::getLocalToDevice(SkScalar colMajor[16]) const {
+    this->getLocalToDevice().getColMajor(colMajor);
 }
 
 void SkCanvas::experimental_getLocalToWorld(SkScalar colMajor[16]) const {
