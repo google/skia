@@ -2183,6 +2183,58 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView30 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph30"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "去了 qw 其 er 他的 事实 证明自己";
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(60);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+
+        for (size_t i = 0; i < strlen(text) - 1; ++i) {
+
+            auto result = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            SkDebugf("[%d:%d):\n", i, i+1);
+            for (auto& r : result) {
+                SkDebugf("rect: [%f:%f] %s\n",
+                r.rect.fLeft, r.rect.fRight, r.direction == TextDirection::kRtl ? "rtl" : "ltr");
+
+                auto pos = paragraph->getGlyphPositionAtCoordinate(
+                        r.rect.fLeft + r.rect.width() / 2, r.rect.fTop + r.rect.height());
+                SkDebugf("pos: %d(%s)\n",
+                        pos.position, pos.affinity == Affinity::kUpstream ? "up" : "down");
+
+                auto word = paragraph->getWordBoundary(pos.position);
+                SkDebugf("word: [%d:%d)\n", word.start, word.end);
+
+                if (i < word.start || i >= word.end) {
+                    SkDebugf("Wrong!\n");
+                }
+            }
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+//  去了 qw 其 er 他的 事实 证明自己
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2213,3 +2265,4 @@ DEF_SAMPLE(return new ParagraphView26();)
 DEF_SAMPLE(return new ParagraphView27();)
 DEF_SAMPLE(return new ParagraphView28();)
 DEF_SAMPLE(return new ParagraphView29();)
+DEF_SAMPLE(return new ParagraphView30();)
