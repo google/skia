@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "055bc68a_d7882cb5",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-20T16:29:23Z",
+      "side": 1,
+      "message": "Most of this is copying the logic from ios.py deleted in https://skia-review.googlesource.com/c/buildbot/+/259831.",
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "817542d2_0de6d9d7",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-20T16:29:23Z",
+      "side": 1,
+      "message": "Key change: switching from idevice-app-runner to idevicedebug.",
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
