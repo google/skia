@@ -22,6 +22,47 @@
       "revId": "df0382a7e863677eef962ed5ac86061b711fc35a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05630117_ab366a4e",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-20T16:04:50Z",
+      "side": 1,
+      "message": "Not unless you add the context to CanDrawPathArgs.",
+      "parentUuid": "1148f1a5_eb020c25",
+      "range": {
+        "startLine": 115,
+        "startChar": 35,
+        "endLine": 115,
+        "endChar": 52
+      },
+      "revId": "df0382a7e863677eef962ed5ac86061b711fc35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eb815b0_1266cf9a",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-20T16:04:50Z",
+      "side": 1,
+      "message": "Just 1 line ?",
+      "revId": "df0382a7e863677eef962ed5ac86061b711fc35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
