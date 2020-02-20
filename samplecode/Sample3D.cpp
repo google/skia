@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkM44.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
@@ -261,7 +261,7 @@ public:
     virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
 
     void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
-        auto l2d = canvas->experimental_getLocalToDevice();
+        auto l2d = canvas->getLocalToDevice();
         fWorldToClick = inv(clickM) * l2d;
         fClickToWorld = inv(fWorldToClick);
     }
@@ -270,7 +270,7 @@ public:
         if (!canvas->getGrContext() && !(fFlags & kCanRunOnCPU)) {
             return;
         }
-        SkM44 clickM = canvas->experimental_getLocalToDevice();
+        SkM44 clickM = canvas->getLocalToDevice();
 
         canvas->save();
         canvas->translate(DX, DY);
@@ -287,7 +287,7 @@ public:
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
                 SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
-                canvas->experimental_concat44(trans * m * inv(trans));
+                canvas->concat44(trans * m * inv(trans));
                 this->drawContent(canvas, f.fColor, index++, drawFront);
             }
         }
@@ -414,7 +414,7 @@ public:
     }
 
     void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->experimental_getLocalToDevice())) {
+        if (!drawFront || !front(canvas->getLocalToDevice())) {
             return;
         }
 
@@ -473,7 +473,7 @@ public:
     }
 
     void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->experimental_getLocalToDevice())) {
+        if (!drawFront || !front(canvas->getLocalToDevice())) {
             return;
         }
 

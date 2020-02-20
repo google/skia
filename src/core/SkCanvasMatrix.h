@@ -9,7 +9,7 @@
 #define SkCanvasMatrix_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 
 class SkCanvasMatrix : public SkM44 {
 public:

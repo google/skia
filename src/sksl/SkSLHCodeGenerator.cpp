@@ -349,7 +349,7 @@ bool HCodeGenerator::generateCode() {
                  fFullName.c_str(),
                  fFullName.c_str());
     this->writef("#include \"include/core/SkTypes.h\"\n");
-    this->writef("#include \"include/private/SkM44.h\"\n");
+    this->writef("#include \"include/core/SkM44.h\"\n");
     this->writeSection(HEADER_SECTION);
     this->writef("\n"
                  "#include \"src/gpu/GrCoordTransform.h\"\n"

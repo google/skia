@@ -13,6 +13,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
@@ -23,7 +24,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkM44.h"
 #include "src/core/SkDrawShadowInfo.h"
 
 namespace SkRecords {

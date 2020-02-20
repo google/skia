@@ -7,8 +7,8 @@
 
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkM44.h"
 #include "src/core/SkMatrixPriv.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
