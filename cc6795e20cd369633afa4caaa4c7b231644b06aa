@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01a8f528_849bbb35",
+        "filename": "src/gpu/GrOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T19:33:28Z",
+      "side": 1,
+      "message": "Is there a reason not to make this look like scissor state where you always specify the textures outside of bindPipeline?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 75
+      },
+      "revId": "cc6795e20cd369633afa4caaa4c7b231644b06aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
