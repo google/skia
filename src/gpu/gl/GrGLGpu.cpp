@@ -1827,7 +1827,12 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().outputSwizzle());
 
-    fHWProgram->updateUniformsAndTextureBindings(renderTarget, programInfo);
+    fHWProgram->updateUniforms(renderTarget, programInfo);
+    if (!programInfo.hasDynamicPrimProcTextures()) {
+        auto* primProcTextures = (programInfo.hasFixedPrimProcTextures())
+                ? programInfo.fixedPrimProcTextures() : nullptr;
+        fHWProgram->bindTextures(programInfo.primProc(), programInfo.pipeline(), primProcTextures);
+    }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -2374,9 +2379,8 @@ void GrGLGpu::drawMeshes(GrRenderTarget* renderTarget, const GrProgramInfo& prog
                                glRT->width(), glRT->height(), programInfo.origin());
         }
         if (hasDynamicPrimProcTextures) {
-            auto texProxyArray = programInfo.dynamicPrimProcTextures(m);
-            fHWProgram->updatePrimitiveProcessorTextureBindings(programInfo.primProc(),
-                                                                texProxyArray);
+            fHWProgram->bindTextures(programInfo.primProc(), programInfo.pipeline(),
+                                     programInfo.dynamicPrimProcTextures(m));
         }
         if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
             GrIsPrimTypeLines(programInfo.primitiveType()) &&
