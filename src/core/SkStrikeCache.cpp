@@ -185,27 +185,21 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
 }
 
 auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
-    for (Strike* strike = fHead; strike != nullptr; strike = strike->fNext) {
-        if (strike->fScalerCache.getDescriptor() == desc) {
-            if (fHead != strike) {
-                // Make most recently used
-                strike->fPrev->fNext = strike->fNext;
-                if (strike->fNext != nullptr) {
-                    strike->fNext->fPrev = strike->fPrev;
-                } else {
-                    fTail = strike->fPrev;
-                }
-                fHead->fPrev = strike;
-                strike->fNext = fHead;
-                strike->fPrev = nullptr;
-                fHead = strike;
-            }
-
-            return sk_ref_sp(strike);
+    Strike* strike = fStrikeLookup.findOrNull(desc);
+    if (strike != nullptr && fHead != strike) {
+        // Make most recently used
+        strike->fPrev->fNext = strike->fNext;
+        if (strike->fNext != nullptr) {
+            strike->fNext->fPrev = strike->fPrev;
+        } else {
+            fTail = strike->fPrev;
         }
+        fHead->fPrev = strike;
+        strike->fNext = fHead;
+        strike->fPrev = nullptr;
+        fHead = strike;
     }
-
-    return nullptr;
+    return sk_ref_sp(strike);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
@@ -379,6 +373,8 @@ void SkStrikeCache::internalAttachToHead(sk_sp<Strike> strike) {
         fTail = strike.get();
     }
 
+    fStrikeLookup.set(strike.get());
+
     fHead = strike.release(); // Transfer ownership of strike to the cache list.
 }
 
@@ -397,6 +393,8 @@ void SkStrikeCache::internalRemoveStrike(Strike* strike) {
     } else {
         fTail = strike->fPrev;
     }
+
+    fStrikeLookup.remove(strike->getDescriptor());
     strike->fPrev = strike->fNext = nullptr;
     strike->fRemoved = true;
     strike->unref();
@@ -411,6 +409,7 @@ void SkStrikeCache::validate() const {
     while (strike != nullptr) {
         computedBytes += strike->fMemoryUsed;
         computedCount += 1;
+        SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
         strike = strike->fNext;
     }
 

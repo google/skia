@@ -236,6 +236,16 @@ private:
     mutable SkSpinlock fLock;
     Strike* fHead SK_GUARDED_BY(fLock) {nullptr};
     Strike* fTail SK_GUARDED_BY(fLock) {nullptr};
+    struct StrikeTraits {
+        static const SkDescriptor& GetKey(const Strike* strike) {
+            return strike->getDescriptor();
+        }
+        static uint32_t Hash(const SkDescriptor& descriptor) {
+            return descriptor.getChecksum();
+        }
+    };
+    SkTHashTable<Strike*, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
+
     size_t  fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
