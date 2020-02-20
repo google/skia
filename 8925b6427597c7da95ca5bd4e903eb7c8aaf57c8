@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e158619d_65b82083",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-20T14:54:58Z",
+      "side": 1,
+      "message": "Do we need this staging?  Aren\u0027t these all private types?\n\nAnyway,if we\u0027re staging things, might as well switch up the headerat the same time?\n\nSkM44.h\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n#pragma once\n#include \"include/private/SkMat4.h\"\ntypedef SkVec3 SkV3;\ntypedef SkVec4 SkV4;\nusing SkM44 \u003d SkMat4;\n\nWhat\u0027s with the mix of typedef and using?",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 395,
+        "endChar": 21
+      },
+      "revId": "8925b6427597c7da95ca5bd4e903eb7c8aaf57c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "285bb454_edffed97",
+        "filename": "modules/sksg/include/SkSGTransform.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-20T14:54:58Z",
+      "side": 1,
+      "message": "You planning on changing all this stuff too?",
+      "range": {
+        "startLine": 71,
+        "startChar": 9,
+        "endLine": 71,
+        "endChar": 13
+      },
+      "revId": "8925b6427597c7da95ca5bd4e903eb7c8aaf57c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
