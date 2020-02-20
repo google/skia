@@ -33,7 +33,7 @@ uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcess
     for (int t = 0; t < fp.numCoordTransforms(); ++t) {
         uint32_t key = 0;
         const GrCoordTransform& coordTransform = fp.coordTransform(t);
-        if (!fp.coordTransformsApplyToLocalCoords() && coordTransform.isNoOp()) {
+        if (fp.isSampledWithExplicitCoords() && coordTransform.isNoOp()) {
             key = kNone_MatrixType;
         } else if (coordTransform.matrix().hasPerspective()) {
             // Note that we can also have homogeneous varyings as a result of a GP local matrix or

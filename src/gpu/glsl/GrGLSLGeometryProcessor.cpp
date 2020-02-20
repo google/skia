@@ -75,7 +75,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
     }
     for (int i = 0; *handler; ++*handler, ++i) {
         auto [coordTransform, fp] = handler->get();
-        if (coordTransform.isNoOp() && !fp.coordTransformsApplyToLocalCoords()) {
+        if (coordTransform.isNoOp() && fp.isSampledWithExplicitCoords()) {
             handler->omitCoordsForCurrCoordTransform();
             fInstalledTransforms.push_back();
         } else {
@@ -96,7 +96,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             SkString strVaryingName;
             strVaryingName.printf("TransformedCoords_%d", i);
             GrGLSLVarying v(varyingType);
-            if (fp.coordTransformsApplyToLocalCoords()) {
+            if (!fp.isSampledWithExplicitCoords()) {
                 varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
                 if (kFloat2_GrSLType == varyingType) {
@@ -120,10 +120,10 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
     for (auto [transform, fp] : transformRange) {
         if (fInstalledTransforms[i].fHandle.isValid()) {
             SkMatrix m;
-            if (fp.coordTransformsApplyToLocalCoords()) {
-                m = GetTransformMatrix(transform, localMatrix);
-            } else {
+            if (fp.isSampledWithExplicitCoords()) {
                 m = GetTransformMatrix(transform, SkMatrix::I());
+            } else {
+                m = GetTransformMatrix(transform, localMatrix);
             }
             if (!SkMatrixPriv::CheapEqual(fInstalledTransforms[i].fCurrentValue, m)) {
                 pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);

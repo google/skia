@@ -94,10 +94,10 @@ public:
         for (auto [transform, fp] : transformRange) {
             SkASSERT(fInstalledTransforms[t].fHandle.isValid());
             SkMatrix m;
-            if (fp.coordTransformsApplyToLocalCoords()) {
-                m = GetTransformMatrix(transform, pathProc.localMatrix());
-            } else {
+            if (fp.isSampledWithExplicitCoords()) {
                 m = GetTransformMatrix(transform, SkMatrix::I());
+            } else {
+                m = GetTransformMatrix(transform, pathProc.localMatrix());
             }
             if (SkMatrixPriv::CheapEqual(fInstalledTransforms[t].fCurrentValue, m)) {
                 continue;
