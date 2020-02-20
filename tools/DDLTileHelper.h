@@ -63,7 +63,7 @@ public:
 
     void createDDLsInParallel();
 
-    void drawAllTilesAndFlush(GrContext*, bool flush);
+    void drawAllTiles(GrContext*);
 
     void composeAllTiles(SkCanvas* dstCanvas);
 

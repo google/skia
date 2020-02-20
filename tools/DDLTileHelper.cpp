@@ -149,12 +149,9 @@ void DDLTileHelper::createDDLsInParallel() {
 
 }
 
-void DDLTileHelper::drawAllTilesAndFlush(GrContext* context, bool flush) {
+void DDLTileHelper::drawAllTiles(GrContext* context) {
     for (int i = 0; i < fTiles.count(); ++i) {
         fTiles[i].draw();
-    }
-    if (flush) {
-        context->flush();
     }
 }
 
