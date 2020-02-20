@@ -40,8 +40,10 @@ private:
     GrGpu* gpu() override { return fGpu; }
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
-
-    void onDrawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount) override;
+    void onSetScissorRect(const SkIRect&) override;
+    bool onUpdatePrimProcTextureBindings(const GrPrimitiveProcessor&, const GrPipeline&,
+                                         const GrSurfaceProxy* const[]) override;
+    void onDrawMesh(GrPrimitiveType, const GrMesh&) override;
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
 
