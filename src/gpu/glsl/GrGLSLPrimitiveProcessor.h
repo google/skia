@@ -30,10 +30,12 @@ public:
     struct TransformVar {
         TransformVar() = default;
 
-        TransformVar(SkString matrixCode, UniformHandle uniformMatrix, GrShaderVar varyingPoint)
-            : fMatrixCode(std::move(matrixCode))
-            , fUniformMatrix(uniformMatrix)
-            , fVaryingPoint(varyingPoint) {}
+        TransformVar(SkString matrixCode,
+                     UniformHandle uniformMatrix,
+                     GrShaderVar varyingPoint = {})
+                : fMatrixCode(std::move(matrixCode))
+                , fUniformMatrix(uniformMatrix)
+                , fVaryingPoint(varyingPoint) {}
 
         // a string of SkSL code which resolves to the transformation matrix
         SkString fMatrixCode;
