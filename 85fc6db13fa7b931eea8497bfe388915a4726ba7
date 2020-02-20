@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51d6f13f_23bc6650",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-20T19:35:40Z",
+      "side": 1,
+      "message": "Use bool instead?",
+      "range": {
+        "startLine": 402,
+        "startChar": 36,
+        "endLine": 402,
+        "endChar": 46
+      },
+      "revId": "85fc6db13fa7b931eea8497bfe388915a4726ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7270d6c_a1ba9fbe",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-20T19:35:40Z",
+      "side": 1,
+      "message": "Implicit keep thing pointed at alive, can do later.",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 23
+      },
+      "revId": "85fc6db13fa7b931eea8497bfe388915a4726ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5090ab7d_e94abf1f",
+        "filename": "src/core/SkStrikeCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-20T19:35:40Z",
+      "side": 1,
+      "message": "Scoped, can do later.",
+      "range": {
+        "startLine": 148,
+        "startChar": 10,
+        "endLine": 148,
+        "endChar": 19
+      },
+      "revId": "85fc6db13fa7b931eea8497bfe388915a4726ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
