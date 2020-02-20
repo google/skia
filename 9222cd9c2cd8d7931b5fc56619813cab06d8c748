@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e27e510_8e297ba1",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-20T18:16:28Z",
+      "side": 1,
+      "message": "I already didn\u0027t like the naming confusion between \u0027sampledWithExplicitCoords\u0027 and \u0027coordTransformsApplyToLocalCoords\u0027. Now that we\u0027re generating this code in a bunch of spots, can we flip one of them, so the names are at least consistent (and have the same boolean value)? (Or does none of this matter once Ethan\u0027s matrix-sampling means that we\u0027re going to have to support both modes of sampling for a single child?)",
+      "revId": "9222cd9c2cd8d7931b5fc56619813cab06d8c748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
