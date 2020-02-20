@@ -47,61 +47,58 @@ DEF_TEST(SkPDF_tagged_table, r) {
     };
 
     // The document tag.
-    PDFTag root;
-    root.fNodeId = 1;
-    root.fType = SkPDF::DocumentStructureType::kDocument;
-    root.fChildCount = 2;
-    PDFTag rootChildren[2];
+    auto root = std::make_unique<PDFTag>();
+    root->fNodeId = 1;
+    root->fTypeString = "Document";
+    root->fLang = "en-US";
 
     // Heading.
-    PDFTag& h1 = rootChildren[0];
-    h1.fNodeId = 2;
-    h1.fType = SkPDF::DocumentStructureType::kH1;
-    h1.fChildCount = 0;
+    auto h1 = std::make_unique<PDFTag>();
+    h1->fNodeId = 2;
+    h1->fTypeString = "H1";
+    h1->fAlt = "Tagged PDF Table Alt Text";
+    root->fChildVector.push_back(std::move(h1));
 
     // Table.
-    PDFTag& table = rootChildren[1];
-    table.fNodeId = 3;
-    table.fType = SkPDF::DocumentStructureType::kTable;
-    table.fChildCount = 5;
-    table.fAttributes.appendFloatArray("Layout", "BBox", {72, 72, 360, 360});
+    auto table = std::make_unique<PDFTag>();
+    table->fNodeId = 3;
+    table->fTypeString = "Table";
+    auto& rows = table->fChildVector;
+    table->fAttributes.appendFloatArray("Layout", "BBox", {72, 72, 360, 360});
 
-    PDFTag rows[kRowCount];
-    PDFTag all_cells[kRowCount * kColCount];
     for (int rowIndex = 0; rowIndex < kRowCount; rowIndex++) {
-        PDFTag& row = rows[rowIndex];
-        row.fNodeId = 4 + rowIndex;
-        row.fType = SkPDF::DocumentStructureType::kTR;
-        row.fChildCount = kColCount;
-        PDFTag* cells = &all_cells[rowIndex * kColCount];
-
+        auto row = std::make_unique<PDFTag>();
+        row->fNodeId = 4 + rowIndex;
+        row->fTypeString = "TR";
+        auto& cells = row->fChildVector;
         for (int colIndex = 0; colIndex < kColCount; colIndex++) {
+            auto cell = std::make_unique<PDFTag>();
             int cellIndex = rowIndex * kColCount + colIndex;
-            PDFTag& cell = cells[colIndex];
-            cell.fNodeId = 10 + cellIndex;
-            if (!cellData[cellIndex])
-                cell.fType = SkPDF::DocumentStructureType::kNonStruct;
-            else if (rowIndex == 0 || colIndex == 0)
-                cell.fType = SkPDF::DocumentStructureType::kTH;
-            else
-                cell.fType = SkPDF::DocumentStructureType::kTD;
-            cell.fChildCount = 0;
+            cell->fNodeId = 10 + cellIndex;
+            if (!cellData[cellIndex]) {
+                cell->fTypeString = "NonStruct";
+            } else if (rowIndex == 0 || colIndex == 0) {
+                cell->fTypeString = "TH";
+            } else {
+                cell->fTypeString = "TD";
+            }
+            cell->fChildCount = 0;
 
             if (cellIndex == 13) {
-                cell.fAttributes.appendInt("Table", "RowSpan", 2);
+                cell->fAttributes.appendInt("Table", "RowSpan", 2);
             } else if (cellIndex == 14 || cellIndex == 18) {
-                cell.fAttributes.appendInt("Table", "ColSpan", 2);
-            } else if (cell.fType == SkPDF::DocumentStructureType::kTH) {
-                cell.fAttributes.appendString(
+                cell->fAttributes.appendInt("Table", "ColSpan", 2);
+            } else if (rowIndex == 0 || colIndex == 0) {
+                cell->fAttributes.appendString(
                     "Table", "Scope", rowIndex == 0 ? "Column" : "Row");
             }
+            cells.push_back(std::move(cell));
         }
-        row.fChildren = cells;
+        rows.push_back(std::move(row));
     }
-    table.fChildren = rows;
-    root.fChildren = rootChildren;
+    root->fChildVector.push_back(std::move(table));
 
-    metadata.fStructureElementTreeRoot = &root;
+    metadata.fStructureElementTreeRoot = root.get();
     sk_sp<SkDocument> document = SkPDF::MakeDocument(
         &outputStream, metadata);
 
