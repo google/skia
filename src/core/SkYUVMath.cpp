@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 #include "src/core/SkYUVMath.h"
 
 // in SkColorMatrix order (row-major)

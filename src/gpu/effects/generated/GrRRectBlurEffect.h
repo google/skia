@@ -11,7 +11,7 @@
 #ifndef GrRRectBlurEffect_DEFINED
 #define GrRRectBlurEffect_DEFINED
 #include "include/core/SkTypes.h"
-#include "include/private/SkM44.h"
+#include "include/core/SkM44.h"
 
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRecordingContext.h"

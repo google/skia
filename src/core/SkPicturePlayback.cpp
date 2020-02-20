@@ -177,7 +177,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case CONCAT44: {
             const SkScalar* colMaj = reader->skipT<SkScalar>(16);
             BREAK_ON_READ_ERROR(reader);
-            canvas->experimental_concat44(colMaj);
+            canvas->concat44(colMaj);
             break;
         }
         case DRAW_ANNOTATION: {
