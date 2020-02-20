@@ -169,22 +169,23 @@ public:
 
     static SkStrikeCache* GlobalStrikeCache();
 
-    ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
+    ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&) SK_EXCLUDES(fLock);
 
     ExclusiveStrikePtr createStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
+            std::unique_ptr<SkStrikePinner> = nullptr) SK_EXCLUDES(fLock);
 
     ExclusiveStrikePtr findOrCreateStrikeExclusive(
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
+            const SkTypeface& typeface) SK_EXCLUDES(fLock);
 
-    SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                  const SkScalerContextEffects& effects,
-                                                  const SkTypeface& typeface) override;
+    SkScopedStrikeForGPU findOrCreateScopedStrike(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface) override SK_EXCLUDES(fLock);
 
     static void PurgeAll();
     static void Dump();
@@ -193,26 +194,26 @@ public:
     // SkTraceMemoryDump interface.
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
-    void purgeAll(); // does not change budget
+    void purgeAll() SK_EXCLUDES(fLock); // does not change budget
 
-    int getCacheCountLimit() const;
-    int setCacheCountLimit(int limit);
-    int getCacheCountUsed() const;
+    int getCacheCountLimit() const SK_EXCLUDES(fLock);
+    int setCacheCountLimit(int limit) SK_EXCLUDES(fLock);
+    int getCacheCountUsed() const SK_EXCLUDES(fLock);
 
-    size_t getCacheSizeLimit() const;
-    size_t setCacheSizeLimit(size_t limit);
-    size_t getTotalMemoryUsed() const;
+    size_t getCacheSizeLimit() const SK_EXCLUDES(fLock);
+    size_t setCacheSizeLimit(size_t limit) SK_EXCLUDES(fLock);
+    size_t getTotalMemoryUsed() const SK_EXCLUDES(fLock);
 
-    int  getCachePointSizeLimit() const;
-    int  setCachePointSizeLimit(int limit);
+    int  getCachePointSizeLimit() const SK_EXCLUDES(fLock);
+    int  setCachePointSizeLimit(int limit) SK_EXCLUDES(fLock);
 
 private:
-    sk_sp<Strike> findStrikeOrNull(const SkDescriptor& desc) SK_EXCLUDES(fLock);
-    sk_sp<Strike> createStrike(
+    sk_sp<Strike> internalFindStrikeOrNull(const SkDescriptor& desc) SK_REQUIRES(fLock);
+    sk_sp<Strike> internalCreateStrike(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr) SK_EXCLUDES(fLock);
+            std::unique_ptr<SkStrikePinner> = nullptr) SK_REQUIRES(fLock);
     sk_sp<Strike> findOrCreateStrike(
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
@@ -234,11 +235,21 @@ private:
     void validate() const {}
 #endif
 
-    void forEachStrike(std::function<void(const Strike&)> visitor) const;
+    void forEachStrike(std::function<void(const Strike&)> visitor) const SK_EXCLUDES(fLock);
 
     mutable SkSpinlock fLock;
     Strike* fHead SK_GUARDED_BY(fLock) {nullptr};
     Strike* fTail SK_GUARDED_BY(fLock) {nullptr};
+    struct StrikeTraits {
+        static const SkDescriptor& GetKey(const Strike* strike) {
+            return strike->getDescriptor();
+        }
+        static uint32_t Hash(const SkDescriptor& descriptor) {
+            return SkGoodHash()(descriptor.getChecksum());
+        }
+    };
+    SkTHashTable<Strike*, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
+
     size_t  fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
