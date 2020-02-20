@@ -75,9 +75,6 @@ public:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     void deleteBackendTexture(const GrBackendTexture&) override;
-
-    bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
-
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
