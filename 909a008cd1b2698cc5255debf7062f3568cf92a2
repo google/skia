@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3907bbfc_f9162017",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-20T01:11:00Z",
+      "side": 1,
+      "message": "bikeshedding: We are in a namespace, what if we named the namespace?\n\negl_polyfill::glFenceSync\n\nOr something?",
+      "range": {
+        "startLine": 238,
+        "startChar": 20,
+        "endLine": 238,
+        "endChar": 30
+      },
+      "revId": "909a008cd1b2698cc5255debf7062f3568cf92a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c77d8f1e_426c214f",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-20T01:11:00Z",
+      "side": 1,
+      "message": "GrGLFunction supports closures. Could we bind this function pointer to an std::function instead of calling eglGetProcAddress every time?",
+      "revId": "909a008cd1b2698cc5255debf7062f3568cf92a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
