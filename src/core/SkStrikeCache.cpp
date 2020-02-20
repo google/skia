@@ -185,27 +185,22 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
 auto SkStrikeCache::findStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
     SkAutoSpinlock ac(fLock);
 
-    for (Strike* strike = fHead; strike != nullptr; strike = strike->fNext) {
-        if (strike->fScalerCache.getDescriptor() == desc) {
-            if (fHead != strike) {
-                // Make most recently used
-                strike->fPrev->fNext = strike->fNext;
-                if (strike->fNext != nullptr) {
-                    strike->fNext->fPrev = strike->fPrev;
-                } else {
-                    fTail = strike->fPrev;
-                }
-                fHead->fPrev = strike;
-                strike->fNext = fHead;
-                strike->fPrev = nullptr;
-                fHead = strike;
-            }
-
-            return sk_ref_sp(strike);
+    Strike* strike = fStrikeLookup.findOrNull(desc);
+    if (strike != nullptr && fHead != strike) {
+        // Make most recently used
+        strike->fPrev->fNext = strike->fNext;
+        if (strike->fNext != nullptr) {
+            strike->fNext->fPrev = strike->fPrev;
+        } else {
+            fTail = strike->fPrev;
         }
+        fHead->fPrev = strike;
+        strike->fNext = fHead;
+        strike->fPrev = nullptr;
+        fHead = strike;
     }
 
-    return nullptr;
+    return sk_ref_sp(strike);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
@@ -337,11 +332,13 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     size_t  bytesFreed = 0;
     int     countFreed = 0;
 
+    this->validate();
     // Start at the tail and proceed backwards deleting; the list is in LRU
     // order, with unimportant entries at the tail.
     Strike* strike = fTail;
     while (strike != nullptr && (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
         Strike* prev = strike->fPrev;
+        //SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
 
         // Only delete if the strike is not pinned.
         if (strike->fPinner == nullptr || strike->fPinner->canDelete()) {
@@ -350,6 +347,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
             this->internalRemoveStrike(strike);
         }
         strike = prev;
+        this->validate();
     }
 
     this->validate();
@@ -379,25 +377,32 @@ void SkStrikeCache::internalAttachToHead(sk_sp<Strike> strike) {
         fTail = strike.get();
     }
 
+    fStrikeLookup.set(strike.get());
+    SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
+
     fHead = strike.release(); // Transfer ownership of strike to the cache list.
 }
 
 void SkStrikeCache::internalRemoveStrike(Strike* strike) {
     SkASSERT(fCacheCount > 0);
+    SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
     fCacheCount -= 1;
     fTotalMemoryUsed -= strike->fMemoryUsed;
 
     if (strike->fPrev) {
         strike->fPrev->fNext = strike->fNext;
     } else {
+        SkASSERT(fHead == strike);
         fHead = strike->fNext;
     }
     if (strike->fNext) {
         strike->fNext->fPrev = strike->fPrev;
     } else {
+        SkASSERT(fTail == strike);
         fTail = strike->fPrev;
     }
-    strike->fPrev = strike->fNext = nullptr;
+    fStrikeLookup.remove(strike->getDescriptor());
+    //strike->fPrev = strike->fNext = nullptr;
     strike->fRemoved = true;
     strike->unref();
 }
@@ -407,10 +412,19 @@ void SkStrikeCache::validate() const {
     size_t computedBytes = 0;
     int computedCount = 0;
 
+    {
+        const Strike* strike = fTail;
+        while (strike != nullptr) {
+            SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
+            strike = strike->fPrev;
+        }
+    }
+
     const Strike* strike = fHead;
     while (strike != nullptr) {
         computedBytes += strike->fMemoryUsed;
         computedCount += 1;
+        SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
         strike = strike->fNext;
     }
 
