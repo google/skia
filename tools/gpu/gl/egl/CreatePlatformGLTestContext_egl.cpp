@@ -69,6 +69,8 @@ private:
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
+    void setupFenceSync(sk_sp<const GrGLInterface>);
+
     PFNEGLCREATEIMAGEKHRPROC fEglCreateImageProc = nullptr;
     PFNEGLDESTROYIMAGEKHRPROC fEglDestroyImageProc = nullptr;
 
@@ -207,6 +209,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
+        this->setupFenceSync(gl);
+
         if (!gl->validate()) {
             SkDebugf("Failed to validate gl interface.\n");
             this->destroyGLContext();
@@ -222,6 +226,128 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
+}
+
+namespace {
+struct EGLFenceData {
+    EGLSyncKHR fSync;
+    EGLDisplay fDisplay;
+};
+}  // namespace
+
+static bool supports_egl_extension(EGLDisplay display, const char* extension) {
+    size_t extensionLength = strlen(extension);
+    const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
+    while (const char* match = strstr(extensionsStr, extension)) {
+        // Ensure the string we found is its own extension, not a substring of a larger extension
+        // (e.g. GL_ARB_occlusion_query / GL_ARB_occlusion_query2).
+        if ((match == extensionsStr || match[-1] == ' ') &&
+            (match[extensionLength] == ' ' || match[extensionLength] == '\0')) {
+            return true;
+        }
+        extensionsStr = match + extensionLength;
+    }
+    return false;
+}
+
+void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
+    GrGLInterface* glInt = const_cast<GrGLInterface*>(interface.get());
+
+
+    if (kGL_GrGLStandard == glInt->fStandard) {
+        if (GrGLGetVersion(glInt) >= GR_GL_VER(3,2) || glInt->hasExtension("GL_ARB_sync")) {
+            return;
+        }
+    } else {
+        if (glInt->hasExtension("GL_APPLE_sync") || glInt->hasExtension("GL_NV_fence") ||
+            GrGLGetVersion(glInt) >= GR_GL_VER(3, 0)) {
+            return;
+        }
+    }
+
+    if (!supports_egl_extension(fDisplay, "EGL_KHR_fence_sync")) {
+        return;
+    }
+
+    auto grEGLCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC) eglGetProcAddress("eglCreateSyncKHR");
+    auto grEGLClientWaitSyncKHR =
+            (PFNEGLCLIENTWAITSYNCKHRPROC) eglGetProcAddress("eglClientWaitSyncKHR");
+    auto grEGLDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC) eglGetProcAddress("eglDestroySyncKHR");
+    SkASSERT(grEGLCreateSyncKHR && grEGLClientWaitSyncKHR && grEGLDestroySyncKHR);
+
+    PFNEGLWAITSYNCKHRPROC grEGLWaitSyncKHR = nullptr;
+    if (supports_egl_extension(fDisplay, "EGL_KHR_wait_sync")) {
+        grEGLWaitSyncKHR = (PFNEGLWAITSYNCKHRPROC)eglGetProcAddress("eglWaitSyncKHR");
+        SkASSERT(grEGLWaitSyncKHR);
+    }
+
+    // Fake out glSync using eglSync
+    glInt->fExtensions.add("GL_APPLE_sync");
+
+    glInt->fFunctions.fFenceSync = [grEGLCreateSyncKHR](GrGLenum condition, GrGLbitfield flags) {
+        SkASSERT(condition == GR_GL_SYNC_GPU_COMMANDS_COMPLETE);
+        SkASSERT(flags == 0);
+
+        EGLFenceData* data = new EGLFenceData;
+
+        data->fDisplay = eglGetCurrentDisplay();
+
+        data->fSync = grEGLCreateSyncKHR(data->fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+
+        return reinterpret_cast<GrGLsync>(data);
+    };
+
+    glInt->fFunctions.fDeleteSync = [grEGLDestroySyncKHR](GrGLsync sync) {
+        EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+        grEGLDestroySyncKHR(data->fDisplay, data->fSync);
+        delete data;
+    };
+
+    glInt->fFunctions.fClientWaitSync =
+            [grEGLClientWaitSyncKHR] (GrGLsync sync, GrGLbitfield flags,
+                                      GrGLuint64 timeout) -> GrGLenum {
+        EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+
+        EGLint egl_flags = 0;
+
+        if (flags & GR_GL_SYNC_FLUSH_COMMANDS_BIT) {
+            egl_flags |= EGL_SYNC_FLUSH_COMMANDS_BIT_KHR;
+        }
+
+        EGLint result = grEGLClientWaitSyncKHR(data->fDisplay, data->fSync, egl_flags, timeout);
+
+        switch (result) {
+            case EGL_CONDITION_SATISFIED_KHR:
+                return GR_GL_CONDITION_SATISFIED;
+            case EGL_TIMEOUT_EXPIRED_KHR:
+                return GR_GL_TIMEOUT_EXPIRED;
+            case EGL_FALSE:
+                return GR_GL_WAIT_FAILED;
+        }
+        SkUNREACHABLE;
+    };
+
+    glInt->fFunctions.fWaitSync =
+            [grEGLClientWaitSyncKHR, grEGLWaitSyncKHR](GrGLsync sync, GrGLbitfield flags,
+                                                       GrGLuint64 timeout) {
+        EGLFenceData* data = reinterpret_cast<EGLFenceData*>(sync);
+
+        SkASSERT(timeout == GR_GL_TIMEOUT_IGNORED);
+        SkASSERT(flags == 0);
+
+        if (!grEGLWaitSyncKHR) {
+            grEGLClientWaitSyncKHR(data->fDisplay, data->fSync, 0, EGL_FOREVER_KHR);
+            return;
+        }
+
+        SkDEBUGCODE(EGLint result =) grEGLWaitSyncKHR(data->fDisplay, data->fSync, 0);
+        SkASSERT(result);
+    };
+
+    glInt->fFunctions.fIsSync = [](GrGLsync sync) -> GrGLboolean {
+        SkASSERT(false);
+        return true;
+    };
 }
 
 EGLGLTestContext::~EGLGLTestContext() {
@@ -329,21 +455,6 @@ void EGLGLTestContext::onPlatformSwapBuffers() const {
 
 GrGLFuncPtr EGLGLTestContext::onPlatformGetProcAddress(const char* procName) const {
     return eglGetProcAddress(procName);
-}
-
-static bool supports_egl_extension(EGLDisplay display, const char* extension) {
-    size_t extensionLength = strlen(extension);
-    const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
-    while (const char* match = strstr(extensionsStr, extension)) {
-        // Ensure the string we found is its own extension, not a substring of a larger extension
-        // (e.g. GL_ARB_occlusion_query / GL_ARB_occlusion_query2).
-        if ((match == extensionsStr || match[-1] == ' ') &&
-            (match[extensionLength] == ' ' || match[extensionLength] == '\0')) {
-            return true;
-        }
-        extensionsStr = match + extensionLength;
-    }
-    return false;
 }
 
 std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
