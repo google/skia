@@ -1009,10 +1009,6 @@ void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     // Nothing to do here, will get cleaned up when the GrBackendTexture object goes away
 }
 
-bool GrMtlGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
-    return false;
-}
-
 #if GR_TEST_UTILS
 bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kMetal == tex.backend());
