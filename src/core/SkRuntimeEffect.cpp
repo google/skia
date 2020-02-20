@@ -25,24 +25,33 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #endif
 
+static SkMutex& compiler_mutex() {
+    static SkMutex& mutex = *(new SkMutex);
+    return mutex;
+}
+static SkSL::Compiler* gCompiler = nullptr;
+
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
-    auto compiler = std::make_unique<SkSL::Compiler>();
-    auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                            SkSL::String(sksl.c_str(), sksl.size()),
-                                            SkSL::Program::Settings());
+    SkAutoMutexExclusive lock(compiler_mutex());
+    if (!gCompiler) {
+        gCompiler = new SkSL::Compiler{};
+    }
+    auto program = gCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                             SkSL::String(sksl.c_str(), sksl.size()),
+                                             SkSL::Program::Settings());
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return std::make_pair(nullptr, SkStringPrintf(__VA_ARGS__))
 
     if (!program) {
-        RETURN_FAILURE("%s", compiler->errorText().c_str());
+        RETURN_FAILURE("%s", gCompiler->errorText().c_str());
     }
-    SkASSERT(!compiler->errorCount());
+    SkASSERT(!gCompiler->errorCount());
 
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
     std::vector<SkString> children;
-    const SkSL::Context& ctx(compiler->context());
+    const SkSL::Context& ctx(gCompiler->context());
 
     // Gather the inputs in two passes, to de-interleave them in our input layout.
     // We put the uniforms *first*, so that the CPU backend can alias the combined input block as
@@ -173,7 +182,6 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 #undef RETURN_FAILURE
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
-                                                      std::move(compiler),
                                                       std::move(program),
                                                       std::move(inAndUniformVars),
                                                       std::move(children),
@@ -200,19 +208,18 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
     return element_size(fType) * fCount;
 }
 
-SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
+SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
                                  size_t uniformSize)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
-        , fCompiler(std::move(compiler))
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
         , fChildren(std::move(children))
         , fUniformSize(uniformSize) {
-    SkASSERT(fCompiler && fBaseProgram);
+    SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
     SkASSERT(fUniformSize <= this->inputSize());
 }
@@ -227,6 +234,9 @@ size_t SkRuntimeEffect::inputSize() const {
 
 SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
                                                               const void* inputs) {
+    // We use the compiler. Our caller must already hold the mutex.
+    compiler_mutex().assertHeld();
+
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     for (const auto& v : fInAndUniformVars) {
         if (v.fQualifier != Variable::Qualifier::kIn) {
@@ -257,10 +267,10 @@ SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& bas
         }
     }
 
-    auto specialized = fCompiler->specialize(baseProgram, inputMap);
-    bool optimized = fCompiler->optimize(*specialized);
+    auto specialized = gCompiler->specialize(baseProgram, inputMap);
+    bool optimized = gCompiler->optimize(*specialized);
     if (!optimized) {
-        return SpecializeResult{nullptr, SkString(fCompiler->errorText().c_str())};
+        return SpecializeResult{nullptr, SkString(gCompiler->errorText().c_str())};
     }
     return SpecializeResult{std::move(specialized), SkString()};
 }
@@ -268,16 +278,18 @@ SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& bas
 #if SK_SUPPORT_GPU
 bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
                                       SkSL::PipelineStageArgs* outArgs) {
+    SkAutoMutexExclusive lock(compiler_mutex());
+
     // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
     // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
 
-    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+    auto baseProgram = gCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                                  SkSL::String(fSkSL.c_str(), fSkSL.size()),
                                                  settings);
     if (!baseProgram) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
+        SkDebugf("%s\n", gCompiler->errorText().c_str());
         SkASSERT(false);
         return false;
     }
@@ -287,8 +299,8 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
         return false;
     }
 
-    if (!fCompiler->toPipelineStage(*specialized, outArgs)) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
+    if (!gCompiler->toPipelineStage(*specialized, outArgs)) {
+        SkDebugf("%s\n", gCompiler->errorText().c_str());
         SkASSERT(false);
         return false;
     }
@@ -298,12 +310,14 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 #endif
 
 SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) {
+    SkAutoMutexExclusive lock(compiler_mutex());
+
     auto [specialized, errorText] = this->specialize(*fBaseProgram, inputs);
     if (!specialized) {
         return ByteCodeResult{nullptr, errorText};
     }
-    auto byteCode = fCompiler->toByteCode(*specialized);
-    return ByteCodeResult(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
+    auto byteCode = gCompiler->toByteCode(*specialized);
+    return ByteCodeResult(std::move(byteCode), SkString(gCompiler->errorText().c_str()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

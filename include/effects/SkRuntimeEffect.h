@@ -23,7 +23,6 @@ class SkShader;
 
 namespace SkSL {
 class ByteCode;
-class Compiler;
 struct PipelineStageArgs;
 struct Program;
 }
@@ -132,8 +131,7 @@ public:
     ~SkRuntimeEffect();
 
 private:
-    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
-                    std::unique_ptr<SkSL::Program> baseProgram,
+    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
                     std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
                     size_t uniformSize);
 
@@ -143,7 +141,6 @@ private:
     uint32_t fHash;
     SkString fSkSL;
 
-    std::unique_ptr<SkSL::Compiler> fCompiler;
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
