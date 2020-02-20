@@ -85,6 +85,10 @@ public:
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
+#ifdef SK_DEBUG
+    size_t recalculateMemoryUsed() const SK_EXCLUDES(fMu);
+#endif
+
 private:
     class GlyphMapHashTraits {
     public:
