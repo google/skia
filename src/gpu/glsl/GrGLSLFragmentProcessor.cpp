@@ -30,7 +30,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
     // does want to sample with explicit coords, that property is propagated (recursively) to all
     // children, and we need to supply explicit coords. So we propagate our own "_coords" (this is
     // the name of our explicit coords parameter generated in the helper function).
-    if (!args.fFp.coordTransformsApplyToLocalCoords() && skslCoords.length() == 0) {
+    if (args.fFp.isSampledWithExplicitCoords() && skslCoords.length() == 0) {
         skslCoords = "_coords";
     }
 
@@ -59,7 +59,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
 
     // If the fragment processor is invoked with overridden coordinates, it must *always* be invoked
     // with overridden coords.
-    SkASSERT(childProc.coordTransformsApplyToLocalCoords() == (skslCoords.length() == 0));
+    SkASSERT(childProc.isSampledWithExplicitCoords() == !skslCoords.empty());
 
     // Produce a string containing the call to the helper function
     SkString result = SkStringPrintf("%s(%s", fFunctionNames[childIndex].c_str(),

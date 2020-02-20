@@ -138,18 +138,18 @@ public:
         // If the processor is sampled with explicit coords then we do not need to apply the
         // coord transforms in the vertex shader to the local coords.
         return SkToBool(fFlags & kHasCoordTransforms_Flag) &&
-               SkToBool(fFlags & kCoordTransformsApplyToLocalCoords_Flag);
+               !SkToBool(fFlags & kSampledWithExplicitCoords);
     }
 
-    bool coordTransformsApplyToLocalCoords() const {
-        return SkToBool(fFlags & kCoordTransformsApplyToLocalCoords_Flag);
+    bool isSampledWithExplicitCoords() const {
+        return SkToBool(fFlags & kSampledWithExplicitCoords);
     }
 
     void setSampledWithExplicitCoords(bool value) {
         if (value) {
-            fFlags &= ~kCoordTransformsApplyToLocalCoords_Flag;
+            fFlags |= kSampledWithExplicitCoords;
         } else {
-            fFlags |= kCoordTransformsApplyToLocalCoords_Flag;
+            fFlags &= ~kSampledWithExplicitCoords;
         }
         for (auto& child : fChildProcessors) {
             child->setSampledWithExplicitCoords(value);
@@ -354,8 +354,7 @@ protected:
     }
 
     GrFragmentProcessor(ClassID classID, OptimizationFlags optimizationFlags)
-            : INHERITED(classID)
-            , fFlags(optimizationFlags | kCoordTransformsApplyToLocalCoords_Flag) {
+            : INHERITED(classID), fFlags(optimizationFlags) {
         SkASSERT((optimizationFlags & ~kAll_OptimizationFlags) == 0);
     }
 
@@ -456,10 +455,10 @@ private:
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
         kHasCoordTransforms_Flag = kFirstPrivateFlag,
-        kCoordTransformsApplyToLocalCoords_Flag = kFirstPrivateFlag << 1,
+        kSampledWithExplicitCoords = kFirstPrivateFlag << 1,
     };
 
-    uint32_t fFlags = kCoordTransformsApplyToLocalCoords_Flag;
+    uint32_t fFlags = 0;
 
     int fTextureSamplerCnt = 0;
 
