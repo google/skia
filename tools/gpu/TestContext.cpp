@@ -8,26 +8,17 @@
 
 #include "tools/gpu/TestContext.h"
 
+#include <chrono>
+#include "include/gpu/GrContext.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrContextPriv.h"
 #include "tools/gpu/GpuTimer.h"
 
-#include "include/gpu/GrContext.h"
-
 namespace sk_gpu_test {
-TestContext::TestContext()
-    : fFenceSync(nullptr)
-    , fGpuTimer(nullptr)
-    , fCurrentFenceIdx(0) {
-    memset(fFrameFences, 0, sizeof(fFrameFences));
-}
+TestContext::TestContext() : fGpuTimer(nullptr) {}
 
 TestContext::~TestContext() {
     // Subclass should call teardown.
-#ifdef SK_DEBUG
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
-        SkASSERT(0 == fFrameFences[i]);
-    }
-#endif
-    SkASSERT(!fFenceSync);
     SkASSERT(!fGpuTimer);
 }
 
@@ -44,44 +35,59 @@ SkScopeExit TestContext::makeCurrentAndAutoRestore() const {
     return asr;
 }
 
-void TestContext::swapBuffers() { this->onPlatformSwapBuffers(); }
-
-
-void TestContext::waitOnSyncOrSwap() {
-    if (!fFenceSync) {
-        // Fallback on the platform SwapBuffers method for synchronization. This may have no effect.
-        this->swapBuffers();
-        return;
+class SubmitFinishTracker : public SkRefCnt {
+public:
+    static void SubmitFinished(void* context) {
+        auto tracker = static_cast<SubmitFinishTracker*>(context);
+        tracker->setFinished();
+        tracker->unref();
     }
 
-    this->submit();
-    if (fFrameFences[fCurrentFenceIdx]) {
-        if (!fFenceSync->waitFence(fFrameFences[fCurrentFenceIdx])) {
-            SkDebugf("WARNING: Wait failed for fence sync. Timings might not be accurate.\n");
+    SubmitFinishTracker(GrContext* context) : fContext(context) {}
+
+    void setFinished() { fIsFinished = true; }
+
+    void waitTillFinished() {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        auto begin = std::chrono::steady_clock::now();
+        auto end = begin;
+        while (!fIsFinished && (end - begin) < std::chrono::seconds(2)) {
+            fContext->checkAsyncWorkCompletion();
         }
-        fFenceSync->deleteFence(fFrameFences[fCurrentFenceIdx]);
+        if (!fIsFinished) {
+            SkDebugf("WARNING: Wait failed for flush sync. Timings might not be accurate.\n");
+        }
     }
 
-    fFrameFences[fCurrentFenceIdx] = fFenceSync->insertFence();
-    fCurrentFenceIdx = (fCurrentFenceIdx + 1) % SK_ARRAY_COUNT(fFrameFences);
+private:
+    GrContext* fContext;
+    bool fIsFinished = false;
+};
+
+void TestContext::flushAndWaitOnSync(GrContext* context) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    SkASSERT(context);
+
+    if (fFinishTrackers[fCurrentSubmitIdx]) {
+        fFinishTrackers[fCurrentSubmitIdx]->waitTillFinished();
+    }
+
+    fFinishTrackers[fCurrentSubmitIdx].reset(new SubmitFinishTracker(context));
+    fFinishTrackers[fCurrentSubmitIdx]->ref();
+
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedProc = SubmitFinishTracker::SubmitFinished;
+    flushInfo.fFinishedContext = fFinishTrackers[fCurrentSubmitIdx].get();
+
+    context->flush(flushInfo);
+
+    fCurrentSubmitIdx = (fCurrentSubmitIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
 }
 
 void TestContext::testAbandon() {
-    if (fFenceSync) {
-        memset(fFrameFences, 0, sizeof(fFrameFences));
-    }
 }
 
 void TestContext::teardown() {
-    if (fFenceSync) {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
-            if (fFrameFences[i]) {
-                fFenceSync->deleteFence(fFrameFences[i]);
-                fFrameFences[i] = 0;
-            }
-        }
-        fFenceSync.reset();
-    }
     fGpuTimer.reset();
 }
 

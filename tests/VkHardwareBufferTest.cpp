@@ -358,10 +358,9 @@ bool EGLTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int f
 }
 
 void EGLTestHelper::doClientSync() {
-    sk_gpu_test::FenceSync* fenceSync = fGLCtx->fenceSync();
-    sk_gpu_test::PlatformFence fence = fenceSync->insertFence();
-    fenceSync->waitFence(fence);
-    fenceSync->deleteFence(fence);
+    GrFlushInfo flushInfo;
+    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+    this->grContext()->flush(flushInfo);
 }
 #endif  // SK_GL
 
