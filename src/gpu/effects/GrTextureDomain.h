@@ -231,47 +231,4 @@ protected:
     int     fIndex;
 };
 
-class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
-public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView,
-                                                     const SkIRect& subset,
-                                                     const SkIPoint& deviceSpaceOffset);
-
-    const char* name() const override { return "GrDeviceSpaceTextureDecalFragmentProcessor"; }
-
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override {
-        SkString str;
-        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f] Offset: [%d %d]",
-                    fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
-                    fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom,
-                    fDeviceSpaceOffset.fX, fDeviceSpaceOffset.fY);
-        str.append(INHERITED::dumpInfo());
-        return str;
-    }
-#endif
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override;
-
-private:
-    GrTextureDomain fTextureDomain;
-    TextureSampler fTextureSampler;
-    SkIPoint fDeviceSpaceOffset;
-
-    GrDeviceSpaceTextureDecalFragmentProcessor(GrSurfaceProxyView, const SkIRect&, const SkIPoint&);
-    GrDeviceSpaceTextureDecalFragmentProcessor(const GrDeviceSpaceTextureDecalFragmentProcessor&);
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    // Since we always use decal mode, there is no need for key data.
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-
-    bool onIsEqual(const GrFragmentProcessor& fp) const override;
-
-    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    typedef GrFragmentProcessor INHERITED;
-};
 #endif
