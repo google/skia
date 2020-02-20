@@ -33,7 +33,6 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -41,7 +40,6 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -179,17 +177,10 @@ public:
     AlphaOnlyClip(GrSurfaceProxyView mask, int x, int y) : fMask(std::move(mask)), fX(x), fY(y) {}
 
 private:
-    bool apply(GrRecordingContext* ctx, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
+    bool apply(GrRecordingContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
-        GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
-                                    GrSamplerState::Filter::kNearest);
-        auto m = SkMatrix::MakeTrans(-fX, -fY);
-        auto subset = SkRect::Make(fMask.dimensions());
-        auto domain = bounds->makeOffset(-fX, -fY).makeInset(0.5, 0.5);
-        auto fp = GrTextureEffect::MakeSubset(fMask, kPremul_SkAlphaType, m, samplerState, subset,
-                                              domain, *ctx->priv().caps());
-        fp = GrDeviceSpaceEffect::Make(std::move(fp));
-        out->addCoverageFP(std::move(fp));
+        out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(
+                fMask, SkIRect::MakeSize(fMask.proxy()->dimensions()), {fX, fY}));
         return true;
     }
     GrSurfaceProxyView fMask;

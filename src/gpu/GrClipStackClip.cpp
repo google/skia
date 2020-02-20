@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrClipStackClip.h"
-
 #include "include/private/SkTo.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -27,7 +26,6 @@
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 
 typedef SkClipStack::Element Element;
@@ -80,18 +78,11 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
 static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyView mask,
-                                                               const SkIRect& devBound,
-                                                               const GrCaps& caps) {
-    GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
-                                GrSamplerState::Filter::kNearest);
-    auto m = SkMatrix::MakeTrans(-devBound.fLeft, -devBound.fTop);
-    auto subset = SkRect::Make(devBound.size());
-    // We scissor to devBounds. The mask's texel centers are aligned to device space
-    // pixel centers. Hence this domain of texture coordinates.
-    auto domain = subset.makeInset(0.5, 0.5);
-    auto fp = GrTextureEffect::MakeSubset(std::move(mask), kPremul_SkAlphaType, m, samplerState,
-                                          subset, domain, caps);
-    return GrDeviceSpaceEffect::Make(std::move(fp));
+                                                               const SkIRect& devBound) {
+    SkASSERT(mask.asTextureProxy());
+    SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(mask), domainTexels,
+                                                            {devBound.fLeft, devBound.fTop});
 }
 
 // Does the path in 'element' require SW rendering? If so, return true (and,
@@ -292,8 +283,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.scissor(),
-                                                  *context->priv().caps()));
+            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.scissor()));
             return true;
         }
 

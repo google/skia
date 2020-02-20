@@ -101,7 +101,7 @@ public:
         kGrConicEffect_ClassID,
         kGrConstColorProcessor_ClassID,
         kGrConvexPolyEffect_ClassID,
-        kGrDeviceSpaceEffect_ClassID,
+        kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
         kGrDiffuseLightingEffect_ClassID,
         kGrDisplacementMapEffect_ClassID,
         kGrDistanceFieldA8TextGeoProc_ClassID,
