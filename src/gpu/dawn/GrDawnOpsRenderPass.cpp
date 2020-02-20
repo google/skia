@@ -148,10 +148,14 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
     this->setScissorState(programInfo);
 }
 
-void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
-                                 const GrMesh meshes[],
-                                 int meshCount,
-                                 const SkRect& bounds) {
+bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
+                                         const SkRect& drawBounds) {
+    return true;
+}
+
+void GrDawnOpsRenderPass::onDrawMeshes(const GrProgramInfo& programInfo,
+                                       const GrMesh meshes[],
+                                       int meshCount) {
     if (!meshCount) {
         return;
     }
