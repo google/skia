@@ -75,17 +75,12 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
         [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeFill];
     }
 
-    if (!programInfo.pipeline().isScissorEnabled()) {
+    if (!programInfo.pipeline().isScissorTestEnabled()) {
+        // "Disable" scissor by setting it to the full pipeline bounds.
         GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
                                                        fRenderTarget, fOrigin,
                                                        SkIRect::MakeWH(fRenderTarget->width(),
                                                                        fRenderTarget->height()));
-    } else if (!programInfo.hasDynamicScissors()) {
-        SkASSERT(programInfo.hasFixedScissor());
-
-        GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
-                                                       fRenderTarget, fOrigin,
-                                                       programInfo.fixedScissor());
     }
 
     if (!programInfo.hasDynamicPrimProcTextures()) {
@@ -96,27 +91,23 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return true;
 }
 
-void GrMtlOpsRenderPass::onDrawMeshes(const GrProgramInfo& programInfo, const GrMesh meshes[],
-                                      int meshCount) {
+void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+    GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
+                                                   fOrigin, scissor);
+}
+
+bool GrMtlOpsRenderPass::onUpdatePrimProcTextureBindings(const GrPrimitiveProcessor& primProc,
+                                                         const GrPipeline& pipeline,
+                                                         const GrSurfaceProxy* const proxies[]) {
+    fActivePipelineState->setTextures(primProc, pipeline, proxies);
+    fActivePipelineState->bindTextures(fActiveRenderCmdEncoder);
+    return true;
+}
+
+void GrMtlOpsRenderPass::onDrawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) {
     SkASSERT(fActivePipelineState);
-
-    for (int i = 0; i < meshCount; ++i) {
-        const GrMesh& mesh = meshes[i];
-        SkASSERT(nil != fActiveRenderCmdEncoder);
-
-        if (programInfo.hasDynamicScissors()) {
-            GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
-                                                           fOrigin,
-                                                           programInfo.dynamicScissor(i));
-        }
-        if (programInfo.hasDynamicPrimProcTextures()) {
-            auto meshProxies = programInfo.dynamicPrimProcTextures(i);
-            fActivePipelineState->setTextures(programInfo, meshProxies);
-            fActivePipelineState->bindTextures(fActiveRenderCmdEncoder);
-        }
-
-        mesh.sendToGpu(programInfo.primitiveType(), this);
-    }
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    mesh.sendToGpu(primitiveType, this);
 }
 
 void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
