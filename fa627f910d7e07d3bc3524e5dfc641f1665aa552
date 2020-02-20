@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "358da1e8_472fc8aa",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T16:19:58Z",
+      "side": 1,
+      "message": "Subtle change in nomenclature here. GrTextureEffect refers to what used to be called \"domain\" as \"subset\". It uses the term \"domain\" for a known bound on the texture coordinates (used for optimization).",
+      "range": {
+        "startLine": 91,
+        "startChar": 9,
+        "endLine": 91,
+        "endChar": 15
+      },
+      "revId": "fa627f910d7e07d3bc3524e5dfc641f1665aa552",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c985d70_87ff5139",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T16:19:58Z",
+      "side": 1,
+      "message": "The way this is configured it\u0027s guaranteed that the kClampToEdge of the subset is optimized away to just a normal non-subsetted effect with kClamp wrap modes.\n\nI wrote it as is to mimic the old \"decal\" effect and then went back and forth on whether to just call Make() rather than MakeSubset and skip the pretense that we care about decaling the clip. (same goes for the similar code in the window rectangles GM).",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 64
+      },
+      "revId": "fa627f910d7e07d3bc3524e5dfc641f1665aa552",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90106e07_e26ef954",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T16:19:58Z",
+      "side": 1,
+      "message": "I started a more thorough set of changes to this, the iterator below, and related code (e.g. GrGLSLGeometryProcessor::emitTransforms). I think it\u0027s not too much of a change to simplify this significantly and get rid of the late uniform visibility changing when it\u0027s required in the FS, possibly store just fUniformMatrix or fMatrixCode. But then I thought this probably will get cleaned up with the advent of the matrix effect work in a more thorough way.",
+      "range": {
+        "startLine": 30,
+        "startChar": 11,
+        "endLine": 30,
+        "endChar": 23
+      },
+      "revId": "fa627f910d7e07d3bc3524e5dfc641f1665aa552",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
