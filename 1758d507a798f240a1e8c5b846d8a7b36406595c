@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "307b4c69_42a3f5c7",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-20T15:10:47Z",
+      "side": 1,
+      "message": "Should we capture the display outside these functions?",
+      "range": {
+        "startLine": 292,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 48
+      },
+      "revId": "1758d507a798f240a1e8c5b846d8a7b36406595c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
