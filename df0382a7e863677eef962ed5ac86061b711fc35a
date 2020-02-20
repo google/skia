@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1148f1a5_eb020c25",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-20T00:43:09Z",
+      "side": 1,
+      "message": "Any way to access GrContext::getResourceCacheLimit() from here?",
+      "range": {
+        "startLine": 115,
+        "startChar": 35,
+        "endLine": 115,
+        "endChar": 52
+      },
+      "revId": "df0382a7e863677eef962ed5ac86061b711fc35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
