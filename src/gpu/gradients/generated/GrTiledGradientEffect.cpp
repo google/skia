@@ -77,8 +77,18 @@ GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         , mirror(src.mirror)
         , makePremul(src.makePremul)
         , colorsAreOpaque(src.colorsAreOpaque) {
-    this->registerChildProcessor(src.childProcessor(colorizer_index).clone());
-    this->registerChildProcessor(src.childProcessor(gradLayout_index).clone());
+    {
+        auto clone = src.childProcessor(colorizer_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(colorizer_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
+    }
+    {
+        auto clone = src.childProcessor(gradLayout_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(gradLayout_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(*this));

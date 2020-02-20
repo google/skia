@@ -1111,13 +1111,18 @@ void CPPCodeGenerator::writeClone() {
             } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
                 String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
                 if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    if (%s_index >= 0) {\n    ", fieldName.c_str());
+                    this->writef("    if (%s_index >= 0) {\n", fieldName.c_str());
+                } else {
+                    this->write("    {\n");
                 }
-                this->writef("    this->registerChildProcessor(src.childProcessor(%s_index)."
-                             "clone());\n", fieldName.c_str());
-                if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    }\n");
-                }
+                this->writef(
+                        "        auto clone = src.childProcessor(%s_index).clone();\n"
+                        "        clone->setSampledWithExplicitCoords(\n"
+                        "                 "
+                        "src.childProcessor(%s_index).isSampledWithExplicitCoords());\n"
+                        "        this->registerChildProcessor(std::move(clone));\n"
+                        "    }\n",
+                        fieldName.c_str(), fieldName.c_str());
             }
         }
         if (samplerCount) {

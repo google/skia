@@ -68,9 +68,17 @@ GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         , fp0_index(src.fp0_index)
         , fp1_index(src.fp1_index)
         , weight(src.weight) {
-    this->registerChildProcessor(src.childProcessor(fp0_index).clone());
+    {
+        auto clone = src.childProcessor(fp0_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(fp0_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
+    }
     if (fp1_index >= 0) {
-        this->registerChildProcessor(src.childProcessor(fp1_index).clone());
+        auto clone = src.childProcessor(fp1_index).clone();
+        clone->setSampledWithExplicitCoords(
+                src.childProcessor(fp1_index).isSampledWithExplicitCoords());
+        this->registerChildProcessor(std::move(clone));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrMixerEffect::clone() const {

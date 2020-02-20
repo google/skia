@@ -493,8 +493,18 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "_sample110 = this->invokeChild(_outer.child2_index, args);\n",
             "fragBuilder->codeAppendf(\"%s = %s * %s;\\n\", args.fOutputColor, _sample93.c_str(), "
                                      "_sample110.c_str());\n",
-            "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
-            "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
+            "{",
+            "    auto clone = src.childProcessor(child1_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
+            "{",
+            "    auto clone = src.childProcessor(child2_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
          });
 }
 
@@ -521,8 +531,18 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
             "SkString _input174(\"childOut1\");",
             "SkString _sample174;",
             "_sample174 = this->invokeChild(_outer.child2_index, _input174.c_str(), args);",
-            "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
-            "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
+            "{",
+            "    auto clone = src.childProcessor(child1_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
+            "{",
+            "    auto clone = src.childProcessor(child2_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}"
          });
 }
 
@@ -541,7 +561,12 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
             "SkString _sample64;",
             "_sample64 = this->invokeChild(_outer.child_index, _input64.c_str(), args);",
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample64.c_str());",
-            "this->registerChildProcessor(src.childProcessor(child_index).clone());",
+            "{",
+            "    auto clone = src.childProcessor(child_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
          });
 }
 
@@ -565,9 +590,19 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
             "SkString _sample93;",
             "_sample93 = this->invokeChild(_outer.child2_index, _input93.c_str(), args);",
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample93.c_str());",
-            "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
-            "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
-         });
+            "{",
+            "    auto clone = src.childProcessor(child1_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
+            "{",
+            "    auto clone = src.childProcessor(child2_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
+            });
 }
 
 DEF_TEST(SkSLFPChildFPAndGlobal, r) {
@@ -594,8 +629,13 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "_sample130 = this->invokeChild(_outer.child_index, _input130.c_str(), args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\","
                                      " args.fOutputColor, _sample130.c_str(), args.fOutputColor);",
-            "this->registerChildProcessor(src.childProcessor(child_index).clone());"
-         });
+            "{",
+            "    auto clone = src.childProcessor(child_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
+            });
 }
 
 DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
@@ -620,7 +660,12 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
             "_sample105 = this->invokeChild(_outer.child_index, _input105.c_str(), args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\","
                                      " args.fOutputColor, _sample105.c_str(), args.fOutputColor);",
-            "this->registerChildProcessor(src.childProcessor(child_index).clone());"
+            "{",
+            "    auto clone = src.childProcessor(child_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
          });
 }
 
@@ -647,7 +692,12 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "_sample126 = this->invokeChild(_outer.child_index, args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\","
                                      " args.fOutputColor, _sample126.c_str(), args.fOutputColor);",
-            "this->registerChildProcessor(src.childProcessor(child_index).clone());"
+            "{",
+            "    auto clone = src.childProcessor(child_index).clone();",
+            "    clone->setSampledWithExplicitCoords(",
+            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    this->registerChildProcessor(std::move(clone));",
+            "}",
          });
 }
 
