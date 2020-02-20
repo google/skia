@@ -15,6 +15,8 @@
 
 #include "src/c/sk_types_priv.h"
 
+// sk_font_t
+
 sk_font_t* sk_font_new(void) {
     return ToFont(new SkFont());
 }
@@ -176,7 +178,12 @@ float sk_font_get_metrics(const sk_font_t* font, sk_fontmetrics_t* metrics) {
     return AsFont(font)->getMetrics(AsFontMetrics(metrics));
 }
 
+// sk_text_utils
 
 void sk_text_utils_get_path(const void* text, size_t length, sk_text_encoding_t encoding, float x, float y, const sk_font_t* font, sk_path_t* path) {
     SkTextUtils::GetPath(text, length, (SkTextEncoding)encoding, x, y, *AsFont(font), AsPath(path));
+}
+
+void sk_text_utils_get_path(const void* text, size_t length, sk_text_encoding_t encoding, const sk_point_t pos[], const sk_font_t* font, sk_path_t* path) {
+    SkTextUtils::GetPosPath(text, length, (SkTextEncoding)encoding, AsPoint(pos), *AsFont(font), AsPath(path));
 }

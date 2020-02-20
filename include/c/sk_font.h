@@ -14,6 +14,8 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+// sk_font_t
+
 SK_C_API sk_font_t* sk_font_new(void);
 SK_C_API sk_font_t* sk_font_new_with_values(sk_typeface_t* typeface, float size, float scaleX, float skewX);
 SK_C_API void sk_font_delete(sk_font_t* font);
@@ -52,7 +54,10 @@ SK_C_API bool sk_font_get_path(const sk_font_t* font, uint16_t glyph, sk_path_t*
 SK_C_API void sk_font_get_paths(const sk_font_t* font, uint16_t glyphs[], int count, const sk_glyph_path_proc glyphPathProc, void* context);
 SK_C_API float sk_font_get_metrics(const sk_font_t* font, sk_fontmetrics_t* metrics);
 
+// sk_text_utils
+
 SK_C_API void sk_text_utils_get_path(const void* text, size_t length, sk_text_encoding_t encoding, float x, float y, const sk_font_t* font, sk_path_t* path);
+SK_C_API void sk_text_utils_get_pos_path(const void* text, size_t length, sk_text_encoding_t encoding, const sk_point_t pos[], const sk_font_t* font, sk_path_t* path);
 
 SK_C_PLUS_PLUS_END_GUARD
 

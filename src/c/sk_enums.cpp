@@ -80,6 +80,11 @@ static_assert ((int)SkPath::SegmentMask::kQuad_SegmentMask    == (int)QUAD_SK_PA
 static_assert ((int)SkPath::SegmentMask::kConic_SegmentMask   == (int)CONIC_SK_PATH_SEGMENT_MASK,   ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
 static_assert ((int)SkPath::SegmentMask::kCubic_SegmentMask   == (int)CUBIC_SK_PATH_SEGMENT_MASK,   ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
 
+// sk_text_align_t
+static_assert ((int)SkTextUtils::Align::kLeft_Align     == (int)LEFT_SK_TEXT_ALIGN,     ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
+static_assert ((int)SkTextUtils::Align::kCenter_Align   == (int)CENTER_SK_TEXT_ALIGN,   ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
+static_assert ((int)SkTextUtils::Align::kRight_Align    == (int)RIGHT_SK_TEXT_ALIGN,    ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
+
 // sk_text_encoding_t
 static_assert ((int)SkTextEncoding::kUTF8      == (int)UTF8_SK_TEXT_ENCODING,       ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));
 static_assert ((int)SkTextEncoding::kUTF16     == (int)UTF16_SK_TEXT_ENCODING,      ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));

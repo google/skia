@@ -33,6 +33,9 @@ public:
 
     static void GetPath(const void* text, size_t length, SkTextEncoding, SkScalar x, SkScalar y,
                         const SkFont&, SkPath*);
+
+    static void GetPosPath(const void* text, size_t length, SkTextEncoding, const SkPoint pos[],
+                           const SkFont&, SkPath*);
 };
 
 #endif

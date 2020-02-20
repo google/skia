@@ -1012,10 +1012,12 @@ shared_library("SkiaSharp") {
   # clear the sources and add explicitly
   set_sources_assignment_filter([])
   sources = [
+    "src/xamarin/sk_compatpaint.cpp",
     "src/xamarin/sk_manageddrawable.cpp",
     "src/xamarin/sk_managedstream.cpp",
     "src/xamarin/sk_xamarin.cpp",
     "src/xamarin/SkiaKeeper.c",
+    "src/xamarin/SkCompatPaint.cpp",
     "src/xamarin/SkManagedDrawable.cpp",
     "src/xamarin/SkManagedStream.cpp",
     "src/xamarin/WinRTCompat.cpp",

@@ -356,6 +356,12 @@ typedef enum {
 } sk_point_mode_t;
 
 typedef enum {
+    LEFT_SK_TEXT_ALIGN,
+    CENTER_SK_TEXT_ALIGN,
+    RIGHT_SK_TEXT_ALIGN
+} sk_text_align_t;
+
+typedef enum {
     UTF8_SK_TEXT_ENCODING,
     UTF16_SK_TEXT_ENCODING,
     UTF32_SK_TEXT_ENCODING,

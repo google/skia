@@ -143,8 +143,8 @@ sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* sub
     return ToImage(AsImage(cimage)->makeSubset(*AsIRect(subset)).release());
 }
 
-sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context, sk_colorspace_t* colorspace) {
-    return ToImage(AsImage(cimage)->makeTextureImage(AsGrContext(context), AsColorSpace(colorspace)).release());
+sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context, bool mipmapped) {
+    return ToImage(AsImage(cimage)->makeTextureImage(AsGrContext(context), (GrMipMapped)mipmapped).release());
 }
 
 sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage) {

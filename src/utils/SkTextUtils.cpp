@@ -47,3 +47,23 @@ void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encodi
     }, &rec);
 }
 
+void SkTextUtils::GetPosPath(const void* text, size_t length, SkTextEncoding encoding,
+                             const SkPoint pos[], const SkFont& font, SkPath* path) {
+    SkAutoToGlyphs ag(font, text, length, encoding);
+
+    struct Rec {
+        SkPath* fDst;
+        const SkPoint* fPos;
+    } rec = { path, pos };
+
+    path->reset();
+    font.getPaths(ag.glyphs(), ag.count(), [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+        Rec* rec = (Rec*)ctx;
+        if (src) {
+            SkMatrix m(mx);
+            m.postTranslate(rec->fPos->fX, rec->fPos->fY);
+            rec->fDst->addPath(*src, m);
+        }
+        rec->fPos += 1;
+    }, &rec);
+}
