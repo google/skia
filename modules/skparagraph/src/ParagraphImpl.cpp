@@ -869,6 +869,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
 }
 
 // TODO: Deal with RTL here
+// TODO: Optimize (save cluster <-> codepoint connection)
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {
 
     PositionWithAffinity result(0, Affinity::kDownstream);
@@ -891,24 +892,30 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
             [this, &line, dx, &result]
             (const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
 
+                auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
+                    auto codepoint = std::lower_bound(
+                        fCodePoints.begin(), fCodePoints.end(),
+                        clusterIndex8,
+                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+
+                    return codepoint - fCodePoints.begin();
+                };
+
                 auto offsetX = line.offset().fX;
-                auto context = line.measureTextInsideOneRun(textRange, run, 0, 0, true, false);
+                auto context = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
+                *width = context.clip.width();
                 if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
-                    result = { SkToS32(context.run->fClusterIndexes[context.pos]), kDownstream };
+                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
+                    result = { SkToS32(codepointIndex), kDownstream };
                     return false;
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking but just in case keep the last one as the closes
                     // so far
-                    auto index = context.pos + context.size;
-                    if (index < context.run->size()) {
-                        result = { SkToS32(context.run->fClusterIndexes[index]), kUpstream };
-                    } else {
-                        // Take the last cluster on that line
-                        result = { SkToS32(line.clusters().end), kUpstream };
-                    }
+                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
+                    result = { SkToS32(codepointIndex), kUpstream };
                     return true;
                 }
 
@@ -932,17 +939,12 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 
                 auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
-                auto clusterIndex8 = context.run->fClusterIndexes[found];
-                auto clusterEnd8 = context.run->fClusterIndexes[found + 1];
+                auto clusterIndex8 = context.run->globalClusterIndex(found);
+                auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
                 TextRange clusterText (clusterIndex8, clusterEnd8);
 
                 // Find the grapheme positions in codepoints that contains the point
-                auto codepoint = std::lower_bound(
-                    fCodePoints.begin(), fCodePoints.end(),
-                    clusterIndex8,
-                    [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
-
-                auto codepointIndex = codepoint - fCodePoints.begin();
+                auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
                 CodepointRange codepoints(codepointIndex, codepointIndex);
                 for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
                     auto& cp = fCodePoints[codepoints.end];
@@ -977,7 +979,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         break;
     }
 
-    // SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
+    //SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
     return result;
 }
 
@@ -985,30 +987,29 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // the glyph at index offset.
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
-
     if (fWords.empty()) {
-      auto unicode = icu::UnicodeString::fromUTF8(fText.c_str());
+        auto unicode = icu::UnicodeString::fromUTF8(fText.c_str());
 
-      UErrorCode errorCode = U_ZERO_ERROR;
+        UErrorCode errorCode = U_ZERO_ERROR;
 
-      auto iter = ubrk_open(UBRK_WORD, icu::Locale().getName(), nullptr, 0, &errorCode);
-      if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
-        return { 0, 0 };
-      }
+        auto iter = ubrk_open(UBRK_WORD, icu::Locale().getName(), nullptr, 0, &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
 
-      UText sUtf16UText = UTEXT_INITIALIZER;
-      ICUUText utf16UText(utext_openUnicodeString(&sUtf16UText, &unicode, &errorCode));
-      if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
-        return { 0, 0 };
-      }
+        UText sUtf16UText = UTEXT_INITIALIZER;
+        ICUUText utf16UText(utext_openUnicodeString(&sUtf16UText, &unicode, &errorCode));
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
 
-      ubrk_setUText(iter, utf16UText.get(), &errorCode);
-      if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
-        return { 0, 0 };
-      }
+        ubrk_setUText(iter, utf16UText.get(), &errorCode);
+        if (U_FAILURE(errorCode)) {
+            SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
+            return {0, 0};
+        }
 
         int32_t pos = ubrk_first(iter);
         while (pos != icu::BreakIterator::DONE) {
