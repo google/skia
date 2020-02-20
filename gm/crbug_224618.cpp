@@ -101,7 +101,7 @@ protected:
                     SkM44::Translate(-radius, -radius);          // center content
 
             canvas->save();
-            canvas->experimental_concat44(model);
+            canvas->concat44(model);
 
             SkPaint fillPaint;
             fillPaint.setAntiAlias(true);

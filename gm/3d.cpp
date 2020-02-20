@@ -49,7 +49,7 @@ static void do_draw(SkCanvas* canvas, SkColor color) {
 
     SkM44 m = SkM44::Rotate({0, 1, 0}, SK_ScalarPI/6);
 
-    canvas->experimental_concat44(make_ctm(info, m, {300, 300}));
+    canvas->concat44(make_ctm(info, m, {300, 300}));
 
     canvas->translate(150, 150);
     SkPaint paint;
