@@ -1133,6 +1133,30 @@
     },
     {
       "key": {
+        "uuid": "a110d913_c72965af",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-20T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b661c72f_19861e9f",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8998fed_3d4f2277",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -1346,6 +1370,30 @@
     },
     {
       "key": {
+        "uuid": "67dd5617_3f825ef7",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-20T17:05:51Z",
+      "side": 1,
+      "message": "In that case I have tried returning them in as many places as possible, but found all my examples go blank, and no errors are thrown. We should investigate that.\nI\u0027ll return them here in this method, as that\u0027s what it was already doing.",
+      "parentUuid": "ed61d2be_624eb56d",
+      "range": {
+        "startLine": 425,
+        "startChar": 11,
+        "endLine": 425,
+        "endChar": 17
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34f5e3f9_3b5c8e9e",
         "filename": "modules/canvaskit/tests/matrix.spec.js",
         "patchSetId": 6
@@ -1433,6 +1481,30 @@
         "startChar": 36,
         "endLine": 1,
         "endChar": 38
+      },
+      "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9de919d_c0cf2d43",
+        "filename": "modules/canvaskit/tests/matrix.spec.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-20T17:05:51Z",
+      "side": 1,
+      "message": "I\u0027m not sure if you can use a 4x4 everywhere that you can use a 3x3, does the math work out if we let the last row and column be identity?",
+      "parentUuid": "6973c1d4_82cf6426",
+      "range": {
+        "startLine": 1,
+        "startChar": 23,
+        "endLine": 1,
+        "endChar": 29
       },
       "revId": "3a9decc339c8b2039f074599bec62aedaf1141df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",

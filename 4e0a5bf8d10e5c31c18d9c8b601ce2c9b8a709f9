@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0a571d16_c8bc90a3",
+        "filename": "modules/canvaskit/debug.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-20T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d10585d_a46b90fe",
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d40ee55b_117ffd46",
         "filename": "modules/canvaskit/externs.js",
         "patchSetId": 9
@@ -33,6 +51,24 @@
       "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10c776c2_a5819acc",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-20T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d40ee55b_117ffd46",
+      "revId": "4e0a5bf8d10e5c31c18d9c8b601ce2c9b8a709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
