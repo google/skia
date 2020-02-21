@@ -918,13 +918,15 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
              bitmap.height() <= this->caps()->maxTileSize());
     SkASSERT(!samplerState.isRepeated());
 
-    GrSurfaceProxyView view = GrRefCachedBitmapView(fContext.get(), bitmap, samplerState);
+    SkScalar scales[2] = {1.f, 1.f};
+    GrSurfaceProxyView view = GrRefCachedBitmapView(fContext.get(), bitmap, samplerState, scales);
     if (!view) {
         return;
     }
 
     // Compute a matrix that maps the rect we will draw to the src rect.
     SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
+    texMatrix.postScale(scales[0], scales[1]);
 
     SkAlphaType srcAlphaType = bitmap.alphaType();
 
@@ -1050,7 +1052,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
                               ? GrSamplerState::Filter::kBilerp
                               : GrSamplerState::Filter::kNearest;
-        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), filter);
+        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), filter, nullptr);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
         SkMatrix inverseClipMatrix;
@@ -1343,7 +1345,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto view = producer->viewForParams(&filter);
+    auto view = producer->viewForParams(&filter, nullptr);
     if (!view) {
         return;
     }

@@ -64,7 +64,8 @@ public:
     // this call will flatten a SkImage_GpuYUV to a single texture.
     virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
 
-    virtual GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState) const = 0;
+    virtual GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState,
+                                       SkScalar scaleAdjust[2]) const = 0;
     virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
         return {};
     }

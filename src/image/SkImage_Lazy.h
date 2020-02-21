@@ -42,7 +42,8 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState) const override;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState,
+                               SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;
 #endif

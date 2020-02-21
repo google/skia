@@ -39,13 +39,14 @@ GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(bool willBeM
                                         onlyIfFast);
 }
 
-void GrImageTextureMaker::makeMipMappedKey(GrUniqueKey* mipMappedKey) {
+void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
         GrUniqueKey cacheKey;
         fImage->makeCacheKeyFromOrigKey(fOriginalKey, &cacheKey);
-        MakeMipMappedKeyFromOriginalKey(cacheKey, mipMappedKey);
+        MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,13 +75,13 @@ GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(
     }
 }
 
-void GrYUVAImageTextureMaker::makeMipMappedKey(GrUniqueKey* mipMappedKey) {
+void GrYUVAImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
     // TODO: Do we ever want to disable caching?
     if (fOriginalKey.isValid()) {
         GrUniqueKey cacheKey;
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey::Builder builder(&cacheKey, fOriginalKey, kDomain, 0, "Image");
-        MakeMipMappedKeyFromOriginalKey(cacheKey, mipMappedKey);
+        MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
 }
 

@@ -537,7 +537,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             uint32_t uniqueID;
             view = image->refPinnedView(this->context(), &uniqueID);
             if (!view) {
-                view = image->refView(this->context(), GrSamplerState::Filter::kBilerp);
+                view = image->refView(this->context(), GrSamplerState::Filter::kBilerp, nullptr);
             }
         }
 
