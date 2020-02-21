@@ -12,6 +12,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SkGr.h"
 
 GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState params,
                                                                   bool willBeMipped) {
@@ -41,10 +42,7 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
                 proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey, this->colorType());
         if (cachedProxy) {
             SkASSERT(cachedProxy->mipMapped() == GrMipMapped::kYes);
-            // TODO: Once we no longer use MakeMipMappedCopy which can fallback to arbitrary formats
-            // and colorTypes, we can use the swizzle of the originalView.
-            GrSwizzle swizzle = cachedProxy->textureSwizzleDoNotUse();
-            return GrSurfaceProxyView(std::move(cachedProxy), origOrigin, swizzle);
+            return GrSurfaceProxyView(std::move(cachedProxy), origOrigin, original.swizzle());
         }
     }
 
@@ -61,8 +59,8 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
 
     SkASSERT(source.asTextureProxy());
 
-    GrSurfaceProxyView result = MakeMipMappedCopy(this->context(), source, this->colorType());
-
+    GrSurfaceProxyView result = GrCopyBaseMipMapToTextureProxy(this->context(), source.proxy(),
+                                                               source.origin(), this->colorType());
     if (!result) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return
         // the source texture here and require that the GPU backend is able to fall back to using

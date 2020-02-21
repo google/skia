@@ -21,38 +21,6 @@
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-GrSurfaceProxyView GrTextureProducer::MakeMipMappedCopy(GrRecordingContext* context,
-                                                        GrSurfaceProxyView inputView,
-                                                        GrColorType colorType) {
-    SkASSERT(context);
-    SkASSERT(inputView.asTextureProxy());
-
-    GrSurfaceProxy* proxy = inputView.proxy();
-    SkRect proxyRect = proxy->getBoundsRect();
-
-    GrSurfaceProxyView view =
-            GrCopyBaseMipMapToTextureProxy(context, proxy, inputView.origin(), colorType);
-    if (view) {
-        return view;
-    }
-
-    auto copyRTC = GrRenderTargetContext::MakeWithFallback(
-            context, colorType, nullptr, SkBackingFit::kExact, inputView.dimensions(), 1,
-            GrMipMapped::kYes, proxy->isProtected(), inputView.origin());
-    if (!copyRTC) {
-        return {};
-    }
-
-    GrPaint paint;
-    auto fp = GrTextureEffect::Make(std::move(inputView), kUnknown_SkAlphaType, SkMatrix::I(),
-                                    GrSamplerState::Filter::kNearest);
-    paint.addColorFragmentProcessor(std::move(fp));
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-    copyRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), proxyRect);
-    return copyRTC->readSurfaceView();
-}
-
 /** Determines whether a texture domain is necessary and if so what domain to use. There are two
  *  rectangles to consider:
  *  - The first is the content area specified by the texture adjuster (i.e., textureContentArea).
