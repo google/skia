@@ -117,10 +117,11 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     auto modulated_props = props;
 
     // Transform props compose.
-    modulated_props.position += ValueTraits<VectorValue>::As<SkPoint>(fTextProps.position) * amount;
+    modulated_props.position += ValueTraits<VectorValue>::As<SkV3>(fTextProps.position) * amount;
     modulated_props.rotation += fTextProps.rotation * amount;
     modulated_props.tracking += fTextProps.tracking * amount;
-    modulated_props.scale    *= 1 + (fTextProps.scale * 0.01f - 1) * amount; // scale is 100-based
+    modulated_props.scale    *= SkV3{1,1,1} +
+            (ValueTraits<VectorValue>::As<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
@@ -155,9 +156,14 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
 
     acontainer->bind(*abuilder, jprops["p" ], &fTextProps.position);
     acontainer->bind(*abuilder, jprops["s" ], &fTextProps.scale   );
-    acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation);
     acontainer->bind(*abuilder, jprops["o" ], &fTextProps.opacity );
     acontainer->bind(*abuilder, jprops["t" ], &fTextProps.tracking);
+
+    // Depending on whether we're in 2D/3D mode, some of these will stick and some will not.
+    // It's fine either way.
+    acontainer->bind(*abuilder, jprops["rx"], &fTextProps.rotation.x);
+    acontainer->bind(*abuilder, jprops["ry"], &fTextProps.rotation.y);
+    acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation.z);
 
     fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], &fTextProps.fill_color  );
     fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], &fTextProps.stroke_color);
