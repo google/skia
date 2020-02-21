@@ -1034,6 +1034,9 @@ component("skia") {
   if (skia_include_multiframe_procs) {
     sources += [ "tools/SkSharingProc.cpp" ]
   }
+  if (skia_enable_experimental_m44) {
+    defines += [ "SK_SUPPORT_EXPERIMENTAL_CANVAS44" ]
+  }
 }
 
 # DebugCanvas used in experimental/wasm-skp-debugger

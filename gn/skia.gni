@@ -13,6 +13,7 @@ declare_args() {
   skia_compile_processors = false
   skia_enable_ccpr = true
   skia_enable_discrete_gpu = true
+  skia_enable_experimental_m44 = false
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_fontmgr_fuchsia = is_fuchsia

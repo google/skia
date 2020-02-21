@@ -256,7 +256,8 @@ echo "Compiling bitcode"
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skparagraph=true \
-  skia_enable_pdf=false"
+  skia_enable_pdf=false \
+  skia_enable_experimental_m44=true" \
 
 # Build all the libs, we'll link the appropriate ones down below
 ${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
