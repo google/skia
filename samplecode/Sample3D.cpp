@@ -218,6 +218,8 @@ public:
         fAngle = 0;
         fPrevAngle = 1234567;
     }
+
+    bool isAnimating() const { return fAngleSpeed != 0; }
 };
 
 class SampleCubeBase : public Sample3DView {
@@ -353,8 +355,7 @@ public:
     }
 
     bool onAnimate(double nanos) override {
-        // handle fling
-        return this->INHERITED::onAnimate(nanos);
+        return fRotateAnimator.isAnimating();
     }
 
 private:
