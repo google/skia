@@ -320,8 +320,29 @@ var CanvasKit = {
 		setStrokeWidth: function() {},
 		setStyle: function() {},
 
-		//private API
+		// private API
 		delete: function() {},
+	},
+
+	SkParticleEffect: {
+		// public API (from C++ bindings)
+		draw: function() {},
+		getEffectUniform: function() {},
+		getEffectUniformCount: function() {},
+		getEffectUniformFloatCount: function() {},
+		getEffectUniformName: function() {},
+		getParticleUniformCount: function() {},
+		getParticleUniformFloatCount: function() {},
+		getParticleUniformName: function() {},
+		getParticleUniform: function() {},
+		setPosition: function() {},
+		setRate: function() {},
+		start: function() {},
+		update: function() {},
+
+		// private API (from C++ bindings)
+		_effectUniformPtr: function() {},
+		_particleUniformPtr: function() {},
 	},
 
 	SkPath: {
@@ -808,6 +829,9 @@ CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
 CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
+
+CanvasKit.SkParticleEffect.prototype.effectUniforms = function() {};
+CanvasKit.SkParticleEffect.prototype.particleUniforms = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
