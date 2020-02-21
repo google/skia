@@ -63,18 +63,50 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const GrShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
-    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
+    /* Linear interpolation logic goes here */
+
+    int reduced_count = (width + 1) / 2;
+
+    float l_offsets[30] = {0};
+    float l_weights[30] = {0};
+    float curr_offset = -ce.radius();
+    float next_offset = curr_offset + 1.f;
+    float curr_weight, next_weight;
+    for (int i = 0; i < reduced_count; i++) {
+        curr_weight = ce.kernel()[i * 2];
+
+        if (i * 2 + 1 < width)
+            next_weight = ce.kernel()[i * 2 + 1];
+        else
+            next_weight = 0;
+
+        l_weights[i] = curr_weight + next_weight;
+        l_offsets[i] =
+            (curr_offset * curr_weight + next_offset * next_weight) / l_weights[i];
+
+        curr_offset = next_offset + 1.f;
+        next_offset = curr_offset + 1.f;
+    }
+
+    /* Linear interpolation logic ends here */
+
+
+    fragBuilder->codeAppendf("float2 coord = half2(0, 0);");
     fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
-    for (int i = 0; i < width; i++) {
+    for (int i = 0; i < reduced_count; i++) {
         SkString index;
         SkString kernelIndex;
         index.appendS32(i / 4);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         kernelIndex.append(kVecSuffix[i & 0x3]);
-
+        if (ce.direction() == Direction::kX) {
+            fragBuilder->codeAppendf("coord = %s + half2(%f, 0.0) * %s;", coords2D.c_str(), l_offsets[i], imgInc);
+        } else {
+            fragBuilder->codeAppendf("coord = %s + half2(0.0, %f) * %s;", coords2D.c_str(), l_offsets[i], imgInc);
+        }
         fragBuilder->codeAppend("coordSampled = coord;");
         if (ce.useBounds()) {
             // We used to compute a bool indicating whether we're in bounds or not, cast it to a
@@ -110,11 +142,10 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         }
         fragBuilder->codeAppendf("%s += ", args.fOutputColor);
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coordSampled");
-        fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
+        fragBuilder->codeAppendf(" * %f;\n", l_weights[i]);
         if (GrTextureDomain::kDecal_Mode == ce.mode()) {
             fragBuilder->codeAppend("}");
         }
-        fragBuilder->codeAppendf("coord += %s;\n", imgInc);
     }
     fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
