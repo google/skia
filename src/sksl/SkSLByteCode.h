@@ -95,19 +95,17 @@ public:
             : fUInt(u) {}
     };
 
+#define V(Inst) Inst, Inst ## N
+
     enum class Instruction : uint8_t {
         // no parameters
         kNop,
         // no parameters
         kAbort,
         // Register target, Register src1, Register src2
-        kAddF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kAddFN,
+        V(kAddF),
         // Register target, Register src1, Register src2
-        kAddI,
-        // uint8_t count, Register target, Register src1, Register src2
-        kAddIN,
+        V(kAddI),
         // Register target, Register src1, Register src2
         kAnd,
         // Register index, int arrayLength
@@ -278,6 +276,8 @@ public:
         kScalarToMatrix,
         // Register target, Register test, Register ifTrue, Register ifFalse
         kSelect,
+        // uint8_t count, Register target, Register test, Register ifTrue, Register ifFalse
+        kSelectN,
         // Register target, Register src, uint8_t count
         kShiftLeft,
         // Register target, Register src, uint8_t count
@@ -341,6 +341,7 @@ public:
         kXor,
     };
 
+#undef V
 
     // Compound values like vectors span multiple Registers or Pointer addresses. We always refer to
     // them by the address of their first slot, so for instance if you add two float4's together,
