@@ -629,6 +629,8 @@
       "~keymobi",
       "~path_hairline",
       "~GLInstancedArraysBench",
+      "~compositing_images_tile_size_1024x512_grid_2x4_layers_16_fast_subpixel",
+      "~compositing_images_tile_size_512x512_grid_4x4_layers_16_fast_subpixel",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
