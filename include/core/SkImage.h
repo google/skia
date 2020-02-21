@@ -435,7 +435,7 @@ public:
     */
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin surfaceOrigin,
+                                                 GrSurfaceOrigin imageOrigin,
                                                  SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
