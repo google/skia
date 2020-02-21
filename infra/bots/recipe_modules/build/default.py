@@ -12,10 +12,10 @@ from . import util
 # Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '10g8'
+XCODE_BUILD_VERSION = '11b53'
 # Wikipedia lists the Clang version here:
 # https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
-XCODE_CLANG_VERSION = '10.0.1'
+XCODE_CLANG_VERSION = '11.0.0'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
