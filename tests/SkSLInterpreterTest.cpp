@@ -916,9 +916,13 @@ DEF_TEST(SkSLInterpreterOutParams, r) {
 DEF_TEST(SkSLInterpreterMathFunctions, r) {
     float value[4], expected[4];
 
-    value[0] = 0.0f; expected[0] = 0.0f;
-    test(r, "float main(float x) { return sin(x); }", value, expected);
-    test(r, "float main(float x) { return tan(x); }", value, expected);
+    value[0] = 0.0f; value[1] = SK_FloatPI / 2;
+    expected[0] = 0.0f; expected[1] = 1.0f;
+    test(r, "float2 main(float2 x) { return sin(x); }", value, expected);
+
+    value[0] = 0.0f; value[1] = SK_FloatPI / 4;
+    expected[0] = 0.0f; expected[1] = 1.0f;
+    test(r, "float2 main(float2 x) { return tan(x); }", value, expected);
 
     value[0] = 0.0f; expected[0] = 1.0f;
     test(r, "float main(float x) { return cos(x); }", value, expected);

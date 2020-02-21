@@ -63,6 +63,7 @@ private:
     enum class SpecialIntrinsic {
         kDot,
         kInverse,
+        kPrint,
     };
 
     struct Intrinsic {
