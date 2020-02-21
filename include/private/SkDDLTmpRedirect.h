@@ -10,6 +10,6 @@
 
 // A client is directly referencing include/private/SkDeferredDisplayList.h. This temporary
 // header is required to move them over to referencing include/core/SkDeferredDisplayList.h.
-#include "include/private/SkDeferredDisplayList.h"
+#include "include/core/SkDeferredDisplayList.h"
 
 #endif

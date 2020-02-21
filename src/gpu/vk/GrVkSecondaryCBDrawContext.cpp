@@ -7,11 +7,11 @@
 
 #include "src/gpu/vk/GrVkSecondaryCBDrawContext.h"
 
+#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
