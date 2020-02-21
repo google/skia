@@ -62,11 +62,6 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc(), transformRange);
 
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
-                                                              : nullptr;
-        this->setTextures(programInfo, proxies);
-    }
     fDataManager.resetDirtyBits();
 
 #ifdef SK_DEBUG
@@ -79,17 +74,18 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     fStencil = programInfo.nonGLStencilSettings();
 }
 
-void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
+void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
+                                     const GrPipeline& pipeline,
                                      const GrSurfaceProxy* const primProcTextures[]) {
     fSamplerBindings.reset();
-    for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());
-        const auto& sampler = programInfo.primProc().textureSampler(i);
+        const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
+    GrFragmentProcessor::CIter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         glslIter->setData(fDataManager, *fpIter);
@@ -102,13 +98,13 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
 
     {
         SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
+        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
 
-        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
+        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(),
                                 dstTexture, offset);
     }
 
-    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstProxyView().asTextureProxy()) {
+    if (GrTextureProxy* dstTextureProxy = pipeline.dstProxyView().asTextureProxy()) {
         fSamplerBindings.emplace_back(
                 GrSamplerState::Filter::kNearest, dstTextureProxy->peekTexture(), fGpu);
     }
