@@ -15,7 +15,10 @@ sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
 
 GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
-        : INHERITED(context) {
+        : INHERITED(context)
+        , fDevice(backendContext.fDevice)
+        , fQueue(backendContext.fQueue)
+        , fProtectedContext(backendContext.fProtectedContext) {
     fCaps.reset(new GrD3DCaps(contextOptions));
 }
 
