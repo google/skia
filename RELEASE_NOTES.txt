@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Made SkDeferredDisplayList.h officially part of the public API (i.e., moved it to
+    include/core). Also added a ProgramIterator to SkDeferredDisplayList which allows
+    clients to pre-compile some of the shaders the DDL requires.
+
   * Added two new helper methods to SkSurfaceCharacterization: createBackendFormat and
     createFBO0. These make it easier for clients to create new surface characterizations that
     differ only a little from an existing surface characterization.

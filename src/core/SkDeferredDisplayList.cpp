@@ -14,6 +14,7 @@
 class SkSurfaceCharacterization;
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/ccpr/GrCCPerOpsTaskPaths.h"
 #endif
@@ -28,3 +29,33 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
 }
 
 SkDeferredDisplayList::~SkDeferredDisplayList() {}
+
+//-------------------------------------------------------------------------------------------------
+#if SK_SUPPORT_GPU
+
+SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrContext* context,
+                                                        SkDeferredDisplayList* ddl)
+    : fContext(context)
+    , fProgramData(ddl->programData())
+    , fIndex(0) {
+}
+
+SkDeferredDisplayList::ProgramIterator::~ProgramIterator() {}
+
+void SkDeferredDisplayList::ProgramIterator::compile() {
+    if (!fContext || fIndex < 0 || fIndex >= (int) fProgramData.size()) {
+        return;
+    }
+
+    fContext->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
+}
+
+bool SkDeferredDisplayList::ProgramIterator::done() const {
+    return fIndex >= (int) fProgramData.size();
+}
+
+void SkDeferredDisplayList::ProgramIterator::next() {
+    ++fIndex;
+}
+
+#endif
