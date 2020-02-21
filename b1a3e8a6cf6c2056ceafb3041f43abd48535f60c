@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13e1d8e6_d230f0eb",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-02-21T18:32:14Z",
+      "side": 1,
+      "message": "super nit: comment isn\u0027t quite right anymore :-)",
+      "range": {
+        "startLine": 86,
+        "startChar": 26,
+        "endLine": 86,
+        "endChar": 42
+      },
+      "revId": "b1a3e8a6cf6c2056ceafb3041f43abd48535f60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
