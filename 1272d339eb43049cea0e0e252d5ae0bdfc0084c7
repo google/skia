@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1269cc3f_8258bfdf",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-21T19:25:54Z",
+      "side": 1,
+      "message": "When this is called if the additional node ids set above in the nodeMap were ids of the children, won\u0027t the entry in the nodeMap be overwritten (from \u0027dst\u0027 above to \u0026children[i])? From the test is appears the intention is to never add any nodes with the additional node ids.\n\nIn general it seems you never want any overwrites in the nodeMap, if so can we assert that in debug with an \u0027SkASSERT(!nodeMap-\u003efind(nodeId));\u0027 before each nodeMap-\u003eset call above? It isn\u0027t really an issue for the primary node.fNodeId, but for the additional nodes it would seem to be buggy if they were re-assigned (especially here).",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 70
+      },
+      "revId": "1272d339eb43049cea0e0e252d5ae0bdfc0084c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
