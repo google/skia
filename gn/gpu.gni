@@ -727,6 +727,8 @@ skia_vk_sources = [
 ]
 
 skia_direct3d_sources = [
+  "$_include/gpu/d3d/GrD3DBackendContext.h",
+  "$_include/gpu/d3d/GrD3D12.h",
   "$_src/gpu/d3d/GrD3DCaps.cpp",
   "$_src/gpu/d3d/GrD3DCaps.h",
   "$_src/gpu/d3d/GrD3DGpu.cpp",
