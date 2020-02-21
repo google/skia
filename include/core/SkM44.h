@@ -71,6 +71,11 @@ struct SkV3 {
     }
     friend SkV3 operator*(SkScalar s, const SkV3& v) { return v*s; }
 
+    void operator+=(SkV3 v) { *this = *this + v; }
+    void operator-=(SkV3 v) { *this = *this - v; }
+    void operator*=(SkV3 v) { *this = *this * v; }
+    void operator*=(SkScalar s) { *this = *this * s; }
+
     SkScalar lengthSquared() const { return Dot(*this, *this); }
     SkScalar length() const { return SkScalarSqrt(Dot(*this, *this)); }
 

@@ -178,19 +178,16 @@ TransformEffect::~TransformEffect() {
 }
 
 void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    const auto m = TransformPriv::As<SkMatrix>(fTransform);
-    SkAutoCanvasRestore acr(canvas, !m.isIdentity());
-    canvas->concat(m);
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->concat44(TransformPriv::As<SkM44>(fTransform));
+
     this->INHERITED::onRender(canvas, ctx);
 }
 
 const RenderNode* TransformEffect::onNodeAt(const SkPoint& p) const {
-    const auto m = TransformPriv::As<SkMatrix>(fTransform);
+    const auto p4 = TransformPriv::As<SkM44>(fTransform).map(p.fX, p.fY, 0, 0);
 
-    SkPoint mapped_p;
-    m.mapPoints(&mapped_p, &p, 1);
-
-    return this->INHERITED::onNodeAt(mapped_p);
+    return this->INHERITED::onNodeAt({p4.x, p4.y});
 }
 
 SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
@@ -199,6 +196,7 @@ SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix&
     // We don't care about matrix reval results.
     fTransform->revalidate(ic, ctm);
 
+    // TODO: need to update all the reval plumbing for m44.
     const auto m = TransformPriv::As<SkMatrix>(fTransform);
     auto bounds = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, m));
     m.mapRect(&bounds);

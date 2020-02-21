@@ -163,11 +163,11 @@ SkV3 TransformAdapter3D::rotation() const {
 
 SkM44 TransformAdapter3D::totalMatrix() const {
     const auto anchor_point = this->anchor_point(),
-               positon      = this->position(),
+               position     = this->position(),
                scale        = ValueTraits<VectorValue>::As<SkV3>(fScale),
                rotation     = this->rotation();
 
-    return SkM44::Translate(positon.x, positon.y, positon.z)
+    return SkM44::Translate(position.x, position.y, position.z)
          * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(rotation.x))
          * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(rotation.y))
          * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(rotation.z))

@@ -45,11 +45,11 @@ private:
     TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>);
 
     struct FragmentRec {
-        SkPoint                       fOrigin; // fragment position
+        SkPoint                    fOrigin; // fragment position
 
-        sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
-        sk_sp<sksg::Color>            fFillColorNode,
-                                      fStrokeColorNode;
+        sk_sp<sksg::Matrix<SkM44>> fMatrixNode;
+        sk_sp<sksg::Color>         fFillColorNode,
+                                   fStrokeColorNode;
     };
 
     void reshape();
