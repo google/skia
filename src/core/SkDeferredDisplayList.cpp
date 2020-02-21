@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkDeferredDisplayListPriv.h"
-
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkArenaAlloc.h"
 #include <utility>
 class SkSurfaceCharacterization;
@@ -21,10 +20,8 @@ class SkSurfaceCharacterization;
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
-#if SK_SUPPORT_GPU
-        , fLazyProxyData(std::move(lazyProxyData))
-#endif
-{
+        , fLazyProxyData(std::move(lazyProxyData)) {
 }
 
-SkDeferredDisplayList::~SkDeferredDisplayList() {}
+SkDeferredDisplayList::~SkDeferredDisplayList() {
+}

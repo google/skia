@@ -7,9 +7,9 @@
 
 #include "include/gpu/GrContext.h"
 
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrBackendSemaphore.h"
+#include "include/private/SkDeferredDisplayList.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"

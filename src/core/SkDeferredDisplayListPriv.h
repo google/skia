@@ -8,44 +8,32 @@
 #ifndef SkDeferredDisplayListPriv_DEFINED
 #define SkDeferredDisplayListPriv_DEFINED
 
-#include "include/core/SkDeferredDisplayList.h"
-class GrRenderTargetProxy;
+#include "include/private/SkDeferredDisplayList.h"
 
-/*************************************************************************************************/
-
-// This object is the source from which the lazy proxy backing the DDL will pull its backing
-// texture when the DDL is replayed. It has to be separately ref counted bc the lazy proxy
-// can outlive the DDL.
-class SkDeferredDisplayList::LazyProxyData : public SkRefCnt {
-#if SK_SUPPORT_GPU
-public:
-    // Upon being replayed - this field will be filled in (by the DrawingManager) with the
-    // proxy backing the destination SkSurface. Note that, since there is no good place to
-    // clear it, it can become a dangling pointer.
-    GrRenderTargetProxy* fReplayDest = nullptr;
-#endif
-};
-
-/*************************************************************************************************/
 /** Class that adds methods to SkDeferredDisplayList that are only intended for use internal to Skia.
     This class is purely a privileged window into SkDeferredDisplayList. It should never have
     additional data members or virtual methods. */
 class SkDeferredDisplayListPriv {
 public:
-
-#if SK_SUPPORT_GPU
     int numRenderTasks() const {
+#if SK_SUPPORT_GPU
         return fDDL->fRenderTasks.count();
+#else
+        return 0;
+#endif
     }
 
     const SkDeferredDisplayList::LazyProxyData* lazyProxyData() const {
+#if SK_SUPPORT_GPU
         return fDDL->fLazyProxyData.get();
+#else
+        return nullptr;
+#endif
     }
 
     const SkTArray<GrRecordingContext::ProgramData>& programData() const {
         return fDDL->programData();
     }
-#endif
 
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
