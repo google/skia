@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "58b7f94e_254b8d61",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T02:24:18Z",
+      "side": 1,
+      "message": "Ooh, I see. fContext-\u003echeckAsyncWorkCompletion() calls setFinished on the same thread.\n\nWe don\u0027t have to make it atomic then.. A comment would also work.",
+      "parentUuid": "72474348_55219ea1",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 8
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6d9472eb_0181f7e6",
         "filename": "tools/gpu/TestContext.cpp",
         "patchSetId": 5
