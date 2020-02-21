@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "669a929f_68e40da9",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 52
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-21T20:44:09Z",
+      "side": 1,
+      "message": "For my sake, explain how iPhone12 fits in this CL (based on cl description)?",
+      "range": {
+        "startLine": 630,
+        "startChar": 17,
+        "endLine": 630,
+        "endChar": 30
+      },
+      "revId": "11c9b627dc1f6814b748048f557dfc71b7b2c002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
