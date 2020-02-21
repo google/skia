@@ -212,6 +212,9 @@ def nanobench_flags(api, bot):
   if 'Vulkan' in bot and 'GTX660' in bot:
     # skia:8523 skia:9271
     match.append('~compositing_images')
+  if 'Metal' in bot and 'iOS' in bot:
+    # skia:9799
+    match.append('~compositing_images')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
     match.append('~^desk_micrographygirlsvg.skp_1.1$')
   if 'ASAN' in bot and 'CPU' in bot:

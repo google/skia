@@ -629,6 +629,7 @@
       "~keymobi",
       "~path_hairline",
       "~GLInstancedArraysBench",
+      "~compositing_images",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
