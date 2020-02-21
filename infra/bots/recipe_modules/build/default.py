@@ -6,18 +6,6 @@
 from . import util
 
 
-# XCode build is listed in parentheses after the version at
-# https://developer.apple.com/news/releases/, or on Wikipedia here:
-# https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
-# Use lowercase letters.
-# When updating XCODE_BUILD_VERSION, you will also need to update
-# XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '10g8'
-# Wikipedia lists the Clang version here:
-# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
-XCODE_CLANG_VERSION = '10.0.1'
-
-
 def build_command_buffer(api, chrome_dir, skia_dir, out):
   api.run(api.python, 'build command_buffer',
       script=skia_dir.join('tools', 'build_command_buffer.py'),
@@ -93,6 +81,11 @@ def compile_fn(api, checkout_root, out_dir):
   env = {}
 
   if os == 'Mac':
+    # XCode build is listed in parentheses after the version at
+    # https://developer.apple.com/news/releases/, or on Wikipedia here:
+    # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+    # Use lowercase letters.
+    XCODE_BUILD_VERSION = '11c29'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.slave_dir.join(
@@ -323,13 +316,18 @@ def copy_build_products(api, src, dst):
         util.DEFAULT_BUILD_PRODUCTS)
 
   if os == 'Mac' and any('SAN' in t for t in extra_tokens):
-    # Hardcoding this path because it should only change when we upgrade to a
-    # new Xcode.
-    lib_dir = api.vars.cache_dir.join(
-        'Xcode.app', 'Contents', 'Developer', 'Toolchains',
-        'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang', XCODE_CLANG_VERSION,
-        'lib', 'darwin')
-    dylibs = api.file.glob_paths('find xSAN dylibs', lib_dir,
+    # The XSAN dylibs are in
+    # Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
+    # /clang/11.0.0/lib/darwin, where 11.0.0 could change in future versions.
+    xcode_clang_ver_dirs = api.file.listdir(
+        'find XCode Clang version',
+        api.vars.cache_dir.join(
+            'Xcode.app', 'Contents', 'Developer', 'Toolchains',
+            'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang'),
+        test_data=['11.0.0'])
+    assert len(xcode_clang_ver_dirs) == 1
+    dylib_dir = xcode_clang_ver_dirs[0].join('lib', 'darwin')
+    dylibs = api.file.glob_paths('find xSAN dylibs', dylib_dir,
                                  'libclang_rt.*san_osx_dynamic.dylib',
                                  test_data=[
                                      'libclang_rt.asan_osx_dynamic.dylib',
