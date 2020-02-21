@@ -14,13 +14,16 @@ ByteCodeGenerator::ByteCodeGenerator(const Program* program, ErrorReporter* erro
     : INHERITED(program, errors, nullptr)
     , fOutput(output)
     , fIntrinsics {
+        // "Normal" intrinsics are all $genType f($genType), mapped to a single instruction
         { "cos",     ByteCode::Instruction::kCos },
-        { "dot",     SpecialIntrinsic::kDot },
-        { "inverse", SpecialIntrinsic::kInverse },
-        { "print",   ByteCode::Instruction::kPrint },
         { "sin",     ByteCode::Instruction::kSin },
         { "sqrt",    ByteCode::Instruction::kSqrt },
         { "tan",     ByteCode::Instruction::kTan },
+
+        // Special intrinsics have other signatures, or non-standard code-gen
+        { "dot",     SpecialIntrinsic::kDot },
+        { "inverse", SpecialIntrinsic::kInverse },
+        { "print",   SpecialIntrinsic::kPrint },
     } {}
 
 int ByteCodeGenerator::SlotCount(const Type& type) {
@@ -956,20 +959,33 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
                 this->write(arg);
                 break;
             }
+            case SpecialIntrinsic::kPrint: {
+                SkASSERT(c.fArguments.size() == 1);
+                SkASSERT(SlotCount(c.fArguments[0]->fType) == 1);
+                ByteCode::Register arg = this->next(1);
+                this->writeExpression(*c.fArguments[0], arg);
+                this->write(ByteCode::Instruction::kPrint);
+                this->write(arg);
+                break;
+            }
         }
     } else {
+        int count = SlotCount(c.fType);
         std::vector<ByteCode::Register> argRegs;
         for (const auto& expr : c.fArguments) {
-            ByteCode::Register reg = this->next(SlotCount(expr->fType));
+            SkASSERT(SlotCount(expr->fType) == count);
+            ByteCode::Register reg = this->next(count);
             this->writeExpression(*expr, reg);
             argRegs.push_back(reg);
         }
-        this->write(intrinsic.fValue.fInstruction);
-        if (c.fType.fName != "void") {
-            this->write(result);
-        }
-        for (ByteCode::Register arg : argRegs) {
-            this->write(arg);
+        for (int i = 0; i < count; ++i) {
+            this->write(intrinsic.fValue.fInstruction);
+            if (c.fType.fName != "void") {
+                this->write(result + i);
+            }
+            for (ByteCode::Register arg : argRegs) {
+                this->write(arg + i);
+            }
         }
     }
 }
