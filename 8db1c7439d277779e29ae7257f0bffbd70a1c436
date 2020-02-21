@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fa75ff0_7357fe06",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-21T21:28:21Z",
+      "side": 1,
+      "message": "You were right, Promise.all is a lot cleaner. I should go back and fix up these other demos.",
+      "revId": "8db1c7439d277779e29ae7257f0bffbd70a1c436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
