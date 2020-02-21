@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -10,9 +10,10 @@
 #ifdef SK_DIRECT3D
 
 #include "include/gpu/GrContext.h"
-#include "tools/gpu/d3d/D3DTestUtils.h"
 
 namespace {
+
+// TODO: Implement D3DFenceSync
 
 class D3DTestContextImpl : public sk_gpu_test::D3DTestContext {
 public:
@@ -22,13 +23,8 @@ public:
         if (sharedContext) {
             // take from the given context
             ownsContext = false;
-            backendContext = sharedContext->getD3DBackendContext();
         } else {
             // create our own
-            if (!sk_gpu_test::CreateD3DBackendContext(&backendContext)) {
-                return nullptr;
-            }
-
             ownsContext = true;
         }
         return new D3DTestContextImpl(backendContext, ownsContext);
@@ -58,6 +54,7 @@ protected:
 private:
     D3DTestContextImpl(const GrD3DBackendContext& backendContext, bool ownsContext)
             : D3DTestContext(backendContext, ownsContext) {
+// TODO       fFenceSync.reset(new D3DFenceSync(backendContext));
     }
 
     void onPlatformMakeNotCurrent() const override {}

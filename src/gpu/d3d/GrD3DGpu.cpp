@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2020 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -15,10 +15,7 @@ sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
 
 GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
-        : INHERITED(context)
-        , fDevice(backendContext.fDevice)
-        , fQueue(backendContext.fQueue)
-        , fProtectedContext(backendContext.fProtectedContext) {
+        : INHERITED(context) {
     fCaps.reset(new GrD3DCaps(contextOptions));
 }
 

@@ -40,7 +40,7 @@ public:
 
     const GrGLContext& glContext() const { return *fGLContext; }
 
-    const GrGLInterface* glInterface() const { return fGLContext->glInterface(); }
+    const GrGLInterface* glInterface() const { return fGLContext->interface(); }
     const GrGLContextInfo& ctxInfo() const { return *fGLContext; }
     GrGLStandard glStandard() const { return fGLContext->standard(); }
     GrGLVersion glVersion() const { return fGLContext->version(); }
