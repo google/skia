@@ -135,12 +135,6 @@ protected:
         kTightCopy_DomainMode
     };
 
-    // TODO: Try to remove the draw fallback and directly use GrCopyBaseMipMapToTextureProxy
-    // instead.
-    static GrSurfaceProxyView MakeMipMappedCopy(GrRecordingContext*,
-                                                GrSurfaceProxyView,
-                                                GrColorType colorType);
-
     static DomainMode DetermineDomainMode(const SkRect& constraintRect,
                                           FilterConstraint filterConstraint,
                                           bool coordsLimitedToConstraintRect,
