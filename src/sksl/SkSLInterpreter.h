@@ -560,6 +560,16 @@ private:
                        target.fIndex);
                 break;
             }
+            case ByteCode::Instruction::kSelectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register test = read<ByteCode::Register>(ip);
+                ByteCode::Register src1 = read<ByteCode::Register>(ip);
+                ByteCode::Register src2 = read<ByteCode::Register>(ip);
+                printf("select%d $%d, $%d, $%d -> %d\n", count, test.fIndex, src1.fIndex,
+                       src2.fIndex, target.fIndex);
+                break;
+            }
             DISASSEMBLE_BINARY(kShiftLeft, "shiftLeft")
             DISASSEMBLE_BINARY(kShiftRightS, "shiftRightS")
             DISASSEMBLE_BINARY(kShiftRightU, "shiftRightU")
@@ -816,6 +826,7 @@ private:
             &&kReturnValue,
             &&kScalarToMatrix,
             &&kSelect,
+            &&kSelectN,
             &&kShiftLeft,
             &&kShiftRightS,
             &&kShiftRightU,
@@ -927,6 +938,7 @@ private:
         CHECK_LABEL(kReturnValue);
         CHECK_LABEL(kScalarToMatrix);
         CHECK_LABEL(kSelect);
+        CHECK_LABEL(kSelectN);
         CHECK_LABEL(kShiftLeft);
         CHECK_LABEL(kShiftRightS);
         CHECK_LABEL(kShiftRightU);
@@ -1475,6 +1487,20 @@ private:
                     fRegisters[target.fIndex] = skvx::if_then_else(fRegisters[test.fIndex].fInt,
                                                                    fRegisters[src1.fIndex].fFloat,
                                                                    fRegisters[src2.fIndex].fFloat);
+                    NEXT();
+                }
+                LABEL(kSelectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register test = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src1 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src2 = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i] =
+                                skvx::if_then_else(fRegisters[test.fIndex + i].fInt,
+                                                   fRegisters[src1.fIndex + i].fFloat,
+                                                   fRegisters[src2.fIndex + i].fFloat);
+                    }
                     NEXT();
                 }
                 LABEL(kShiftLeft) {

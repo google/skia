@@ -250,6 +250,8 @@ public:
         kScalarToMatrix,
         // Register target, Register test, Register ifTrue, Register ifFalse
         kSelect,
+        // uint8_t count, Register target, Register test, Register ifTrue, Register ifFalse
+        kSelectN,
         // Register target, Register src, uint8_t count
         kShiftLeft,
         // Register target, Register src, uint8_t count
