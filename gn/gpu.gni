@@ -20,6 +20,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrSurface.h",
   "$_include/gpu/GrTexture.h",
   "$_include/gpu/GrTypes.h",
+  "$_include/gpu/GrWrappedImageFactory.h",
 
   # Private includes
   "$_include/private/GrContext_Base.h",
@@ -236,6 +237,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrWaitRenderTask.h",
   "$_src/gpu/GrWindowRectangles.h",
   "$_src/gpu/GrWindowRectsState.h",
+  "$_src/gpu/GrWrappedImageFactory.cpp",
   "$_src/gpu/GrXferProcessor.cpp",
   "$_src/gpu/GrXferProcessor.h",
   "$_src/gpu/GrYUVProvider.cpp",
