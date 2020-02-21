@@ -8,26 +8,17 @@
 
 #include "tools/gpu/TestContext.h"
 
+#include "include/gpu/GrContext.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tools/gpu/FlushFinishTracker.h"
 #include "tools/gpu/GpuTimer.h"
 
-#include "include/gpu/GrContext.h"
-
 namespace sk_gpu_test {
-TestContext::TestContext()
-    : fFenceSync(nullptr)
-    , fGpuTimer(nullptr)
-    , fCurrentFenceIdx(0) {
-    memset(fFrameFences, 0, sizeof(fFrameFences));
-}
+TestContext::TestContext() : fGpuTimer(nullptr) {}
 
 TestContext::~TestContext() {
     // Subclass should call teardown.
-#ifdef SK_DEBUG
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
-        SkASSERT(0 == fFrameFences[i]);
-    }
-#endif
-    SkASSERT(!fFenceSync);
     SkASSERT(!fGpuTimer);
 }
 
@@ -44,44 +35,33 @@ SkScopeExit TestContext::makeCurrentAndAutoRestore() const {
     return asr;
 }
 
-void TestContext::swapBuffers() { this->onPlatformSwapBuffers(); }
+void TestContext::flushAndWaitOnSync(GrContext* context) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    SkASSERT(context);
 
-
-void TestContext::waitOnSyncOrSwap() {
-    if (!fFenceSync) {
-        // Fallback on the platform SwapBuffers method for synchronization. This may have no effect.
-        this->swapBuffers();
-        return;
+    if (fFinishTrackers[fCurrentFlushIdx]) {
+        fFinishTrackers[fCurrentFlushIdx]->waitTillFinished();
     }
 
-    this->submit();
-    if (fFrameFences[fCurrentFenceIdx]) {
-        if (!fFenceSync->waitFence(fFrameFences[fCurrentFenceIdx])) {
-            SkDebugf("WARNING: Wait failed for fence sync. Timings might not be accurate.\n");
-        }
-        fFenceSync->deleteFence(fFrameFences[fCurrentFenceIdx]);
-    }
+    fFinishTrackers[fCurrentFlushIdx].reset(new FlushFinishTracker(context));
 
-    fFrameFences[fCurrentFenceIdx] = fFenceSync->insertFence();
-    fCurrentFenceIdx = (fCurrentFenceIdx + 1) % SK_ARRAY_COUNT(fFrameFences);
+    // We add an additional ref to the current flush tracker here. This ref is owned by the finish
+    // callback on the flush call. The finish callback will unref the tracker when called.
+    fFinishTrackers[fCurrentFlushIdx]->ref();
+
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedProc = FlushFinishTracker::FlushFinished;
+    flushInfo.fFinishedContext = fFinishTrackers[fCurrentFlushIdx].get();
+
+    context->flush(flushInfo);
+
+    fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
 }
 
 void TestContext::testAbandon() {
-    if (fFenceSync) {
-        memset(fFrameFences, 0, sizeof(fFrameFences));
-    }
 }
 
 void TestContext::teardown() {
-    if (fFenceSync) {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fFrameFences); i++) {
-            if (fFrameFences[i]) {
-                fFenceSync->deleteFence(fFrameFences[i]);
-                fFrameFences[i] = 0;
-            }
-        }
-        fFenceSync.reset();
-    }
     fGpuTimer.reset();
 }
 

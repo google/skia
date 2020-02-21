@@ -2104,7 +2104,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Fourth, synchronously render the display lists into the dest tiles
             // TODO: it would be cool to not wait until all the tiles are drawn to begin
             // drawing to the GPU and composing to the final surface
-            tiles.drawAllTilesAndFlush(context, false);
+            tiles.drawAllTiles(context);
 
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
