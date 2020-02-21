@@ -125,9 +125,9 @@ private:
 };
 
 #ifdef SK_GL
-sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
+sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
-    return MakeGL(std::move(glInterface), defaultOptions);
+    return MakeGL(std::move(interface), defaultOptions);
 }
 
 sk_sp<GrContext> GrContext::MakeGL(const GrContextOptions& options) {
@@ -139,11 +139,11 @@ sk_sp<GrContext> GrContext::MakeGL() {
     return MakeGL(nullptr, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
+sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
 
-    context->fGpu = GrGLGpu::Make(std::move(glInterface), options, context.get());
+    context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }

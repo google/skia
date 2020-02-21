@@ -94,7 +94,7 @@ protected:
             return nullptr;
         }
 
-        const GrGLInterface* gl = glCtx->glInterface();
+        const GrGLInterface* gl = glCtx->interface();
         // Useful for debugging whether errors result from use of RECTANGLE
         // static constexpr GrGLenum kTarget = GR_GL_TEXTURE_2D;
         static constexpr GrGLenum kTarget = GR_GL_TEXTURE_RECTANGLE;
