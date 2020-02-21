@@ -211,6 +211,16 @@ struct GPUTarget : public Target {
     ContextInfo contextInfo;
     std::unique_ptr<GrContextFactory> factory;
 
+    ~GPUTarget() override {
+        // Make sure GPU is done with all work before tearing things down. This makes sure any
+        // outstanding flush finish callbacks have been called.
+        if (this->contextInfo.testContext()) {
+            GrFlushInfo flushInfo;
+            flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+            contextInfo.grContext()->flush(flushInfo);
+        }
+    }
+
     void setup() override {
         this->contextInfo.testContext()->makeCurrent();
         // Make sure we're done with whatever came before.
@@ -218,7 +228,7 @@ struct GPUTarget : public Target {
     }
     void endTiming() override {
         if (this->contextInfo.testContext()) {
-            this->contextInfo.testContext()->waitOnSyncOrSwap();
+            this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.grContext());
         }
     }
     void fence() override { this->contextInfo.testContext()->finish(); }
@@ -286,9 +296,6 @@ static double time(int loops, Benchmark* bench, Target* target) {
     double start = now_ms();
     canvas = target->beginTiming(canvas);
     bench->draw(loops, canvas);
-    if (canvas) {
-        canvas->flush();
-    }
     target->endTiming();
     double elapsed = now_ms() - start;
     bench->postDraw(canvas);
