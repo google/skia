@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
@@ -14,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrCaps.h"

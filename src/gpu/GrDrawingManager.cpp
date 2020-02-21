@@ -10,7 +10,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkDeferredDisplayListPriv.h"
+#include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
