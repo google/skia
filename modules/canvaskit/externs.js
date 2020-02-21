@@ -133,6 +133,7 @@ var CanvasKit = {
 
 		// private API
 		_makeShader: function() {},
+		_makeShaderWithChildren: function() {},
 	},
 
 	ParagraphStyle: function() {},
@@ -278,6 +279,21 @@ var CanvasKit = {
 		MakeColorFilter: function() {},
 		MakeCompose: function() {},
 		MakeMatrixTransform: function() {},
+	},
+
+	// These are defined in interface.js
+	SkM44: {
+		identity: function() {},
+		invert: function() {},
+		multiply: function() {},
+		rotatedUnitSinCos: function() {},
+		rotated: function() {},
+		scaled: function() {},
+		translated: function() {},
+		lookat: function() {},
+		perspective: function() {},
+		rc: function() {},
+		transpose: function() {},
 	},
 
 	SkMatrix: {
@@ -466,6 +482,19 @@ var CanvasKit = {
 		// private API (from C++ bindings)
 		_MakeFromRSXform: function() {},
 		_MakeFromText: function() {},
+	},
+
+	// These are defined in interface.js
+	SkVector: {
+		add: function() {},
+		sub: function() {},
+		dot: function() {},
+		cross: function() {},
+		normalize: function() {},
+		mulScalar: function() {},
+		length: function() {},
+		lengthSquared: function() {},
+		dist: function() {},
 	},
 
 	SkVertices: {
@@ -829,6 +858,7 @@ CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
 CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
+CanvasKit.SkRuntimeEffect.prototype.makeShaderWithChildren = function() {};
 
 CanvasKit.SkParticleEffect.prototype.effectUniforms = function() {};
 CanvasKit.SkParticleEffect.prototype.particleUniforms = function() {};
