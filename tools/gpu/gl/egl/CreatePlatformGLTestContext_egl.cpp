@@ -19,27 +19,6 @@
 
 namespace {
 
-// TODO: Share this class with ANGLE if/when it gets support for EGL_KHR_fence_sync.
-class EGLFenceSync : public sk_gpu_test::FenceSync {
-public:
-    static std::unique_ptr<EGLFenceSync> MakeIfSupported(EGLDisplay);
-
-    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(sk_gpu_test::PlatformFence fence) const override;
-    void deleteFence(sk_gpu_test::PlatformFence fence) const override;
-
-private:
-    EGLFenceSync(EGLDisplay display);
-
-    PFNEGLCREATESYNCKHRPROC       fEGLCreateSyncKHR;
-    PFNEGLCLIENTWAITSYNCKHRPROC   fEGLClientWaitSyncKHR;
-    PFNEGLDESTROYSYNCKHRPROC      fEGLDestroySyncKHR;
-
-    EGLDisplay                    fDisplay;
-
-    typedef sk_gpu_test::FenceSync INHERITED;
-};
-
 std::function<void()> context_restorer() {
     auto display = eglGetCurrentDisplay();
     auto dsurface = eglGetCurrentSurface(EGL_DRAW);
@@ -66,7 +45,6 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
-    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     void setupFenceSync(sk_sp<const GrGLInterface>);
@@ -223,7 +201,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
                     (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
         }
 
-        this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
+        this->init(std::move(gl));
         break;
     }
 }
@@ -445,51 +423,9 @@ std::function<void()> EGLGLTestContext::onPlatformGetAutoContextRestore() const 
     return context_restorer();
 }
 
-void EGLGLTestContext::onPlatformSwapBuffers() const {
-    if (!eglSwapBuffers(fDisplay, fSurface)) {
-        SkDebugf("Could not complete eglSwapBuffers.\n");
-    }
-}
-
 GrGLFuncPtr EGLGLTestContext::onPlatformGetProcAddress(const char* procName) const {
     return eglGetProcAddress(procName);
 }
-
-std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
-    if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
-        return nullptr;
-    }
-    return std::unique_ptr<EGLFenceSync>(new EGLFenceSync(display));
-}
-
-EGLFenceSync::EGLFenceSync(EGLDisplay display)
-    : fDisplay(display) {
-    fEGLCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC) eglGetProcAddress("eglCreateSyncKHR");
-    fEGLClientWaitSyncKHR = (PFNEGLCLIENTWAITSYNCKHRPROC) eglGetProcAddress("eglClientWaitSyncKHR");
-    fEGLDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC) eglGetProcAddress("eglDestroySyncKHR");
-    SkASSERT(fEGLCreateSyncKHR && fEGLClientWaitSyncKHR && fEGLDestroySyncKHR);
-}
-
-sk_gpu_test::PlatformFence EGLFenceSync::insertFence() const {
-    EGLSyncKHR eglsync = fEGLCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
-    return reinterpret_cast<sk_gpu_test::PlatformFence>(eglsync);
-}
-
-bool EGLFenceSync::waitFence(sk_gpu_test::PlatformFence platformFence) const {
-    EGLSyncKHR eglsync = reinterpret_cast<EGLSyncKHR>(platformFence);
-    return EGL_CONDITION_SATISFIED_KHR ==
-            fEGLClientWaitSyncKHR(fDisplay,
-                                  eglsync,
-                                  EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                                  EGL_FOREVER_KHR);
-}
-
-void EGLFenceSync::deleteFence(sk_gpu_test::PlatformFence platformFence) const {
-    EGLSyncKHR eglsync = reinterpret_cast<EGLSyncKHR>(platformFence);
-    fEGLDestroySyncKHR(fDisplay, eglsync);
-}
-
-static_assert(sizeof(EGLSyncKHR) <= sizeof(sk_gpu_test::PlatformFence));
 
 }  // anonymous namespace
 
