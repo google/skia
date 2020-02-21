@@ -16,6 +16,24 @@
       "revId": "57a3ded673ca04f76adee4a2ebf2fa2ba650d4d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57474dc2_26fdb36a",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-21T20:48:55Z",
+      "side": 0,
+      "message": "Yes it seemed like each example below was setting it\u0027s own size (including mine, because I found it easier to drag the cube when it was larger) and this CSS overrode them.",
+      "parentUuid": "f5a56a2e_fe7ae8ba",
+      "revId": "57a3ded673ca04f76adee4a2ebf2fa2ba650d4d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
