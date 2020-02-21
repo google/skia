@@ -180,6 +180,13 @@ def nanobench_flags(api, bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
+  if 'iOS' in bot and 'Metal' in bot:
+    match.append('~compositing_images_tile_size_1024x512_grid_2x4_layers_16'
+                 '_fast_subpixel')
+    match.append('~compositing_images_tile_size_512x512_grid_4x4_layers_16_fast'
+                 '_subpixel')
+    match.append('~compositing_images_tile_size_256x256_grid_8x8_layers_16_fast'
+                 '_subpixel')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
