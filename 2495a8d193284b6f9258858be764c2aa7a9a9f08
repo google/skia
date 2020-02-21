@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aeea20f_daa147d4",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "It looks like this class is duplicated in skpbench. Do you think it makes sense to put it somewhere common? Even if in test_utils?",
+      "range": {
+        "startLine": 38,
+        "startChar": 6,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6672fb8a_d2791796",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "Ditto as for skpbench. I think we ought to make this std::atomic\u003cbool\u003e, just to be safe, and access it with load()/store().",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 8
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d9472eb_0181f7e6",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "sk_make_sp?",
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ffbc45_0433db55",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "I thought we didn\u0027t need to ref() after calling reset(new Class()).. but sk_make_sp should clarify the semantics anyway.",
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fb0d0d8_4ea01be7",
+        "filename": "tools/gpu/TestContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 70,
+        "startChar": 68,
+        "endLine": 70,
+        "endChar": 78
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9461b34_ca6a3ab5",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "I wonder if we can pick a different name than \"context\"? This threw my for a loop because to me, \"context\" refers to the GrContext.",
+      "range": {
+        "startLine": 101,
+        "startChar": 37,
+        "endLine": 101,
+        "endChar": 44
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90f7f853_75b94388",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "Should this be an std::atomic\u003cbool\u003e, and then we access it using load()/store()?",
+      "range": {
+        "startLine": 125,
+        "startChar": 9,
+        "endLine": 125,
+        "endChar": 20
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42f98211_2719f76a",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-21T00:00:25Z",
+      "side": 1,
+      "message": "sk_make_sp?",
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
