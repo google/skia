@@ -95,19 +95,19 @@ public:
             : fUInt(u) {}
     };
 
+// All V(I) instructions have a second (vector) instruction, that is encoded with a uint8_t count
+// immediately following the instruction (and before any other arguments).
+#define V(Inst) Inst, Inst ## N
+
     enum class Instruction : uint8_t {
         // no parameters
         kNop,
         // no parameters
         kAbort,
         // Register target, Register src1, Register src2
-        kAddF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kAddFN,
+        V(kAddF),
         // Register target, Register src1, Register src2
-        kAddI,
-        // uint8_t count, Register target, Register src1, Register src2
-        kAddIN,
+        V(kAddI),
         // Register target, Register src1, Register src2
         kAnd,
         // Register index, int arrayLength
@@ -162,17 +162,11 @@ public:
         // Register target, Register src,
         kCos,
         // Register target, Register src1, Register src2
-        kDivideF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kDivideFN,
+        V(kDivideF),
         // Register target, Register src1, Register src2
-        kDivideS,
-        // uint8_t count, Register target, Register src1, Register src2
-        kDivideSN,
+        V(kDivideS),
         // Register target, Register src1, Register src2
-        kDivideU,
-        // uint8_t count, Register target, Register src1, Register src2
-        kDivideUN,
+        V(kDivideU),
         // Register target, Register src
         kFloatToSigned,
         // Register target, Register src
@@ -188,34 +182,22 @@ public:
         kInverse4x4,
         // Load the memory cell pointed to by srcPtr into a register
         // Register target, Register srcPtr
-        kLoad,
-        // uint8_t count, Register target, Register srcPtr
-        kLoadN,
+        V(kLoad),
         // Load the memory cell pointed to by src into a register
         // Register target, Pointer src
-        kLoadDirect,
-        // uint8_t count, Register target, Pointer src
-        kLoadDirectN,
+        V(kLoadDirect),
         // Load the parameter slot pointed to by srcPtr into a register
         // Register target, Register srcPtr
-        kLoadParameter,
-        // uint8_t count, Register target, Register srcPtr
-        kLoadParameterN,
+        V(kLoadParameter),
         // Load the parameter slot pointed to by src into a register
         // Register target, Pointer src
-        kLoadParameterDirect,
-        // uint8_t count, Register target, Pointer src
-        kLoadParameterDirectN,
+        V(kLoadParameterDirect),
         // Load the stack cell pointed to by srcPtr + sp into a register
         // Register target, Register srcPtr
-        kLoadStack,
-        // uint8_t count, Register target, Register srcPtr
-        kLoadStackN,
+        V(kLoadStack),
         // Load the stack cell pointed to by src + sp into a register
         // Register target, Pointer src
-        kLoadStackDirect,
-        // uint8_t count, Register target, Pointer src
-        kLoadStackDirectN,
+        V(kLoadStackDirect),
         // Pushes a new loop onto the loop and continue stacks
         // no parameters
         kLoopBegin,
@@ -239,13 +221,9 @@ public:
         // uint8_t dstRows
         kMatrixToMatrix,
         // Register target, Register src1, Register src2
-        kMultiplyF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kMultiplyFN,
+        V(kMultiplyF),
         // Register target, Register src1, Register src2
-        kMultiplyI,
-        // uint8_t count, Register target, Register src1, Register src2
-        kMultiplyIN,
+        V(kMultiplyI),
         // Register target, Register src
         kNegateF,
         // Register target, Register src
@@ -259,17 +237,11 @@ public:
         // Register target, uint8_t count, uint8_t index
         kReadExternal,
         // Register target, Register src1, Register src2
-        kRemainderF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kRemainderFN,
+        V(kRemainderF),
         // Register target, Register src1, Register src2
-        kRemainderS,
-        // uint8_t count, Register target, Register src1, Register src2
-        kRemainderSN,
+        V(kRemainderS),
         // Register target, Register src1, Register src2
-        kRemainderU,
-        // uint8_t count, Register target, Register src1, Register src2
-        kRemainderUN,
+        V(kRemainderU),
         // no parameters
         kReturn,
         // Register value
@@ -295,42 +267,26 @@ public:
         kSqrt,
         // Store to the memory cell pointed to by dstPtr
         // Register dstPtr, Register src
-        kStore,
-        // uint8_t count, Register dstPtr, Register src
-        kStoreN,
+        V(kStore),
         // Store to the memory cell pointed to by dst
         // Pointer dst, Register src
-        kStoreDirect,
-        // uint8_t count, Pointer dst, Register src
-        kStoreDirectN,
+        V(kStoreDirect),
         // Store to the parameter slot pointed to by dstPtr
         // Register dstPtr, Register src
-        kStoreParameter,
-        // uint8_t count, Register dstPtr, Register src
-        kStoreParameterN,
+        V(kStoreParameter),
         // Store to the parameter slot pointed to by dst
         // Pointer dst, Register src
-        kStoreParameterDirect,
-        // uint8_t count, Pointer dst, Register src
-        kStoreParameterDirectN,
+        V(kStoreParameterDirect),
         // Stores a register into the stack cell pointed to by dst + sp
         // Register dst, Register src
-        kStoreStack,
-        // uint8_t count, Register dst, Register src
-        kStoreStackN,
+        V(kStoreStack),
         // Stores a register into the stack cell pointed to by dstPtr + sp
         // Pointer dst, Register src
-        kStoreStackDirect,
-        // uint8_t count, Pointer dst, Register src
-        kStoreStackDirectN,
+        V(kStoreStackDirect),
         // Register target, Register src1, Register src2
-        kSubtractF,
-        // uint8_t count, Register target, Register src1, Register src2
-        kSubtractFN,
+        V(kSubtractF),
         // Register target, Register src1, Register src2
-        kSubtractI,
-        // uint8_t count, Register target, Register src1, Register src2
-        kSubtractIN,
+        V(kSubtractI),
         // Register target, Register src,
         kTan,
         // Register target, Register src,
@@ -341,6 +297,7 @@ public:
         kXor,
     };
 
+#undef V
 
     // Compound values like vectors span multiple Registers or Pointer addresses. We always refer to
     // them by the address of their first slot, so for instance if you add two float4's together,
