@@ -557,28 +557,10 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
         return false;
     }
 
-    // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
-                                                              : nullptr;
-        if (!fCurrentPipelineState->setAndBindTextures(
-                fGpu, programInfo.primProc(), programInfo.pipeline(), proxies, currentCB)) {
-            return false;
-        }
-    }
-
-    if (!programInfo.pipeline().isScissorEnabled()) {
+    if (!programInfo.pipeline().isScissorTestEnabled()) {
+        // "Disable" scissor by setting it to the full pipeline bounds.
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
                                                  fCurrentPipelineBounds);
-    } else if (!programInfo.hasDynamicScissors()) {
-        SkASSERT(programInfo.hasFixedScissor());
-
-        SkIRect combinedScissorRect;
-        if (!combinedScissorRect.intersect(fCurrentPipelineBounds, programInfo.fixedScissor())) {
-            combinedScissorRect = SkIRect::MakeEmpty();
-        }
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
-                                                 combinedScissorRect);
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB,
@@ -588,50 +570,36 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     return true;
 }
 
-void GrVkOpsRenderPass::onDrawMeshes(const GrProgramInfo& programInfo, const GrMesh meshes[],
-                                     int meshCount) {
+void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+    SkIRect combinedScissorRect;
+    if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
+        combinedScissorRect = SkIRect::MakeEmpty();
+    }
+    GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(), fRenderTarget,
+                                             fOrigin, combinedScissorRect);
+}
+
+bool GrVkOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
+                                       const GrPipeline& pipeline,
+                                       const GrSurfaceProxy* const primProcTextures[]) {
+    return fCurrentPipelineState->setAndBindTextures(fGpu, primProc, pipeline, primProcTextures,
+                                                     this->currentCommandBuffer());
+}
+
+void GrVkOpsRenderPass::onDrawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
 
     SkASSERT(fCurrentPipelineState);
-    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
-
-    for (int i = 0; i < meshCount; ++i) {
-        const GrMesh& mesh = meshes[i];
-
-        if (programInfo.hasDynamicScissors()) {
-            SkIRect combinedScissorRect;
-            if (!combinedScissorRect.intersect(fCurrentPipelineBounds,
-                                               programInfo.dynamicScissor(i))) {
-                combinedScissorRect = SkIRect::MakeEmpty();
-            }
-            GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(),
-                                                     fRenderTarget, fOrigin, combinedScissorRect);
-        }
-        if (programInfo.hasDynamicPrimProcTextures()) {
-            auto meshProxies = programInfo.dynamicPrimProcTextures(i);
-            if (!fCurrentPipelineState->setAndBindTextures(fGpu, programInfo.primProc(),
-                                                           programInfo.pipeline(), meshProxies,
-                                                           this->currentCommandBuffer())) {
-                if (fGpu->isDeviceLost()) {
-                    return;
-                } else {
-                    continue;
-                }
-            }
-        }
-        mesh.sendToGpu(programInfo.primitiveType(), this);
-    }
-
+    mesh.sendToGpu(primitiveType, this);
     fCurrentCBIsEmpty = false;
 }
 
 void GrVkOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh, int vertexCount,
                                                int baseVertex, int instanceCount,
-                                               int baseInstance)
-{
+                                               int baseInstance) {
     SkASSERT(!mesh.vertexBuffer() || !mesh.vertexBuffer()->isCpuBuffer());
     SkASSERT(!mesh.instanceBuffer() || !mesh.instanceBuffer()->isCpuBuffer());
     auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(mesh.vertexBuffer());

@@ -120,12 +120,10 @@ public:
     void updateUniforms(const GrRenderTarget*, const GrProgramInfo&);
 
     /**
-     * Binds all primitive processor and fragment processor textures. We configure primitive
-     * processor samplers based on the proxies on the processor itself, but the actual textures we
-     * bind come from primProcTextureOverrides.
+     * Binds all primitive processor and fragment processor textures.
      */
     void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                      const GrSurfaceProxy* const primProcTextureOverrides[]);
+                      const GrSurfaceProxy* const primProcTextures[]);
 
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }
