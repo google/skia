@@ -68,7 +68,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
-    const GrGLInterface* gli = glCtx.interface();
+    const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.
     GrGLuint shaderId;
