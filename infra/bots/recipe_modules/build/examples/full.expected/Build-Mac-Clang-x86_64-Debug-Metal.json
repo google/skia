@@ -3,7 +3,11 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
+<<<<<<< HEAD   (59dcc7 [infra] Change CMake build to use a temporary directory)
       "@@@STEP_TEXT@Ensuring Xcode version 9c40b in [START_DIR]/cache/Xcode.app@@@"
+=======
+      "@@@STEP_TEXT@Ensuring Xcode version 11c29 in [START_DIR]/cache/Xcode.app@@@"
+>>>>>>> CHANGE (998066 Update XCode)
     ]
   },
   {
@@ -13,7 +17,11 @@
       "-kind",
       "ios",
       "-xcode-version",
+<<<<<<< HEAD   (59dcc7 [infra] Change CMake build to use a temporary directory)
       "9c40b",
+=======
+      "11c29",
+>>>>>>> CHANGE (998066 Update XCode)
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -53,7 +61,11 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug",
+<<<<<<< HEAD   (59dcc7 [infra] Change CMake build to use a temporary directory)
       "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=9c40b\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\""
+=======
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=11c29\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\" werror=true"
+>>>>>>> CHANGE (998066 Update XCode)
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
