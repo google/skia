@@ -31,7 +31,6 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
-    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     CGLContextObj fContext;
@@ -120,10 +119,6 @@ std::function<void()> MacGLTestContext::onPlatformGetAutoContextRestore() const 
         return nullptr;
     }
     return context_restorer();
-}
-
-void MacGLTestContext::onPlatformSwapBuffers() const {
-    CGLFlushDrawable(fContext);
 }
 
 GrGLFuncPtr MacGLTestContext::onPlatformGetProcAddress(const char* procName) const {

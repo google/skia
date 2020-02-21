@@ -104,7 +104,6 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
-    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
     void*                       fContext;
@@ -466,12 +465,6 @@ std::function<void()> ANGLEGLContext::onPlatformGetAutoContextRestore() const {
         return nullptr;
     }
     return context_restorer();
-}
-
-void ANGLEGLContext::onPlatformSwapBuffers() const {
-    if (!eglSwapBuffers(fDisplay, fSurface)) {
-        SkDebugf("Could not complete eglSwapBuffers.\n");
-    }
 }
 
 GrGLFuncPtr ANGLEGLContext::onPlatformGetProcAddress(const char* name) const {

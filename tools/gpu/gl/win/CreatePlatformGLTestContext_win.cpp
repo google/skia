@@ -43,7 +43,6 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
-    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
     HWND fWindow;
@@ -203,19 +202,6 @@ std::function<void()> WinGLTestContext::onPlatformGetAutoContextRestore() const 
         return nullptr;
     }
     return context_restorer();
-}
-
-void WinGLTestContext::onPlatformSwapBuffers() const {
-    HDC dc;
-
-    if (nullptr == fPbufferContext) {
-        dc = fDeviceContext;
-    } else {
-        dc = fPbufferContext->getDC();
-    }
-    if (!SwapBuffers(dc)) {
-        SkDebugf("Could not complete SwapBuffers.\n");
-    }
 }
 
 GrGLFuncPtr WinGLTestContext::onPlatformGetProcAddress(const char* name) const {
