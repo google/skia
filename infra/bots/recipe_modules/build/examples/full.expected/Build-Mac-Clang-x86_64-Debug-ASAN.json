@@ -3,7 +3,11 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "@@@STEP_TEXT@Ensuring Xcode version 9c40b in [START_DIR]/cache/Xcode.app@@@"
+=======
+      "@@@STEP_TEXT@Ensuring Xcode version 11c29 in [START_DIR]/cache/Xcode.app@@@"
+>>>>>>> CHANGE (998066 Update XCode)
     ]
   },
   {
@@ -13,7 +17,11 @@
       "-kind",
       "ios",
       "-xcode-version",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "9c40b",
+=======
+      "11c29",
+>>>>>>> CHANGE (998066 Update XCode)
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -53,7 +61,11 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-ASAN/Debug",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=9c40b\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\""
+=======
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=11c29\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\" werror=true"
+>>>>>>> CHANGE (998066 Update XCode)
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -120,17 +132,44 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang"
+    ],
+    "infra_step": true,
+    "name": "find XCode Clang version",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "glob",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin",
+=======
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin",
+>>>>>>> CHANGE (998066 Update XCode)
       "libclang_rt.*san_osx_dynamic.dylib"
     ],
     "infra_step": true,
     "name": "find xSAN dylibs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib@@@",
+=======
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib@@@",
+>>>>>>> CHANGE (998066 Update XCode)
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -142,7 +181,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+=======
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+>>>>>>> CHANGE (998066 Update XCode)
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
@@ -156,7 +199,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib",
+=======
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.tsan_osx_dynamic.dylib",
+>>>>>>> CHANGE (998066 Update XCode)
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
@@ -170,7 +217,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
+<<<<<<< HEAD   (b0fae4 Reland "Add small offset to t in GrLinearGradientLayout.")
       "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib",
+=======
+      "[START_DIR]/cache/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib",
+>>>>>>> CHANGE (998066 Update XCode)
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
     ],
     "infra_step": true,
