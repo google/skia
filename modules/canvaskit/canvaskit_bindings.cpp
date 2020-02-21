@@ -44,6 +44,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
+#include "include/private/SkM44.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -91,6 +92,7 @@ using Bone        = SkVertices::Bone;
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
 #endif
 
+// 3x3 Matrices
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
     SkScalar skewY,  scaleY, transY;
@@ -110,6 +112,34 @@ SimpleMatrix toSimpleSkMatrix(const SkMatrix& sm) {
     return m;
 }
 
+// Experimental 4x4 matrices, also represented in JS with arrays.
+struct SimpleM44 {
+    SkScalar m0,  m1,  m2,  m3;
+    SkScalar m4,  m5,  m6,  m7;
+    SkScalar m8,  m9,  m10, m11;
+    SkScalar m12, m13, m14, m15;
+};
+
+SkM44 toSkM44(const SimpleM44& sm) {
+    SkM44 result(
+      sm.m0,  sm.m1,  sm.m2,  sm.m3,
+      sm.m4,  sm.m5,  sm.m6,  sm.m7,
+      sm.m8,  sm.m9,  sm.m10, sm.m11,
+      sm.m12, sm.m13, sm.m14, sm.m15);
+    return result;
+}
+
+SimpleM44 toSimpleM44(const SkM44& sm) {
+    SimpleM44 m {
+        sm.rc(0,0), sm.rc(0,1),  sm.rc(0,2),  sm.rc(0,3),
+        sm.rc(1,0), sm.rc(1,1),  sm.rc(1,2),  sm.rc(1,3),
+        sm.rc(2,0), sm.rc(2,1),  sm.rc(2,2),  sm.rc(2,3),
+        sm.rc(3,0), sm.rc(3,1),  sm.rc(3,2),  sm.rc(3,3),
+    };
+    return m;
+}
+
+// Surface creation structs and helpers
 struct SimpleImageInfo {
     int width;
     int height;
@@ -1024,6 +1054,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
+        }))
+        // Experimental 4x4 matrix functions
+        .function("experimental_saveCamera", optional_override([](SkCanvas& self,
+            const SimpleM44& projection, const SimpleM44& camera) {
+            self.experimental_saveCamera(toSkM44(projection), toSkM44(camera));
+        }))
+        .function("experimental_concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
+            self.concat44(toSkM44(m));
+        }))
+        .function("experimental_getLocalToDevice", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.getLocalToDevice();
+            return toSimpleM44(m);
+        }))
+        .function("experimental_getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.experimental_getLocalToWorld();
+            return toSimpleM44(m);
+        }))
+        .function("experimental_getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.experimental_getLocalToCamera();
+            return toSimpleM44(m);
         }));
 
     class_<SkColorFilter>("SkColorFilter")
@@ -1632,7 +1682,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     // A value object is much simpler than a class - it is returned as a JS
     // object and does not require delete().
-    // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+    // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
     value_object<ShapedTextOpts>("ShapedTextOpts")
         .field("font",        &ShapedTextOpts::font)
         .field("leftToRight", &ShapedTextOpts::leftToRight)
@@ -1724,9 +1774,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .element(&SimpleMatrix::pers1)
         .element(&SimpleMatrix::pers2);
 
+    value_array<SimpleM44>("SkM44")
+        .element(&SimpleM44::m0).element(&SimpleM44::m1).element(&SimpleM44::m2).element(&SimpleM44::m3)
+        .element(&SimpleM44::m4).element(&SimpleM44::m5).element(&SimpleM44::m6).element(&SimpleM44::m7)
+        .element(&SimpleM44::m8).element(&SimpleM44::m9).element(&SimpleM44::m10).element(&SimpleM44::m11)
+        .element(&SimpleM44::m12).element(&SimpleM44::m13).element(&SimpleM44::m14).element(&SimpleM44::m15);
+
     constant("TRANSPARENT", SK_ColorTRANSPARENT);
     constant("RED",         SK_ColorRED);
+    constant("GREEN",       SK_ColorGREEN);
     constant("BLUE",        SK_ColorBLUE);
+    constant("MAGENTA",     SK_ColorMAGENTA);
     constant("YELLOW",      SK_ColorYELLOW);
     constant("CYAN",        SK_ColorCYAN);
     constant("BLACK",       SK_ColorBLACK);

@@ -280,6 +280,20 @@ var CanvasKit = {
 		MakeMatrixTransform: function() {},
 	},
 
+	// These are defined in interface.js
+	SkM44: {
+		identity: function() {},
+		invert: function() {},
+		multiply: function() {},
+		rotatedUnitSinCos: function() {},
+		rotated: function() {},
+		scaled: function() {},
+		translated: function() {},
+		lookat: function() {},
+		perspective: function() {},
+		rc: function() {},
+	},
+
 	SkMatrix: {
 		identity: function() {},
 		invert: function() {},
@@ -466,6 +480,18 @@ var CanvasKit = {
 		// private API (from C++ bindings)
 		_MakeFromRSXform: function() {},
 		_MakeFromText: function() {},
+	},
+
+	// These are defined in interface.js
+	SkVector: {
+		add: function() {},
+		sub: function() {},
+		dot: function() {},
+		cross: function() {},
+		normalize: function() {},
+		mulScalar: function() {},
+		length: function() {},
+		lengthSquared: function() {},
 	},
 
 	SkVertices: {

@@ -17,9 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `SkSurface.requestAnimationFrame` for animation logic).
  - `CanvasKit.parseColorString` which processes color strings like "#2288FF"
  - Particles module now exposes effect uniforms, which can be modified for live-updating.
+ - Experimental 4x4 matrices added in `SkM44`
+ - Vector math functions added in `SkVector`
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.6.
+ - `SkMatrix.multiply` can now accept any number of matrix arguments, multiplying them
+    left-to-right.
+ - SkMatrix.invert now returns null when the matrix is not invertible. Previously it would return an
+   identity matrix. Callers must determine what behavior would be appropriate in this situation.
 
 ### Fixed
  - Support for .otf fonts (.woff and .woff2 still not supported).
