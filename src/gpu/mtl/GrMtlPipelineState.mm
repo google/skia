@@ -62,6 +62,20 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc(), transformRange);
 
+    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
+    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
+        glslIter->setData(fDataManager, *fpIter);
+    }
+    SkASSERT(!fpIter && !glslIter);
+
+    {
+        SkIPoint offset;
+        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
+        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(), dstTexture,
+                                offset);
+    }
+
     if (!programInfo.hasDynamicPrimProcTextures()) {
         auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
                                                               : nullptr;
@@ -90,22 +104,11 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
     }
 
     GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        glslIter->setData(fDataManager, *fpIter);
+    for (; fpIter; ++fpIter) {
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
             const auto& sampler = fpIter->textureSampler(i);
             fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
         }
-    }
-    SkASSERT(!fpIter && !glslIter);
-
-    {
-        SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-
-        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
-                                dstTexture, offset);
     }
 
     if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstProxyView().asTextureProxy()) {
