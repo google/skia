@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "db7b24e9_290f2b8d",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-21T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "464690de_d1ed065e",
+      "range": {
+        "startLine": 1108,
+        "startChar": 18,
+        "endLine": 1108,
+        "endChar": 37
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "970daa61_8ddd73d1",
         "filename": "infra/bots/recipe_modules/flavor/ios.py",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-21T12:03:53Z",
       "side": 1,
       "message": "If I thought we\u0027d be using recipes much longer, I\u0027d suggest adding a \"backoff\" parameter to run.with_retry.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 69
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64e9af54_3399f8f8",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-21T15:47:15Z",
+      "side": 1,
+      "message": "If it comes up again, that\u0027s a good idea.",
+      "parentUuid": "970daa61_8ddd73d1",
       "range": {
         "startLine": 31,
         "startChar": 0,
@@ -102,6 +150,30 @@
       "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8336e8d_c4100d1e",
+        "filename": "infra/bots/recipe_modules/flavor/resources/ios_debug_cmd.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-21T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "145cf560_afe0ee45",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
