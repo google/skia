@@ -14,16 +14,16 @@
 #include "tools/Resources.h"
 
 struct VSphere {
-    SkVec2   fCenter;
+    SkV2     fCenter;
     SkScalar fRadius;
 
-    VSphere(SkVec2 center, SkScalar radius) : fCenter(center), fRadius(radius) {}
+    VSphere(SkV2 center, SkScalar radius) : fCenter(center), fRadius(radius) {}
 
-    bool contains(SkVec2 v) const {
+    bool contains(SkV2 v) const {
         return (v - fCenter).length() <= fRadius;
     }
 
-    SkVec2 pinLoc(SkVec2 p) const {
+    SkV2 pinLoc(SkV2 p) const {
         auto v = p - fCenter;
         if (v.length() > fRadius) {
             v *= (fRadius / v.length());
@@ -31,7 +31,7 @@ struct VSphere {
         return fCenter + v;
     }
 
-    SkV3 computeUnitV3(SkVec2 v) const {
+    SkV3 computeUnitV3(SkV2 v) const {
         v = (v - fCenter) * (1 / fRadius);
         SkScalar len2 = v.lengthSquared();
         if (len2 > 1) {
@@ -47,7 +47,7 @@ struct VSphere {
         SkScalar fAngle;
     };
 
-    RotateInfo computeRotationInfo(SkVec2 a, SkVec2 b) const {
+    RotateInfo computeRotationInfo(SkV2 a, SkV2 b) const {
         SkV3 u = this->computeUnitV3(a);
         SkV3 v = this->computeUnitV3(b);
         SkV3 axis = u.cross(v);
@@ -59,7 +59,7 @@ struct VSphere {
         return {{0, 0, 0}, 0};
     }
 
-    SkM44 computeRotation(SkVec2 a, SkVec2 b) const {
+    SkM44 computeRotation(SkV2 a, SkV2 b) const {
         auto [axis, angle] = this->computeRotationInfo(a, b);
         return SkM44::Rotate(axis, angle);
     }
@@ -139,7 +139,7 @@ const Face faces[] = {
 #include "include/effects/SkRuntimeEffect.h"
 
 struct LightOnSphere {
-    SkVec2   fLoc;
+    SkV2     fLoc;
     SkScalar fDistance;
     SkScalar fRadius;
 
@@ -311,7 +311,7 @@ public:
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        SkVec2 p = fLight.fLoc - SkVec2{x, y};
+        SkV2 p = fLight.fLoc - SkV2{x, y};
         if (p.length() <= fLight.fRadius) {
             Click* c = new Click();
             c->fMeta.setS32("type", 0);
