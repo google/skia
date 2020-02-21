@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "464690de_d1ed065e",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-21T12:03:53Z",
+      "side": 1,
+      "message": "Nit: if we\u0027re planning to support multiple iOS versions at the same time, maybe we could use a regex and a switch?\n\niosRegex \u003d regexp.MustCompile(`os:iOS-(.*)`)\n\n...\n\nfor _, dim :\u003d range t.Dimensions {\n  if m :\u003d iosRegex.FindStringSubmatch(dim); len(m) \u003e\u003d 2 {\n    var asset string\n    switch(m[1]) {\n    case \"11.4.1\": // Seems unlikely that we\u0027ll need to support multiple patch versions.\n      asset \u003d \"ios-dev-image-11.4\"\n    default:\n      glog.Fatalf(\"...\")\n    }\n    t.CipdPackages \u003d append(t.CipdPackages, b.MustGetCipdPackageFromAsset(asset))\n    break\n  }\n}",
+      "range": {
+        "startLine": 1108,
+        "startChar": 18,
+        "endLine": 1108,
+        "endChar": 37
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "970daa61_8ddd73d1",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-21T12:03:53Z",
+      "side": 1,
+      "message": "If I thought we\u0027d be using recipes much longer, I\u0027d suggest adding a \"backoff\" parameter to run.with_retry.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 69
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "055bc68a_d7882cb5",
         "filename": "infra/bots/recipe_modules/flavor/ios.py",
         "patchSetId": 5
@@ -33,6 +79,29 @@
       "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "145cf560_afe0ee45",
+        "filename": "infra/bots/recipe_modules/flavor/resources/ios_debug_cmd.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-21T12:03:53Z",
+      "side": 1,
+      "message": "Nit (if new)",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "5af66b8e3a2807dd6dc4419824c2204185e51feb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
