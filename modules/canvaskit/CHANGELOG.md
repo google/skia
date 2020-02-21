@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing
    `SkSurface.requestAnimationFrame` for animation logic).
- - `CanvasKit.parseColorString` which processes color strings like "#2288FF".
+ - `CanvasKit.parseColorString` which processes color strings like "#2288FF"
+ - Particles module now exposes effect uniforms, which can be modified for live-updating.
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.6.
