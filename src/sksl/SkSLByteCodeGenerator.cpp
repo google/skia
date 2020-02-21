@@ -87,7 +87,8 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
                 // should either specialize the program (Compiler::specialize) to bake in the final
                 // values of the 'in' variables, or not use 'in' variables (maybe you meant to use
                 // 'uniform' instead?).
-                SkASSERT(false);
+                fErrors.error(var.fOffset,
+                              "'in' variable is not specialized or has unsupported type");
                 return ByteCode::Pointer{0};
             }
             bool isUniform = is_uniform(var);
