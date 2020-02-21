@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea056989_59a4557d",
+        "filename": "include/gpu/d3d/GrD3D12.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-21T18:25:10Z",
+      "side": 1,
+      "message": "Will this not mess up clients if they\u0027re using COM stuff and including out header?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 16
+      },
+      "revId": "cc98d9e8b43853422b3021958baf39d19a9fdf6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
