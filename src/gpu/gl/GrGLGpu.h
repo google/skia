@@ -75,13 +75,18 @@ public:
 
     // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
     bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
+    void flushScissorRect(const SkIRect&, int rtWidth, int rtHeight, GrSurfaceOrigin);
+    void bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                      const GrSurfaceProxy* const primProcTextures[] = nullptr) {
+        fHWProgram->bindTextures(primProc, pipeline, primProcTextures);
+    }
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
     //
     // The client must call flushGLState before this method.
-    void drawMeshes(GrRenderTarget*, const GrProgramInfo&, const GrMesh[], int meshCount);
+    void drawMesh(GrRenderTarget*, GrPrimitiveType, const GrMesh&);
 
     // GrMesh::SendToGpuImpl methods. These issue the actual GL draw calls.
     // Marked final as a hint to the compiler to not use virtual dispatch.
@@ -357,10 +362,14 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const GrScissorState&, int rtWidth, int rtHeight, GrSurfaceOrigin rtOrigin);
-
-    // disables the scissor
-    void disableScissor();
+    void flushScissor(const GrScissorState& scissorState, int rtWidth, int rtHeight,
+                      GrSurfaceOrigin rtOrigin) {
+        this->flushScissorTest(GrScissorTest(scissorState.enabled()));
+        if (scissorState.enabled()) {
+            this->flushScissorRect(scissorState.rect(), rtWidth, rtHeight, rtOrigin);
+        }
+    }
+    void flushScissorTest(GrScissorTest);
 
     void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
     void disableWindowRectangles();
