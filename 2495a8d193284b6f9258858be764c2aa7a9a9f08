@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "72474348_55219ea1",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T00:52:34Z",
+      "side": 1,
+      "message": "Can definitely make this atomic. My guess is how things are set up now access should all be single threaded, but doesn\u0027t hurt to be safe.\n\nAs of now there is only ever one callback that uses a given tracker and thus there is only one place for setFinished to get called. But I guess technically it is illegal to have the reads in the busy loop when a write from setFinished...",
+      "parentUuid": "6672fb8a_d2791796",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 8
+      },
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6d9472eb_0181f7e6",
         "filename": "tools/gpu/TestContext.cpp",
         "patchSetId": 5
@@ -65,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e16a357b_57b4f5d4",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T00:52:34Z",
+      "side": 1,
+      "message": "For the reason described below I don\u0027t think we need the sk_make_sp.",
+      "parentUuid": "6d9472eb_0181f7e6",
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0ffbc45_0433db55",
         "filename": "tools/gpu/TestContext.cpp",
         "patchSetId": 5
@@ -76,6 +118,24 @@
       "writtenOn": "2020-02-21T00:00:25Z",
       "side": 1,
       "message": "I thought we didn\u0027t need to ref() after calling reset(new Class()).. but sk_make_sp should clarify the semantics anyway.",
+      "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56562754_7335f9c7",
+        "filename": "tools/gpu/TestContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T00:52:34Z",
+      "side": 1,
+      "message": "I should add a comment about what\u0027s happening here, but this is a ref for the flush call. Since I have a timeout on the wait function, it is possible if we time out that we will drop our ref stored in fFinishTrackers (either cause we put a new tracker in its slot of the array or delete the TestContext) before the callback is called. We still need the Tracker to be alive since the callback access it. Thus we add a ref here that the callback owns and the callback unrefs it.\n\nJust to be clear after the ref call we have two refs on the tracker. One owned by the fFinishTracker array and one by the flush callback.",
+      "parentUuid": "d0ffbc45_0433db55",
       "revId": "2495a8d193284b6f9258858be764c2aa7a9a9f08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
