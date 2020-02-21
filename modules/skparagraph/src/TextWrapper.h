@@ -16,9 +16,9 @@ class TextWrapper {
     public:
         ClusterPos() : fCluster(nullptr), fPos(0) {}
         ClusterPos(Cluster* cluster, size_t pos) : fCluster(cluster), fPos(pos) {}
-        inline Cluster* cluster() const { return fCluster; }
-        inline size_t position() const { return fPos; }
-        inline void setPosition(size_t pos) { fPos = pos; }
+        Cluster* cluster() const { return fCluster; }
+        size_t position() const { return fPos; }
+        void setPosition(size_t pos) { fPos = pos; }
         void clean() {
             fCluster = nullptr;
             fPos = 0;
@@ -26,7 +26,7 @@ class TextWrapper {
         void move(bool up) {
             fCluster += up ? 1 : -1;
             fPos = up ? 0 : fCluster->endPos();
-}
+        }
 
     private:
         Cluster* fCluster;
@@ -44,58 +44,29 @@ class TextWrapper {
             }
         }
 
-        inline SkScalar width() const { return fWidth; }
+        SkScalar width() const { return fWidth; }
         SkScalar widthWithGhostSpaces() const { return fWidthWithGhostSpaces; }
-        inline Cluster* startCluster() const { return fStart.cluster(); }
-        inline Cluster* endCluster() const { return fEnd.cluster(); }
-        inline Cluster* breakCluster() const { return fBreak.cluster(); }
-        inline InternalLineMetrics& metrics() { return fMetrics; }
-        inline size_t startPos() const { return fStart.position(); }
-        inline size_t endPos() const { return fEnd.position(); }
+        Cluster* startCluster() const { return fStart.cluster(); }
+        Cluster* endCluster() const { return fEnd.cluster(); }
+        Cluster* breakCluster() const { return fBreak.cluster(); }
+        InternalLineMetrics& metrics() { return fMetrics; }
+        size_t startPos() const { return fStart.position(); }
+        size_t endPos() const { return fEnd.position(); }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
         bool endOfWord() {
             return endOfCluster() &&
                    (fEnd.cluster()->isHardBreak() || fEnd.cluster()->isSoftBreak());
         }
 
-        void extend(TextStretch& stretch) {
-            fMetrics.add(stretch.fMetrics);
-            fEnd = stretch.fEnd;
-            fWidth += stretch.fWidth;
-            stretch.clean();
-        }
+        void extend(TextStretch& stretch);
+        void extend(Cluster* cluster);
 
         bool empty() { return fStart.cluster() == fEnd.cluster() &&
                               fStart.position() == fEnd.position(); }
 
         void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
-        void extend(Cluster* cluster) {
-            if (fStart.cluster() == nullptr) {
-                fStart = ClusterPos(cluster, cluster->startPos());
-            }
-            fEnd = ClusterPos(cluster, cluster->endPos());
-            if (!cluster->run()->isPlaceholder()) {
-                fMetrics.add(cluster->run());
-            }
-            fWidth += cluster->width();
-        }
-
-        void extend(Cluster* cluster, size_t pos) {
-            fEnd = ClusterPos(cluster, pos);
-            if (cluster->run() != nullptr) {
-                fMetrics.add(cluster->run());
-            }
-        }
-
-        void startFrom(Cluster* cluster, size_t pos) {
-            fStart = ClusterPos(cluster, pos);
-            fEnd = ClusterPos(cluster, pos);
-            if (cluster->run() != nullptr) {
-                fMetrics.add(cluster->run());
-            }
-            fWidth = 0;
-        }
+        void startFrom(Cluster* cluster, size_t pos);
 
         void saveBreak() {
             fWidthWithGhostSpaces = fWidth;
@@ -107,33 +78,10 @@ class TextWrapper {
             fEnd = fBreak;
         }
 
-        void trim() {
+        void trim();
+        void trim(Cluster* cluster);
 
-            if (fEnd.cluster() != nullptr &&
-                fEnd.cluster()->master() != nullptr &&
-                fEnd.cluster()->run() != nullptr &&
-                fEnd.cluster()->run()->placeholderStyle() == nullptr &&
-                fWidth > 0) {
-                fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
-            }
-        }
-
-        void trim(Cluster* cluster) {
-            SkASSERT(fEnd.cluster() == cluster);
-            if (fEnd.cluster() > fStart.cluster()) {
-                fEnd.move(false);
-                fWidth -= cluster->width();
-            } else {
-                fWidth = 0;
-            }
-        }
-
-        void clean() {
-            fStart.clean();
-            fEnd.clean();
-            fWidth = 0;
-            fMetrics.clean();
-        }
+        void clean();
 
     private:
         ClusterPos fStart;

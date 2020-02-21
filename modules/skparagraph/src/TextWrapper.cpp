@@ -340,5 +340,61 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 }
 
+void TextWrapper::TextStretch::extend(TextStretch& stretch) {
+    fMetrics.add(stretch.fMetrics);
+    fEnd = stretch.fEnd;
+    fWidth += stretch.fWidth;
+    stretch.clean();
+}
+
+void TextWrapper::TextStretch::extend(Cluster* cluster) {
+    if (fStart.cluster() == nullptr) {
+        fStart = ClusterPos(cluster, cluster->startPos());
+    }
+    fEnd = ClusterPos(cluster, cluster->endPos());
+    if (!cluster->run()->isPlaceholder()) {
+        fMetrics.add(cluster->run());
+    }
+    fWidth += cluster->width();
+}
+
+void TextWrapper::TextStretch::startFrom(Cluster* cluster, size_t pos) {
+    fStart = ClusterPos(cluster, pos);
+    fEnd = ClusterPos(cluster, pos);
+    if (cluster->run() != nullptr) {
+        fMetrics.add(cluster->run());
+    }
+    fWidth = 0;
+}
+
+void TextWrapper::TextStretch::trim() {
+
+    auto cluster = fEnd.cluster();
+    if (cluster != nullptr &&
+        cluster->master() != nullptr &&
+        cluster->run() != nullptr &&
+        cluster->run()->placeholderStyle() == nullptr &&
+        fWidth > 0) {
+        fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+    }
+}
+
+void TextWrapper::TextStretch::trim(Cluster* cluster) {
+    SkASSERT(fEnd.cluster() == cluster);
+    if (fEnd.cluster() > fStart.cluster()) {
+        fEnd.move(false);
+        fWidth -= cluster->width();
+    } else {
+        fWidth = 0;
+    }
+}
+
+void TextWrapper::TextStretch::clean() {
+    fStart.clean();
+    fEnd.clean();
+    fWidth = 0;
+    fMetrics.clean();
+}
+
 }  // namespace textlayout
 }  // namespace skia

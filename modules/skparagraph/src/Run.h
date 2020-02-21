@@ -76,30 +76,10 @@ public:
     }
     SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
-    SkScalar correctAscent() const {
+    SkScalar correctAscent() const;
+    SkScalar correctDescent() const;
+    SkScalar correctLeading() const;
 
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
-        }
-        return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
-    }
-    SkScalar correctDescent() const {
-
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
-        }
-        return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
-    }
-    SkScalar correctLeading() const {
-
-        if (fHeightMultiplier == 0) {
-            return fFontMetrics.fAscent;
-        }
-        return fFontMetrics.fLeading * fHeightMultiplier * fFont.getSize() /
-                (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
-    }
     const SkFont& font() const { return fFont; }
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
@@ -230,19 +210,7 @@ public:
         HardLineBreak,  // calculated for all clusters (UBRK_LINE)
     };
 
-    Cluster()
-            : fMaster(nullptr)
-            , fRunIndex(EMPTY_RUN)
-            , fTextRange(EMPTY_TEXT)
-            , fGraphemeRange(EMPTY_RANGE)
-            , fStart(0)
-            , fEnd()
-            , fWidth()
-            , fSpacing(0)
-            , fHeight()
-            , fHalfLetterSpacing(0.0)
-            , fWhiteSpaces(false)
-            , fBreakType(None) {}
+    Cluster();
 
     Cluster(ParagraphImpl* master,
             RunIndex runIndex,
@@ -327,76 +295,30 @@ private:
 class InternalLineMetrics {
 public:
 
-    InternalLineMetrics() {
-        clean();
-        fForceStrut = false;
-    }
-
     InternalLineMetrics(bool forceStrut) {
         clean();
         fForceStrut = forceStrut;
     }
 
-    InternalLineMetrics(SkScalar a, SkScalar d, SkScalar l) {
-        fAscent = a;
-        fDescent = d;
-        fLeading = l;
-        fForceStrut = false;
-    }
+    InternalLineMetrics() : InternalLineMetrics(false) { }
 
-    InternalLineMetrics(const SkFont& font, bool forceStrut) {
-        SkFontMetrics metrics;
-        font.getMetrics(&metrics);
-        fAscent = metrics.fAscent;
-        fDescent = metrics.fDescent;
-        fLeading = metrics.fLeading;
-        fForceStrut = forceStrut;
-    }
+    InternalLineMetrics(SkScalar a, SkScalar d, SkScalar l);
 
-    void add(Run* run) {
+    InternalLineMetrics(const SkFont& font, bool forceStrut);
 
-        if (fForceStrut) {
-            return;
-        }
+    void add(Run* run);
 
-        fAscent = std::min(fAscent, run->correctAscent());
-        fDescent = std::max(fDescent, run->correctDescent());
-        fLeading = std::max(fLeading, run->correctLeading());
-    }
+    void add(InternalLineMetrics other);
 
-    void add(InternalLineMetrics other) {
-        fAscent = std::min(fAscent, other.fAscent);
-        fDescent = std::max(fDescent, other.fDescent);
-        fLeading = std::max(fLeading, other.fLeading);
-    }
-    void clean() {
-        fAscent = 0;
-        fDescent = 0;
-        fLeading = 0;
-    }
+    void clean();
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
 
-    void updateLineMetrics(InternalLineMetrics& metrics) {
-        if (metrics.fForceStrut) {
-            metrics.fAscent = fAscent;
-            metrics.fDescent = fDescent;
-            metrics.fLeading = fLeading;
-        } else {
-            // This is another of those flutter changes. To be removed...
-            metrics.fAscent = std::min(metrics.fAscent, fAscent - fLeading / 2.0f);
-            metrics.fDescent = std::max(metrics.fDescent, fDescent + fLeading / 2.0f);
-        }
-    }
+    void updateLineMetrics(InternalLineMetrics& metrics);
 
-    SkScalar runTop(const Run* run) const {
-        return fLeading / 2 - fAscent + run->ascent() + delta();
-    }
+    SkScalar runTop(const Run* run) const { return fLeading / 2 - fAscent + run->ascent() + delta(); }
 
-    SkScalar height() const {
-        return ::round((double)fDescent - fAscent + fLeading);
-    }
-
+    SkScalar height() const { return ::round((double)fDescent - fAscent + fLeading);}
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
     SkScalar deltaBaselines() const { return fLeading / 2 + fDescent; }

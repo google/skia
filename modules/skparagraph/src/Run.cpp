@@ -358,6 +358,31 @@ PlaceholderStyle* Run::placeholderStyle() const {
     }
 }
 
+SkScalar Run::correctAscent() const {
+
+    if (fHeightMultiplier == 0) {
+        return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
+    }
+    return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
+            (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
+}
+SkScalar Run::correctDescent() const {
+
+    if (fHeightMultiplier == 0) {
+        return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
+    }
+    return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
+            (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading / 2);
+}
+SkScalar Run::correctLeading() const {
+
+    if (fHeightMultiplier == 0) {
+        return fFontMetrics.fAscent;
+    }
+    return fFontMetrics.fLeading * fHeightMultiplier * fFont.getSize() /
+            (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+}
+
 Run* Cluster::run() const {
     if (fRunIndex >= fMaster->runs().size()) {
         return nullptr;
@@ -368,6 +393,20 @@ Run* Cluster::run() const {
 SkFont Cluster::font() const {
     return fMaster->run(fRunIndex).font();
 }
+
+Cluster::Cluster()
+        : fMaster(nullptr)
+        , fRunIndex(EMPTY_RUN)
+        , fTextRange(EMPTY_TEXT)
+        , fGraphemeRange(EMPTY_RANGE)
+        , fStart(0)
+        , fEnd()
+        , fWidth()
+        , fSpacing(0)
+        , fHeight()
+        , fHalfLetterSpacing(0.0)
+        , fWhiteSpaces(false)
+        , fBreakType(None) {}
 
 Cluster::Cluster(ParagraphImpl* master,
         RunIndex runIndex,
@@ -387,7 +426,57 @@ Cluster::Cluster(ParagraphImpl* master,
         , fHeight(height)
         , fHalfLetterSpacing(0.0)
         , fWhiteSpaces(false)
-        , fBreakType(None) {
+        , fBreakType(None) {}
+
+InternalLineMetrics::InternalLineMetrics(SkScalar a, SkScalar d, SkScalar l) {
+    fAscent = a;
+    fDescent = d;
+    fLeading = l;
+    fForceStrut = false;
+}
+
+InternalLineMetrics::InternalLineMetrics(const SkFont& font, bool forceStrut) {
+    SkFontMetrics metrics;
+    font.getMetrics(&metrics);
+    fAscent = metrics.fAscent;
+    fDescent = metrics.fDescent;
+    fLeading = metrics.fLeading;
+    fForceStrut = forceStrut;
+}
+
+void InternalLineMetrics::updateLineMetrics(InternalLineMetrics& metrics) {
+    if (metrics.fForceStrut) {
+        metrics.fAscent = fAscent;
+        metrics.fDescent = fDescent;
+        metrics.fLeading = fLeading;
+    } else {
+        // This is another of those flutter changes. To be removed...
+        metrics.fAscent = std::min(metrics.fAscent, fAscent - fLeading / 2.0f);
+        metrics.fDescent = std::max(metrics.fDescent, fDescent + fLeading / 2.0f);
+    }
+}
+
+void InternalLineMetrics::add(InternalLineMetrics other) {
+    fAscent = std::min(fAscent, other.fAscent);
+    fDescent = std::max(fDescent, other.fDescent);
+    fLeading = std::max(fLeading, other.fLeading);
+}
+
+void InternalLineMetrics::add(Run* run) {
+
+    if (fForceStrut) {
+        return;
+    }
+
+    fAscent = std::min(fAscent, run->correctAscent());
+    fDescent = std::max(fDescent, run->correctDescent());
+    fLeading = std::max(fLeading, run->correctLeading());
+}
+
+void InternalLineMetrics::clean() {
+    fAscent = 0;
+    fDescent = 0;
+    fLeading = 0;
 }
 
 }  // namespace textlayout
