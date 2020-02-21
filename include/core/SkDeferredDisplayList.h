@@ -18,38 +18,16 @@ class SkDeferredDisplayListPriv;
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include <map>
-class GrOpMemoryPool;
 class GrRenderTask;
-class GrRenderTargetProxy;
 struct GrCCPerOpsTaskPaths;
 #endif
 
 /*
  * This class contains pre-processed gpu operations that can be replayed into
- * an SkSurface via draw(SkDeferredDisplayList*).
- *
- * TODO: we probably need to expose this class so users can query it for memory usage.
+ * an SkSurface via SkSurface::draw(SkDeferredDisplayList*).
  */
 class SkDeferredDisplayList {
 public:
-
-#if SK_SUPPORT_GPU
-    // This object is the source from which the lazy proxy backing the DDL will pull its backing
-    // texture when the DDL is replayed. It has to be separately ref counted bc the lazy proxy
-    // can outlive the DDL.
-    class SK_API LazyProxyData : public SkRefCnt {
-    public:
-        // Upon being replayed - this field will be filled in (by the DrawingManager) with the
-        // proxy backing the destination SkSurface. Note that, since there is no good place to
-        // clear it, it can become a dangling pointer.
-        GrRenderTargetProxy* fReplayDest = nullptr;
-    };
-#else
-    class SK_API LazyProxyData : public SkRefCnt {};
-#endif
-
-    SK_API SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
-                                 sk_sp<LazyProxyData>);
     SK_API ~SkDeferredDisplayList();
 
     SK_API const SkSurfaceCharacterization& characterization() const {
@@ -61,15 +39,20 @@ public:
     const SkDeferredDisplayListPriv priv() const;
 
 private:
-#if SK_SUPPORT_GPU
-    SK_API const SkTArray<GrRecordingContext::ProgramData>& programData() const {
-        return fProgramData;
-    }
-#endif
-
     friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fArenas'
     friend class SkDeferredDisplayListRecorder; // for access to 'fLazyProxyData'
     friend class SkDeferredDisplayListPriv;
+
+    class LazyProxyData;
+
+    SK_API SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                                 sk_sp<LazyProxyData>);
+
+#if SK_SUPPORT_GPU
+    const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+        return fProgramData;
+    }
+#endif
 
     const SkSurfaceCharacterization fCharacterization;
 
@@ -84,8 +67,8 @@ private:
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
     SkTArray<GrRecordingContext::ProgramData> fProgramData;
-#endif
     sk_sp<LazyProxyData>            fLazyProxyData;
+#endif
 };
 
 #endif
