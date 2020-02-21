@@ -65,7 +65,7 @@ public:
     int numDynamicStateArrays() const { return fNumDynamicStateArrays; }
 
     bool hasDynamicScissors() const {
-        return fPipeline->isScissorEnabled() &&
+        return fPipeline->isScissorTestEnabled() &&
                fDynamicStateArrays && fDynamicStateArrays->fScissorRects;
     }
 
@@ -75,7 +75,7 @@ public:
         return fDynamicStateArrays->fScissorRects[i];
     }
 
-    bool hasFixedScissor() const { return fPipeline->isScissorEnabled() && fFixedDynamicState; }
+    bool hasFixedScissor() const { return fPipeline->isScissorTestEnabled() && fFixedDynamicState; }
 
     const SkIRect& fixedScissor() const {
         SkASSERT(this->hasFixedScissor());
