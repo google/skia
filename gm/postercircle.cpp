@@ -12,8 +12,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -82,8 +82,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         // See https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/perspective
         // for projection matrix when --webkit-perspective: 800px is used.
-        SkMatrix44 proj(SkMatrix44::kIdentity_Constructor);
-        proj.set(3, 2, -1.f / 800.f);
+        SkM44 proj;
+        proj.setRC(3, 2, -1.f / 800.f);
 
         for (int pass = 0; pass < 2; ++pass) {
             // Want to draw 90 to 270 first (the back), then 270 to 90 (the front), but do all 3
@@ -119,19 +119,12 @@ protected:
 
                     // Matrix matches transform: rotateY(<angle>deg) translateZ(200px); nested in an
                     // element with the perspective projection matrix above.
-                    SkMatrix44 model;
-                    // No post/preRotate, so start with rotation matrix and adjust from there
-                    model.setRotateAboutUnit(0.f, 1.f, 0.f, SkDegreesToRadians(yRotation));
-                    model.preTranslate(0.f, 0.f, kRingRadius); // *before* rotation
-                    model.postTranslate(0.f, ringY, 0.f);      // *after* rotation
-                    model.postConcat(proj);
-                    model.postTranslate(0.5f * kStageWidth, 0.5f * kStageHeight + 25, 0.f);
-
-                    // Flatten the 4x4 matrix by discarding the 3rd row and column
-                    canvas->concat(SkMatrix::MakeAll(
-                            model.get(0, 0), model.get(0, 1), model.get(0, 3),
-                            model.get(1, 0), model.get(1, 1), model.get(1, 3),
-                            model.get(3, 0), model.get(3, 1), model.get(3, 3)));
+                    SkM44 model = SkM44::Translate(kStageWidth/2, kStageHeight/2 + 25, 0)
+                                * proj
+                                * SkM44::Translate(0, ringY, 0)
+                                * SkM44::Rotate({0,1,0}, SkDegreesToRadians(yRotation))
+                                * SkM44::Translate(0, 0, kRingRadius);
+                    canvas->concat44(model);
 
                     SkRect poster = SkRect::MakeLTRB(-0.5f * kPosterSize, -0.5f * kPosterSize,
                                                       0.5f * kPosterSize,  0.5f * kPosterSize);
