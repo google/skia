@@ -66,20 +66,21 @@ public:
                                           DrawQuad* quad,
                                           const GrUserStencilSettings* stencilSettings,
                                           Helper::InputFlags inputFlags) {
+        GrQuadAllocator* arena = context->priv().quadAllocator();
         // Clean up deviations between aaType and edgeAA
         GrQuadUtils::ResolveAAType(aaType, quad->fEdgeFlags, quad->fDevice,
                                    &aaType, &quad->fEdgeFlags);
         return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), aaType, quad,
-                                                 stencilSettings, inputFlags);
+                                                 stencilSettings, inputFlags, arena);
     }
 
     // aaType is passed to Helper in the initializer list, so incongruities between aaType and
     // edgeFlags must be resolved prior to calling this constructor.
     FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, GrAAType aaType,
-               DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags)
+               DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags,
+               GrQuadAllocator* arena)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil, inputFlags)
-            , fQuads(1, !fHelper.isTrivial()) {
+            , fHelper(args, aaType, stencil, inputFlags)  {
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
@@ -100,10 +101,10 @@ public:
         // Conservatively keep track of the local coordinates; it may be that the paint doesn't
         // need them after analysis is finished. If the paint is known to be solid up front they
         // can be skipped entirely.
-        fQuads.append(quad->fDevice, {paintColor, quad->fEdgeFlags},
+        fQuads.append(arena, quad->fDevice, {paintColor, quad->fEdgeFlags},
                       fHelper.isTrivial() ? nullptr : &quad->fLocal);
         if (count > 1) {
-            fQuads.append(extra.fDevice, { paintColor, extra.fEdgeFlags },
+            fQuads.append(arena, extra.fDevice, { paintColor, extra.fEdgeFlags },
                           fHelper.isTrivial() ? nullptr : &extra.fLocal);
         }
     }
@@ -305,10 +306,10 @@ private:
         flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
+    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas* arenas,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<FillRectOp>();
+        auto* that = t->cast<FillRectOp>();
 
         bool upgradeToCoverageAAOnMerge = false;
         if (fHelper.aaType() != that->fHelper.aaType()) {
@@ -344,7 +345,7 @@ private:
             fHelper.setAAType(GrAAType::kCoverage);
         }
 
-        fQuads.concat(that->fQuads);
+        fQuads.concat(arenas->quadAllocator(), &that->fQuads);
         return CombineResult::kMerged;
     }
 
@@ -377,7 +378,8 @@ private:
 
     // Similar to onCombineIfPossible, but adds a quad assuming its op would have been compatible.
     // But since it's avoiding the op list management, it must update the op's bounds.
-    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType) {
+    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType,
+                 GrQuadAllocator* arena) {
         SkRect newBounds = this->bounds();
         newBounds.joinPossiblyEmptyRect(quad->fDevice.bounds());
 
@@ -392,10 +394,10 @@ private:
             return false;
         } else {
             // Can actually add the 1 or 2 quads representing the draw
-            fQuads.append(quad->fDevice, { color, quad->fEdgeFlags },
+            fQuads.append(arena, quad->fDevice, { color, quad->fEdgeFlags },
                           fHelper.isTrivial() ? nullptr : &quad->fLocal);
             if (count > 1) {
-                fQuads.append(extra.fDevice, { color, extra.fEdgeFlags },
+                fQuads.append(arena, extra.fDevice, { color, extra.fEdgeFlags },
                               fHelper.isTrivial() ? nullptr : &extra.fLocal);
             }
             // Update the bounds
@@ -452,6 +454,8 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
     // First make a draw op for the first quad in the set
     SkASSERT(cnt > 0);
 
+    GrQuadAllocator* arena = context->priv().quadAllocator();
+
     DrawQuad quad{GrQuad::MakeFromRect(quads[0].fRect, viewMatrix),
                   GrQuad::MakeFromRect(quads[0].fRect, quads[0].fLocalMatrix),
                   quads[0].fAAFlags};
@@ -459,7 +463,13 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
     std::unique_ptr<GrDrawOp> op = FillRectOp::Make(context, std::move(paint), aaType,
                                                     &quad, stencilSettings, InputFlags::kNone);
     FillRectOp* fillRects = op->cast<FillRectOp>();
-
+    fillRects->fQuads.reserve(arena,
+                              cnt - 1,
+                              viewMatrix.hasPerspective() ? GrQuad::Type::kPerspective
+                                                          : GrQuad::Type::kAxisAligned,
+                              quads[0].fLocalMatrix.hasPerspective() ? GrQuad::Type::kPerspective
+                                                                     : GrQuad::Type::kAxisAligned,
+                              /* hasLocals*/ !fillRects->fHelper.isTrivial());
     *numConsumed = 1;
     // Accumulate remaining quads similar to onCombineIfPossible() without creating an op
     for (int i = 1; i < cnt; ++i) {
@@ -471,7 +481,7 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
         GrQuadUtils::ResolveAAType(aaType, quads[i].fAAFlags, quad.fDevice,
                                    &resolvedAA, &quad.fEdgeFlags);
 
-        if (!fillRects->addQuad(&quad, quads[i].fColor, resolvedAA)) {
+        if (!fillRects->addQuad(&quad, quads[i].fColor, resolvedAA, arena)) {
             break;
         }
 

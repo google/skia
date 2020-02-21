@@ -36,6 +36,7 @@
 #include "src/gpu/GrTransferFromRenderTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -379,14 +380,17 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     fDAG.reset();
     this->clearDDLTargets();
 
-#ifdef SK_DEBUG
     // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
     // When we move to partial flushes this assert will no longer be valid.
     // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opsTasks
     // will be stored in the DDL's GrOpMemoryPools.
-    GrOpMemoryPool* opMemoryPool = fContext->priv().opMemoryPool();
-    opMemoryPool->isEmpty();
-#endif
+    // The op-memory pool requires ops to be deleted explicitly, so it should already be empty
+    SkASSERT(fContext->priv().opMemoryPool()->isEmpty());
+    // The other arenas/pools should be reset at the end of a flush
+    // FIXME should just have a reset() on the context's Arenas aggregate.
+    fContext->priv().recordTimeAllocator()->reset();
+    fContext->priv().quadAllocator()->reset();
+
 
     GrSemaphoresSubmitted result = gpu->finishFlush(proxies, numProxies, access, info,
                                                     externalRequests);

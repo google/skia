@@ -198,9 +198,10 @@ public:
                                           GrAAType aaType,
                                           DrawQuad* quad,
                                           const SkRect* domain) {
+        GrQuadAllocator* arena = context->priv().quadAllocator();
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<TextureOp>(std::move(proxyView), std::move(textureXform), filter,
-                                         color, saturate, aaType, quad, domain);
+                                         color, saturate, aaType, quad, domain, arena);
     }
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
@@ -219,9 +220,10 @@ public:
         size_t size = sizeof(TextureOp) + sizeof(ViewCountPair) * (proxyRunCnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
+        GrQuadAllocator* arena = context->priv().quadAllocator();
         return std::unique_ptr<GrDrawOp>(
                 new (mem) TextureOp(set, cnt, proxyRunCnt, filter, saturate, aaType, constraint,
-                                    viewMatrix, std::move(textureColorSpaceXform)));
+                                    viewMatrix, std::move(textureColorSpaceXform), arena));
     }
 
     ~TextureOp() override {
@@ -451,9 +453,9 @@ private:
               GrTextureOp::Saturate saturate,
               GrAAType aaType,
               DrawQuad* quad,
-              const SkRect* domainRect)
+              const SkRect* domainRect,
+              GrQuadAllocator* arena)
             : INHERITED(ClassID())
-            , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
             , fMetadata(proxyView.swizzle(), filter, Domain(!!domainRect), saturate) {
@@ -488,7 +490,7 @@ private:
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsHairline::kNo);
 
-        int quadCount = this->appendQuad(quad, color, domain);
+        int quadCount = this->appendQuad(arena, quad, color, domain);
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
@@ -500,9 +502,9 @@ private:
               GrAAType aaType,
               SkCanvas::SrcRectConstraint constraint,
               const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+              GrQuadAllocator* arena)
             : INHERITED(ClassID())
-            , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
             , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
@@ -510,6 +512,9 @@ private:
         // Update counts to reflect the batch op
         fMetadata.fProxyCount = SkToUInt(proxyRunCnt);
         fMetadata.fTotalQuadCount = SkToUInt(cnt);
+        fQuads.reserve(arena, cnt, viewMatrix.hasPerspective() ? GrQuad::Type::kPerspective
+                                                               : GrQuad::Type::kAxisAligned,
+                       GrQuad::Type::kAxisAligned, /* hasLocals */ true);
 
         SkRect bounds = SkRectPriv::MakeLargestInverted();
 
@@ -608,7 +613,7 @@ private:
             // ViewCountPair (this frequently happens when Chrome draws 9-patches).
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
             fViewCountPairs[p].fQuadCnt += this->appendQuad(
-                    &quad, {alpha, alpha, alpha, alpha}, domain);
+                    arena, &quad, {alpha, alpha, alpha, alpha}, domain);
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
@@ -622,7 +627,8 @@ private:
         this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
     }
 
-    int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& domain) {
+    int appendQuad(GrQuadAllocator* arena, DrawQuad* quad, const SkPMColor4f& color,
+                   const SkRect& domain) {
         DrawQuad extra;
         // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
         // no inset/outset math that requires w > 0.
@@ -634,9 +640,9 @@ private:
             quad->fEdgeFlags = GrQuadAAFlags::kNone;
             quadCount = 1;
         }
-        fQuads.append(quad->fDevice, {color, domain, quad->fEdgeFlags},  &quad->fLocal);
+        fQuads.append(arena, quad->fDevice, {color, domain, quad->fEdgeFlags},  &quad->fLocal);
         if (quadCount > 1) {
-            fQuads.append(extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
+            fQuads.append(arena, extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
             fMetadata.fTotalQuadCount++;
         }
         return quadCount;
@@ -937,10 +943,10 @@ private:
         flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
+    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas* arenas,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<TextureOp>();
+        auto* that = t->cast<TextureOp>();
 
         if (fPrePreparedDesc || that->fPrePreparedDesc) {
             // This should never happen (since only DDL recorded ops should be prePrepared)
@@ -1000,7 +1006,7 @@ private:
         }
 
         // Concatenate quad lists together
-        fQuads.concat(that->fQuads);
+        fQuads.concat(arenas->quadAllocator(), &that->fQuads);
         fViewCountPairs[0].fQuadCnt += that->fQuads.count();
         fMetadata.fTotalQuadCount += that->fQuads.count();
 

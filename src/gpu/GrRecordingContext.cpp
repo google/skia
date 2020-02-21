@@ -19,6 +19,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
@@ -115,12 +116,16 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
-GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
+GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool,
+                                   SkArenaAlloc* recordTimeAllocator,
+                                   GrQuadAllocator* quadAllocator)
         : fOpMemoryPool(opMemoryPool)
-        , fRecordTimeAllocator(recordTimeAllocator) {
+        , fRecordTimeAllocator(recordTimeAllocator)
+        , fQuadAllocator(quadAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
     SkASSERT(opMemoryPool);
     SkASSERT(recordTimeAllocator);
+    SkASSERT(quadAllocator);
 }
 
 // Must be defined here so that std::unique_ptr can see the sizes of the various pools, otherwise
@@ -131,6 +136,7 @@ GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
     fOpMemoryPool = std::move(a.fOpMemoryPool);
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
+    fQuadAllocator = std::move(a.fQuadAllocator);
     return *this;
 }
 
@@ -147,7 +153,14 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
     }
 
-    return {fOpMemoryPool.get(), fRecordTimeAllocator.get()};
+    if (!fQuadAllocator) {
+        // The GrQuadBuffers internally manage mini-Fibonacci sequences for each 'buffer' sequence
+        // in the single block allocator. Use the Fibonacci growth policy to help stay in sync.
+        // TODO: empirically determine a better number for the first size (and adapt per-frame)
+        fQuadAllocator = GrQuadAllocator::Make(100 * sizeof(GrQuad));
+    }
+
+    return {fOpMemoryPool.get(), fRecordTimeAllocator.get(), fQuadAllocator.get()};
 }
 
 GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {
