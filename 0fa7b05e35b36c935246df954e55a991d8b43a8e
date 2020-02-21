@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3ca85567_4102b2e2",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-21T18:29:10Z",
+      "side": 1,
+      "message": "I wonder that, too. All of our \"global\" mutexes are now written this way (since https://skia-review.googlesource.com/c/skia/+/221340).",
+      "parentUuid": "a87fcd62_23dd3d10",
+      "revId": "0fa7b05e35b36c935246df954e55a991d8b43a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7dc62de1_606bc681",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -48,6 +66,30 @@
       "writtenOn": "2020-02-21T18:26:42Z",
       "side": 1,
       "message": "Could we hide this behind a RAII object that ensures you have the lock?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "0fa7b05e35b36c935246df954e55a991d8b43a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93cf850a_958ae58c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-21T18:29:10Z",
+      "side": 1,
+      "message": "Yes, I started to do that, and then wasn\u0027t sure if it was worth it, but it probably is - I\u0027ll update this.",
+      "parentUuid": "7dc62de1_606bc681",
       "range": {
         "startLine": 32,
         "startChar": 0,
