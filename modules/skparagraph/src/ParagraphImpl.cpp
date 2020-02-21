@@ -886,6 +886,99 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
             continue;
         }
 
+        line.iterateThroughVisualRuns(true,
+                [this, &line, dx, &result]
+                (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+                *runWidthInLine = line.iterateThroughSingleRunByStyles(
+                run, runOffsetInLine, textRange, StyleType::kNone,
+                [this, line, dx, &result]
+                (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+
+                    auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
+                        auto codepoint = std::lower_bound(
+                            fCodePoints.begin(), fCodePoints.end(),
+                            clusterIndex8,
+                            [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+
+                        return codepoint - fCodePoints.begin();
+                    };
+
+                    auto offsetX = line.offset().fX;
+                    if (dx < context.clip.fLeft + offsetX) {
+                        // All the other runs are placed right of this one
+                        auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
+                        result = { SkToS32(codepointIndex), kDownstream };
+                        return false;
+                    }
+
+                    if (dx >= context.clip.fRight + offsetX) {
+                        // We have to keep looking but just in case keep the last one as the closes
+                        // so far
+                        auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
+                        result = { SkToS32(codepointIndex), kUpstream };
+                        return true;
+                    }
+
+                    // So we found the run that contains our coordinates
+                    // Find the glyph position in the run that is the closest left of our point
+                    // TODO: binary search
+                    size_t found = context.pos;
+                    for (size_t i = context.pos; i < context.pos + context.size; ++i) {
+                        // TODO: this rounding is done to match Flutter tests. Must be removed..
+                        auto index = context.run->leftToRight() ? i : context.size - i;
+                        auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
+                        if ((context.run->leftToRight() ? end > dx : dx > end)) {
+                            break;
+                        }
+                        found = index;
+                    }
+
+                    if (!context.run->leftToRight()) {
+                        --found;
+                    }
+
+                    auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
+                    auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                    auto clusterIndex8 = context.run->globalClusterIndex(found);
+                    auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+                    TextRange clusterText (clusterIndex8, clusterEnd8);
+
+                    // Find the grapheme positions in codepoints that contains the point
+                    auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
+                    CodepointRange codepoints(codepointIndex, codepointIndex);
+                    for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
+                        auto& cp = fCodePoints[codepoints.end];
+                        if (cp.fTextIndex >= clusterText.end) {
+                            break;
+                        }
+                    }
+                    auto graphemeSize = codepoints.width();
+
+                    // We only need to inspect one glyph (maybe not even the entire glyph)
+                    SkScalar center;
+                    bool insideGlyph = false;
+                    if (graphemeSize > 1) {
+                        auto averageCodepointWidth = glyphWidth / graphemeSize;
+                        auto delta = dx - glyphStart;
+                        auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
+                        insideGlyph = delta > averageCodepointWidth;
+                        center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
+                        codepointIndex += insideIndex;
+                    } else {
+                        center = glyphStart + glyphWidth / 2;
+                    }
+                    if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                        result = { SkToS32(codepointIndex), kDownstream };
+                    } else {
+                        result = { SkToS32(codepointIndex + 1), kUpstream };
+                    }
+                    // No need to continue
+                    return false;
+
+                });
+                return true;
+            });
+/*
         // This is so far the the line vertically closest to our coordinates
         // (or the first one, or the only one - all the same)
         line.iterateThroughVisualRuns(true,
@@ -975,7 +1068,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 // No need to continue
                 return false;
             });
-
+*/
         break;
     }
 
