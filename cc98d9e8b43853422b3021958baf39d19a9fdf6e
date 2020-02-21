@@ -22,6 +22,29 @@
       "revId": "cc98d9e8b43853422b3021958baf39d19a9fdf6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3246022d_42f92ba6",
+        "filename": "tools/gpu/d3d/D3DTestUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T18:30:36Z",
+      "side": 1,
+      "message": "Other nit I just noticed. Should we be using the new LLC copyright for all these files?",
+      "range": {
+        "startLine": 2,
+        "startChar": 24,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "cc98d9e8b43853422b3021958baf39d19a9fdf6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
