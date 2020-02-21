@@ -101,11 +101,10 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
 }
 
 void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                               const GrSurfaceProxy* const primProcTextureOverrides[]) {
+                               const GrSurfaceProxy* const primProcTextures[]) {
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        SkASSERT(primProcTextureOverrides[i]->asTextureProxy());
-        auto* overrideTexture = static_cast<GrGLTexture*>(
-                primProcTextureOverrides[i]->peekTexture());
+        SkASSERT(primProcTextures[i]->asTextureProxy());
+        auto* overrideTexture = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());
         fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
                           primProc.textureSampler(i).swizzle(), overrideTexture);
     }

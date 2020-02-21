@@ -76,11 +76,6 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                 offset);
     }
 
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
-                                                              : nullptr;
-        this->setTextures(programInfo, proxies);
-    }
     fDataManager.resetDirtyBits();
 
 #ifdef SK_DEBUG
@@ -93,17 +88,18 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     fStencil = programInfo.nonGLStencilSettings();
 }
 
-void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
+void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
+                                     const GrPipeline& pipeline,
                                      const GrSurfaceProxy* const primProcTextures[]) {
     fSamplerBindings.reset();
-    for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());
-        const auto& sampler = programInfo.primProc().textureSampler(i);
+        const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
+    GrFragmentProcessor::CIter fpIter(pipeline);
     for (; fpIter; ++fpIter) {
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
             const auto& sampler = fpIter->textureSampler(i);
@@ -111,7 +107,7 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
         }
     }
 
-    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstProxyView().asTextureProxy()) {
+    if (GrTextureProxy* dstTextureProxy = pipeline.dstProxyView().asTextureProxy()) {
         fSamplerBindings.emplace_back(
                 GrSamplerState::Filter::kNearest, dstTextureProxy->peekTexture(), fGpu);
     }
