@@ -138,6 +138,7 @@ private:
         do {
             for (auto s : kSizes) {
                 auto size = 2 * s;
+                SkASSERT(size == 16);
                 for (const auto& typeface : fTypefaces) {
                     for (const auto& text : kTexts) {
                         // Choose a random color but don't let alpha be too small to see.
