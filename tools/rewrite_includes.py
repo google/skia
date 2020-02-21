@@ -70,7 +70,7 @@ def to_rewrite():
 # Rewrite any #includes relative to Skia's top-level directory.
 need_rewriting = []
 for file_path in to_rewrite():
-  if 'generated' in file_path or 'third_party/skcms' in file_path:
+  if 'generated' in file_path or 'third_party/skcms' in file_path or 'SkM44.h' in file_path:
     continue
   if (file_path.endswith('.h') or
       file_path.endswith('.c') or
