@@ -78,81 +78,6 @@ private:
 ProcGetter* ProcGetter::fInstance;
 #endif
 
-class DawnFence {
-public:
-    DawnFence(const wgpu::Device& device, const wgpu::Buffer& buffer)
-      : fDevice(device), fBuffer(buffer), fCalled(false) {
-        fBuffer.MapReadAsync(callback, this);
-    }
-
-    bool wait() {
-        while (!fCalled) {
-            fDevice.Tick();
-        }
-        return true;
-    }
-
-    ~DawnFence() {
-    }
-
-    static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
-                         void* userData) {
-        DawnFence* fence = static_cast<DawnFence*>(userData);
-        fence->fCalled = true;
-    }
-    wgpu::Buffer buffer() { return fBuffer; }
-
-private:
-    wgpu::Device                   fDevice;
-    wgpu::Buffer                   fBuffer;
-    bool                           fCalled;
-};
-
-/**
- * Implements sk_gpu_test::FenceSync for Dawn.
- */
-class DawnFenceSync : public sk_gpu_test::FenceSync {
-public:
-    DawnFenceSync(wgpu::Device device) : fDevice(device) {
-    }
-
-    ~DawnFenceSync() override {
-    }
-
-    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
-        wgpu::Buffer buffer;
-        if (fBuffers.empty()) {
-            wgpu::BufferDescriptor desc;
-            desc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
-            desc.size = 1;
-            buffer = fDevice.CreateBuffer(&desc);
-        } else {
-            buffer = fBuffers.back();
-            fBuffers.pop_back();
-        }
-        DawnFence* fence = new DawnFence(fDevice, buffer);
-        return reinterpret_cast<sk_gpu_test::PlatformFence>(fence);
-    }
-
-    bool waitFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        fAutoreleasePool.drain();
-        DawnFence* fence = reinterpret_cast<DawnFence*>(opaqueFence);
-        return fence->wait();
-    }
-
-    void deleteFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        DawnFence* fence = reinterpret_cast<DawnFence*>(opaqueFence);
-        fBuffers.push_back(fence->buffer());
-        delete fence;
-    }
-
-private:
-    wgpu::Device                      fDevice;
-    mutable std::vector<wgpu::Buffer> fBuffers;
-    mutable AutoreleasePool           fAutoreleasePool;
-    typedef sk_gpu_test::FenceSync INHERITED;
-};
-
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
     static wgpu::Device createDevice(const dawn_native::Instance& instance,
@@ -211,9 +136,6 @@ public:
 
     void testAbandon() override {}
 
-    // There is really nothing to here since we don't own any unqueued command buffers here.
-    void submit() override {}
-
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
@@ -230,7 +152,7 @@ private:
                         const wgpu::Device& device)
             : DawnTestContext(device)
             , fInstance(std::move(instance)) {
-        fFenceSync.reset(new DawnFenceSync(fDevice));
+        fFenceSupport = true;
     }
 
     void onPlatformMakeNotCurrent() const override {}

@@ -202,12 +202,9 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
     }
 }
 
-void DDLTileHelper::drawAllTilesAndFlush(GrContext* context, bool flush) {
+void DDLTileHelper::drawAllTiles(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].draw(context);
-    }
-    if (flush) {
-        context->flush();
     }
 }
 
