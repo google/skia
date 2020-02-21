@@ -11,8 +11,11 @@
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/sksl/SkSLByteCode.h"
 
 #include <string>
+
+#include "modules/canvaskit/WasmAliases.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -74,14 +77,99 @@ private:
 
 }
 
+struct SimpleUniform {
+    int columns;
+    int rows;
+    int slot; // the index into the uniforms array that this uniform begins.
+};
+
+SimpleUniform fromUniform(SkSL::ByteCode::Uniform u) {
+    SimpleUniform su;
+    su.columns = u.fColumns;
+    su.rows = u.fRows;
+    su.slot = u.fSlot;
+    return su;
+}
+
 EMSCRIPTEN_BINDINGS(Particles) {
     class_<SkParticleEffect>("SkParticleEffect")
         .smart_ptr<sk_sp<SkParticleEffect>>("sk_sp<SkParticleEffect>")
         .function("draw", &SkParticleEffect::draw, allow_raw_pointers())
-        .function("start", select_overload<void (double, bool)>(&SkParticleEffect::start))
-        .function("update", select_overload<void (double)>(&SkParticleEffect::update))
+        .function("_effectUniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
+            return reinterpret_cast<uintptr_t>(self.effectUniforms());
+        }))
+        .function("_particleUniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
+            return reinterpret_cast<uintptr_t>(self.particleUniforms());
+        }))
+        .function("getEffectUniformCount", optional_override([](SkParticleEffect& self)->int {
+            auto ec = self.effectCode();
+            if (!ec) {
+                return -1;
+            }
+            return ec->getUniformCount();
+        }))
+        .function("getEffectUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
+            auto ec = self.effectCode();
+            if (!ec) {
+                return -1;
+            }
+            return ec->getUniformSlotCount();
+        }))
+        .function("getEffectUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
+            auto ec = self.effectCode();
+            if (!ec) {
+                return emscripten::val::null();
+            }
+            return emscripten::val(ec->getUniform(i).fName.c_str());
+        }))
+        .function("getEffectUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
+            SimpleUniform su;
+            auto ec = self.effectCode();
+            if (!ec) {
+                return su;
+            }
+            su = fromUniform(ec->getUniform(i));
+            return su;
+        }))
+        .function("getParticleUniformCount", optional_override([](SkParticleEffect& self)->int {
+            auto ec = self.particleCode();
+            if (!ec) {
+                return -1;
+            }
+            return ec->getUniformCount();
+        }))
+        .function("getParticleUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
+            auto ec = self.particleCode();
+            if (!ec) {
+                return -1;
+            }
+            return ec->getUniformSlotCount();
+        }))
+        .function("getParticleUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
+            auto ec = self.particleCode();
+            if (!ec) {
+                return emscripten::val::null();
+            }
+            return emscripten::val(ec->getUniform(i).fName.c_str());
+        }))
+        .function("getParticleUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
+            SimpleUniform su;
+            auto ec = self.particleCode();
+            if (!ec) {
+                return su;
+            }
+            su = fromUniform(ec->getUniform(i));
+            return su;
+        }))
         .function("setPosition", select_overload<void (SkPoint)>(&SkParticleEffect::setPosition))
-        .function("setRate", select_overload<void (float)>(&SkParticleEffect::setRate));
+        .function("setRate", select_overload<void (float)>(&SkParticleEffect::setRate))
+        .function("start", select_overload<void (double, bool)>(&SkParticleEffect::start))
+        .function("update", select_overload<void (double)>(&SkParticleEffect::update));
+
+    value_object<SimpleUniform>("SimpleUniform")
+        .field("columns", &SimpleUniform::columns)
+        .field("rows",    &SimpleUniform::rows)
+        .field("slot",    &SimpleUniform::slot);
 
     function("_MakeParticles", optional_override([](std::string json,
                                                    size_t assetCount,
