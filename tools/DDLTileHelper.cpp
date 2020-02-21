@@ -164,11 +164,11 @@ void DDLTileHelper::createDDLsInParallel() {
 //    replay the DDL into a surface to make the tile image
 //    compose the tile image into the main canvas
 static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
-    auto& programData = tile->ddl()->priv().programData();
 
     // TODO: schedule program compilation as their own tasks
-    for (auto& programDatum : programData) {
-        context->priv().compile(programDatum.desc(), programDatum.info());
+    SkDeferredDisplayList::ProgramIterator iter(context, tile->ddl());
+    for (; !iter.done(); iter.next()) {
+        iter.compile();
     }
 
     tile->draw(context);
