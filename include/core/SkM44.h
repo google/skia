@@ -11,35 +11,35 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-struct SkVec2 {
-    SkScalar x, y;
+struct SkV2 {
+    float x, y;
 
-    bool operator==(const SkVec2 v) const { return x == v.x && y == v.y; }
-    bool operator!=(const SkVec2 v) const { return !(*this == v); }
+    bool operator==(const SkV2 v) const { return x == v.x && y == v.y; }
+    bool operator!=(const SkV2 v) const { return !(*this == v); }
 
-    static SkScalar   Dot(SkVec2 a, SkVec2 b) { return a.x * b.x + a.y * b.y; }
-    static SkScalar Cross(SkVec2 a, SkVec2 b) { return a.x * b.y - a.y * b.x; }
-    static SkVec2 Normalize(SkVec2 v) { return v * (1.0f / v.length()); }
+    static SkScalar   Dot(SkV2 a, SkV2 b) { return a.x * b.x + a.y * b.y; }
+    static SkScalar Cross(SkV2 a, SkV2 b) { return a.x * b.y - a.y * b.x; }
+    static SkV2 Normalize(SkV2 v) { return v * (1.0f / v.length()); }
 
-    SkVec2 operator-() const { return {-x, -y}; }
-    SkVec2 operator+(SkVec2 v) const { return {x+v.x, y+v.y}; }
-    SkVec2 operator-(SkVec2 v) const { return {x-v.x, y-v.y}; }
+    SkV2 operator-() const { return {-x, -y}; }
+    SkV2 operator+(SkV2 v) const { return {x+v.x, y+v.y}; }
+    SkV2 operator-(SkV2 v) const { return {x-v.x, y-v.y}; }
 
-    SkVec2 operator*(SkVec2 v) const { return {x*v.x, y*v.y}; }
-    friend SkVec2 operator*(SkVec2 v, SkScalar s) { return {v.x*s, v.y*s}; }
-    friend SkVec2 operator*(SkScalar s, SkVec2 v) { return {v.x*s, v.y*s}; }
+    SkV2 operator*(SkV2 v) const { return {x*v.x, y*v.y}; }
+    friend SkV2 operator*(SkV2 v, SkScalar s) { return {v.x*s, v.y*s}; }
+    friend SkV2 operator*(SkScalar s, SkV2 v) { return {v.x*s, v.y*s}; }
 
-    void operator+=(SkVec2 v) { *this = *this + v; }
-    void operator-=(SkVec2 v) { *this = *this - v; }
-    void operator*=(SkVec2 v) { *this = *this * v; }
+    void operator+=(SkV2 v) { *this = *this + v; }
+    void operator-=(SkV2 v) { *this = *this - v; }
+    void operator*=(SkV2 v) { *this = *this * v; }
     void operator*=(SkScalar s) { *this = *this * s; }
 
     SkScalar lengthSquared() const { return Dot(*this, *this); }
     SkScalar length() const { return SkScalarSqrt(this->lengthSquared()); }
 
-    SkScalar   dot(SkVec2 v) const { return Dot(*this, v); }
-    SkScalar cross(SkVec2 v) const { return Cross(*this, v); }
-    SkVec2 normalize()       const { return Normalize(*this); }
+    SkScalar   dot(SkV2 v) const { return Dot(*this, v); }
+    SkScalar cross(SkV2 v) const { return Cross(*this, v); }
+    SkV2 normalize()       const { return Normalize(*this); }
 
     const float* ptr() const { return &x; }
     float* ptr() { return &x; }
