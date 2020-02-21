@@ -453,6 +453,12 @@ GrGLGpu::~GrGLGpu() {
     }
 
     fSamplerObjectCache.reset();
+
+    while (!fFinishCallbacks.empty()) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteSync(fFinishCallbacks.front().fSync);
+        fFinishCallbacks.pop_front();
+    }
 }
 
 void GrGLGpu::disconnect(DisconnectType type) {
@@ -511,6 +517,14 @@ void GrGLGpu::disconnect(DisconnectType type) {
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
+    }
+
+    while (!fFinishCallbacks.empty()) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        if (DisconnectType::kCleanup == type) {
+            this->deleteSync(fFinishCallbacks.front().fSync);
+        }
+        fFinishCallbacks.pop_front();
     }
 }
 
