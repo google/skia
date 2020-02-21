@@ -625,6 +625,9 @@ public:
         SK_ABORT("Manual framebuffer barrier not supported.");
     }
 
+    // Called before certain draws in order to guarantee coherent results from dst reads.
+    virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
+
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
@@ -663,9 +666,6 @@ private:
     // Queries the effective number of samples in use by the hardware for the given render target,
     // and queries the individual sample locations.
     virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) = 0;
-
-    // Called before certain draws in order to guarantee coherent results from dst reads.
-    virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
     // overridden by backend-specific derived class to create objects.
     // Texture size, renderablility, format support, sample count will have already been validated

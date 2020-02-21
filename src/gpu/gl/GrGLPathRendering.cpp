@@ -5,16 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
-#include "src/gpu/gl/GrGLUtil.h"
-
-#include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/gl/GrGLPath.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
-
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLPath.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->gpu()->glInterface(), RET, X)
@@ -115,9 +113,16 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
                                    const GrProgramInfo& programInfo,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
+    SkASSERT(!programInfo.hasDynamicScissors());
+    SkASSERT(!programInfo.hasDynamicPrimProcTextures());
     if (!this->gpu()->flushGLState(renderTarget, programInfo)) {
         return;
     }
+    if (programInfo.hasFixedScissor()) {
+        this->gpu()->flushScissorRect(programInfo.fixedScissor(), renderTarget->width(),
+                                      renderTarget->height(), programInfo.origin());
+    }
+    this->gpu()->bindTextures(programInfo.primProc(), programInfo.pipeline());
 
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 

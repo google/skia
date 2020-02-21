@@ -39,7 +39,7 @@ void GrProgramInfo::validate(bool flushTime) const {
         SkASSERT(!fPrimProc->numTextureSamplers());
     }
 
-    SkASSERT(!fPipeline->isScissorEnabled() || this->hasFixedScissor() ||
+    SkASSERT(!fPipeline->isScissorTestEnabled() || this->hasFixedScissor() ||
              this->hasDynamicScissors());
 
     if (this->hasDynamicPrimProcTextures()) {

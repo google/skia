@@ -1373,7 +1373,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             }
         } else if (this->glCaps().canFormatBeFBOColorAttachment(format.asGLFormat()) &&
                    !this->glCaps().performColorClearsAsDraws()) {
-            this->disableScissor();
+            this->flushScissorTest(GrScissorTest::kDisabled);
             this->disableWindowRectangles();
             this->flushColorWrite(true);
             this->flushClearColor(SK_PMColor4fTRANSPARENT);
@@ -1763,23 +1763,28 @@ sk_sp<GrGpuBuffer> GrGLGpu::onCreateBuffer(size_t size, GrGpuBufferType intended
     return GrGLBuffer::Make(this, size, intendedType, accessPattern, data);
 }
 
-void GrGLGpu::flushScissor(const GrScissorState& scissorState, int rtWidth, int rtHeight,
-                           GrSurfaceOrigin rtOrigin) {
-    if (scissorState.enabled()) {
-        auto scissor = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, scissorState.rect());
-        if (fHWScissorSettings.fRect != scissor) {
-            GL_CALL(Scissor(scissor.fX, scissor.fY, scissor.fWidth, scissor.fHeight));
-            fHWScissorSettings.fRect = scissor;
-        }
+void GrGLGpu::flushScissorTest(GrScissorTest scissorTest) {
+    if (GrScissorTest::kEnabled == scissorTest) {
         if (kYes_TriState != fHWScissorSettings.fEnabled) {
             GL_CALL(Enable(GR_GL_SCISSOR_TEST));
             fHWScissorSettings.fEnabled = kYes_TriState;
         }
-        return;
+    } else {
+        if (kNo_TriState != fHWScissorSettings.fEnabled) {
+            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+            fHWScissorSettings.fEnabled = kNo_TriState;
+        }
     }
+}
 
-    // See fall through note above
-    this->disableScissor();
+void GrGLGpu::flushScissorRect(const SkIRect& scissor, int rtWidth, int rtHeight,
+                               GrSurfaceOrigin rtOrigin) {
+    auto nativeScissor = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, scissor);
+    if (fHWScissorSettings.fRect != nativeScissor) {
+        GL_CALL(Scissor(nativeScissor.fX, nativeScissor.fY, nativeScissor.fWidth,
+                        nativeScissor.fHeight));
+        fHWScissorSettings.fRect = nativeScissor;
+    }
 }
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
@@ -1842,11 +1847,6 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
                                   programInfo.pipeline().outputSwizzle());
 
     fHWProgram->updateUniforms(renderTarget, programInfo);
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto* primProcTextures = (programInfo.hasFixedPrimProcTextures())
-                ? programInfo.fixedPrimProcTextures() : nullptr;
-        fHWProgram->bindTextures(programInfo.primProc(), programInfo.pipeline(), primProcTextures);
-    }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1857,14 +1857,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
                       glRT->renderTargetPriv().numStencilBits());
     }
     this->flushStencil(stencil, programInfo.origin());
-    if (programInfo.pipeline().isScissorEnabled()) {
-        static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
-        GrScissorState state(programInfo.fixedDynamicState() ? programInfo.fixedScissor()
-                                                             : kBogusScissor);
-        this->flushScissor(state, glRT->width(), glRT->height(), programInfo.origin());
-    } else {
-        this->disableScissor();
-    }
+    this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
                                 glRT, programInfo.origin());
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
@@ -1979,13 +1972,6 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
 
     return bufferState->fGLTarget;
 }
-void GrGLGpu::disableScissor() {
-    if (kNo_TriState != fHWScissorSettings.fEnabled) {
-        GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-        fHWScissorSettings.fEnabled = kNo_TriState;
-        return;
-    }
-}
 
 void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
                     GrRenderTarget* target, GrSurfaceOrigin origin) {
@@ -2023,7 +2009,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
 
-    this->disableScissor();
+    this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
 
     GL_CALL(StencilMask(0xffffffff));
@@ -2074,7 +2060,7 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSu
         clearMask |= GR_GL_STENCIL_BUFFER_BIT;
     }
     if (clearMask) {
-        this->disableScissor();
+        this->flushScissorTest(GrScissorTest::kDisabled);
         this->disableWindowRectangles();
         GL_CALL(Clear(clearMask));
     }
@@ -2374,37 +2360,16 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::drawMeshes(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo,
-                         const GrMesh meshes[], int meshCount) {
-    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
-
-    bool hasDynamicScissors = programInfo.hasDynamicScissors();
-    bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();
-
-    for (int m = 0; m < meshCount; ++m) {
-        if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
-                                                                      *this->caps())) {
-            this->xferBarrier(renderTarget, barrierType);
-        }
-
-        if (hasDynamicScissors) {
-            GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
-            this->flushScissor(GrScissorState(programInfo.dynamicScissor(m)),
-                               glRT->width(), glRT->height(), programInfo.origin());
-        }
-        if (hasDynamicPrimProcTextures) {
-            fHWProgram->bindTextures(programInfo.primProc(), programInfo.pipeline(),
-                                     programInfo.dynamicPrimProcTextures(m));
-        }
-        if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
-            GrIsPrimTypeLines(programInfo.primitiveType()) &&
-            !GrIsPrimTypeLines(fLastPrimitiveType)) {
-            GL_CALL(Enable(GR_GL_CULL_FACE));
-            GL_CALL(Disable(GR_GL_CULL_FACE));
-        }
-        meshes[m].sendToGpu(programInfo.primitiveType(), this);
-        fLastPrimitiveType = programInfo.primitiveType();
+void GrGLGpu::drawMesh(GrRenderTarget* renderTarget, GrPrimitiveType primitiveType,
+                       const GrMesh& mesh) {
+    if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
+        GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
+        GL_CALL(Enable(GR_GL_CULL_FACE));
+        GL_CALL(Disable(GR_GL_CULL_FACE));
     }
+
+    mesh.sendToGpu(primitiveType, this);
+    fLastPrimitiveType = primitiveType;
 
 #if SWAP_PER_DRAW
     glFlush();
@@ -2550,7 +2515,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         }
 
         // BlitFrameBuffer respects the scissor, so disable it.
-        this->disableScissor();
+        this->flushScissorTest(GrScissorTest::kDisabled);
         this->disableWindowRectangles();
         GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
     }
@@ -3539,7 +3504,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     this->flushHWAAState(nullptr, false);
     this->flushConservativeRasterState(false);
     this->flushWireframeState(false);
-    this->disableScissor();
+    this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
     this->disableStencil();
     if (this->glCaps().srgbWriteControl()) {
@@ -3590,7 +3555,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const
     fHWBoundRenderTargetUniqueID.makeInvalid();
 
     // BlitFrameBuffer respects the scissor, so disable it.
-    this->disableScissor();
+    this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
 
     GL_CALL(BlitFramebuffer(srcRect.fLeft,
@@ -3672,7 +3637,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // Set "simple" state once:
     this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
     this->flushHWAAState(nullptr, false);
-    this->disableScissor();
+    this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
     this->disableStencil();
 

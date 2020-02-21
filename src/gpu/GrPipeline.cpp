@@ -23,7 +23,7 @@ GrPipeline::GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor> xferPr
         fFlags |= Flags::kHasStencilClip;
     }
     if (hardClip.scissorState().enabled()) {
-        fFlags |= Flags::kScissorEnabled;
+        fFlags |= Flags::kScissorTestEnabled;
     }
 
     fWindowRectsState = hardClip.windowRectsState();
@@ -76,7 +76,7 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> x
         , fXferProcessor(std::move(xp))
         , fOutputSwizzle(outputSwizzle) {
     if (GrScissorTest::kEnabled == scissorTest) {
-        fFlags |= Flags::kScissorEnabled;
+        fFlags |= Flags::kScissorTestEnabled;
     }
     this->setUserStencil(userStencil);
 }

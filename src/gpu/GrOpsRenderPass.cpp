@@ -81,35 +81,90 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
         SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget)
                          == fRenderTarget->renderTargetPriv().getSamplePatternKey());
     }
+    fScissorStatus = (programInfo.pipeline().isScissorTestEnabled()) ?
+            DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
+    bool hasTextures = (programInfo.primProc().numTextureSamplers() > 0);
+    if (!hasTextures) {
+        programInfo.pipeline().visitProxies([&hasTextures](GrSurfaceProxy*, GrMipMapped) {
+            hasTextures = true;
+        });
+    }
+    fTextureBindingStatus = (hasTextures) ?
+            DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
+    fHasVertexAttributes = programInfo.primProc().hasVertexAttributes();
+    fHasInstanceAttributes = programInfo.primProc().hasInstanceAttributes();
 #endif
 
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
+    fXferBarrierType = programInfo.pipeline().xferBarrierType(fRenderTarget->asTexture(),
+                                                              *this->gpu()->caps());
+}
+
+void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
+    if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
+        SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
+        return;
+    }
+    SkASSERT(DynamicStateStatus::kDisabled != fScissorStatus);
+    this->onSetScissorRect(scissor);
+    SkDEBUGCODE(fScissorStatus = DynamicStateStatus::kConfigured);
+}
+
+void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                                   const GrSurfaceProxy* const primProcTextures[]) {
+    if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
+        SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
+        return;
+    }
+    SkASSERT((primProc.numTextureSamplers() > 0) == SkToBool(primProcTextures));
+    // Don't assert on fTextureBindingStatus. onBindTextures() just turns into a no-op when there
+    // aren't any textures, and it's hard to tell from the GrPipeline whether there are any. For
+    // many clients it is easier to just always call this method.
+    if (!this->onBindTextures(primProc, pipeline, primProcTextures)) {
+        fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
+        return;
+    }
+    SkDEBUGCODE(fTextureBindingStatus = DynamicStateStatus::kConfigured);
 }
 
 void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrMesh meshes[],
                                  int meshCount) {
+    if (programInfo.hasFixedScissor()) {
+        this->setScissorRect(programInfo.fixedScissor());
+    }
+    if (!programInfo.hasDynamicPrimProcTextures()) {
+        auto primProcTextures = (programInfo.hasFixedPrimProcTextures()) ?
+                programInfo.fixedPrimProcTextures() : nullptr;
+        this->bindTextures(programInfo.primProc(), programInfo.pipeline(), primProcTextures);
+    }
+    for (int i = 0; i < meshCount; ++i) {
+        if (programInfo.hasDynamicScissors()) {
+            this->setScissorRect(programInfo.dynamicScissor(i));
+        }
+        if (programInfo.hasDynamicPrimProcTextures()) {
+            this->bindTextures(programInfo.primProc(), programInfo.pipeline(),
+                               programInfo.dynamicPrimProcTextures(i));
+        }
+        this->drawMesh(programInfo.primitiveType(), meshes[i]);
+    }
+}
+
+void GrOpsRenderPass::drawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         this->gpu()->stats()->incNumFailedDraws();
         return;
     }
 
-#ifdef SK_DEBUG
-    if (int numDynamicStateArrays = programInfo.numDynamicStateArrays()) {
-        SkASSERT(meshCount == numDynamicStateArrays);
-    }
-    for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(programInfo.primProc().hasVertexAttributes() ==
-                 SkToBool(meshes[i].vertexBuffer()));
-        SkASSERT(programInfo.primProc().hasInstanceAttributes() ==
-                 SkToBool(meshes[i].instanceBuffer()));
-        if (GrPrimitiveRestart::kYes == meshes[i].primitiveRestart()) {
-             SkASSERT(this->gpu()->caps()->usePrimitiveRestart());
-        }
-    }
-#endif
+    SkASSERT(DynamicStateStatus::kUninitialized != fScissorStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fTextureBindingStatus);
+    SkASSERT(SkToBool(mesh.vertexBuffer()) == fHasVertexAttributes);
+    SkASSERT(SkToBool(mesh.instanceBuffer()) == fHasInstanceAttributes);
+    SkASSERT(GrPrimitiveRestart::kNo == mesh.primitiveRestart() ||
+             this->gpu()->caps()->usePrimitiveRestart());
 
-    if (meshCount) {
-        this->onDrawMeshes(programInfo, meshes, meshCount);
+    if (kNone_GrXferBarrierType != fXferBarrierType) {
+        this->gpu()->xferBarrier(fRenderTarget, fXferBarrierType);
     }
+    this->onDrawMesh(primitiveType, mesh);
 }
