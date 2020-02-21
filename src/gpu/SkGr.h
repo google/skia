@@ -163,12 +163,15 @@ static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
 ////////////////////////////////////////////////////////////////////////////////
 // Texture management
 
-/**
- * Returns a view that wraps a texture representing the bitmap that is compatible with the
- * GrSamplerState. The texture is inserted into the cache (unless the bitmap is marked volatile)
- * and can be retrieved again via this function.
+/** Returns a view that wraps a texture representing the bitmap that is compatible with the
+ *  GrSamplerState. The texture is inserted into the cache (unless the bitmap is marked volatile)
+ *  and can be retrieved again via this function.
+ *  The 'scaleAdjust' in/out parameter will be updated to hold any rescaling that needs to be
+ *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
+ *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, GrSamplerState);
+GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, GrSamplerState,
+                                         SkScalar scaleAdjust[2]);
 
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.

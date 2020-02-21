@@ -213,12 +213,15 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             fImage->width(), fImage->height(), args.fFilterQuality, *args.fViewMatrix, *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wm, textureFilterMode);
-    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, samplerState);
+    SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
+    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, samplerState, scaleAdjust);
     if (!view) {
         return nullptr;
     }
 
     SkAlphaType srcAlphaType = fImage->alphaType();
+
+    lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
     const auto& caps = *args.fContext->priv().caps();
 

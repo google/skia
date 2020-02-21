@@ -40,7 +40,9 @@ protected:
                                                            AllowedTexGenType genType) = 0;
 
 private:
-    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState,
+                                                      bool willBeMipped,
+                                                      SkScalar scaleAdjust[2]) override;
 
     typedef GrTextureProducer INHERITED;
 };
