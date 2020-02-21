@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad2f399_af2e9111",
+        "filename": "src/gpu/d3d/GrD3DGpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T18:06:35Z",
+      "side": 1,
+      "message": "side note: I wonder if this is used anymore? It shouldn\u0027t be and we should delete it.",
+      "range": {
+        "startLine": 42,
+        "startChar": 3,
+        "endLine": 42,
+        "endChar": 50
+      },
+      "revId": "5ce1b7f98ce741b75fe0c4c3726c69b67037908c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df82917f_8983bb5c",
+        "filename": "tools/gpu/d3d/D3DTestUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-21T18:06:35Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 30,
+        "startChar": 97,
+        "endLine": 30,
+        "endChar": 109
+      },
+      "revId": "5ce1b7f98ce741b75fe0c4c3726c69b67037908c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
