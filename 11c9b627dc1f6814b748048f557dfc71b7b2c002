@@ -22,6 +22,30 @@
       "revId": "11c9b627dc1f6814b748048f557dfc71b7b2c002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "677b912a_a06817df",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 52
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-21T21:39:03Z",
+      "side": 1,
+      "message": "Apple\u0027s ID for the iPhone11 is iPhone12,1: https://everymac.com/systems/apple/iphone/specs/apple-iphone-11-united-states-canada-a2111-specs.html",
+      "parentUuid": "669a929f_68e40da9",
+      "range": {
+        "startLine": 630,
+        "startChar": 17,
+        "endLine": 630,
+        "endChar": 30
+      },
+      "revId": "11c9b627dc1f6814b748048f557dfc71b7b2c002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
