@@ -18,12 +18,10 @@
 <canvas id=sk_onboarding width=500 height=500></canvas>
 <canvas id=sk_animated_gif width=500 height=500
         title='This is an animated gif being animated in Skottie'></canvas>
-<canvas id=sk_webfont width=500 height=500
-        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
 
 <h2> RT Shader </h2>
 <canvas id=rtshader width=300 height=300></canvas>
-
+<canvas id=rtshader2 width=300 height=300></canvas>
 
 <h2> Particles </h2>
 <canvas id=particles width=500 height=500></canvas>
@@ -48,7 +46,6 @@
   var confettiJSON = null;
   var onboardingJSON = null;
   var multiFrameJSON = null;
-  var webfontJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
@@ -57,9 +54,10 @@
   var bonesImageData = null;
   var flightAnimGif = null;
   var skpData = null;
-  CanvasKitInit({
+  const ckLoaded = CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).ready().then((CK) => {
+  }).ready();
+  ckLoaded.then((CK) => {
     CanvasKit = CK;
     // Set bounds to fix the 4:3 resolution of the legos
     SkottieExample(CanvasKit, 'sk_legos', legoJSON,
@@ -71,10 +69,6 @@
     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
       'image_0.png': flightAnimGif,
     });
-    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-      'Roboto-Regular': robotoData,
-    });
-
     ParticlesAPI1(CanvasKit);
 
     ParagraphAPI1(CanvasKit, robotoData);
@@ -132,12 +126,9 @@
     });
   });
 
-  fetch('./Roboto-Regular.woff').then((resp) => {
+  fetch('./Roboto-Regular.ttf').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
       ParagraphAPI1(CanvasKit, robotoData);
     });
   });
@@ -146,6 +137,9 @@
     skpData = buffer;
     SkpExample(CanvasKit, skpData);
   });
+
+  const loadDog = fetch('https://storage.googleapis.com/skia-cdn/misc/dog.jpg').then((response) => response.arrayBuffer());
+  const loadMandrill = fetch('https://storage.googleapis.com/skia-cdn/misc/mandrill_256.png').then((response) => response.arrayBuffer());
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
@@ -370,19 +364,28 @@ const curves = {
     return surface;
   }
 
+  const spiralSkSL = `
+    uniform float rad_scale;
+    uniform float2 in_center;
+    uniform float4 in_colors0;
+    uniform float4 in_colors1;
+
+    void main(float2 p, inout half4 color) {
+        float2 pp = p - in_center;
+        float radius = sqrt(dot(pp, pp));
+        radius = sqrt(radius);
+        float angle = atan(pp.y / pp.x);
+        float t = (angle + 3.1415926/2) / (3.1415926);
+        t += radius * rad_scale;
+        t = fract(t);
+        color = half4(mix(in_colors0, in_colors1, t));
+    }`;
+
   function RTShaderAPI1(CanvasKit) {
-    return; // TODO(kjlubick): Fix this example.
     if (!CanvasKit) {
       return;
     }
-    const prog = `
 
-  uniform half4 gColor;
-
-  void main(float2 p, inout half4 color) {
-      color = half4(half2(p)*(1.0/255), gColor.b, 1);
-  }
-`;
     const surface = CanvasKit.MakeCanvasSurface('rtshader');
     if (!surface) {
       console.error('Could not make surface');
@@ -391,19 +394,134 @@ const curves = {
 
     const canvas = surface.getCanvas();
 
-    const effect = CanvasKit._SkRuntimeEffect.Make(prog);
-    const rot = CanvasKit.SkMatrix.rotated(90, 128, 128);
-    const shader = effect.makeShader([1, 0, 0, 1], true, rot);
-
+    const effect = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
+    const shader = effect.makeShader([
+      0.5,
+      150, 150,
+      0, 1, 0, 1,
+      1, 0, 0, 1], true);
     const paint = new CanvasKit.SkPaint();
     paint.setShader(shader);
-    canvas.drawRect(CanvasKit.LTRBRect(0, 0, 256, 256), paint);
+    canvas.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
 
     surface.flush();
     shader.delete();
     paint.delete();
     effect.delete();
   }
+
+  // RTShader2 demo
+  Promise.all([ckLoaded, loadDog, loadMandrill]).then((values) => {
+    const [CanvasKit, dogData, mandrillData] = values;
+    const dogImg = CanvasKit.MakeImageFromEncoded(dogData);
+    if (!dogImg) {
+      console.error('could not decode dog');
+      return;
+    }
+    const mandrillImg = CanvasKit.MakeImageFromEncoded(mandrillData);
+    if (!mandrillImg) {
+      console.error('could not decode mandrill');
+      return;
+    }
+    const quadrantSize = 150;
+
+    const dogShader = dogImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                                        CanvasKit.SkMatrix.scaled(quadrantSize/dogImg.width(),
+                                                                  quadrantSize/dogImg.height()));
+    const mandrillShader = mandrillImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                                                  CanvasKit.SkMatrix.scaled(
+                                                    quadrantSize/mandrillImg.width(),
+                                                    quadrantSize/mandrillImg.height()));
+
+    const surface = CanvasKit.MakeCanvasSurface('rtshader2');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const prog = `
+      in fragmentProcessor before_map;
+      in fragmentProcessor after_map;
+      in fragmentProcessor threshold_map;
+
+      uniform float cutoff;
+      uniform float slope;
+
+      float smooth_cutoff(float x) {
+          x = x * slope + (0.5 - slope * cutoff);
+          return clamp(x, 0, 1);
+      }
+
+      void main(float2 xy, inout half4 color) {
+          half4 before = sample(before_map, xy);
+          half4 after = sample(after_map, xy);
+
+          float m = smooth_cutoff(sample(threshold_map, xy).r);
+          color = mix(before, after, half(m));
+      }`;
+
+    const canvas = surface.getCanvas();
+
+    const thresholdEffect = CanvasKit.SkRuntimeEffect.Make(prog);
+    const spiralEffect = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
+
+    const draw = (x, y, shader) => {
+      const paint = new CanvasKit.SkPaint();
+      paint.setShader(shader);
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.drawRect(CanvasKit.LTRBRect(0, 0, quadrantSize, quadrantSize), paint);
+      canvas.restore();
+      paint.delete();
+    };
+
+    const offscreenSurface = CanvasKit.MakeSurface(quadrantSize, quadrantSize);
+    const getBlurrySpiralShader = (rad_scale) => {
+      const oCanvas = offscreenSurface.getCanvas();
+
+      const spiralShader = spiralEffect.makeShader([
+      rad_scale,
+      quadrantSize/2, quadrantSize/2,
+      1, 1, 1, 1,
+      0, 0, 0, 1], true);
+
+      return spiralShader;
+      // TODO(kjlubick): The raster backend does not like atan or fract, so we can't
+      // draw the shader into the offscreen canvas and mess with it. When we can, that
+      // would be cool to show off.
+
+      const blur = CanvasKit.SkImageFilter.MakeBlur(0.1, 0.1, CanvasKit.TileMode.Clamp, null);
+
+      const paint = new CanvasKit.SkPaint();
+      paint.setShader(spiralShader);
+      paint.setImageFilter(blur);
+      oCanvas.drawRect(CanvasKit.LTRBRect(0, 0, quadrantSize, quadrantSize), paint);
+
+      paint.delete();
+      blur.delete();
+      spiralShader.delete();
+      return offscreenSurface.makeImageSnapshot()
+                             .makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
+
+    };
+
+    const drawFrame = () => {
+      surface.requestAnimationFrame(drawFrame);
+      const thresholdShader = getBlurrySpiralShader(Math.sin(Date.now() / 5000) / 2);
+
+      const blendShader = thresholdEffect.makeShaderWithChildren(
+        [0.5, 10],
+        true, [dogShader, mandrillShader, thresholdShader]);
+      draw(0, 0, blendShader);
+      draw(quadrantSize, 0, thresholdShader);
+      draw(0, quadrantSize, dogShader);
+      draw(quadrantSize, quadrantSize, mandrillShader);
+
+      blendShader.delete();
+    };
+
+    surface.requestAnimationFrame(drawFrame);
+  });
 
   function SkpExample(CanvasKit, skpData) {
     if (!skpData || !CanvasKit) {
