@@ -133,6 +133,7 @@ var CanvasKit = {
 
 		// private API
 		_makeShader: function() {},
+		_makeShaderWithChildren: function() {},
 	},
 
 	ParagraphStyle: function() {},
@@ -292,6 +293,7 @@ var CanvasKit = {
 		lookat: function() {},
 		perspective: function() {},
 		rc: function() {},
+		transpose: function() {},
 	},
 
 	SkMatrix: {
@@ -334,7 +336,7 @@ var CanvasKit = {
 		setStrokeWidth: function() {},
 		setStyle: function() {},
 
-		// private API
+		//private API
 		delete: function() {},
 	},
 
@@ -492,6 +494,7 @@ var CanvasKit = {
 		mulScalar: function() {},
 		length: function() {},
 		lengthSquared: function() {},
+		dist: function() {},
 	},
 
 	SkVertices: {
@@ -855,6 +858,7 @@ CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
 CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
+CanvasKit.SkRuntimeEffect.prototype.makeShaderWithChildren = function() {};
 
 CanvasKit.SkParticleEffect.prototype.effectUniforms = function() {};
 CanvasKit.SkParticleEffect.prototype.particleUniforms = function() {};
