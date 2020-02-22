@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `SkSurface.requestAnimationFrame` for animation logic).
  - `CanvasKit.parseColorString` which processes color strings like "#2288FF"
  - Particles module now exposes effect uniforms, which can be modified for live-updating.
- - Experimental 4x4 matrices added in `SkM44`
- - Vector math functions added in `SkVector`
+ - Experimental 4x4 matrices added in `SkM44`.
+ - Vector math functions added in `SkVector`.
+ - `SkRuntimeEffect.makeShaderWithChildren`, which can take in other shaders as fragmentProcessors.
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.6.

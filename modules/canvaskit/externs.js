@@ -133,6 +133,7 @@ var CanvasKit = {
 
 		// private API
 		_makeShader: function() {},
+		_makeShaderWithChildren: function() {},
 	},
 
 	ParagraphStyle: function() {},
@@ -855,6 +856,7 @@ CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
 CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
+CanvasKit.SkRuntimeEffect.prototype.makeShaderWithChildren = function() {};
 
 CanvasKit.SkParticleEffect.prototype.effectUniforms = function() {};
 CanvasKit.SkParticleEffect.prototype.particleUniforms = function() {};
