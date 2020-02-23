@@ -1451,13 +1451,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return effect;
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque)->sk_sp<SkShader> {
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self,
+            uintptr_t fPtr, size_t fLen, bool isOpaque)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
             return self.makeShader(inputs, nullptr, 0, nullptr, isOpaque);
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque, SimpleMatrix sm)->sk_sp<SkShader> {
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self,
+            uintptr_t fPtr, size_t fLen, bool isOpaque, SimpleMatrix sm)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
