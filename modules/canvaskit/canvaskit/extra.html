@@ -76,7 +76,6 @@
     RTShaderAPI1(CanvasKit);
 
     SkpExample(CanvasKit, skpData);
-    Camera3D(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -140,6 +139,9 @@
 
   const loadDog = fetch('https://storage.googleapis.com/skia-cdn/misc/dog.jpg').then((response) => response.arrayBuffer());
   const loadMandrill = fetch('https://storage.googleapis.com/skia-cdn/misc/mandrill_256.png').then((response) => response.arrayBuffer());
+  const loadBrickTex = fetch('./brickwork-texture.jpg').then((response) => response.arrayBuffer());
+  const loadBrickBump = fetch('./brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
+  Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
@@ -544,7 +546,10 @@ const curves = {
     surface.drawOnce(drawFrame);
   }
 
-  function Camera3D(canvas) {
+  function Camera3D(canvas, textureImgData, normalImgData) {
+    if (!canvas) {
+
+    }
     const surface = CanvasKit.MakeCanvasSurface('camera3d');
     if (!surface) {
       console.error('Could not make surface');
@@ -554,12 +559,12 @@ const curves = {
     const sizeX = document.getElementById('camera3d').width;
     const sizeY = document.getElementById('camera3d').height;
 
-    var clickToWorld = CanvasKit.SkM44.identity();
-    var worldToClick = CanvasKit.SkM44.identity();
+    let clickToWorld = CanvasKit.SkM44.identity();
+    let worldToClick = CanvasKit.SkM44.identity();
     // rotation of the cube shown in the demo
-    var rotation = CanvasKit.SkM44.identity();
+    let rotation = CanvasKit.SkM44.identity();
     // temporary during a click and drag
-    var clickRotation = CanvasKit.SkM44.identity();
+    let clickRotation = CanvasKit.SkM44.identity();
 
     // A virtual sphere used for tumbling the object on screen.
     const vSphereCenter = [sizeX/2, sizeY/2];
@@ -578,22 +583,81 @@ const curves = {
     const camCOA = [0, 0, 0];
     const camUp =  [0, 1, 0];
 
-    var mouseDown = false;
-    var clickDown = [0, 0]; // location of click down
-    var lastMouse = [0, 0]; // last mouse location
+    let mouseDown = false;
+    let clickDown = [0, 0]; // location of click down
+    let lastMouse = [0, 0]; // last mouse location
 
     // keep spinning after mouse up. Also start spinning on load
-    var axis = [0.4, 1, 1];
-    var totalSpin = 0;
-    var spinRate = 0.1;
-    var lastRadians = 0;
-    var spinning = setInterval(keepSpinning, 30);
+    let axis = [0.4, 1, 1];
+    let totalSpin = 0;
+    let spinRate = 0.1;
+    let lastRadians = 0;
+    let spinning = setInterval(keepSpinning, 30);
 
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.BLACK);
     textPaint.setAntiAlias(true);
     const roboto = CanvasKit.SkFontMgr.RefDefault().MakeTypefaceFromData(robotoData);
     const textFont = new CanvasKit.SkFont(roboto, 30);
+
+    const imgscale = CanvasKit.SkMatrix.scaled(2, 2);
+    const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShader(
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+    const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShader(
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+    const children = [textureShader, normalShader];
+
+    const prog = `
+      in fragmentProcessor color_map;
+      in fragmentProcessor normal_map;
+
+      uniform float4x4 localToWorld;
+      uniform float4x4 localToWorldAdjInv;
+      uniform float3   lightPos;
+
+      float3 convert_normal_sample(half4 c) {
+          float3 n = 2 * c.rgb - 1;
+          n.y = -n.y;
+          return n;
+      }
+
+      void main(float2 p, inout half4 color) {
+          float3 norm = convert_normal_sample(sample(normal_map, p));
+          float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+
+          float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+          float3 light_dir = normalize(lightPos - plane_pos);
+
+          float ambient = 0.2;
+          float dp = dot(plane_norm, light_dir);
+          float scale = min(ambient + max(dp, 0), 1);
+
+          color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+      }
+`;
+    const fact = CanvasKit.SkRuntimeEffect.Make(prog);
+
+    // properties of light
+    let lightLocation = [...vSphereCenter];
+    let lightDistance = vSphereRadius;
+    let lightIconRadius = 12;
+    let draggingLight = false;
+
+    function computeLightWorldPos() {
+      return CanvasKit.SkVector.add(CanvasKit.SkVector.mulScalar([...vSphereCenter, 0], 0.5),
+        CanvasKit.SkVector.mulScalar(vSphereUnitV3(lightLocation), lightDistance));
+    }
+
+    let lightWorldPos = computeLightWorldPos();
+
+    function drawLight(canvas) {
+      const paint = new CanvasKit.SkPaint();
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.WHITE);
+      canvas.drawCircle(...lightLocation, lightIconRadius + 2, paint);
+      paint.setColor(CanvasKit.BLACK);
+      canvas.drawCircle(...lightLocation, lightIconRadius, paint);
+    }
 
     // Takes an x and y rotation in radians and a scale and returns a 4x4 matrix used to draw a
     // face of the cube in that orientation.
@@ -668,11 +732,15 @@ const curves = {
       canvas.experimental_concat44(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
       const znormal = front(canvas.experimental_getLocalToDevice());
       if (znormal < 0) {
-        return;// skip faces facing backwards
+        return; // skip faces facing backwards
       }
+      const ltw = canvas.experimental_getLocalToWorld();
+      // shader expects the 4x4 matrices in column major order.
+      const uniforms = [...CanvasKit.SkM44.transpose(ltw), ...mustInvert(ltw), ...lightWorldPos];
       const paint = new CanvasKit.SkPaint();
-      paint.setColor(color);
-      // TODO replace color with a bump shader
+      paint.setAntiAlias(true);
+      const shader = fact.makeShaderWithChildren(uniforms, true /*=opaque*/, children);
+      paint.setShader(shader);
       canvas.drawRRect(rr, paint);
       canvas.drawText(znormal.toFixed(2), faceScale*0.25, faceScale*0.4, textPaint, textFont);
     }
@@ -705,6 +773,8 @@ const curves = {
                        vSphereCenter[0], vSphereCenter[1] + vSphereRadius, paint);
       canvas.drawLine(vSphereCenter[0] - vSphereRadius, vSphereCenter[1],
                        vSphereCenter[0] + vSphereRadius, vSphereCenter[1], paint);
+
+      drawLight(canvas);
     }
 
     // convert a 2D point in the circle displayed on screen to a 3D unit vector.
@@ -763,22 +833,40 @@ const curves = {
 
     function interact(e) {
       const type = e.type;
+      let eventPos = [e.offsetX, e.offsetY];
       if (type === 'lostpointercapture' || type === 'pointerup' || type == 'pointerleave') {
-        mouseDown = false;
-        if (spinRate > 0.02) {
-          stopSpinning();
-          spinning = setInterval(keepSpinning, 30);
+        if (draggingLight) {
+          draggingLight = false;
+        } else if (mouseDown) {
+          mouseDown = false;
+          if (spinRate > 0.02) {
+            stopSpinning();
+            spinning = setInterval(keepSpinning, 30);
+          }
+        } else {
+          return;
         }
         return;
       } else if (type === 'pointermove') {
-        if (!mouseDown)  { return; }
-        lastMouse = [e.offsetX, e.offsetY];
-        clickRotation = computeVSphereRotation(clickDown, lastMouse);
+        if (draggingLight) {
+          lightLocation = eventPos;
+          lightWorldPos = computeLightWorldPos();
+        } else if (mouseDown) {
+          lastMouse = eventPos;
+          clickRotation = computeVSphereRotation(clickDown, lastMouse);
+        } else {
+          return;
+        }
       } else if (type === 'pointerdown') {
+        // Are we repositioning the light?
+        if (CanvasKit.SkVector.dist(eventPos, lightLocation) < lightIconRadius) {
+          draggingLight = true;
+          return;
+        }
         stopSpinning();
         mouseDown = true;
-        clickDown = [e.offsetX, e.offsetY];
-        lastMouse = clickDown;
+        clickDown = eventPos;
+        lastMouse = eventPos;
       }
       surface.requestAnimationFrame(drawFrame);
     };
