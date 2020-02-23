@@ -214,6 +214,9 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkVector.sub = function(a, b) {
     return a.map(function(v, i) { return v-b[i]; });
   }
+  CanvasKit.SkVector.dist = function(a, b) {
+    return CanvasKit.SkVector.length(CanvasKit.SkVector.sub(a, b));
+  }
   CanvasKit.SkVector.normalize = function(v) {
     return CanvasKit.SkVector.mulScalar(v, 1/CanvasKit.SkVector.length(v));
   }
@@ -408,6 +411,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return tmp;
   }
 
+  CanvasKit.SkM44.transpose = function(m) {
+    return [
+      m[0], m[4], m[8], m[12],
+      m[1], m[5], m[9], m[13],
+      m[2], m[6], m[10], m[14],
+      m[3], m[7], m[11], m[15],
+    ];
+  }
 
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
@@ -421,6 +432,11 @@ CanvasKit.onRuntimeInitialized = function() {
   // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
   // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
 
+  var rScale = 0;
+  var gScale = 6;
+  var bScale = 12;
+  var aScale = 18;
+
   var rPostTrans = 4;
   var gPostTrans = 9;
   var bPostTrans = 14;
@@ -428,21 +444,21 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkColorMatrix = {};
   CanvasKit.SkColorMatrix.identity = function() {
-    return Float32Array.of([
-      1, 0, 0, 0, 0,
-      0, 1, 0, 0, 0,
-      0, 0, 1, 0, 0,
-      0, 0, 0, 1, 0,
-    ]);
+    var m = new Float32Array(20);
+    m[rScale] = 1;
+    m[gScale] = 1;
+    m[bScale] = 1;
+    m[aScale] = 1;
+    return m;
   }
 
   CanvasKit.SkColorMatrix.scaled = function(rs, gs, bs, as) {
-    return Float32Array.of([
-      rs,  0,  0,  0,  0,
-       0, gs,  0,  0,  0,
-       0,  0, bs,  0,  0,
-       0,  0,  0, as,  0,
-    ]);
+    var m = new Float32Array(20);
+    m[rScale] = rs;
+    m[gScale] = gs;
+    m[bScale] = bs;
+    m[aScale] = as;
+    return m;
   }
 
   var rotateIndices = [

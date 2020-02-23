@@ -293,6 +293,7 @@ var CanvasKit = {
 		lookat: function() {},
 		perspective: function() {},
 		rc: function() {},
+		transpose: function() {},
 	},
 
 	SkMatrix: {
@@ -335,7 +336,7 @@ var CanvasKit = {
 		setStrokeWidth: function() {},
 		setStyle: function() {},
 
-		// private API
+		// Private API
 		delete: function() {},
 	},
 
@@ -493,6 +494,7 @@ var CanvasKit = {
 		mulScalar: function() {},
 		length: function() {},
 		lengthSquared: function() {},
+		dist: function() {},
 	},
 
 	SkVertices: {

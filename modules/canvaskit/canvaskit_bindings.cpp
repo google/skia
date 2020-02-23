@@ -1451,21 +1451,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return effect;
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque)->sk_sp<SkShader> {
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self,
+            uintptr_t fPtr, size_t fLen, bool isOpaque)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
             return self.makeShader(inputs, nullptr, 0, nullptr, isOpaque);
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque, SimpleMatrix sm)->sk_sp<SkShader> {
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self,
+            uintptr_t fPtr, size_t fLen, bool isOpaque, SimpleMatrix sm)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
             auto m = toSkMatrix(sm);
             return self.makeShader(inputs, nullptr, 0, &m, isOpaque);
         }))
-        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
-                                                                  uintptr_t /** SkShader*[] */cPtrs, size_t cLen)->sk_sp<SkShader> {
+        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque, uintptr_t /** SkShader*[] */cPtrs, size_t cLen)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
@@ -1481,8 +1482,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             delete[] children;
             return s;
         }))
-        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
-                                                                  uintptr_t /** SkShader*[] */cPtrs, size_t cLen, SimpleMatrix sm)->sk_sp<SkShader> {
+        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque, uintptr_t /** SkShader*[] */cPtrs, size_t cLen, SimpleMatrix sm)->sk_sp<SkShader> {
             // See comment above for uintptr_t explanation
             void* inputData = reinterpret_cast<void*>(fPtr);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
