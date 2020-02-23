@@ -55,17 +55,6 @@
  * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
  * function, and then checking that the error is still GL_NO_ERROR. When the
  * value is 0 we will assume no error was generated without checking.
- *
- * GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT: We will normally check the FBO status
- * every time we bind a texture or renderbuffer to an FBO. However, in some
- * environments CheckFrameBufferStatus is very expensive. If this is set we will
- * check the first time we use a color format or a combination of color /
- * stencil formats as attachments. If the FBO is complete we will assume
- * subsequent attachments with the same formats are complete as well.
- *
- * GR_GL_MUST_USE_VBO: Indicates that all vertices and indices must be rendered
- * from VBOs. Chromium's command buffer doesn't allow glVertexAttribArray with
- * ARARY_BUFFER 0 bound or glDrawElements with ELEMENT_ARRAY_BUFFER 0 bound.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
