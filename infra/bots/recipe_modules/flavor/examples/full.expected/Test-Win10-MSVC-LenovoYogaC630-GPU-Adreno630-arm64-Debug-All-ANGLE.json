@@ -150,22 +150,6 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\bin\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "clean C:\\Users\\chrome-bot\\botdata\\bin"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
       "if exist \"C:\\Users\\chrome-bot\\botdata\\empty\" rd \"C:\\Users\\chrome-bot\\botdata\\empty\"",
       "1"
     ],
@@ -193,12 +177,16 @@
     "name": "mkdir C:\\Users\\chrome-bot\\botdata\\empty"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/build to device"
+  },
+  {
     "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\bin\"",
+      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\"",
       "8"
     ],
     "env": {
@@ -206,7 +194,46 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "clean C:\\Users\\chrome-bot\\botdata\\bin (2)"
+    "name": "copy [START_DIR]/build to device.clean C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "[START_DIR]/build",
+      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/build to device.scp -r [START_DIR]/build foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build\" \"C:\\Users\\chrome-bot\\botdata\\bin\"",
+      "8"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/build to device.copy C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build to C:\\Users\\chrome-bot\\botdata\\bin",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [],
@@ -800,65 +827,6 @@
     },
     "infra_step": true,
     "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SVG_VERSION"
-  },
-  {
-    "cmd": [],
-    "name": "copy [START_DIR]/build to device"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "copy [START_DIR]/build to device.clean C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "scp",
-      "-r",
-      "[START_DIR]/build",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "copy [START_DIR]/build to device.scp -r [START_DIR]/build foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build\" \"C:\\Users\\chrome-bot\\botdata\\bin\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "copy [START_DIR]/build to device.copy C:\\Users\\chrome-bot\\botdata\\tmp_copy_directory_contents_to_device\\build to C:\\Users\\chrome-bot\\botdata\\bin",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
   },
   {
     "cmd": [

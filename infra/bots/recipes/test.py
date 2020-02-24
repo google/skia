@@ -943,9 +943,10 @@ def RunSteps(api):
   with api.context(env=env):
     try:
       if 'Lottie' in api.vars.builder_name:
-        api.flavor.install(resources=True, lotties=True)
+        api.flavor.install('dm', resources=True, lotties=True)
       else:
-        api.flavor.install(skps=True, images=True, svgs=True, resources=True)
+        api.flavor.install('dm', skps=True, images=True, svgs=True,
+                           resources=True)
       test_steps(api)
     finally:
       api.flavor.cleanup_steps()

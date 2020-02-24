@@ -42,9 +42,14 @@ class SSHFlavor(default.DefaultFlavor):
   def ensure_device_dir(self, path):
     self.ssh('mkdir %s' % path, 'mkdir', '-p', path)
 
-  def install(self):
+  def install(self, app_to_push):
     self.ensure_device_dir(self.device_dirs.resource_dir)
-    self.create_clean_device_dir(self.device_dirs.bin_dir)
+    if app_to_push:
+      self.create_clean_device_dir(self.device_dirs.bin_dir)
+      host_path = self.host_dirs.bin_dir.join(app_to_push)
+      device_path = self.device_path_join(self.device_dirs.bin_dir, app_to_push)
+      self.copy_file_to_device(host_path, device_path)
+      self.ssh('make %s executable' % app_to_push, 'chmod', '+x', device_path)
 
   def create_clean_device_dir(self, path):
     # use -f to silently return if path doesn't exist
@@ -76,10 +81,6 @@ class SSHFlavor(default.DefaultFlavor):
   #def copy_directory_contents_to_host(self, device_path, host_path):
 
   def step(self, name, cmd, **kwargs):
-    # Push and run cmd
-    host_path = self.host_dirs.bin_dir.join(cmd[0])
+    # Run cmd (installed above)
     cmd[0] = self.device_path_join(self.device_dirs.bin_dir, cmd[0])
-    self.copy_file_to_device(host_path, cmd[0])
-
-    self.ssh('make %s executable' % name, 'chmod', '+x', cmd[0])
     self.ssh(str(name), *cmd)

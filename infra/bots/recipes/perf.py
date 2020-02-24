@@ -336,9 +336,11 @@ def RunSteps(api):
   with api.env(env):
     try:
       if all(v in api.vars.builder_name for v in ['Android', 'CPU']):
-        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
+        api.flavor.install('nanobench', skps=True, images=True, svgs=True,
+                           resources=True, texttraces=True)
       else:
-        api.flavor.install(skps=True, images=True, svgs=True, resources=True)
+        api.flavor.install('nanobench', skps=True, images=True, svgs=True,
+                           resources=True)
       perf_steps(api)
     finally:
       api.flavor.cleanup_steps()

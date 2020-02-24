@@ -30,8 +30,8 @@ class ChromebookFlavor(ssh.SSHFlavor):
       tmp_dir        = self.chromeos_homedir,
       texttraces_dir = '')
 
-  def install(self):
-    super(ChromebookFlavor, self).install()
+  def install(self, app_to_push):
+    super(ChromebookFlavor, self).install(app_to_push)
 
     # Ensure the home dir is marked executable
     self.ssh('remount %s as exec' % self.chromeos_homedir,

@@ -141,6 +141,22 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push nanobench"
+  },
+  {
     "cmd": [],
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
@@ -828,22 +844,6 @@
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/build/nanobench",
-      "/data/local/tmp/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push nanobench"
   },
   {
     "cmd": [

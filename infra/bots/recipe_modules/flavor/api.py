@@ -115,9 +115,9 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def remove_file_on_device(self, path):
     return self._f.remove_file_on_device(path)
 
-  def install(self, skps=False, images=False, lotties=False, svgs=False,
-              resources=False, mskps=False, texttraces=False):
-    self._f.install()
+  def install(self, app_to_push, skps=False, images=False, lotties=False,
+              svgs=False, resources=False, mskps=False, texttraces=False):
+    self._f.install(app_to_push)
 
     if texttraces:
       self._copy_texttraces()

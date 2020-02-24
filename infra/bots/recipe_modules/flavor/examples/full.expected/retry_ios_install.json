@@ -203,19 +203,6 @@
   },
   {
     "cmd": [
-      "ideviceinstaller",
-      "-i",
-      "[START_DIR]/build/nanobench.app"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "install nanobench"
-  },
-  {
-    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[START_DIR]/skia/resources",
       "resources"

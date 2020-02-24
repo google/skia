@@ -2,9 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Disable warning about setting self.device_dirs in install(); we need to.
-# pylint: disable=W0201
-
 
 from . import default
 
@@ -37,7 +34,7 @@ time.sleep(2)
     return self.m.run.with_retry(self.m.step, title, 3, cmd=list(cmd),
                                  between_attempts_fn=sleep, **kwargs)
 
-  def install(self):
+  def install(self, app_to_push):
     # We assume a single device is connected.
 
     # Pair the device.
@@ -81,21 +78,23 @@ time.sleep(2)
 
       self._run('mount developer image', 'ideviceimagemounter', image, sig)
 
-    # Install the apps (necessary before copying any resources to the device).
-    for app_name in ['dm', 'nanobench']:
-      app_package = self.host_dirs.bin_dir.join('%s.app' % app_name)
+    # Install app (necessary before copying any resources to the device).
+    if app_to_push:
+      app_package = self.host_dirs.bin_dir.join('%s.app' % app_to_push)
 
       def uninstall_app(attempt):
         # If app ID changes, upgrade will fail, so try uninstalling.
         self.m.run(self.m.step,
-                   'uninstall %s' % app_name,
-                   cmd=['ideviceinstaller', '-U', 'com.google.%s' % app_name],
+                   'uninstall %s' % app_to_push,
+                   cmd=['ideviceinstaller', '-U',
+                        'com.google.%s' % app_to_push],
                    infra_step=True,
                    # App may not be installed.
                    abort_on_failure=False, fail_build_on_failure=False)
 
       num_attempts = 2
-      self.m.run.with_retry(self.m.step, 'install %s' % app_name, num_attempts,
+      self.m.run.with_retry(self.m.step, 'install %s' % app_to_push,
+                            num_attempts,
                             cmd=['ideviceinstaller', '-i', app_package],
                             between_attempts_fn=uninstall_app,
                             infra_step=True)

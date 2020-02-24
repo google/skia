@@ -35,29 +35,40 @@ def RunSteps(api):
   if api.properties.get('is_testing_exceptions') == 'True':
     return test_exceptions(api)
 
-  if 'Build' not in api.properties['buildername']:
+  builder = api.properties['buildername']
+  if 'Build' not in builder:
     try:
       api.flavor.copy_file_to_device('file.txt', 'file.txt')
       api.flavor.read_file_on_device('file.txt')
       api.flavor.remove_file_on_device('file.txt')
       api.flavor.create_clean_host_dir('results_dir')
       api.flavor.create_clean_device_dir('device_results_dir')
-      if 'Lottie' in api.properties['buildername']:
-        api.flavor.install(lotties=True)
-      elif 'Mskp' in api.properties['buildername']:
-        api.flavor.install(mskps=True)
-      elif all(v in api.properties['buildername'] for v in ['Perf', 'Android', 'CPU']):
-        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
+
+      app = None
+      if 'SkottieTracing' in builder:
+        app = None
+      elif 'Test' in builder:
+        app = 'dm'
+      elif 'Perf' in builder:
+        app = 'nanobench'
+
+      if 'Lottie' in builder:
+        api.flavor.install(app, lotties=True)
+      elif 'Mskp' in builder:
+        api.flavor.install(app, mskps=True)
+      elif all(v in builder for v in ['Perf', 'Android', 'CPU']):
+        api.flavor.install(app, skps=True, images=True, svgs=True,
+                           resources=True, texttraces=True)
       else:
-        api.flavor.install(skps=True, images=True, lotties=False, svgs=True,
-                           resources=True)
-      if 'Test' in api.properties['buildername']:
+        api.flavor.install(app, skps=True, images=True, lotties=False,
+                           svgs=True, resources=True)
+      if 'Test' in builder:
         api.flavor.step('dm', ['dm', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
-      elif 'Perf' in api.properties['buildername']:
-        if 'SkottieTracing' in api.properties['buildername']:
-          api.flavor.step('dm', ['dm', '--some-flag'], skip_binary_push=True)
+      elif 'Perf' in builder:
+        if 'SkottieTracing' in builder:
+          api.flavor.step('dm', ['dm', '--some-flag'])
         else:
           api.flavor.step('nanobench', ['nanobench', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
