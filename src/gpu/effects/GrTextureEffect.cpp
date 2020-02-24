@@ -472,9 +472,10 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     auto repeatBilerpReadXY = read("float2(repeatCoordX, repeatCoordY)");
                     fb->codeAppendf(
                             "if (errX != 0 && errY != 0) {"
+                            "    errX = abs(errX);"
                             "    textureColor = mix(mix(textureColor, %s, errX),"
                             "                       mix(%s, %s, errX),"
-                            "                       errY);"
+                            "                       abs(errY));"
                             "}",
                             repeatBilerpReadX.c_str(), repeatBilerpReadY.c_str(),
                             repeatBilerpReadXY.c_str());
