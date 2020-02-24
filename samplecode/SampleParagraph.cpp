@@ -1868,62 +1868,60 @@ protected:
     SkString name() override { return SkString("Paragraph25"); }
 
     void onDrawContent(SkCanvas* canvas) override {
+        auto text = u"\U0001f469\u200D\U0001f469\u200D\U0001f466\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467\U0001f1fa\U0001f1f8";
         canvas->drawColor(SK_ColorWHITE);
-/*
- * Shell: ParagraphStyle: 1.000000 1
-Shell: Strut enabled: 0 1.000000 14.000000 400 5 0
-Shell: Font Families: 0
-Shell: DefaultTextStyle: 16.000000 500 5 0
-Shell: Font Families: 1 Roboto
-Shell: Font Features: 0
-Shell: TextStyle#0: [0:22) 16.000000 500 5 0
-Shell: Font Families: 1 Roboto
-Shell: Font Features: 0
-Shell: TextStyle#1: [25:49) 16.000000 500 5 0
-Shell: Font Families: 1 Roboto
-Shell: Font Features: 0
-Shell: Placeholder#0: [22:25) 32.000000 32.000000 32.000000 0 5
-Shell: Placeholder#1: [49:52) 19.000000 41.000000 19.000000 0 4
-Shell: Placeholder#2: [52:52) 0.000000 0.000000 0.000000 0 5
-Shell: layout('Go to device settings ￼ and set up a passcode. ￼', 280.000000): 280.000000 * 38.000000
- */
-        auto fontCollection = getFontCollection();
-        //fontCollection->getParagraphCache()->turnOn(false);
-        const char* text1 =  "Go to device settings ";
-        const char* text2 = "and set up a passcode.";
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
         ParagraphStyle paragraph_style;
-        StrutStyle strut_style;
-        strut_style.setStrutEnabled(false);
-        strut_style.setFontSize(14);
-        strut_style.setForceStrutHeight(false);
-        strut_style.setHeight(14);
-        paragraph_style.setStrutStyle(strut_style);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(16);
-        PlaceholderStyle placeholder_style;
-        {
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-            builder.pushStyle(text_style);
-            builder.addText(text1);
-            placeholder_style.fHeight = 32;
-            placeholder_style.fWidth = 32;
-            placeholder_style.fBaselineOffset = 32;
-            placeholder_style.fBaseline = TextBaseline::kAlphabetic;
-            placeholder_style.fAlignment = PlaceholderAlignment::kMiddle;
-            builder.addPlaceholder(placeholder_style);
-            builder.addText(text2);
-            placeholder_style.fHeight = 19;
-            placeholder_style.fWidth = 41;
-            placeholder_style.fBaselineOffset = 19;
-            placeholder_style.fBaseline = TextBaseline::kAlphabetic;
-            placeholder_style.fAlignment = PlaceholderAlignment::kTop;
-            builder.addPlaceholder(placeholder_style);
-            auto paragraph = builder.Build();
-            paragraph->layout(280);
-            paragraph->paint(canvas, 0, 0);
-        }
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+
+        SkPaint red;
+        red.setColor(SK_ColorRED);
+        red.setStyle(SkPaint::kStroke_Style);
+        red.setAntiAlias(true);
+        red.setStrokeWidth(1);
+
+        auto drawRect = [&](size_t start, size_t end) {
+            auto result = paragraph->getRectsForRange(start, end, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            SkDebugf("[%d:%d):\n", start, end);
+            for (auto& r : result) {
+                SkDebugf("   [%f:%f]\n", r.rect.fLeft, r.rect.fRight);
+                canvas->drawRect(r.rect, red);
+            }
+        };
+
+        drawRect(4, 8);
+        drawRect(4, 20);
+
+        drawRect(0, 2);
+        drawRect(0, 4);
+        drawRect(0, 8);
+
+        drawRect(23, 25);
+        drawRect(23, 27);
+        drawRect(23, 31);
+        drawRect(23, 39);
+        drawRect(23, 55);
+
+        drawRect(21, 23);
+
+        drawRect(1, 3);
+        drawRect(1, 5);
+        drawRect(1, 9);
+        drawRect(1, 17);
+        drawRect(1, 33);
     }
 
 private:
