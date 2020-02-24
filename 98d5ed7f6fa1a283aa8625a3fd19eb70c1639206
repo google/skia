@@ -34,6 +34,24 @@
       "revId": "98d5ed7f6fa1a283aa8625a3fd19eb70c1639206",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd8cf450_658dd6f6",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-24T17:41:26Z",
+      "side": 1,
+      "message": "It should be okay -- it was trying to build GrD3DGpu.cpp and GrD3DCaps.cpp, which are now excluded.",
+      "parentUuid": "a2fface8_4982c51c",
+      "revId": "98d5ed7f6fa1a283aa8625a3fd19eb70c1639206",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
