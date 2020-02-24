@@ -45,61 +45,14 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::IsACopyNeededForRepeatWrapMode(const GrCaps* caps,
-                                           GrTextureProxy* texProxy,
-                                           SkISize dimensions,
-                                           GrSamplerState::Filter filter,
-                                           GrTextureProducer::CopyParams* copyParams,
-                                           SkScalar scaleAdjust[2]) {
-    if (!caps->npotTextureTileSupport() &&
-        (!SkIsPow2(dimensions.width()) || !SkIsPow2(dimensions.height()))) {
-        SkASSERT(scaleAdjust);
-        copyParams->fDimensions = {SkNextPow2(dimensions.width()), SkNextPow2(dimensions.height())};
-        SkASSERT(scaleAdjust);
-        scaleAdjust[0] = ((SkScalar)copyParams->fDimensions.width()) / dimensions.width();
-        scaleAdjust[1] = ((SkScalar)copyParams->fDimensions.height()) / dimensions.height();
-        switch (filter) {
-        case GrSamplerState::Filter::kNearest:
-            copyParams->fFilter = GrSamplerState::Filter::kNearest;
-            break;
-        case GrSamplerState::Filter::kBilerp:
-        case GrSamplerState::Filter::kMipMap:
-            // We are only ever scaling up so no reason to ever indicate kMipMap.
-            copyParams->fFilter = GrSamplerState::Filter::kBilerp;
-            break;
-        }
-        return true;
-    }
-
-    if (texProxy) {
-        // If the texture format itself doesn't support repeat wrap mode or mipmapping (and
-        // those capabilities are required) force a copy.
-        if (texProxy->hasRestrictedSampling()) {
-            copyParams->fFilter = GrSamplerState::Filter::kNearest;
-            copyParams->fDimensions = texProxy->dimensions();
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texProxy,
-                                 GrSamplerState::Filter filter,
-                                 GrTextureProducer::CopyParams* copyParams) {
+                                 GrSamplerState::Filter filter) {
     SkASSERT(texProxy);
-    int mipCount = SkMipMap::ComputeLevelCount(texProxy->width(), texProxy->height());
-    bool willNeedMips = GrSamplerState::Filter::kMipMap == filter && caps->mipMapSupport() &&
-            mipCount;
-    // If the texture format itself doesn't support mipmapping (and those capabilities are required)
-    // force a copy.
-    if (willNeedMips && texProxy->mipMapped() == GrMipMapped::kNo) {
-        copyParams->fFilter = GrSamplerState::Filter::kNearest;
-        copyParams->fDimensions = texProxy->dimensions();
-        return true;
+    if (filter != GrSamplerState::Filter::kMipMap || texProxy->mipMapped() == GrMipMapped::kYes ||
+        !caps->mipMapSupport()) {
+        return false;
     }
-
-    return false;
+    return SkMipMap::ComputeLevelCount(texProxy->width(), texProxy->height()) > 0;
 }
 
 static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType,
