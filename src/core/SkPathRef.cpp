@@ -496,6 +496,11 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
     *fGenIDChangeListeners.append() = listener.release();
 }
 
+int SkPathRef::genIDChangeListenerCount() {
+    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
+    return fGenIDChangeListeners.count();
+}
+
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     auto visit = [this]() {
