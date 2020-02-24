@@ -18,6 +18,7 @@
 class SkFontMgr;
 
 namespace sksg {
+class BlurImageFilter;
 class Group;
 template <typename T>
 class Matrix;
@@ -45,11 +46,12 @@ private:
     TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>);
 
     struct FragmentRec {
-        SkPoint                    fOrigin; // fragment position
+        SkPoint                      fOrigin; // fragment position
 
-        sk_sp<sksg::Matrix<SkM44>> fMatrixNode;
-        sk_sp<sksg::Color>         fFillColorNode,
-                                   fStrokeColorNode;
+        sk_sp<sksg::Matrix<SkM44>>   fMatrixNode;
+        sk_sp<sksg::Color>           fFillColorNode,
+                                     fStrokeColorNode;
+        sk_sp<sksg::BlurImageFilter> fBlur;
     };
 
     void reshape();
@@ -89,6 +91,7 @@ private:
     };
 
     TextValueTracker fText;
+    bool             fHasBlur = false; // tracks whether any animator targets blur
 };
 
 } // namespace internal

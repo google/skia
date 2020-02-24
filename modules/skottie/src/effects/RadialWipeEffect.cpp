@@ -48,8 +48,7 @@ protected:
             fMaskSigma  = 0;
             fMaskFilter = nullptr;
         } else {
-            static constexpr float kFeatherToSigma = 0.3f; // close enough to AE
-            fMaskSigma = std::max(fFeather, 0.0f) * kFeatherToSigma;
+            fMaskSigma = std::max(fFeather, 0.0f) * kBlurSizeToSigma;
 
             // The gradient is inverted between non-blurred and blurred (latter requires dstOut).
             const SkColor c0 = fMaskSigma > 0 ? 0xffffffff : 0x00000000,

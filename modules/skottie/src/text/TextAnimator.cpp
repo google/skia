@@ -123,6 +123,9 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     modulated_props.scale    *= SkV3{1,1,1} +
             (ValueTraits<VectorValue>::As<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
+    // ... as does blur
+    modulated_props.blur += ValueTraits<VectorValue>::As<SkVector>(fTextProps.blur) * amount;
+
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
                    c1_4f = SkNx_cast<float>(Sk4b::Load(&c1)),
@@ -167,6 +170,7 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
 
     fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], &fTextProps.fill_color  );
     fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], &fTextProps.stroke_color);
+    fHasBlur        = acontainer->bind(*abuilder, jprops["bl"], &fTextProps.blur        );
 }
 
 } // namespace internal

@@ -38,6 +38,9 @@ class Transform;
 namespace skottie {
 namespace internal {
 
+// Close-enough to AE.
+static constexpr float kBlurSizeToSigma = 0.3f;
+
 class TextAdapter;
 class TransformAdapter2D;
 class TransformAdapter3D;

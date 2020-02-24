@@ -56,9 +56,7 @@ private:
         const auto dim_index = SkTPin<size_t>(static_cast<size_t>(fDimensions),
                                               1, SK_ARRAY_COUNT(kDimensionsMap)) - 1;
 
-        // Close enough to AE.
-        static constexpr SkScalar kBlurrinessToSigmaFactor = 0.3f;
-        const auto sigma = fBlurriness * kBlurrinessToSigmaFactor;
+        const auto sigma = fBlurriness * kBlurSizeToSigma;
 
         fBlur->setSigma({ sigma * kDimensionsMap[dim_index].x(),
                           sigma * kDimensionsMap[dim_index].y() });
