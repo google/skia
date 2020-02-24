@@ -47,8 +47,7 @@ bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
     fIterator = nullptr;
     fSize = text.size();
     UText sUtf8UText = UTEXT_INITIALIZER;
-    std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>> utf8UText(
-        utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
+    ICUUText utf8UText(utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
     if (U_FAILURE(status)) {
         SkDEBUGF("Could not create utf8UText: %s", u_errorName(status));
         return false;
@@ -86,7 +85,6 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
-    // TODO: extractStyles();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -108,7 +106,6 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
     std::string str;
     unicode.toUTF8String(str);
     fText = SkString(str.data(), str.size());
-    // TODO: extractStyles();
 }
 
 ParagraphImpl::~ParagraphImpl() = default;
@@ -129,17 +126,18 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fRunShifts.reset();
+        //this->fUtf8TextToClusters.reset();
         this->fClusters.reset();
     } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         this->fClusters.reset();
+        //this->fUtf8TextToClusters.reset();
         this->resetRunShifts();
         fState = kShaped;
     }
 
     if (fState < kShaped) {
 
-        fGraphemes.reset();
         this->markGraphemes();
 
         if (!this->shapeTextIntoEndlessLine()) {
@@ -167,6 +165,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             return;
         }
 
+        //this->fUtf8TextToClusters.reset();
         this->fClusters.reset();
         this->resetRunShifts();
         fState = kShaped;
@@ -271,6 +270,12 @@ void ParagraphImpl::buildClusterTable() {
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
                 cluster.setIsWhiteSpaces();
+                /*
+                for (auto i = charStart; i < charEnd; ++i) {
+                    SkASSERT(i == fUtf8TextToClusters.size());
+                    fUtf8TextToClusters.emplace_back(fClusters.size());
+                }
+                */
             });
         }
 
@@ -531,35 +536,32 @@ void ParagraphImpl::markGraphemes16() {
         return;
     }
 
-    // This breaker gets called only once for a paragraph so we don't have to keep it
-    TextBreaker breaker;
-    if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
-        return;
-    }
-
     auto ptr = fText.c_str();
     auto end = fText.c_str() + fText.size();
     while (ptr < end) {
 
+        auto start = ptr;
         size_t index = ptr - fText.c_str();
         SkUnichar u = SkUTF::NextUTF8(&ptr, end);
+        auto size = ptr - start;
         uint16_t buffer[2];
         size_t count = SkUTF::ToUTF16(u, buffer);
-        fCodePoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
+        fCodePoints.emplace_back(EMPTY_INDEX, TextRange(index, index + size), count > 1 ? 2 : 1);
         if (count > 1) {
-            fCodePoints.emplace_back(EMPTY_INDEX, index, 1);
+            fCodePoints.emplace_back(EMPTY_INDEX, TextRange(index, index + size), 1);
         }
     }
 
     CodepointRange codepoints(0ul, 0ul);
 
     size_t endPos = 0;
-    while (!breaker.eof()) {
+    for (auto& gr : fGraphemes) {
         auto startPos = endPos;
-        endPos = breaker.next();
+        endPos = gr;
 
         // Collect all the codepoints that belong to the grapheme
-        while (codepoints.end < fCodePoints.size() && fCodePoints[codepoints.end].fTextIndex < endPos) {
+        while (codepoints.end < fCodePoints.size() &&
+               fCodePoints[codepoints.end].fTextRange.end <= endPos) {
             ++codepoints.end;
         }
 
@@ -567,20 +569,27 @@ void ParagraphImpl::markGraphemes16() {
             continue;
         }
 
-        //SkDebugf("Grapheme #%d [%d:%d)\n", fGraphemes16.size(), startPos, endPos);
-
         // Update all the codepoints that belong to this grapheme
         for (auto i = codepoints.start; i < codepoints.end; ++i) {
-            //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
             fCodePoints[i].fGrapheme = fGraphemes16.size();
+        }
+
+        // Add all text points
+        for (auto i = startPos; i < endPos; ++i) {
+            fUtf8Text.emplace_back(fGraphemes16.size(), codepoints, false);
         }
 
         fGraphemes16.emplace_back(codepoints, TextRange(startPos, endPos));
         codepoints.start = codepoints.end;
     }
+    fUtf8Text.emplace_back(fGraphemes16.size(), codepoints, true);
 }
 
 void ParagraphImpl::markGraphemes() {
+
+    if (!fGraphemes.empty()) {
+        return;
+    }
 
     // This breaker gets called only once for a paragraph so we don't have to keep it
     TextBreaker breaker;
@@ -590,7 +599,7 @@ void ParagraphImpl::markGraphemes() {
 
     auto endPos = breaker.first();
     while (!breaker.eof()) {
-        fGraphemes.add(endPos);
+        fGraphemes.insert(endPos);
         endPos = breaker.next();
     }
 }
@@ -620,33 +629,29 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     TextRange text(fText.size(), fText.size());
 
     if (start < fCodePoints.size()) {
-        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
-        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
-        if (start > startGrapheme.fCodepointRange.start) {
-            if (end == startGrapheme.fCodepointRange.end &&
-                start == startGrapheme.fCodepointRange.end - 1) {
+        auto startCodepoint = fCodePoints[start];
+        auto grapheme = fGraphemes16[startCodepoint.fGrapheme];
+        if (grapheme.fCodepointRange.start == start) {
+            text.start = grapheme.fTextRange.start;
+        } else if (end == grapheme.fCodepointRange.end) {
+            if (start == grapheme.fCodepointRange.end - 1) {
                 // This is a fix to make test GetRectsForRangeIncludeCombiningCharacter work
                 // Must be removed...
-                text.start = startGrapheme.fTextRange.start;
+                text.start = grapheme.fTextRange.start;
             } else {
-                text.start  = lastGrapheme && end >= fCodePoints.size()
-                        ? fCodePoints.back().fTextIndex
-                        : startGrapheme.fTextRange.end;
+                //text.start = grapheme.fTextRange.end;
+                text.start = startCodepoint.fTextRange.start;
             }
+        } else if (startCodepoint.fGrapheme == fGraphemes16.size() - 1) {
+            text.start = startCodepoint.fTextRange.end;
         } else {
-            text.start = startGrapheme.fTextRange.start;
+            text.start = grapheme.fTextRange.end;
         }
     }
 
     if (end < fCodePoints.size()) {
-        auto codepoint = fCodePoints[end];
-        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
-        if (text.start == endGrapheme.fTextRange.start &&
-            end + codepoint.fIndex == fCodePoints.size()) {
-            text.end = endGrapheme.fTextRange.end;
-        } else {
-            text.end  = endGrapheme.fTextRange.start;
-        }
+        auto endCodepoint = fCodePoints[end];
+        text.end = endCodepoint.fTextRange.start;
     }
 
     for (auto& line : fLines) {
@@ -893,12 +898,10 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
             (const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
 
                 auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
-                    auto codepoint = std::lower_bound(
-                        fCodePoints.begin(), fCodePoints.end(),
-                        clusterIndex8,
-                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
-
-                    return codepoint - fCodePoints.begin();
+                    return
+                        clusterIndex8 < fText.size()
+                            ? fGraphemes16[fUtf8Text[clusterIndex8].fGrapheme].fCodepointRange
+                            : CodepointRange(fCodePoints.size(), fCodePoints.size());
                 };
 
                 auto offsetX = line.offset().fX;
@@ -906,22 +909,20 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 *width = context.clip.width();
                 if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
-                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
-                    result = { SkToS32(codepointIndex), kDownstream };
-                    return false;
+                    auto codepoints = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
+                    result = { SkToS32(codepoints.start), kDownstream };
+                    return false; // We can quit - all the other runs do not intersect with our point
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
-                    // We have to keep looking but just in case keep the last one as the closes
-                    // so far
-                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
-                    result = { SkToS32(codepointIndex), kUpstream };
-                    return true;
+                    // We have to keep looking but just in case keep the last one as the closes so far
+                    auto codepoints = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
+                    result = { SkToS32(codepoints.start), kUpstream };
+                    return true; // We still may find another run
                 }
 
                 // So we found the run that contains our coordinates
                 // Find the glyph position in the run that is the closest left of our point
-                // TODO: binary search
                 size_t found = context.pos;
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
@@ -937,40 +938,28 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     --found;
                 }
 
+                auto cluster8 = context.run->globalClusterIndex(found);
+                auto codepoints = findCodepointByTextIndex(cluster8);
+
                 auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
-                auto clusterIndex8 = context.run->globalClusterIndex(found);
-                auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
-                TextRange clusterText (clusterIndex8, clusterEnd8);
-
-                // Find the grapheme positions in codepoints that contains the point
-                auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
-                CodepointRange codepoints(codepointIndex, codepointIndex);
-                for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
-                    auto& cp = fCodePoints[codepoints.end];
-                    if (cp.fTextIndex >= clusterText.end) {
-                        break;
-                    }
-                }
-                auto graphemeSize = codepoints.width();
 
                 // We only need to inspect one glyph (maybe not even the entire glyph)
                 SkScalar center;
                 bool insideGlyph = false;
-                if (graphemeSize > 1) {
-                    auto averageCodepointWidth = glyphWidth / graphemeSize;
+                if (codepoints.width() > 1) {
+                    auto averageCodepointWidth = glyphWidth / codepoints.width();
                     auto delta = dx - glyphStart;
                     auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
                     insideGlyph = delta > averageCodepointWidth;
                     center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
-                    codepointIndex += insideIndex;
                 } else {
                     center = glyphStart + glyphWidth / 2;
                 }
                 if ((dx < center) == context.run->leftToRight() || insideGlyph) {
-                    result = { SkToS32(codepointIndex), kDownstream };
+                    result = { SkToS32(codepoints.start), kDownstream };
                 } else {
-                    result = { SkToS32(codepointIndex + 1), kUpstream };
+                    result = { SkToS32(codepoints.end), kUpstream };
                 }
                 // No need to continue
                 return false;
@@ -988,7 +977,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
     if (fWords.empty()) {
-        auto unicode = icu::UnicodeString::fromUTF8(fText.c_str());
+
+        markGraphemes16();
 
         UErrorCode errorCode = U_ZERO_ERROR;
 
@@ -999,6 +989,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         }
 
         UText sUtf16UText = UTEXT_INITIALIZER;
+        auto unicode = icu::UnicodeString::fromUTF8(fText.c_str());
         ICUUText utf16UText(utext_openUnicodeString(&sUtf16UText, &unicode, &errorCode));
         if (U_FAILURE(errorCode)) {
             SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
@@ -1013,25 +1004,26 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
         int32_t pos = ubrk_first(iter);
         while (pos != icu::BreakIterator::DONE) {
-            fWords.emplace_back(pos);
+            fUtf8Text[pos].fWordBoundary = true;
             pos = ubrk_next(iter);
         }
     }
 
-    int32_t start = 0;
-    int32_t end = 0;
-    for (size_t i = 0; i < fWords.size(); ++i) {
-      auto word = fWords[i];
-      if (word <= offset) {
-        start = word;
-        end = word;
-      } else if (word > offset) {
-        end = word;
-        break;
-      }
+    if (offset > fText.size()) {
+        offset = fText.size();
     }
 
-    return { SkToU32(start), SkToU32(end) };
+    // Look left and right for the closest boundaries
+    size_t start = offset;
+    while (start > 0 && !fUtf8Text[start].fWordBoundary) {
+        --start;
+    }
+    size_t end = offset + 1;
+    while (end < fUtf8Text.size() && !fUtf8Text[end].fWordBoundary) {
+        ++end;
+    }
+
+    return { start, end };
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
@@ -1104,7 +1096,8 @@ void ParagraphImpl::setState(InternalState state) {
         case kUnknown:
             fRuns.reset();
         case kShaped:
-            fClusters.reset();
+            //this->fUtf8TextToClusters.reset();
+            this->fClusters.reset();
         case kClusterized:
         case kMarked:
         case kLineBroken:

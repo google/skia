@@ -3576,7 +3576,7 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, result);
 
     result = paragraph->getRectsForRange(122, 132, rect_height_style, rect_width_style);
-    REPORTER_ASSERT(reporter, result.size() == 0); // There is no single glyph
+    REPORTER_ASSERT(reporter, result.size() == 0);
     canvas.drawRects(SK_ColorBLUE, result);
 
     auto pos = paragraph->getGlyphPositionAtCoordinate(610, 100).position;
