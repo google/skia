@@ -177,7 +177,7 @@ public:
         }
 
         canvas->drawRect(SkRect::MakeXYWH(10, 10, 10, 10), SkPaint());
-        return r.detach();
+        return r.detach(false);
     }
 
     // Create the surface with the current set of parameters
@@ -879,7 +879,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         const SkSurfaceCharacterization c = recorder.characterization();
         REPORTER_ASSERT(reporter, !c.isValid());
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
-        REPORTER_ASSERT(reporter, !recorder.detach());
+        REPORTER_ASSERT(reporter, !recorder.detach(false));
 
         GrBackendFormat format = context->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                GrRenderable::kNo);
@@ -987,7 +987,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
         canvas->clear(SK_ColorRED);
         canvas->drawImage(promiseImage, 0, 0);
-        ddl = recorder.detach();
+        ddl = recorder.detach(false);
     }
 
     context->flush();
@@ -1040,7 +1040,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     canvas1->save();
     canvas1->clipRect(SkRect::MakeXYWH(8, 8, 16, 16));
 
-    std::unique_ptr<SkDeferredDisplayList> ddl1 = recorder.detach();
+    std::unique_ptr<SkDeferredDisplayList> ddl1 = recorder.detach(false);
 
     SkCanvas* canvas2 = recorder.getCanvas();
 
@@ -1048,7 +1048,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     p.setColor(SK_ColorGREEN);
     canvas2->drawRect(SkRect::MakeWH(32, 32), p);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl2 = recorder.detach();
+    std::unique_ptr<SkDeferredDisplayList> ddl2 = recorder.detach(false);
 
     REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData());
     REPORTER_ASSERT(reporter, ddl2->priv().lazyProxyData());

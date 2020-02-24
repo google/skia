@@ -41,7 +41,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach(true);
     if (ddl->priv().numRenderTasks()) {
         // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
         // reinflation of the SKPs contains opsTasks that means some image subset operation
@@ -80,7 +80,7 @@ void DDLTileHelper::TileData::createDDL() {
         subCanvas->drawPicture(fReconstitutedPicture);
     }
 
-    fDisplayList = recorder.detach();
+    fDisplayList = recorder.detach(false);
 }
 
 void DDLTileHelper::TileData::draw(GrContext* context) {

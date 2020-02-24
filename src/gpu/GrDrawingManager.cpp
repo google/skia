@@ -568,12 +568,18 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 }
 #endif
 
-void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
+void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl, bool shouldBeEmpty) {
     SkDEBUGCODE(this->validate());
 
     // no renderTask should receive a new command after this
     fDAG.closeAll(fContext->priv().caps());
     fActiveOpsTask = nullptr;
+
+    if (shouldBeEmpty) {
+        SkASSERT(!fDAG.numRenderTasks());
+    } else {
+        SkASSERT(fDAG.numRenderTasks());
+    }
 
     fDAG.swap(&ddl->fRenderTasks);
 
