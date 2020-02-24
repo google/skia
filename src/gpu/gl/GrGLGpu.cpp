@@ -2338,28 +2338,6 @@ void GrGLGpu::flushViewport(int width, int height) {
     }
 }
 
-#define SWAP_PER_DRAW 0
-
-#if SWAP_PER_DRAW
-    #if defined(SK_BUILD_FOR_MAC)
-        #include <AGL/agl.h>
-    #elif defined(SK_BUILD_FOR_WIN)
-        #include <gl/GL.h>
-        void SwapBuf() {
-            DWORD procID = GetCurrentProcessId();
-            HWND hwnd = GetTopWindow(GetDesktopWindow());
-            while(hwnd) {
-                DWORD wndProcID = 0;
-                GetWindowThreadProcessId(hwnd, &wndProcID);
-                if(wndProcID == procID) {
-                    SwapBuffers(GetDC(hwnd));
-                }
-                hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
-            }
-         }
-    #endif
-#endif
-
 void GrGLGpu::drawMesh(GrRenderTarget* renderTarget, GrPrimitiveType primitiveType,
                        const GrMesh& mesh) {
     if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
@@ -2370,19 +2348,6 @@ void GrGLGpu::drawMesh(GrRenderTarget* renderTarget, GrPrimitiveType primitiveTy
 
     mesh.sendToGpu(primitiveType, this);
     fLastPrimitiveType = primitiveType;
-
-#if SWAP_PER_DRAW
-    glFlush();
-    #if defined(SK_BUILD_FOR_MAC)
-        aglSwapBuffers(aglGetCurrentContext());
-        int set_a_break_pt_here = 9;
-        aglSwapBuffers(aglGetCurrentContext());
-    #elif defined(SK_BUILD_FOR_WIN)
-        SwapBuf();
-        int set_a_break_pt_here = 9;
-        SwapBuf();
-    #endif
-#endif
 }
 
 static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
