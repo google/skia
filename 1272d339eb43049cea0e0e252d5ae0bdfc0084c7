@@ -22,6 +22,30 @@
       "revId": "1272d339eb43049cea0e0e252d5ae0bdfc0084c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a40a33da_fe3caf2f",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-02-24T16:46:20Z",
+      "side": 1,
+      "message": "Good call. I added the assert as suggested.",
+      "parentUuid": "1269cc3f_8258bfdf",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 70
+      },
+      "revId": "1272d339eb43049cea0e0e252d5ae0bdfc0084c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
