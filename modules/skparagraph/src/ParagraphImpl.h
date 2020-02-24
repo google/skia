@@ -2,6 +2,7 @@
 #ifndef ParagraphImpl_DEFINED
 #define ParagraphImpl_DEFINED
 
+#include <set>
 #include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
 #include <unicode/unistr.h>
@@ -207,7 +208,6 @@ private:
     friend class OneLineShaper;
 
     void calculateBoundaries();
-    void extractStyles();
 
     void markGraphemes16();
     void markGraphemes();
@@ -229,11 +229,13 @@ private:
 
     // Internal structures
     InternalState fState;
-    SkTArray<Run, false> fRuns;                // kShaped
+    SkTArray<Run, false> fRuns;         // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
-    SkTHashSet<size_t> fGraphemes;
+    SkTArray<Utf8Text, true> fUtf8Text;
+    //SkTArray<size_t, true> fUtf8TextToClusters;
+    std::set<size_t> fGraphemes;        // utf8 indexed grapheme clusters
     size_t fUnresolvedGlyphs;
 
     SkTArray<RunShifts, false> fRunShifts;
