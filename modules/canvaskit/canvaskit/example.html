@@ -57,6 +57,7 @@
 
   var bonesImageData = null;
   var mandrillData = null;
+  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready().then((CK) => {
@@ -88,21 +89,21 @@
     AtlasAPI1(CanvasKit, mandrillData);
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
+  fetch(cdn + 'bones.jpg').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       bonesImageData = buffer;
       VertexAPI2(CanvasKit, bonesImageData);
     });
   });
 
-  fetch('./Roboto-Regular.woff').then((resp) => {
+  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       DrawingExample(CanvasKit, robotoData);
     });
   });
 
-  fetch('./NotoSerif-Regular.ttf').then((resp) => {
+  fetch(cdn + 'NotoSerif-Regular.ttf').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       notoserifData = buffer;
       TextShapingAPI1(CanvasKit, notoserifData);
@@ -111,7 +112,7 @@
   });
 
   // Mandrill test image
-  fetch('./test.png').then((response) => response.arrayBuffer()).then((buffer) => {
+  fetch(cdn + 'test.png').then((response) => response.arrayBuffer()).then((buffer) => {
     mandrillData = buffer;
     AtlasAPI1(CanvasKit, mandrillData);
   });
@@ -328,14 +329,14 @@
     let skcanvas = CanvasKit.MakeCanvas(300, 300);
     let realCanvas = document.getElementById('api1_c');
 
-    let skPromise   = fetch('./test.png')
+    let skPromise   = fetch(cdn + 'test.png')
                         // if clients want to use a Blob, they are responsible
                         // for reading it themselves.
                         .then((response) => response.arrayBuffer())
                         .then((buffer) => {
                           skcanvas._img = skcanvas.decodeImage(buffer);
                         });
-    let realPromise = fetch('./test.png')
+    let realPromise = fetch(cdn + 'test.png')
                         .then((response) => response.blob())
                         .then((blob) => createImageBitmap(blob))
                         .then((bitmap) => {
@@ -711,14 +712,14 @@
     let skcanvas = CanvasKit.MakeCanvas(300, 300);
     let realCanvas = document.getElementById('api7_c');
 
-    let skPromise   = fetch('./test.png')
+    let skPromise   = fetch(cdn + 'test.png')
                         // if clients want to use a Blob, they are responsible
                         // for reading it themselves.
                         .then((response) => response.arrayBuffer())
                         .then((buffer) => {
                           skcanvas._img = skcanvas.decodeImage(buffer);
                         });
-    let realPromise = fetch('./test.png')
+    let realPromise = fetch(cdn + 'test.png')
                         .then((response) => response.blob())
                         .then((blob) => createImageBitmap(blob))
                         .then((bitmap) => {

@@ -54,6 +54,7 @@
   var bonesImageData = null;
   var flightAnimGif = null;
   var skpData = null;
+  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
   const ckLoaded = CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready();
@@ -78,7 +79,7 @@
     SkpExample(CanvasKit, skpData);
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
+  fetch(cdn + 'lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
       SkottieExample(CanvasKit, 'sk_legos', legoJSON,
@@ -86,28 +87,28 @@
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
+  fetch(cdn + 'drinks.json').then((resp) => {
     resp.text().then((str) => {
       drinksJSON = str;
       SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
+  fetch(cdn + 'confetti.json').then((resp) => {
     resp.text().then((str) => {
       confettiJSON = str;
       SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+  fetch(cdn + 'onboarding.json').then((resp) => {
     resp.text().then((str) => {
       onboardingJSON = str;
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_multiframe.json').then((resp) => {
+  fetch(cdn + 'skottie_sample_multiframe.json').then((resp) => {
     resp.text().then((str) => {
       multiFrameJSON = str;
       SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
@@ -116,7 +117,7 @@
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
+  fetch(cdn + 'flightAnim.gif').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       flightAnimGif = buffer;
       SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
@@ -125,22 +126,22 @@
     });
   });
 
-  fetch('./Roboto-Regular.ttf').then((resp) => {
+  fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       ParagraphAPI1(CanvasKit, robotoData);
     });
   });
 
-  fetch('./red_line.skp').then((response) => response.arrayBuffer()).then((buffer) => {
+  fetch(cdn + 'red_line.skp').then((response) => response.arrayBuffer()).then((buffer) => {
     skpData = buffer;
     SkpExample(CanvasKit, skpData);
   });
 
-  const loadDog = fetch('https://storage.googleapis.com/skia-cdn/misc/dog.jpg').then((response) => response.arrayBuffer());
-  const loadMandrill = fetch('https://storage.googleapis.com/skia-cdn/misc/mandrill_256.png').then((response) => response.arrayBuffer());
-  const loadBrickTex = fetch('./brickwork-texture.jpg').then((response) => response.arrayBuffer());
-  const loadBrickBump = fetch('./brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
+  const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
+  const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
+  const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
+  const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
   Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
 
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
