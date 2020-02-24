@@ -539,11 +539,11 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     }
     int unitsPerEm;
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &unitsPerEm);
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
-    SkASSERT(cache);
+    auto strike = strikeSpec.findOrCreateStrike();
+    SkASSERT(strike);
     SkScalar emSize = (SkScalar)unitsPerEm;
-    SkScalar xHeight = cache->getFontMetrics().fXHeight;
-    SkBulkGlyphMetricsAndPaths metricsAndPaths(std::move(cache));
+    SkScalar xHeight = strike->getFontMetrics().fXHeight;
+    SkBulkGlyphMetricsAndPaths metricsAndPaths(std::move(strike));
 
     SkStrikeSpec strikeSpecSmall = kBitmapFontSize > 0 ? make_small_strike(*typeface)
                                                        : strikeSpec;

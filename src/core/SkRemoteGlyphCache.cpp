@@ -943,7 +943,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         SkAutoDescriptor ad;
         auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
-        auto strike = fStrikeCache->findStrikeExclusive(*client_desc);
+        auto strike = fStrikeCache->findStrike(*client_desc);
         // Metrics are only sent the first time. If the metrics are not initialized, there must
         // be an existing strike.
         if (fontMetricsInitialized && strike == nullptr) READ_FAILURE
@@ -953,7 +953,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             // effects.
             SkScalerContextEffects effects;
             auto scaler = tf->createScalerContext(effects, client_desc);
-            strike = fStrikeCache->createStrikeExclusive(
+            strike = fStrikeCache->createStrike(
                     *client_desc, std::move(scaler), &fontMetrics,
                     std::make_unique<DiscardableStrikePinner>(
                             spec.discardableHandleId, fDiscardableHandleManager));

@@ -352,7 +352,7 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
         metrics = &storage;
     }
 
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
+    auto cache = strikeSpec.findOrCreateStrike();
     *metrics = cache->getFontMetrics();
 
     if (strikeSpec.strikeToSourceRatio() != 1) {

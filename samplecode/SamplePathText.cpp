@@ -34,13 +34,13 @@ public:
     void onOnceBeforeDraw() final {
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
+        auto strike = strikeSpec.findOrCreateStrike();
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
             char c = "aQCDEFGH7JKLMNOPBRZTUVWXYSAbcdefghijk1mnopqrstuvwxyz"[i];
             SkPackedGlyphID id(defaultFont.unicharToGlyph(c));
-            sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &glyphPaths[i]));
+            sk_ignore_unused_variable(strike->getScalerContext()->getPath(id, &glyphPaths[i]));
         }
 
         for (int i = 0; i < kNumPaths; ++i) {

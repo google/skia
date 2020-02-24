@@ -145,38 +145,17 @@ public:
         bool                            fRemoved{false};
     };  // Strike
 
-    class ExclusiveStrikePtr {
-    public:
-        explicit ExclusiveStrikePtr(sk_sp<Strike> strike);
-        ExclusiveStrikePtr();
-        ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
-        ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
-        ExclusiveStrikePtr(ExclusiveStrikePtr&&);
-        ExclusiveStrikePtr& operator = (ExclusiveStrikePtr&&);
-
-        Strike* get() const;
-        Strike* operator -> () const;
-        Strike& operator *  () const;
-        explicit operator bool () const;
-        friend bool operator == (const ExclusiveStrikePtr&, const ExclusiveStrikePtr&);
-        friend bool operator == (const ExclusiveStrikePtr&, decltype(nullptr));
-        friend bool operator == (decltype(nullptr), const ExclusiveStrikePtr&);
-
-    private:
-        sk_sp<Strike> fStrike;
-    };
-
     static SkStrikeCache* GlobalStrikeCache();
 
-    ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&) SK_EXCLUDES(fLock);
+    sk_sp<Strike> findStrike(const SkDescriptor& desc) SK_EXCLUDES(fLock);
 
-    ExclusiveStrikePtr createStrikeExclusive(
+    sk_sp<Strike> createStrike(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr) SK_EXCLUDES(fLock);
 
-    ExclusiveStrikePtr findOrCreateStrikeExclusive(
+    sk_sp<Strike> findOrCreateStrike(
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface) SK_EXCLUDES(fLock);
@@ -213,10 +192,6 @@ private:
             std::unique_ptr<SkScalerContext> scaler,
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr) SK_REQUIRES(fLock);
-    sk_sp<Strike> findOrCreateStrike(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface) SK_EXCLUDES(fLock);
 
     // The following methods can only be called when mutex is already held.
     void internalRemoveStrike(Strike* strike) SK_REQUIRES(fLock);
@@ -252,7 +227,6 @@ private:
     int32_t fPointSizeLimit{SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT};
 };
 
-using SkExclusiveStrikePtr = SkStrikeCache::ExclusiveStrikePtr;
 using SkStrike = SkStrikeCache::Strike;
 
 #endif  // SkStrikeCache_DEFINED
