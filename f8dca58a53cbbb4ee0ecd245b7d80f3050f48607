@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91eede4f_0e034acd",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-24T15:30:03Z",
+      "side": 1,
+      "message": "This is the move that doesn\u0027t actually move. I note that not only does SkTHashTable::set take only by value, SkTHashMap::set takes both K and V only by value, and SkTHashSet::add takes T only by value as well. We should either remove the move with a comment to note why, or fix up the SkTHashMap (and maybe SkTHashMap and SkTHasSet while at it).",
+      "range": {
+        "startLine": 358,
+        "startChar": 22,
+        "endLine": 358,
+        "endChar": 31
+      },
+      "revId": "f8dca58a53cbbb4ee0ecd245b7d80f3050f48607",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
