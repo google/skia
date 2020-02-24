@@ -6,6 +6,7 @@
  */
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/d3d/GrD3D12.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 
 #include "src/gpu/GrProgramDesc.h"
@@ -13,13 +14,13 @@
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 
-GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, GrProtected isProtected)
+GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, ID3D12Device* device)
         : INHERITED(contextOptions) {
     /**************************************************************************
      * GrCaps fields
      **************************************************************************/
     fMipMapSupport = true;   // always available in Direct3D
-    fNPOTTextureTileSupport = false;  // TODO: figure this out
+    fNPOTTextureTileSupport = true;  // available in feature level 10_0 and up
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
@@ -35,33 +36,63 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, GrProtected isProte
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
 
-    // TODO: figure this out
+    // TODO: implement these
     fTransferFromBufferToTextureSupport = false;
     fTransferFromSurfaceToBufferSupport = false;
 
-    // TODO: figure this out
-    fMaxRenderTargetSize = 4096;
-    fMaxTextureSize = 4096;
+    fMaxRenderTargetSize = 16384;  // minimum required by feature level 11_0
+    fMaxTextureSize = 16384;       // minimum required by feature level 11_0
 
-    fDynamicStateArrayGeometryProcessorTextureSupport = false; // TODO: figure this out
+    // TODO: implement
+    fDynamicStateArrayGeometryProcessorTextureSupport = false;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->init(contextOptions);
+    this->init(contextOptions, device);
 }
 
 bool GrD3DCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     return false;
 }
 
-void GrD3DCaps::init(const GrContextOptions& contextOptions) {
-    // TODO
+void GrD3DCaps::init(const GrContextOptions& contextOptions, ID3D12Device* device) {
+    D3D_FEATURE_LEVEL featureLevels[] = {
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_12_0,
+        D3D_FEATURE_LEVEL_12_1,
+    };
+    D3D12_FEATURE_DATA_FEATURE_LEVELS flDesc = {};
+    flDesc.NumFeatureLevels = _countof(featureLevels);
+    flDesc.pFeatureLevelsRequested = featureLevels;
+    HRESULT hr = device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &flDesc, sizeof(flDesc));
+    SkASSERT(SUCCEEDED(hr));
+    SkASSERT(flDesc.MaxSupportedFeatureLevel >= D3D_FEATURE_LEVEL_11_0);
+
+    this->initGrCaps(device);
+    this->initShaderCaps(device);
+
+    // TODO: set up formats and stencil
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(device);
+    }
 
     this->finishInitialization(contextOptions);
 }
 
+void GrD3DCaps::initGrCaps(ID3D12Device*) {
 
+}
+
+void GrD3DCaps::initShaderCaps(ID3D12Device*) {
+
+}
+
+void GrD3DCaps::applyDriverCorrectnessWorkarounds(ID3D12Device*) {
+    // None so far
+}
 
 bool GrD3DCaps::isFormatSRGB(const GrBackendFormat& format) const {
     // TODO
@@ -74,7 +105,7 @@ SkImage::CompressionType GrD3DCaps::compressionType(const GrBackendFormat& forma
 }
 
 bool GrD3DCaps::isFormatTexturableAndUploadable(GrColorType ct,
-                                               const GrBackendFormat& format) const {
+                                                const GrBackendFormat& format) const {
     // TODO
     return false;
 }
@@ -85,7 +116,7 @@ bool GrD3DCaps::isFormatTexturable(const GrBackendFormat& format) const {
 }
 
 bool GrD3DCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
-                                             int sampleCount) const {
+                                              int sampleCount) const {
     if (!this->isFormatRenderable(format, sampleCount)) {
         return false;
     }
@@ -99,7 +130,7 @@ bool GrD3DCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCoun
 }
 
 int GrD3DCaps::getRenderTargetSampleCount(int requestedCount,
-                                         const GrBackendFormat& format) const {
+                                          const GrBackendFormat& format) const {
     // TODO
     return 0;
 }
@@ -115,8 +146,8 @@ size_t GrD3DCaps::bytesPerPixel(const GrBackendFormat& format) const {
 }
 
 GrCaps::SupportedWrite GrD3DCaps::supportedWritePixelsColorType(GrColorType surfaceColorType,
-                                                               const GrBackendFormat& surfaceFormat,
-                                                               GrColorType srcColorType) const {
+                                                                const GrBackendFormat& surfaceFormat,
+                                                                GrColorType srcColorType) const {
     // TODO
     return {GrColorType::kUnknown, 0};
 }
@@ -136,19 +167,19 @@ bool GrD3DCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 }
 
 bool GrD3DCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
-                                                 const GrBackendFormat& format) const {
+                                                  const GrBackendFormat& format) const {
     // TODO
     return false;
 }
 
 GrColorType GrD3DCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                        bool isAlphaChannel) const {
+                                                         bool isAlphaChannel) const {
     // TODO
     return GrColorType::kUnknown;
 }
 
 GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct,
-                                                    GrRenderable renderable) const {
+                                                     GrRenderable renderable) const {
     // TODO
     return GrBackendFormat();
 }
@@ -182,15 +213,16 @@ GrCaps::SupportedRead GrD3DCaps::onSupportedReadPixelsColorType(
 }
 
 void GrD3DCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
-                                  GrSamplerState samplerState,
-                                  const GrBackendFormat& format) const {
+                                   GrSamplerState samplerState,
+                                   const GrBackendFormat& format) const {
     // TODO
 }
 
 /**
- * TODO: Determin what goes in the ProgramDesc
+ * TODO: Determine what goes in the ProgramDesc
  */
-GrProgramDesc GrD3DCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
+GrProgramDesc GrD3DCaps::makeDesc(const GrRenderTarget* rt,
+                                  const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
         SkASSERT(!desc.isValid());

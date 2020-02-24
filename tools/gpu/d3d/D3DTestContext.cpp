@@ -38,9 +38,6 @@ public:
 
     void testAbandon() override {}
 
-    // There is really nothing to here since we don't own any unqueued command buffers here.
-    void submit() override {}
-
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
@@ -63,7 +60,6 @@ private:
     void onPlatformMakeNotCurrent() const override {}
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
-    void onPlatformSwapBuffers() const override {}
 
     typedef sk_gpu_test::D3DTestContext INHERITED;
 };
