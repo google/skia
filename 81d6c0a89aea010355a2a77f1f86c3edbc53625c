@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93a678b5_0f8362b8",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-24T21:18:21Z",
+      "side": 1,
+      "message": "https://google.github.io/styleguide/jsguide.html#formatting-horizontal-whitespace\n\n\"a single space should appear on both sides of any binary or ternary operator\"",
+      "range": {
+        "startLine": 92,
+        "startChar": 11,
+        "endLine": 92,
+        "endChar": 12
+      },
+      "revId": "81d6c0a89aea010355a2a77f1f86c3edbc53625c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
