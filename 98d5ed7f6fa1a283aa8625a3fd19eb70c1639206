@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "159b0445_9f79ab5a",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-24T17:05:16Z",
+      "side": 1,
+      "message": "IIUC, this is what caused the build issue. Excluding files in src/ won\u0027t resolve the problem.",
+      "revId": "98d5ed7f6fa1a283aa8625a3fd19eb70c1639206",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
