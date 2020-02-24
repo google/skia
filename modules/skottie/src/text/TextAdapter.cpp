@@ -16,6 +16,7 @@
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGRect.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
@@ -69,6 +70,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
         for (const skjson::ObjectValue* janimator : *janimators) {
             if (auto animator = TextAnimator::Make(janimator, abuilder, adapter.get())) {
+                adapter->fHasBlur |= animator->hasBlur();
                 adapter->fAnimators.push_back(std::move(animator));
             }
         }
@@ -124,6 +126,12 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     auto draws_node = (draws.size() > 1)
             ? sksg::Group::Make(std::move(draws))
             : std::move(draws[0]);
+
+    if (fHasBlur) {
+        // Optional blur effect.
+        rec.fBlur = sksg::BlurImageFilter::Make();
+        draws_node = sksg::ImageFilterEffect::Make(std::move(draws_node), rec.fBlur);
+    }
 
     fRoot->addChild(sksg::TransformEffect::Make(std::move(draws_node), rec.fMatrixNode));
     fFragments.push_back(std::move(rec));
@@ -306,6 +314,9 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
     }
     if (rec.fStrokeColorNode) {
         rec.fStrokeColorNode->setColor(scale_alpha(props.stroke_color, props.opacity));
+    }
+    if (rec.fBlur) {
+        rec.fBlur->setSigma(props.blur * kBlurSizeToSigma);
     }
 }
 
