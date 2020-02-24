@@ -16,6 +16,24 @@
       "revId": "98d5ed7f6fa1a283aa8625a3fd19eb70c1639206",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2fface8_4982c51c",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-24T17:06:02Z",
+      "side": 1,
+      "message": "Oops, meant to delete this comment. If the trybot succeeds, it\u0027s fine.",
+      "parentUuid": "159b0445_9f79ab5a",
+      "revId": "98d5ed7f6fa1a283aa8625a3fd19eb70c1639206",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
