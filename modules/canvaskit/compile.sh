@@ -25,9 +25,9 @@ EMCC=`which emcc`
 EMCXX=`which em++`
 EMAR=`which emar`
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
+RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
-EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\", \"-flto\","
 
 # Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
 # be on debug builds always.
