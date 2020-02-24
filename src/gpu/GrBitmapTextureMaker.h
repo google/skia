@@ -26,8 +26,8 @@ private:
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
                                                    AllowedTexGenType onlyIfFast) override;
 
-    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
+    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
+    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override;
 
     const SkBitmap     fBitmap;
     const SkBackingFit fFit;
