@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0503c5c_477b3399",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-24T00:04:45Z",
+      "side": 1,
+      "message": "I would rather use a mask filter, but AFAICT MF blur doesn\u0027t support anisotropic sigma?",
+      "range": {
+        "startLine": 132,
+        "startChar": 26,
+        "endLine": 132,
+        "endChar": 41
+      },
+      "revId": "e7d7f4cecdd2f31ea953661dd1c14ff8177a2e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
