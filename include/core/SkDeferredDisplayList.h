@@ -35,6 +35,26 @@ public:
         return fCharacterization;
     }
 
+#if SK_SUPPORT_GPU
+    /**
+     * Iterate through the programs required by the DDL.
+     */
+    class SK_API ProgramIterator {
+    public:
+        ProgramIterator(GrContext*, SkDeferredDisplayList*);
+        ~ProgramIterator();
+
+        void compile();
+        bool done() const;
+        void next();
+
+    private:
+        GrContext*                                       fContext;
+        const SkTArray<GrRecordingContext::ProgramData>& fProgramData;
+        int                                              fIndex;
+    };
+#endif
+
     // Provides access to functions that aren't part of the public API.
     SkDeferredDisplayListPriv priv();
     const SkDeferredDisplayListPriv priv() const;
