@@ -42,7 +42,6 @@ def perf_steps(api):
       test_data=['lottie1.json', 'lottie(test)\'!2.json', 'lottie 3!.json',
                  'LICENSE'])
   perf_results = {}
-  push_dm = True
   # Run DM on each lottie file and parse the trace files.
   for idx, lottie_file in enumerate(lottie_files):
     lottie_filename = api.path.basename(lottie_file)
@@ -68,11 +67,7 @@ def perf_steps(api):
       dm_args.extend(['--config', 'gles', '--nocpu'])
     elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
       dm_args.extend(['--config', '8888', '--nogpu'])
-    api.run(api.flavor.step, 'dm', cmd=dm_args, abort_on_failure=False,
-            skip_binary_push=not push_dm)
-    # We already pushed the binary once. No need to waste time by pushing
-    # the same binary for future runs.
-    push_dm = False
+    api.run(api.flavor.step, 'dm', cmd=dm_args, abort_on_failure=False)
 
     trace_test_data = api.properties.get('trace_test_data', '{}')
     trace_file_content = api.flavor.read_file_on_device(trace_output_path)
@@ -230,7 +225,7 @@ def RunSteps(api):
 
   with api.context():
     try:
-      api.flavor.install(resources=True, lotties=True)
+      api.flavor.install('dm', resources=True, lotties=True)
       perf_steps(api)
     finally:
       api.flavor.cleanup_steps()

@@ -353,7 +353,7 @@ if actual_freq != str(freq):
         'lib64', 'clang', '8.0.7', 'bin', 'asan_device_setup')
 
 
-  def install(self):
+  def install(self, app_to_push):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if 'ASAN' in self.m.vars.extra_tokens:
@@ -435,6 +435,15 @@ time.sleep(60)
                  infra_step=True,
                  timeout=300,
                  abort_on_failure=True)
+    if app_to_push:
+      if (app_to_push == 'nanobench'):
+        self._scale_for_nanobench()
+      else:
+        self._scale_for_dm()
+      app_path = self.host_dirs.bin_dir.join(app_to_push)
+      self._adb('push %s' % app_to_push,
+                'push', app_path, self.device_dirs.bin_dir)
+
 
 
   def cleanup_steps(self):
@@ -492,16 +501,7 @@ time.sleep(60)
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')
 
-  def step(self, name, cmd, **kwargs):
-    if not kwargs.get('skip_binary_push', False):
-      if (cmd[0] == 'nanobench'):
-        self._scale_for_nanobench()
-      else:
-        self._scale_for_dm()
-      app = self.host_dirs.bin_dir.join(cmd[0])
-      self._adb('push %s' % cmd[0],
-                'push', app, self.device_dirs.bin_dir)
-
+  def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
         'set -x; %s%s; echo $? >%src' % (

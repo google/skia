@@ -52,14 +52,20 @@ class WinSSHFlavor(ssh.SSHFlavor):
   def device_path_join(self, *args):
     return ntpath.join(*args)
 
-  def install(self):
-    super(WinSSHFlavor, self).install()
-
+  def install(self, app_to_push):
+    # We install apps below.
+    super(WinSSHFlavor, self).install(None)
     # Ensure that our empty dir is actually empty.
     self._rmdir(self._empty_dir)
     self.ensure_device_dir(self._empty_dir)
 
-    self.create_clean_device_dir(self.device_dirs.bin_dir)
+    if app_to_push:
+      # There may be DLLs in the same dir as the executable that must be loaded
+      # (yes, Windows allows overriding system DLLs with files in the local
+      # directory). For simplicity, just copy the entire dir to the device.
+      self.copy_directory_contents_to_device(self.host_dirs.bin_dir,
+                                             self.device_dirs.bin_dir)
+
 
   def create_clean_device_dir(self, path):
     # Based on https://stackoverflow.com/a/98069 and
@@ -113,11 +119,6 @@ class WinSSHFlavor(ssh.SSHFlavor):
     self._copy_dir(src, host_path)
 
   def step(self, name, cmd, infra_step=False, **kwargs):
-    # There may be DLLs in the same dir as the executable that must be loaded
-    # (yes, Windows allows overriding system DLLs with files in the local
-    # directory). For simplicity, just copy the entire dir to the device.
-    self.copy_directory_contents_to_device(self.host_dirs.bin_dir,
-                                           self.device_dirs.bin_dir)
     device_bin = self.device_path_join(self.device_dirs.bin_dir, cmd[0])
 
     # Copy PowerShell script to device.

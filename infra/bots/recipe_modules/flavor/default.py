@@ -100,7 +100,7 @@ class DefaultFlavor(object):
     """Removes the specified file."""
     return self.m.file.remove('remove %s' % path, path)
 
-  def install(self):
+  def install(self, app_to_push):
     """Run device-specific installation steps."""
     pass
 
