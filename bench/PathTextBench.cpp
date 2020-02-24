@@ -48,10 +48,10 @@ private:
     void onDelayedSetup() override {
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
+        auto strike = strikeSpec.findOrCreateStrike();
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
-            sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));
+            sk_ignore_unused_variable(strike->getScalerContext()->getPath(id, &fGlyphs[i]));
             fGlyphs[i].setIsVolatile(fUncached);
         }
 
