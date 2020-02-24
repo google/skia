@@ -162,6 +162,10 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
                         SkArenaAlloc* arena,
                         SkTHashMap<int, SkPDFTagNode*>* nodeMap) {
     nodeMap->set(node.fNodeId, dst);
+    for (int nodeId : node.fAdditionalNodeIds) {
+        SkASSERT(!nodeMap->find(nodeId));
+        nodeMap->set(nodeId, dst);
+    }
     dst->fNodeId = node.fNodeId;
     dst->fType = node.fType;
     dst->fTypeString = node.fTypeString;
