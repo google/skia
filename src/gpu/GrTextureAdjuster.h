@@ -33,17 +33,16 @@ public:
                       uint32_t uniqueID, bool useDecal = false);
 
 protected:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
+    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
+    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override;
 
     const GrSurfaceProxyView& originalProxyView() const { return fOriginal; }
     GrSurfaceProxyView originalProxyViewRef() const { return fOriginal; }
 
 private:
-    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped,
-                                                      SkScalar scaleAdjust[2]) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;
 
-    GrSurfaceProxyView copy(const CopyParams& copyParams, bool willBeMipped, bool copyOnlyForMips);
+    GrSurfaceProxyView makeMippedCopy();
 
     GrSurfaceProxyView fOriginal;
     uint32_t fUniqueID;

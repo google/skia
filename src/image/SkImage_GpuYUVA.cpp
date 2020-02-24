@@ -92,13 +92,11 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     }
 
     for (int i = 0; i < fNumViews; ++i) {
-        GrTextureProducer::CopyParams copyParams;
         int mipCount = SkMipMap::ComputeLevelCount(fViews[i].proxy()->width(),
                                                    fViews[i].proxy()->height());
         if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
                                                     fViews[i].asTextureProxy(),
-                                                    GrSamplerState::Filter::kMipMap,
-                                                    &copyParams)) {
+                                                    GrSamplerState::Filter::kMipMap)) {
             auto mippedView = GrCopyBaseMipMapToTextureProxy(context, fViews[i].asTextureProxy(),
                                                              fOrigin, fProxyColorTypes[i]);
             if (!mippedView.proxy()) {

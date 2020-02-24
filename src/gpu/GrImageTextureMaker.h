@@ -22,14 +22,12 @@ public:
                         SkImage::CachingHint chint, bool useDecal = false);
 
 private:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
                                                    AllowedTexGenType onlyIfFast) override;
 
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
+    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
+    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
+    }
 
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
@@ -53,8 +51,9 @@ protected:
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
                                                    AllowedTexGenType onlyIfFast) override;
 
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
+    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
+    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
+    }
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
         const SkMatrix& textureMatrix,
