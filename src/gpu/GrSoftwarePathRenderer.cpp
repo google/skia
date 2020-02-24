@@ -377,9 +377,27 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         if (useCache) {
             SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
+
+            // We will add an invalidator to the path so that if the path goes away we will
+            // delete or recycle the mask texture. We also invalidate the other way: If the mask
+            // goes away we signal that the invalidator on the path can be removed. This prevents
+            // unbounded growth of invalidators on long lived paths.
+            auto invalidator =
+                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->priv().contextID());
+
+            auto invalidateInvalidator = [](const void* ptr, void* /*context*/) {
+                auto invalidator = reinterpret_cast<const sk_sp<PathInvalidator>*>(ptr);
+                (*invalidator)->markShouldUnregisterFromPath();
+                delete invalidator;
+            };
+            auto data = SkData::MakeWithProc(new sk_sp<PathInvalidator>(invalidator),
+                                             sizeof(sk_sp<PathInvalidator>),
+                                             invalidateInvalidator,
+                                             nullptr);
+            maskKey.setCustomData(std::move(data));
             fProxyProvider->assignUniqueKeyToProxy(maskKey, view.asTextureProxy());
-            args.fShape->addGenIDChangeListener(
-                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->priv().contextID()));
+
+            args.fShape->addGenIDChangeListener(std::move(invalidator));
         }
     }
     SkASSERT(view);
