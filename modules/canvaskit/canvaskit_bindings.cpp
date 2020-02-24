@@ -900,6 +900,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.getResourceCacheUsage(&usedResources, &currUsage);
             return currUsage;
         }))
+        .function("releaseResourcesAndAbandonContext", &GrContext::releaseResourcesAndAbandonContext)
         .function("setResourceCacheLimitBytes", optional_override([](GrContext& self, size_t maxResourceBytes)->void {
             int maxResources = 0;
             size_t currMax = 0; // ignored
