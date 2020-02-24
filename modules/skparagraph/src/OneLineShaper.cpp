@@ -599,7 +599,7 @@ TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
         }
         if (dir == Dir::right) {
             while (index < fCurrentRun->fTextRange.end) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+                if (this->fParagraph->fGraphemes.find(index) != this->fParagraph->fGraphemes.end()) {
                     return index;
                 }
                 ++index;
@@ -607,7 +607,7 @@ TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
             return fCurrentRun->fTextRange.end;
         } else {
             while (index >= fCurrentRun->fTextRange.start) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+                if (this->fParagraph->fGraphemes.find(index) != this->fParagraph->fGraphemes.end()) {
                     return index;
                 }
                 --index;

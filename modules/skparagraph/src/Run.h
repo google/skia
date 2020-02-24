@@ -203,11 +203,11 @@ private:
 
 struct Codepoint {
 
-  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
+  Codepoint(GraphemeIndex graphemeIndex, TextRange textRange, size_t index)
+    : fGrapheme(graphemeIndex), fTextRange(textRange), fIndex(index) { }
 
   GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+  TextRange fTextRange;
   size_t fIndex;
 };
 
@@ -215,7 +215,17 @@ struct Grapheme {
     Grapheme(CodepointRange codepoints, TextRange textRange)
         : fCodepointRange(codepoints), fTextRange(textRange) { }
     CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
+    TextRange fTextRange;
+};
+
+struct Utf8Text {
+    Utf8Text(GraphemeIndex grapheme, CodepointRange codepoints, bool wordBoundary)
+        : fGrapheme(grapheme)
+        , fCodepointRange(codepoints)
+        , fWordBoundary(wordBoundary) { }
+    GraphemeIndex fGrapheme;
+    CodepointRange fCodepointRange;
+    bool fWordBoundary;
 };
 
 class Cluster {

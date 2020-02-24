@@ -1,6 +1,5 @@
 // Copyright 2019 Google LLC.
 #include "modules/skparagraph/src/TextLine.h"
-#include <unicode/brkiter.h>
 #include <unicode/ubidi.h>
 #include "modules/skparagraph/src/ParagraphImpl.h"
 

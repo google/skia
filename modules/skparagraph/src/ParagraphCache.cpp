@@ -208,6 +208,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     }
 }
 
+#ifdef SK_DEBUG
 void ParagraphCache::printStatistics() {
     SkDebugf("--- Paragraph Cache ---\n");
     SkDebugf("Total requests: %d\n", fTotalRequests);
@@ -217,6 +218,7 @@ void ParagraphCache::printStatistics() {
     SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
     SkDebugf("---------------------\n");
 }
+#endif
 
 void ParagraphCache::abandon() {
     SkAutoMutexExclusive lock(fParagraphMutex);
