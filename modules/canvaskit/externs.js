@@ -105,6 +105,7 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		getResourceCacheLimitBytes: function() {},
 		getResourceCacheUsageBytes: function() {},
+		releaseResourcesAndAbandonContext: function() {},
 		setResourceCacheLimitBytes: function() {},
 	},
 
