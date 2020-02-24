@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74b31a2d_95a502bd",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2020-02-24T17:26:25Z",
+      "side": 1,
+      "message": "nit: We can probably assert this in the ctor. Its pointless to create this object without a context.",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 17
+      },
+      "revId": "1cec4d5e3d92f82f6ed9920d9c45def5a46b98b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
