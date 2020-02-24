@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b88ee4c2_ea2ebf67",
+        "filename": "bench/PathTextBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-24T20:12:21Z",
+      "side": 1,
+      "message": "\u0027strike\u0027",
+      "range": {
+        "startLine": 51,
+        "startChar": 13,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "36762e097b8a344ee8a4ed93a1fb2f9822c0c912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b8601bc_74a1e727",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-24T20:12:21Z",
+      "side": 1,
+      "message": "\u0027strike\u0027",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 18
+      },
+      "revId": "36762e097b8a344ee8a4ed93a1fb2f9822c0c912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6102a789_175d9088",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-24T20:12:21Z",
+      "side": 1,
+      "message": "Since this is just a renaming CL anyway, can we rename these \u0027cache\u0027 to \u0027strike\u0027?",
+      "range": {
+        "startLine": 542,
+        "startChar": 9,
+        "endLine": 542,
+        "endChar": 14
+      },
+      "revId": "36762e097b8a344ee8a4ed93a1fb2f9822c0c912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
