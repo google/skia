@@ -22,6 +22,30 @@
       "revId": "f8dca58a53cbbb4ee0ecd245b7d80f3050f48607",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b173705f_46e7da1f",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-24T16:23:38Z",
+      "side": 1,
+      "message": "Uh...the std::move() here lets the argument to set() be move-constructed instead of copy-constructed.  This definitely cuts out a ref/unref pair by replacing sk_sp(const sk_sp\u0026) with sk_sp(sk_sp\u0026\u0026).  Nothing needs fixing up.  My brain fart or yours?",
+      "parentUuid": "91eede4f_0e034acd",
+      "range": {
+        "startLine": 358,
+        "startChar": 22,
+        "endLine": 358,
+        "endChar": 31
+      },
+      "revId": "f8dca58a53cbbb4ee0ecd245b7d80f3050f48607",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
