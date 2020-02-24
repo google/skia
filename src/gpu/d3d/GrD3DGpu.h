@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google Inc.
+ * Copyright 2020 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -24,6 +24,26 @@ public:
                              GrContext*);
 
     ~GrD3DGpu() override {}
+
+    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
+
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
+
+    void deleteBackendTexture(const GrBackendTexture&) override;
+
+    bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
+
+#if GR_TEST_UTILS
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
+
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
+
+    void testingOnly_flushGpuAndSync() override {}
+#endif
+
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(
+            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
@@ -58,10 +78,6 @@ private:
     GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
 
     void onResetContext(uint32_t resetBits) override {}
-
-    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
-
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
@@ -139,8 +155,6 @@ private:
         return true;
     }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
@@ -152,18 +166,11 @@ private:
                                                       GrMipMapped,
                                                       GrProtected,
                                                       const BackendTextureData*) override;
-    void deleteBackendTexture(const GrBackendTexture&) override;
 
-    bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
+    gr_cp<ID3D12Device> fDevice;
+    gr_cp<ID3D12CommandQueue> fQueue;
 
-#if GR_TEST_UTILS
-    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
-    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
-
-    void testingOnly_flushGpuAndSync() override {}
-#endif
+    GrProtected fProtectedContext;
 
     typedef GrGpu INHERITED;
 };

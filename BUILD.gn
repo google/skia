@@ -601,6 +601,9 @@ optional("gpu") {
     public_defines += [ "SK_DIRECT3D" ]
     deps += [ "//third_party/spirv-cross:spirv_cross" ]
     sources += skia_direct3d_sources
+    if (skia_enable_direct3d_debug_layer) {
+      public_defines += [ "SK_ENABLE_D3D_DEBUG_LAYER" ]
+    }
     libs += [
       "d3d12.lib",
       "dxgi.lib",
@@ -1385,6 +1388,7 @@ if (skia_enable_tools) {
     }
     if (skia_use_direct3d) {
       sources += [ "tools/gpu/d3d/D3DTestContext.cpp" ]
+      sources += [ "tools/gpu/d3d/D3DTestUtils.cpp" ]
     }
     if (skia_use_dawn) {
       public_deps += [ "//third_party/dawn:dawn_headers" ]

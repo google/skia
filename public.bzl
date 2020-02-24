@@ -250,6 +250,9 @@ BASE_SRCS_ALL = struct(
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
+        # Currently exclude all Direct3D specific files
+        "src/gpu/d3d/*",
+
         # Currently exclude all Dawn-specific files
         "src/gpu/dawn/*",
 
@@ -534,6 +537,7 @@ DM_SRCS_ALL = struct(
         "tests/SkParagraphTest.cpp",  # Skipping tests for now.
         "tests/skia_test.cpp",  # Old main.
         "tools/gpu/atlastext/*",
+        "tools/gpu/d3d/*",
         "tools/gpu/dawn/*",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/egl/*",
