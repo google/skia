@@ -539,7 +539,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     }
     int unitsPerEm;
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &unitsPerEm);
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
+    auto cache = strikeSpec.findOrCreateStrike();
     SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;
     SkScalar xHeight = cache->getFontMetrics().fXHeight;

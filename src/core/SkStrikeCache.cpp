@@ -31,58 +31,6 @@ SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
     return cache;
 }
 
-SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(sk_sp<Strike> strike)
-    : fStrike{std::move(strike)} {}
-
-SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr()
-    : fStrike{nullptr} {}
-
-SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(ExclusiveStrikePtr&& o)
-    : fStrike{std::move(o.fStrike)} {
-    o.fStrike = nullptr;
-}
-
-SkStrikeCache::ExclusiveStrikePtr&
-SkStrikeCache::ExclusiveStrikePtr::operator = (ExclusiveStrikePtr&& that) {
-    fStrike = std::move(that.fStrike);
-    return *this;
-}
-
-SkStrike* SkStrikeCache::ExclusiveStrikePtr::get() const {
-    return fStrike.get();
-}
-
-SkStrike* SkStrikeCache::ExclusiveStrikePtr::operator -> () const {
-    return this->get();
-}
-
-SkStrike& SkStrikeCache::ExclusiveStrikePtr::operator *  () const {
-    return *this->get();
-}
-
-SkStrikeCache::ExclusiveStrikePtr::operator bool () const {
-    return fStrike != nullptr;
-}
-
-bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs,
-                  const SkStrikeCache::ExclusiveStrikePtr& rhs) {
-    return lhs.fStrike == rhs.fStrike;
-}
-
-bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs, decltype(nullptr)) {
-    return lhs.fStrike == nullptr;
-}
-
-bool operator == (decltype(nullptr), const SkStrikeCache::ExclusiveStrikePtr& rhs) {
-    return nullptr == rhs.fStrike;
-}
-
-SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(
-        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
-{
-    return SkExclusiveStrikePtr(this->findOrCreateStrike(desc, effects, typeface));
-}
-
 auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
                                        const SkScalerContextEffects& effects,
                                        const SkTypeface& typeface) -> sk_sp<Strike> {
@@ -170,9 +118,9 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
     GlobalStrikeCache()->forEachStrike(visitor);
 }
 
-SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc) {
+sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {
     SkAutoSpinlock ac(fLock);
-    return SkExclusiveStrikePtr(this->internalFindStrikeOrNull(desc));
+    return this->internalFindStrikeOrNull(desc);
 }
 
 auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
@@ -196,15 +144,13 @@ auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<
     return sk_ref_sp(strikePtr);
 }
 
-SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
+sk_sp<SkStrike> SkStrikeCache::createStrike(
         const SkDescriptor& desc,
         std::unique_ptr<SkScalerContext> scaler,
         SkFontMetrics* maybeMetrics,
-        std::unique_ptr<SkStrikePinner> pinner)
-{
+        std::unique_ptr<SkStrikePinner> pinner) {
     SkAutoSpinlock ac(fLock);
-    return SkExclusiveStrikePtr(
-            this->internalCreateStrike(desc, std::move(scaler), maybeMetrics, std::move(pinner)));
+    return this->internalCreateStrike(desc, std::move(scaler), maybeMetrics, std::move(pinner));
 }
 
 auto SkStrikeCache::internalCreateStrike(

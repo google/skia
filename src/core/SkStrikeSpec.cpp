@@ -231,13 +231,13 @@ SkScopedStrikeForGPU SkStrikeSpec::findOrCreateScopedStrike(SkStrikeForGPUCacheI
     return cache->findOrCreateScopedStrike(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }
 
-SkExclusiveStrikePtr SkStrikeSpec::findOrCreateExclusiveStrike(SkStrikeCache* cache) const {
+sk_sp<SkStrike> SkStrikeSpec::findOrCreateStrike(SkStrikeCache* cache) const {
     SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
-    return cache->findOrCreateStrikeExclusive(*fAutoDescriptor.getDesc(), effects, *fTypeface);
+    return cache->findOrCreateStrike(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }
 
 SkBulkGlyphMetrics::SkBulkGlyphMetrics(const SkStrikeSpec& spec)
-    : fStrike{spec.findOrCreateExclusiveStrike()} { }
+    : fStrike{spec.findOrCreateStrike()} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetrics::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
     fGlyphs.reset(glyphIDs.size());
@@ -249,9 +249,9 @@ const SkGlyph* SkBulkGlyphMetrics::glyph(SkGlyphID glyphID) {
 }
 
 SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(const SkStrikeSpec& spec)
-    : fStrike{spec.findOrCreateExclusiveStrike()} { }
+    : fStrike{spec.findOrCreateStrike()} { }
 
-SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(SkExclusiveStrikePtr&& strike)
+SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(sk_sp<SkStrike>&& strike)
         : fStrike{std::move(strike)} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndPaths::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
@@ -272,9 +272,9 @@ void SkBulkGlyphMetricsAndPaths::findIntercepts(
 }
 
 SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec)
-        : fStrike{spec.findOrCreateExclusiveStrike()} { }
+        : fStrike{spec.findOrCreateStrike()} { }
 
-SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(SkExclusiveStrikePtr&& strike)
+SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(sk_sp<SkStrike>&& strike)
         : fStrike{std::move(strike)} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndImages::glyphs(SkSpan<const SkPackedGlyphID> glyphIDs) {
