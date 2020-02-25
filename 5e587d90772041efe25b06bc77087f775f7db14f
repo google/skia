@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1fc1c0da_755b6e82",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-25T17:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8695da75_7c3f08b0",
+      "revId": "5e587d90772041efe25b06bc77087f775f7db14f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5948cb8a_46f01416",
         "filename": "infra/bots/recipe_modules/flavor/android.py",
         "patchSetId": 1
