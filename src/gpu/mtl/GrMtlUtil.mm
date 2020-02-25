@@ -186,8 +186,14 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler: completionHandler];
 
-    // Wait 100 ms for pipeline creation
-    constexpr auto kTimeoutNS = 100000000UL;
+    // Wait 400 ms for pipeline creation
+    // 100 ms was not enough for pipelines used by these GMs:
+    //     complexclip2_rect_aa, complexclip2_path_aa, complexclip2_rrec_aa,
+    //     complexclip_aa_layer_invert, complexclip_aa_layer, complexclip_aa_invert,
+    //     complexclip_aa.
+    // When pipelines start timing out it makes a subsequent shader compliation timeout even when the
+    // shader compile timeout is set to 2 seconds.
+    constexpr auto kTimeoutNS = 200000000UL;
     if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutNS))) {
         if (error) {
             constexpr auto kTimeoutMS = kTimeoutNS/1000000UL;
