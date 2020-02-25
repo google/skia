@@ -18,14 +18,15 @@
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
-void DDLTileHelper::TileData::init(int id, sk_sp<SkSurface> dstSurface, const SkIRect& clip) {
+void DDLTileHelper::TileData::init(int id,
+                                   sk_sp<SkSurface> dstSurface,
+                                   const SkSurfaceCharacterization& dstSurfaceCharacterization,
+                                   const SkIRect& clip) {
     fID = id;
     fDstSurface = dstSurface;
     fClip = clip;
 
-    SkSurfaceCharacterization tmp;
-    SkAssertResult(fDstSurface->characterize(&tmp));
-    fCharacterization = tmp.createResized(clip.width(), clip.height());
+    fCharacterization = dstSurfaceCharacterization.createResized(clip.width(), clip.height());
     SkASSERT(fCharacterization.isValid());
 }
 
@@ -41,7 +42,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach(true);
     if (ddl->priv().numRenderTasks()) {
         // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
         // reinflation of the SKPs contains opsTasks that means some image subset operation
@@ -80,7 +81,7 @@ void DDLTileHelper::TileData::createDDL() {
         subCanvas->drawPicture(fReconstitutedPicture);
     }
 
-    fDisplayList = recorder.detach();
+    fDisplayList = recorder.detach(false);
 }
 
 void DDLTileHelper::TileData::draw(GrContext* context) {
@@ -115,6 +116,7 @@ void DDLTileHelper::TileData::reset() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
+                             const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
                              int numDivisions)
         : fNumDivisions(numDivisions) {
@@ -135,7 +137,7 @@ DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
 
             SkASSERT(viewport.contains(clip));
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, clip);
+            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, dstChar, clip);
         }
     }
 }

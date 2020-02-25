@@ -30,6 +30,8 @@ void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
 }
 
 bool SkTaskGroup::done() const {
+//    int32_t pending = fPending.load(std::memory_order_acquire);
+//    SkDebugf("pending %d\n", pending);
     return fPending.load(std::memory_order_acquire) == 0;
 }
 

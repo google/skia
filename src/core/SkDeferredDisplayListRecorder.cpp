@@ -203,7 +203,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     return fSurface->getCanvas();
 }
 
-std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
+std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach(bool shouldBeEmpty) {
     if (!fContext) {
         return nullptr;
     }
@@ -217,7 +217,7 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
                            new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
 
-    fContext->priv().moveRenderTasksToDDL(ddl.get());
+    fContext->priv().moveRenderTasksToDDL(ddl.get(), shouldBeEmpty);
 
     // We want a new lazy proxy target for each recorded DDL so force the (lazy proxy-backed)
     // SkSurface to be regenerated for each DDL.

@@ -1834,7 +1834,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
         this->flushPatchVertexCount(programInfo.tessellationPatchVertexCount());
     }
 
-    sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram(renderTarget, programInfo));
+    sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram_inline_path(renderTarget,
+                                                                              programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;

@@ -28,7 +28,14 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
 {
 }
 
-SkDeferredDisplayList::~SkDeferredDisplayList() {}
+SkDeferredDisplayList::~SkDeferredDisplayList() {
+    for (auto& renderTask : fRenderTasks) {
+//        SkDebugf("%x has %d refs\n", renderTask, renderTask->getRefCnt());
+        SkASSERT(renderTask->unique());
+    }
+
+    fRenderTasks.reset();
+}
 
 //-------------------------------------------------------------------------------------------------
 #if SK_SUPPORT_GPU

@@ -51,11 +51,15 @@ GrMemoryPool::~GrMemoryPool() {
     int n = fAllocatedIDs.count();
     fAllocatedIDs.foreach([&i, n] (int32_t id) {
         if (++i == 1) {
-            SkDebugf("Leaked IDs (in no particular order): %d", id);
-        } else if (i < 11) {
-            SkDebugf(", %d%s", id, (n == i ? "\n" : ""));
-        } else if (i == 11) {
-            SkDebugf(", ...\n");
+            SkDebugf("Leaked %d IDs (in no particular order): %d%s", n, id, (n == i) ? "\n" : "");
+//        } else if (i < 11) {
+//            SkDebugf(", %d%s", id, (n == i ? "\n" : ""));
+//        } else if (i == 11) {
+//            SkDebugf(", ...\n");
+        } else if (i == n) {
+            SkDebugf("\n");
+        } else {
+            SkDebugf(", %d", id);
         }
     });
 #endif
@@ -94,6 +98,14 @@ void* GrMemoryPool::allocate(size_t size) {
         return nextID++;
     }());
     // You can set a breakpoint here when a leaked ID is allocated to see the stack frame.
+
+    int leaked[64] = { 255, 87, 73, 11, 101, 64, 232, 45, 243, 156, 92, 60, 10, 33, 9, 132, 246, 18, 67, 173, 147, 266, 27, 141, 82, 191, 200, 196, 94, 239, 218, 118, 15, 91, 157, 270, 224, 138, 54, 182, 252, 76, 185, 129, 169, 212, 42, 111, 36, 238, 261, 21, 100, 225, 24, 124, 112, 176, 50, 152, 125, 163, 226 };
+
+    for (int i = 0; i < 64; ++i) {
+        if (allocData->fID == leaked[i]) {
+            break;
+        }
+    }
     SkDEBUGCODE(fAllocatedIDs.add(allocData->fID));
     allocData->fHeader = fTail;
     ptr += kPerAllocPad;
@@ -222,7 +234,10 @@ void GrMemoryPool::validate() {
 
 static constexpr size_t kOpPoolSize = GrAlignTo(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
 
-GrOpMemoryPool::~GrOpMemoryPool() { this->pool()->~GrMemoryPool(); }
+GrOpMemoryPool::~GrOpMemoryPool() {
+//    SkDebugf("~GrOpMemoryPool: %d %d\n", fPlacement, fSized);
+    this->pool()->~GrMemoryPool();
+}
 
 std::unique_ptr<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
     preallocSize = std::max(preallocSize, GrMemoryPool::kMinAllocationSize);

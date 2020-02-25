@@ -108,7 +108,7 @@ public:
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
-    void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
+    void moveRenderTasksToDDL(SkDeferredDisplayList* ddl, bool shouldBeEmpty);
     void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
 private:

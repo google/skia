@@ -60,6 +60,8 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
+
+
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           GrAAType aaType,

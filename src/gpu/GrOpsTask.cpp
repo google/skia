@@ -361,6 +361,8 @@ GrOpsTask::GrOpsTask(GrRecordingContext::Arenas arenas,
         , fAuditTrail(auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
+    static int s = 1;
+    fID = s++;
     fTargetView.proxy()->setLastRenderTask(this);
 }
 

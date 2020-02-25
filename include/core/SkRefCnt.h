@@ -58,7 +58,7 @@ public:
 
     /** Increment the reference count. Must be balanced by a call to unref().
     */
-    void ref() const {
+    virtual void ref() const {
         SkASSERT(this->getRefCnt() > 0);
         // No barrier required.
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
@@ -68,7 +68,7 @@ public:
         decrement, then delete the object. Note that if this is the case, then
         the object needs to have been allocated via new, and not on the stack.
     */
-    void unref() const {
+    virtual void unref() const {
         SkASSERT(this->getRefCnt() > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
         if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
@@ -78,14 +78,15 @@ public:
         }
     }
 
-private:
-
 #ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
     int32_t getRefCnt() const {
         return fRefCnt.load(std::memory_order_relaxed);
     }
 #endif
+
+private:
+
 
     /**
      *  Called when the ref count goes to 0.
@@ -192,6 +193,11 @@ public:
         // If this fails then the above contract has been violated.
         SkASSERT(cnt >= threadIsolatedTestCnt);
         return cnt > threadIsolatedTestCnt;
+    }
+
+    int32_t refCnt() const {
+        int cnt = fRefCnt.load(std::memory_order_acquire);
+        return cnt;
     }
 
 private:

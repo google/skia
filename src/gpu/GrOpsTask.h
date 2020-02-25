@@ -38,6 +38,8 @@ private:
     using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
+    int fID;
+
     // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
     GrOpsTask(GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
@@ -46,6 +48,29 @@ public:
     GrOpsTask* asOpsTask() override { return this; }
 
     bool isEmpty() const { return fOpChains.empty(); }
+
+#if 0
+    void ref() const override {
+        if (fID == 757) {
+            int fdoo = 0;
+            ++fdoo;
+        }
+
+        int32_t cnt = this->getRefCnt();
+        SkDebugf("ref %x %d: %d -> %d\n", this, fID, cnt, cnt+1);
+        GrRenderTask::ref();
+    }
+    void unref() const override {
+        if (fID == 757) {
+            int fdoo = 0;
+            ++fdoo;
+        }
+
+        int32_t cnt = this->getRefCnt();
+        SkDebugf("unref %x %d: %d -> %d\n", this, fID, cnt, cnt-1);
+        GrRenderTask::unref();
+    }
+#endif
 
     /**
      * Empties the draw buffer of any queued up draws.

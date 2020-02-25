@@ -59,8 +59,8 @@ void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
-void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
-    fContext->drawingManager()->moveRenderTasksToDDL(ddl);
+void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl, bool shouldBeEmpty) {
+    fContext->drawingManager()->moveRenderTasksToDDL(ddl, shouldBeEmpty);
 }
 
 void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,

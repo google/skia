@@ -269,7 +269,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
                                          renderTargetSampleCnt, mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
-            fGpu->stats()->incNumScratchTexturesReused();
+            fGpu->stats()->incNumScratchTexturesReused1();
             GrSurface* surface = static_cast<GrSurface*>(resource);
             return sk_sp<GrTexture>(surface->asTexture());
         }

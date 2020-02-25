@@ -120,7 +120,7 @@ public:
         return fContext->onGetAtlasManager();
     }
 
-    void moveRenderTasksToDDL(SkDeferredDisplayList*);
+    void moveRenderTasksToDDL(SkDeferredDisplayList*, bool shouldBeEmpty);
     void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
     void compile(const GrProgramDesc&, const GrProgramInfo&);

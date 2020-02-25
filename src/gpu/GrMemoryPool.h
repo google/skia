@@ -145,16 +145,21 @@ public:
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
         auto mem = this->pool()->allocate(sizeof(Op));
+        fPlacement++;
+        fSized--;
         return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
     }
 
-    void* allocate(size_t size) { return this->pool()->allocate(size); }
+    void* allocate(size_t size) { fSized++;  return this->pool()->allocate(size); }
 
     void release(std::unique_ptr<GrOp> op);
 
     bool isEmpty() const { return this->pool()->isEmpty(); }
 
 private:
+    int fPlacement = 0;
+    int fSized = 0;
+
     GrMemoryPool* pool() const;
 
     GrOpMemoryPool() = default;

@@ -900,10 +900,11 @@ static bool gather_srcs() {
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     std::unique_ptr<Sink> sink(s);
 
+#if 0
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
         Result draw(SkCanvas* c) const override {
-            c->drawRect(SkRect::MakeWH(1,1), SkPaint());
+            c->drawRect(SkRect::MakeWH(16,16), SkPaint());
             return Result::Ok();
         }
         SkISize size() const override { return SkISize::Make(16, 16); }
@@ -918,6 +919,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
         info("Could not run %s: %s\n", config.getTag().c_str(), result.c_str());
         exit(1);
     }
+#endif
 
     TaggedSink& ts = gSinks.push_back();
     ts.reset(sink.release());

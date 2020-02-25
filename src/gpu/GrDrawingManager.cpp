@@ -104,6 +104,10 @@ GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask>
 }
 
 void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
+    for (auto& renderTask : renderTasks) {
+        SkASSERT(renderTask->unique());
+    }
+
     fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
 }
 
@@ -568,17 +572,25 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 }
 #endif
 
-void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
+void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl, bool shouldBeEmpty) {
     SkDEBUGCODE(this->validate());
 
     // no renderTask should receive a new command after this
     fDAG.closeAll(fContext->priv().caps());
     fActiveOpsTask = nullptr;
 
-    fDAG.swap(&ddl->fRenderTasks);
+    if (shouldBeEmpty) {
+        SkASSERT(!fDAG.numRenderTasks());
+    } else {
+        SkASSERT(fDAG.numRenderTasks());
+    }
 
-    for (auto renderTask : ddl->fRenderTasks) {
+    fDAG.swap(&ddl->fRenderTasks);
+    SkASSERT(!fDAG.numRenderTasks());
+
+    for (auto& renderTask : ddl->fRenderTasks) {
         renderTask->prePrepare(fContext);
+//        SkASSERT(renderTask->unique());
     }
 
     ddl->fArenas = std::move(fContext->priv().detachArenas());
