@@ -253,7 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
         SkBitmap half = draw_blob(blob.get(), surface.get(), {40, y + 0.5f});
         SkBitmap unit = draw_blob(blob.get(), surface.get(), {40, y + 1.0f});
         bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
-        REPORTER_ASSERT(reporter, isOk);
+        REPORTER_ASSERT(reporter, !isOk);
         if (!isOk) {
             if (kDumpPngs) {
                 {
