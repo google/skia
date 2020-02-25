@@ -66,7 +66,8 @@ struct GrDawnProgram : public SkRefCnt {
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
     wgpu::BindGroup setUniformData(GrDawnGpu*, const GrRenderTarget*, const GrProgramInfo&);
     wgpu::BindGroup setTextures(GrDawnGpu* gpu,
-                                const GrProgramInfo& programInfo,
+                                const GrPrimitiveProcessor& primProc,
+                                const GrPipeline& pipeline,
                                 const GrSurfaceProxy* const primProcTextures[]);
 };
 

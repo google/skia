@@ -42,9 +42,10 @@ private:
     void applyState(GrDawnProgram*, const GrProgramInfo& programInfo);
 
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
-    void onDrawMeshes(const GrProgramInfo& programInfo,
-                      const GrMesh mesh[],
-                      int meshCount) override;
+    void onSetScissorRect(const SkIRect&) override;
+    bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
+                        const GrSurfaceProxy* const primProcTextures[]) override;
+    void onDrawMesh(GrPrimitiveType, const GrMesh&) override;
 
     void sendArrayMeshToGpu(GrPrimitiveType type, const GrMesh& mesh, int vertexCount,
                             int baseVertex) final {
@@ -78,6 +79,7 @@ private:
     GrDawnGpu*                  fGpu;
     wgpu::CommandEncoder        fEncoder;
     wgpu::RenderPassEncoder     fPassEncoder;
+    sk_sp<GrDawnProgram>        fCurrentProgram;
     LoadAndStoreInfo            fColorInfo;
 
     typedef GrOpsRenderPass     INHERITED;
