@@ -51,7 +51,7 @@ public:
 
     void submit(GrOpsRenderPass* renderPass) override;
 
-    void checkFinishProcs() override {}
+    void checkFinishProcs(bool syncOnFirst = false) override {}
 
 private:
     GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);

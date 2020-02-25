@@ -3981,6 +3981,8 @@ bool GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAcc
     bool finish = (info.fFlags & kSyncCpu_GrFlushFlag) ||
                   (info.fFinishedProc && !this->caps()->fenceSyncSupport());
     if (finish) {
+        SkDebugf("calling gl finish. sync: %d, fenceSupport: %d\n",
+                 SkToBool(info.fFlags & kSyncCpu_GrFlushFlag), this->caps()->fenceSyncSupport());
         GL_CALL(Finish());
         // After a finish everything previously sent to GL is done.
         for (const auto& cb : fFinishCallbacks) {
@@ -4090,13 +4092,19 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
 }
 
-void GrGLGpu::checkFinishProcs() {
+void GrGLGpu::checkFinishProcs(bool syncOnFirst) {
+    uint64_t timeout = 0;
+    if (syncOnFirst) {
+        timeout = -1;
+    }
+
     // Bail after the first unfinished sync since we expect they signal in the order inserted.
     while (!fFinishCallbacks.empty() && this->waitSync(fFinishCallbacks.front().fSync,
-                                                       /* timeout = */ 0, /* flush  = */ false)) {
+                                                       timeout, /* flush  = */ false)) {
         fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
         this->deleteSync(fFinishCallbacks.front().fSync);
         fFinishCallbacks.pop_front();
+        timeout = 0;
     }
 }
 

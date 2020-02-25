@@ -372,7 +372,7 @@ public:
     virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
-    virtual void checkFinishProcs() = 0;
+    virtual void checkFinishProcs(bool syncOnFirst = false) = 0;
 
     /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on

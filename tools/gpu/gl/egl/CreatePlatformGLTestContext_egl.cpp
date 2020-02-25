@@ -227,16 +227,20 @@ void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
 
     if (kGL_GrGLStandard == glInt->fStandard) {
         if (GrGLGetVersion(glInt) >= GR_GL_VER(3,2) || glInt->hasExtension("GL_ARB_sync")) {
+            SkDebugf("EGL we have glSync support 1\n");
             return;
         }
     } else {
         if (glInt->hasExtension("GL_APPLE_sync") || glInt->hasExtension("GL_NV_fence") ||
             GrGLGetVersion(glInt) >= GR_GL_VER(3, 0)) {
+            SkDebugf("EGL we have glSync support 2\n");
             return;
         }
     }
 
+    SkDebugf("EGL we have NOOOO glSync support\n");
     if (!supports_egl_extension(fDisplay, "EGL_KHR_fence_sync")) {
+        SkDebugf("EGL we have NOOOO EGL FENCE!!!\n");
         return;
     }
 

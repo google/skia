@@ -312,7 +312,7 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
 
 void GrContext::checkAsyncWorkCompletion() {
     if (fGpu) {
-        fGpu->checkFinishProcs();
+        fGpu->checkFinishProcs(true);
     }
 }
 

@@ -580,7 +580,7 @@ void GrDawnGpu::waitSemaphore(GrSemaphore* semaphore) {
     SkASSERT(!"unimplemented");
 }
 
-void GrDawnGpu::checkFinishProcs() {
+void GrDawnGpu::checkFinishProcs(bool syncOnFirst) {
     SkASSERT(!"unimplemented");
 }
 
