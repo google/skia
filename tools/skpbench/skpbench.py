@@ -345,6 +345,9 @@ def main():
     elif model == 'Pixel 2':
       from _hardware_pixel2 import HardwarePixel2
       hardware = HardwarePixel2(adb)
+    elif model == 'Pixel 3':
+      from _hardware_pixel3 import HardwarePixel3
+      hardware = HardwarePixel3(adb)
     elif model == 'Nexus 6P':
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
