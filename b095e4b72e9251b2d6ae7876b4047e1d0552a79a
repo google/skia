@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d52e5dc5_f7875ef4",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-25T21:06:32Z",
+      "side": 1,
+      "message": "Just discovered this isn\u0027t quite right, see https://docs.microsoft.com/en-us/windows/win32/direct3d12/hardware-support. Probably want it to be limited by the number of samplers and the number of UAVs. I can update it with the next CL.",
+      "range": {
+        "startLine": 172,
+        "startChar": 11,
+        "endLine": 172,
+        "endChar": 62
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
