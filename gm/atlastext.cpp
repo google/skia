@@ -159,7 +159,7 @@ private:
                             drawX = drawY = 0;
                         }
                         x += size +
-                             draw_string(fTarget.get(), text, drawX, drawY, color, typeface, size);
+                             draw_string(nullptr, text, drawX, drawY, color, typeface, size);
                         x = SkScalarCeilToScalar(x);
                         fTarget->restore();
                         // Flush periodically to test continued drawing after a flush.
