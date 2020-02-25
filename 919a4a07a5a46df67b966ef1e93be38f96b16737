@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "877fad28_ec015b38",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-25T19:19:04Z",
+      "side": 1,
+      "message": "Planning to move this into Chromium after this lands?",
+      "revId": "919a4a07a5a46df67b966ef1e93be38f96b16737",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17d1e8e2_1713f0cf",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 3
