@@ -23,12 +23,18 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
 #if SK_SUPPORT_GPU
-        , fLazyProxyData(std::move(lazyProxyData))
+    , fLazyProxyData(std::move(lazyProxyData))
 #endif
 {
 }
 
-SkDeferredDisplayList::~SkDeferredDisplayList() {}
+SkDeferredDisplayList::~SkDeferredDisplayList() {
+#if SK_SUPPORT_GPU && defined(SK_DEBUG)
+    for (auto& renderTask : fRenderTasks) {
+        SkASSERT(renderTask->unique());
+    }
+#endif
+}
 
 //-------------------------------------------------------------------------------------------------
 #if SK_SUPPORT_GPU
