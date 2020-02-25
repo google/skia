@@ -137,6 +137,7 @@ public:
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
+
         sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo);
         return SkToBool(tmp);
     }
@@ -333,7 +334,15 @@ private:
         sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*, const GrProgramInfo&);
         sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo) {
-            return this->findOrCreateProgram(nullptr, desc, programInfo);
+            Stats::ProgramCacheResult stat;
+            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, &stat);
+            if (!tmp) {
+                fGpu->fStats.incNumPreCompilationFailures();
+            } else {
+                fGpu->fStats.incNumPreProgramCacheResult(stat);
+            }
+
+            return tmp;
         }
         bool precompileShader(const SkData& key, const SkData& data);
 
@@ -342,7 +351,8 @@ private:
 
         sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*,
                                                const GrProgramDesc&,
-                                               const GrProgramInfo&);
+                                               const GrProgramInfo&,
+                                               Stats::ProgramCacheResult*);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {

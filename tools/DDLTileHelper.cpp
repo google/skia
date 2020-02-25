@@ -18,14 +18,15 @@
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
-void DDLTileHelper::TileData::init(int id, sk_sp<SkSurface> dstSurface, const SkIRect& clip) {
+void DDLTileHelper::TileData::init(int id,
+                                   sk_sp<SkSurface> dstSurface,
+                                   const SkSurfaceCharacterization& dstSurfaceCharacterization,
+                                   const SkIRect& clip) {
     fID = id;
     fDstSurface = dstSurface;
     fClip = clip;
 
-    SkSurfaceCharacterization tmp;
-    SkAssertResult(fDstSurface->characterize(&tmp));
-    fCharacterization = tmp.createResized(clip.width(), clip.height());
+    fCharacterization = dstSurfaceCharacterization.createResized(clip.width(), clip.height());
     SkASSERT(fCharacterization.isValid());
 }
 
@@ -115,6 +116,7 @@ void DDLTileHelper::TileData::reset() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
+                             const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
                              int numDivisions)
         : fNumDivisions(numDivisions) {
@@ -135,7 +137,7 @@ DDLTileHelper::DDLTileHelper(sk_sp<SkSurface> dstSurface,
 
             SkASSERT(viewport.contains(clip));
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, clip);
+            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, dstSurface, dstChar, clip);
         }
     }
 }
