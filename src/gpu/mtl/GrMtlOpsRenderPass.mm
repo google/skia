@@ -49,6 +49,24 @@ void GrMtlOpsRenderPass::submit() {
     fActiveRenderCmdEncoder = nil;
 }
 
+static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
+    const static MTLPrimitiveType mtlPrimitiveType[] {
+        MTLPrimitiveTypeTriangle,
+        MTLPrimitiveTypeTriangleStrip,
+        MTLPrimitiveTypePoint,
+        MTLPrimitiveTypeLine,
+        MTLPrimitiveTypeLineStrip
+    };
+    static_assert((int)GrPrimitiveType::kTriangles == 0);
+    static_assert((int)GrPrimitiveType::kTriangleStrip == 1);
+    static_assert((int)GrPrimitiveType::kPoints == 2);
+    static_assert((int)GrPrimitiveType::kLines == 3);
+    static_assert((int)GrPrimitiveType::kLineStrip == 4);
+
+    SkASSERT(primitiveType <= GrPrimitiveType::kLineStrip);
+    return mtlPrimitiveType[static_cast<int>(primitiveType)];
+}
+
 bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                         const SkRect& drawBounds) {
     fActivePipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
@@ -83,6 +101,7 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                                                        fRenderTarget->height()));
     }
 
+    fActivePrimitiveType = gr_to_mtl_primitive(programInfo.primitiveType());
     fBounds.join(drawBounds);
     return true;
 }
@@ -104,10 +123,10 @@ bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     return true;
 }
 
-void GrMtlOpsRenderPass::onDrawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) {
+void GrMtlOpsRenderPass::onDrawMesh(const GrMesh& mesh) {
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);
-    mesh.sendToGpu(primitiveType, this);
+    mesh.sendToGpu(this);
 }
 
 void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
@@ -233,24 +252,6 @@ void GrMtlOpsRenderPass::setupRenderPass(
     fActiveRenderCmdEncoder = nil;
 }
 
-static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
-    const static MTLPrimitiveType mtlPrimitiveType[] {
-        MTLPrimitiveTypeTriangle,
-        MTLPrimitiveTypeTriangleStrip,
-        MTLPrimitiveTypePoint,
-        MTLPrimitiveTypeLine,
-        MTLPrimitiveTypeLineStrip
-    };
-    static_assert((int)GrPrimitiveType::kTriangles == 0);
-    static_assert((int)GrPrimitiveType::kTriangleStrip == 1);
-    static_assert((int)GrPrimitiveType::kPoints == 2);
-    static_assert((int)GrPrimitiveType::kLines == 3);
-    static_assert((int)GrPrimitiveType::kLineStrip == 4);
-
-    SkASSERT(primitiveType <= GrPrimitiveType::kLineStrip);
-    return mtlPrimitiveType[static_cast<int>(primitiveType)];
-}
-
 void GrMtlOpsRenderPass::bindGeometry(const GrBuffer* vertexBuffer,
                                       size_t vertexOffset,
                                       const GrBuffer* instanceBuffer) {
@@ -275,7 +276,7 @@ void GrMtlOpsRenderPass::sendArrayMeshToGpu(GrPrimitiveType primitiveType, const
                                             int vertexCount, int baseVertex) {
     this->bindGeometry(mesh.vertexBuffer(), 0, nullptr);
 
-    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+    [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
                                 vertexStart:baseVertex
                                 vertexCount:vertexCount];
 }
@@ -298,7 +299,7 @@ void GrMtlOpsRenderPass::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, con
     SkASSERT(mesh.primitiveRestart() == GrPrimitiveRestart::kNo);
     size_t indexOffset = static_cast<const GrMtlBuffer*>(mesh.indexBuffer())->offset() +
                          sizeof(uint16_t) * baseIndex;
-    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
                                        indexBuffer:mtlIndexBuffer
@@ -312,7 +313,7 @@ void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType, c
     this->bindGeometry(mesh.vertexBuffer(), 0, mesh.instanceBuffer());
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+        [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
                                     vertexStart:baseVertex
                                     vertexCount:vertexCount
                                   instanceCount:instanceCount
@@ -342,7 +343,7 @@ void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitive
                          sizeof(uint16_t) * baseIndex;
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+        [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                             indexCount:indexCount
                                              indexType:MTLIndexTypeUInt16
                                            indexBuffer:mtlIndexBuffer

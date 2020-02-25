@@ -42,14 +42,32 @@ private:
                         const GrSurfaceProxy* const primProcTextures[]) override {
         return true;
     }
-    void onDrawMesh(GrPrimitiveType, const GrMesh&) override {
-        this->markRenderTargetDirty();
-        ++fNumDraws;
+    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override {
+        this->dummyDraw();
+    }
+    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                       GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
+                       const GrBuffer* vertexBuffer, int baseVertex) override {
+        this->dummyDraw();
+    }
+    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                         const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override {
+        this->dummyDraw();
+    }
+    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+                                int baseVertex) override {
+        this->dummyDraw();
     }
     void onClear(const GrFixedClip&, const SkPMColor4f&) override {
         this->markRenderTargetDirty();
     }
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
+    void dummyDraw() {
+        this->markRenderTargetDirty();
+        ++fNumDraws;
+    }
     void markRenderTargetDirty() {
         if (auto* tex = fRenderTarget->asTexture()) {
             tex->texturePriv().markMipMapsDirty();
