@@ -3981,6 +3981,8 @@ bool GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAcc
     bool finish = (info.fFlags & kSyncCpu_GrFlushFlag) ||
                   (info.fFinishedProc && !this->caps()->fenceSyncSupport());
     if (finish) {
+        SkDebugf("calling gl finish. sync: %d, fenceSupport: %d\n",
+                 SkToBool(info.fFlags & kSyncCpu_GrFlushFlag), this->caps()->fenceSyncSupport())
         GL_CALL(Finish());
         // After a finish everything previously sent to GL is done.
         for (const auto& cb : fFinishCallbacks) {
