@@ -28,7 +28,13 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
 {
 }
 
-SkDeferredDisplayList::~SkDeferredDisplayList() {}
+SkDeferredDisplayList::~SkDeferredDisplayList() {
+    for (auto& renderTask : fRenderTasks) {
+        SkASSERT(renderTask->unique());
+    }
+
+    fRenderTasks.reset();
+}
 
 //-------------------------------------------------------------------------------------------------
 #if SK_SUPPORT_GPU

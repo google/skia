@@ -66,7 +66,7 @@ class GrOpsRenderPass;
 
 class GrOp : private SkNoncopyable {
 public:
-    virtual ~GrOp() = default;
+    virtual ~GrOp() {}
 
     virtual const char* name() const = 0;
 

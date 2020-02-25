@@ -78,14 +78,15 @@ public:
         }
     }
 
-private:
-
 #ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
     int32_t getRefCnt() const {
         return fRefCnt.load(std::memory_order_relaxed);
     }
 #endif
+
+private:
+
 
     /**
      *  Called when the ref count goes to 0.

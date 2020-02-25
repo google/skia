@@ -51,7 +51,7 @@ GrMemoryPool::~GrMemoryPool() {
     int n = fAllocatedIDs.count();
     fAllocatedIDs.foreach([&i, n] (int32_t id) {
         if (++i == 1) {
-            SkDebugf("Leaked IDs (in no particular order): %d", id);
+            SkDebugf("Leaked %d IDs (in no particular order): %d%s", n, id, (n == i) ? "\n" : "");
         } else if (i < 11) {
             SkDebugf(", %d%s", id, (n == i ? "\n" : ""));
         } else if (i == 11) {
@@ -222,7 +222,9 @@ void GrMemoryPool::validate() {
 
 static constexpr size_t kOpPoolSize = GrAlignTo(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
 
-GrOpMemoryPool::~GrOpMemoryPool() { this->pool()->~GrMemoryPool(); }
+GrOpMemoryPool::~GrOpMemoryPool() {
+    this->pool()->~GrMemoryPool();
+}
 
 std::unique_ptr<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
     preallocSize = std::max(preallocSize, GrMemoryPool::kMinAllocationSize);
