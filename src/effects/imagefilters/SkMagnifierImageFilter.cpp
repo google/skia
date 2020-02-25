@@ -198,11 +198,13 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
                 SkScalar dist = SkScalarSqrt(SkScalarSquare(x_dist) +
                                              SkScalarSquare(y_dist));
                 dist = std::max(kScalar2 - dist, 0.0f);
-                weight = std::min(SkScalarSquare(dist), SK_Scalar1);
+                // SkTPin rather than std::max to handle potential NaN
+                weight = SkTPin(SkScalarSquare(dist), 0.0f, SK_Scalar1);
             } else {
                 SkScalar sqDist = std::min(SkScalarSquare(x_dist),
-                                              SkScalarSquare(y_dist));
-                weight = std::min(sqDist, SK_Scalar1);
+                                           SkScalarSquare(y_dist));
+                // SkTPin rather than std::max to handle potential NaN
+                weight = SkTPin(sqDist, 0.0f, SK_Scalar1);
             }
 
             SkScalar x_interp = weight * (fSrcRect.x() + x * invXZoom) + (1 - weight) * x;
