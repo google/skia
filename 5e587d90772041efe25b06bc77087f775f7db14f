@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5948cb8a_46f01416",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-25T15:32:11Z",
+      "side": 1,
+      "message": "What about things like skpbench?  Should we have a specific case for dm and an error otherwise?",
+      "range": {
+        "startLine": 441,
+        "startChar": 6,
+        "endLine": 441,
+        "endChar": 10
+      },
+      "revId": "5e587d90772041efe25b06bc77087f775f7db14f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
