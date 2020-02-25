@@ -67,12 +67,33 @@ config("common") {
   }
 }
 
-copy("commit_id") {
-  sources = [
-    "$angle_root/src/commit.h",
-  ]
+commit_id_output_file = "$root_gen_dir/angle2/commit.h"
+action("commit_id") {
+  script = "$angle_root/src/commit_id.py"
   outputs = [
-    "$root_gen_dir/angle2/id/commit.h",
+    commit_id_output_file,
+  ]
+
+  # commit id should depend on angle's HEAD revision
+  commit_id_git_dep = "$angle_root/.git/HEAD"
+
+  # Add git as a dependency if it is available.
+  angle_git_is_present =
+      exec_script("$angle_root/src/commit_id.py",
+                  [
+                    "check",
+                    rebase_path(commit_id_git_dep, root_build_dir),
+                  ],
+                  "value") == 1
+  if (angle_git_is_present) {
+    inputs = [
+      commit_id_git_dep,
+    ]
+  }
+  args = [
+    "gen",
+    rebase_path(commit_id_git_dep, root_build_dir),
+    rebase_path(commit_id_output_file, root_build_dir),
   ]
 }
 
