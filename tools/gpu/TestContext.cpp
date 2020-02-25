@@ -39,6 +39,8 @@ void TestContext::flushAndWaitOnSync(GrContext* context) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(context);
 
+    SkDebugf("fence support from test context: %d\n", context->priv().caps()->fenceSyncSupport());
+
     if (fFinishTrackers[fCurrentFlushIdx]) {
         fFinishTrackers[fCurrentFlushIdx]->waitTillFinished();
     }
