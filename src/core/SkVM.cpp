@@ -16,6 +16,11 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 
+#if defined(SKVM_LLVM)
+    #include <llvm/IR/IRBuilder.h>
+    #include <llvm/IR/Verifier.h>
+#endif
+
 bool gSkVMJITViaDylib{false};
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
@@ -1886,6 +1891,121 @@ namespace skvm {
         }
     }
 
+#if defined(SKVM_LLVM)
+    // Smallest program:
+    // b.store32(b.varying<int>(), b.splat(42));
+    static bool try_llvm(const std::vector<OptimizedInstruction>& instructions,
+                         const std::vector<int>& strides) {
+        llvm::LLVMContext ctx;
+        llvm::Module mod("", ctx);
+        // All the scary bare pointers from here on are owned by ctx or mod, I think.
+
+        llvm::IntegerType* i64 = llvm::Type::getInt64Ty(ctx);
+        llvm::Type* ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo();
+
+        std::vector<llvm::Type*> arg_types = { i64 };
+        for (size_t i = 0; i < strides.size(); i++) {
+            arg_types.push_back(ptr);
+        }
+
+        llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx),
+                                                              arg_types, /*vararg?=*/false);
+        llvm::Function* fn
+            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, "", mod);
+
+        llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
+                         *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
+                         *loopK = llvm::BasicBlock::Create(ctx, "loopK", fn),
+                         *test1 = llvm::BasicBlock::Create(ctx, "test1", fn),
+                         *loop1 = llvm::BasicBlock::Create(ctx, "loop1", fn),
+                         *leave = llvm::BasicBlock::Create(ctx, "leave", fn);
+
+        using IRBuilder = llvm::IRBuilder<>;
+
+        auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
+            const OptimizedInstruction& insn = instructions[i];
+            switch (insn.op) {
+                default: return false;
+            }
+            return true;
+        };
+
+        // enter:  set up stack homes for N and each pointer arg
+        llvm::Value* n;
+        std::vector<llvm::Value*> args;
+        {
+            IRBuilder b(enter);
+
+            llvm::Argument* arg = fn->arg_begin();
+
+            n = b.CreateAlloca(arg->getType());
+            b.CreateStore(arg++, n);
+
+            for (size_t i = 0; i < strides.size(); i++) {
+                args.push_back(b.CreateAlloca(arg->getType()));
+                b.CreateStore(arg++, args.back());
+            }
+            b.CreateBr(testK);
+        }
+
+        // testK:  if (N >= K) goto loopK; else goto test1;
+        const int K = 8;
+        llvm::ConstantInt* i64_K = llvm::ConstantInt::get(i64, K);
+        {
+            IRBuilder b(testK);
+            b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_K), loopK, test1);
+        }
+
+        // loopK:  ... insns on K x T vectors; N -= K, args += K*stride; goto testK;
+        {
+            IRBuilder b(loopK);
+            for (size_t i = 0; i < instructions.size(); i++) {
+                if (!emit(i, false, &b)) {
+                    return false;
+                }
+            }
+            b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_K), n);
+            for (size_t i = 0; i < strides.size(); i++) {
+                b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
+                                          llvm::ConstantInt::get(i64, K * strides[i])), args[i]);
+            }
+            b.CreateBr(testK);
+        }
+
+        // test1:  if (N >= 1) goto loop1; else goto leave;
+        llvm::ConstantInt* i64_1 = llvm::ConstantInt::get(i64, 1);
+        {
+            IRBuilder b(test1);
+            b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_1), loop1, leave);
+        }
+
+        // loop1:  ... insns on scalars; N -= 1, args += stride; goto test1;
+        {
+            IRBuilder b(loop1);
+            for (size_t i = 0; i < instructions.size(); i++) {
+                if (!emit(i, true, &b)) {
+                    return false;
+                }
+            }
+            b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_1), n);
+            for (size_t i = 0; i < strides.size(); i++) {
+                b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
+                                          llvm::ConstantInt::get(i64, strides[i])), args[i]);
+            }
+            b.CreateBr(test1);
+        }
+
+        // leave:  ret
+        {
+            IRBuilder b(leave);
+            b.CreateRetVoid();
+        }
+
+        SkASSERT(false == llvm::verifyModule(mod));
+        return true;
+    }
+#endif
+
     bool Program::hasJIT() const {
         return fJITEntry != nullptr;
     }
@@ -1936,6 +2056,13 @@ namespace skvm {
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
                      const std::vector<int>& strides) : fStrides(strides) {
         this->setupInterpreter(interpreter);
+    #if defined(SKVM_LLVM)
+        if (try_llvm(interpreter, fStrides)) {
+            SkDebugf("hey, neat!  that might work\n");
+        } else {
+            SkDebugf("bummer\n");
+        }
+    #endif
     }
 
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
