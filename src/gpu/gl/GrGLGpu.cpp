@@ -4090,14 +4090,22 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
 }
 
-void GrGLGpu::checkFinishProcs() {
+void GrGLGpu::checkFinishProcs(bool syncOnFirst) {
+    uint64_t timeout = 0;
+    if (syncOnFirst) {
+        timeout = -1;
+    }
+
+    SkDebugf("finishCallback count: %d, sync: %d\n", fFinishCallbacks.size(), syncOnFirst);
     // Bail after the first unfinished sync since we expect they signal in the order inserted.
     while (!fFinishCallbacks.empty() && this->waitSync(fFinishCallbacks.front().fSync,
-                                                       /* timeout = */ 0, /* flush  = */ false)) {
+                                                       timeout, timeout != 0)) {
         fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
         this->deleteSync(fFinishCallbacks.front().fSync);
         fFinishCallbacks.pop_front();
+        timeout = 0;
     }
+    SkDebugf("finishCallback count end: %d\n", fFinishCallbacks.size());
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {
