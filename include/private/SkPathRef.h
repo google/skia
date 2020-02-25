@@ -328,6 +328,7 @@ public:
     };
 
     void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
+    int genIDChangeListenerCount();                           // Threadsafe
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )

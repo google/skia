@@ -3653,3 +3653,7 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
     clippedPath->reset();
     return true;
 }
+
+int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
+    return path.fPathRef->genIDChangeListenerCount();
+}

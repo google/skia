@@ -328,6 +328,13 @@ public:
      *  If no clipping is needed, returns false and "result" is left unchanged.
      */
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
+
+    /**
+     * Gets the number of GenIDChangeListeners. If another thread has access to this path then
+     * this may be stale before return and only indicates that the count was the return value
+     * at some point during the execution of the function.
+     */
+    static int GenIDChangeListenersCount(const SkPath&);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
