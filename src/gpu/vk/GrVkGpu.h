@@ -142,7 +142,9 @@ public:
     // command buffer to the gpu.
     void addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable);
 
-    void checkFinishProcs() override { fResourceProvider.checkCommandBuffers(); }
+    void checkFinishProcs(bool syncOnFirst = false) override {
+        fResourceProvider.checkCommandBuffers(syncOnFirst);
+    }
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 

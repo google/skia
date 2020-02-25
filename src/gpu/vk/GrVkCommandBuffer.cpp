@@ -483,6 +483,7 @@ static bool submit_to_queue(GrVkGpu* gpu,
         protectedSubmitInfo.protectedSubmit = VK_TRUE;
     }
 
+    SkDebugf("submitting a command buffer\n");
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -580,9 +581,14 @@ void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
     GR_VK_CALL_ERRCHECK(gpu, WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
 }
 
-bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu) {
+bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu, bool forceSync) {
     SkASSERT(!fIsActive);
     if (VK_NULL_HANDLE == fSubmitFence) {
+        return true;
+    }
+
+    if (forceSync) {
+        this->forceSync(gpu);
         return true;
     }
 

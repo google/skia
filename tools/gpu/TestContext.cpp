@@ -53,6 +53,7 @@ void TestContext::flushAndWaitOnSync(GrContext* context) {
     flushInfo.fFinishedProc = FlushFinishTracker::FlushFinished;
     flushInfo.fFinishedContext = fFinishTrackers[fCurrentFlushIdx].get();
 
+    SkDebugf("calling flush\n");
     context->flush(flushInfo);
 
     fCurrentFlushIdx = (fCurrentFlushIdx + 1) % SK_ARRAY_COUNT(fFinishTrackers);
