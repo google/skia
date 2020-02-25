@@ -51,7 +51,7 @@ for root in roots:
   for path, _, files in os.walk(root):
     if not any(snippet in fix_path(path) for snippet in ignorelist):
       for file_name in files:
-        if file_name.endswith('.h'):
+        if file_name.endswith('.h') and 'SkM44' not in file_name:
           if file_name in headers:
             print path, file_name, headers[file_name]
           assert file_name not in headers
