@@ -12,6 +12,10 @@
 
 class GrShaderCaps;
 
+struct D3D12_FEATURE_DATA_D3D12_OPTIONS;
+struct D3D12_FEATURE_DATA_D3D12_OPTIONS2;
+struct ID3D12Device;
+
 /**
  * Stores some capabilities of a D3D backend.
  */
@@ -21,7 +25,7 @@ public:
      * Creates a GrD3DCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
      */
-    GrD3DCaps(const GrContextOptions& contextOptions, GrProtected isProtected = GrProtected::kNo);
+    GrD3DCaps(const GrContextOptions& contextOptions, ID3D12Device* device);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
     SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
@@ -68,7 +72,13 @@ public:
 #endif
 
 private:
-    void init(const GrContextOptions& contextOptions);
+    void init(const GrContextOptions& contextOptions, ID3D12Device*);
+
+    void initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS&,
+                    const D3D12_FEATURE_DATA_D3D12_OPTIONS2&);
+    void initShaderCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc);
+
+    void applyDriverCorrectnessWorkarounds(ID3D12Device*);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
