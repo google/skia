@@ -67,13 +67,26 @@ config("common") {
   }
 }
 
-copy("commit_id") {
-  sources = [
-    "$angle_root/src/commit.h",
-  ]
+config("commit_id_config") {
+  include_dirs = [ "$root_gen_dir/angle" ]
+  visibility = [ ":commit_id" ]
+}
+
+commit_id_git_dep = "$angle_root/.git/HEAD"
+commit_id_output_file = "$root_gen_dir/angle/commit.h"
+
+action("commit_id") {
+  script = "$angle_root/src/commit_id.py"
   outputs = [
-    "$root_gen_dir/angle2/id/commit.h",
+    commit_id_output_file,
   ]
+
+  args = [
+    "gen",
+    rebase_path(commit_id_git_dep, root_build_dir),
+    rebase_path(commit_id_output_file, root_build_dir),
+  ]
+  public_configs = [ ":commit_id_config" ]
 }
 
 shared_library("libGLESv2") {
