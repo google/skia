@@ -82,7 +82,7 @@ public:
 
     GrVkCommandPool* findOrCreateCommandPool();
 
-    void checkCommandBuffers();
+    void checkCommandBuffers(bool syncOnFirst = false);
 
     // We must add the finishedProc to all active command buffers since we may have flushed work
     // that the client cares about before they explicitly called flush and the GPU may reorder

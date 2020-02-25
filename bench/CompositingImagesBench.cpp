@@ -213,7 +213,7 @@ protected:
                 }
             }
             // Prevent any batching between composited "frames".
-            canvas->flush();
+        //    canvas->flush();
         }
         canvas->restore();
     }

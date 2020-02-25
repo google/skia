@@ -388,6 +388,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     opMemoryPool->isEmpty();
 #endif
 
+    SkDebugf("main finish flush\n");
     GrSemaphoresSubmitted result = gpu->finishFlush(proxies, numProxies, access, info,
                                                     externalRequests);
 
@@ -456,6 +457,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            SkDebugf("doing flush form too many ops 1\n");
             flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
                                            GrFlushInfo(), GrPrepareForExternalIORequests());
             *numRenderTasksExecuted = 0;
@@ -475,6 +477,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         }
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            SkDebugf("doing flush form too many ops 2\n");
             flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
                                            GrFlushInfo(), GrPrepareForExternalIORequests());
             *numRenderTasksExecuted = 0;
