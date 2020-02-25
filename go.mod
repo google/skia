@@ -3,8 +3,7 @@ module go.skia.org/skia
 go 1.12
 
 require (
-	cloud.google.com/go v0.53.0 // indirect
-	cloud.google.com/go/storage v1.5.0
+	cloud.google.com/go/storage v1.6.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/andygrunwald/go-gerrit v0.0.0-20191101112536-3f5e365ccf57
@@ -18,11 +17,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	go.chromium.org/gae v0.0.0-20190826183307-50a499513efa // indirect
-	go.skia.org/infra v0.0.0-20200223052609-9e6368587a01
+	go.chromium.org/luci v0.0.0-20200225024018-7914b9f67db6 // indirect
+	go.skia.org/infra v0.0.0-20200225012104-82077894b657
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
+	golang.org/x/tools v0.0.0-20200225022059-a0ec867d517c // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	google.golang.org/api v0.17.0
+	google.golang.org/api v0.18.0
 )
