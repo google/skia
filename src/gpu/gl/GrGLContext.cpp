@@ -81,8 +81,12 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
         args.fGLSLGeneration = k110_GrGLSLGeneration;
     }
 
+#if SK_FORCE_CHROMIUM_DRIVER
+    args.fDriver = kChromium_GrGLDriver;
+#else
     GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
                       &args.fDriver, &args.fDriverVersion);
+#endif
 
     args.fContextOptions = &options;
     args.fInterface = std::move(interface);

@@ -36,6 +36,11 @@ if [[ $@ != *force_tracing* ]] ; then
   EXTRA_CFLAGS+="\"-DSK_DISABLE_TRACING\","
 fi
 
+# Removes the checks that come with non-chromium OpenGL drivers.
+if [[ $@ == *remove_driver_checks* ]] ; then
+  EXTRA_CFLAGS+="\"-DSK_FORCE_CHROMIUM_DRIVER=1\","
+fi
+
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
