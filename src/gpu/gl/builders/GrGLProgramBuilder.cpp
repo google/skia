@@ -234,11 +234,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
-    // Calling GetProgramiv is expensive in Chromium. Assume success in release builds.
-    bool checkLinked = kChromium_GrGLDriver != fGpu->ctxInfo().driver();
-#ifdef SK_DEBUG
-    checkLinked = true;
-#endif
+
+    bool checkLinked = !fGpu->glCaps().skipErrorChecks();
+
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
     SkSL::String glsl[kGrShaderTypeCount];

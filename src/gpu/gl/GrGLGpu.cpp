@@ -45,15 +45,17 @@
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
 
-#if GR_GL_CHECK_ALLOC_WITH_GET_ERROR
-    #define CLEAR_ERROR_BEFORE_ALLOC(iface)   GrGLClearErr(iface)
-    #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL_NOERRCHECK(iface, call)
-    #define CHECK_ALLOC_ERROR(iface)          GR_GL_GET_ERROR(iface)
-#else
-    #define CLEAR_ERROR_BEFORE_ALLOC(iface)
-    #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL(iface, call)
-    #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
-#endif
+#define GL_ALLOC_CALL(call)                                   \
+    [&] {                                                     \
+        if (this->glCaps().skipErrorChecks()) {               \
+            GR_GL_CALL(this->glInterface(), call);            \
+            return static_cast<GrGLenum>(GR_GL_NO_ERROR);     \
+        } else {                                              \
+            GrGLClearErr(this->glInterface());                \
+            GR_GL_CALL_NOERRCHECK(this->glInterface(), call); \
+            return GR_GL_GET_ERROR(this->glInterface());      \
+        }                                                     \
+    }()
 
 //#define USE_NSIGHT
 
@@ -1102,10 +1104,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
-        GL_ALLOC_CALL(this->glInterface(),
-                      TexStorage2D(target, numMipLevels, internalFormat, dimensions.width(),
-                                   dimensions.height()));
-        GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
+        GrGLenum error = GL_ALLOC_CALL(TexStorage2D(target, numMipLevels, internalFormat,
+                                                    dimensions.width(), dimensions.height()));
         if (error != GR_GL_NO_ERROR) {
             return false;
         }
@@ -1116,17 +1116,16 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
             size_t levelDataSize = SkCompressedDataSize(compressionType, dimensions,
                                                         nullptr, false);
 
-            GL_CALL(CompressedTexSubImage2D(target,
-                                            level,
-                                            0,  // left
-                                            0,  // top
-                                            dimensions.width(),
-                                            dimensions.height(),
-                                            internalFormat,
-                                            SkToInt(levelDataSize),
-                                            &((char*)data)[offset]));
+            error = GL_ALLOC_CALL(CompressedTexSubImage2D(target,
+                                                          level,
+                                                          0,  // left
+                                                          0,  // top
+                                                          dimensions.width(),
+                                                          dimensions.height(),
+                                                          internalFormat,
+                                                          SkToInt(levelDataSize),
+                                                          &((char*)data)[offset]));
 
-            GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
             if (error != GR_GL_NO_ERROR) {
                 return false;
             }
@@ -1142,16 +1141,15 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                                         nullptr, false);
 
             const char* rawLevelData = &((char*)data)[offset];
-            GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
-                                                                    level,
-                                                                    internalFormat,
-                                                                    dimensions.width(),
-                                                                    dimensions.height(),
-                                                                    0,  // border
-                                                                    SkToInt(levelDataSize),
-                                                                    rawLevelData));
+            GrGLenum error = GL_ALLOC_CALL(CompressedTexImage2D(target,
+                                                                level,
+                                                                internalFormat,
+                                                                dimensions.width(),
+                                                                dimensions.height(),
+                                                                0,  // border
+                                                                SkToInt(levelDataSize),
+                                                                rawLevelData));
 
-            GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
             if (error != GR_GL_NO_ERROR) {
                 return false;
             }
@@ -1163,40 +1161,29 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
     return true;
 }
 
-static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
-                                      int sampleCount,
-                                      GrGLenum format,
+bool GrGLGpu::renderbufferStorageMSAA(const GrGLContext& ctx, int sampleCount, GrGLenum format,
                                       int width, int height) {
-    CLEAR_ERROR_BEFORE_ALLOC(ctx.glInterface());
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
+    GrGLenum error;
     switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kStandard_MSFBOType:
-            GL_ALLOC_CALL(ctx.glInterface(),
-                          RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
-                                                         sampleCount,
-                                                         format,
-                                                         width, height));
+            error = GL_ALLOC_CALL(RenderbufferStorageMultisample(GR_GL_RENDERBUFFER, sampleCount,
+                                                                 format, width, height));
             break;
         case GrGLCaps::kES_Apple_MSFBOType:
-            GL_ALLOC_CALL(ctx.glInterface(),
-                          RenderbufferStorageMultisampleES2APPLE(GR_GL_RENDERBUFFER,
-                                                                 sampleCount,
-                                                                 format,
-                                                                 width, height));
+            error = GL_ALLOC_CALL(RenderbufferStorageMultisampleES2APPLE(
+                    GR_GL_RENDERBUFFER, sampleCount, format, width, height));
             break;
         case GrGLCaps::kES_EXT_MsToTexture_MSFBOType:
         case GrGLCaps::kES_IMG_MsToTexture_MSFBOType:
-            GL_ALLOC_CALL(ctx.glInterface(),
-                          RenderbufferStorageMultisampleES2EXT(GR_GL_RENDERBUFFER,
-                                                               sampleCount,
-                                                               format,
-                                                               width, height));
+            error = GL_ALLOC_CALL(RenderbufferStorageMultisampleES2EXT(
+                    GR_GL_RENDERBUFFER, sampleCount, format, width, height));
             break;
         case GrGLCaps::kNone_MSFBOType:
-            SK_ABORT("Shouldn't be here if we don't support multisampled renderbuffers.");
+            SkUNREACHABLE;
             break;
     }
-    return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.glInterface()));
+    return error == GR_GL_NO_ERROR;
 }
 
 bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
@@ -1242,8 +1229,8 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     if (rtIDs->fRTFBOID != rtIDs->fTexFBOID) {
         SkASSERT(sampleCount > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rtIDs->fMSColorRenderbufferID));
-        if (!renderbuffer_storage_msaa(*fGLContext, sampleCount, colorRenderbufferFormat,
-                                       desc.fSize.width(), desc.fSize.height())) {
+        if (!this->renderbufferStorageMSAA(*fGLContext, sampleCount, colorRenderbufferFormat,
+                                           desc.fSize.width(), desc.fSize.height())) {
             goto FAILED;
         }
         this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fRTFBOID);
@@ -1571,11 +1558,9 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
             GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbRBID));
             for (int i = 0; i < stencilFmtCnt && sbRBID; ++i) {
                 const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[i];
-                CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-                GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                                       sFmt.fInternalFormat,
-                                                                       kSize, kSize));
-                if (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface())) {
+                GrGLenum error = GL_ALLOC_CALL(RenderbufferStorage(
+                        GR_GL_RENDERBUFFER, sFmt.fInternalFormat, kSize, kSize));
+                if (error == GR_GL_NO_ERROR) {
                     GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_STENCIL_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER, sbRBID));
@@ -1676,12 +1661,12 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
 
     bool success = false;
     if (internalFormat) {
-        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         if (this->glCaps().formatSupportsTexStorage(format)) {
-            GL_ALLOC_CALL(this->glInterface(),
-                          TexStorage2D(GR_GL_TEXTURE_2D, std::max(mipLevelCount, 1), internalFormat,
-                                       dimensions.width(), dimensions.height()));
-            success = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
+            auto levelCount = std::max(mipLevelCount, 1);
+            GrGLenum error =
+                    GL_ALLOC_CALL(TexStorage2D(GR_GL_TEXTURE_2D, levelCount, internalFormat,
+                                               dimensions.width(), dimensions.height()));
+            success = (error == GR_GL_NO_ERROR);
         } else {
             GrGLenum externalFormat, externalType;
             this->glCaps().getTexImageExternalFormatAndType(format, &externalFormat, &externalType);
@@ -1691,13 +1676,11 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
                     const int twoToTheMipLevel = 1 << level;
                     const int currentWidth = std::max(1, dimensions.width() / twoToTheMipLevel);
                     const int currentHeight = std::max(1, dimensions.height() / twoToTheMipLevel);
-                    GL_ALLOC_CALL(
-                            this->glInterface(),
-                            TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat, currentWidth,
-                                       currentHeight, 0, externalFormat, externalType, nullptr));
-                    error = CHECK_ALLOC_ERROR(this->glInterface());
+                    error = GL_ALLOC_CALL(TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat,
+                                                     currentWidth, currentHeight, 0, externalFormat,
+                                                     externalType, nullptr));
                 }
-                success = (GR_GL_NO_ERROR == error);
+                success = (error == GR_GL_NO_ERROR);
             }
         }
     }
@@ -1728,19 +1711,21 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
     }
     GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
     const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[sIdx];
-    CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
     // we do this "if" so that we don't call the multisample
     // version on a GL that doesn't have an MSAA extension.
     if (numStencilSamples > 1) {
-        SkAssertResult(renderbuffer_storage_msaa(*fGLContext,
-                                                 numStencilSamples,
-                                                 sFmt.fInternalFormat,
-                                                 width, height));
+        if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, sFmt.fInternalFormat,
+                                           width, height)) {
+            GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
+            return nullptr;
+        }
     } else {
-        GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                               sFmt.fInternalFormat,
-                                                               width, height));
-        SkASSERT(GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
+        GrGLenum error = GL_ALLOC_CALL(
+                RenderbufferStorage(GR_GL_RENDERBUFFER, sFmt.fInternalFormat, width, height));
+        if (error != GR_GL_NO_ERROR) {
+            GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
+            return nullptr;
+        }
     }
     fStats.incStencilAttachmentCreates();
     // After sized formats we attempt an unsized format and take
@@ -2295,7 +2280,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         // lots of repeated command buffer flushes when the compositor is
         // rendering with Ganesh, which is really slow; even too slow for
         // Debug mode.
-        if (kChromium_GrGLDriver != this->glContext().driver()) {
+        if (!this->glCaps().skipErrorChecks()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
@@ -3886,15 +3871,13 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     } else {
         GrGLenum renderBufferFormat = this->glCaps().getRenderbufferInternalFormat(format);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, colorID));
-        GL_ALLOC_CALL(this->glInterface(),
-                      RenderbufferStorage(GR_GL_RENDERBUFFER, renderBufferFormat, w, h));
+        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, renderBufferFormat, w, h));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER, colorID));
     }
     GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, stencilID));
     auto stencilBufferFormat = this->glCaps().stencilFormats()[sFormatIdx].fInternalFormat;
-    GL_ALLOC_CALL(this->glInterface(),
-                  RenderbufferStorage(GR_GL_RENDERBUFFER, stencilBufferFormat, w, h));
+    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, stencilBufferFormat, w, h));
     GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT, GR_GL_RENDERBUFFER,
                                     stencilID));
     if (this->glCaps().stencilFormats()[sFormatIdx].fPacked) {

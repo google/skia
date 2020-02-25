@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Added a field to GrContextOptions that controls whether GL errors are checked after
+    GL calls that allocate textures, etc. It also controls checking for shader compile
+    success, and program linking success.
+
   * Made SkDeferredDisplayList.h officially part of the public API (i.e., moved it to
     include/core). Also added a ProgramIterator to SkDeferredDisplayList which allows
     clients to pre-compile some of the shaders the DDL requires.
