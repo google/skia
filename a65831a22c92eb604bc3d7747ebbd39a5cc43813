@@ -16,6 +16,24 @@
       "revId": "a65831a22c92eb604bc3d7747ebbd39a5cc43813",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63d0fa58_fadd9e3f",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9777
+      },
+      "writtenOn": "2020-02-25T15:59:27Z",
+      "side": 1,
+      "message": "I tested this on Safari, and everything worked rather smoothly, but that\u0027s only a single non-chromium browser, and only on my HW config. \nI\u0027m not enough of an expert to give a sweeping answer.",
+      "parentUuid": "289f089f_af741171",
+      "revId": "a65831a22c92eb604bc3d7747ebbd39a5cc43813",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
