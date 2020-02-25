@@ -104,6 +104,10 @@ GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask>
 }
 
 void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
+    for (auto& renderTask : renderTasks) {
+        SkASSERT(renderTask->unique());
+    }
+
     fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
 }
 
@@ -576,8 +580,9 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fActiveOpsTask = nullptr;
 
     fDAG.swap(&ddl->fRenderTasks);
+    SkASSERT(!fDAG.numRenderTasks());
 
-    for (auto renderTask : ddl->fRenderTasks) {
+    for (auto& renderTask : ddl->fRenderTasks) {
         renderTask->prePrepare(fContext);
     }
 

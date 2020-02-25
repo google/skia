@@ -51,7 +51,7 @@ GrMemoryPool::~GrMemoryPool() {
     int n = fAllocatedIDs.count();
     fAllocatedIDs.foreach([&i, n] (int32_t id) {
         if (++i == 1) {
-            SkDebugf("Leaked IDs (in no particular order): %d", id);
+            SkDebugf("Leaked %d IDs (in no particular order): %d%s", n, id, (n == i) ? "\n" : "");
         } else if (i < 11) {
             SkDebugf(", %d%s", id, (n == i ? "\n" : ""));
         } else if (i == 11) {
