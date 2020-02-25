@@ -64,6 +64,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTiledRenderingSupport = false;
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
+    fSkipErrorChecks = false;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -332,6 +333,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // sRGB writing for destinations.
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }  // No WebGL support
+
+    fSkipErrorChecks = ctxInfo.driver() == kChromium_GrGLDriver;
 
     /**************************************************************************
     * GrShaderCaps fields
@@ -3915,6 +3918,17 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     }
     if (options.fShaderCacheStrategy < GrContextOptions::ShaderCacheStrategy::kBackendBinary) {
         fProgramBinarySupport = false;
+    }
+
+    switch (options.fSkipGLErrorChecks) {
+        case GrContextOptions::Enable::kNo:
+            fSkipErrorChecks = false;
+            break;
+        case GrContextOptions::Enable::kYes:
+            fSkipErrorChecks = true;
+            break;
+        case GrContextOptions::Enable::kDefault:
+            break;
     }
 }
 
