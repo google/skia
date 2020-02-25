@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "289f089f_af741171",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-25T15:33:33Z",
+      "side": 1,
+      "message": "Is this something we would want to always have on when running on WASM? Would doing so prevent us from running on non-chromium browsers or certain hardware?",
+      "revId": "a65831a22c92eb604bc3d7747ebbd39a5cc43813",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
