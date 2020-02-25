@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7725d581_a446e424",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-25T14:56:18Z",
+      "side": 1,
+      "message": "Not a change for this CL but if we now longer have any colorType fallback, we should move this assert up into the viewForParams(sampler) call. More just making a note here to try and remember.",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 11
+      },
+      "revId": "5995df6c8f9315f5d464e276dfaaad8fe71fe5ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
