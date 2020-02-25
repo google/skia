@@ -410,12 +410,14 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(FenceSync);
         GET_PROC(IsSync);
         GET_PROC(WaitSync);
+        SkDebugf("INTERFACE fence 3.2\n");
     } else if (extensions.has("GL_ARB_sync")) {
         GET_PROC(ClientWaitSync);
         GET_PROC(DeleteSync);
         GET_PROC(FenceSync);
         GET_PROC(IsSync);
         GET_PROC(WaitSync);
+        SkDebugf("INTERFACE ARB sync fence\n");
     }
 
     if (glVer >= GR_GL_VER(4,2)) {

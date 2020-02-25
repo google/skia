@@ -39,8 +39,10 @@ public:
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         if (!this->fenceSyncSupport()) {
+            SkDebugf("fence not supported in getMaxGpuFrameLag\n");
             return false;
         }
+      SkDebugf("is fence sync in getMaxFrmaeLag. lag is: %d\n", kMaxFrameLag);
         *maxFrameLag = kMaxFrameLag;
         return true;
     }
