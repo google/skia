@@ -438,6 +438,9 @@ public:
     /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
 
+    /** Skip checks for GL errors, shader compilation success, program link success. */
+    bool skipErrorChecks() const { return fSkipErrorChecks; }
+
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 
@@ -544,6 +547,7 @@ private:
     bool fTiledRenderingSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
     bool fSRGBWriteControl : 1;
+    bool fSkipErrorChecks : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

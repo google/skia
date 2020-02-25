@@ -83,11 +83,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
 
-    // Calling GetShaderiv in Chromium is quite expensive. Assume success in release builds.
-    bool checkCompiled = kChromium_GrGLDriver != glCtx.driver();
-#ifdef SK_DEBUG
-    checkCompiled = true;
-#endif
+    bool checkCompiled = !glCtx.caps()->skipErrorChecks();
+
     if (checkCompiled) {
         GrGLint compiled = GR_GL_INIT_ZERO;
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));

@@ -418,10 +418,13 @@ private:
                                  GrGLenum target,
                                  const void* data, size_t dataSize);
 
+    // Calls one of various versions of renderBufferStorageMultisample.
+    bool renderbufferStorageMSAA(const GrGLContext& ctx, int sampleCount, GrGLenum format,
+                                 int width, int height);
+
     bool createRenderTargetObjects(const GrGLTexture::Desc&,
                                    int sampleCount,
                                    GrGLRenderTarget::IDs*);
-
     enum TempFBOTarget {
         kSrc_TempFBOTarget,
         kDst_TempFBOTarget
