@@ -646,20 +646,25 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // Only in WebGL 2.0
         fSemaphoreSupport = fFenceSyncSupport = version >= GR_GL_VER(2, 0);
         fFenceType = FenceType::kSyncObject;
+        SkDebugf("webgl fence type\n");
     } else if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
+        SkDebugf("arb or apple fence type\n");
     } else if (GR_IS_GR_GL(standard) && version >= GR_GL_VER(3, 2)) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
+        SkDebugf("gl standard and over 3.2 fence type\n");
     } else if (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0)) {
         fSemaphoreSupport = fFenceSyncSupport = true;
         fFenceType = FenceType::kSyncObject;
+        SkDebugf("gles standard version 3.0 fence type\n");
     } else if (ctxInfo.hasExtension("GL_NV_fence")) {
         // This extension can exist in GL and GL ES. We have it last because we prefer the
         // standard GLsync object implementation which also supports GPU semaphore semantics.
         fFenceSyncSupport = true;
         fFenceType = FenceType::kNVFence;
+        SkDebugf("nv fnece type\n");
     }
 
     // Safely moving textures between contexts requires semaphores.

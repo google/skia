@@ -432,6 +432,7 @@ GrGLFuncPtr EGLGLTestContext::onPlatformGetProcAddress(const char* procName) con
 namespace sk_gpu_test {
 GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext) {
+    SkDebugf("Making egl context\n");
     EGLGLTestContext* eglShareContext = reinterpret_cast<EGLGLTestContext*>(shareContext);
     EGLGLTestContext *ctx = new EGLGLTestContext(forcedGpuAPI, eglShareContext);
     if (!ctx->isValid()) {
