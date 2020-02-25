@@ -332,15 +332,16 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
     return result;
 }
 
-void GrVkResourceProvider::checkCommandBuffers() {
+void GrVkResourceProvider::checkCommandBuffers(bool syncOnFirst) {
     for (int i = fActiveCommandPools.count() - 1; i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
-            if (buffer->finished(fGpu)) {
+            if (buffer->finished(fGpu, syncOnFirst)) {
                 fActiveCommandPools.removeShuffle(i);
                 this->backgroundReset(pool);
             }
+            syncOnFirst = false;
         }
     }
 }

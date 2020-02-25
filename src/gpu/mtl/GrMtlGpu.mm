@@ -216,7 +216,7 @@ bool GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAc
     return true;
 }
 
-void GrMtlGpu::checkFinishProcs() {
+void GrMtlGpu::checkFinishProcs(bool syncOnFirst) {
     // Bail after the first unfinished sync since we expect they signal in the order inserted.
     while (!fFinishCallbacks.empty() && this->waitFence(fFinishCallbacks.front().fFence,
                                                        /* timeout = */ 0)) {

@@ -172,7 +172,7 @@ public:
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
 
-    void checkFinishProcs() override;
+    void checkFinishProcs(bool syncOnFirst = false) override;
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 

@@ -287,7 +287,7 @@ public:
 
     void forceSync(GrVkGpu* gpu);
 
-    bool finished(GrVkGpu* gpu);
+    bool finished(GrVkGpu* gpu, bool forceSync);
 
     void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
