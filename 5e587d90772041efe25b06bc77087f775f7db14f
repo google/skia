@@ -22,6 +22,30 @@
       "revId": "5e587d90772041efe25b06bc77087f775f7db14f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b045d3a3_1278af87",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-25T15:50:58Z",
+      "side": 1,
+      "message": "I\u0027m just copy-and-pasting. -\u003eKevin",
+      "parentUuid": "5948cb8a_46f01416",
+      "range": {
+        "startLine": 441,
+        "startChar": 6,
+        "endLine": 441,
+        "endChar": 10
+      },
+      "revId": "5e587d90772041efe25b06bc77087f775f7db14f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
