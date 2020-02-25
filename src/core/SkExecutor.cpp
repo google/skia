@@ -101,9 +101,9 @@ public:
 
     virtual void borrow() override {
         // If there is work waiting, do it.
-        if (fWorkAvailable.try_wait()) {
-            SkAssertResult(this->do_work());
-        }
+//        if (fWorkAvailable.try_wait()) {
+//            SkAssertResult(this->do_work());
+//        }
     }
 
 private:
