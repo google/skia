@@ -355,4 +355,28 @@ describe('CanvasKit\'s Font Behavior', function() {
         }));
     });
 
+    fit('can measure text very precisely with proper settings', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded]).then(catchException(done, () => {
+            const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+            const typeface = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+            const fontSizes = [257, 100, 11];
+            const expectedSizes = [1178.71143, 458.64258, 50.450683]
+            for (const idx in fontSizes) {
+                const font = new CanvasKit.SkFont(typeface, fontSizes[idx]);
+                font.setHinting(CanvasKit.FontHinting.None);
+                font.setLinearMetrics(true);
+                font.setSubpixel(true);
+
+                const res = font.measureText('someText');
+                expect(res).toBeCloseTo(expectedSizes[idx], 5);
+
+                font.delete();
+            }
+
+            typeface.delete();
+            fontMgr.delete();
+            done();
+        }));
+    });
+
 });
