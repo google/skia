@@ -158,7 +158,6 @@ private:
     void onPlatformMakeNotCurrent() const override {}
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
-    void onPlatformSwapBuffers() const override {}
     std::unique_ptr<dawn_native::Instance> fInstance;
 
     typedef sk_gpu_test::DawnTestContext INHERITED;

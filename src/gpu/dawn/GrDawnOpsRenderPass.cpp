@@ -120,7 +120,7 @@ void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
 
 void GrDawnOpsRenderPass::setScissorState(const GrProgramInfo& programInfo) {
     SkIRect rect;
-    if (programInfo.pipeline().isScissorEnabled()) {
+    if (programInfo.pipeline().isScissorTestEnabled()) {
         constexpr SkIRect kBogusScissor{0, 0, 1, 1};
         rect = programInfo.hasFixedScissor() ? programInfo.fixedScissor() : kBogusScissor;
         if (kBottomLeft_GrSurfaceOrigin == fOrigin) {
@@ -150,31 +150,25 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
 
 bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                          const SkRect& drawBounds) {
+    fCurrentProgram = fGpu->getOrCreateRenderPipeline(fRenderTarget, programInfo);
+    this->applyState(fCurrentProgram.get(), programInfo);
     return true;
 }
 
-void GrDawnOpsRenderPass::onDrawMeshes(const GrProgramInfo& programInfo,
-                                       const GrMesh meshes[],
-                                       int meshCount) {
-    if (!meshCount) {
-        return;
-    }
-    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget, programInfo);
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto textures = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
-                                                               : nullptr;
-        auto bindGroup = program->setTextures(fGpu, programInfo, textures);
-        fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
-    }
-    for (int i = 0; i < meshCount; ++i) {
-        if (programInfo.hasDynamicPrimProcTextures()) {
-            auto textures = programInfo.dynamicPrimProcTextures(i);
-            auto bindGroup = program->setTextures(fGpu, programInfo, textures);
-            fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
-        }
-        this->applyState(program.get(), programInfo);
-        meshes[i].sendToGpu(programInfo.primitiveType(), this);
-    }
+void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect&) {
+}
+
+bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
+                                         const GrPipeline& pipeline,
+                                         const GrSurfaceProxy* const textures[]) {
+    auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, textures);
+    fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
+    return true;
+}
+
+void GrDawnOpsRenderPass::onDrawMesh(GrPrimitiveType primitiveType,
+                                     const GrMesh& mesh) {
+    mesh.sendToGpu(primitiveType, this);
 }
 
 void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh& mesh,
