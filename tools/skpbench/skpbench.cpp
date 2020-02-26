@@ -228,6 +228,9 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
+    SkSurfaceCharacterization dstCharacterization;
+    SkAssertResult(surface->characterize(&dstCharacterization));
+
     SkIRect viewport = surface->imageInfo().bounds();
 
     DDLPromiseImageHelper promiseImageHelper;
@@ -240,7 +243,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     promiseImageHelper.uploadAllToGPU(nullptr, context);
 
-    DDLTileHelper tiles(surface, viewport, FLAGS_ddlTilingWidthHeight);
+    DDLTileHelper tiles(surface, dstCharacterization, viewport, FLAGS_ddlTilingWidthHeight);
 
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 

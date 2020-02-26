@@ -469,7 +469,8 @@ private:
                    sk_sp<SkSurface> dstSurface,
                    SkTaskGroup* recordingTaskGroup,
                    SkTaskGroup* gpuTaskGroup,
-                   GrContext* gpuCtx) const;
+                   sk_gpu_test::TestContext* gpuTestCtx,
+                   GrContext* gpuThreadCtx) const;
 
     std::unique_ptr<SkExecutor> fRecordingThreadPool;
     std::unique_ptr<SkExecutor> fGPUThread;

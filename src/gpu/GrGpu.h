@@ -386,6 +386,16 @@ public:
 
     class Stats {
     public:
+        enum class ProgramCacheResult {
+            kHit,       // the program was found in the cache
+            kMiss,      // the program was not found in the cache (and was, thus, compiled)
+            kPartial,   // a precompiled version was found in the persistent cache
+
+            kLast = kPartial
+        };
+
+        static const int kNumProgramCacheResults = (int)ProgramCacheResult::kLast + 1;
+
 #if GR_GPU_STATS
         Stats() = default;
 
@@ -424,6 +434,35 @@ public:
         int numScratchTexturesReused() const { return fNumScratchTexturesReused; }
         void incNumScratchTexturesReused() { ++fNumScratchTexturesReused; }
 
+        int numInlineCompilationFailures() const { return fNumInlineCompilationFailures; }
+        void incNumInlineCompilationFailures() { ++fNumInlineCompilationFailures; }
+
+        int numInlineProgramCacheResult(ProgramCacheResult stat) const {
+            return fInlineProgramCacheStats[(int) stat];
+        }
+        void incNumInlineProgramCacheResult(ProgramCacheResult stat) {
+            ++fInlineProgramCacheStats[(int) stat];
+        }
+
+        int numPreCompilationFailures() const { return fNumPreCompilationFailures; }
+        void incNumPreCompilationFailures() { ++fNumPreCompilationFailures; }
+
+        int numPreProgramCacheResult(ProgramCacheResult stat) const {
+            return fPreProgramCacheStats[(int) stat];
+        }
+        void incNumPreProgramCacheResult(ProgramCacheResult stat) {
+            ++fPreProgramCacheStats[(int) stat];
+        }
+
+        int numCompilationFailures() const { return fNumCompilationFailures; }
+        void incNumCompilationFailures() { ++fNumCompilationFailures; }
+
+        int numPartialCompilationSuccesses() const { return fNumPartialCompilationSuccesses; }
+        void incNumPartialCompilationSuccesses() { ++fNumPartialCompilationSuccesses; }
+
+        int numCompilationSuccesses() const { return fNumCompilationSuccesses; }
+        void incNumCompilationSuccesses() { ++fNumCompilationSuccesses; }
+
 #if GR_TEST_UTILS
         void dump(SkString*);
         void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
@@ -440,6 +479,17 @@ public:
         int fNumFailedDraws = 0;
         int fNumFinishFlushes = 0;
         int fNumScratchTexturesReused = 0;
+
+        int fNumInlineCompilationFailures = 0;
+        int fInlineProgramCacheStats[kNumProgramCacheResults] = { 0 };
+
+        int fNumPreCompilationFailures = 0;
+        int fPreProgramCacheStats[kNumProgramCacheResults] = { 0 };
+
+        int fNumCompilationFailures = 0;
+        int fNumPartialCompilationSuccesses = 0;
+        int fNumCompilationSuccesses = 0;
+
 #else
 
 #if GR_TEST_UTILS
@@ -455,6 +505,13 @@ public:
         void incNumDraws() {}
         void incNumFailedDraws() {}
         void incNumFinishFlushes() {}
+        void incNumInlineCompilationFailures() {}
+        void incNumInlineProgramCacheResult(ProgramCacheResult stat) {}
+        void incNumPreCompilationFailures() {}
+        void incNumPreProgramCacheResult(ProgramCacheResult stat) {}
+        void incNumCompilationFailures() {}
+        void incNumPartialCompilationSuccesses() {}
+        void incNumCompilationSuccesses() {}
 #endif
     };
 

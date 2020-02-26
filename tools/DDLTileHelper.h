@@ -29,7 +29,10 @@ public:
         TileData() {}
         ~TileData();
 
-        void init(int id, sk_sp<SkSurface> dstSurface, const SkIRect& clip);
+        void init(int id,
+                  sk_sp<SkSurface> dstSurface,
+                  const SkSurfaceCharacterization& dstChar,
+                  const SkIRect& clip);
 
         // Convert the compressedPictureData into an SkPicture replacing each image-index
         // with a promise image.
@@ -66,6 +69,7 @@ public:
     };
 
     DDLTileHelper(sk_sp<SkSurface> dstSurface,
+                  const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
                   int numDivisions);
     ~DDLTileHelper() {

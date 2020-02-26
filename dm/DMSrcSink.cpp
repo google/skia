@@ -1618,7 +1618,7 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
 
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
-    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(2))
+    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(1)) // TODO: this should be at least 2
     , fGPUThread(SkExecutor::MakeFIFOThreadPool(1)) {
 }
 
@@ -1626,7 +1626,22 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                            sk_sp<SkSurface> dstSurface,
                            SkTaskGroup* recordingTaskGroup,
                            SkTaskGroup* gpuTaskGroup,
+                           sk_gpu_test::TestContext* gpuTestCtx,
                            GrContext* gpuThreadCtx) const {
+
+    // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
+    // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the
+    // same context (this thread and the gpuThread - which will be uploading textures)).
+    SkSurfaceCharacterization dstCharacterization;
+    SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+    // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
+    // thread w/o a context.
+    gpuTestCtx->makeNotCurrent();
+
+    // Job one for the GPU thread is to make 'gpuTestCtx' current!
+    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeCurrent(); });
+
     auto size = src.size();
     SkPictureRecorder recorder;
     Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
@@ -1651,18 +1666,28 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
 
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(dstSurface, viewport, kNumDivisions);
+    DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
 
     // Reinflate the compressed picture individually for each thread.
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
     tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, gpuThreadCtx);
+    // Apparently adding to a taskGroup isn't thread safe. Wait for the recording task group
+    // to add all its gpuThread work before adding the flush
+    recordingTaskGroup->wait();
 
     // This should be the only explicit flush for the entire DDL draw
     gpuTaskGroup->add([gpuThreadCtx]() { gpuThreadCtx->flush(); });
 
-    // All the work is schedule we just need to wait
-    recordingTaskGroup->wait(); // This should be a no-op at this point
+    // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
+    // It is simpler to also delete them at this point on the gpuThread.
+    promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
+
+    // A flush has already been scheduled on the gpu thread along with the clean up of the backend
+    // textures so it is safe to schedule making 'mainCtx' not current on the gpuThread.
+    gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+
+    // All the work is scheduled on the gpu thread, we just need to wait
     gpuTaskGroup->wait();
 
     return Result::Ok();
@@ -1714,23 +1739,13 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkStri
         return Result::Fatal("Could not create a surface.");
     }
 
-    // 'mainCtx' is being shifted to the gpuThread. Leave the main thread w/o
-    // a context.
-    mainTestCtx->makeNotCurrent();
-
-    // Job one for the GPU thread is to make 'mainCtx' current!
-    gpuTaskGroup.add([mainTestCtx] { mainTestCtx->makeCurrent(); });
-
-    Result result = this->ddlDraw(src, surface, &recordingTaskGroup, &gpuTaskGroup, mainCtx);
-
-    // ddlDraw schedules a flush on the gpu thread and waits so it is safe to make 'mainCtx'
-    // current here.
-    gpuTaskGroup.add([mainTestCtx] { mainTestCtx->makeNotCurrent(); });
-
+    Result result = this->ddlDraw(src, surface, &recordingTaskGroup, &gpuTaskGroup,
+                                  mainTestCtx, mainCtx);
     if (!result.isOk()) {
         return result;
     }
 
+    // 'ddlDraw' will have made 'mainCtx' not current on the gpuThread
     mainTestCtx->makeCurrent();
 
     if (FLAGS_gpuStats) {
@@ -2071,7 +2086,10 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         if (!tmp) {
             return Result::Fatal("ViaDDL: cannot get surface from canvas");
         }
-        sk_sp<SkSurface> surface = sk_ref_sp(tmp);
+        sk_sp<SkSurface> dstSurface = sk_ref_sp(tmp);
+
+        SkSurfaceCharacterization dstCharacterization;
+        SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
         promiseImageHelper.createCallbackContexts(context);
 
@@ -2084,7 +2102,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(surface, viewport, fNumDivisions);
+            DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, fNumDivisions);
 
             // Second, reinflate the compressed picture individually for each thread
             // This recreates the promise SkImages on each replay iteration. We are currently

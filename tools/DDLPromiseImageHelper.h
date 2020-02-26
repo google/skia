@@ -56,6 +56,7 @@ public:
     void createCallbackContexts(GrContext*);
 
     void uploadAllToGPU(SkTaskGroup*, GrContext*);
+    void deleteAllFromGPU(SkTaskGroup*, GrContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
@@ -84,6 +85,11 @@ private:
         const GrBackendFormat& backendFormat() const { return fBackendFormat; }
 
         void setBackendTexture(const GrBackendTexture& backendTexture);
+
+        void destroyBackendTexture() {
+            SkASSERT(fPromiseImageTexture && fPromiseImageTexture->unique());
+            fPromiseImageTexture = nullptr;
+        }
 
         sk_sp<SkPromiseImageTexture> fulfill() {
             SkASSERT(fPromiseImageTexture);
@@ -228,6 +234,7 @@ private:
     };
 
     static void CreateBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
+    static void DeleteBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
 
     static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
