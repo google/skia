@@ -64,6 +64,7 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
+    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     GLXContext fContext;
@@ -365,6 +366,10 @@ std::function<void()> GLXGLTestContext::onPlatformGetAutoContextRestore() const 
         return nullptr;
     }
     return context_restorer();
+}
+
+void GLXGLTestContext::onPlatformSwapBuffers() const {
+    glXSwapBuffers(fDisplay, fGlxPixmap);
 }
 
 GrGLFuncPtr GLXGLTestContext::onPlatformGetProcAddress(const char* procName) const {
