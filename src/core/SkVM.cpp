@@ -17,6 +17,7 @@
 #include "src/core/SkVM.h"
 
 #if defined(SKVM_LLVM)
+    #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/IR/IRBuilder.h>
     #include <llvm/IR/Verifier.h>
 #endif
@@ -1895,13 +1896,19 @@ namespace skvm {
     // Smallest program:
     // b.store32(b.varying<int>(), b.splat(42));
     static bool try_llvm(const std::vector<OptimizedInstruction>& instructions,
-                         const std::vector<int>& strides) {
+                         const std::vector<int>& strides,
+                         const char* debug_name) {
         llvm::LLVMContext ctx;
         llvm::Module mod("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
-        llvm::IntegerType* i64 = llvm::Type::getInt64Ty(ctx);
-        llvm::Type* ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo();
+        const int K = 8;   // Primary vector width.
+        llvm::Type        *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo();
+      //llvm::Type        *f32 = llvm::Type::getFloatTy(ctx);
+        llvm::IntegerType *i32 = llvm::Type::getInt32Ty(ctx),
+                          *i64 = llvm::Type::getInt64Ty(ctx);
+      //llvm::VectorType  *I32 = llvm::VectorType::get(i32, K),
+      //                  *F32 = llvm::VectorType::get(f32, K);
 
         std::vector<llvm::Type*> arg_types = { i64 };
         for (size_t i = 0; i < strides.size(); i++) {
@@ -1911,7 +1918,7 @@ namespace skvm {
         llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx),
                                                               arg_types, /*vararg?=*/false);
         llvm::Function* fn
-            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, "", mod);
+            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, mod);
 
         llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
                          *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
@@ -1922,17 +1929,39 @@ namespace skvm {
 
         using IRBuilder = llvm::IRBuilder<>;
 
+        llvm::Value* n;
+        std::vector<llvm::Value*> args;
+        std::vector<llvm::Value*> vals(instructions.size());
+
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            const OptimizedInstruction& insn = instructions[i];
-            switch (insn.op) {
-                default: return false;
+            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
+            switch (op) {
+                default:
+                    SkDebugf("can't llvm %s (%d)\n", name(op), op);
+                    return false;
+
+                case Op::store32: {
+                    llvm::Value* v = vals[x];
+                    if (scalar) {
+                        v = b->CreateExtractElement(v, (uint64_t)0);
+                    }
+                    llvm::Value* ptr = b->CreateBitCast(b->CreateLoad(args[immy]),
+                                                        v->getType()->getPointerTo());
+                    vals[i] = b->CreateAlignedStore(v, ptr, 1);
+                } break;
+
+                // Ops below this line shouldn't need to consider `scalar`... they're Just Math.
+
+                case Op::splat:
+                    vals[i] = llvm::ConstantVector::getSplat(K, llvm::ConstantInt::get(i32, immy));
+                    break;
+
             }
             return true;
         };
 
-        // enter:  set up stack homes for N and each pointer arg
-        llvm::Value* n;
-        std::vector<llvm::Value*> args;
+        // enter:  set up stack homes `n` and `args` for loop counter and uniform/varying pointers.
+        // TODO: manual PHI nodes for these instead of relying on load/store and mem2reg
         {
             IRBuilder b(enter);
 
@@ -1949,14 +1978,13 @@ namespace skvm {
         }
 
         // testK:  if (N >= K) goto loopK; else goto test1;
-        const int K = 8;
         llvm::ConstantInt* i64_K = llvm::ConstantInt::get(i64, K);
         {
             IRBuilder b(testK);
             b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_K), loopK, test1);
         }
 
-        // loopK:  ... insns on K x T vectors; N -= K, args += K*stride; goto testK;
+        // loopK:  ... insts on K x T vectors; N -= K, args += K*stride; goto testK;
         {
             IRBuilder b(loopK);
             for (size_t i = 0; i < instructions.size(); i++) {
@@ -1979,7 +2007,7 @@ namespace skvm {
             b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_1), loop1, leave);
         }
 
-        // loop1:  ... insns on scalars; N -= 1, args += stride; goto test1;
+        // loop1:  ... insts on scalars; N -= 1, args += stride; goto test1;
         {
             IRBuilder b(loop1);
             for (size_t i = 0; i < instructions.size(); i++) {
@@ -2002,6 +2030,14 @@ namespace skvm {
         }
 
         SkASSERT(false == llvm::verifyModule(mod));
+
+        SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
+        std::error_code err;
+        llvm::raw_fd_ostream os(path.c_str(), err);
+        if (err) {
+            return false;
+        }
+        llvm::WriteBitcodeToFile(mod, os);
         return true;
     }
 #endif
@@ -2056,13 +2092,6 @@ namespace skvm {
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
                      const std::vector<int>& strides) : fStrides(strides) {
         this->setupInterpreter(interpreter);
-    #if defined(SKVM_LLVM)
-        if (try_llvm(interpreter, fStrides)) {
-            SkDebugf("hey, neat!  that might work\n");
-        } else {
-            SkDebugf("bummer\n");
-        }
-    #endif
     }
 
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
@@ -2071,6 +2100,14 @@ namespace skvm {
                      const char* debug_name) : Program(interpreter, strides) {
     #if 1 && defined(SKVM_JIT)
         this->setupJIT(jit, debug_name);
+    #endif
+
+    #if defined(SKVM_LLVM)
+        if (try_llvm(interpreter, fStrides, debug_name)) {
+            SkDebugf("hey, neat!  that might work\n");
+        } else {
+            SkDebugf("bummer\n");
+        }
     #endif
     }
 
