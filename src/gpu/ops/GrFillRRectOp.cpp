@@ -873,7 +873,7 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
     if (GrAAType::kMSAA == fAAType) {
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
     }
-    initArgs.fCaps = caps;
+    initArgs.fCaps = &caps;
     initArgs.fDstProxyView = dstProxyView;
     initArgs.fOutputSwizzle = dstView->swizzle();
 
@@ -897,9 +897,10 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                       geomProc,
                                       fixedDynamicState,
                                       nullptr, 0,
-                                      GrPrimitiveType::kTriangles);
+                                      GrPrimitiveType::kTriangles, false);
 }
 
+// TODO: It seems odd that we're ignoring chainBounds here
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
@@ -908,7 +909,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     if (!fProgramInfo) {
         const GrSurfaceProxyView* dstView = flushState->view();
 
-        fProgramInfo = this->createProgramInfo(&flushState->caps(),
+        fProgramInfo = this->createProgramInfo(flushState->caps(),
                                                flushState->allocator(),
                                                dstView,
                                                flushState->detachAppliedClip(),
