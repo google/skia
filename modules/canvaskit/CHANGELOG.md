@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Vector math functions added in `SkVector`.
  - `SkRuntimeEffect.makeShaderWithChildren`, which can take in other shaders as fragmentProcessors.
  - `GrContext.releaseResourcesAndAbandonContext` to free up WebGL contexts.
+ - A few methods on `SkFont`: `setHinting`, `setLinearMetrics`, `setSubpixel`.
 
 ### Changed
  - We now compile/ship with Emscripten v1.39.6.
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     left-to-right.
  - SkMatrix.invert now returns null when the matrix is not invertible. Previously it would return an
    identity matrix. Callers must determine what behavior would be appropriate in this situation.
+ - In Canvas2D compatibility layer, the underlying SkFont will have setSubpixel(true).
 
 ### Fixed
  - Support for .otf fonts (.woff and .woff2 still not supported).
