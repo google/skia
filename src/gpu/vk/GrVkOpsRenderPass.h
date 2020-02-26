@@ -23,7 +23,7 @@ class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSecondaryCommandBuffer;
 
-class GrVkOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
+class GrVkOpsRenderPass : public GrOpsRenderPass {
 public:
     GrVkOpsRenderPass(GrVkGpu*);
 
@@ -72,27 +72,22 @@ private:
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                         const GrSurfaceProxy* const primProcTextures[]) override;
-    void onDrawMesh(GrPrimitiveType, const GrMesh&) override;
-
-    // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
-    // Marked final as a hint to the compiler to not use virtual dispatch.
-    void sendArrayMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh, int vertexCount,
-                            int baseVertex) final {
-        SkASSERT(!mesh.instanceBuffer());
-        this->sendInstancedMeshToGpu(primitiveType, mesh, vertexCount, baseVertex, 1, 0);
+    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override {
+        this->onDrawInstanced(nullptr, 1, 0, vertexBuffer, vertexCount, baseVertex);
     }
-    void sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrMesh& mesh, int indexCount,
-                              int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
-                              int baseVertex) final {
-        SkASSERT(!mesh.instanceBuffer());
-        this->sendIndexedInstancedMeshToGpu(primitiveType, mesh, indexCount, baseIndex, baseVertex,
-                                            1, 0);
+    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                       GrPrimitiveRestart primitiveRestart, uint16_t minIndexValue,
+                       uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
+                       int baseVertex) override {
+        this->onDrawIndexedInstanced(indexBuffer, indexCount, baseIndex, primitiveRestart, nullptr,
+                                     1, 0, vertexBuffer, baseVertex);
     }
-    void sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int vertexCount, int baseVertex,
-                                int instanceCount, int baseInstance) final;
-    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int indexCount,
-                                       int baseIndex, int baseVertex, int instanceCount,
-                                       int baseInstance) final;
+    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                         const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
+    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+                                int baseVertex) override;
 
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 
