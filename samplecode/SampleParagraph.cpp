@@ -2241,7 +2241,8 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        auto text = u"A\u05D0";
+        auto text = u"hzbzzj sjsjjs sjkkahgafaতডতঠতঠ jsjzjgvsh sjsjsksbsbsjs sjjajajahhav jssjbxx jsisudg যঠযঠতঠতঠথ تؤتيننيءنالرريلا تتلى تاريخ تسبب ؤتيتؤتؤتؤتؤ dhishsbs 爸爸不对劲大家都好记得记得hshsছডছডচ jdjdj jdjdjd dbbdbdbdbddbndঢছডঢণছরচঘঠঠসফগণতজরথছছথদঝদলথতণঢগখঠঘঙণচথতণتبنين থণণ তঘঘঘছত তণ ণঘঢণঙويوءتيزسنزؤؤممؤوؤووينؤنؤنؤؤ ততঢঢতত ঙঘগুছথ তগঘণচজদথزؤوؤوؤ ততণঘঢতছদথতঙঘণ وؤوؤوؤزؤنسكسكبنতভখখটীুছদীুূেوؤنءنؤن েূীূচণঢতথথزيেূীূচণঢমতথথ ";
+        auto emojis =  u"\U0001f34d\U0001f955\U0001f4a7\U0001f4a7\U0001f4a6\U0001f32a";
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -2253,17 +2254,13 @@ protected:
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(60);
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        auto s = u"েن েূথ";
+        builder.addText(s);
         auto paragraph = builder.Build();
         paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
-
-        for (auto i = 0; i < 3; ++i) {
-            auto word = paragraph->getWordBoundary(i);
-            SkDebugf("word @%d: [%d:%d)\n", i, word.start, word.end);
-        }
     }
 
 private:
