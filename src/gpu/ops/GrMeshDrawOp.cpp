@@ -59,7 +59,7 @@ void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryPro
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, const GrGeometryProcessor* gp,
         const GrPipeline::FixedDynamicState* fixedDynamicState) const {
-    target->recordDraw(gp, fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
+    target->recordDraw1(gp, fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

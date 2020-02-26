@@ -111,7 +111,7 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void recordDraw(
+    virtual void recordDraw1(
             const GrGeometryProcessor*, const GrMesh[], int meshCnt,
             const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
             GrPrimitiveType) = 0;
@@ -124,7 +124,7 @@ public:
                     GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(gp, meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
+        this->recordDraw1(gp, meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
     }
 
     /**

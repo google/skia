@@ -920,7 +920,7 @@ private:
             SkASSERT(vertexSize == gp->vertexStride());
         }
 
-        target->recordDraw(gp, meshes, desc.fNumProxies,
+        target->recordDraw1(gp, meshes, desc.fNumProxies,
                            desc.fFixedDynamicState, desc.fDynamicStateArrays,
                            desc.fVertexSpec.primitiveType());
     }

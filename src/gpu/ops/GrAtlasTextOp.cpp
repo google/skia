@@ -515,7 +515,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
     mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerGlyph, kVerticesPerGlyph,
                               flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-    target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState,
+    target->recordDraw1(flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState,
                        nullptr, GrPrimitiveType::kTriangles);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
