@@ -480,6 +480,7 @@ def PostUploadHook(gerrit, change, output_api):
   at_least_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
+    print(affected_file)
     affected_file_path = affected_file.LocalPath()
     file_path, _ = os.path.splitext(affected_file_path)
     if 'site' == file_path.split(os.path.sep)[0]:
