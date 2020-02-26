@@ -45,6 +45,7 @@ deps = {
 recursedeps = [
   "common",
   "../src",
+ "third_party/externals/dawn",
 ]
 
 gclient_gn_args_from = 'src'
