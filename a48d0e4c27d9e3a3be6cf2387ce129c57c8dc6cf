@@ -22,6 +22,30 @@
       "revId": "a48d0e4c27d9e3a3be6cf2387ce129c57c8dc6cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "515fb994_8f7cafab",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-26T18:17:37Z",
+      "side": 1,
+      "message": "Yeah you\u0027re right. I\u0027ve been messing with this some more and there are 2 pipelines that I have to increase this to many seconds and then they finish but with an \"internal error\u0027 like the other one I sent you. I\u0027m not sure increasing this is helping at all. I think I\u0027m going to abandon this, move one, and will file a bug for the internal error issue.",
+      "parentUuid": "5a69e2cd_3df2f633",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 16
+      },
+      "revId": "a48d0e4c27d9e3a3be6cf2387ce129c57c8dc6cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
