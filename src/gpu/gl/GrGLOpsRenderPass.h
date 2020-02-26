@@ -49,36 +49,30 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override {
-        return fGpu->flushGLState(fRenderTarget, programInfo);
-    }
-
-    void onSetScissorRect(const SkIRect& scissor) override {
-        fGpu->flushScissorRect(scissor, fRenderTarget->width(), fRenderTarget->height(), fOrigin);
-    }
-
+    bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
+    void onSetScissorRect(const SkIRect& scissor) override;
     bool onBindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                        const GrSurfaceProxy* const primProcTextures[]) override {
-        fGpu->bindTextures(primProc, pipeline, primProcTextures);
-        return true;
-    }
+                        const GrSurfaceProxy* const primProcTextures[]) override;
+    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
+    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                       GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
+                       const GrBuffer* vertexBuffer, int baseVertex) override;
+    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                         const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
+    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+                                int baseVertex) override;
+    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
+    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
-    void onDrawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) override {
-        fGpu->drawMesh(fRenderTarget, primitiveType, mesh);
-    }
-
-    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {
-        fGpu->clear(clip, color, fRenderTarget, fOrigin);
-    }
-
-    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
-    }
-
-    GrGLGpu*                fGpu;
-    SkIRect                 fContentBounds;
-    LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    GrGLGpu* fGpu;
+    SkIRect fContentBounds;
+    LoadAndStoreInfo fColorLoadAndStoreInfo;
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
+
+    // Per-pipeline state.
+    GrPrimitiveType fPrimitiveType;
 
     typedef GrOpsRenderPass INHERITED;
 };

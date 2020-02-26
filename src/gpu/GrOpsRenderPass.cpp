@@ -145,26 +145,71 @@ void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrMesh 
             this->bindTextures(programInfo.primProc(), programInfo.pipeline(),
                                programInfo.dynamicPrimProcTextures(i));
         }
-        this->drawMesh(programInfo.primitiveType(), meshes[i]);
+        meshes[i].draw(this);
     }
 }
 
-void GrOpsRenderPass::drawMesh(GrPrimitiveType primitiveType, const GrMesh& mesh) {
+bool GrOpsRenderPass::prepareToDraw() {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         this->gpu()->stats()->incNumFailedDraws();
-        return;
+        return false;
     }
-
     SkASSERT(DynamicStateStatus::kUninitialized != fScissorStatus);
     SkASSERT(DynamicStateStatus::kUninitialized != fTextureBindingStatus);
-    SkASSERT(SkToBool(mesh.vertexBuffer()) == fHasVertexAttributes);
-    SkASSERT(SkToBool(mesh.instanceBuffer()) == fHasInstanceAttributes);
-    SkASSERT(GrPrimitiveRestart::kNo == mesh.primitiveRestart() ||
-             this->gpu()->caps()->usePrimitiveRestart());
 
     if (kNone_GrXferBarrierType != fXferBarrierType) {
         this->gpu()->xferBarrier(fRenderTarget, fXferBarrierType);
     }
-    this->onDrawMesh(primitiveType, mesh);
+    return true;
+}
+
+void GrOpsRenderPass::draw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
+    this->onDraw(vertexBuffer, vertexCount, baseVertex);
+}
+
+void GrOpsRenderPass::drawIndexed(const GrBuffer* indexBuffer, int indexCount,
+                                  int baseIndex, GrPrimitiveRestart primitiveRestart,
+                                  uint16_t minIndexValue, uint16_t maxIndexValue,
+                                  const GrBuffer* vertexBuffer, int baseVertex) {
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(GrPrimitiveRestart::kNo == primitiveRestart ||
+             this->gpu()->caps()->usePrimitiveRestart());
+    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
+    this->onDrawIndexed(indexBuffer, indexCount, baseIndex, primitiveRestart, minIndexValue,
+                        maxIndexValue, vertexBuffer, baseVertex);
+}
+
+void GrOpsRenderPass::drawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int
+                                    baseInstance, const GrBuffer* vertexBuffer, int vertexCount,
+                                    int baseVertex) {
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
+    SkASSERT(SkToBool(instanceBuffer) == fHasInstanceAttributes);
+    this->onDrawInstanced(instanceBuffer, instanceCount, baseInstance, vertexBuffer, vertexCount,
+                          baseVertex);
+}
+
+void GrOpsRenderPass::drawIndexedInstanced(
+        const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+        GrPrimitiveRestart primitiveRestart, const GrBuffer* instanceBuffer, int instanceCount,
+        int baseInstance, const GrBuffer* vertexBuffer, int baseVertex) {
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(GrPrimitiveRestart::kNo == primitiveRestart ||
+             this->gpu()->caps()->usePrimitiveRestart());
+    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
+    SkASSERT(SkToBool(instanceBuffer) == fHasInstanceAttributes);
+    this->onDrawIndexedInstanced(indexBuffer, indexCount, baseIndex, primitiveRestart,
+                                 instanceBuffer, instanceCount, baseInstance, vertexBuffer,
+                                 baseVertex);
 }

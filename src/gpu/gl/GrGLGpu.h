@@ -31,7 +31,7 @@ class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
 
-class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
+class GrGLGpu final : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
     ~GrGLGpu() override;
@@ -81,24 +81,18 @@ public:
         fHWProgram->bindTextures(primProc, pipeline, primProcTextures);
     }
 
-    // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
-    // Thus this is the implementation of the draw call for the corresponding passthrough function
-    // on GrGLOpsRenderPass.
-    //
-    // The client must call flushGLState before this method.
-    void drawMesh(GrRenderTarget*, GrPrimitiveType, const GrMesh&);
-
-    // GrMesh::SendToGpuImpl methods. These issue the actual GL draw calls.
-    // Marked final as a hint to the compiler to not use virtual dispatch.
-    void sendArrayMeshToGpu(GrPrimitiveType primitiveType, const GrMesh&, int vertexCount,
-                            int baseVertex) final;
-    void sendIndexedMeshToGpu(GrPrimitiveType, const GrMesh&, int indexCount, int baseIndex,
-                              uint16_t minIndexValue, uint16_t maxIndexValue, int baseVertex) final;
-    void sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int vertexCount, int baseVertex,
-                                int instanceCount, int baseInstance) final;
-    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int indexCount,
-                                       int baseIndex, int baseVertex, int instanceCount,
-                                       int baseInstance) final;
+    // These methods issue draws using the current GL state. The client must call flushGLState,
+    // followed by flushScissorRect and/or bindTextures if applicable, before using these method.
+    void draw(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
+    void drawIndexed(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                     GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
+                     const GrBuffer* vertexBuffer, int baseVertex);
+    void drawInstanced(GrPrimitiveType, const GrBuffer* instanceBuffer, int instanceCount, int
+                       baseInstance, const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
+    void drawIndexedInstanced(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount,
+                              int baseIndex, GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                              int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+                              int baseVertex);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
@@ -306,6 +300,9 @@ private:
                        const GrBuffer* instanceBuffer,
                        int baseInstance,
                        GrPrimitiveRestart);
+
+    // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
+    GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
 
     void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 

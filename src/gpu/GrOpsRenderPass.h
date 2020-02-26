@@ -76,9 +76,18 @@ public:
     // setScissor() and bindTextures() on the client's behalf.
     void drawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount);
 
-    // Draws the given mesh using the current pipeline state. The client must call bindPipeline(),
-    // followed setScissor() and/or bindTextures() if necessary, before using this method.
-    void drawMesh(GrPrimitiveType, const GrMesh&);
+    // These methods issue draws using the current pipeline state. The client must call
+    // bindPipeline(), followed by setScissor() and/or bindTextures() if applicable, before using
+    // these methods.
+    void draw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
+    void drawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex, GrPrimitiveRestart,
+                     uint16_t minIndexValue, uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
+                     int baseVertex);
+    void drawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                       const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
+    void drawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                              GrPrimitiveRestart, const GrBuffer* instanceBuffer, int instanceCount,
+                              int baseInstance, const GrBuffer* vertexBuffer, int baseVertex);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -116,12 +125,24 @@ protected:
 private:
     virtual GrGpu* gpu() = 0;
 
+    bool prepareToDraw();
+
     // overridden by backend-specific derived class to perform the rendering command.
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
     virtual void onSetScissorRect(const SkIRect&) = 0;
     virtual bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                                const GrSurfaceProxy* const primProcTextures[] = nullptr) = 0;
-    virtual void onDrawMesh(GrPrimitiveType, const GrMesh&) = 0;
+                                const GrSurfaceProxy* const primProcTextures[]) = 0;
+    virtual void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) = 0;
+    virtual void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                               GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
+                               const GrBuffer* vertexBuffer, int baseVertex) = 0;
+    virtual void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount,
+                                 int baseInstance, const GrBuffer* vertexBuffer, int vertexCount,
+                                 int baseVertex) = 0;
+    virtual void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                        GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                                        int instanceCount, int baseInstance,
+                                        const GrBuffer* vertexBuffer, int baseVertex) = 0;
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
     virtual void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
