@@ -18,10 +18,15 @@ public:
     SkBBoxHierarchy() {}
     virtual ~SkBBoxHierarchy() {}
 
+    struct Metadata {
+        bool isDraw;  // The corresponding SkRect bounds a draw command, not a pure state change.
+    };
+
     /**
      * Insert N bounding boxes into the hierarchy.
      */
     virtual void insert(const SkRect[], int N) = 0;
+    virtual void insert(const SkRect[], const Metadata[], int N);
 
     /**
      * Populate results with the indices of bounding boxes intersecting that query.

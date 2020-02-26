@@ -8,6 +8,7 @@
 #ifndef SkRecordDraw_DEFINED
 #define SkRecordDraw_DEFINED
 
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "src/core/SkBigPicture.h"
@@ -17,7 +18,8 @@ class SkDrawable;
 class SkLayerInfo;
 
 // Calculate conservative identity space bounds for each op in the record.
-void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkRect bounds[]);
+void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&,
+                        SkRect bounds[], SkBBoxHierarchy::Metadata[]);
 
 // SkRecordFillBounds(), and gathers information about saveLayers and stores it for later
 // use (e.g., layer hoisting). The gathered information is sufficient to determine

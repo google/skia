@@ -200,11 +200,41 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // The second bug showed up as adjusting the picture bounds (0,0,50,50) by the drop shadow too.
     // The saveLayer, clipRect, and restore bounds were incorrectly (0,0,70,50).
     SkAutoTMalloc<SkRect> bounds(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds);
+    SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(0, 0, 50, 50)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[3], SkRect::MakeLTRB(0, 0, 50, 50)));
+}
+
+DEF_TEST(RecordDraw_Metadata, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, 50, 50);
+
+    // Just doing some mildly interesting drawing, mostly grabbed from the unit test above.
+    SkPaint paint;
+    paint.setImageFilter(SkImageFilters::DropShadow(20, 0, 0, 0, SK_ColorBLACK,  nullptr));
+
+    recorder.saveLayer(nullptr, &paint);
+        recorder.clipRect(SkRect::MakeWH(20, 40));
+        recorder.save();
+            recorder.translate(10, 10);
+            recorder.drawRect(SkRect::MakeWH(20, 40), SkPaint());
+        recorder.restore();
+    recorder.restore();
+
+    SkAutoTMalloc<SkRect> bounds(record.count());
+    SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
+
+    REPORTER_ASSERT(r, !meta[0].isDraw);  // saveLayer (not a draw, but its restore will be)
+    REPORTER_ASSERT(r, !meta[1].isDraw);  //   clip
+    REPORTER_ASSERT(r, !meta[2].isDraw);  //   save
+    REPORTER_ASSERT(r, !meta[3].isDraw);  //       translate
+    REPORTER_ASSERT(r,  meta[4].isDraw);  //       drawRect
+    REPORTER_ASSERT(r, !meta[5].isDraw);  //   restore  (paired with save, not a draw)
+    REPORTER_ASSERT(r,  meta[6].isDraw);  // restore (paired with saveLayer, a draw)
 }
 
 // TODO This would be nice, but we can't get it right today.
