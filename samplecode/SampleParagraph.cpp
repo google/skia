@@ -2189,7 +2189,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const char* text = "去了 qw 其 er 他的 事实 证明自己";
+        auto text = u"\U0001f600\U0001f601\U0001f602\U0001f923\U0001f603\U0001f604\U0001f605\U0001f606\U0001f609\U0001f60a\U0001f60b\U0001f60e\U0001f60d\U0001f618\U0001f970\U0001f617\U0001f619\U0001f61a\u263A\uFE0F\U0001f642\U0001f917";
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -2206,29 +2206,26 @@ protected:
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(width());
-        paragraph->paint(canvas, 0, 0);
 
-        for (size_t i = 0; i < strlen(text) - 1; ++i) {
 
+        SkColor colors[] = {
+            SK_ColorRED,
+            SK_ColorGREEN,
+            SK_ColorBLUE,
+            SK_ColorMAGENTA,
+            SK_ColorYELLOW
+        };
+        SkPaint paint;
+        for (size_t i = 0; i < 42; ++i) {
             auto result = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-            SkDebugf("[%d:%d):\n", i, i+1);
-            for (auto& r : result) {
-                SkDebugf("rect: [%f:%f] %s\n",
-                r.rect.fLeft, r.rect.fRight, r.direction == TextDirection::kRtl ? "rtl" : "ltr");
-
-                auto pos = paragraph->getGlyphPositionAtCoordinate(
-                        r.rect.fLeft + r.rect.width() / 2, r.rect.fTop + r.rect.height());
-                SkDebugf("pos: %d(%s)\n",
-                        pos.position, pos.affinity == Affinity::kUpstream ? "up" : "down");
-
-                auto word = paragraph->getWordBoundary(pos.position);
-                SkDebugf("word: [%d:%d)\n", word.start, word.end);
-
-                if (i < word.start || i >= word.end) {
-                    SkDebugf("Wrong!\n");
-                }
+            if (result.empty()) {
+                continue;
             }
+            auto rect = result[0].rect;
+            paint.setColor(colors[i % 5]);
+            canvas->drawRect(rect, paint);
         }
+        paragraph->paint(canvas, 0, 0);
     }
 
 private:
@@ -2241,7 +2238,6 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        auto text = u"A\u05D0";
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -2253,23 +2249,97 @@ protected:
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(60);
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        auto s = u"েن েূথ";
+        builder.addText(s);
         auto paragraph = builder.Build();
         paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
-
-        for (auto i = 0; i < 3; ++i) {
-            auto word = paragraph->getWordBoundary(i);
-            SkDebugf("word @%d: [%d:%d)\n", i, word.start, word.end);
-        }
     }
 
 private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView32 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph32"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        text_style.setLocale(SkString("ko"));
+        builder.pushStyle(text_style);
+        builder.addText(u"\u904d ko ");
+        text_style.setLocale(SkString("zh_Hant"));
+        builder.pushStyle(text_style);
+        builder.addText(u"\u904d zh-Hant ");
+        text_style.setLocale(SkString("zh_Hans"));
+        builder.pushStyle(text_style);
+        builder.addText(u"\u904d zh-Hans ");
+        text_style.setLocale(SkString("zh_HK"));
+        builder.pushStyle(text_style);
+        builder.addText(u"\u904d zh-HK ");
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView33 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph33"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
+        text_style.setFontSize(36);
+        builder.pushStyle(text_style);
+        builder.addText(u"AAAAA \U0001f600 BBBBB CCCCC DDDDD EEEEE");
+        auto paragraph = builder.Build();
+        paragraph->layout(109);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+/*
+void main() {
+  runApp(new Text('AAAAA \u{1f600} BBBBB CCCCC DDDDD EEEEE',
+    style: TextStyle(fontSize: 36.0),
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.justify,
+  ));
+}
+}
+ */
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2303,3 +2373,5 @@ DEF_SAMPLE(return new ParagraphView28();)
 DEF_SAMPLE(return new ParagraphView29();)
 DEF_SAMPLE(return new ParagraphView30();)
 DEF_SAMPLE(return new ParagraphView31();)
+DEF_SAMPLE(return new ParagraphView32();)
+DEF_SAMPLE(return new ParagraphView33();)

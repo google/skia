@@ -51,6 +51,7 @@ constexpr TextDecoration AllTextDecorations[] = {
 enum TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
 enum StyleType {
+    kNone,
     kAllAttributes,
     kFont,
     kForeground,

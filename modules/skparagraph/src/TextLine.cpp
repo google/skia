@@ -793,6 +793,16 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         SkASSERT(false);
     }
 
+    if (styleType == StyleType::kNone) {
+        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, 0, false, false);
+        if (clipContext.clip.height() > 0) {
+            visitor(textRange, TextStyle(), clipContext);
+            return clipContext.clip.width();
+        } else {
+            return 0;
+        }
+    }
+
     TextIndex start = EMPTY_INDEX;
     size_t size = 0;
     const TextStyle* prevStyle = nullptr;

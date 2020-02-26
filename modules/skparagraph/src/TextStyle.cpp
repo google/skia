@@ -153,8 +153,11 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
 
         case kFont:
             // TODO: should not we take typefaces in account?
-            return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
-                   fFontSize == other.fFontSize && fHeight == other.fHeight;
+            return fFontStyle == other.fFontStyle &&
+                   fLocale == other.fLocale &&
+                   fFontFamilies == other.fFontFamilies &&
+                   fFontSize == other.fFontSize &&
+                   fHeight == other.fHeight;
         default:
             SkASSERT(false);
             return false;
