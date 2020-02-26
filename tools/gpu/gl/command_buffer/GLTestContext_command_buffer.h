@@ -45,6 +45,8 @@ private:
 
     std::function<void()> onPlatformGetAutoContextRestore() const override;
 
+    void onPlatformSwapBuffers() const override;
+
     GrGLFuncPtr onPlatformGetProcAddress(const char *name) const override;
 
     void *fContext;
