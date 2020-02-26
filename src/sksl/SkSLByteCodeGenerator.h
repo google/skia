@@ -61,15 +61,21 @@ public:
 private:
     // Intrinsics which do not simply map to a single opcode
     enum class SpecialIntrinsic {
-        kDot,
+        kAll,
+        kAny,
         kInverse,
         kPrint,
     };
 
     struct Intrinsic {
-        Intrinsic(ByteCode::Instruction instruction)
+        Intrinsic(ByteCode::Instruction i, bool useVector)
             : fIsSpecial(false)
-            , fValue(instruction) {}
+            , fValue(i, i, i, useVector) {}
+
+        Intrinsic(ByteCode::Instruction f, ByteCode::Instruction s, ByteCode::Instruction u,
+                  bool useVector)
+            : fIsSpecial(false)
+            , fValue(f, s, u, useVector) {}
 
         Intrinsic(SpecialIntrinsic special)
             : fIsSpecial(true)
@@ -78,13 +84,21 @@ private:
         bool fIsSpecial;
 
         union Value {
-            Value(ByteCode::Instruction instruction)
-                : fInstruction(instruction) {}
+            Value(ByteCode::Instruction f, ByteCode::Instruction s, ByteCode::Instruction u,
+                  bool useVector)
+                : fInstructions{ f, s, u, useVector } {}
 
             Value(SpecialIntrinsic special)
                 : fSpecial(special) {}
 
-            ByteCode::Instruction fInstruction;
+            struct {
+                ByteCode::Instruction fFloat;
+                ByteCode::Instruction fSigned;
+                ByteCode::Instruction fUnsigned;
+
+                bool fUseVector;
+            } fInstructions;
+
             SpecialIntrinsic fSpecial;
         } fValue;
     };
