@@ -215,6 +215,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fParagraphStyle.getMaxLines() == 1 || (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
+
+    SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -601,10 +603,12 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      unsigned end,
                                                      RectHeightStyle rectHeightStyle,
                                                      RectWidthStyle rectWidthStyle) {
+    SkDebugf("getRectsForRange(%d, %d)\n", start, end);
     std::vector<TextBox> results;
     if (fText.isEmpty()) {
         if (start == 0 && end > 0) {
             // On account of implied "\n" that is always at the end of the text
+            SkDebugf("Empty line: %f\n", fHeight);
             results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
         }
         return results;
@@ -649,6 +653,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
     }
 
+    auto firstBoxOnTheLine = results.size();
+    const Run* lastRun = nullptr;
+    auto paragraphTextDirection = paragraphStyle().getTextDirection();
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
@@ -656,42 +663,23 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             continue;
         }
 
-        // Found a line that intersects with the text
-        auto firstBoxOnTheLine = results.size();
-        auto paragraphTextDirection = paragraphStyle().getTextDirection();
-        const Run* lastRun = nullptr;
         line.iterateThroughVisualRuns(true,
-            [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
+            [&]
+            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            *runWidthInLine = line.iterateThroughSingleRunByStyles(
+            run, runOffsetInLine, textRange, StyleType::kNone,
+            [&]
+            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context0) {
 
                 auto intersect = textRange * text;
-                if (intersect.empty() || textRange.empty()) {
-                    auto context = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
-                    *width = context.clip.width();
-                    if (textRange.width() > 0) {
-                        return true;
-                    } else {
-                        intersect = textRange;
-                    }
-                } else {
-                    TextRange head;
-                    if (run->leftToRight() && textRange.start != intersect.start) {
-                        head = TextRange(textRange.start, intersect.start);
-                        *width = line.measureTextInsideOneRun(head, run, runOffset, 0, true, false).clip.width();
-                    } else if (!run->leftToRight() && textRange.end != intersect.end) {
-                        head = TextRange(intersect.end, textRange.end);
-                        *width = line.measureTextInsideOneRun(head, run, runOffset, 0, true, false).clip.width();
-                    } else {
-                        *width = 0;
-                    }
+                if (intersect.empty()) {
+                    return true;
                 }
 
-                auto runInLineWidth = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
-                runOffset += *width;
-                *width = runInLineWidth;
-
                 // Found a run that intersects with the text
-                auto context = line.measureTextInsideOneRun(intersect, run, runOffset, 0, true, true);
+                auto context = line.measureTextInsideOneRun(intersect, run, runOffsetInLine, 0, true, true);
                 SkRect clip = context.clip;
+                clip.offset(context0.fTextShift - context.fTextShift, 0);
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Change it once flutter rolls into google3
@@ -798,9 +786,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
                 }
-
                 return true;
             });
+            return true;
+        });
 
         if (rectWidthStyle == RectWidthStyle::kMax) {
             // Align the very left/right box horizontally
@@ -822,11 +811,11 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
 
         for (auto& r : results) {
-
-          r.rect.fLeft = littleRound(r.rect.fLeft);
-          r.rect.fRight = littleRound(r.rect.fRight);
-          r.rect.fTop = littleRound(r.rect.fTop);
-          r.rect.fBottom = littleRound(r.rect.fBottom);
+            r.rect.fLeft = littleRound(r.rect.fLeft);
+            r.rect.fRight = littleRound(r.rect.fRight);
+            r.rect.fTop = littleRound(r.rect.fTop);
+            r.rect.fBottom = littleRound(r.rect.fBottom);
+            SkDebugf("[%f:%f * %f:%f]\n", r.rect.fLeft, r.rect.fRight, r.rect.fTop, r.rect.fBottom);
         }
     }
 
@@ -979,7 +968,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         break;
     }
 
-    //SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
+    SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
     return result;
 }
 
@@ -1031,6 +1020,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
       }
     }
 
+    SkDebugf("getWordBoundary(%d): [%d: %d)\n", offset, start, end);
     return { SkToU32(start), SkToU32(end) };
 }
 
