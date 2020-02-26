@@ -115,6 +115,32 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
     }
 }
 
+void DDLPromiseImageHelper::DeleteBETexturesForPromiseImage(GrContext* context,
+                                                            PromiseImageInfo* info) {
+    SkASSERT(context->priv().asDirectContext());
+
+    if (info->isYUV()) {
+        int numPixmaps;
+        SkAssertResult(SkYUVAIndex::AreValidIndices(info->yuvaIndices(), &numPixmaps));
+        for (int j = 0; j < numPixmaps; ++j) {
+            PromiseImageCallbackContext* callbackContext = info->callbackContext(j);
+            SkASSERT(callbackContext);
+
+            callbackContext->destroyBackendTexture();
+            SkASSERT(!callbackContext->promiseImageTexture());
+        }
+    } else {
+        PromiseImageCallbackContext* callbackContext = info->callbackContext(0);
+        if (!callbackContext) {
+            // This texture would've been too large to fit on the GPU
+            return;
+        }
+
+        callbackContext->destroyBackendTexture();
+        SkASSERT(!callbackContext->promiseImageTexture());
+    }
+}
+
 void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
     const GrCaps* caps = context->priv().caps();
     const int maxDimension = caps->maxTextureSize();
@@ -168,13 +194,27 @@ void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* co
         for (int i = 0; i < fImageInfo.count(); ++i) {
             PromiseImageInfo* info = &fImageInfo[i];
 
-            taskGroup->add([context, info]() {
-                              CreateBETexturesForPromiseImage(context, info);
-                           });
+            taskGroup->add([context, info]() { CreateBETexturesForPromiseImage(context, info); });
         }
     } else {
         for (int i = 0; i < fImageInfo.count(); ++i) {
             CreateBETexturesForPromiseImage(context, &fImageInfo[i]);
+        }
+    }
+}
+
+void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrContext* context) {
+    SkASSERT(context->priv().asDirectContext());
+
+    if (taskGroup) {
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            PromiseImageInfo* info = &fImageInfo[i];
+
+            taskGroup->add([context, info]() { DeleteBETexturesForPromiseImage(context, info); });
+        }
+    } else {
+        for (int i = 0; i < fImageInfo.count(); ++i) {
+            DeleteBETexturesForPromiseImage(context, &fImageInfo[i]);
         }
     }
 }
