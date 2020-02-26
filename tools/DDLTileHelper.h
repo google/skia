@@ -80,7 +80,7 @@ public:
 
     void createDDLsInParallel();
 
-    void drawAllTiles(GrContext*);
+    void drawAllTilesAndFlush(GrContext*, bool flush);
 
     void composeAllTiles();
 

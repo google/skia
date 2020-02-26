@@ -362,6 +362,15 @@ std::function<void()> CommandBufferGLTestContext::onPlatformGetAutoContextRestor
     return context_restorer();
 }
 
+void CommandBufferGLTestContext::onPlatformSwapBuffers() const {
+    if (!gfFunctionsLoadedSuccessfully) {
+        return;
+    }
+    if (!gfSwapBuffers(fDisplay, fSurface)) {
+        SkDebugf("Command Buffer: Could not complete gfSwapBuffers.\n");
+    }
+}
+
 GrGLFuncPtr CommandBufferGLTestContext::onPlatformGetProcAddress(const char *name) const {
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
@@ -374,12 +383,7 @@ void CommandBufferGLTestContext::presentCommandBuffer() {
         this->gl()->fFunctions.fFlush();
     }
 
-    if (!gfFunctionsLoadedSuccessfully) {
-        return;
-    }
-    if (!gfSwapBuffers(fDisplay, fSurface)) {
-        SkDebugf("Command Buffer: Could not complete gfSwapBuffers.\n");
-    }
+    this->onPlatformSwapBuffers();
 }
 
 bool CommandBufferGLTestContext::makeCurrent() {
