@@ -262,7 +262,7 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
     RunBlock unresolved(fCurrentRun, clusteredText(glyphRange), glyphRange, 0);
     if (unresolved.fGlyphs.width() == fCurrentRun->size()) {
         SkASSERT(unresolved.fText.width() == fCurrentRun->fTextRange.width());
-    } else if (!fUnresolvedBlocks.empty()) {
+    } else if (fUnresolvedBlocks.size() > 1) {
         auto& lastUnresolved = fUnresolvedBlocks.back();
         if (lastUnresolved.fRun != nullptr &&
             lastUnresolved.fRun->fIndex == fCurrentRun->fIndex) {
@@ -407,25 +407,42 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             auto unresolvedRange = fUnresolvedBlocks.front().fText;
             auto unresolvedText = fParagraph->text(unresolvedRange);
             const char* ch = unresolvedText.begin();
+            std::set<SkUnichar> tried;
             SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
+            while (true) {
+                auto typeface = fParagraph->fFontCollection->defaultFallback(
+                        unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
-            auto typeface = fParagraph->fFontCollection->defaultFallback(
-                    unicode, textStyle.getFontStyle(), textStyle.getLocale());
-
-            if (typeface == nullptr) {
-                return;
-            }
-
-            if (!visitor(typeface)) {
-                // Resolved everything
-                return;
-            } else {
-                // Check if anything was resolved and stop it it was not
-                auto last = fUnresolvedBlocks.back();
-                if (unresolvedRange == last.fText) {
+                if (typeface == nullptr) {
                     return;
                 }
+
+                if (!visitor(typeface)) {
+                    // Resolved everything
+                    return;
+                } else {
+                    // Check if anything was resolved and stop it it was not
+                    auto last = fUnresolvedBlocks.back();
+                    if (unresolvedRange == last.fText) {
+                        if (ch == unresolvedText.end()) {
+                            // Not a single codepoint could be resolved
+                            return;
+                        }
+                        // We can stop here or we can switch to another DIFFERENT codepoint
+                        while (ch != unresolvedText.end()) {
+                            unicode = utf8_next(&ch, unresolvedText.end());
+                            if (tried.find(unicode) == tried.end()) {
+                                tried.emplace(unicode);
+                                break;
+                            }
+                        }
+                    } else {
+                        // Resolved something, no need to repeat
+                        break;
+                    }
+                }
             }
+
         }
     }
 }
