@@ -9,7 +9,6 @@
 
 #ifdef SK_DIRECT3D
 #include <d3d12sdklayers.h>
-#include <dxgi1_4.h>
 
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 
@@ -26,7 +25,12 @@ void get_hardware_adapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 
         // Check to see if the adapter supports Direct3D 12, but don't create the
         // actual device yet.
-        if (SUCCEEDED(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device),
+
+        // Note: on the Quadro K2200 using the 11_0 feature level only gave me 11_0 features,
+        // whereas 11_1 gives me everything up to 12_1. It may be worth modifying this function to
+        // give us the most feature-rich adapter rather than the first that meets the minimum
+        // feature level.
+        if (SUCCEEDED(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_11_1, _uuidof(ID3D12Device),
                                         nullptr))) {
             *ppAdapter = pAdapter;
             return;
@@ -58,7 +62,7 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
 
     gr_cp<ID3D12Device> device;
     if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.Get(),
-        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_11_1,
         IID_PPV_ARGS(&device)))) {
         return false;
     }
@@ -73,6 +77,7 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
         return false;
     }
 
+    ctx->fAdapter = hardwareAdapter;
     ctx->fDevice = device;
     ctx->fQueue = queue;
     // TODO: set up protected memory
