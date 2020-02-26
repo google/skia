@@ -8,6 +8,7 @@
 #ifndef GrD3DCaps_DEFINED
 #define GrD3DCaps_DEFINED
 
+#include "include/gpu/d3d/GrD3D12.h"
 #include "src/gpu/GrCaps.h"
 
 class GrShaderCaps;
@@ -21,7 +22,7 @@ public:
      * Creates a GrD3DCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
      */
-    GrD3DCaps(const GrContextOptions& contextOptions, GrProtected isProtected = GrProtected::kNo);
+    GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1*, ID3D12Device*);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
     SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
@@ -68,7 +69,22 @@ public:
 #endif
 
 private:
-    void init(const GrContextOptions& contextOptions);
+    enum D3DVendor {
+        kAMD_D3DVendor = 0x1002,
+        kARM_D3DVendor = 0x13B5,
+        kImagination_D3DVendor = 0x1010,
+        kIntel_D3DVendor = 0x8086,
+        kNVIDIA_D3DVendor = 0x10DE,
+        kQualcomm_D3DVendor = 0x5143,
+    };
+
+    void init(const GrContextOptions& contextOptions, IDXGIAdapter1*, ID3D12Device*);
+
+    void initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS&,
+                    const D3D12_FEATURE_DATA_D3D12_OPTIONS2&);
+    void initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc);
+
+    void applyDriverCorrectnessWorkarounds(int vendorID);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
@@ -79,6 +95,9 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
+
+    int fMaxPerStageShaderResourceViews;
+    int fMaxPerStageUnorderedAccessViews;
 
     typedef GrCaps INHERITED;
 };

@@ -19,7 +19,9 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
         , fProtectedContext(backendContext.fProtectedContext) {
-    fCaps.reset(new GrD3DCaps(contextOptions));
+    fCaps.reset(new GrD3DCaps(contextOptions,
+                              backendContext.fAdapter.Get(),
+                              backendContext.fDevice.Get()));
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
