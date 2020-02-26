@@ -930,7 +930,11 @@ private:
                 ? GrPipeline::InputFlags::kHWAntialias
                 : GrPipeline::InputFlags::kNone;
 
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
+                                                                 flushState->allocator(),
+                                                                 flushState->view(),
+                                                                 flushState->detachAppliedClip(),
+                                                                 flushState->dstProxyView(),
                                                                  GrProcessorSet::MakeEmptySet(),
                                                                  pipelineFlags);
 
