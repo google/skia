@@ -215,6 +215,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fParagraphStyle.getMaxLines() == 1 || (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
+
+    SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -601,10 +603,12 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      unsigned end,
                                                      RectHeightStyle rectHeightStyle,
                                                      RectWidthStyle rectWidthStyle) {
+    SkDebugf("getRectsForRange(%d, %d)\n", start, end);
     std::vector<TextBox> results;
     if (fText.isEmpty()) {
         if (start == 0 && end > 0) {
             // On account of implied "\n" that is always at the end of the text
+            SkDebugf("Empty line: %f\n", fHeight);
             results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
         }
         return results;
@@ -821,12 +825,13 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             }
         }
 
+        SkDebugf("getRectsForRange(%d, %d)\n", start, end);
         for (auto& r : results) {
-
-          r.rect.fLeft = littleRound(r.rect.fLeft);
-          r.rect.fRight = littleRound(r.rect.fRight);
-          r.rect.fTop = littleRound(r.rect.fTop);
-          r.rect.fBottom = littleRound(r.rect.fBottom);
+            r.rect.fLeft = littleRound(r.rect.fLeft);
+            r.rect.fRight = littleRound(r.rect.fRight);
+            r.rect.fTop = littleRound(r.rect.fTop);
+            r.rect.fBottom = littleRound(r.rect.fBottom);
+            SkDebugf("[%f:%f * %f:%f]\n", r.rect.fLeft, r.rect.fRight, r.rect.fTop, r.rect.fBottom);
         }
     }
 
@@ -979,7 +984,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         break;
     }
 
-    //SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
+    SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
     return result;
 }
 
@@ -1031,6 +1036,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
       }
     }
 
+    SkDebugf("getWordBoundary(%d): [%d: %d)\n", offset, start, end);
     return { SkToU32(start), SkToU32(end) };
 }
 
