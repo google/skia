@@ -9,8 +9,9 @@
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
-#include <algorithm>
 #include <unicode/ustring.h>
+#include <algorithm>
+#include <chrono>
 #include <queue>
 
 namespace skia {
@@ -138,12 +139,10 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     }
 
     if (fState < kShaped) {
-
         fGraphemes.reset();
         this->markGraphemes();
 
         if (!this->shapeTextIntoEndlessLine()) {
-
             this->resetContext();
             // TODO: merge the two next calls - they always come together
             this->resolveStrut();
@@ -180,7 +179,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fState = kMarked;
     }
 
-    if (fState >= kLineBroken)  {
+    if (fState >= kLineBroken) {
         if (fOldWidth != floorWidth || fOldHeight != fHeight) {
             fState = kMarked;
         }
@@ -193,7 +192,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fLines.reset();
         this->breakShapedTextIntoLines(floorWidth);
         fState = kLineBroken;
-
     }
 
     if (fState < kFormatted) {
@@ -212,7 +210,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     fMaxIntrinsicWidth = littleRound(fMaxIntrinsicWidth);
 
     // TODO: This is strictly Flutter thing. Must be factored out into some flutter code
-    if (fParagraphStyle.getMaxLines() == 1 || (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
+    if (fParagraphStyle.getMaxLines() == 1 ||
+        (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
 }
@@ -605,6 +604,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     if (fText.isEmpty()) {
         if (start == 0 && end > 0) {
             // On account of implied "\n" that is always at the end of the text
+            //SkDebugf("getRectsForRange(%d, %d): %f\n", start, end, fHeight);
             results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
         }
         return results;
@@ -649,6 +649,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
     }
 
+    auto firstBoxOnTheLine = results.size();
+    const Run* lastRun = nullptr;
+    auto paragraphTextDirection = paragraphStyle().getTextDirection();
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
@@ -656,42 +659,23 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             continue;
         }
 
-        // Found a line that intersects with the text
-        auto firstBoxOnTheLine = results.size();
-        auto paragraphTextDirection = paragraphStyle().getTextDirection();
-        const Run* lastRun = nullptr;
         line.iterateThroughVisualRuns(true,
-            [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
+            [&]
+            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            *runWidthInLine = line.iterateThroughSingleRunByStyles(
+            run, runOffsetInLine, textRange, StyleType::kNone,
+            [&]
+            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context0) {
 
                 auto intersect = textRange * text;
-                if (intersect.empty() || textRange.empty()) {
-                    auto context = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
-                    *width = context.clip.width();
-                    if (textRange.width() > 0) {
-                        return true;
-                    } else {
-                        intersect = textRange;
-                    }
-                } else {
-                    TextRange head;
-                    if (run->leftToRight() && textRange.start != intersect.start) {
-                        head = TextRange(textRange.start, intersect.start);
-                        *width = line.measureTextInsideOneRun(head, run, runOffset, 0, true, false).clip.width();
-                    } else if (!run->leftToRight() && textRange.end != intersect.end) {
-                        head = TextRange(intersect.end, textRange.end);
-                        *width = line.measureTextInsideOneRun(head, run, runOffset, 0, true, false).clip.width();
-                    } else {
-                        *width = 0;
-                    }
+                if (intersect.empty()) {
+                    return true;
                 }
 
-                auto runInLineWidth = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
-                runOffset += *width;
-                *width = runInLineWidth;
-
                 // Found a run that intersects with the text
-                auto context = line.measureTextInsideOneRun(intersect, run, runOffset, 0, true, true);
+                auto context = line.measureTextInsideOneRun(intersect, run, runOffsetInLine, 0, true, true);
                 SkRect clip = context.clip;
+                clip.offset(context0.fTextShift - context.fTextShift, 0);
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Change it once flutter rolls into google3
@@ -798,9 +782,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
                 }
-
                 return true;
             });
+            return true;
+        });
 
         if (rectWidthStyle == RectWidthStyle::kMax) {
             // Align the very left/right box horizontally
@@ -822,14 +807,12 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
 
         for (auto& r : results) {
-
-          r.rect.fLeft = littleRound(r.rect.fLeft);
-          r.rect.fRight = littleRound(r.rect.fRight);
-          r.rect.fTop = littleRound(r.rect.fTop);
-          r.rect.fBottom = littleRound(r.rect.fBottom);
+            r.rect.fLeft = littleRound(r.rect.fLeft);
+            r.rect.fRight = littleRound(r.rect.fRight);
+            r.rect.fTop = littleRound(r.rect.fTop);
+            r.rect.fBottom = littleRound(r.rect.fBottom);
         }
     }
-
     return results;
 }
 
@@ -889,97 +872,99 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         // This is so far the the line vertically closest to our coordinates
         // (or the first one, or the only one - all the same)
         line.iterateThroughVisualRuns(true,
-            [this, &line, dx, &result]
-            (const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
+                [this, &line, dx, &result]
+                (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+                *runWidthInLine = line.iterateThroughSingleRunByStyles(
+                run, runOffsetInLine, textRange, StyleType::kNone,
+                [this, line, dx, &result]
+                (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
 
-                auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
-                    auto codepoint = std::lower_bound(
-                        fCodePoints.begin(), fCodePoints.end(),
-                        clusterIndex8,
-                        [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
+                    auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
+                        auto codepoint = std::lower_bound(
+                            fCodePoints.begin(), fCodePoints.end(),
+                            clusterIndex8,
+                            [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
 
-                    return codepoint - fCodePoints.begin();
-                };
+                        return codepoint - fCodePoints.begin();
+                    };
 
-                auto offsetX = line.offset().fX;
-                auto context = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
-                *width = context.clip.width();
-                if (dx < context.clip.fLeft + offsetX) {
-                    // All the other runs are placed right of this one
-                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
-                    result = { SkToS32(codepointIndex), kDownstream };
+                    auto offsetX = line.offset().fX;
+                    if (dx < context.clip.fLeft + offsetX) {
+                        // All the other runs are placed right of this one
+                        auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
+                        result = { SkToS32(codepointIndex), kDownstream };
+                        return false;
+                    }
+
+                    if (dx >= context.clip.fRight + offsetX) {
+                        // We have to keep looking but just in case keep the last one as the closes
+                        // so far
+                        auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
+                        result = { SkToS32(codepointIndex), kUpstream };
+                        return true;
+                    }
+
+                    // So we found the run that contains our coordinates
+                    // Find the glyph position in the run that is the closest left of our point
+                    // TODO: binary search
+                    size_t found = context.pos;
+                    for (size_t i = context.pos; i < context.pos + context.size; ++i) {
+                        // TODO: this rounding is done to match Flutter tests. Must be removed..
+                        auto index = context.run->leftToRight() ? i : context.size - i;
+                        auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
+                        if ((context.run->leftToRight() ? end > dx : dx > end)) {
+                            break;
+                        }
+                        found = index;
+                    }
+
+                    if (!context.run->leftToRight()) {
+                        --found;
+                    }
+
+                    auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
+                    auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                    auto clusterIndex8 = context.run->globalClusterIndex(found);
+                    auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+                    TextRange clusterText (clusterIndex8, clusterEnd8);
+
+                    // Find the grapheme positions in codepoints that contains the point
+                    auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
+                    CodepointRange codepoints(codepointIndex, codepointIndex);
+                    for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
+                        auto& cp = fCodePoints[codepoints.end];
+                        if (cp.fTextIndex >= clusterText.end) {
+                            break;
+                        }
+                    }
+                    auto graphemeSize = codepoints.width();
+
+                    // We only need to inspect one glyph (maybe not even the entire glyph)
+                    SkScalar center;
+                    bool insideGlyph = false;
+                    if (graphemeSize > 1) {
+                        auto averageCodepointWidth = glyphWidth / graphemeSize;
+                        auto delta = dx - glyphStart;
+                        auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
+                        insideGlyph = delta > averageCodepointWidth;
+                        center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
+                        codepointIndex += insideIndex;
+                    } else {
+                        center = glyphStart + glyphWidth / 2;
+                    }
+                    if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                        result = { SkToS32(codepointIndex), kDownstream };
+                    } else {
+                        result = { SkToS32(codepointIndex + 1), kUpstream };
+                    }
+                    // No need to continue
                     return false;
-                }
 
-                if (dx >= context.clip.fRight + offsetX) {
-                    // We have to keep looking but just in case keep the last one as the closes
-                    // so far
-                    auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
-                    result = { SkToS32(codepointIndex), kUpstream };
-                    return true;
-                }
-
-                // So we found the run that contains our coordinates
-                // Find the glyph position in the run that is the closest left of our point
-                // TODO: binary search
-                size_t found = context.pos;
-                for (size_t i = context.pos; i < context.pos + context.size; ++i) {
-                    // TODO: this rounding is done to match Flutter tests. Must be removed..
-                    auto index = context.run->leftToRight() ? i : context.size - i;
-                    auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
-                    if ((context.run->leftToRight() ? end > dx : dx > end)) {
-                        break;
-                    }
-                    found = index;
-                }
-
-                if (!context.run->leftToRight()) {
-                    --found;
-                }
-
-                auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
-                auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
-                auto clusterIndex8 = context.run->globalClusterIndex(found);
-                auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
-                TextRange clusterText (clusterIndex8, clusterEnd8);
-
-                // Find the grapheme positions in codepoints that contains the point
-                auto codepointIndex = findCodepointByTextIndex(clusterIndex8);
-                CodepointRange codepoints(codepointIndex, codepointIndex);
-                for (codepoints.end = codepointIndex + 1; codepoints.end < fCodePoints.size(); ++codepoints.end) {
-                    auto& cp = fCodePoints[codepoints.end];
-                    if (cp.fTextIndex >= clusterText.end) {
-                        break;
-                    }
-                }
-                auto graphemeSize = codepoints.width();
-
-                // We only need to inspect one glyph (maybe not even the entire glyph)
-                SkScalar center;
-                bool insideGlyph = false;
-                if (graphemeSize > 1) {
-                    auto averageCodepointWidth = glyphWidth / graphemeSize;
-                    auto delta = dx - glyphStart;
-                    auto insideIndex = SkScalarFloorToInt(delta / averageCodepointWidth);
-                    insideGlyph = delta > averageCodepointWidth;
-                    center = glyphStart + averageCodepointWidth * insideIndex + averageCodepointWidth / 2;
-                    codepointIndex += insideIndex;
-                } else {
-                    center = glyphStart + glyphWidth / 2;
-                }
-                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
-                    result = { SkToS32(codepointIndex), kDownstream };
-                } else {
-                    result = { SkToS32(codepointIndex + 1), kUpstream };
-                }
-                // No need to continue
-                return false;
+                });
+                return true;
             });
-
         break;
     }
-
-    //SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);
     return result;
 }
 
