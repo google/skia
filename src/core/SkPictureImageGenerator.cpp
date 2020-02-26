@@ -24,7 +24,6 @@ protected:
         override;
 
 #if SK_SUPPORT_GPU
-    TexGenType onCanGenerateTexture() const override { return TexGenType::kExpensive; }
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          const SkIPoint&, bool willNeedMipMaps) override;
 #endif

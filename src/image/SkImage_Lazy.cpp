@@ -423,8 +423,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(
         GrRecordingContext* ctx,
         const GrUniqueKey& origKey,
         SkImage::CachingHint chint,
-        bool willBeMipped,
-        GrTextureMaker::AllowedTexGenType genType) const {
+        bool willBeMipped) const {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -469,10 +468,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(
     // 2. Ask the generator to natively create one
     if (!view.proxy()) {
         ScopedGenerator generator(fSharedGenerator);
-        if (GrTextureMaker::AllowedTexGenType::kCheap == genType &&
-                SkImageGenerator::TexGenType::kCheap != generator->onCanGenerateTexture()) {
-            return {};
-        }
         view = generator->generateTexture(ctx, this->imageInfo(), fOrigin, willBeMipped);
         if (view.proxy()) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,

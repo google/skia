@@ -21,11 +21,7 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         return {};
     }
 
-    GrSurfaceProxyView original = this->refOriginalTextureProxyView(willBeMipped,
-                                                                    AllowedTexGenType::kCheap);
-    if (!original) {
-        return this->refOriginalTextureProxyView(willBeMipped, AllowedTexGenType::kAny);
-    }
+    GrSurfaceProxyView original = this->refOriginalTextureProxyView(willBeMipped);
 
     GrTextureProxy* texProxy = original.asTextureProxy();
     if (!GrGpu::IsACopyNeededForMips(this->context()->priv().caps(), texProxy, params.filter())) {
@@ -51,7 +47,7 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         source = std::move(original);
     } else {
         // Since we will be copying this texture there is no reason to make it mipped
-        source = this->refOriginalTextureProxyView(false, AllowedTexGenType::kAny);
+        source = this->refOriginalTextureProxyView(false);
         if (!source) {
             return {};
         }
