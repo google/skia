@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMatrix.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
 #include "include/private/SkVx.h"
 
 typedef skvx::Vec<4, float> sk4f;
