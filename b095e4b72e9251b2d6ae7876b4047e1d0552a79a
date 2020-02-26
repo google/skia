@@ -2,6 +2,190 @@
   "comments": [
     {
       "key": {
+        "uuid": "ac4f27bf_e00a4aa7",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "Do this tell us what feature level we can assume is valid on the device when setting up caps? I don\u0027t see us actually using this anywhere",
+      "range": {
+        "startLine": 71,
+        "startChar": 20,
+        "endLine": 71,
+        "endChar": 44
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5084cc51_2fe0b57a",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 75,
+        "startChar": 45,
+        "endLine": 75,
+        "endChar": 65
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33b0e151_d763561c",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 80,
+        "startChar": 52,
+        "endLine": 80,
+        "endChar": 64
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e97f4a1_ec0bb256",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "Does the spec difine what its standard locations are?",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 27
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c42ffbc_40a3398d",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "this has 4 spaces and the if a few lines down has 8...make things consistent in here.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 12
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4e6fdb6_9b1a7028",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "the 8 spot",
+      "range": {
+        "startLine": 115,
+        "startChar": 9,
+        "endLine": 115,
+        "endChar": 16
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd96aa2_b50ccbed",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "should this be in the driver workaround section?",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 125,
+        "endChar": 57
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c15d1090_e4845bd4",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-26T14:59:46Z",
+      "side": 1,
+      "message": "are we sure we don\u0027t? We have a win10 bot that runs on adreno",
+      "range": {
+        "startLine": 152,
+        "startChar": 9,
+        "endLine": 152,
+        "endChar": 37
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d52e5dc5_f7875ef4",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
