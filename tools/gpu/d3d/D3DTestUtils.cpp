@@ -9,7 +9,6 @@
 
 #ifdef SK_DIRECT3D
 #include <d3d12sdklayers.h>
-#include <dxgi1_4.h>
 
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 
@@ -73,6 +72,7 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
         return false;
     }
 
+    ctx->fAdapter = hardwareAdapter;
     ctx->fDevice = device;
     ctx->fQueue = queue;
     // TODO: set up protected memory

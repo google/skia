@@ -321,6 +321,7 @@ private:
 
     friend class GrCaps;  // For initialization.
     friend class GrDawnCaps;
+    friend class GrD3DCaps;
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
