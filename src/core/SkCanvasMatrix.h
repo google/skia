@@ -8,8 +8,8 @@
 #ifndef SkCanvasMatrix_DEFINED
 #define SkCanvasMatrix_DEFINED
 
-#include "include/core/SkMatrix.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
 
 class SkCanvasMatrix : public SkM44 {
 public:

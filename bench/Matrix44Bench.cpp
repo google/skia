@@ -6,8 +6,8 @@
  */
 
 #include "bench/Benchmark.h"
-#include "include/core/SkString.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
 
 class M4Bench : public Benchmark {

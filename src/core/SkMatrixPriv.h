@@ -9,8 +9,8 @@
 #define SkMatrixPriv_DEFINE
 
 #include "include/core/SkFilterQuality.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkPointPriv.h"
 
