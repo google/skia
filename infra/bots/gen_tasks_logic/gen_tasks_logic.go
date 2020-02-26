@@ -1161,7 +1161,8 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		strings.Contains(name, "CMake") ||
 		strings.Contains(name, "CommandBuffer") ||
 		strings.Contains(name, "Flutter") ||
-		strings.Contains(name, "SKQP") {
+		strings.Contains(name, "SKQP") ||
+		strings.Contains(name, "Dawnafhahfshafs") {
 		recipe = "sync_and_compile"
 		isolate = "swarm_recipe.isolate"
 		props = EXTRA_PROPS
