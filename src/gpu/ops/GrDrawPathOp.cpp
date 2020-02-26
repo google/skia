@@ -90,7 +90,11 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
         pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
 
-    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
+                                                             flushState->allocator(),
+                                                             flushState->view(),
+                                                             flushState->detachAppliedClip(),
+                                                             flushState->dstProxyView(),
                                                              this->detachProcessorSet(),
                                                              pipelineFlags,
                                                              &kCoverPass);

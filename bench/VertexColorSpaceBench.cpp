@@ -168,7 +168,15 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    void onPrepareDraws(Target* target) override {
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* dstView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) final {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    }
+
+    void onPrepareDraws(Target* target) final {
         GrGeometryProcessor* gp = GP::Make(target->allocator(), fMode, fColorSpaceXform);
 
         size_t vertexStride = gp->vertexStride();

@@ -17,6 +17,7 @@ class GrStencilSettings;
 
 class GrProgramInfo {
 public:
+
     GrProgramInfo(int numSamples,
                   int numStencilSamples,
                   const GrBackendFormat& backendFormat,

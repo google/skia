@@ -82,7 +82,11 @@ protected:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
+                                                                 flushState->allocator(),
+                                                                 flushState->view(),
+                                                                 flushState->detachAppliedClip(),
+                                                                 flushState->dstProxyView(),
                                                                  std::move(fProcessorSet),
                                                                  GrPipeline::InputFlags::kNone);
 

@@ -101,6 +101,11 @@ private:
                const SkRect& drawRect,
                const SkRect& localRect,
                const SkMatrix& localMatrix);
+
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* dstView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) final;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -150,6 +155,26 @@ TestRectOp::TestRectOp(const GrCaps* caps,
     this->setBounds(drawRect.makeSorted(), HasAABloat::kNo, IsHairline::kNo);
 }
 
+void TestRectOp::onPrePrepareDraws(GrRecordingContext* context,
+                                   const GrSurfaceProxyView* dstView,
+                                   GrAppliedClip* clip,
+                                   const GrXferProcessor::DstProxyView& dstProxyView) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // This is equivalent to a GrOpFlushState::detachAppliedClip
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(context->priv().caps(),
+                                                             arena,
+                                                             dstView,
+                                                             std::move(appliedClip),
+                                                             dstProxyView,
+                                                             std::move(fProcessorSet),
+                                                             GrPipeline::InputFlags::kNone);
+
+
+}
+
 void TestRectOp::onPrepareDraws(Target* target) {
     QuadHelper helper(target, fGP.vertexStride(), 1);
     GrVertexWriter writer{helper.vertices()};
@@ -161,7 +186,11 @@ void TestRectOp::onPrepareDraws(Target* target) {
 }
 
 void TestRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
+                                                             flushState->allocator(),
+                                                             flushState->view(),
+                                                             flushState->detachAppliedClip(),
+                                                             flushState->dstProxyView(),
                                                              std::move(fProcessorSet),
                                                              GrPipeline::InputFlags::kNone);
 

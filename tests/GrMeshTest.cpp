@@ -431,7 +431,11 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
                           GrClampType::kAuto,
                           &overrideColor);
 
-    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(fState,
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(&fState->caps(),
+                                                             fState->allocator(),
+                                                             fState->view(),
+                                                             fState->detachAppliedClip(),
+                                                             fState->dstProxyView(),
                                                              std::move(processorSet),
                                                              GrPipeline::InputFlags::kNone);
 
