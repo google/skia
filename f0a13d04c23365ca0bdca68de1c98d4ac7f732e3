@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa576654_505eee29",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-26T18:54:38Z",
+      "side": 0,
+      "message": "Ah, just saw it is a move of existing code.",
+      "range": {
+        "startLine": 235,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 1
+      },
+      "revId": "f0a13d04c23365ca0bdca68de1c98d4ac7f732e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

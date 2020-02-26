@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7a02286_70524b9c",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-26T18:54:38Z",
+      "side": 1,
+      "message": "isn\u0027t this nicer than arrays, static_casts, and static_asserts?\n\nswitch (primitiveType) {\n    case GrPrimitiveType::kTriangles:     return MTLPrimitiveTypeTriangle;\n    case GrPrimitiveType::kTriangleStrip: return MTLPrimitiveTypeTriangleStrip;\n    // ...\n    case GrPrimitiveType::kPath:          SkUNREACHABLE;\n}\n\nIf someone adds a new GrPrimitiveType they\u0027ll get a warning-as-error about a missing case.",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 57
+      },
+      "revId": "7dfcf3ddf9422b687a86ed7489c1a5b0164c415e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
