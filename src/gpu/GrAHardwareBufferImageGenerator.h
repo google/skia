@@ -42,7 +42,6 @@ protected:
 
     bool onIsValid(GrContext*) const override;
 
-    TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          const SkIPoint&, bool willNeedMipMaps) override;
 

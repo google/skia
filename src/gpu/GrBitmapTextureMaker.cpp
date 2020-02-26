@@ -39,12 +39,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const Sk
     }
 }
 
-GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(bool willBeMipped,
-                                                                     AllowedTexGenType onlyIfFast) {
-    if (AllowedTexGenType::kCheap == onlyIfFast) {
-        return {};
-    }
-
+GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(bool willBeMipped) {
     GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy;
     GrSwizzle swizzle;

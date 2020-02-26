@@ -182,7 +182,6 @@ protected:
         kExpensive,      //onGenerateTexture is implemented and it is relatively slow
     };
 
-    virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                                     const SkIPoint&,
                                                     bool willNeedMipMaps);  // returns nullptr

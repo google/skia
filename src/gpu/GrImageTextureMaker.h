@@ -22,8 +22,7 @@ public:
                         SkImage::CachingHint chint, bool useDecal = false);
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
-                                                   AllowedTexGenType onlyIfFast) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
 
     void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
     void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
@@ -48,8 +47,7 @@ protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
-                                                   AllowedTexGenType onlyIfFast) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
 
     void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
     void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
