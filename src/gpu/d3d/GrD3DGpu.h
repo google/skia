@@ -23,7 +23,7 @@ public:
     static sk_sp<GrGpu> Make(const GrD3DBackendContext& backendContext, const GrContextOptions&,
                              GrContext*);
 
-    ~GrD3DGpu() override {}
+    ~GrD3DGpu() override;
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
 
@@ -171,6 +171,8 @@ private:
     gr_cp<ID3D12CommandQueue> fQueue;
 
     GrProtected fProtectedContext;
+
+    std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
     typedef GrGpu INHERITED;
 };

@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+
+#include "src/gpu/d3d/GrD3DCaps.h"
+#include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrContext* context) {
@@ -24,13 +26,21 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                               backendContext.fDevice.Get()));
 }
 
+GrD3DGpu::~GrD3DGpu() {}
+
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
     GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
     const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-    const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+    const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
     const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
-    // TODO
-    return nullptr;
+    if (!fCachedOpsRenderPass) {
+        fCachedOpsRenderPass.reset(new GrD3DOpsRenderPass(this));
+    }
+
+    if (!fCachedOpsRenderPass->set(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies)) {
+        return nullptr;
+    }
+    return fCachedOpsRenderPass.get();
 }
 
 void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
