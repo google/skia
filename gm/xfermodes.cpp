@@ -250,6 +250,7 @@ protected:
         for (int sourceType = 1; sourceType & kAll_SrcType; sourceType <<= 1) {
             SkScalar x = x0, y = y0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
+                SkASSERT(y == 0);
                 if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
                     continue;
                 }
