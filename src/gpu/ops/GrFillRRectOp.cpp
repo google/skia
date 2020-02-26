@@ -897,9 +897,10 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                       geomProc,
                                       fixedDynamicState,
                                       nullptr, 0,
-                                      GrPrimitiveType::kTriangles);
+                                      GrPrimitiveType::kTriangles, 0, false);
 }
 
+// TODO: It seems odd that we're ignoring chainBounds here
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.

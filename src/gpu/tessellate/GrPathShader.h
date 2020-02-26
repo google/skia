@@ -47,7 +47,7 @@ public:
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->view()->origin(),
                                   pipeline, this, fixedDynamicState, nullptr, 0,
-                                  fPrimitiveType, fTessellationPatchVertexCount);
+                                  fPrimitiveType, fTessellationPatchVertexCount, true);
         state->opsRenderPass()->bindPipeline(programInfo, bounds);
         state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
     }
