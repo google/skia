@@ -16,8 +16,6 @@
  */
 class GrTextureMaker : public GrTextureProducer {
 public:
-    enum class AllowedTexGenType : bool { kCheap, kAny };
-
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
             const SkRect& constraintRect,
@@ -36,8 +34,7 @@ protected:
      *  construct then refOriginalTextureProxy should return nullptr (for example if texture is made
      *  by drawing into a render target).
      */
-    virtual GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
-                                                           AllowedTexGenType genType) = 0;
+    virtual GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) = 0;
 
 private:
     GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;

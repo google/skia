@@ -39,7 +39,6 @@ protected:
     // do that safely (we might be on another thread). So assume everything is fine.
     bool onIsValid(GrContext*) const override { return true; }
 
-    TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          const SkIPoint&, bool willNeedMipMaps) override;
     bool onTexturesAreCacheable() const override { return false; }

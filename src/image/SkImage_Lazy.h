@@ -63,8 +63,7 @@ public:
     GrSurfaceProxyView lockTextureProxyView(GrRecordingContext*,
                                             const GrUniqueKey& key,
                                             SkImage::CachingHint,
-                                            bool willBeMipped,
-                                            GrTextureMaker::AllowedTexGenType genType) const;
+                                            bool willBeMipped) const;
 
     // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
     // may be different from the color type on the image in the case where we need up upload CPU

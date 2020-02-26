@@ -21,11 +21,11 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         return {};
     }
 
-    GrSurfaceProxyView original = this->refOriginalTextureProxyView(willBeMipped,
-                                                                    AllowedTexGenType::kCheap);
+    GrSurfaceProxyView original = this->refOriginalTextureProxyView(willBeMipped);
     if (!original) {
-        return this->refOriginalTextureProxyView(willBeMipped, AllowedTexGenType::kAny);
+        return {};
     }
+    SkASSERT(original.asTextureProxy());
 
     GrTextureProxy* texProxy = original.asTextureProxy();
     if (!GrGpu::IsACopyNeededForMips(this->context()->priv().caps(), texProxy, params.filter())) {
@@ -46,26 +46,13 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         }
     }
 
-    GrSurfaceProxyView source;
-    if (original) {
-        source = std::move(original);
-    } else {
-        // Since we will be copying this texture there is no reason to make it mipped
-        source = this->refOriginalTextureProxyView(false, AllowedTexGenType::kAny);
-        if (!source) {
-            return {};
-        }
-    }
-
-    SkASSERT(source.asTextureProxy());
-
-    GrSurfaceProxyView result = GrCopyBaseMipMapToTextureProxy(this->context(), source.proxy(),
-                                                               source.origin(), this->colorType());
+    GrSurfaceProxyView result = GrCopyBaseMipMapToTextureProxy(
+            this->context(), original.proxy(), original.origin(), this->colorType());
     if (!result) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return
         // the source texture here and require that the GPU backend is able to fall back to using
         // bilerp if mips are required.
-        return source;
+        return original;
     }
 
     if (mipMappedKey.isValid()) {
