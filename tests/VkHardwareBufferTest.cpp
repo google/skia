@@ -358,32 +358,29 @@ bool EGLTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int f
 }
 
 void EGLTestHelper::doClientSync() {
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    this->grContext()->flush(flushInfo);
+    sk_gpu_test::FenceSync* fenceSync = fGLCtx->fenceSync();
+    sk_gpu_test::PlatformFence fence = fenceSync->insertFence();
+    fenceSync->waitFence(fence);
+    fenceSync->deleteFence(fence);
 }
 #endif  // SK_GL
 
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
 #define ACQUIRE_INST_VK_PROC(name)                                                           \
-    do {                                                                                     \
     fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, fBackendContext.fInstance,\
                                                        VK_NULL_HANDLE));                     \
     if (fVk##name == nullptr) {                                                              \
         ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);            \
         return false;                                                                        \
-    }                                                                                        \
-    } while(false)
+    }
 
 #define ACQUIRE_DEVICE_VK_PROC(name)                                                          \
-    do {                                                                                      \
     fVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, VK_NULL_HANDLE, fDevice)); \
     if (fVk##name == nullptr) {                                                               \
         ERRORF(reporter, "Function ptr for vk%s could not be acquired\n", #name);             \
         return false;                                                                         \
-    }                                                                                         \
-    } while(false)
+    }
 
 class VulkanTestHelper : public BaseTestHelper {
 public:

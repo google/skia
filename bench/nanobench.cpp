@@ -218,7 +218,7 @@ struct GPUTarget : public Target {
     }
     void endTiming() override {
         if (this->contextInfo.testContext()) {
-            this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.grContext());
+            this->contextInfo.testContext()->waitOnSyncOrSwap();
         }
     }
     void fence() override { this->contextInfo.testContext()->finish(); }
@@ -286,6 +286,9 @@ static double time(int loops, Benchmark* bench, Target* target) {
     double start = now_ms();
     canvas = target->beginTiming(canvas);
     bench->draw(loops, canvas);
+    if (canvas) {
+        canvas->flush();
+    }
     target->endTiming();
     double elapsed = now_ms() - start;
     bench->postDraw(canvas);

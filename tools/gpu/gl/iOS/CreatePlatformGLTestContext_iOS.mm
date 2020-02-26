@@ -30,6 +30,7 @@ private:
     void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
+    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     EAGLContext* fEAGLContext;
@@ -112,6 +113,8 @@ std::function<void()> IOSGLTestContext::onPlatformGetAutoContextRestore() const 
     }
     return context_restorer();
 }
+
+void IOSGLTestContext::onPlatformSwapBuffers() const { }
 
 GrGLFuncPtr IOSGLTestContext::onPlatformGetProcAddress(const char* procName) const {
     void* handle = (nullptr == fGLLibrary) ? RTLD_DEFAULT : fGLLibrary;
