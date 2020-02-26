@@ -381,22 +381,22 @@ private:
             DISASSEMBLE_VECTOR_BINARY(kAddF, "addF")
             DISASSEMBLE_VECTOR_BINARY(kAddI, "addI")
             DISASSEMBLE_BINARY(kAnd, "and")
-            DISASSEMBLE_BINARY(kCompareEQF, "compare eqF")
-            DISASSEMBLE_BINARY(kCompareEQI, "compare eqI")
-            DISASSEMBLE_BINARY(kCompareNEQF, "compare neqF")
-            DISASSEMBLE_BINARY(kCompareNEQI, "compare neqI")
-            DISASSEMBLE_BINARY(kCompareGTF, "compare gtF")
-            DISASSEMBLE_BINARY(kCompareGTS, "compare gtS")
-            DISASSEMBLE_BINARY(kCompareGTU, "compare gtU")
-            DISASSEMBLE_BINARY(kCompareGTEQF, "compare gteqF")
-            DISASSEMBLE_BINARY(kCompareGTEQS, "compare gteqS")
-            DISASSEMBLE_BINARY(kCompareGTEQU, "compare gteqU")
-            DISASSEMBLE_BINARY(kCompareLTF, "compare ltF")
-            DISASSEMBLE_BINARY(kCompareLTS, "compare ltS")
-            DISASSEMBLE_BINARY(kCompareLTU, "compare ltU")
-            DISASSEMBLE_BINARY(kCompareLTEQF, "compare lteqF")
-            DISASSEMBLE_BINARY(kCompareLTEQS, "compare lteqS")
-            DISASSEMBLE_BINARY(kCompareLTEQU, "compare lteqU")
+            DISASSEMBLE_VECTOR_BINARY(kCompareEQF, "compare eqF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareEQI, "compare eqI")
+            DISASSEMBLE_VECTOR_BINARY(kCompareNEQF, "compare neqF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareNEQI, "compare neqI")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTF, "compare gtF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTS, "compare gtS")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTU, "compare gtU")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTEQF, "compare gteqF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTEQS, "compare gteqS")
+            DISASSEMBLE_VECTOR_BINARY(kCompareGTEQU, "compare gteqU")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTF, "compare ltF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTS, "compare ltS")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTU, "compare ltU")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTEQF, "compare lteqF")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTEQS, "compare lteqS")
+            DISASSEMBLE_VECTOR_BINARY(kCompareLTEQU, "compare lteqU")
             DISASSEMBLE_VECTOR_BINARY(kSubtractF, "subF")
             DISASSEMBLE_VECTOR_BINARY(kSubtractI, "subI")
             DISASSEMBLE_VECTOR_BINARY(kDivideF, "divF")
@@ -553,11 +553,21 @@ private:
             }
             case ByteCode::Instruction::kSelect: {
                 ByteCode::Register target = read<ByteCode::Register>(ip);
-                ByteCode::Register test = read<ByteCode::Register>(ip);
-                ByteCode::Register src1 = read<ByteCode::Register>(ip);
                 ByteCode::Register src2 = read<ByteCode::Register>(ip);
+                ByteCode::Register src1 = read<ByteCode::Register>(ip);
+                ByteCode::Register test = read<ByteCode::Register>(ip);
                 printf("select $%d, $%d, $%d -> %d\n", test.fIndex, src1.fIndex, src2.fIndex,
                        target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kSelectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register src2 = read<ByteCode::Register>(ip);
+                ByteCode::Register src1 = read<ByteCode::Register>(ip);
+                ByteCode::Register test = read<ByteCode::Register>(ip);
+                printf("select%d $%d, $%d, $%d -> %d\n", count, test.fIndex, src1.fIndex,
+                       src2.fIndex, target.fIndex);
                 break;
             }
             DISASSEMBLE_BINARY(kShiftLeft, "shiftLeft")
@@ -745,21 +755,37 @@ private:
             &&kCall,
             &&kCallExternal,
             &&kCompareEQF,
+            &&kCompareEQFN,
             &&kCompareEQI,
+            &&kCompareEQIN,
             &&kCompareNEQF,
+            &&kCompareNEQFN,
             &&kCompareNEQI,
+            &&kCompareNEQIN,
             &&kCompareGTF,
+            &&kCompareGTFN,
             &&kCompareGTS,
+            &&kCompareGTSN,
             &&kCompareGTU,
+            &&kCompareGTUN,
             &&kCompareGTEQF,
+            &&kCompareGTEQFN,
             &&kCompareGTEQS,
+            &&kCompareGTEQSN,
             &&kCompareGTEQU,
+            &&kCompareGTEQUN,
             &&kCompareLTF,
+            &&kCompareLTFN,
             &&kCompareLTS,
+            &&kCompareLTSN,
             &&kCompareLTU,
+            &&kCompareLTUN,
             &&kCompareLTEQF,
+            &&kCompareLTEQFN,
             &&kCompareLTEQS,
+            &&kCompareLTEQSN,
             &&kCompareLTEQU,
+            &&kCompareLTEQUN,
             &&kContinue,
             &&kCopy,
             &&kCos,
@@ -816,6 +842,7 @@ private:
             &&kReturnValue,
             &&kScalarToMatrix,
             &&kSelect,
+            &&kSelectN,
             &&kShiftLeft,
             &&kShiftRightS,
             &&kShiftRightU,
@@ -856,21 +883,37 @@ private:
         CHECK_LABEL(kCall);
         CHECK_LABEL(kCallExternal);
         CHECK_LABEL(kCompareEQF);
+        CHECK_LABEL(kCompareEQFN);
         CHECK_LABEL(kCompareEQI);
+        CHECK_LABEL(kCompareEQIN);
         CHECK_LABEL(kCompareNEQF);
+        CHECK_LABEL(kCompareNEQFN);
         CHECK_LABEL(kCompareNEQI);
+        CHECK_LABEL(kCompareNEQIN);
         CHECK_LABEL(kCompareGTF);
+        CHECK_LABEL(kCompareGTFN);
         CHECK_LABEL(kCompareGTS);
+        CHECK_LABEL(kCompareGTSN);
         CHECK_LABEL(kCompareGTU);
+        CHECK_LABEL(kCompareGTUN);
         CHECK_LABEL(kCompareGTEQF);
+        CHECK_LABEL(kCompareGTEQFN);
         CHECK_LABEL(kCompareGTEQS);
+        CHECK_LABEL(kCompareGTEQSN);
         CHECK_LABEL(kCompareGTEQU);
+        CHECK_LABEL(kCompareGTEQUN);
         CHECK_LABEL(kCompareLTF);
+        CHECK_LABEL(kCompareLTFN);
         CHECK_LABEL(kCompareLTS);
+        CHECK_LABEL(kCompareLTSN);
         CHECK_LABEL(kCompareLTU);
+        CHECK_LABEL(kCompareLTUN);
         CHECK_LABEL(kCompareLTEQF);
+        CHECK_LABEL(kCompareLTEQFN);
         CHECK_LABEL(kCompareLTEQS);
+        CHECK_LABEL(kCompareLTEQSN);
         CHECK_LABEL(kCompareLTEQU);
+        CHECK_LABEL(kCompareLTEQUN);
         CHECK_LABEL(kContinue);
         CHECK_LABEL(kCopy);
         CHECK_LABEL(kCos);
@@ -927,6 +970,7 @@ private:
         CHECK_LABEL(kReturnValue);
         CHECK_LABEL(kScalarToMatrix);
         CHECK_LABEL(kSelect);
+        CHECK_LABEL(kSelectN);
         CHECK_LABEL(kShiftLeft);
         CHECK_LABEL(kShiftRightS);
         CHECK_LABEL(kShiftRightU);
@@ -981,22 +1025,22 @@ private:
                 VECTOR_BINARY_OP(kAddF, fFloat, fFloat, +)
                 VECTOR_BINARY_OP(kAddI, fInt, fInt, +)
                 BINARY_OP(kAnd, fInt, fInt, &)
-                BINARY_OP(kCompareEQF, fFloat, fInt, ==)
-                BINARY_OP(kCompareEQI, fInt, fInt, ==)
-                BINARY_OP(kCompareNEQF, fFloat, fInt, !=)
-                BINARY_OP(kCompareNEQI, fInt, fInt, !=)
-                BINARY_OP(kCompareGTF, fFloat, fInt, >)
-                BINARY_OP(kCompareGTS, fInt, fInt, >)
-                BINARY_OP(kCompareGTU, fUInt, fUInt, >)
-                BINARY_OP(kCompareGTEQF, fFloat, fInt, >=)
-                BINARY_OP(kCompareGTEQS, fInt, fInt, >=)
-                BINARY_OP(kCompareGTEQU, fUInt, fUInt, >=)
-                BINARY_OP(kCompareLTF, fFloat, fInt, <)
-                BINARY_OP(kCompareLTS, fInt, fInt, <)
-                BINARY_OP(kCompareLTU, fUInt, fUInt, <)
-                BINARY_OP(kCompareLTEQF, fFloat, fInt, <=)
-                BINARY_OP(kCompareLTEQS, fInt, fInt, <=)
-                BINARY_OP(kCompareLTEQU, fUInt, fUInt, <=)
+                VECTOR_BINARY_OP(kCompareEQF, fFloat, fInt, ==)
+                VECTOR_BINARY_OP(kCompareEQI, fInt, fInt, ==)
+                VECTOR_BINARY_OP(kCompareNEQF, fFloat, fInt, !=)
+                VECTOR_BINARY_OP(kCompareNEQI, fInt, fInt, !=)
+                VECTOR_BINARY_OP(kCompareGTF, fFloat, fInt, >)
+                VECTOR_BINARY_OP(kCompareGTS, fInt, fInt, >)
+                VECTOR_BINARY_OP(kCompareGTU, fUInt, fUInt, >)
+                VECTOR_BINARY_OP(kCompareGTEQF, fFloat, fInt, >=)
+                VECTOR_BINARY_OP(kCompareGTEQS, fInt, fInt, >=)
+                VECTOR_BINARY_OP(kCompareGTEQU, fUInt, fUInt, >=)
+                VECTOR_BINARY_OP(kCompareLTF, fFloat, fInt, <)
+                VECTOR_BINARY_OP(kCompareLTS, fInt, fInt, <)
+                VECTOR_BINARY_OP(kCompareLTU, fUInt, fUInt, <)
+                VECTOR_BINARY_OP(kCompareLTEQF, fFloat, fInt, <=)
+                VECTOR_BINARY_OP(kCompareLTEQS, fInt, fInt, <=)
+                VECTOR_BINARY_OP(kCompareLTEQU, fUInt, fUInt, <=)
                 VECTOR_BINARY_OP(kSubtractF, fFloat, fFloat, -)
                 VECTOR_BINARY_OP(kSubtractI, fInt, fInt, -)
                 VECTOR_BINARY_OP(kDivideF, fFloat, fFloat, /)
@@ -1469,12 +1513,26 @@ private:
                 }
                 LABEL(kSelect) {
                     ByteCode::Register target = read<ByteCode::Register>(&ip);
-                    ByteCode::Register test = read<ByteCode::Register>(&ip);
-                    ByteCode::Register src1 = read<ByteCode::Register>(&ip);
                     ByteCode::Register src2 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src1 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register test = read<ByteCode::Register>(&ip);
                     fRegisters[target.fIndex] = skvx::if_then_else(fRegisters[test.fIndex].fInt,
                                                                    fRegisters[src1.fIndex].fFloat,
                                                                    fRegisters[src2.fIndex].fFloat);
+                    NEXT();
+                }
+                LABEL(kSelectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src2 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src1 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register test = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i] =
+                                skvx::if_then_else(fRegisters[test.fIndex + i].fInt,
+                                                   fRegisters[src1.fIndex + i].fFloat,
+                                                   fRegisters[src2.fIndex + i].fFloat);
+                    }
                     NEXT();
                 }
                 LABEL(kShiftLeft) {
