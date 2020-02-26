@@ -571,7 +571,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Win2019":  DEFAULT_OS_WIN,
 			"Win7":     "Windows-7-SP1",
 			"Win8":     "Windows-8.1-SP0",
-			"iOS":      "iOS-11.4.1",
+			"iOS":      "iOS-13.3.1",
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
@@ -1112,9 +1112,11 @@ func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
 		if m := iosRegex.FindStringSubmatch(dim); len(m) >= 2 {
 			var asset string
 			switch m[1] {
-			// Other patch versions for 11.4 can be added here.
+			// Other patch versions can be added to the same case.
 			case "11.4.1":
 				asset = "ios-dev-image-11.4"
+			case "13.3.1":
+				asset = "ios-dev-image-13.3"
 			default:
 				glog.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", name, m[1])
 			}
