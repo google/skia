@@ -58,7 +58,7 @@ SkShaper::RunHandler::Buffer Run::newRunBuffer() {
 void Run::commit() {
     fFont.getBounds(fGlyphs.data(), fGlyphs.size(), fBounds.data(), nullptr);
 }
-SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
+SkScalar Run::calculateWidth(Cluster* cluster, size_t start, size_t end, bool clip) const {
     SkASSERT(start <= end);
     // clip |= end == size();  // Clip at the end of the run?
     SkScalar shift = 0;
@@ -68,7 +68,7 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     auto correction = 0.0f;
     if (end > start) {
         correction = fMaster->posShift(fIndex, clip ? end - 1 : end) -
-                     fMaster->posShift(fIndex, start);
+                     fMaster->posShiftBefore(fIndex, cluster, start);
     }
     return posX(end) - posX(start) + shift + correction;
 }
@@ -165,7 +165,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
                     glyph,
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == size()),
+                    this->calculateWidth(nullptr, start, glyph, glyph == size()),
                     this->calculateHeight());
 
             start = glyph;
@@ -185,7 +185,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
                     glyph,
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == 0),
+                    this->calculateWidth(nullptr, start, glyph, glyph == 0),
                     this->calculateHeight());
 
             glyph = start;

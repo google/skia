@@ -151,6 +151,18 @@ public:
         return fRunShifts[index].fShifts[pos];
     }
 
+    SkScalar posShiftBefore(RunIndex index, Cluster* start, size_t pos) {
+        if (fRunShifts.count() == 0) return 0.0;
+        if (start == nullptr) return 0.0;
+        if (start->runIndex() == index && start->startPos() == pos) {
+            return 0;
+        } else if (pos > 0) {
+            return fRunShifts[index].fShifts[pos - 1];
+        } else {
+            return fRunShifts[index - 1].fShifts.back();
+        }
+    }
+
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
     bool strutForceHeight() const {
         return paragraphStyle().getStrutStyle().getForceStrutHeight();

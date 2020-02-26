@@ -134,7 +134,7 @@ public:
         }
         return fHeightMultiplier * fFont.getSize();
     }
-    SkScalar calculateWidth(size_t start, size_t end, bool clip) const;
+    SkScalar calculateWidth(Cluster* cluster, size_t start, size_t end, bool clip) const;
 
     void copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector offset) const;
 
