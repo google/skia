@@ -9,9 +9,6 @@
 #define SkLumaColorFilter_DEFINED
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkRefCnt.h"
-
-class SkRasterPipeline;
 
 /**
  *  SkLumaColorFilter multiplies the luma of its input into the alpha channel,
@@ -31,27 +28,9 @@ class SkRasterPipeline;
  *  SkLumaColorFilter and feColorMatrix+luminanceToAlpha agree there.)
  */
 
- #include "include/core/SkFlattenable.h"
-
-class SK_API SkLumaColorFilter : public SkColorFilter {
+class SK_API SkLumaColorFilter {
 public:
     static sk_sp<SkColorFilter> Make();
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
-#endif
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkLumaColorFilter)
-
-    SkLumaColorFilter();
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-
-    typedef SkColorFilter INHERITED;
 };
 
 #endif
