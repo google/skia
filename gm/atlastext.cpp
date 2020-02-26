@@ -85,11 +85,13 @@ protected:
     void onOnceBeforeDraw() override {
         fRenderer = sk_gpu_test::MakeGLTestAtlasTextRenderer();
         if (!fRenderer) {
+            SkASSERT(fRenderer);
             return;
         }
         fContext = SkAtlasTextContext::Make(fRenderer);
         auto targetHandle = fRenderer->makeTargetHandle(kSize, kSize);
         if (!targetHandle) {
+            SkASSERT(targetHandle);
             return;
         }
 
