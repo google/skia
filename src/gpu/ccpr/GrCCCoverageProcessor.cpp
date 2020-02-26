@@ -211,7 +211,7 @@ void GrCCCoverageProcessor::draw(
                               &pipeline,
                               this,
                               nullptr,
-                              &dynamicStateArrays, 0, primitiveType);
+                              &dynamicStateArrays, 0, primitiveType, true);
 
 
     renderPass->bindPipeline(programInfo, drawBounds);

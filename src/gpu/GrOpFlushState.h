@@ -129,7 +129,7 @@ public:
                                     int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
-    const GrSurfaceProxyView* view() const { return this->drawOpArgs().view(); }
+    const GrSurfaceProxyView* view() const final { return this->drawOpArgs().view(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     GrAppliedClip detachAppliedClip() final;
@@ -170,7 +170,7 @@ private:
         const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
         const GrMesh* fMeshes = nullptr;
-        const GrOp* fOp = nullptr;
+        const GrOp* fOp1 = nullptr;
         int fMeshCnt = 0;
         GrPrimitiveType fPrimitiveType;
     };
