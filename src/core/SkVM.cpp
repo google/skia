@@ -20,8 +20,11 @@
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
+    #include <llvm/IR/LegacyPassManager.h>
     #include <llvm/IR/Verifier.h>
     #include <llvm/Support/TargetSelect.h>
+    #include <llvm/Transforms/IPO/PassManagerBuilder.h>
+    #include <llvm/Transforms/Utils.h>
 #endif
 
 bool gSkVMJITViaDylib{false};
@@ -1619,6 +1622,9 @@ namespace skvm {
 
     void Program::eval(int n, void* args[]) const {
         if (const void* b = fJITEntry) {
+            if (false && fEE) {
+                __builtin_debugtrap();
+            }
             void** a = args;
             switch (fStrides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
@@ -1901,7 +1907,17 @@ namespace skvm {
         auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
-        const int K = 8;   // Primary vector width.
+        const char* mcpu = "x86-64";
+        int K = 4;
+        if (true && SkCpu::Supports(SkCpu::HSW)) {
+            mcpu = "haswell";
+            K    = 8;
+        }
+        if (true && SkCpu::Supports(SkCpu::SKX)) {
+            mcpu = "skylake-avx512";
+            K    = 16;
+        }
+
         llvm::Type        *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo();
       //llvm::Type        *f32 = llvm::Type::getFloatTy(ctx);
         llvm::IntegerType *i32 = llvm::Type::getInt32Ty(ctx),
@@ -2030,6 +2046,20 @@ namespace skvm {
 
         SkASSERT(false == llvm::verifyModule(*mod));
 
+        llvm::legacy::FunctionPassManager fpm(mod.get());
+    #if 1
+        llvm::PassManagerBuilder pmb;
+        pmb. OptLevel = 1;
+        pmb.SizeLevel = 1;
+        // TargetMachine::adjustPassManager(pmb)
+        pmb.populateFunctionPassManager(fpm);
+        while (fpm.run(*fn));
+    #else
+        fpm.add(llvm::createPromoteMemoryToRegisterPass());
+        fpm.run(*fn);
+        SkASSERT(!fpm.run(*fn));
+    #endif
+
         if (false) {
             SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
             std::error_code err;
@@ -2045,7 +2075,7 @@ namespace skvm {
 
         fEE = llvm::EngineBuilder(std::move(mod))
                     .setEngineKind(llvm::EngineKind::JIT)
-                    .setOptLevel(llvm::CodeGenOpt::Less)
+                    .setMCPU(mcpu)
                     .create();
         if (fEE) {
             fJITEntry = (void*)fEE->getFunctionAddress(debug_name);
