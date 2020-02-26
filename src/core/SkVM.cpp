@@ -18,8 +18,10 @@
 
 #if defined(SKVM_LLVM)
     #include <llvm/Bitcode/BitcodeWriter.h>
+    #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
     #include <llvm/IR/Verifier.h>
+    #include <llvm/Support/TargetSelect.h>
 #endif
 
 bool gSkVMJITViaDylib{false};
@@ -516,7 +518,7 @@ namespace skvm {
             debug_name = buf;
         }
 
-    #if defined(SKVM_JIT)
+    #if defined(SKVM_LLVM) || defined(SKVM_JIT)
         return {this->optimize(false), this->optimize(true), fStrides, debug_name};
     #else
         return {this->optimize(false), fStrides};
@@ -1893,13 +1895,10 @@ namespace skvm {
     }
 
 #if defined(SKVM_LLVM)
-    // Smallest program:
-    // b.store32(b.varying<int>(), b.splat(42));
-    static bool try_llvm(const std::vector<OptimizedInstruction>& instructions,
-                         const std::vector<int>& strides,
-                         const char* debug_name) {
-        llvm::LLVMContext ctx;
-        llvm::Module mod("", ctx);
+    void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
+                            const char* debug_name) {
+        thread_local static llvm::LLVMContext ctx;
+        auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
         const int K = 8;   // Primary vector width.
@@ -1911,14 +1910,14 @@ namespace skvm {
       //                  *F32 = llvm::VectorType::get(f32, K);
 
         std::vector<llvm::Type*> arg_types = { i64 };
-        for (size_t i = 0; i < strides.size(); i++) {
+        for (size_t i = 0; i < fStrides.size(); i++) {
             arg_types.push_back(ptr);
         }
 
         llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx),
                                                               arg_types, /*vararg?=*/false);
         llvm::Function* fn
-            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, mod);
+            = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, *mod);
 
         llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
                          *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
@@ -1970,7 +1969,7 @@ namespace skvm {
             n = b.CreateAlloca(arg->getType());
             b.CreateStore(arg++, n);
 
-            for (size_t i = 0; i < strides.size(); i++) {
+            for (size_t i = 0; i < fStrides.size(); i++) {
                 args.push_back(b.CreateAlloca(arg->getType()));
                 b.CreateStore(arg++, args.back());
             }
@@ -1989,13 +1988,13 @@ namespace skvm {
             IRBuilder b(loopK);
             for (size_t i = 0; i < instructions.size(); i++) {
                 if (!emit(i, false, &b)) {
-                    return false;
+                    return;
                 }
             }
             b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_K), n);
-            for (size_t i = 0; i < strides.size(); i++) {
+            for (size_t i = 0; i < fStrides.size(); i++) {
                 b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
-                                          llvm::ConstantInt::get(i64, K * strides[i])), args[i]);
+                                          llvm::ConstantInt::get(i64, K * fStrides[i])), args[i]);
             }
             b.CreateBr(testK);
         }
@@ -2012,13 +2011,13 @@ namespace skvm {
             IRBuilder b(loop1);
             for (size_t i = 0; i < instructions.size(); i++) {
                 if (!emit(i, true, &b)) {
-                    return false;
+                    return;
                 }
             }
             b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_1), n);
-            for (size_t i = 0; i < strides.size(); i++) {
+            for (size_t i = 0; i < fStrides.size(); i++) {
                 b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
-                                          llvm::ConstantInt::get(i64, strides[i])), args[i]);
+                                          llvm::ConstantInt::get(i64, fStrides[i])), args[i]);
             }
             b.CreateBr(test1);
         }
@@ -2029,16 +2028,28 @@ namespace skvm {
             b.CreateRetVoid();
         }
 
-        SkASSERT(false == llvm::verifyModule(mod));
+        SkASSERT(false == llvm::verifyModule(*mod));
 
-        SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
-        std::error_code err;
-        llvm::raw_fd_ostream os(path.c_str(), err);
-        if (err) {
-            return false;
+        if (false) {
+            SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
+            std::error_code err;
+            llvm::raw_fd_ostream os(path.c_str(), err);
+            if (err) {
+                return;
+            }
+            llvm::WriteBitcodeToFile(*mod, os);
         }
-        llvm::WriteBitcodeToFile(mod, os);
-        return true;
+
+        SkAssertResult(false == llvm::InitializeNativeTarget());
+        SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
+
+        fEE = llvm::EngineBuilder(std::move(mod))
+                    .setEngineKind(llvm::EngineKind::JIT)
+                    .setOptLevel(llvm::CodeGenOpt::Less)
+                    .create();
+        if (fEE) {
+            fJITEntry = (void*)fEE->getFunctionAddress(debug_name);
+        }
     }
 #endif
 
@@ -2047,7 +2058,10 @@ namespace skvm {
     }
 
     void Program::dropJIT() {
-    #if defined(SKVM_JIT)
+    #if defined(SKVM_LLVM)
+        delete fEE;
+        fEE = nullptr;
+    #elif defined(SKVM_JIT)
         if (fDylib) {
             dlclose(fDylib);
         } else if (fJITEntry) {
@@ -2073,6 +2087,8 @@ namespace skvm {
         std::swap(fJITEntry, other.fJITEntry);
         std::swap(fJITSize , other.fJITSize);
         std::swap(fDylib   , other.fDylib);
+
+        std::swap(fEE, other.fEE);
     }
 
     Program& Program::operator=(Program&& other) {
@@ -2084,6 +2100,8 @@ namespace skvm {
         std::swap(fJITEntry, other.fJITEntry);
         std::swap(fJITSize , other.fJITSize);
         std::swap(fDylib   , other.fDylib);
+
+        std::swap(fEE, other.fEE);
         return *this;
     }
 
@@ -2098,16 +2116,10 @@ namespace skvm {
                      const std::vector<OptimizedInstruction>& jit,
                      const std::vector<int>& strides,
                      const char* debug_name) : Program(interpreter, strides) {
-    #if 1 && defined(SKVM_JIT)
+    #if 1 && defined(SKVM_LLVM)
+        this->setupLLVM(interpreter, debug_name);
+    #elif 1 && defined(SKVM_JIT)
         this->setupJIT(jit, debug_name);
-    #endif
-
-    #if defined(SKVM_LLVM)
-        if (try_llvm(interpreter, fStrides, debug_name)) {
-            SkDebugf("hey, neat!  that might work\n");
-        } else {
-            SkDebugf("bummer\n");
-        }
     #endif
     }
 

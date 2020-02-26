@@ -280,6 +280,22 @@ DEF_TEST(SkVM_Pointless, r) {
     }
 }
 
+#if defined(SKVM_LLVM)
+DEF_TEST(SkVM_LLVM, r) {
+    skvm::Builder b;
+    b.store32(b.varying<int>(), b.splat(42));
+
+    skvm::Program p = b.done();
+    REPORTER_ASSERT(r, p.hasJIT());
+
+    int buf[17];
+    p.eval(SK_ARRAY_COUNT(buf), buf);
+    for (int v : buf) {
+        REPORTER_ASSERT(r, v == 42);
+    }
+}
+#endif
+
 DEF_TEST(SkVM_LoopCounts, r) {
     // Make sure we cover all the exact N we want.
 
