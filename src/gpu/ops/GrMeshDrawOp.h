@@ -51,6 +51,8 @@ protected:
 
         void* vertices() const { return fVertices; }
 
+        GrMesh* mesh() { return fMesh; }
+
     protected:
         PatternHelper() = default;
         void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
@@ -185,6 +187,7 @@ public:
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
+    virtual const GrSurfaceProxyView* view() const = 0;
 
     virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;

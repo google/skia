@@ -182,7 +182,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                               state->proxy()->backendFormat(), state->view()->origin(), &pipeline,
                               &shader, &fixedDynamicState, nullptr, 0,
-                              GrPrimitiveType::kTriangleStrip);
+                              GrPrimitiveType::kTriangleStrip, 0, true);
 
     GrMesh mesh;
     mesh.setInstanced(fInstanceBuffer, fInstanceCount, fBaseInstance, 4);

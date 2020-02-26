@@ -335,7 +335,7 @@ private:
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->view()->origin(),
                                   &pipeline, shader.get(), &fixedDynamicState, nullptr, 0,
-                                  GrPrimitiveType::kPatches, tessellationPatchVertexCount);
+                                  GrPrimitiveType::kPatches, tessellationPatchVertexCount, false);
 
         state->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
         state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);

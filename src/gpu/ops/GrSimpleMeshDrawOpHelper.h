@@ -16,6 +16,8 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include <new>
 
+#include "src/gpu/GrProgramInfo.h"
+
 struct SkRect;
 
 /**
@@ -108,8 +110,20 @@ public:
         friend class GrSimpleMeshDrawOpHelper;
     };
 
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* dstView,
+                           GrAppliedClip&& appliedClip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) {
+        SkASSERT(!fProgramInfo);
+
+//        fProgramInfo = arena->make<GrProgramInfo>();
+    }
+
     void visitProxies(const GrOp::VisitProxyFunc& func) const {
-        if (fProcessors) {
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else if (fProcessors) {
             fProcessors->visitProxies(func);
         }
     }
@@ -134,12 +148,19 @@ public:
     }
 
     GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
+    GrProcessorSet* processors() { return fProcessors; }
+
+protected:
 
 protected:
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*,
             bool hasMixedSampledCoverage, GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
             GrProcessorAnalysisColor* geometryColor);
+
+    // If this op is prePrepared the created programInfo will be stored here for use in
+    // onExecute. In the prePrepared case it will have been stored in the record-time arena.
+    GrProgramInfo*  fProgramInfo = nullptr;
 
     GrProcessorSet* fProcessors;
     GrPipeline::InputFlags fPipelineFlags;
@@ -161,6 +182,8 @@ public:
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
+    using GrSimpleMeshDrawOpHelper::createProgramInfo;
+    using GrSimpleMeshDrawOpHelper::processors;
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
