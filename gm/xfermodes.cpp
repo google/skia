@@ -282,6 +282,7 @@ protected:
                 }
             }
             if (y < 320) {
+                canvas = nullptr;
                 if (x > x0) {
                     y += h + SkIntToScalar(30);
                 }
