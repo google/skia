@@ -55,6 +55,10 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         return original;
     }
 
+    // We believe all Makers already have tried to add MIP maps in refOriginalTextureProxyView()
+    // if willBeMipped was true and therefore we should never get here.
+    SkASSERT(false);
+
     if (mipMappedKey.isValid()) {
         SkASSERT(result.origin() == origOrigin);
         proxyProvider->assignUniqueKeyToProxy(mipMappedKey, result.asTextureProxy());
