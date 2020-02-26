@@ -9,6 +9,7 @@
 #define GrD3D12_DEFINED
 
 #include <d3d12.h>
+#include <dxgi1_4.h>
 #include <wrl/client.h>  // for ComPtr
 
 // Abbreviate and alias ComPtr
