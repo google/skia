@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a373b63_1afc21bb",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "I\u0027m using it below, now.",
+      "parentUuid": "ac4f27bf_e00a4aa7",
+      "range": {
+        "startLine": 71,
+        "startChar": 20,
+        "endLine": 71,
+        "endChar": 44
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5084cc51_2fe0b57a",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e1140e7_dafd657a",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5084cc51_2fe0b57a",
+      "range": {
+        "startLine": 75,
+        "startChar": 45,
+        "endLine": 75,
+        "endChar": 65
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "14664a05_c9d07718",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33b0e151_d763561c",
+      "range": {
+        "startLine": 80,
+        "startChar": 52,
+        "endLine": 80,
+        "endChar": 64
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e97f4a1_ec0bb256",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2020-02-26T14:59:46Z",
       "side": 1,
       "message": "Does the spec difine what its standard locations are?",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 27
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0068bdc5_0af46d25",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "I found more information on this -- we can query the \"quality levels\" for multisampling, but what those levels mean is vendor-dependent. The D3D11 query is a little more informative: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-checkmultisamplequalitylevels. I haven\u0027t been able to find a way to query for those locations so I\u0027m setting this to false for now.",
+      "parentUuid": "6e97f4a1_ec0bb256",
       "range": {
         "startLine": 103,
         "startChar": 4,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9d912232_a3faa4dd",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "One case where D3D is *too* verbose.",
+      "parentUuid": "5c42ffbc_40a3398d",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 12
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4e6fdb6_9b1a7028",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "924dd878_565934f4",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4e6fdb6_9b1a7028",
+      "range": {
+        "startLine": 115,
+        "startChar": 9,
+        "endLine": 115,
+        "endChar": 16
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dd96aa2_b50ccbed",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
@@ -151,6 +295,30 @@
       "writtenOn": "2020-02-26T14:59:46Z",
       "side": 1,
       "message": "should this be in the driver workaround section?",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 125,
+        "endChar": 57
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29ca3839_40867bfb",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Just copying Vulkan here. But I also think it\u0027s cleaner to keep the texture/rendertarget size code all together.",
+      "parentUuid": "5dd96aa2_b50ccbed",
       "range": {
         "startLine": 125,
         "startChar": 8,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "1209bf6a_51cb2b0c",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c15d1090_e4845bd4",
+      "range": {
+        "startLine": 152,
+        "startChar": 9,
+        "endLine": 152,
+        "endChar": 37
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d52e5dc5_f7875ef4",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 3
@@ -206,6 +398,30 @@
       "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4013601_c92974f8",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-26T17:17:19Z",
+      "side": 1,
+      "message": "Added two D3D variables to track SRV and UAV max counts.",
+      "parentUuid": "d52e5dc5_f7875ef4",
+      "range": {
+        "startLine": 172,
+        "startChar": 11,
+        "endLine": 172,
+        "endChar": 62
+      },
+      "revId": "b095e4b72e9251b2d6ae7876b4047e1d0552a79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
