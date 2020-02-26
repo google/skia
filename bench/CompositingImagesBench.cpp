@@ -212,8 +212,10 @@ protected:
                             SkCanvas::kStrict_SrcRectConstraint);
                 }
             }
+            if (i != loops -1) {
             // Prevent any batching between composited "frames".
             canvas->flush();
+            }
         }
         canvas->restore();
     }
