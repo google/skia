@@ -249,7 +249,7 @@ public:
         // Register target, Register src, uint8_t columns, uint8_t rows
         kScalarToMatrix,
         // Register target, Register test, Register ifTrue, Register ifFalse
-        kSelect,
+        V(kSelect),
         // Register target, Register src, uint8_t count
         kShiftLeft,
         // Register target, Register src, uint8_t count

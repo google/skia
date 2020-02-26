@@ -21,7 +21,6 @@ ByteCodeGenerator::ByteCodeGenerator(const Program* program, ErrorReporter* erro
         { "tan",     ByteCode::Instruction::kTan },
 
         // Special intrinsics have other signatures, or non-standard code-gen
-        { "dot",     SpecialIntrinsic::kDot },
         { "inverse", SpecialIntrinsic::kInverse },
         { "print",   SpecialIntrinsic::kPrint },
     } {}
@@ -914,36 +913,6 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
                                            ByteCode::Register result) {
     if (intrinsic.fIsSpecial) {
         switch (intrinsic.fValue.fSpecial) {
-            case SpecialIntrinsic::kDot: {
-                SkASSERT(c.fArguments.size() == 2);
-                int count = SlotCount(c.fArguments[0]->fType);
-                ByteCode::Register left = this->next(count);
-                this->writeExpression(*c.fArguments[0], left);
-                ByteCode::Register right = this->next(count);
-                this->writeExpression(*c.fArguments[1], right);
-                ByteCode::Register product = this->next(count);
-                this->writeTypedInstruction(c.fType,
-                                            ByteCode::Instruction::kMultiplyIN,
-                                            ByteCode::Instruction::kMultiplyIN,
-                                            ByteCode::Instruction::kMultiplyFN);
-                this->write((uint8_t) count);
-                this->write(product);
-                this->write(left);
-                this->write(right);
-                ByteCode::Register total = product;
-                for (int i = 1; i < count; ++i) {
-                    this->writeTypedInstruction(c.fType,
-                                                ByteCode::Instruction::kAddI,
-                                                ByteCode::Instruction::kAddI,
-                                                ByteCode::Instruction::kAddF);
-                    ByteCode::Register sum = i == count - 1 ? result : this->next(1);
-                    this->write(sum);
-                    this->write(total);
-                    this->write(product + i);
-                    total = sum;
-                }
-                break;
-            }
             case SpecialIntrinsic::kInverse: {
                 SkASSERT(c.fArguments.size() == 1);
                 int count = SlotCount(c.fArguments[0]->fType);
