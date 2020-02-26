@@ -124,37 +124,37 @@ public:
         // uint8_t argumentSize
         kCallExternal,
         // Register target, Register src1, Register src2
-        kCompareEQF,
+        V(kCompareEQF),
         // Register target, Register src1, Register src2
-        kCompareEQI,
+        V(kCompareEQI),
         // Register target, Register src1, Register src2
-        kCompareNEQF,
+        V(kCompareNEQF),
         // Register target, Register src1, Register src2
-        kCompareNEQI,
+        V(kCompareNEQI),
         // Register target, Register src1, Register src2
-        kCompareGTF,
+        V(kCompareGTF),
         // Register target, Register src1, Register src2
-        kCompareGTS,
+        V(kCompareGTS),
         // Register target, Register src1, Register src2
-        kCompareGTU,
+        V(kCompareGTU),
         // Register target, Register src1, Register src2
-        kCompareGTEQF,
+        V(kCompareGTEQF),
         // Register target, Register src1, Register src2
-        kCompareGTEQS,
+        V(kCompareGTEQS),
         // Register target, Register src1, Register src2
-        kCompareGTEQU,
+        V(kCompareGTEQU),
         // Register target, Register src1, Register src2
-        kCompareLTF,
+        V(kCompareLTF),
         // Register target, Register src1, Register src2
-        kCompareLTS,
+        V(kCompareLTS),
         // Register target, Register src1, Register src2
-        kCompareLTU,
+        V(kCompareLTU),
         // Register target, Register src1, Register src2
-        kCompareLTEQF,
+        V(kCompareLTEQF),
         // Register target, Register src1, Register src2
-        kCompareLTEQS,
+        V(kCompareLTEQS),
         // Register target, Register src1, Register src2
-        kCompareLTEQU,
+        V(kCompareLTEQU),
         // no parameters
         kContinue,
         // Register target, Register src
@@ -248,8 +248,8 @@ public:
         kReturnValue,
         // Register target, Register src, uint8_t columns, uint8_t rows
         kScalarToMatrix,
-        // Register target, Register test, Register ifTrue, Register ifFalse
-        kSelect,
+        // Register target, Register ifFalse, Register ifTrue, Register test (To match GLSL mix)
+        V(kSelect),
         // Register target, Register src, uint8_t count
         kShiftLeft,
         // Register target, Register src, uint8_t count
