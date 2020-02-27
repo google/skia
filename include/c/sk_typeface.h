@@ -30,11 +30,13 @@ SK_C_API sk_fontstyle_t* sk_typeface_get_fontstyle(sk_typeface_t* typeface);
 SK_C_API int sk_typeface_get_font_weight(sk_typeface_t* typeface);
 SK_C_API int sk_typeface_get_font_width(sk_typeface_t* typeface);
 SK_C_API sk_font_style_slant_t sk_typeface_get_font_slant(sk_typeface_t* typeface);
+SK_C_API int sk_typeface_count_glyphs(sk_typeface_t* typeface);
 SK_C_API int sk_typeface_count_tables(sk_typeface_t* typeface);
 SK_C_API int sk_typeface_get_table_tags(sk_typeface_t* typeface, sk_font_table_tag_t tags[]);
 SK_C_API size_t sk_typeface_get_table_size(sk_typeface_t* typeface, sk_font_table_tag_t tag);
 SK_C_API size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t tag, size_t offset, size_t length, void* data);
 SK_C_API bool sk_typeface_is_fixed_pitch(sk_typeface_t* typeface);
+SK_C_API bool sk_typeface_get_kerning_pair_adjustments(sk_typeface_t* typeface, const uint16_t* glyphs, int count, int32_t* adjustments);
 
 // font manager
 

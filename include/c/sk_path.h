@@ -45,6 +45,7 @@ SK_C_API void sk_path_add_arc(sk_path_t* cpath, const sk_rect_t* crect, float st
 SK_C_API sk_path_filltype_t sk_path_get_filltype(sk_path_t*);
 SK_C_API void sk_path_set_filltype(sk_path_t*, sk_path_filltype_t);
 SK_C_API void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix);
+SK_C_API void sk_path_transform_to_dest(sk_path_t* cpath, const sk_matrix_t* cmatrix, sk_path_t* destination);
 SK_C_API sk_path_t* sk_path_clone(const sk_path_t* cpath);
 SK_C_API void sk_path_add_path_offset  (sk_path_t* cpath, sk_path_t* other, float dx, float dy, sk_path_add_mode_t add_mode);
 SK_C_API void sk_path_add_path_matrix  (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode);

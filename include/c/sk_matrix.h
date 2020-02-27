@@ -59,6 +59,7 @@ SK_C_API void sk_matrix44_as_col_major (sk_matrix44_t* matrix, float* dst);
 SK_C_API void sk_matrix44_as_row_major (sk_matrix44_t* matrix, float* dst);
 SK_C_API void sk_matrix44_set_col_major (sk_matrix44_t* matrix, float* dst);
 SK_C_API void sk_matrix44_set_row_major (sk_matrix44_t* matrix, float* dst);
+SK_C_API void sk_matrix44_set_3x3_row_major (sk_matrix44_t* matrix, float* dst);
 SK_C_API void sk_matrix44_set_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);
 SK_C_API void sk_matrix44_pre_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);
 SK_C_API void sk_matrix44_post_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);

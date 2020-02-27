@@ -197,6 +197,10 @@ void sk_matrix44_set_row_major(sk_matrix44_t* matrix, float* dst) {
     AsMatrix44(matrix)->setRowMajorf(dst);
 }
 
+void sk_matrix44_set_3x3_row_major(sk_matrix44_t* matrix, float* dst) {
+    AsMatrix44(matrix)->set3x3RowMajorf(dst);
+}
+
 void sk_matrix44_set_translate(sk_matrix44_t* matrix, float dx, float dy, float dz) {
     AsMatrix44(matrix)->setTranslate(dx, dy, dz);
 }

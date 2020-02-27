@@ -15,6 +15,10 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_canvas_t* sk_svgcanvas_create(const sk_rect_t* bounds, sk_xmlwriter_t* writer) {
+sk_canvas_t* sk_svgcanvas_create_with_stream(const sk_rect_t* bounds, sk_wstream_t* stream) {
+    return ToCanvas(SkSVGCanvas::Make(*AsRect(bounds), AsWStream(stream)).release());
+}
+
+sk_canvas_t* sk_svgcanvas_create_with_writer(const sk_rect_t* bounds, sk_xmlwriter_t* writer) {
     return ToCanvas(SkSVGCanvas::Make(*AsRect(bounds), AsXMLWriter(writer)).release());
 }
