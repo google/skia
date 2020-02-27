@@ -140,6 +140,15 @@ public:
 
     const GrPipeline* createPipeline(GrOpFlushState* flushState);
 
+    static GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                            SkArenaAlloc*,
+                                            const GrSurfaceProxyView* dstView,
+                                            GrAppliedClip&&,
+                                            const GrXferProcessor::DstProxyView&,
+                                            GrGeometryProcessor*,
+                                            GrProcessorSet&&,
+                                            GrPipeline::InputFlags pipelineFlags);
+
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
     }
