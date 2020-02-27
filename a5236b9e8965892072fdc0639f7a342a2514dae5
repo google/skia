@@ -16,6 +16,24 @@
       "revId": "a5236b9e8965892072fdc0639f7a342a2514dae5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cc64410_7e7065ec",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1817,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-27T17:57:26Z",
+      "side": 1,
+      "message": "This only showed up as green because I moved the surrounding code, but I\u0027m happy to change it. I like \u003d assignment better too.",
+      "parentUuid": "035bd084_52ad1c69",
+      "revId": "a5236b9e8965892072fdc0639f7a342a2514dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

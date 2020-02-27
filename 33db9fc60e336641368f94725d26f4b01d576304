@@ -22,6 +22,30 @@
       "revId": "33db9fc60e336641368f94725d26f4b01d576304",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81e59a1b_f9c5f887",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-27T17:57:26Z",
+      "side": 0,
+      "message": "That\u0027s why flushGLState returns an sk_sp instead of a raw pointer, And why I added SK_WARN_UNUSED_RESULT. The caller needs to use the GrGLProgram in order to bind textures and vertex attribs anyway, so it\u0027s natural to hang on to it.\n\nI added a comment that specifies it needs to be kept alive until done issuing draws.",
+      "parentUuid": "a6325f09_f04db312",
+      "range": {
+        "startLine": 466,
+        "startChar": 4,
+        "endLine": 466,
+        "endChar": 43
+      },
+      "revId": "33db9fc60e336641368f94725d26f4b01d576304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
