@@ -242,7 +242,7 @@ std::string SkQP::GetGMName(SkQP::GMFactory f) {
 
 const char* SkQP::GetUnitTestName(SkQP::UnitTest t) { return t->name; }
 
-SkQP::SkQP() {}
+SkQP::SkQP() { printf("SKQP CONSTRUCTOR ... \n"); fflush(stdout); }
 
 SkQP::~SkQP() {}
 
@@ -251,6 +251,7 @@ void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
     SkASSERT_RELEASE(am);
     fAssetManager = am;
     fReportDirectory = reportDirectory;
+    printf("SKQP INIT ....\n"); fflush(stdout);
 
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;

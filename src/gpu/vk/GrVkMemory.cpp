@@ -171,7 +171,7 @@ void GrVkMemory::UnmapAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
 void GrVkMemory::GetNonCoherentMappedMemoryRange(const GrVkAlloc& alloc, VkDeviceSize offset,
                                                  VkDeviceSize size, VkDeviceSize alignment,
                                                  VkMappedMemoryRange* range) {
-    SkASSERT(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag);
+    // SkASSERT(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag);
     offset = offset + alloc.fOffset;
     VkDeviceSize offsetDiff = offset & (alignment -1);
     offset = offset - offsetDiff;
@@ -212,13 +212,20 @@ void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, Vk
 
 void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc,
                                        VkDeviceSize offset, VkDeviceSize size) {
+    fflush(stdout);
     if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
+        printf("INVALIDATE: noncoherent flag is set\n");
+        fflush(stdout);
         SkASSERT(offset == 0);
         SkASSERT(size <= alloc.fSize);
         if (alloc.fBackendMemory) {
+            printf("INVALIDATE: backend memory\n");
+            fflush(stdout);
             GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
             allocator->invalidateMappedMemory(alloc.fBackendMemory, offset, size);
         } else {
+            printf("INVALIDATE: not backend memory\n");
+            fflush(stdout);
             VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
             VkMappedMemoryRange mappedMemoryRange;
             GrVkMemory::GetNonCoherentMappedMemoryRange(alloc, offset, size, alignment,
@@ -228,4 +235,3 @@ void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& allo
         }
     }
 }
-

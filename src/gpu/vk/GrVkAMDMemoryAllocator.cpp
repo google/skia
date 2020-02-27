@@ -179,6 +179,7 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
     if (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT & memFlags) {
         flags |= GrVkAlloc::kMappable_Flag;
     }
+
     if (!SkToBool(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT & memFlags)) {
         flags |= GrVkAlloc::kNoncoherent_Flag;
     }
@@ -248,7 +249,7 @@ void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& mem
     GrVkAlloc info;
     this->getAllocInfo(memoryHandle, &info);
 
-    if (GrVkAlloc::kNoncoherent_Flag & info.fFlags) {
+    if (1 || (GrVkAlloc::kNoncoherent_Flag & info.fFlags)) {
         // We need to store the nonCoherentAtomSize for non-coherent flush/invalidate alignment.
         const VkPhysicalDeviceProperties* physDevProps;
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
@@ -257,6 +258,8 @@ void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& mem
         VkMappedMemoryRange mappedMemoryRange;
         GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
                                                     &mappedMemoryRange);
+        printf("VULKAN INVALIDATE MAPPED MEMORY RANGES !!!!\n");
+        fflush(stdout);
         GR_VK_CALL(fInterface, InvalidateMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
