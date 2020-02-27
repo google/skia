@@ -591,6 +591,11 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ]
     },
+    "Build-Win-Clang-x86_64-Release-Dawn": {
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release-Dawn"
+      ]
+    },
     "Build-Win-Clang-x86_64-Release-Shared": {
       "tasks": [
         "Build-Win-Clang-x86_64-Release-Shared"
@@ -3803,6 +3808,18 @@
           "path": "cache/vpython"
         },
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         },
@@ -3828,6 +3845,21 @@
           "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
         },
         {
+          "name": "infra/3pp/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.25.1.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
           "name": "skia/bots/ccache_linux",
           "path": "ccache_linux",
           "version": "version:1"
@@ -3838,8 +3870,8 @@
         "-u",
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
-        "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-GCC-x86_64-Release-Shared_Docker\",\"swarm_out_dir\":\"build\"}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian10-GCC-x86_64-Release-Shared_Docker\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -3866,9 +3898,8 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
       "io_timeout_ns": 3600000000000,
-      "isolate": "compile.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -12288,7 +12319,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Win-Clang-x86_64-Release-Shared": {
+    "Build-Win-Clang-x86_64-Release-Dawn": {
       "caches": [
         {
           "name": "vpython",
@@ -12328,7 +12359,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Shared\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-Clang-x86_64-Release-Dawn\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -12358,6 +12389,108 @@
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Win-Clang-x86_64-Release-Shared": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/3pp/tools/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.17.chromium.24"
+        },
+        {
+          "name": "infra/3pp/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.25.1.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Win-Clang-x86_64-Release-Shared\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -13155,6 +13288,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -13177,6 +13322,21 @@
           "name": "infra/3pp/tools/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.17.chromium.24"
+        },
+        {
+          "name": "infra/3pp/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.25.1.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
         }
       ],
       "command": [
@@ -13184,8 +13344,8 @@
         "-u",
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
-        "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Win-MSVC-x86_64-Release-Shared\",\"swarm_out_dir\":\"build\"}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Win-MSVC-x86_64-Release-Shared\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -13212,9 +13372,8 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
       "io_timeout_ns": 3600000000000,
-      "isolate": "compile.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
