@@ -2093,7 +2093,6 @@ namespace skvm {
     void Program::dropJIT() {
     #if defined(SKVM_LLVM)
         delete fEE;
-        fEE = nullptr;
     #elif defined(SKVM_JIT)
         if (fDylib) {
             dlclose(fDylib);
@@ -2107,6 +2106,7 @@ namespace skvm {
         fJITEntry = nullptr;
         fJITSize  = 0;
         fDylib    = nullptr;
+        fEE       = nullptr;
     }
 
     Program::~Program() { this->dropJIT(); }
@@ -2120,8 +2120,7 @@ namespace skvm {
         std::swap(fJITEntry, other.fJITEntry);
         std::swap(fJITSize , other.fJITSize);
         std::swap(fDylib   , other.fDylib);
-
-        std::swap(fEE, other.fEE);
+        std::swap(fEE      , other.fEE);
     }
 
     Program& Program::operator=(Program&& other) {
@@ -2133,8 +2132,7 @@ namespace skvm {
         std::swap(fJITEntry, other.fJITEntry);
         std::swap(fJITSize , other.fJITSize);
         std::swap(fDylib   , other.fDylib);
-
-        std::swap(fEE, other.fEE);
+        std::swap(fEE      , other.fEE);
         return *this;
     }
 

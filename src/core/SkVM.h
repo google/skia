@@ -674,11 +674,10 @@ namespace skvm {
         int                      fLoop = 0;
         std::vector<int>         fStrides;
 
-        void*  fJITEntry = nullptr;
-        size_t fJITSize  = 0;
-        void*  fDylib    = nullptr;
-
-        llvm::ExecutionEngine* fEE;
+        void*  fJITEntry           = nullptr;
+        size_t fJITSize            = 0;
+        void*  fDylib              = nullptr;
+        llvm::ExecutionEngine* fEE = nullptr;
     };
 
     // TODO: control flow
