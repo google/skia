@@ -638,6 +638,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kRenderTarget_GrGLBackendState) {
         fHWBoundRenderTargetUniqueID.makeInvalid();
         fHWSRGBFramebuffer = kUnknown_TriState;
+        fBoundDrawFramebuffer = 0;
     }
 
     if (resetBits & kPathRendering_GrGLBackendState) {
