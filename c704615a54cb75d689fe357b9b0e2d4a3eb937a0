@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46b78877_460f0384",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T16:38:35Z",
+      "side": 1,
+      "message": "nit: the env vars are really only needed for _run_ios_script and read_file_on_device",
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbbbdd51_b760ea27",
+        "filename": "infra/bots/recipe_modules/flavor/win_ssh.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T16:38:35Z",
+      "side": 1,
+      "message": "nit: We should probably just omit the call to super.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 28
+      },
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a30684ea_3b90505a",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T16:38:35Z",
+      "side": 1,
+      "message": "nit: comment to explain why None",
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6de9fc2f_ad85a30c",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T16:38:35Z",
+      "side": 1,
+      "message": "nit: this comment doesn\u0027t really make sense here anymore.",
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "789484b1_734e4563",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T16:38:35Z",
+      "side": 1,
+      "message": "nit: comment to explain why None",
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
