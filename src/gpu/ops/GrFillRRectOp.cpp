@@ -20,6 +20,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 
@@ -90,12 +91,26 @@ private:
 
     void writeInstanceData() {}  // Halt condition.
 
+#if 0
     // Create a GrProgramInfo object in the provided arena
-    GrProgramInfo* createProgramInfo(const GrCaps*,
-                                     SkArenaAlloc*,
+    static GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                            SkArenaAlloc*,
+                                            const GrSurfaceProxyView* dstView,
+                                            GrAppliedClip&&,
+                                            const GrXferProcessor::DstProxyView&,
+                                            //--
+                                            GrGeometryProcessor*,
+                                            //--
+                                            GrProcessorSet&& processorSet,
+                                            GrPipeline::InputFlags pipelineFlags);
+#endif
+
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
                                      const GrSurfaceProxyView* dstView,
-                                     GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&);
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView);
+    GrProgramInfo* createProgramInfo(GrOpFlushState*);
 
     const GrAAType fAAType;
     const SkPMColor4f fOriginalColor;
@@ -566,7 +581,8 @@ void FillRRectOp::onPrePrepare(GrRecordingContext* context,
     // TODO: it would be cool if, right here, we created both the program info and desc
     // in the record-time arena. Then, if the program info had already been seen, we could
     // get pointers back to the prior versions and be able to return the allocated space
-    // back to the arena.
+    // back to the arena. Note that this would require separating the portions of the
+    // ProgramInfo that represent state from those that are just definitional.
     fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
                                            std::move(appliedClip), dstProxyView);
 
@@ -861,32 +877,29 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
     return new CoverageImpl();
 }
 
-GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
+#if 0
+GrProgramInfo* FillRRectOp::CreateProgramInfo(const GrCaps* caps,
                                               SkArenaAlloc* arena,
                                               const GrSurfaceProxyView* dstView,
                                               GrAppliedClip&& appliedClip,
-                                              const GrXferProcessor::DstProxyView& dstProxyView) {
-    GrGeometryProcessor* geomProc = Processor::Make(arena, fAAType, fFlags);
-    SkASSERT(geomProc->instanceStride() == (size_t)fInstanceStride);
-
-    GrPipeline::InitArgs initArgs;
-    if (GrAAType::kMSAA == fAAType) {
-        initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
-    }
-    initArgs.fCaps = caps;
-    initArgs.fDstProxyView = dstProxyView;
-    initArgs.fOutputSwizzle = dstView->swizzle();
-
+                                              const GrXferProcessor::DstProxyView& dstProxyView,
+                                              GrGeometryProcessor* geometryProcessor,
+                                              GrProcessorSet&& processorSet,
+                                              GrPipeline::InputFlags pipelineFlags) {
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
 
     if (appliedClip.scissorState().enabled()) {
         fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
-                                                        appliedClip.scissorState().rect());
+            appliedClip.scissorState().rect());
     }
 
-    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
-                                                   std::move(fProcessors),
-                                                   std::move(appliedClip));
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(caps,
+                                                             arena,
+                                                             dstView,
+                                                             std::move(appliedClip),
+                                                             dstProxyView,
+                                                             std::move(processorSet),
+                                                             pipelineFlags);
 
     GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
     return arena->make<GrProgramInfo>(dstProxy->numSamples(),
@@ -894,10 +907,38 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                       dstProxy->backendFormat(),
                                       dstView->origin(),
                                       pipeline,
-                                      geomProc,
+                                      geometryProcessor,
                                       fixedDynamicState,
-                                      nullptr, 0,
+                                      nullptr,
+                                      0,
                                       GrPrimitiveType::kTriangles);
+}
+#endif
+
+GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
+                                              SkArenaAlloc* arena,
+                                              const GrSurfaceProxyView* dstView,
+                                              GrAppliedClip&& appliedClip,
+                                              const GrXferProcessor::DstProxyView& dstProxyView) {
+    GrGeometryProcessor* gp = Processor::Make(arena, fAAType, fFlags);
+    SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
+
+    GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone;
+    if (GrAAType::kMSAA == fAAType) {
+        flags = GrPipeline::InputFlags::kHWAntialias;
+    }
+
+    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, dstView,
+                                                       std::move(appliedClip), dstProxyView,
+                                                       gp, std::move(fProcessors), flags);
+}
+
+GrProgramInfo* FillRRectOp::createProgramInfo(GrOpFlushState* flushState) {
+    return this->createProgramInfo(&flushState->caps(),
+                                   flushState->allocator(),
+                                   flushState->view(),
+                                   flushState->detachAppliedClip(),
+                                   flushState->dstProxyView());
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -906,13 +947,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     if (!fProgramInfo) {
-        const GrSurfaceProxyView* dstView = flushState->view();
-
-        fProgramInfo = this->createProgramInfo(&flushState->caps(),
-                                               flushState->allocator(),
-                                               dstView,
-                                               flushState->detachAppliedClip(),
-                                               flushState->dstProxyView());
+        fProgramInfo = this->createProgramInfo(flushState);
     }
 
     GrMesh* mesh = flushState->allocator()->make<GrMesh>();
