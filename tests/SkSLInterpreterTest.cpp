@@ -796,6 +796,8 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float main(float x) { return sub(sqr(x), x); }\n"
 
         // Different signatures
+        "float dot(float2 a, float2 b) { return a.x*b.x + a.y*b.y; }\n"
+        "float dot(float3 a, float3 b) { return a.x*b.x + a.y*b.y + a.z*b.z; }\n"
         "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
         "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n";
 
@@ -957,29 +959,6 @@ DEF_TEST(SkSLInterpreterMix, r) {
           expectedVector[] = { 3.0f, 4.0f, 5.0f, 6.0f };
     test(r, "float4 main(float4 x, float4 y) { return mix(x, y, 0.5); }", valueVectors,
          expectedVector);
-
-    auto expect = [&expectedVector](float a, float b, float c, float d) {
-        expectedVector[0] = a;
-        expectedVector[1] = b;
-        expectedVector[2] = c;
-        expectedVector[3] = d;
-    };
-
-    expect(1, 2, 7, 8);
-    test(r, "float4 main(float4 x, float4 y) { return mix(x, y, greaterThan(x, float4(2.5))); }",
-         valueVectors, expectedVector);
-
-    expect(5, 6, 3, 4);
-    test(r, "float4 main(float4 x, float4 y) { return mix(x, y, lessThan(x, float4(2.5))); }",
-         valueVectors, expectedVector);
-
-    expect(1, 2, 7, 8);
-    test(r, "float4 main(float4 x, float4 y) { return mix(x, y, greaterThanEqual(x, float4(3))); }",
-         valueVectors, expectedVector);
-
-    expect(5, 6, 3, 4);
-    test(r, "float4 main(float4 x, float4 y) { return mix(x, y, lessThanEqual(x, float4(2))); }",
-         valueVectors, expectedVector);
 }
 
 DEF_TEST(SkSLInterpreterCross, r) {
