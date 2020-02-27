@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b6f1c47_7066fafb",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-27T20:37:27Z",
+      "side": 1,
+      "message": "do we know if DXGI_FORMAT_UNKNOWN can always be checked for failure here? In vulkan the unknown state can be a valid format in some cases (i.e. external formats). Is unknown ever a valid format in d3d?",
+      "range": {
+        "startLine": 187,
+        "startChar": 10,
+        "endLine": 187,
+        "endChar": 30
+      },
+      "revId": "8c207c8283e8ca7ceccbf575c85a22c93890b4ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
