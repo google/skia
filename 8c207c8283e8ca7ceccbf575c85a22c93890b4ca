@@ -22,6 +22,30 @@
       "revId": "8c207c8283e8ca7ceccbf575c85a22c93890b4ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2970bd1b_1a162f3c",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-27T20:49:38Z",
+      "side": 1,
+      "message": "Right, I was thinking it was like Metal, which uses INVALID.",
+      "parentUuid": "6b6f1c47_7066fafb",
+      "range": {
+        "startLine": 187,
+        "startChar": 10,
+        "endLine": 187,
+        "endChar": 30
+      },
+      "revId": "8c207c8283e8ca7ceccbf575c85a22c93890b4ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
