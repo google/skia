@@ -115,14 +115,15 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
                                    const GrPath* path) {
     SkASSERT(!programInfo.hasDynamicScissors());
     SkASSERT(!programInfo.hasDynamicPrimProcTextures());
-    if (!this->gpu()->flushGLState(renderTarget, programInfo)) {
+    sk_sp<GrGLProgram> program = this->gpu()->flushGLState(renderTarget, programInfo);
+    if (!program) {
         return;
     }
     if (programInfo.hasFixedScissor()) {
         this->gpu()->flushScissorRect(programInfo.fixedScissor(), renderTarget->width(),
                                       renderTarget->height(), programInfo.origin());
     }
-    this->gpu()->bindTextures(programInfo.primProc(), programInfo.pipeline());
+    program->bindTextures(programInfo.primProc(), programInfo.pipeline(), nullptr);
 
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 

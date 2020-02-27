@@ -73,26 +73,42 @@ public:
     // If the caller wishes to bind an index buffer to a specific VAO, it can call glBind directly.
     GrGLenum bindBuffer(GrGpuBufferType type, const GrBuffer*);
 
-    // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
-    bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
+    // Flushes state from GrProgramInfo to GL. Returns nullptr if the state couldn't be set.
+    // The returned GrGLProgram can be used for binding textures and vertex attributes.
+    //
+    // The caller must keep the returned GrGLProgram alive until it is done issuing draws.
+    sk_sp<GrGLProgram> flushGLState(GrRenderTarget*, const GrProgramInfo&) SK_WARN_UNUSED_RESULT;
     void flushScissorRect(const SkIRect&, int rtWidth, int rtHeight, GrSurfaceOrigin);
-    void bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                      const GrSurfaceProxy* const primProcTextures[] = nullptr) {
-        fHWProgram->bindTextures(primProc, pipeline, primProcTextures);
-    }
 
-    // These methods issue draws using the current GL state. The client must call flushGLState,
-    // followed by flushScissorRect and/or bindTextures if applicable, before using these method.
-    void draw(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
-    void drawIndexed(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                     GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
-                     const GrBuffer* vertexBuffer, int baseVertex);
-    void drawInstanced(GrPrimitiveType, const GrBuffer* instanceBuffer, int instanceCount, int
-                       baseInstance, const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
-    void drawIndexedInstanced(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount,
-                              int baseIndex, GrPrimitiveRestart, const GrBuffer* instanceBuffer,
-                              int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
-                              int baseVertex);
+    // Binds the vertex array that should be used for internal draws, enables 'numAttribs' vertex
+    // arrays, and flushes the desired primitive restart settings. The returned GrGLAttribArrayState
+    // should be used to set vertex attribute arrays.
+    //
+    // If an index buffer is provided, it will be bound to the vertex array. Otherwise the index
+    // buffer binding will be left unchanged.
+    //
+    // NOTE: This binds the default VAO (ID=zero) unless we are on a core profile, in which case we
+    // use a dummy array instead.
+    GrGLAttribArrayState* bindInternalVertexArray(const GrBuffer* indexBuffer, int numAttribs,
+                                                  GrPrimitiveRestart primitiveRestart) {
+        auto* attribState = fHWVertexArrayState.bindInternalVertexArray(this, indexBuffer);
+        attribState->enableVertexArrays(this, numAttribs, primitiveRestart);
+        return attribState;
+    }
+    GrGLAttribArrayState* bindInternalVertexArray(const GrBuffer* indexBuffer, GrPrimitiveRestart);
+
+    // These methods invoke their GL namesakes, with added bookkeeping and assertions. The caller is
+    // responsible to ensure the desired GL state is configured before calling (via flushGLState(),
+    // flushScissor(), and bindInternalVertexArray()).
+    void drawArrays(GrPrimitiveType, GrGLint baseVertex, GrGLsizei vertexCount);
+    void drawElements(GrPrimitiveType, GrGLsizei indexCount, GrGLenum indexType,
+                      const void* indices);
+    void drawRangeElements(GrPrimitiveType, GrGLuint minIndexValue, GrGLuint maxIndexValue,
+                           GrGLsizei indexCount, GrGLenum indexType, const void* indices);
+    void drawArraysInstanced(GrPrimitiveType, GrGLint baseVertex, GrGLsizei vertexCount,
+                             GrGLsizei instanceCount);
+    void drawElementsInstanced(GrPrimitiveType, GrGLsizei indexCount, GrGLenum indexType,
+                               const void* indices, GrGLsizei instanceCount);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
@@ -288,18 +304,8 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    void flushProgram(sk_sp<GrGLProgram>);
-
     // Version for programs that aren't GrGLProgram.
     void flushProgram(GrGLuint);
-
-    // Sets up vertex/instance attribute pointers and strides.
-    void setupGeometry(const GrBuffer* indexBuffer,
-                       const GrBuffer* vertexBuffer,
-                       int baseVertex,
-                       const GrBuffer* instanceBuffer,
-                       int baseInstance,
-                       GrPrimitiveRestart);
 
     // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
     GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
@@ -463,7 +469,6 @@ private:
     int                         fHWActiveTextureUnitIdx;
 
     GrGLuint                    fHWProgramID;
-    sk_sp<GrGLProgram>          fHWProgram;
 
     enum TriState {
         kNo_TriState,
@@ -568,7 +573,7 @@ private:
          * state. This binds the default VAO (ID=zero) unless we are on a core profile, in which
          * case we use a dummy array instead.
          *
-         * If an index buffer is privided, it will be bound to the vertex array. Otherwise the
+         * If an index buffer is provided, it will be bound to the vertex array. Otherwise the
          * index buffer binding will be left unchanged.
          *
          * The returned GrGLAttribArrayState should be used to set vertex attribute arrays.
