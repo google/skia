@@ -17,8 +17,8 @@ a Linux-based device.
 
 class SSHFlavor(default.DefaultFlavor):
 
-  def __init__(self, m):
-    super(SSHFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(SSHFlavor, self).__init__(m, app_name)
     self._user_ip = ''
 
   @property
@@ -42,14 +42,14 @@ class SSHFlavor(default.DefaultFlavor):
   def ensure_device_dir(self, path):
     self.ssh('mkdir %s' % path, 'mkdir', '-p', path)
 
-  def install(self, app_to_push):
+  def install(self):
     self.ensure_device_dir(self.device_dirs.resource_dir)
-    if app_to_push:
+    if self.app_name:
       self.create_clean_device_dir(self.device_dirs.bin_dir)
-      host_path = self.host_dirs.bin_dir.join(app_to_push)
-      device_path = self.device_path_join(self.device_dirs.bin_dir, app_to_push)
+      host_path = self.host_dirs.bin_dir.join(self.app_name)
+      device_path = self.device_path_join(self.device_dirs.bin_dir, self.app_name)
       self.copy_file_to_device(host_path, device_path)
-      self.ssh('make %s executable' % app_to_push, 'chmod', '+x', device_path)
+      self.ssh('make %s executable' % self.app_name, 'chmod', '+x', device_path)
 
   def create_clean_device_dir(self, path):
     # use -f to silently return if path doesn't exist

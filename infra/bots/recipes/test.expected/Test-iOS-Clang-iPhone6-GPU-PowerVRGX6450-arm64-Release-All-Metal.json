@@ -140,10 +140,6 @@
       "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "Get skp VERSION",
     "~followup_annotations": [
@@ -162,10 +158,6 @@
       "42",
       "[START_DIR]/tmp/SKP_VERSION"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "write SKP_VERSION",
     "~followup_annotations": [
@@ -270,10 +262,6 @@
       "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "Get skimage VERSION",
     "~followup_annotations": [
@@ -292,10 +280,6 @@
       "42",
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "write SK_IMAGE_VERSION",
     "~followup_annotations": [
@@ -400,10 +384,6 @@
       "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "Get svg VERSION",
     "~followup_annotations": [
@@ -422,10 +402,6 @@
       "42",
       "[START_DIR]/tmp/SVG_VERSION"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "write SVG_VERSION",
     "~followup_annotations": [
@@ -529,10 +505,6 @@
       "rmtree",
       "[START_DIR]/test"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "rmtree test"
   },
@@ -548,10 +520,6 @@
       "0777",
       "[START_DIR]/test"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "infra_step": true,
     "name": "makedirs test"
   },
@@ -593,8 +561,6 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -654,10 +620,6 @@
       "-u",
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "name": "get swarming bot id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -671,10 +633,6 @@
       "-u",
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
     "name": "get swarming task id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",

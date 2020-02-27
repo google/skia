@@ -934,23 +934,17 @@ def test_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.flavor.setup('dm')
 
-  env = {}
-  if 'iOS' in api.vars.builder_name:
-    env['IOS_BUNDLE_ID'] = 'com.google.dm'
-    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
-  with api.context(env=env):
-    try:
-      if 'Lottie' in api.vars.builder_name:
-        api.flavor.install('dm', resources=True, lotties=True)
-      else:
-        api.flavor.install('dm', skps=True, images=True, svgs=True,
-                           resources=True)
-      test_steps(api)
-    finally:
-      api.flavor.cleanup_steps()
-    api.run.check_failure()
+  try:
+    if 'Lottie' in api.vars.builder_name:
+      api.flavor.install(resources=True, lotties=True)
+    else:
+      api.flavor.install(skps=True, images=True, svgs=True, resources=True)
+    test_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
+  api.run.check_failure()
 
 
 TEST_BUILDERS = [

@@ -15,10 +15,8 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  api.flavor.setup()
-
+  api.flavor.setup('hello-opencl')
   api.run(api.flavor.step, 'hello-opencl', cmd=['hello-opencl'])
-
   api.run.check_failure()
 
 def GenTests(api):

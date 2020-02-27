@@ -24,7 +24,11 @@ DeviceDirs = collections.namedtuple(
 
 
 class DefaultFlavor(object):
-  def __init__(self, module):
+  def __init__(self, module, app_name):
+    # Name of the app we're going to run. May be used in various ways by
+    # different flavors.
+    self.app_name = app_name
+
     # Store a pointer to the parent recipe module (SkiaFlavorApi) so that
     # FlavorUtils objects can do recipe module-like things, like run steps or
     # access module-level resources.
@@ -100,7 +104,7 @@ class DefaultFlavor(object):
     """Removes the specified file."""
     return self.m.file.remove('remove %s' % path, path)
 
-  def install(self, app_to_push):
+  def install(self):
     """Run device-specific installation steps."""
     pass
 

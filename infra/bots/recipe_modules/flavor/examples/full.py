@@ -30,52 +30,51 @@ def test_exceptions(api):
 
 def RunSteps(api):
   api.vars.setup()
-  api.flavor.setup()
+
+  builder = api.properties['buildername']
+  app = None
+  if 'SkottieTracing' in builder:
+    app = None
+  elif 'Test' in builder:
+    app = 'dm'
+  elif 'Perf' in builder:
+    app = 'nanobench'
+  api.flavor.setup(app)
 
   if api.properties.get('is_testing_exceptions') == 'True':
     return test_exceptions(api)
 
-  builder = api.properties['buildername']
-  if 'Build' not in builder:
-    try:
-      api.flavor.copy_file_to_device('file.txt', 'file.txt')
-      api.flavor.read_file_on_device('file.txt')
-      api.flavor.remove_file_on_device('file.txt')
-      api.flavor.create_clean_host_dir('results_dir')
-      api.flavor.create_clean_device_dir('device_results_dir')
+  try:
+    api.flavor.copy_file_to_device('file.txt', 'file.txt')
+    api.flavor.read_file_on_device('file.txt')
+    api.flavor.remove_file_on_device('file.txt')
+    api.flavor.create_clean_host_dir('results_dir')
+    api.flavor.create_clean_device_dir('device_results_dir')
 
-      app = None
+    if 'Lottie' in builder:
+      api.flavor.install(lotties=True)
+    elif 'Mskp' in builder:
+      api.flavor.install(mskps=True)
+    elif all(v in builder for v in ['Perf', 'Android', 'CPU']):
+      api.flavor.install(skps=True, images=True, svgs=True,
+                         resources=True, texttraces=True)
+    else:
+      api.flavor.install(skps=True, images=True, lotties=False,
+                         svgs=True, resources=True)
+    if 'Test' in builder:
+      api.flavor.step('dm', ['dm', '--some-flag'])
+      api.flavor.copy_directory_contents_to_host(
+          api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
+    elif 'Perf' in builder:
       if 'SkottieTracing' in builder:
-        app = None
-      elif 'Test' in builder:
-        app = 'dm'
-      elif 'Perf' in builder:
-        app = 'nanobench'
-
-      if 'Lottie' in builder:
-        api.flavor.install(app, lotties=True)
-      elif 'Mskp' in builder:
-        api.flavor.install(app, mskps=True)
-      elif all(v in builder for v in ['Perf', 'Android', 'CPU']):
-        api.flavor.install(app, skps=True, images=True, svgs=True,
-                           resources=True, texttraces=True)
-      else:
-        api.flavor.install(app, skps=True, images=True, lotties=False,
-                           svgs=True, resources=True)
-      if 'Test' in builder:
         api.flavor.step('dm', ['dm', '--some-flag'])
-        api.flavor.copy_directory_contents_to_host(
-            api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
-      elif 'Perf' in builder:
-        if 'SkottieTracing' in builder:
-          api.flavor.step('dm', ['dm', '--some-flag'])
-        else:
-          api.flavor.step('nanobench', ['nanobench', '--some-flag'])
-        api.flavor.copy_directory_contents_to_host(
-            api.flavor.device_dirs.perf_data_dir,
-            api.flavor.host_dirs.perf_data_dir)
-    finally:
-      api.flavor.cleanup_steps()
+      else:
+        api.flavor.step('nanobench', ['nanobench', '--some-flag'])
+      api.flavor.copy_directory_contents_to_host(
+          api.flavor.device_dirs.perf_data_dir,
+          api.flavor.host_dirs.perf_data_dir)
+  finally:
+    api.flavor.cleanup_steps()
   api.run.check_failure()
 
 

@@ -129,12 +129,12 @@ def skpbench_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.flavor.setup(None)
 
   try:
     mksp_mode = ('Mskp' in api.vars.builder_name)
     # We install skpbench in skpbench_steps.
-    api.flavor.install(None, skps=not mksp_mode, mskps=mksp_mode)
+    api.flavor.install(skps=not mksp_mode, mskps=mksp_mode)
     skpbench_steps(api)
   finally:
     api.flavor.cleanup_steps()
