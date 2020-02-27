@@ -166,9 +166,7 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
-                                                                 fHelper.detachProcessorSet(),
-                                                                 fHelper.pipelineFlags());
+        auto pipeline = fHelper.createPipeline(flushState);
 
         flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
