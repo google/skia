@@ -57,6 +57,13 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         return;
     }
 
+    long numScreens = 0;
+    CGLDescribePixelFormat(pixFormat, 0, kCGLPFAVirtualScreenCount, &numScreens);
+    for (long screen = 0; screen < numScreens; screen++) {
+        long rendererId = 0;
+        CGLDescribePixelFormat(pixFormat, screen, kCGLPFARendererID, &rendererId);
+        SkDebugf("screen %ld renderer %lx", screen, rendererId);
+    }
     CGLCreateContext(pixFormat, shareContext ? shareContext->fContext : nullptr, &fContext);
     CGLReleasePixelFormat(pixFormat);
 
