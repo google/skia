@@ -1914,8 +1914,8 @@ namespace skvm {
 
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
                    *i64 = llvm::Type::getInt64Ty(ctx),
-      //           *f32 = llvm::Type::getFloatTy(ctx),
-      //           *F32 = llvm::VectorType::get(f32, K),
+                   *f32 = llvm::Type::getFloatTy(ctx),
+                   *F32 = llvm::VectorType::get(f32, K),
                    *i32 = llvm::Type::getInt32Ty(ctx),
                    *I32 = llvm::VectorType::get(i32, K);
 
@@ -1945,6 +1945,10 @@ namespace skvm {
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
             auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
+
+            auto toI = [&](llvm::Value* v) { return b->CreateBitCast(v, scalar ? i32 : I32); };
+            auto toF = [&](llvm::Value* v) { return b->CreateBitCast(v, scalar ? f32 : F32); };
+
             switch (op) {
                 default:
                     SkDebugf("can't llvm %s (%d)\n", name(op), op);
@@ -1969,9 +1973,18 @@ namespace skvm {
                     vals[i] = b->CreateAlignedStore(vals[x], ptr, 1);
                 } break;
 
-                case Op::bit_and:
-                    vals[i] = b->CreateAnd(vals[x], vals[y]);
-                    break;
+                case Op::bit_and: vals[i] = b->CreateAnd(vals[x], vals[y]); break;
+                case Op::bit_or : vals[i] = b->CreateOr (vals[x], vals[y]); break;
+                case Op::bit_xor: vals[i] = b->CreateXor(vals[x], vals[y]); break;
+
+                case Op::add_i32: vals[i] = b->CreateAdd(vals[x], vals[y]); break;
+                case Op::sub_i32: vals[i] = b->CreateSub(vals[x], vals[y]); break;
+                case Op::mul_i32: vals[i] = b->CreateMul(vals[x], vals[y]); break;
+
+                case Op::add_f32: vals[i] = toI(b->CreateFAdd(toF(vals[x]), toF(vals[y]))); break;
+                case Op::sub_f32: vals[i] = toI(b->CreateFSub(toF(vals[x]), toF(vals[y]))); break;
+                case Op::mul_f32: vals[i] = toI(b->CreateFMul(toF(vals[x]), toF(vals[y]))); break;
+                case Op::div_f32: vals[i] = toI(b->CreateFDiv(toF(vals[x]), toF(vals[y]))); break;
 
                 case Op::gather32: {
                     // Our gather base pointer is immz bytes off of uniform immy.
