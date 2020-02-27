@@ -20,11 +20,8 @@
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
-    #include <llvm/IR/LegacyPassManager.h>
     #include <llvm/IR/Verifier.h>
     #include <llvm/Support/TargetSelect.h>
-    #include <llvm/Transforms/IPO/PassManagerBuilder.h>
-    #include <llvm/Transforms/Utils.h>
 #endif
 
 bool gSkVMJITViaDylib{false};
@@ -1941,8 +1938,9 @@ namespace skvm {
 
         using IRBuilder = llvm::IRBuilder<>;
 
-        llvm::Value* n;
-        std::vector<llvm::Value*> args;
+        // `n` won't be used in emit, but `args` will be and they're clearest kept together.
+        llvm::PHINode*                 n;
+        std::vector<llvm::PHINode*> args;
         std::vector<llvm::Value*> vals(instructions.size());
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
@@ -1957,7 +1955,7 @@ namespace skvm {
                     if (scalar) {
                         v = b->CreateExtractElement(v, (uint64_t)0);
                     }
-                    llvm::Value* ptr = b->CreateBitCast(b->CreateLoad(args[immy]),
+                    llvm::Value* ptr = b->CreateBitCast(args[immy],
                                                         v->getType()->getPointerTo());
                     vals[i] = b->CreateAlignedStore(v, ptr, 1);
                 } break;
@@ -1972,28 +1970,28 @@ namespace skvm {
             return true;
         };
 
-        // enter:  set up stack homes `n` and `args` for loop counter and uniform/varying pointers.
-        // TODO: manual PHI nodes for these instead of relying on load/store and mem2reg
+        // We can't jump to the first basic block or this would be testK directly.
         {
             IRBuilder b(enter);
-
-            llvm::Argument* arg = fn->arg_begin();
-
-            n = b.CreateAlloca(arg->getType());
-            b.CreateStore(arg++, n);
-
-            for (size_t i = 0; i < fStrides.size(); i++) {
-                args.push_back(b.CreateAlloca(arg->getType()));
-                b.CreateStore(arg++, args.back());
-            }
             b.CreateBr(testK);
         }
 
         // testK:  if (N >= K) goto loopK; else goto test1;
-        llvm::ConstantInt* i64_K = llvm::ConstantInt::get(i64, K);
         {
             IRBuilder b(testK);
-            b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_K), loopK, test1);
+
+            // Set up phi nodes for `n` and each pointer argument from enter; later we'll add loopK.
+            llvm::Argument* arg = fn->arg_begin();
+
+            n = b.CreatePHI(arg->getType(), 2);
+            n->addIncoming(arg++, enter);
+
+            for (size_t i = 0; i < fStrides.size(); i++) {
+                args.push_back(b.CreatePHI(arg->getType(), 2));
+                args.back()->addIncoming(arg++, enter);
+            }
+
+            b.CreateCondBr(b.CreateICmpUGE(n, b.getInt64(K)), loopK, test1);
         }
 
         // loopK:  ... insts on K x T vectors; N -= K, args += K*stride; goto testK;
@@ -2004,19 +2002,36 @@ namespace skvm {
                     return;
                 }
             }
-            b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_K), n);
+
+            // n -= K
+            llvm::Value* n_next = b.CreateSub(n, b.getInt64(K));
+            n->addIncoming(n_next, loopK);
+
+            // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
-                                          llvm::ConstantInt::get(i64, K * fStrides[i])), args[i]);
+                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt64(K*fStrides[i]));
+                args[i]->addIncoming(arg_next, loopK);
             }
             b.CreateBr(testK);
         }
 
         // test1:  if (N >= 1) goto loop1; else goto leave;
-        llvm::ConstantInt* i64_1 = llvm::ConstantInt::get(i64, 1);
         {
             IRBuilder b(test1);
-            b.CreateCondBr(b.CreateICmpUGE(b.CreateLoad(n), i64_1), loop1, leave);
+
+            // Set up new phi nodes for `n` and each pointer argument, now from testK and loop1.
+
+            llvm::PHINode* n_new = b.CreatePHI(n->getType(), 2);
+            n_new->addIncoming(n, testK);
+            n = n_new;
+
+            for (size_t i = 0; i < fStrides.size(); i++) {
+                llvm::PHINode* arg_new = b.CreatePHI(args[i]->getType(), 2);
+                arg_new->addIncoming(args[i], testK);
+                args[i] = arg_new;
+            }
+
+            b.CreateCondBr(b.CreateICmpUGE(n, b.getInt64(1)), loop1, leave);
         }
 
         // loop1:  ... insts on scalars; N -= 1, args += stride; goto test1;
@@ -2027,10 +2042,15 @@ namespace skvm {
                     return;
                 }
             }
-            b.CreateStore(b.CreateSub(b.CreateLoad(n), i64_1), n);
+
+            // n -= 1
+            llvm::Value* n_next = b.CreateSub(n, b.getInt64(1));
+            n->addIncoming(n_next, loop1);
+
+            // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                b.CreateStore(b.CreateGEP(b.CreateLoad(args[i]),
-                                          llvm::ConstantInt::get(i64, fStrides[i])), args[i]);
+                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt64(fStrides[i]));
+                args[i]->addIncoming(arg_next, loop1);
             }
             b.CreateBr(test1);
         }
@@ -2041,21 +2061,7 @@ namespace skvm {
             b.CreateRetVoid();
         }
 
-        SkASSERT(false == llvm::verifyModule(*mod));
-
-        llvm::legacy::FunctionPassManager fpm(mod.get());
-    #if 0
-        llvm::PassManagerBuilder pmb;
-        pmb. OptLevel = 1;
-        pmb.SizeLevel = 1;
-        // TargetMachine::adjustPassManager(pmb)
-        pmb.populateFunctionPassManager(fpm);
-        while (fpm.run(*fn));
-    #else
-        fpm.add(llvm::createPromoteMemoryToRegisterPass());
-        fpm.run(*fn);
-        SkASSERT(!fpm.run(*fn));
-    #endif
+        SkASSERT(false == llvm::verifyModule(*mod, &llvm::outs()));
 
         if (false) {
             SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
