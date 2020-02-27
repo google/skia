@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6325f09_f04db312",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-27T15:32:38Z",
+      "side": 0,
+      "message": "Do we not need to hold on to the GrGLProgram until the ops pass is done using it? If it\u0027s deleted then the GL program is deleted. I guess for that to happen we\u0027d have to have some other interaction with the program cache that caused it to be evicted.",
+      "range": {
+        "startLine": 466,
+        "startChar": 4,
+        "endLine": 466,
+        "endChar": 43
+      },
+      "revId": "33db9fc60e336641368f94725d26f4b01d576304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

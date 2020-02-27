@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "035bd084_52ad1c69",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1817,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-27T15:32:38Z",
+      "side": 1,
+      "message": "Personally I prefer an \u003d assignment here rather than a constructor as the important part  to the reader is the call to findOrCreateProgram and \"program\" is just a name we gave to the return value. As is it is it emphasizes the construction of program which is pretty trivial (assign a ptr value).",
+      "revId": "a5236b9e8965892072fdc0639f7a342a2514dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
