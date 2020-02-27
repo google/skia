@@ -1116,7 +1116,7 @@ static_library("pathkit") {
 group("modules") {
   deps = [
     "modules/particles",
-    "modules/skottie",
+#    "modules/skottie",
     "modules/skshaper",
   ]
   if (target_cpu == "wasm") {
@@ -1144,7 +1144,7 @@ if (skia_enable_tools) {
     "include/utils/mac",
     "modules/sksg/include",
     "modules/skshaper/include",
-    "modules/skottie/include",
+#    "modules/skottie/include",
   ]
 
   # Used by gn_to_bp.py to list our public include dirs.
@@ -1190,7 +1190,7 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":skia.h",
-        "modules/skottie",
+#        "modules/skottie",
         "modules/skshaper",
       ]
     }
@@ -1209,7 +1209,7 @@ if (skia_enable_tools) {
     deps = [
       ":skia",
       ":skia.h",
-      "modules/skottie",
+#      "modules/skottie",
       "modules/skshaper",
     ]
 
@@ -1534,8 +1534,8 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
-      "modules/skottie",
-      "modules/skottie:gm",
+#      "modules/skottie",
+#      "modules/skottie:gm",
       "modules/sksg",
       "modules/skshaper",
     ]
@@ -1582,7 +1582,7 @@ if (skia_enable_tools) {
       ":skia",
       ":skvm_builders",
       ":tool_utils",
-      "modules/skottie:tests",
+#      "modules/skottie:tests",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
@@ -1693,11 +1693,11 @@ if (skia_enable_tools) {
   }
 
   if (is_linux || is_mac) {
-    test_app("skottie_tool") {
-      deps = [
-        "modules/skottie:tool",
-      ]
-    }
+#    test_app("skottie_tool") {
+#      deps = [
+#        "modules/skottie:tool",
+#      ]
+#    }
   }
 
   test_app("make_skqp_model") {
@@ -1754,53 +1754,53 @@ if (skia_enable_tools) {
         "//third_party/libpng",
       ]
     }
-    test_app("fm") {
-      sources = [
-        "dm/DMGpuTestProcs.cpp",  # blech
-        "tools/fm/fm.cpp",
-      ]
-      deps = [
-        ":common_flags_aa",
-        ":common_flags_gpu",
-        ":experimental_svg_model",
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":hash_and_encode",
-        ":skia",
-        ":tests",
-        ":tool_utils",
-        ":trace",
-        "modules/skottie",
-        "modules/skottie:utils",
-      ]
-    }
-    test_app("dm") {
-      sources = [
-        "dm/DM.cpp",
-        "dm/DMGpuTestProcs.cpp",
-        "dm/DMJsonWriter.cpp",
-        "dm/DMSrcSink.cpp",
-      ]
-      deps = [
-        ":common_flags_aa",
-        ":common_flags_config",
-        ":common_flags_gpu",
-        ":common_flags_images",
-        ":experimental_svg_model",
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":hash_and_encode",
-        ":skia",
-        ":tests",
-        ":tool_utils",
-        ":trace",
-        "modules/skottie",
-        "modules/skottie:utils",
-        "modules/sksg",
-      ]
-    }
+#    test_app("fm") {
+#      sources = [
+#        "dm/DMGpuTestProcs.cpp",  # blech
+#        "tools/fm/fm.cpp",
+#      ]
+#      deps = [
+#        ":common_flags_aa",
+#        ":common_flags_gpu",
+#        ":experimental_svg_model",
+#        ":flags",
+#        ":gm",
+#        ":gpu_tool_utils",
+#        ":hash_and_encode",
+#        ":skia",
+#        ":tests",
+#        ":tool_utils",
+#        ":trace",
+#        "modules/skottie",
+#        "modules/skottie:utils",
+#      ]
+#    }
+#    test_app("dm") {
+#      sources = [
+#        "dm/DM.cpp",
+#        "dm/DMGpuTestProcs.cpp",
+#        "dm/DMJsonWriter.cpp",
+#        "dm/DMSrcSink.cpp",
+#      ]
+#      deps = [
+#        ":common_flags_aa",
+#        ":common_flags_config",
+#        ":common_flags_gpu",
+#        ":common_flags_images",
+#        ":experimental_svg_model",
+#        ":flags",
+#        ":gm",
+#        ":gpu_tool_utils",
+#        ":hash_and_encode",
+#        ":skia",
+#        ":tests",
+#        ":tool_utils",
+#        ":trace",
+#        "modules/skottie",
+#        "modules/skottie:utils",
+#        "modules/sksg",
+#      ]
+#    }
   }
 
   if (!is_win) {
