@@ -288,11 +288,14 @@ DEF_TEST(SkVM_LLVM, r) {
     skvm::Program p = b.done();
     REPORTER_ASSERT(r, p.hasJIT());
 
-    int buf[17];
-    p.eval(SK_ARRAY_COUNT(buf), buf);
-    for (int v : buf) {
-        REPORTER_ASSERT(r, v == 42);
+    int buf[18];
+    buf[17] = 47;
+
+    p.eval(17, buf);
+    for (int i = 0; i < 17; i++) {
+        REPORTER_ASSERT(r, buf[i] == 42);
     }
+    REPORTER_ASSERT(r, buf[17] == 47);
 }
 #endif
 
