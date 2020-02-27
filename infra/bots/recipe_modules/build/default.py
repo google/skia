@@ -211,6 +211,12 @@ def compile_fn(api, checkout_root, out_dir):
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
+  if 'Dawn' in extra_tokens:
+    args['skia_use_dawn'] = 'true'
+    extra_cflags.append('-Wno-strict-prototypes')
+    # Dawn imports jinja2, which imports markupsafe. Along with DEPS, make it
+    # importable. Today we are only doing Windows, so semicolon it is.
+    env['PYTHONPATH'] = '%s;%%(PYTHONPATH)s' % skia_dir.join('third_party', 'externals')
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
   if 'SwiftShader' in extra_tokens:
