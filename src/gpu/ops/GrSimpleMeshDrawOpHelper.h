@@ -124,10 +124,21 @@ public:
     }
 
     static const GrPipeline* CreatePipeline(
-            GrOpFlushState*,
-            GrProcessorSet&&,
-            GrPipeline::InputFlags fPipelineFlags,
-            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+                                const GrCaps*,
+                                SkArenaAlloc*,
+                                const GrSurfaceProxyView* dstView,
+                                GrAppliedClip&&,
+                                const GrXferProcessor::DstProxyView&,
+                                GrProcessorSet&&,
+                                GrPipeline::InputFlags pipelineFlags,
+                                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+    static const GrPipeline* CreatePipeline(
+                                GrOpFlushState*,
+                                GrProcessorSet&&,
+                                GrPipeline::InputFlags pipelineFlags,
+                                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+
+    const GrPipeline* createPipeline(GrOpFlushState* flushState);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
@@ -161,6 +172,8 @@ public:
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
+
+    const GrPipeline* createPipelineWithStencil(GrOpFlushState* flushState);
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

@@ -115,9 +115,12 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(const GrGeometryProcessor*, const GrMesh[], int meshCnt,
+    void recordDraw(const GrGeometryProcessor*,
+                    const GrMesh[],
+                    int meshCnt,
                     const GrPipeline::FixedDynamicState*,
-                    const GrPipeline::DynamicStateArrays*, GrPrimitiveType) final;
+                    const GrPipeline::DynamicStateArrays*,
+                    GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) final;
