@@ -115,8 +115,11 @@ public:
     void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables);
 
     void prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables);
-    void  prepareForDrawing(
-            int maxDimension, SkDrawableGlyphBuffer* drawables)override;
+    SkSpan<const SkGlyphPos> prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
+                                                          const SkPoint positions[],
+                                                          size_t n,
+                                                          int maxDimension,
+                                                          SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;
 

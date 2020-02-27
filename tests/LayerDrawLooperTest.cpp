@@ -32,7 +32,7 @@ public:
     }
 
     void drawRect(const SkRect& r, const SkPaint& paint) override {
-        fLastMatrix = this->localToDevice();
+        fLastMatrix = this->ctm();
         this->INHERITED::drawRect(r, paint);
     }
 

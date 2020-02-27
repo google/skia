@@ -38,7 +38,7 @@ static bool xyz_almost_equal(const skcms_Matrix3x3& mA, const skcms_Matrix3x3& m
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const skcms_TransferFunction& transferFn,
                                           const skcms_Matrix3x3& toXYZ) {
-    if (classify_transfer_fn(transferFn) == Bad_TF) {
+    if (!is_valid_transfer_fn(transferFn)) {
         return nullptr;
     }
 
@@ -116,11 +116,8 @@ void SkColorSpace::computeLazyDstFields() const {
 }
 
 bool SkColorSpace::isNumericalTransferFn(skcms_TransferFunction* coeffs) const {
-    // TODO: Change transferFn/invTransferFn to just operate on skcms_TransferFunction (all callers
-    // already pass pointers to an skcms struct). Then remove this function, and update the two
-    // remaining callers to do the right thing with transferFn and classify.
     this->transferFn(&coeffs->g);
-    return classify_transfer_fn(*coeffs) == sRGBish_TF;
+    return true;
 }
 
 void SkColorSpace::transferFn(float gabcdef[7]) const {

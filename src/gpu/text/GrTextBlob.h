@@ -517,7 +517,7 @@ private:
 
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
-    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
                             const SkStrikeSpec& strikeSpec) override;
 
     void processSourcePaths(SkSpan<const SkGlyphPos> paths,
@@ -525,18 +525,18 @@ private:
 
     void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
-    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
                            const SkStrikeSpec& strikeSpec,
                            const SkFont& runFont,
                            SkScalar minScale,
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
-    void processSourceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                const SkStrikeSpec& strikeSpec,
                                bool hasW) override;
 
-    void processDeviceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
                                const SkStrikeSpec& strikeSpec) override;
 
     struct StrokeInfo {

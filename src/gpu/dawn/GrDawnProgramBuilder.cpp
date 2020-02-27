@@ -241,18 +241,14 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
     dawn::DepthStencilStateDescriptor state;
     state.format = depthStencilFormat;
     if (!stencilSettings.isDisabled()) {
+        const GrStencilSettings::Face& front = stencilSettings.front(origin);
+        state.stencilReadMask = front.fTestMask;
+        state.stencilWriteMask = front.fWriteMask;
+        state.stencilFront = to_stencil_state_face(stencilSettings.front(origin));
         if (stencilSettings.isTwoSided()) {
-            auto front = stencilSettings.front(origin);
-            auto back = stencilSettings.front(origin);
-            state.stencilFront = to_stencil_state_face(front);
-            state.stencilBack = to_stencil_state_face(back);
-            state.stencilReadMask = front.fTestMask;
-            state.stencilWriteMask = front.fWriteMask;
+            state.stencilBack = to_stencil_state_face(stencilSettings.back(origin));
         } else {
-            auto frontAndBack = stencilSettings.frontAndBack();
-            state.stencilBack = state.stencilFront = to_stencil_state_face(frontAndBack);
-            state.stencilReadMask = frontAndBack.fTestMask;
-            state.stencilWriteMask = frontAndBack.fWriteMask;
+            state.stencilBack = state.stencilFront;
         }
     }
     return state;

@@ -38,8 +38,7 @@ roots = [
 
 # Don't count our local Vulkan headers as Skia headers;
 # we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
-# Nor do we care about things in node_modules, used by *Kits.
-ignorelist = ['include/third_party/vulkan', 'node_modules']
+blacklist = ['include/third_party/vulkan']
 
 assert '/' in [os.sep, os.altsep]
 def fix_path(p):
@@ -49,7 +48,7 @@ def fix_path(p):
 headers = {}
 for root in roots:
   for path, _, files in os.walk(root):
-    if not any(snippet in fix_path(path) for snippet in ignorelist):
+    if not any(snippet in fix_path(path) for snippet in blacklist):
       for file_name in files:
         if file_name.endswith('.h'):
           if file_name in headers:

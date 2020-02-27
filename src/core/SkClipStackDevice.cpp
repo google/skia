@@ -28,19 +28,23 @@ void SkClipStackDevice::onRestore() {
 }
 
 void SkClipStackDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
-    fClipStack.clipRect(rect, this->localToDevice(), op, aa);
+    fClipStack.clipRect(rect, this->ctm(), op, aa);
 }
 
 void SkClipStackDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
-    fClipStack.clipRRect(rrect, this->localToDevice(), op, aa);
+    fClipStack.clipRRect(rrect, this->ctm(), op, aa);
 }
 
 void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
-    fClipStack.clipPath(path, this->localToDevice(), op, aa);
+    fClipStack.clipPath(path, this->ctm(), op, aa);
 }
 
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    SkIPoint origin = this->getOrigin();
+    SkIPoint origin;
+    // clipRegion is only used in Android, which does not use image filters.
+    // Image filters are the only reason we'd end up with a complicated device
+    // to root matrix, so we shouldn't ever assert here.
+    SkAssertResult(this->getOrigin(&origin));
     SkRegion tmp;
     const SkRegion* ptr = &rgn;
     if (origin.fX | origin.fY) {
@@ -55,7 +59,10 @@ void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
     if (clipRestriction->isEmpty()) {
         fClipStack.setDeviceClipRestriction(*clipRestriction);
     } else {
-        SkIPoint origin = this->getOrigin();
+        // Device clip restrictions are android only, which doesn't use image
+        // filters, see onClipRegion.
+        SkIPoint origin;
+        SkAssertResult(this->getOrigin(&origin));
         SkIRect rect = clipRestriction->makeOffset(-origin);
         fClipStack.setDeviceClipRestriction(rect);
         fClipStack.clipDevRect(rect, SkClipOp::kIntersect);

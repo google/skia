@@ -392,8 +392,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     } else if (GR_IS_GR_WEBGL(standard)) {
-        shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
-                                               ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
+        shaderCaps->fShaderDerivativeSupport = ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
     }
 
@@ -987,12 +986,8 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kES_Apple_MSFBOType;
         }
     } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
-        // No support in WebGL 1, but there is for 2.0
-        if (ctxInfo.version() >= GR_GL_VER(2,0)) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else {
-            fMSFBOType = kNone_MSFBOType;
-        }
+        // No support in WebGL
+        fMSFBOType = kNone_MSFBOType;
     }
 
     // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,

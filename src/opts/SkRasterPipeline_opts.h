@@ -957,23 +957,12 @@ SI F approx_log2(F x) {
          -   1.498030302f * m
          -   1.725879990f / (0.3520887068f + m);
 }
-
-SI F approx_log(F x) {
-    const float ln2 = 0.69314718f;
-    return ln2 * approx_log2(x);
-}
-
 SI F approx_pow2(F x) {
     F f = fract(x);
     return bit_cast<F>(round(1.0f * (1<<23),
                              x + 121.274057500f
                                -   1.490129070f * f
                                +  27.728023300f / (4.84252568f - f)));
-}
-
-SI F approx_exp(F x) {
-    const float log2_e = 1.4426950408889634074f;
-    return approx_pow2(log2_e * x);
 }
 
 SI F approx_powf(F x, F y) {
@@ -1473,12 +1462,15 @@ BLEND_MODE(softlight) {
 //
 // Anything extra we add beyond that is to make the math work with premul inputs.
 
-SI F sat(F r, F g, F b) { return max(r, max(g,b)) - min(r, min(g,b)); }
+SI F max(F r, F g, F b) { return max(r, max(g, b)); }
+SI F min(F r, F g, F b) { return min(r, min(g, b)); }
+
+SI F sat(F r, F g, F b) { return max(r,g,b) - min(r,g,b); }
 SI F lum(F r, F g, F b) { return r*0.30f + g*0.59f + b*0.11f; }
 
 SI void set_sat(F* r, F* g, F* b, F s) {
-    F mn  = min(*r, min(*g,*b)),
-      mx  = max(*r, max(*g,*b)),
+    F mn  = min(*r,*g,*b),
+      mx  = max(*r,*g,*b),
       sat = mx - mn;
 
     // Map min channel to 0, max channel to s, and scale the middle proportionally.
@@ -1496,8 +1488,8 @@ SI void set_lum(F* r, F* g, F* b, F l) {
     *b += diff;
 }
 SI void clip_color(F* r, F* g, F* b, F a) {
-    F mn = min(*r, min(*g, *b)),
-      mx = max(*r, max(*g, *b)),
+    F mn = min(*r, *g, *b),
+      mx = max(*r, *g, *b),
       l  = lum(*r, *g, *b);
 
     auto clip = [=](F c) {
@@ -1676,8 +1668,8 @@ STAGE(force_opaque    , Ctx::None) {  a = 1; }
 STAGE(force_opaque_dst, Ctx::None) { da = 1; }
 
 STAGE(rgb_to_hsl, Ctx::None) {
-    F mx = max(r, max(g,b)),
-      mn = min(r, min(g,b)),
+    F mx = max(r,g,b),
+      mn = min(r,g,b),
       d = mx - mn,
       d_rcp = 1.0f / d;
 
@@ -1720,8 +1712,8 @@ STAGE(hsl_to_rgb, Ctx::None) {
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
 SI F alpha_coverage_from_rgb_coverage(F a, F da, F cr, F cg, F cb) {
-    return if_then_else(a < da, min(cr, min(cg,cb))
-                              , max(cr, max(cg,cb)));
+    return if_then_else(a < da, min(cr,cg,cb)
+                              , max(cr,cg,cb));
 }
 
 STAGE(scale_1_float, const float* c) {
@@ -1848,58 +1840,6 @@ STAGE(gamma_, const float* G) {
         U32 sign;
         v = strip_sign(v, &sign);
         return apply_sign(approx_powf(v, *G), sign);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
-}
-
-STAGE(PQish, const skcms_TransferFunction* ctx) {
-    auto fn = [&](F v) {
-        U32 sign;
-        v = strip_sign(v, &sign);
-
-        F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
-                           / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
-                        ctx->f);
-
-        return apply_sign(r, sign);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
-}
-
-STAGE(HLGish, const skcms_TransferFunction* ctx) {
-    auto fn = [&](F v) {
-        U32 sign;
-        v = strip_sign(v, &sign);
-
-        const float R = ctx->a, G = ctx->b,
-                    a = ctx->c, b = ctx->d, c = ctx->e;
-
-        F r = if_then_else(v*R <= 1, approx_powf(v*R, G)
-                                   , approx_exp((v-c)*a) + b);
-
-        return apply_sign(r, sign);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
-}
-
-STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
-    auto fn = [&](F v) {
-        U32 sign;
-        v = strip_sign(v, &sign);
-
-        const float R = ctx->a, G = ctx->b,
-                    a = ctx->c, b = ctx->d, c = ctx->e;
-
-        F r = if_then_else(v <= 1, R * approx_powf(v, G)
-                                 , a * approx_log(v - b) + c);
-
-        return apply_sign(r, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -3147,6 +3087,8 @@ SI U32 if_then_else(I32 c, U32 t, U32 e) { return (t & c) | (e & ~c); }
 
 SI U16 max(U16 x, U16 y) { return if_then_else(x < y, y, x); }
 SI U16 min(U16 x, U16 y) { return if_then_else(x < y, x, y); }
+SI U16 max(U16 x, U16 y, U16 z) { return max(x, max(y, z)); }
+SI U16 min(U16 x, U16 y, U16 z) { return min(x, min(y, z)); }
 
 SI U16 from_float(float f) { return f * 255.0f + 0.5f; }
 
@@ -3874,8 +3816,8 @@ STAGE_PP(lerp_u8, const SkRasterPipeline_MemoryCtx* ctx) {
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
 SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
-    return if_then_else(a < da, min(cr, min(cg,cb))
-                              , max(cr, max(cg,cb)));
+    return if_then_else(a < da, min(cr,cg,cb)
+                              , max(cr,cg,cb));
 }
 STAGE_PP(scale_565, const SkRasterPipeline_MemoryCtx* ctx) {
     U16 cr,cg,cb;
@@ -4294,9 +4236,6 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(matrix_4x3)  // TODO
     NOT_IMPLEMENTED(parametric)
     NOT_IMPLEMENTED(gamma_)
-    NOT_IMPLEMENTED(PQish)
-    NOT_IMPLEMENTED(HLGish)
-    NOT_IMPLEMENTED(HLGinvish)
     NOT_IMPLEMENTED(rgb_to_hsl)
     NOT_IMPLEMENTED(hsl_to_rgb)
     NOT_IMPLEMENTED(gauss_a_to_rgba)  // TODO

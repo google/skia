@@ -1179,7 +1179,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
     }
 
     //Path the rect if we can't optimize it.
-    if (rect_must_be_pathed(paint, this->localToDevice())) {
+    if (rect_must_be_pathed(paint, this->ctm())) {
         SkPath tmp;
         tmp.addRect(r);
         tmp.setFillType(SkPath::kWinding_FillType);
@@ -1204,13 +1204,13 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
     //Set the brushes.
     BOOL fill = FALSE;
     BOOL stroke = FALSE;
-    HRV(this->shadePath(shadedPath.get(), paint, this->localToDevice(), &fill, &stroke));
+    HRV(this->shadePath(shadedPath.get(), paint, this->ctm(), &fill, &stroke));
 
     bool xpsTransformsPath = true;
     //Transform the geometry.
     if (transformRect && xpsTransformsPath) {
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsTransform;
-        HRV(this->createXpsTransform(this->localToDevice(), &xpsTransform));
+        HRV(this->createXpsTransform(this->ctm(), &xpsTransform));
         if (xpsTransform.get()) {
             HRVM(shadedGeometry->SetTransformLocal(xpsTransform.get()),
                  "Could not set transform for rect.");
@@ -1229,7 +1229,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
             { r.fRight, r.fTop },
         };
         if (!xpsTransformsPath && transformRect) {
-            this->localToDevice().mapPoints(points, SK_ARRAY_COUNT(points));
+            this->ctm().mapPoints(points, SK_ARRAY_COUNT(points));
         }
         HRV(this->createXpsQuad(points, stroke, fill, &rectFigure));
     }
@@ -1495,7 +1495,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                                  || paint->getStyle() != SkPaint::kFill_Style;
 
     //Apply pre-path matrix [Platonic-path -> Skeletal-path].
-    SkMatrix matrix = this->localToDevice();
+    SkMatrix matrix = this->ctm();
     SkPath* skeletalPath = const_cast<SkPath*>(&platonicPath);
 
     //Apply path effect [Skeletal-path -> Fillable-path].
@@ -1545,7 +1545,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     BOOL stroke;
     HRV(this->shadePath(shadedPath.get(),
                         *paint,
-                        this->localToDevice(),
+                        this->ctm(),
                         &fill,
                         &stroke));
 
@@ -1898,8 +1898,7 @@ void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
         }
 
         TypefaceUse* typeface;
-        if (FAILED(CreateTypefaceUse(font, &typeface)) ||
-            text_must_be_pathed(paint, this->localToDevice())) {
+        if (FAILED(CreateTypefaceUse(font, &typeface)) || text_must_be_pathed(paint, this->ctm())) {
             SkPath path;
             //TODO: make this work, Draw currently does not handle as well.
             //paint.getTextPath(text, byteLength, x, y, &path);
@@ -1938,20 +1937,16 @@ void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
                       &origin,
                       SkScalarToFLOAT(font.getSize()),
                       XPS_STYLE_SIMULATION_NONE,
-                      this->localToDevice(),
+                      this->ctm(),
                       paint));
     }
 }
 
-void SkXPSDevice::drawDevice( SkBaseDevice* dev,
-                             int x, int y,
-                             const SkPaint&) {
-    SkXPSDevice* that = static_cast<SkXPSDevice*>(dev);
+void SkXPSDevice::drawDevice(SkBaseDevice* src, const SkPaint&) {
+    SkXPSDevice* that = static_cast<SkXPSDevice*>(src);
 
     SkTScopedComPtr<IXpsOMMatrixTransform> xpsTransform;
-    // TODO(halcanary): assert that current transform is identity rather than calling setter.
-    XPS_MATRIX rawTransform = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
-    HRVM(this->fXpsFactory->CreateMatrixTransform(&rawTransform, &xpsTransform),
+    HRVM(this->createXpsTransform(this->getRelativeTransform(*src), &xpsTransform),
          "Could not create layer transform.");
     HRVM(that->fCurrentXpsCanvas->SetTransformLocal(xpsTransform.get()),
          "Could not set layer transform.");

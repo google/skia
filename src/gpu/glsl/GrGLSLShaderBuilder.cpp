@@ -112,13 +112,11 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // function, one for the (inverse) destination transfer function, and one for the gamut xform.
     // Any combination of these may be present, although some configurations are much more likely.
 
-    auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
-                          TFKind kind) {
+    auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform) {
         const GrShaderVar gTFArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
-        // Temporaries to make evaluation line readable. We always use the sRGBish names, so the
-        // PQ and HLG math is confusing.
+        // Temporaries to make evaluation line readable
         body.appendf("half G = %s[0];", coeffs);
         body.appendf("half A = %s[1];", coeffs);
         body.appendf("half B = %s[2];", coeffs);
@@ -128,24 +126,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.appendf("half F = %s[6];", coeffs);
         body.append("half s = sign(x);");
         body.append("x = abs(x);");
-        switch (kind) {
-            case TFKind::sRGBish_TF:
-                body.append("x = (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
-                break;
-            case TFKind::PQish_TF:
-                body.append("x = pow(max(A + B * pow(x, C), 0) / (D + E * pow(x, C)), F);");
-                break;
-            case TFKind::HLGish_TF:
-                body.append("x = (x*A <= 1) ? pow(x*A, B) : exp((x-E)*C) + D;");
-                break;
-            case TFKind::HLGinvish_TF:
-                body.append("x = (x <= 1) ? A * pow(x, B) : C * log(x - D) + E;");
-                break;
-            default:
-                SkASSERT(false);
-                break;
-        }
-        body.append("return s * x;");
+        body.appendf("return s * ((x < D) ? (C * x) + F : pow(A * x + B, G) + E);");
         SkString funcName;
         this->emitFunction(kHalf_GrSLType, name, SK_ARRAY_COUNT(gTFArgs), gTFArgs, body.c_str(),
                            &funcName);
@@ -154,14 +135,12 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     SkString srcTFFuncName;
     if (colorXformHelper->applySrcTF()) {
-        srcTFFuncName = emitTFFunc("src_tf", colorXformHelper->srcTFUniform(),
-                                   colorXformHelper->srcTFKind());
+        srcTFFuncName = emitTFFunc("src_tf", colorXformHelper->srcTFUniform());
     }
 
     SkString dstTFFuncName;
     if (colorXformHelper->applyDstTF()) {
-        dstTFFuncName = emitTFFunc("dst_tf", colorXformHelper->dstTFUniform(),
-                                   colorXformHelper->dstTFKind());
+        dstTFFuncName = emitTFFunc("dst_tf", colorXformHelper->dstTFUniform());
     }
 
     SkString gamutXformFuncName;

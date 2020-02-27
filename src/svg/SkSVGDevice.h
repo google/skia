@@ -40,9 +40,6 @@ protected:
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
 
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
-
 private:
     SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
     ~SkSVGDevice() override;

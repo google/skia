@@ -9,7 +9,6 @@
 #define GrColorSpaceXform_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
@@ -32,19 +31,8 @@ public:
      * computed key.
      */
     static uint32_t XformKey(const GrColorSpaceXform* xform) {
-        // Code generation depends on which steps we apply,
-        // and the kinds of transfer functions (if we're applying those).
-        if (!xform) { return 0; }
-
-        const SkColorSpaceXformSteps& steps(xform->fSteps);
-        uint32_t key = steps.flags.mask();
-        if (steps.flags.linearize) {
-            key |= classify_transfer_fn(steps.srcTF)    << 8;
-        }
-        if (steps.flags.encode) {
-            key |= classify_transfer_fn(steps.dstTFInv) << 16;
-        }
-        return key;
+        // Code generation depends on which steps we apply
+        return xform ? xform->fSteps.flags.mask() : 0;
     }
 
     static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);

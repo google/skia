@@ -62,28 +62,37 @@ void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     }
 }
 
-bool SkBaseDevice::isPixelAlignedToGlobal() const {
-    return fDeviceToGlobal.isTranslate() &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateX()) &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateY());
-}
+bool SkBaseDevice::getOrigin(SkIPoint* origin) const {
+    if (fDeviceToGlobal.isScaleTranslate() && fDeviceToGlobal.getScaleX() > 0.0f
+        && fDeviceToGlobal.getScaleY() > 0.0f) {
+        // Avoid calculating the global bounds, this is equal to
+        // fDeviceToRoot * (0, 0) and then rounding out.
+        origin->fX = SkScalarFloorToInt(fDeviceToGlobal.getTranslateX());
+        origin->fY = SkScalarFloorToInt(fDeviceToGlobal.getTranslateY());
 
-SkIPoint SkBaseDevice::getOrigin() const {
-    // getOrigin() is deprecated, the old origin has been moved into the fDeviceToGlobal matrix.
-    // This extracts the origin from the matrix, but asserts that a more complicated coordinate
-    // space hasn't been set of the device. This function can be removed once existing use cases
-    // have been updated to use the device-to-global matrix instead or have themselves been removed
-    // (e.g. Android's device-space clip regions are going away, and are not compatible with the
-    // generalized device coordinate system).
-    SkASSERT(this->isPixelAlignedToGlobal());
-    return SkIPoint::Make(SkScalarFloorToInt(fDeviceToGlobal.getTranslateX()),
-                          SkScalarFloorToInt(fDeviceToGlobal.getTranslateY()));
+        return origin->fX == fDeviceToGlobal.getTranslateX() &&
+               origin->fY == fDeviceToGlobal.getTranslateY();
+    } else {
+        // Report top-left corner of the device's global bounds
+        SkIRect globalBounds = this->getGlobalBounds();
+        *origin = globalBounds.topLeft();
+        return false;
+    }
 }
 
 SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
     // To get the transform from the input's space to this space, transform from the input space to
     // the global space, and then from the global space back to this space.
     return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
+}
+bool SkBaseDevice::getRelativeOrigin(const SkBaseDevice& inputDevice, SkIPoint* offset) const {
+    SkIPoint srcOrigin, dstOrigin;
+    if (this->getOrigin(&dstOrigin) && inputDevice.getOrigin(&srcOrigin)) {
+        *offset = srcOrigin - dstOrigin;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool SkBaseDevice::clipIsWideOpen() const {
@@ -116,12 +125,12 @@ static inline bool is_int(float x) {
 }
 
 void SkBaseDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
-    const SkMatrix& localToDevice = this->localToDevice();
-    bool isNonTranslate = localToDevice.getType() & ~(SkMatrix::kTranslate_Mask);
+    const SkMatrix& ctm = this->ctm();
+    bool isNonTranslate = ctm.getType() & ~(SkMatrix::kTranslate_Mask);
     bool complexPaint = paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
                         paint.getPathEffect();
-    bool antiAlias = paint.isAntiAlias() && (!is_int(localToDevice.getTranslateX()) ||
-                                             !is_int(localToDevice.getTranslateY()));
+    bool antiAlias = paint.isAntiAlias() && (!is_int(ctm.getTranslateX()) ||
+                                             !is_int(ctm.getTranslateY()));
     if (isNonTranslate || complexPaint || antiAlias) {
         SkPath path;
         region.getBoundaryPath(&path);
@@ -158,7 +167,7 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
-    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->localToDevice());
+    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
                                                this->imageInfo().colorSpace());
     if (vertices) {
@@ -303,7 +312,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
     SkASSERT(!paint.getPathEffect());
 
     SkPaint entryPaint = paint;
-    const SkMatrix baseLocalToDevice = this->localToDevice();
+    const SkMatrix baseCTM = this->ctm();
     int clipIndex = 0;
     for (int i = 0; i < count; ++i) {
         // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
@@ -316,8 +325,8 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         SkASSERT(images[i].fMatrixIndex < 0 || preViewMatrices);
         if (images[i].fMatrixIndex >= 0) {
             this->save();
-            this->setLocalToDevice(SkMatrix::Concat(
-                    baseLocalToDevice, preViewMatrices[images[i].fMatrixIndex]));
+            this->setGlobalCTM(SkMatrix::Concat(
+                    baseCTM, preViewMatrices[images[i].fMatrixIndex]));
             needsRestore = true;
         }
 
@@ -336,7 +345,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
                             entryPaint, constraint);
         if (needsRestore) {
-            this->restoreLocal(baseLocalToDevice);
+            this->restore(baseCTM);
         }
     }
 }
@@ -349,8 +358,32 @@ void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, Sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void SkBaseDevice::drawDevice(SkBaseDevice* src, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
+
+    SkMatrix srcToDst = this->getRelativeTransform(*src);
+    SkIRect srcBounds = SkIRect::MakeWH(src->width(), src->height());
+
+    SkMatrix dstToSrc;
+    if (srcToDst.invert(&dstToSrc)) {
+        // If we're invertible, map the dst device's clip bounds back to the src's coordinate system
+        // and use intersection of that rectangle and the original 'srcBounds'.
+        SkIRect dstClipInSrc = dstToSrc.mapRect(SkRect::Make(this->devClipBounds())).roundOut();
+        if (!srcBounds.intersect(dstClipInSrc)) {
+            // The 'src' device would just be clipped out.
+            return;
+        }
+    }
+    auto special = src->snapSpecial(srcBounds);
+    if (special) {
+        this->drawSpecial(std::move(special), srcToDst, paint);
+    }
+}
+
 void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                                SkImage*, const SkMatrix&) {}
+void SkBaseDevice::drawSpecial(const SkSpecialImage*, const SkMatrix& transform, const SkPaint&) {}
+
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
@@ -399,8 +432,8 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
                                        const SkRSXform xform[], int count, SkPoint origin,
                                        const SkPaint& paint) {
-    const SkMatrix originalLocalToDevice = this->localToDevice();
-    if (!originalLocalToDevice.isFinite() || !SkScalarIsFinite(font.getSize()) ||
+    const SkMatrix originalCTM = this->ctm();
+    if (!originalCTM.isFinite() || !SkScalarIsFinite(font.getSize()) ||
         !SkScalarIsFinite(font.getScaleX()) ||
         !SkScalarIsFinite(font.getSkewX())) {
         return;
@@ -420,8 +453,8 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         glyphID = glyphs[i];
         // now "glyphRun" is pointing at the current glyphID
 
-        SkMatrix glyphToDevice;
-        glyphToDevice.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
+        SkMatrix ctm;
+        ctm.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
 
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
@@ -430,19 +463,19 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         auto shader = transformingPaint.getShader();
         if (shader) {
             SkMatrix inverse;
-            if (glyphToDevice.invert(&inverse)) {
+            if (ctm.invert(&inverse)) {
                 transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
             } else {
                 transformingPaint.setShader(nullptr);  // can't handle this xform
             }
         }
 
-        glyphToDevice.postConcat(originalLocalToDevice);
-        this->setLocalToDevice(glyphToDevice);
+        ctm.setConcat(originalCTM, ctm);
+        this->setCTM(ctm);
 
         this->drawGlyphRunList(SkGlyphRunList{glyphRun, transformingPaint});
     }
-    this->setLocalToDevice(originalLocalToDevice);
+    this->setCTM(originalCTM);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

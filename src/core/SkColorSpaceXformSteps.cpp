@@ -114,9 +114,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         rgba[2] *= invA;
     }
     if (flags.linearize) {
-        rgba[0] = skcms_TransferFunction_eval(&srcTF, rgba[0]);
-        rgba[1] = skcms_TransferFunction_eval(&srcTF, rgba[1]);
-        rgba[2] = skcms_TransferFunction_eval(&srcTF, rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &srcTF, 7*sizeof(float));
+
+        rgba[0] = skcms_TransferFunction_eval(&tf, rgba[0]);
+        rgba[1] = skcms_TransferFunction_eval(&tf, rgba[1]);
+        rgba[2] = skcms_TransferFunction_eval(&tf, rgba[2]);
     }
     if (flags.gamut_transform) {
         float temp[3] = { rgba[0], rgba[1], rgba[2] };
@@ -127,9 +130,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         }
     }
     if (flags.encode) {
-        rgba[0] = skcms_TransferFunction_eval(&dstTFInv, rgba[0]);
-        rgba[1] = skcms_TransferFunction_eval(&dstTFInv, rgba[1]);
-        rgba[2] = skcms_TransferFunction_eval(&dstTFInv, rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &dstTFInv, 7*sizeof(float));
+
+        rgba[0] = skcms_TransferFunction_eval(&tf, rgba[0]);
+        rgba[1] = skcms_TransferFunction_eval(&tf, rgba[1]);
+        rgba[2] = skcms_TransferFunction_eval(&tf, rgba[2]);
     }
     if (flags.premul) {
         rgba[0] *= rgba[3];
@@ -146,8 +152,15 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.linearize) {
         if (src_is_normalized && srcTF_is_sRGB) {
             p->append(SkRasterPipeline::from_srgb);
+        } else if (srcTF.a == 1 &&
+                   srcTF.b == 0 &&
+                   srcTF.c == 0 &&
+                   srcTF.d == 0 &&
+                   srcTF.e == 0 &&
+                   srcTF.f == 0) {
+            p->append(SkRasterPipeline::gamma_, &srcTF.g);
         } else {
-            p->append_transfer_function(srcTF);
+            p->append(SkRasterPipeline::parametric, &srcTF);
         }
     }
     if (flags.gamut_transform) {
@@ -156,8 +169,15 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.encode) {
         if (src_is_normalized && dstTF_is_sRGB) {
             p->append(SkRasterPipeline::to_srgb);
+        } else if (dstTFInv.a == 1 &&
+                   dstTFInv.b == 0 &&
+                   dstTFInv.c == 0 &&
+                   dstTFInv.d == 0 &&
+                   dstTFInv.e == 0 &&
+                   dstTFInv.f == 0) {
+            p->append(SkRasterPipeline::gamma_, &dstTFInv.g);
         } else {
-            p->append_transfer_function(dstTFInv);
+            p->append(SkRasterPipeline::parametric, &dstTFInv);
         }
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }

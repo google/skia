@@ -97,8 +97,9 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    // Drawing an XPS device into another can compose its visual vector elements instead of
+    // rasterizing itself into a special image.
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
 
 private:
     class TypefaceUse {

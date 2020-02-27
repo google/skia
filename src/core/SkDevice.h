@@ -104,23 +104,23 @@ public:
      *  into the global canvas' space (or root device space). This includes the translation
      *  necessary to account for the device's origin.
      */
-    const SkMatrix& deviceToGlobal() const { return fDeviceToGlobal; }
+    const SkMatrix& getDeviceToGlobal() const { return fDeviceToGlobal; }
     /**
      *  Return the inverse of getDeviceToGlobal(), mapping from the global canvas' space (or root
      *  device space) into this device's coordinate space.
      */
-    const SkMatrix& globalToDevice() const { return fGlobalToDevice; }
+    const SkMatrix& getGlobalToDevice() const { return fGlobalToDevice; }
     /**
-     *  DEPRECATED: This asserts that 'getDeviceToGlobal' is a translation matrix with integer
-     *  components. In the future some SkDevices will have more complex device-to-global transforms,
-     *  so getDeviceToGlobal() or getRelativeTransform() should be used instead.
+     *  Get the pixel origin of this device, which is defined as the top left corner of the global
+     *  bounds of the device. Returns true if the device-to-global matrix is pure translation, in
+     *  which case the output 'origin' is sufficient to map the device's contents back to the global
+     *  space.
+     *
+     *  Note that this origin may not equal the result of applying the device-to-global matrix to
+     *  (0, 0). This is due to both rounding any fractional coordinates to an exact pixel, and
+     *  taking into account the axis-aligned bounding box of the transformed device's bounds.
      */
-    SkIPoint getOrigin() const;
-    /**
-     * Returns true when this device's pixel grid is axis aligned with the global coordinate space,
-     * and any relative translation between the two spaces is in integer pixel units.
-     */
-    bool isPixelAlignedToGlobal() const;
+    bool getOrigin(SkIPoint* origin) const;
     /**
      *  Get the transformation from the input device's to this device's coordinate space. This
      *  transform can be used to draw the input device into this device, such that once this device
@@ -128,6 +128,12 @@ public:
      *  transformed by the global CTM.
      */
     SkMatrix getRelativeTransform(const SkBaseDevice&) const;
+    /**
+     *  Like getRelativeTransform(), but can be used if both this device and the input device have
+     *  translation-only device-to-global matrices. In this case, this returns true and 'offset' is
+     *  set to the integer translation that would be returned by getRelativeTransform().
+     */
+    bool getRelativeOrigin(const SkBaseDevice&, SkIPoint* offset) const;
 
     virtual void* getRasterHandle() const { return nullptr; }
 
@@ -135,10 +141,6 @@ public:
     void restore(const SkMatrix& ctm) {
         this->onRestore();
         this->setGlobalCTM(ctm);
-    }
-    void restoreLocal(const SkMatrix& localToDevice) {
-        this->onRestore();
-        this->setLocalToDevice(localToDevice);
     }
     void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
         this->onClipRect(rect, op, aa);
@@ -157,8 +159,11 @@ public:
     }
     bool clipIsWideOpen() const;
 
-    const SkMatrix& localToDevice() const { return fLocalToDevice; }
-    void setLocalToDevice(const SkMatrix& localToDevice) {
+    // This is named ctm for historical reasons, but it should not be assumed to equal the CTM of
+    // the SkCanvas, which maps to a global coordinate system. This matrix maps to the device's
+    // coordinate system; concatenate 'ctm()' with getDeviceToGlobal() to get the full transform.
+    const SkMatrix& ctm() const { return fLocalToDevice; }
+    void setCTM(const SkMatrix& localToDevice) {
         fLocalToDevice = localToDevice;
     }
     void setGlobalCTM(const SkMatrix& ctm);
@@ -277,17 +282,29 @@ protected:
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint);
 
     /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kNeverTile_TileExpectation.
+        onCreateDevice on this device with kNeverTile_TileExpectation. This ignores the current
+        CTM, and should draw 'src' into this device with the relative matrix between their two basis
+        matrices. The paint will not have an image filter on it.
+
+        This defaults to drawSpecial(), using src->snapSpecial(). Override drawDevice() if there
+        is device-specific info that is not captured in a special image.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+    virtual void drawDevice(SkBaseDevice* src, const SkPaint&);
 
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
                              SkPoint origin, const SkPaint& paint);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
+    // DEPRECATED: Should use the new drawSpecial() that accepts an SkMatrix instead.
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                              SkImage* clipImage, const SkMatrix& clipMatrix);
+    // TODO(michaelludwig) - This will need clipImage parameters, too
+    // Draw the special 'image' into this device. 'transform' is the full transform into this
+    // device's coordinate space, so its current CTM should be ignored when drawing. It can be
+    // assumed that the paint does not have an image filter.
+    virtual void drawSpecial(const SkSpecialImage*, const SkMatrix& transform,
+                             const SkPaint& paint);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     // Get a view of the entire device's current contents as an image.
@@ -495,21 +512,21 @@ private:
     typedef SkBaseDevice INHERITED;
 };
 
-class SkAutoDeviceTransformRestore : SkNoncopyable {
+class SkAutoDeviceCTMRestore : SkNoncopyable {
 public:
-    SkAutoDeviceTransformRestore(SkBaseDevice* device, const SkMatrix& localToDevice)
+    SkAutoDeviceCTMRestore(SkBaseDevice* device, const SkMatrix& ctm)
         : fDevice(device)
-        , fPrevLocalToDevice(device->localToDevice())
+        , fPrevCTM(device->ctm())
     {
-        fDevice->setLocalToDevice(localToDevice);
+        fDevice->setCTM(ctm);
     }
-    ~SkAutoDeviceTransformRestore() {
-        fDevice->setLocalToDevice(fPrevLocalToDevice);
+    ~SkAutoDeviceCTMRestore() {
+        fDevice->setCTM(fPrevCTM);
     }
 
 private:
     SkBaseDevice*   fDevice;
-    const SkMatrix  fPrevLocalToDevice;
+    const SkMatrix  fPrevCTM;
 };
 
 #endif

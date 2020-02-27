@@ -887,13 +887,16 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     // with this rect.
     const SkIRect srcDevRect = SkIRect::MakeWH(src->width(), src->height());
     // TODO(michaelludwig) - Update this function to use the relative transforms between src and
-    // dst; for now, since devices never have complex transforms, we can keep using getOrigin().
+    // dst; for now, since devices never have complex transforms, we can just use the src origin.
+    SkIPoint srcOrigin;
+    SkAssertResult(src->getOrigin(&srcOrigin));
+
     if (!filter) {
         // All non-filtered devices are currently axis aligned, so they only differ by their origin.
         // This means that we only have to copy a dst-sized block of pixels out of src and translate
         // it to the matching position relative to dst's origin.
-        SkIRect snapBounds = SkIRect::MakeXYWH(dstOrigin.x() - src->getOrigin().x(),
-                                               dstOrigin.y() - src->getOrigin().y(),
+        SkIRect snapBounds = SkIRect::MakeXYWH(dstOrigin.x() - srcOrigin.x(),
+                                               dstOrigin.y() - srcOrigin.y(),
                                                dst->width(), dst->height());
         if (!snapBounds.intersect(srcDevRect)) {
             return;
@@ -948,7 +951,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     // be the conservative contents required to fill a layerInputBounds-sized surface with the
     // backdrop content (transformed back into the layer space using fromRoot).
     SkIRect backdropBounds = toRoot.mapRect(SkRect::Make(layerInputBounds)).roundOut();
-    backdropBounds.offset(-src->getOrigin().x(), -src->getOrigin().y());
+    backdropBounds.offset(-srcOrigin.x(), -srcOrigin.y());
     if (!backdropBounds.intersect(srcDevRect)) {
         return;
     }
@@ -987,7 +990,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         // performed on backdropBounds.
         tmpCanvas->translate(-layerInputBounds.fLeft, -layerInputBounds.fTop);
         tmpCanvas->concat(fromRoot);
-        tmpCanvas->translate(src->getOrigin().x(), src->getOrigin().y());
+        tmpCanvas->translate(srcOrigin.x(), srcOrigin.y());
 
         tmpCanvas->drawImageRect(special->asImage(), special->subset(),
                                  SkRect::Make(backdropBounds), &p, kStrict_SrcRectConstraint);
@@ -999,7 +1002,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         // When we use the original snapped image directly, just map the update backdrop bounds
         // back into the shared layer space
         layerInputBounds = backdropBounds;
-        layerInputBounds.offset(src->getOrigin().x(), src->getOrigin().y());
+        layerInputBounds.offset(srcOrigin.x(), srcOrigin.y());
 
         // Similar to the unfiltered case above, when toRoot is the identity, then the final
         // draw will be 1-1 so there is no need to increase filter quality.
@@ -1027,11 +1030,11 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         // Manually setting the device's CTM requires accounting for the device's origin.
         // TODO (michaelludwig) - This could be simpler if the dst device had its origin configured
-        // before filtering the backdrop device, and if SkAutoDeviceTransformRestore had a way to accept
+        // before filtering the backdrop device, and if SkAutoDeviceCTMRestore had a way to accept
         // a global CTM instead of a device CTM.
         SkMatrix dstCTM = toRoot;
         dstCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
-        SkAutoDeviceTransformRestore adr(dst, dstCTM);
+        SkAutoDeviceCTMRestore acr(dst, dstCTM);
 
         // And because devices don't have a special-image draw function that supports arbitrary
         // matrices, we are abusing the asImage() functionality here...
@@ -1209,7 +1212,9 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
     SkIRect devBounds;
     if (localBounds) {
         SkRect tmp;
-        device->localToDevice().mapRect(&tmp, *localBounds);
+        // The device's CTM maps from local into its space, whereas fMCRec->fMatrix maps all the
+        // way to the root space, which we don't want in this case.
+        device->ctm().mapRect(&tmp, *localBounds);
         if (!devBounds.intersect(tmp.round(), device->devClipBounds())) {
             devBounds.setEmpty();
         }
@@ -1364,9 +1369,7 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
         // instead of an origin, just don't expose the pixels in that case. Note that this means
         // that layers with complex coordinate spaces can still report their pixels if the caller
         // does not ask for the origin (e.g. just to dump its output to a file, etc).
-        if (this->getTopDevice()->isPixelAlignedToGlobal()) {
-            *origin = this->getTopDevice()->getOrigin();
-        } else {
+        if (!this->getTopDevice()->getOrigin(origin)) {
             return nullptr;
         }
     }
@@ -1406,7 +1409,8 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint,
         // TODO(michaelludwig) - Devices aren't created with complex coordinate systems yet,
         // so it should always be possible to use the relative origin. Once drawDevice() and
         // drawSpecial() take an SkMatrix, this can switch to getRelativeTransform() instead.
-        SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
+        SkIPoint pos;
+        SkAssertResult(dstDev->getRelativeOrigin(*srcDev, &pos));
         if (filter || clipImage) {
             sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
             if (specialImage) {
@@ -1630,7 +1634,10 @@ class RgnAccumulator {
 public:
     RgnAccumulator(SkRegion* total) : fRgn(total) {}
     void accumulate(SkBaseDevice* device, SkRegion* rgn) {
-        SkIPoint origin = device->getOrigin();
+        // Android-only so devices won't have complex coordinate spaces, since image filters aren't
+        // in use.
+        SkIPoint origin;
+        SkAssertResult(device->getOrigin(&origin));
         if (origin.x() | origin.y()) {
             rgn->translate(origin.x(), origin.y());
         }
@@ -2249,11 +2256,16 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
     while (iter.next()) {
         SkBaseDevice* dev = iter.fDevice;
 
+        // saveBehind is android-only, so no image filters, so a device's root transform is always
+        // just the origin.
+        SkIPoint origin;
+        SkAssertResult(dev->getOrigin(&origin));
+
         dev->save();
         // We use clipRegion because it is already defined to operate in dev-space
         // (i.e. ignores the ctm). However, it is going to first translate by -origin,
         // but we don't want that, so we undo that before calling in.
-        SkRegion rgn(bounds.makeOffset(dev->getOrigin()));
+        SkRegion rgn(bounds.makeOffset(origin));
         dev->clipRegion(rgn, SkClipOp::kIntersect);
         dev->drawPaint(draw.paint());
         dev->restore(fMCRec->fMatrix);
@@ -2444,7 +2456,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         const SkPaint& pnt = draw.paint();
         if (special) {
             SkPoint pt;
-            iter.fDevice->localToDevice().mapXY(x, y, &pt);
+            iter.fDevice->ctm().mapXY(x, y, &pt);
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -2522,7 +2534,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         const SkPaint& pnt = draw.paint();
         if (special) {
             SkPoint pt;
-            iter.fDevice->localToDevice().mapXY(x, y, &pt);
+            iter.fDevice->ctm().mapXY(x, y, &pt);
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -3009,7 +3021,7 @@ void SkCanvas::LayerIter::next() {
     if (!fDone) {
         // Cache the device origin. LayerIter is only used in Android, which doesn't use image
         // filters, so its devices will always be able to report the origin exactly.
-        fDeviceOrigin = fImpl->fDevice->getOrigin();
+        SkAssertResult(fImpl->fDevice->getOrigin(&fDeviceOrigin));
     }
 }
 
@@ -3018,7 +3030,7 @@ SkBaseDevice* SkCanvas::LayerIter::device() const {
 }
 
 const SkMatrix& SkCanvas::LayerIter::matrix() const {
-    return fImpl->fDevice->localToDevice();
+    return fImpl->fDevice->ctm();
 }
 
 const SkPaint& SkCanvas::LayerIter::paint() const {
@@ -3120,7 +3132,7 @@ SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
             clip.setEmpty();
         }
 
-        fAllocator->updateHandle(handle, dev->localToDevice(), clip);
+        fAllocator->updateHandle(handle, dev->ctm(), clip);
         return handle;
     }
     return nullptr;

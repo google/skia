@@ -90,8 +90,9 @@ public:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    // PDFDevice can embed the vectorized contents of another device without forcing it to be
+    // rasterized as a special image.
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
 
     // PDF specific methods.
 

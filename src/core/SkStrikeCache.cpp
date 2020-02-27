@@ -32,8 +32,17 @@ public:
         return fStrike.roundingSpec();
     }
 
-    void prepareForDrawing(int maxDimension, SkDrawableGlyphBuffer* drawbles) override {
-        fStrike.prepareForDrawing(maxDimension, drawbles);
+    SkSpan<const SkGlyphPos>
+    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
+                                 const SkPoint positions[],
+                                 size_t n,
+                                 int maxDimension,
+                                 SkGlyphPos results[]) override {
+        return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
+                                                    positions,
+                                                    n,
+                                                    maxDimension,
+                                                    results);
     }
 
     const SkDescriptor& getDescriptor() const override {

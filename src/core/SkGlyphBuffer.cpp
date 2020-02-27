@@ -9,11 +9,6 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkStrikeForGPU.h"
 
-void SkSourceGlyphBuffer::reset() {
-    fRejectedGlyphIDs.reset();
-    fRejectedPositions.reset();
-}
-
 void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     if (size > fMaxSize) {
         fMultiBuffer.reset(size);
