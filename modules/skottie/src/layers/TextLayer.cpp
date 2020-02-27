@@ -100,6 +100,15 @@ bool AnimationBuilder::FontInfo::matches(const char family[], const char style[]
         && 0 == strcmp(fStyle.c_str(), style);
 }
 
+#ifdef SK_NO_FONTS
+void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
+                                  const skjson::ArrayValue* jchars) {}
+
+sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& jlayer,
+                                                          LayerInfo*) const {
+    return nullptr;
+}
+#else
 void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                                   const skjson::ArrayValue* jchars) {
     // Optional array of font entries, referenced (by name) from text layer document nodes. E.g.
@@ -243,10 +252,6 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
     }
 }
 
-const AnimationBuilder::FontInfo* AnimationBuilder::findFont(const SkString& font_name) const {
-    return fFonts.find(font_name);
-}
-
 sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& jlayer,
                                                           LayerInfo*) const {
     return this->attachDiscardableAdapter<TextAdapter>(jlayer,
@@ -254,6 +259,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
                                                        fLazyFontMgr.getMaybeNull(),
                                                        fLogger);
 }
+#endif
+
+const AnimationBuilder::FontInfo* AnimationBuilder::findFont(const SkString& font_name) const {
+    return fFonts.find(font_name);
+}
+
 
 } // namespace internal
 } // namespace skottie
