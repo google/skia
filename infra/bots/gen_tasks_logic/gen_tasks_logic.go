@@ -1413,9 +1413,14 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 	for k, v := range EXTRA_PROPS {
 		extraProps[k] = v
 	}
-	iid := b.internalHardwareLabel(parts)
-	if iid != nil {
-		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
+	iid := ""
+	if iidTest := b.internalHardwareLabel(parts); iidTest != nil {
+		iid = strconv.Itoa(*iidTest)
+		extraProps["internal_hardware_label"] = iid
+	}
+	needUpload := b.doUpload(name)
+	if recipe == "test" {
+		extraProps["dm_flags"] = strings.Join(dmFlags(name, parts, needUpload, iid), " ")
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
@@ -1459,7 +1464,7 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 
 	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
 	// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
-	if b.doUpload(name) {
+	if needUpload {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
 		extraProps := map[string]string{
 			"gs_bucket": b.cfg.GsBucketGm,
