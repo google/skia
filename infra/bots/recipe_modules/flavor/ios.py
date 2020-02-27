@@ -10,8 +10,8 @@ from . import default
 
 
 class iOSFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(iOSFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(iOSFlavor, self).__init__(m, app_name)
     self.device_dirs = default.DeviceDirs(
         bin_dir='[unused]',
         dm_dir='dm',
@@ -25,6 +25,16 @@ class iOSFlavor(default.DefaultFlavor):
         tmp_dir='tmp',
         texttraces_dir='')
 
+  @property
+  def env(self):
+    return {
+      'IOS_BUNDLE_ID': 'com.google.%s' % self.app_name,
+      'IOS_MOUNT_POINT': self.m.vars.slave_dir.join('mnt_iosdevice'),
+    }
+
+  def context(self):
+    return self.m.context(env=self.env)
+
   def _run(self, title, *cmd, **kwargs):
     def sleep(attempt):
       self.m.python.inline('sleep before attempt %d' % attempt, """
@@ -34,7 +44,11 @@ time.sleep(2)
     return self.m.run.with_retry(self.m.step, title, 3, cmd=list(cmd),
                                  between_attempts_fn=sleep, **kwargs)
 
-  def install(self, app_to_push):
+  def install(self):
+    with self.context():
+      self._install()
+
+  def _install(self):
     # We assume a single device is connected.
 
     # Pair the device.
@@ -79,21 +93,21 @@ time.sleep(2)
       self._run('mount developer image', 'ideviceimagemounter', image, sig)
 
     # Install app (necessary before copying any resources to the device).
-    if app_to_push:
-      app_package = self.host_dirs.bin_dir.join('%s.app' % app_to_push)
+    if self.app_name:
+      app_package = self.host_dirs.bin_dir.join('%s.app' % self.app_name)
 
       def uninstall_app(attempt):
         # If app ID changes, upgrade will fail, so try uninstalling.
         self.m.run(self.m.step,
-                   'uninstall %s' % app_to_push,
+                   'uninstall %s' % self.app_name,
                    cmd=['ideviceinstaller', '-U',
-                        'com.google.%s' % app_to_push],
+                        'com.google.%s' % self.app_name],
                    infra_step=True,
                    # App may not be installed.
                    abort_on_failure=False, fail_build_on_failure=False)
 
       num_attempts = 2
-      self.m.run.with_retry(self.m.step, 'install %s' % app_to_push,
+      self.m.run.with_retry(self.m.step, 'install %s' % self.app_name,
                             num_attempts,
                             cmd=['ideviceinstaller', '-i', app_package],
                             between_attempts_fn=uninstall_app,
@@ -104,22 +118,24 @@ time.sleep(2)
     bundle_id = 'com.google.%s' % app_name
     args = [bundle_id] + map(str, cmd[1:])
     success = False
-    try:
-      self.m.run(self.m.step, name, cmd=['idevicedebug', 'run'] + args)
-      success = True
-    finally:
-      if not success:
-        self.m.run(self.m.python, '%s with full debug output' % name,
-                   script=self.module.resource('ios_debug_cmd.py'),
-                   args=args)
+    with self.context():
+      try:
+        self.m.run(self.m.step, name, cmd=['idevicedebug', 'run'] + args)
+        success = True
+      finally:
+        if not success:
+          self.m.run(self.m.python, '%s with full debug output' % name,
+                     script=self.module.resource('ios_debug_cmd.py'),
+                     args=args)
 
   def _run_ios_script(self, script, first, *rest):
-    full = self.m.path['start_dir'].join(
-        'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
-    self.m.run(self.m.step,
-               name = '%s %s' % (script, first),
-               cmd = [full, first] + list(rest),
-               infra_step=True)
+    with self.context():
+      full = self.m.path['start_dir'].join(
+          'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
+      self.m.run(self.m.step,
+                 name = '%s %s' % (script, first),
+                 cmd = [full, first] + list(rest),
+                 infra_step=True)
 
   def copy_file_to_device(self, host, device):
     self._run_ios_script('push_file', host, device)
@@ -138,12 +154,13 @@ time.sleep(2)
     self._run_ios_script('mkdir', path)
 
   def read_file_on_device(self, path, **kwargs):
-    full = self.m.path['start_dir'].join(
-        'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
-    rv = self.m.run(self.m.step,
-                    name = 'cat_file %s' % path,
-                    cmd = [full, path],
-                    stdout=self.m.raw_io.output(),
-                    infra_step=True,
-                    **kwargs)
-    return rv.stdout.rstrip() if rv and rv.stdout else None
+    with self.context():
+      full = self.m.path['start_dir'].join(
+          'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
+      rv = self.m.run(self.m.step,
+                      name = 'cat_file %s' % path,
+                      cmd = [full, path],
+                      stdout=self.m.raw_io.output(),
+                      infra_step=True,
+                      **kwargs)
+      return rv.stdout.rstrip() if rv and rv.stdout else None

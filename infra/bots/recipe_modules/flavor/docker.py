@@ -21,8 +21,8 @@ IMAGES = {
 
 
 class DockerFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(DockerFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(DockerFlavor, self).__init__(m, app_name)
 
   def _map_host_path_to_docker(self, path):
     """Returns the path in the Docker container mapped to the given path.

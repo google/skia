@@ -19,8 +19,8 @@ Copied from chromebook.py and modified for Windows.
 
 class WinSSHFlavor(ssh.SSHFlavor):
 
-  def __init__(self, m):
-    super(WinSSHFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(WinSSHFlavor, self).__init__(m, app_name)
     self.remote_homedir = 'C:\\Users\\chrome-bot\\botdata\\'
     self.device_dirs = default.DeviceDirs(
       bin_dir        = self.device_path_join(self.remote_homedir, 'bin'),
@@ -52,14 +52,14 @@ class WinSSHFlavor(ssh.SSHFlavor):
   def device_path_join(self, *args):
     return ntpath.join(*args)
 
-  def install(self, app_to_push):
-    # We install apps below.
-    super(WinSSHFlavor, self).install(None)
+  def install(self):
+    self.ensure_device_dir(self.device_dirs.resource_dir)
+
     # Ensure that our empty dir is actually empty.
     self._rmdir(self._empty_dir)
     self.ensure_device_dir(self._empty_dir)
 
-    if app_to_push:
+    if self.app_name:
       # There may be DLLs in the same dir as the executable that must be loaded
       # (yes, Windows allows overriding system DLLs with files in the local
       # directory). For simplicity, just copy the entire dir to the device.
