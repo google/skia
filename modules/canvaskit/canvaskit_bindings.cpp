@@ -582,6 +582,7 @@ Uint8Array getSkDataBytes(const SkData *data) {
 
 // Text Shaping abstraction
 
+#ifndef SK_NO_FONTS
 struct ShapedTextOpts {
     SkFont font;
     bool leftToRight;
@@ -604,7 +605,7 @@ static sk_sp<SkTextBlob> do_shaping(const ShapedTextOpts& opts, SkPoint* pt) {
 }
 
 class ShapedText {
-public:
+ public:
     ShapedText(ShapedTextOpts opts) : fOpts(opts) {}
 
     SkRect getBounds() {
@@ -616,7 +617,7 @@ public:
         this->init();
         return fBlob.get();
     }
-private:
+ private:
     const ShapedTextOpts fOpts;
     SkPoint fPoint;
     sk_sp<SkTextBlob> fBlob;
@@ -632,6 +633,7 @@ void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
                     SkScalar y, SkPaint paint) {
     canvas.drawTextBlob(st.blob(), x, y, paint);
 }
+#endif //SK_NO_FONTS
 
 int saveLayerRec(SkCanvas& canvas, const SkPaint* paint,
                  const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags) {

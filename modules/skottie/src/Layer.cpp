@@ -408,7 +408,11 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         { &AnimationBuilder::attachImageLayer  , kTransformEffects },  // 'ty': 2 -> image
         { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 3 -> null
         { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty': 4 -> shape
+#ifdef SK_NO_FONTS
+        { nullptr                              ,                 0 },  // 'ty': 5 -> text
+#else
         { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty': 5 -> text
+#endif
     };
 
     if (SkToSizeT(fType) >= SK_ARRAY_COUNT(gLayerBuildInfo) && !this->isCamera()) {

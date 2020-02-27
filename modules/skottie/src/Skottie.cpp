@@ -177,7 +177,9 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     this->dispatchMarkers(jroot["markers"]);
 
     this->parseAssets(jroot["assets"]);
+#ifndef SK_NO_FONTS
     this->parseFonts(jroot["fonts"], jroot["chars"]);
+#endif
 
     AutoScope ascope(this);
     auto root = CompositionBuilder(*this, fCompSize, jroot).build(*this);

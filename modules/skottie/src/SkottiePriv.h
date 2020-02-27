@@ -170,8 +170,10 @@ private:
     struct LayerInfo;
 
     void parseAssets(const skjson::ArrayValue*);
+#ifndef SK_NO_FONTS
     void parseFonts (const skjson::ObjectValue* jfonts,
                      const skjson::ArrayValue* jchars);
+#endif
 
     void dispatchMarkers(const skjson::ArrayValue*) const;
 
@@ -191,7 +193,9 @@ private:
     sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, LayerInfo*) const;
+#ifndef SK_NO_FONTS
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, LayerInfo*) const;
+#endif
 
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {
