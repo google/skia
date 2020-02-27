@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Make it possible to build with just webp decoding - i.e. no webp encoding - and vice
+    versa, by replacing skia_use_libwebp with skia_use_webp_decode and skia_use_webp_encode.
+
   * Added a field to GrContextOptions that controls whether GL errors are checked after
     GL calls that allocate textures, etc. It also controls checking for shader compile
     success, and program linking success.

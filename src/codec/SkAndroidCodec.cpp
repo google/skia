@@ -100,13 +100,13 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
 #ifdef SK_HAS_WUFFS_LIBRARY
         case SkEncodedImageFormat::kGIF:
 #endif
-#ifdef SK_HAS_WEBP_LIBRARY
+#ifdef SK_CODEC_DECODES_WEBP
         case SkEncodedImageFormat::kWEBP:
 #endif
 #ifdef SK_CODEC_DECODES_RAW
         case SkEncodedImageFormat::kDNG:
 #endif
-#if defined(SK_HAS_WEBP_LIBRARY) || defined(SK_CODEC_DECODES_RAW) || defined(SK_HAS_WUFFS_LIBRARY)
+#if defined(SK_CODEC_DECODES_WEBP) || defined(SK_CODEC_DECODES_RAW) || defined(SK_HAS_WUFFS_LIBRARY)
             return std::make_unique<SkAndroidCodecAdapter>(codec.release(), orientationBehavior);
 #endif
 

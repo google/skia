@@ -763,15 +763,26 @@ optional("typeface_freetype") {
   ]
 }
 
-optional("webp") {
-  enabled = skia_use_libwebp
-  public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
+optional("webp_decode") {
+  enabled = skia_use_webp_decode
+  public_defines = [ "SK_CODEC_DECODES_WEBP" ]
 
   deps = [
     "//third_party/libwebp",
   ]
   sources = [
     "src/codec/SkWebpCodec.cpp",
+  ]
+}
+
+optional("webp_encode") {
+  enabled = skia_use_webp_encode
+  public_defines = [ "SK_ENCODE_WEBP" ]
+
+  deps = [
+    "//third_party/libwebp",
+  ]
+  sources = [
     "src/images/SkWebpEncoder.cpp",
   ]
 }
@@ -878,7 +889,8 @@ component("skia") {
     ":sse41",
     ":sse42",
     ":ssse3",
-    ":webp",
+    ":webp_decode",
+    ":webp_encode",
     ":wuffs",
     ":xml",
   ]
