@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97e32bdf_4d4baed5",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-27T17:38:18Z",
+      "side": 1,
+      "message": "How about pushing the SK_NO_FONTS check into TextLayer.cpp?  I think then a) you only need one single compile-time conditional block and b) you don\u0027t need to exclude that source file from compilation.\n\ne.g.\n\n#ifdef SK_NO_FONTS\n\nAnimationBuilder::parseFonts(...) {}\nAnimationBuilder::attachTextLayer(..) { return nullptr; }\n\n#else\n[current stuff]\n#endif",
+      "revId": "4a3f9bf88c06473e9a2f24185418a688ee15ba00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
