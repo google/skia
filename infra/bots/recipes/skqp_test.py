@@ -30,7 +30,7 @@ def test_firebase_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.flavor.setup(None)
 
   test_firebase_steps(api)
   api.run.check_failure()
