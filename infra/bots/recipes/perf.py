@@ -330,24 +330,18 @@ def perf_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.flavor.setup('nanobench')
 
-  env = {}
-  if 'iOS' in api.vars.builder_name:
-    env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
-    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
-  with api.env(env):
-    try:
-      if all(v in api.vars.builder_name for v in ['Android', 'CPU']):
-        api.flavor.install('nanobench', skps=True, images=True, svgs=True,
-                           resources=True, texttraces=True)
-      else:
-        api.flavor.install('nanobench', skps=True, images=True, svgs=True,
-                           resources=True)
-      perf_steps(api)
-    finally:
-      api.flavor.cleanup_steps()
-    api.run.check_failure()
+  try:
+    if all(v in api.vars.builder_name for v in ['Android', 'CPU']):
+      api.flavor.install(skps=True, images=True, svgs=True, resources=True,
+                         texttraces=True)
+    else:
+      api.flavor.install(skps=True, images=True, svgs=True, resources=True)
+    perf_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
+  api.run.check_failure()
 
 
 TEST_BUILDERS = [

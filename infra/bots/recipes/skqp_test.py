@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 # Recipe module for Skia Swarming SKQP testing.
+# TODO(borenet): This recipe seems to be unused. Can we delete it?
 
 DEPS = [
   'flavor',
@@ -30,7 +31,11 @@ def test_firebase_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+
+  # The app_name passed to api.flavor.setup() is used to determine which app
+  # to install on an attached device. We don't need to install anything so we
+  # pass None here.
+  api.flavor.setup(None)
 
   test_firebase_steps(api)
   api.run.check_failure()

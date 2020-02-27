@@ -221,11 +221,11 @@ def parse_trace(trace_json, lottie_filename, api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.flavor.setup('dm')
 
   with api.context():
     try:
-      api.flavor.install('dm', resources=True, lotties=True)
+      api.flavor.install(resources=True, lotties=True)
       perf_steps(api)
     finally:
       api.flavor.cleanup_steps()

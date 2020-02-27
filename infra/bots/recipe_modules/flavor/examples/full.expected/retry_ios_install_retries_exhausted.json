@@ -7,6 +7,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -19,6 +21,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -31,6 +35,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -71,6 +77,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -83,6 +91,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -95,6 +105,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -107,6 +119,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "list mounted image"
@@ -122,6 +136,10 @@
       "[START_DIR]",
       "ios-dev-image*"
     ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
     "infra_step": true,
     "name": "locate ios-dev-image package",
     "~followup_annotations": [
@@ -139,6 +157,10 @@
       "listdir",
       "[START_DIR]/ios-dev-image-13.2"
     ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
     "infra_step": true,
     "name": "locate image and signature",
     "~followup_annotations": [
@@ -155,6 +177,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "mount developer image"
@@ -167,6 +191,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -183,6 +209,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -196,6 +224,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,

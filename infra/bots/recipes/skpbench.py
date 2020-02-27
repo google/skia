@@ -129,12 +129,15 @@ def skpbench_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+
+  # The app_name passed to api.flavor.setup() is used to determine which app
+  # to install on an attached device. That work is done in skpbench_steps, so
+  # we pass None here.
+  api.flavor.setup(None)
 
   try:
     mksp_mode = ('Mskp' in api.vars.builder_name)
-    # We install skpbench in skpbench_steps.
-    api.flavor.install(None, skps=not mksp_mode, mskps=mksp_mode)
+    api.flavor.install(skps=not mksp_mode, mskps=mksp_mode)
     skpbench_steps(api)
   finally:
     api.flavor.cleanup_steps()

@@ -13,8 +13,8 @@ import subprocess  # TODO(borenet): No! Remove this.
 
 
 class AndroidFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(AndroidFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(AndroidFlavor, self).__init__(m, app_name)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
     self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
@@ -353,7 +353,7 @@ if actual_freq != str(freq):
         'lib64', 'clang', '8.0.7', 'bin', 'asan_device_setup')
 
 
-  def install(self, app_to_push):
+  def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if 'ASAN' in self.m.vars.extra_tokens:
@@ -435,13 +435,13 @@ time.sleep(60)
                  infra_step=True,
                  timeout=300,
                  abort_on_failure=True)
-    if app_to_push:
-      if (app_to_push == 'nanobench'):
+    if self.app_name:
+      if (self.app_name == 'nanobench'):
         self._scale_for_nanobench()
       else:
         self._scale_for_dm()
-      app_path = self.host_dirs.bin_dir.join(app_to_push)
-      self._adb('push %s' % app_to_push,
+      app_path = self.host_dirs.bin_dir.join(self.app_name)
+      self._adb('push %s' % self.app_name,
                 'push', app_path, self.device_dirs.bin_dir)
 
 

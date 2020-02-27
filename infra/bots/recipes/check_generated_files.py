@@ -16,7 +16,6 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'checkout',
-  'flavor',
   'run',
   'vars',
 ]
@@ -28,7 +27,6 @@ def RunSteps(api):
   checkout_root = api.checkout.default_checkout_root
   api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   cwd = api.path['checkout']
 
