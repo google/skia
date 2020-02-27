@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3dfa326_e3f51b5a",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-27T20:29:06Z",
+      "side": 1,
+      "message": "for just code organization, can you move these dump functions else where so all the create calls can live together?",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 6
+      },
+      "revId": "0822a8912f8f0041ac73b515ba04146df8e409e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc4fb2c7_9a670959",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-27T20:29:06Z",
+      "side": 1,
+      "message": "just to not confuse this with the dstProxyView also here, should this be rtView or renderTargetView or targetView or outputView?",
+      "range": {
+        "startLine": 129,
+        "startChar": 58,
+        "endLine": 129,
+        "endChar": 61
+      },
+      "revId": "0822a8912f8f0041ac73b515ba04146df8e409e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
