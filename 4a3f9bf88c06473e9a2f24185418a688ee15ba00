@@ -16,6 +16,24 @@
       "revId": "4a3f9bf88c06473e9a2f24185418a688ee15ba00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c83365e_db158697",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-27T18:44:19Z",
+      "side": 1,
+      "message": "Done but I\u0027m not totally sure what you meant by not filtering the source files. Can you point to the particular filtering you were thinking of, there\u0027s a few places.",
+      "parentUuid": "97e32bdf_4d4baed5",
+      "revId": "4a3f9bf88c06473e9a2f24185418a688ee15ba00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
