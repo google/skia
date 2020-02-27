@@ -83,7 +83,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_stream_asset_destroy,
         (void*)sk_string_new_empty,
         (void*)sk_surface_new_null,
-        (void*)sk_svgcanvas_create,
+        (void*)sk_svgcanvas_create_with_stream,
         (void*)sk_typeface_unref,
         (void*)sk_xmlstreamwriter_new,
         (void*)sk_textblob_ref,
