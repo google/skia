@@ -1969,7 +1969,23 @@ namespace skvm {
                     vals[i] = b->CreateAlignedStore(vals[x], ptr, 1);
                 } break;
 
+                case Op::bit_and:
+                    vals[i] = b->CreateAnd(vals[x], vals[y]);
+                    break;
 
+                case Op::gather32: {
+                    // Our gather base pointer is immz bytes off of uniform immy.
+                    llvm::Value* base =
+                        b->CreateLoad(b->CreateBitCast(b->CreateGEP(args[immy], b->getInt32(immz)),
+                                                       i32->getPointerTo()->getPointerTo()));
+
+                    llvm::Value* ptr = b->CreateGEP(base, vals[x]);
+                    if (scalar) {
+                        vals[i] = b->CreateAlignedLoad(ptr, 1);
+                    } else {
+                        vals[i] = b->CreateMaskedGather(ptr, 1);
+                    }
+                } break;
 
                 // Ops below this line shouldn't need to consider `scalar`... they're Just Math.
 
