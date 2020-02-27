@@ -54,10 +54,6 @@ static const char* SKSL_INTERP_INCLUDE =
 #include "sksl_interp.inc"
 ;
 
-static const char* SKSL_INTERP_INLINE_INCLUDE =
-#include "sksl_interp_inline.inc"
-;
-
 static const char* SKSL_VERT_INCLUDE =
 #include "sksl_vert.inc"
 ;
@@ -287,13 +283,9 @@ Compiler::Compiler(Flags flags)
     this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
                              strlen(SKSL_PIPELINE_INCLUDE), fGpuSymbolTable, &fPipelineInclude,
                              &fPipelineSymbolTable);
-
     this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
                              strlen(SKSL_INTERP_INCLUDE), symbols, &fInterpreterInclude,
                              &fInterpreterSymbolTable);
-    this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INLINE_INCLUDE,
-                             strlen(SKSL_INTERP_INLINE_INCLUDE), std::move(fInterpreterSymbolTable),
-                             &fInterpreterInclude, &fInterpreterSymbolTable);
     grab_intrinsics(&fInterpreterInclude, &fInterpreterIntrinsics);
     // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
     // remain valid

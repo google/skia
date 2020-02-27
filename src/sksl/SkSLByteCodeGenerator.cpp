@@ -14,37 +14,14 @@ ByteCodeGenerator::ByteCodeGenerator(const Program* program, ErrorReporter* erro
     : INHERITED(program, errors, nullptr)
     , fOutput(output)
     , fIntrinsics {
-        // "Normal" intrinsics are all $genType f($genType [, $genType...])
-        // and all map to a single instruction (possibly with a vector version)
-        { "cos",     { ByteCode::Instruction::kCos,    false } },
-        { "mix",     { ByteCode::Instruction::kSelect, true  } },
-        { "not",     { ByteCode::Instruction::kNot,    false } },
-        { "sin",     { ByteCode::Instruction::kSin,    false } },
-        { "sqrt",    { ByteCode::Instruction::kSqrt,   false } },
-        { "tan",     { ByteCode::Instruction::kTan,    false } },
-
-        { "lessThan",         { ByteCode::Instruction::kCompareLTF,
-                                ByteCode::Instruction::kCompareLTS,
-                                ByteCode::Instruction::kCompareLTU, true } },
-        { "lessThanEqual",    { ByteCode::Instruction::kCompareLTEQF,
-                                ByteCode::Instruction::kCompareLTEQS,
-                                ByteCode::Instruction::kCompareLTEQU, true } },
-        { "greaterThan",      { ByteCode::Instruction::kCompareGTF,
-                                ByteCode::Instruction::kCompareGTS,
-                                ByteCode::Instruction::kCompareGTU, true } },
-        { "greaterThanEqual", { ByteCode::Instruction::kCompareGTEQF,
-                                ByteCode::Instruction::kCompareGTEQS,
-                                ByteCode::Instruction::kCompareGTEQU, true } },
-        { "equal",            { ByteCode::Instruction::kCompareEQF,
-                                ByteCode::Instruction::kCompareEQI,
-                                ByteCode::Instruction::kCompareEQI, true } },
-        { "notEqual",         { ByteCode::Instruction::kCompareNEQF,
-                                ByteCode::Instruction::kCompareNEQI,
-                                ByteCode::Instruction::kCompareNEQI, true } },
+        // "Normal" intrinsics are all $genType f($genType), mapped to a single instruction
+        { "cos",     ByteCode::Instruction::kCos },
+        { "sin",     ByteCode::Instruction::kSin },
+        { "sqrt",    ByteCode::Instruction::kSqrt },
+        { "tan",     ByteCode::Instruction::kTan },
 
         // Special intrinsics have other signatures, or non-standard code-gen
-        { "all",     SpecialIntrinsic::kAll },
-        { "any",     SpecialIntrinsic::kAny },
+        { "dot",     SpecialIntrinsic::kDot },
         { "inverse", SpecialIntrinsic::kInverse },
         { "print",   SpecialIntrinsic::kPrint },
     } {}
@@ -937,22 +914,33 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
                                            ByteCode::Register result) {
     if (intrinsic.fIsSpecial) {
         switch (intrinsic.fValue.fSpecial) {
-            case SpecialIntrinsic::kAll:
-            case SpecialIntrinsic::kAny: {
-                SkASSERT(c.fArguments.size() == 1);
+            case SpecialIntrinsic::kDot: {
+                SkASSERT(c.fArguments.size() == 2);
                 int count = SlotCount(c.fArguments[0]->fType);
-                SkASSERT(count > 1);
-                // Fold a bvec down to a single bool:
-                ByteCode::Register arg = this->next(count);
-                ByteCode::Instruction inst = intrinsic.fValue.fSpecial == SpecialIntrinsic::kAll
-                                                        ? ByteCode::Instruction::kAnd
-                                                        : ByteCode::Instruction::kOr;
-                this->writeExpression(*c.fArguments[0], arg);
+                ByteCode::Register left = this->next(count);
+                this->writeExpression(*c.fArguments[0], left);
+                ByteCode::Register right = this->next(count);
+                this->writeExpression(*c.fArguments[1], right);
+                ByteCode::Register product = this->next(count);
+                this->writeTypedInstruction(c.fType,
+                                            ByteCode::Instruction::kMultiplyIN,
+                                            ByteCode::Instruction::kMultiplyIN,
+                                            ByteCode::Instruction::kMultiplyFN);
+                this->write((uint8_t) count);
+                this->write(product);
+                this->write(left);
+                this->write(right);
+                ByteCode::Register total = product;
                 for (int i = 1; i < count; ++i) {
-                    this->write(inst);
-                    this->write(result);
-                    this->write(i == 1 ? arg : result);
-                    this->write(arg + i);
+                    this->writeTypedInstruction(c.fType,
+                                                ByteCode::Instruction::kAddI,
+                                                ByteCode::Instruction::kAddI,
+                                                ByteCode::Instruction::kAddF);
+                    ByteCode::Register sum = i == count - 1 ? result : this->next(1);
+                    this->write(sum);
+                    this->write(total);
+                    this->write(product + i);
+                    total = sum;
                 }
                 break;
             }
@@ -982,7 +970,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
             }
         }
     } else {
-        uint8_t count = (uint8_t) SlotCount(c.fType);
+        int count = SlotCount(c.fType);
         std::vector<ByteCode::Register> argRegs;
         for (const auto& expr : c.fArguments) {
             SkASSERT(SlotCount(expr->fType) == count);
@@ -990,49 +978,21 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
             this->writeExpression(*expr, reg);
             argRegs.push_back(reg);
         }
-
-        const auto& instructions = intrinsic.fValue.fInstructions;
-        const Type& opType = c.fArguments[0]->fType;
-
-        if (instructions.fUseVector) {
-            if (count == 1) {
-                this->writeTypedInstruction(opType,
-                                            instructions.fFloat,
-                                            instructions.fSigned,
-                                            instructions.fUnsigned);
-            } else {
-                this->writeTypedInstruction(opType,
-                                            VEC(instructions.fFloat),
-                                            VEC(instructions.fSigned),
-                                            VEC(instructions.fUnsigned));
-                this->write(count);
-            }
-            this->write(result);
-            for (ByteCode::Register arg : argRegs) {
-                this->write(arg);
-            }
-        } else {
-            // No vector version of the instruction exists. Emit the scalar instruction N times.
-            for (uint8_t i = 0; i < count; ++i) {
-                this->writeTypedInstruction(opType,
-                                            instructions.fFloat,
-                                            instructions.fSigned,
-                                            instructions.fUnsigned);
+        for (int i = 0; i < count; ++i) {
+            this->write(intrinsic.fValue.fInstruction);
+            if (c.fType.fName != "void") {
                 this->write(result + i);
-                for (ByteCode::Register arg : argRegs) {
-                    this->write(arg + i);
-                }
+            }
+            for (ByteCode::Register arg : argRegs) {
+                this->write(arg + i);
             }
         }
     }
 }
 
 void ByteCodeGenerator::writeFunctionCall(const FunctionCall& c, ByteCode::Register result) {
-    // 'mix' is present as both a "pure" intrinsic (fDefined == false), and an SkSL implementation
-    // in the pre-parsed include files (fDefined == true), depending on argument types. We only
-    // send calls to the former through the intrinsic path here.
     auto found = fIntrinsics.find(c.fFunction.fName);
-    if (found != fIntrinsics.end() && !c.fFunction.fDefined) {
+    if (found != fIntrinsics.end()) {
         return this->writeIntrinsicCall(c, found->second, result);
     }
     int argCount = c.fArguments.size();
@@ -1202,9 +1162,9 @@ void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
     for (int i = 0; i < count; ++i) {
         this->write(ByteCode::Instruction::kSelect);
         this->write(result + i);
-        this->write(ifFalse + i);
-        this->write(ifTrue + i);
         this->write(test);
+        this->write(ifTrue + i);
+        this->write(ifFalse + i);
     }
 }
 
