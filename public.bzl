@@ -640,13 +640,15 @@ def base_defines(os_conditions):
                 "SK_BUILD_FOR_UNIX",
                 "SK_R32_SHIFT=16",
                 "SK_HAS_PNG_LIBRARY",
-                "SK_HAS_WEBP_LIBRARY",
+                "SK_CODEC_DECODES_WEBP",
+                "SK_ENCODE_WEBP",
             ],
             # ANDROID
             [
                 "SK_BUILD_FOR_ANDROID",
                 "SK_HAS_PNG_LIBRARY",
-                "SK_HAS_WEBP_LIBRARY",
+                "SK_CODEC_DECODES_WEBP",
+                "SK_ENCODE_WEBP",
             ],
             # IOS
             [

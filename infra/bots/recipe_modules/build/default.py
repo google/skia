@@ -252,7 +252,8 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_harfbuzz':      'false',
       'skia_use_libjpeg_turbo': 'false',
       'skia_use_libpng':        'false',
-      'skia_use_libwebp':       'false',
+      'skia_use_webp_decode':   'false',
+      'skia_use_webp_encode':   'false',
       'skia_use_vulkan':        'false',
       'skia_use_zlib':          'false',
     })

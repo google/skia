@@ -40,7 +40,7 @@ static std::vector<DecoderProc>* decoders() {
     #ifdef SK_HAS_JPEG_LIBRARY
         { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
     #endif
-    #ifdef SK_HAS_WEBP_LIBRARY
+    #ifdef SK_CODEC_DECODES_WEBP
         { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
     #endif
     #ifdef SK_HAS_WUFFS_LIBRARY

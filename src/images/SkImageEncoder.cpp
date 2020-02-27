@@ -24,7 +24,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const
 }
 #endif
 
-#ifndef SK_HAS_WEBP_LIBRARY
+#ifndef SK_ENCODE_WEBP
 bool SkWebpEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 #endif
 
