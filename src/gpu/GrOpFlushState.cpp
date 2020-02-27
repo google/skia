@@ -130,7 +130,9 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::recordDraw(
-        const GrGeometryProcessor* gp, const GrMesh meshes[], int meshCnt,
+        const GrGeometryProcessor* gp,
+        const GrMesh meshes[],
+        int meshCnt,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
         GrPrimitiveType primitiveType) {
