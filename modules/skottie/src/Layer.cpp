@@ -225,7 +225,8 @@ public:
 
 protected:
     void onTick(float t) override {
-        const auto active = (t >= fIn && t < fOut);
+        // in/out may be inverted for time-reversed layers
+        const auto active = (t >= fIn && t < fOut) || (t > fOut && t <= fIn);
 
         if (fLayerNode) {
             fLayerNode->setVisible(active);
@@ -376,7 +377,7 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         ParseDefault<float>(fJlayer["ip"], 0.0f),
         ParseDefault<float>(fJlayer["op"], 0.0f),
     };
-    if (layer_info.fInPoint >= layer_info.fOutPoint) {
+    if (SkScalarNearlyEqual(layer_info.fInPoint, layer_info.fOutPoint)) {
         abuilder.log(Logger::Level::kError, nullptr,
                      "Invalid layer in/out points: %f/%f.",
                      layer_info.fInPoint, layer_info.fOutPoint);
