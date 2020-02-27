@@ -19,7 +19,7 @@ class GrDawnGpu;
 class GrDawnRenderTarget;
 struct GrDawnProgram;
 
-class GrDawnOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
+class GrDawnOpsRenderPass : public GrOpsRenderPass {
 public:
     GrDawnOpsRenderPass(GrDawnGpu*, GrRenderTarget*, GrSurfaceOrigin,
                         const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
@@ -45,24 +45,17 @@ private:
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                         const GrSurfaceProxy* const primProcTextures[]) override;
-    void onDrawMesh(GrPrimitiveType, const GrMesh&) override;
-
-    void sendArrayMeshToGpu(GrPrimitiveType type, const GrMesh& mesh, int vertexCount,
-                            int baseVertex) final {
-        SkASSERT(!mesh.instanceBuffer());
-        this->sendInstancedMeshToGpu(type, mesh, vertexCount, baseVertex, 1, 0);
-    }
-    void sendIndexedMeshToGpu(GrPrimitiveType type, const GrMesh& mesh, int indexCount,
-                              int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
-                              int baseVertex) final {
-        SkASSERT(!mesh.instanceBuffer());
-        this->sendIndexedInstancedMeshToGpu(type, mesh, indexCount, baseIndex, baseVertex, 1, 0);
-    }
-    void sendInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int vertexCount, int baseVertex,
-                                int instanceCount, int baseInstance) final;
-    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrMesh&, int indexCount,
-                                       int baseIndex, int baseVertex, int instanceCount,
-                                       int baseInstance) final;
+    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
+    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                       GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
+                       const GrBuffer* vertexBuffer, int baseVertex) override;
+    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount,
+                         int baseInstance, const GrBuffer* vertexBuffer,
+                         int vertexCount, int baseVertex) override;
+    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
+                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
+                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+                                int baseVertex) override;
 
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 
