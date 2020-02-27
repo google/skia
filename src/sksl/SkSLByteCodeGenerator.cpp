@@ -997,14 +997,14 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
         if (instructions.fUseVector) {
             if (count == 1) {
                 this->writeTypedInstruction(opType,
-                                            instructions.fFloat,
                                             instructions.fSigned,
-                                            instructions.fUnsigned);
+                                            instructions.fUnsigned,
+                                            instructions.fFloat);
             } else {
                 this->writeTypedInstruction(opType,
-                                            VEC(instructions.fFloat),
                                             VEC(instructions.fSigned),
-                                            VEC(instructions.fUnsigned));
+                                            VEC(instructions.fUnsigned),
+                                            VEC(instructions.fFloat));
                 this->write(count);
             }
             this->write(result);
@@ -1015,9 +1015,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
             // No vector version of the instruction exists. Emit the scalar instruction N times.
             for (uint8_t i = 0; i < count; ++i) {
                 this->writeTypedInstruction(opType,
-                                            instructions.fFloat,
                                             instructions.fSigned,
-                                            instructions.fUnsigned);
+                                            instructions.fUnsigned,
+                                            instructions.fFloat);
                 this->write(result + i);
                 for (ByteCode::Register arg : argRegs) {
                     this->write(arg + i);
