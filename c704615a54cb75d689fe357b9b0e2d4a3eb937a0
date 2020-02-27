@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e9058bc0_8236550c",
+        "filename": "infra/bots/recipe_modules/flavor/ios.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-27T17:29:55Z",
+      "side": 1,
+      "message": "It\u0027s not a big deal at all. My feeling is that passing this info by env var is a bit hacky, so it would be nice to isolate the hacks to the minimal places they are required. Then later someone who comes along and wonders where these env vars are used has a much easier job tracking them down.",
+      "parentUuid": "ea736135_929ba17f",
+      "revId": "c704615a54cb75d689fe357b9b0e2d4a3eb937a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbbbdd51_b760ea27",
         "filename": "infra/bots/recipe_modules/flavor/win_ssh.py",
         "patchSetId": 1
