@@ -13,8 +13,8 @@
 #include "include/core/SkString.h"
 #include "tools/sk_app/Window.h"
 
+class ControlVisitor;
 class SkCanvas;
-class SkMetaData;
 
 class Slide : public SkRefCnt {
 public:
@@ -32,8 +32,7 @@ public:
     virtual bool onMouse(SkScalar x, SkScalar y, skui::InputState state,
                          skui::ModifierKey modifiers) { return false; }
 
-    virtual bool onGetControls(SkMetaData*) { return false; }
-    virtual void onSetControls(const SkMetaData&) {}
+    virtual void onControls(ControlVisitor&) {}
 
     SkString getName() { return fName; }
 

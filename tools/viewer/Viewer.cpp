@@ -27,6 +27,7 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/Controls.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -1971,33 +1972,23 @@ void Viewer::drawImGui() {
             }
 
             {
-                SkMetaData controls;
-                if (fSlides[fCurrentSlide]->onGetControls(&controls)) {
-                    if (ImGui::CollapsingHeader("Current Slide")) {
-                        SkMetaData::Iter iter(controls);
-                        const char* name;
-                        SkMetaData::Type type;
-                        int count;
-                        while ((name = iter.next(&type, &count)) != nullptr) {
-                            if (type == SkMetaData::kScalar_Type) {
-                                float val[3];
-                                SkASSERT(count == 3);
-                                controls.findScalars(name, &count, val);
-                                if (ImGui::SliderFloat(name, &val[0], val[1], val[2])) {
-                                    controls.setScalars(name, 3, val);
-                                }
-                            } else if (type == SkMetaData::kBool_Type) {
-                                bool val;
-                                SkASSERT(count == 1);
-                                controls.findBool(name, &val);
-                                if (ImGui::Checkbox(name, &val)) {
-                                    controls.setBool(name, val);
-                                }
-                            }
-                        }
-                        fSlides[fCurrentSlide]->onSetControls(controls);
+                class ImGuiControlVisitor : public ControlVisitor {
+                    bool started{false};
+                    void startIfNeeded() {
+                        if (started) { return; }
+                        ImGui::CollapsingHeader("Current Slide");
+                        started = true;
                     }
-                }
+                    void visit(ControlBool& check) override {
+                        this->startIfNeeded();
+                        ImGui::Checkbox(check.label, &check.value);
+                    }
+                    void visit(ControlRange& range) override {
+                        this->startIfNeeded();
+                        ImGui::SliderFloat(range.label, &range.value, range.min, range.max);
+                    }
+                } controls;
+                fSlides[fCurrentSlide]->onControls(controls);
             }
 
             if (fShowSlidePicker) {

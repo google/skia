@@ -31,11 +31,7 @@ bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }
 
 bool GMSlide::onChar(SkUnichar c) { return fGM->onChar(c); }
 
-bool GMSlide::onGetControls(SkMetaData* controls) {
+void GMSlide::onControls(ControlVisitor& controls) {
     return fGM->getControls(controls);
-}
-
-void GMSlide::onSetControls(const SkMetaData& controls) {
-    fGM->setControls(controls);
 }
 

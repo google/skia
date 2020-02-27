@@ -215,11 +215,6 @@ protected:
         }
         return false;
     }
-
-    bool onGetControls(SkMetaData*) override { return false; }
-    void onSetControls(const SkMetaData&) override {
-
-    }
 };
 
 DEF_GM(return new GM3d;)
