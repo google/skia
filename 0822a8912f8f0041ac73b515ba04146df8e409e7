@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8ff91300_612cfe55",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-27T21:08:44Z",
+      "side": 1,
+      "message": "The issue is actually that two classes are being crammed together here:GrSimpleMeshDrawOpHelper and GrSimpleMeshDrawOpHelperWithStencil. I will move GrSimpleMeshDrawOpHelperWithStencil to its own files.",
+      "parentUuid": "d3dfa326_e3f51b5a",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 6
+      },
+      "revId": "0822a8912f8f0041ac73b515ba04146df8e409e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fc4fb2c7_9a670959",
         "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-27T20:29:06Z",
       "side": 1,
       "message": "just to not confuse this with the dstProxyView also here, should this be rtView or renderTargetView or targetView or outputView?",
+      "range": {
+        "startLine": 129,
+        "startChar": 58,
+        "endLine": 129,
+        "endChar": 61
+      },
+      "revId": "0822a8912f8f0041ac73b515ba04146df8e409e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "838e7d85_49740672",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-27T21:08:44Z",
+      "side": 1,
+      "message": "Let me do that as a follow up - it should probably be changed everywhere and this name is used in a lot of places.",
+      "parentUuid": "fc4fb2c7_9a670959",
       "range": {
         "startLine": 129,
         "startChar": 58,
