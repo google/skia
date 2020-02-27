@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a6302c3_872df870",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-27T20:18:52Z",
+      "side": 1,
+      "message": "this can be false. encoding isn\u0027t needed in the debugger.",
+      "range": {
+        "startLine": 92,
+        "startChar": 23,
+        "endLine": 92,
+        "endChar": 27
+      },
+      "revId": "b40f021d749f99a6d96227456d5f887eaf20f3e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
