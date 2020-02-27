@@ -30,7 +30,7 @@ public:
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(const GrBackendFormat&) const override;
 
-    bool isFormatCopyable(const GrBackendFormat&) const override { return false; }
+    bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
@@ -84,8 +84,6 @@ private:
                     const D3D12_FEATURE_DATA_D3D12_OPTIONS2&);
     void initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc);
 
-    void initFormatTable(const DXGI_ADAPTER_DESC&, ID3D12Device*);
-
     void applyDriverCorrectnessWorkarounds(int vendorID);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
@@ -98,6 +96,10 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
+<<<<<<< HEAD
+    int fMaxPerStageShaderResourceViews;
+    int fMaxPerStageUnorderedAccessViews;
+=======
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
         GrColorType fColorType = GrColorType::kUnknown;
@@ -126,18 +128,19 @@ private:
             return 0;
         }
 
-        void init(const DXGI_ADAPTER_DESC&, ID3D12Device*, DXGI_FORMAT);
-        static void InitFormatFlags(const D3D12_FEATURE_DATA_FORMAT_SUPPORT&, uint16_t* flags);
-        void initSampleCounts(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Device*, DXGI_FORMAT);
+        void init(const D3D12_FEATURE_DATA_FORMAT_SUPPORT&);
+        //static void InitFormatFlags(VkFormatFeatureFlags, uint16_t* flags);
+        void initSampleCounts(const D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS&);
 
         enum {
-            kTexturable_Flag = 0x1, // Can be sampled in a shader
-            kRenderable_Flag = 0x2, // Rendertarget and blendable
-            kMSAA_Flag = 0x4,
-            kResolve_Flag = 0x8,
+            kTexturable_Flag = 0x1,
+            kRenderable_Flag = 0x2,
+            kBlitSrc_Flag = 0x4,
+            kBlitDst_Flag = 0x8,
         };
 
-        uint16_t fFlags = 0;
+        uint16_t fOptimalFlags = 0;
+        uint16_t fLinearFlags = 0;
 
         SkTDArray<int> fColorSampleCounts;
         // This value is only valid for regular formats. Compressed formats will be 0.
@@ -146,7 +149,7 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    static const size_t kNumDxgiFormats = 16;
+    static const size_t kNumDxgiFormats = 21;
     FormatInfo fFormatTable[kNumDxgiFormats];
 
     FormatInfo& getFormatInfo(DXGI_FORMAT);
@@ -155,8 +158,7 @@ private:
     DXGI_FORMAT fColorTypeToFormatTable[kGrColorTypeCnt];
     void setColorType(GrColorType, std::initializer_list<DXGI_FORMAT> formats);
 
-    int fMaxPerStageShaderResourceViews;
-    int fMaxPerStageUnorderedAccessViews;
+>>>>>>> Add texture format support
 
     typedef GrCaps INHERITED;
 };
