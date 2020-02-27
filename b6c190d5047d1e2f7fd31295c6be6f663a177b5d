@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "e935ea68_3a6215f0",
+        "filename": "DEPS",
+        "patchSetId": 19
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-27T19:58:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1552b78b_606c7f8f",
+      "revId": "b6c190d5047d1e2f7fd31295c6be6f663a177b5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b31e09ff_eb830233",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 19
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fefb339e_44b4800a",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-27T19:58:54Z",
+      "side": 1,
+      "message": "Added TODO, unless I hear different from Brian.",
+      "parentUuid": "b31e09ff_eb830233",
+      "revId": "b6c190d5047d1e2f7fd31295c6be6f663a177b5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "547370ec_ab9a9db6",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 19
@@ -64,6 +100,30 @@
       "writtenOn": "2020-02-27T18:15:11Z",
       "side": 1,
       "message": "I think this should happen in GN as well.",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 88
+      },
+      "revId": "b6c190d5047d1e2f7fd31295c6be6f663a177b5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dc056ee_b7c2e6f7",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-27T19:58:54Z",
+      "side": 1,
+      "message": "To do this we\u0027d need to plumb \u0027skia_dir\u0027 to GN via args, right?  I don\u0027t see skia_dir accessible in GN today, is there an advantage to adding a GN arg so GN can set PYTHONPATH itself? seems like more steps for the same result.",
+      "parentUuid": "547370ec_ab9a9db6",
       "range": {
         "startLine": 217,
         "startChar": 0,
