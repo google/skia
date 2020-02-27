@@ -76,7 +76,7 @@
 #define SK_NO_THREAD_SAFETY_ANALYSIS \
   SK_THREAD_ANNOTATION_ATTRIBUTE(no_thread_safety_analysis)
 
-#if defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_BUILD_FOR_GOOGLE3) && !defined(SK_BUILD_FOR_WASM_IN_GOOGLE3)
     extern "C" {
         void __google_potentially_blocking_region_begin(void);
         void __google_potentially_blocking_region_end  (void);
