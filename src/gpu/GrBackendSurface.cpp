@@ -24,6 +24,9 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/mtl/GrMtlCppUtil.h"
 #endif
+#ifdef SK_DIRECT3D
+#include "include/gpu/d3d/GrD3D12.h"
+#endif
 
 GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
         : fBackend(that.fBackend)
@@ -51,7 +54,7 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
-            //TODO fD3DFormat = that.fD3DFormat;
+            fDxgiFormat = that.fDxgiFormat;
             break;
 #endif
 #ifdef SK_DAWN
@@ -166,6 +169,23 @@ GrMTLPixelFormat GrBackendFormat::asMtlFormat() const {
     }
     // MTLPixelFormatInvalid == 0
     return GrMTLPixelFormat(0);
+}
+#endif
+
+#ifdef SK_DIRECT3D
+GrBackendFormat::GrBackendFormat(DXGI_FORMAT dxgiFormat)
+    : fBackend(GrBackendApi::kDirect3D)
+    , fValid(true)
+    , fDxgiFormat(dxgiFormat)
+    , fTextureType(GrTextureType::k2D) {
+}
+
+bool GrBackendFormat::asDxgiFormat(DXGI_FORMAT* dxgiFormat) const {
+    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
+        *dxgiFormat = fDxgiFormat;
+        return true;
+    }
+    return false;
 }
 #endif
 

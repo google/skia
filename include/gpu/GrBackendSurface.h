@@ -30,6 +30,10 @@ class GrGLTextureParameters;
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
+#ifdef SK_DIRECT3D
+enum DXGI_FORMAT;
+#endif
+
 #if GR_TEST_UTILS
 class SkString;
 #endif
@@ -90,6 +94,12 @@ public:
     }
 #endif
 
+#ifdef SK_DIRECT3D
+    static GrBackendFormat MakeDxgi(DXGI_FORMAT format) {
+        return GrBackendFormat(format);
+    }
+#endif
+
     static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression);
 
     bool operator==(const GrBackendFormat& that) const;
@@ -128,6 +138,14 @@ public:
     GrMTLPixelFormat asMtlFormat() const;
 #endif
 
+#ifdef SK_DIRECT3D
+    /**
+     * If the backend API is Direct3D this gets the format as a DXGI_FORMAT and returns true.
+     * Otherwise, returns false.
+     */
+     bool asDxgiFormat(DXGI_FORMAT*) const;
+#endif
+
     /**
      * If the backend API is not Mock these two calls will return kUnknown and kNone, respectively.
      * Otherwise, if the compression type is kNone then the GrColorType will be valid. If the
@@ -161,6 +179,10 @@ private:
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
 
+#ifdef SK_DIRECT3D
+    GrBackendFormat(DXGI_FORMAT dxgiFormat);
+#endif
+
     GrBackendFormat(GrColorType, SkImage::CompressionType);
 
     GrBackendApi fBackend = GrBackendApi::kMock;
@@ -178,6 +200,10 @@ private:
 
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
+#endif
+
+#ifdef SK_DIRECT3D
+        DXGI_FORMAT fDxgiFormat;
 #endif
         struct {
             GrColorType              fColorType;
