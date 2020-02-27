@@ -22,7 +22,7 @@
 class GrContext;
 class GrRenderTargetContext;
 class SkCanvas;
-class SkMetaData;
+class ControlVisitor;
 struct GrContextOptions;
 
 #define DEF_GM(CODE) \
@@ -144,8 +144,7 @@ namespace skiagm {
         bool animate(double /*nanos*/);
         virtual bool onChar(SkUnichar);
 
-        bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
-        void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
+        void getControls(ControlVisitor& controls) { return this->onGetControls(controls); }
 
         virtual void modifyGrContextOptions(GrContextOptions*);
 
@@ -160,8 +159,7 @@ namespace skiagm {
         virtual SkString onShortName() = 0;
 
         virtual bool onAnimate(double /*nanos*/);
-        virtual bool onGetControls(SkMetaData*);
-        virtual void onSetControls(const SkMetaData&);
+        virtual void onGetControls(ControlVisitor&);
 
     private:
         Mode     fMode;

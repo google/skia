@@ -25,7 +25,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkFontPriv.h"
-#include "tools/SkMetaData.h"
+#include "tools/Controls.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -213,13 +213,8 @@ private:
         fFM = SkFontMgr::RefDefault();
     }
 
-    bool onGetControls(SkMetaData* controls) override {
-        controls->setBool("Label Bounds", fLabelBounds);
-        return true;
-    }
-
-    void onSetControls(const SkMetaData& controls) override {
-        controls.findBool("Label Bounds", &fLabelBounds);
+    void onGetControls(ControlVisitor& controls) override {
+        controls.visit(fLabelBounds);
     }
 
     static void show_bounds(SkCanvas* canvas, const SkFont& font, SkScalar x, SkScalar y,
@@ -332,7 +327,7 @@ private:
                 if (font.getTypefaceOrDefault() && font.getTypefaceOrDefault()->countGlyphs() < 1000) {
                     SkRect fontBounds = SkFontPriv::GetFontBounds(font);
                     x -= fontBounds.fLeft;
-                    show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds);
+                    show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds.value);
                     x += fontBounds.fRight + 20;
                     index += 1;
                     if (x > 900) {
@@ -350,7 +345,7 @@ private:
     sk_sp<SkFontMgr> fFM;
     const SkScalar fScaleX;
     const SkScalar fSkewX;
-    bool fLabelBounds = false;
+    ControlBool fLabelBounds{"Label Buunds", false};
 };
 
 //////////////////////////////////////////////////////////////////////////////

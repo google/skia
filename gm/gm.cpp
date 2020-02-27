@@ -155,9 +155,7 @@ bool GM::onAnimate(double /*nanos*/) { return false; }
 
 bool GM::onChar(SkUnichar uni) { return false; }
 
-bool GM::onGetControls(SkMetaData*) { return false; }
-
-void GM::onSetControls(const SkMetaData&) {}
+void GM::onGetControls(ControlVisitor&) { return; }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 

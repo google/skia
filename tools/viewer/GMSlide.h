@@ -23,8 +23,7 @@ public:
 
     bool onChar(SkUnichar c) override;
 
-    bool onGetControls(SkMetaData*) override;
-    void onSetControls(const SkMetaData&) override;
+    void onControls(ControlVisitor&) override;
 
 private:
     std::unique_ptr<skiagm::GM> fGM;

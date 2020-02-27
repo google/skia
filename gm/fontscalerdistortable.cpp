@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/Controls.h"
 #include "tools/Resources.h"
 
 #include <string.h>
@@ -44,6 +45,17 @@ private:
         return SkISize::Make(550, 700);
     }
 
+    ControlBool fOverride{"Override", false};
+    ControlRange fRange{"Value", 1, 0.5, 2.0};
+    bool fOldOverride{false};
+    SkScalar fOldValue{-1000};
+    void onGetControls(ControlVisitor& control) override {
+        control.visit(fOverride);
+        if (fOverride.value) {
+            control.visit(fRange);
+        }
+    }
+
     static constexpr int rows = 2;
     static constexpr int cols = 5;
     sk_sp<SkTypeface> typeface[rows][cols];
@@ -64,6 +76,8 @@ private:
             //SkTypeface::MakeFromFile("/System/Library/Fonts/SFNS.ttf"), wght, 100.0f, 900.0f
             //SkTypeface::MakeFromName(".SF NS", SkFontStyle()), wght, 100.0f, 900.0f
         };
+        fRange.min = info.axisMin;
+        fRange.max = info.axisMax;
         std::unique_ptr<SkStreamAsset> distortableStream( info.distortable
                                                         ? info.distortable->openStream(nullptr)
                                                         : nullptr);
@@ -71,6 +85,9 @@ private:
             for (int col = 0; col < cols; ++col) {
                 SkScalar styleValue = SkScalarInterp(info.axisMin, info.axisMax,
                                                      SkScalar(row * cols + col) / (rows * cols));
+                if (fOverride.value) {
+                    styleValue = fRange.value;
+                }
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {
                     {info.axisTag, styleValue},
                     {info.axisTag, styleValue}
@@ -94,6 +111,16 @@ private:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (fOverride.value != fOldOverride || (fOverride.value && fOldValue != fRange.value)) {
+            this->onOnceBeforeDraw();
+            fOldOverride = fOverride.value;
+            if (fOverride.value) {
+                fOldValue = fRange.value;
+            } else {
+                fOldValue = -1000;
+            }
+        }
+
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font;
