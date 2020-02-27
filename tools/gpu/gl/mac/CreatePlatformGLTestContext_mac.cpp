@@ -45,6 +45,7 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         kCGLPFADoubleBuffer,
+        kCGLPFARendererID, (CGLPixelFormatAttribute) kCGLRendererATIRadeonID,
         (CGLPixelFormatAttribute)0
     };
     CGLPixelFormatObj pixFormat;
