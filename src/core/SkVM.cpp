@@ -1912,12 +1912,12 @@ namespace skvm {
             K    = 16;
         }
 
-        llvm::Type        *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo();
-      //llvm::Type        *f32 = llvm::Type::getFloatTy(ctx);
-        llvm::IntegerType *i32 = llvm::Type::getInt32Ty(ctx),
-                          *i64 = llvm::Type::getInt64Ty(ctx);
-      //llvm::VectorType  *I32 = llvm::VectorType::get(i32, K),
-      //                  *F32 = llvm::VectorType::get(f32, K);
+        llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
+                   *i64 = llvm::Type::getInt64Ty(ctx),
+      //           *f32 = llvm::Type::getFloatTy(ctx),
+      //           *F32 = llvm::VectorType::get(f32, K),
+                   *i32 = llvm::Type::getInt32Ty(ctx),
+                   *I32 = llvm::VectorType::get(i32, K);
 
         std::vector<llvm::Type*> arg_types = { i64 };
         for (size_t i = 0; i < fStrides.size(); i++) {
@@ -1950,21 +1950,28 @@ namespace skvm {
                     SkDebugf("can't llvm %s (%d)\n", name(op), op);
                     return false;
 
-                case Op::store32: {
-                    llvm::Value* v = vals[x];
-                    if (scalar) {
-                        v = b->CreateExtractElement(v, (uint64_t)0);
-                    }
+                case Op::load32: {
                     llvm::Value* ptr = b->CreateBitCast(args[immy],
-                                                        v->getType()->getPointerTo());
-                    vals[i] = b->CreateAlignedStore(v, ptr, 1);
+                                                        (scalar ? i32 : I32)->getPointerTo());
+                    vals[i] = b->CreateAlignedLoad(ptr, 1);
                 } break;
 
-                // Ops below this line shouldn't need to consider `scalar`... they're Just Math.
-
-                case Op::splat:
-                    vals[i] = llvm::ConstantVector::getSplat(K, llvm::ConstantInt::get(i32, immy));
+                case Op::splat: {
+                    llvm::ConstantInt* imm = b->getInt32(immy);
+                    vals[i] = scalar ? imm
+                                     : llvm::ConstantVector::getSplat(K, imm);
                     break;
+                }
+
+                case Op::store32: {
+                    llvm::Value* ptr = b->CreateBitCast(args[immy],
+                                                        vals[x]->getType()->getPointerTo());
+                    vals[i] = b->CreateAlignedStore(vals[x], ptr, 1);
+                } break;
+
+
+
+                // Ops below this line shouldn't need to consider `scalar`... they're Just Math.
 
             }
             return true;

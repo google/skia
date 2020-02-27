@@ -281,7 +281,7 @@ DEF_TEST(SkVM_Pointless, r) {
 }
 
 #if defined(SKVM_LLVM)
-DEF_TEST(SkVM_LLVM, r) {
+DEF_TEST(SkVM_LLVM_memset, r) {
     skvm::Builder b;
     b.store32(b.varying<int>(), b.splat(42));
 
@@ -296,6 +296,28 @@ DEF_TEST(SkVM_LLVM, r) {
         REPORTER_ASSERT(r, buf[i] == 42);
     }
     REPORTER_ASSERT(r, buf[17] == 47);
+}
+
+DEF_TEST(SkVM_LLVM_memcpy, r) {
+    skvm::Builder b;
+    {
+        auto src = b.varying<int>(),
+             dst = b.varying<int>();
+        b.store32(dst, b.load32(src));
+    }
+
+    skvm::Program p = b.done();
+    REPORTER_ASSERT(r, p.hasJIT());
+
+    int src[] = {1,2,3,4,5,6,7,8,9},
+        dst[] = {0,0,0,0,0,0,0,0,0};
+
+    p.eval(SK_ARRAY_COUNT(src)-1, src, dst);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(src)-1; i++) {
+        REPORTER_ASSERT(r, dst[i] == src[i]);
+    }
+    size_t i = SK_ARRAY_COUNT(src)-1;
+    REPORTER_ASSERT(r, dst[i] == 0);
 }
 #endif
 
