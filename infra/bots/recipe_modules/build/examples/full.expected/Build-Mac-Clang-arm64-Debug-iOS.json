@@ -3,7 +3,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 9c40b in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_TEXT@Ensuring Xcode version 11c29 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -13,7 +13,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "9c40b",
+      "11c29",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -53,7 +53,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=9c40b\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"Upstream Testing Provisioning Profile\" target_cpu=\"arm64\" target_os=\"ios\""
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=11c29\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"Upstream Testing Provisioning Profile\" target_cpu=\"arm64\" target_os=\"ios\""
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
