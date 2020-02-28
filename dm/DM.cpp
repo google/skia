@@ -932,11 +932,15 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
     if (FLAGS_gpu) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory testFactory(grCtxOptions);
-            if (!testFactory.get(gpuConfig->getContextType(), gpuConfig->getContextOverrides())) {
+            auto ctx = testFactory.get(gpuConfig->getContextType(), gpuConfig->getContextOverrides());
+            if (!ctx) {
                 info("WARNING: can not create GPU context for config '%s'. "
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
+#ifdef SK_ENABLE_DUMP_GPU
+            info("GrContext dump: %s", ctx->dump().c_str());
+#endif
             if (gpuConfig->getTestThreading()) {
                 SkASSERT(!gpuConfig->getTestPersistentCache());
                 return new GPUThreadTestingSink(gpuConfig, grCtxOptions);
