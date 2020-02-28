@@ -1393,6 +1393,7 @@ if (skia_enable_tools) {
     if (skia_use_dawn) {
       public_deps += [ "//third_party/dawn:dawn_headers" ]
       sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
+      cflags_cc = [ "-Wno-microsoft-cast" ]
     }
   }  # test_lib("gpu_tool_utils")
 

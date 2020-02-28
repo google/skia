@@ -10,7 +10,8 @@
 # many of these as possible. This will require updating Skia's
 # SPIRV-Tools and Shaderc at a minimum.
 
-# dawn_jinja2_dir = "//third_party/jinja2"
+# skia/third_party/externals/jinja2 relative to skia/third_party/dawn/BUILD.gn
+dawn_jinja2_dir = "../externals/jinja2"
 # dawn_glfw_dir = "//third_party/glfw"
 # dawn_googletest_dir = "//third_party/googletest"
 # dawn_shaderc_dir = "//third_party/shaderc"
