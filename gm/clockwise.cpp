@@ -162,6 +162,27 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
 
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) const {
+        GrGeometryProcessor* geomProc = ClockwiseTestProcessor::Make(arena, fReadSkFragCoord);
+
+        return sk_gpu_test::CreateProgramInfo(caps, arena, outputView,
+                                              std::move(appliedClip), dstProxyView,
+                                              geomProc, SkBlendMode::kPlus,
+                                              GrPrimitiveType::kTriangleStrip);
+    }
+
+    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) const {
+        return this->createProgramInfo(&flushState->caps(),
+                                       flushState->allocator(),
+                                       flushState->view(),
+                                       flushState->detachAppliedClip(),
+                                       flushState->dstProxyView());
+    }
+
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* outputView,
                       GrAppliedClip* clip,
@@ -171,13 +192,10 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        GrGeometryProcessor* geomProc = ClockwiseTestProcessor::Make(arena, fReadSkFragCoord);
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
 
-        // TODO: need to also give this to the recording context
-        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, outputView,
-                                                      std::move(appliedClip), dstProxyView,
-                                                      geomProc, SkBlendMode::kPlus,
-                                                      GrPrimitiveType::kTriangleStrip);
+        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepare(GrOpFlushState* flushState) override {
@@ -197,16 +215,7 @@ private:
         }
 
         if (!fProgramInfo) {
-            GrGeometryProcessor* geomProc = ClockwiseTestProcessor::Make(flushState->allocator(),
-                                                                         fReadSkFragCoord);
-
-            fProgramInfo = sk_gpu_test::CreateProgramInfo(&flushState->caps(),
-                                                          flushState->allocator(),
-                                                          flushState->view(),
-                                                          flushState->detachAppliedClip(),
-                                                          flushState->dstProxyView(),
-                                                          geomProc, SkBlendMode::kPlus,
-                                                          GrPrimitiveType::kTriangleStrip);
+            fProgramInfo = this->createProgramInfo(flushState);
         }
 
         GrMesh mesh;

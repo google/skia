@@ -162,7 +162,9 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             const GrXferProcessor::DstProxyView& dstProxyView,
             GrGeometryProcessor* geometryProcessor,
             GrProcessorSet&& processorSet,
-            GrPipeline::InputFlags pipelineFlags) {
+            GrPrimitiveType primitiveType,
+            GrPipeline::InputFlags pipelineFlags,
+            const GrUserStencilSettings* stencilSettings) {
     static constexpr int kZeroPrimProcTextures = 0;
     auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena,
                                                                          &appliedClip,
@@ -174,7 +176,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                    std::move(appliedClip),
                                    dstProxyView,
                                    std::move(processorSet),
-                                   pipelineFlags);
+                                   pipelineFlags,
+                                   stencilSettings);
 
     GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
 
@@ -188,7 +191,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                           fixedDynamicState,
                                           nullptr,
                                           kOneMesh,
-                                          GrPrimitiveType::kTriangles);
+                                          primitiveType);
     SkASSERT(tmp->primProc().numTextureSamplers() <= 0);
     return tmp;
 }

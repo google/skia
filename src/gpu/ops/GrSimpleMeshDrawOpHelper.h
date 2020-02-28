@@ -143,7 +143,7 @@ public:
     // Create a programInfo with the following properties:
     //     its primitive processor uses no textures
     //     it has no dynamic state besides the scissor clip
-    //     it is only applied to a single kTriangles mesh
+    //     it is only applied to a single mesh
     static GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                             SkArenaAlloc*,
                                             const GrSurfaceProxyView* outputView,
@@ -151,7 +151,11 @@ public:
                                             const GrXferProcessor::DstProxyView&,
                                             GrGeometryProcessor*,
                                             GrProcessorSet&&,
-                                            GrPipeline::InputFlags pipelineFlags);
+                                            GrPrimitiveType,
+                                            GrPipeline::InputFlags pipelineFlags
+                                                                = GrPipeline::InputFlags::kNone,
+                                            const GrUserStencilSettings*
+                                                                = &GrUserStencilSettings::kUnused);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();

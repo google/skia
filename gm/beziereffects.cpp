@@ -99,7 +99,8 @@ protected:
 
         return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
                                                            std::move(appliedClip), dstProxyView,
-                                                           gp, std::move(fProcessorSet), flags);
+                                                           gp, std::move(fProcessorSet),
+                                                           GrPrimitiveType::kTriangles, flags);
     }
 
     GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
