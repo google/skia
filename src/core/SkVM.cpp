@@ -1976,6 +1976,9 @@ namespace skvm {
                 case Op::sub_f32: vals[i] = I(b->CreateFSub(F(vals[x]), F(vals[y]))); break;
                 case Op::mul_f32: vals[i] = I(b->CreateFMul(F(vals[x]), F(vals[y]))); break;
                 case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
+                case Op::shl_i32: vals[i] = I(b->CreateShl(vals[x], immy)); break;
+                case Op::sra_i32: vals[i] = I(b->CreateAShr(vals[x], immy)); break;
+                case Op::shr_i32: vals[i] = I(b->CreateLShr(vals[x], immy)); break;
                 case Op::floor:
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
