@@ -763,14 +763,59 @@ DEF_TEST(SkVM_round, r) {
     }
 
     test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
-              float buf[]  = { 0.0f, 0.2f, 0.6f, 1.0f, 1.4f, 2.0f };
-              int dst[SK_ARRAY_COUNT(buf)];
-              int want[] = {0, 0, 1, 1, 1, 2 };
-              program.eval(SK_ARRAY_COUNT(buf), buf, dst);
-              for (int i = 0; i < (int)SK_ARRAY_COUNT(dst); i++) {
-                  REPORTER_ASSERT(r, dst[i] == want[i]);
-              }
-            });
+          float buf[]  = { 0.0f, 0.2f, 0.6f, 1.0f, 1.4f, 2.0f };
+          int want[] =   { 0,    0,    1,    1,    1,    2    };
+          int dst[SK_ARRAY_COUNT(buf)];
+
+          program.eval(SK_ARRAY_COUNT(buf), buf, dst);
+                  for (int i = 0; i < (int)SK_ARRAY_COUNT(dst); i++) {
+                      REPORTER_ASSERT(r, dst[i] == want[i]);
+                  }
+    });
+}
+
+DEF_TEST(SkVM_min, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src1 = b.varying<float>();
+        skvm::Arg src2 = b.varying<float>();
+        skvm::Arg dst = b.varying<float>();
+
+        b.store32(dst, b.bit_cast(b.min(b.bit_cast(b.load32(src1)), b.bit_cast(b.load32(src2)))));
+    }
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        float s1[]  =  { 0.0f, 1.0f, 4.0f, -1.0f, -1.0f};
+        float s2[]  =  { 0.0f, 2.0f, 3.0f,  1.0f, -2.0f};
+        float want[] = { 0.0f, 1.0f, 3.0f, -1.0f, -2.0f};
+        float d[SK_ARRAY_COUNT(s1)];
+        program.eval(SK_ARRAY_COUNT(d), s1, s2, d);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(d); i++) {
+          REPORTER_ASSERT(r, d[i] == want[i]);
+        }
+    });
+}
+
+DEF_TEST(SkVM_max, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src1 = b.varying<float>();
+        skvm::Arg src2 = b.varying<float>();
+        skvm::Arg dst = b.varying<float>();
+
+        b.store32(dst, b.bit_cast(b.max(b.bit_cast(b.load32(src1)), b.bit_cast(b.load32(src2)))));
+    }
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        float s1[]  =  { 0.0f, 1.0f, 4.0f, -1.0f, -1.0f};
+        float s2[]  =  { 0.0f, 2.0f, 3.0f,  1.0f, -2.0f};
+        float want[] = { 0.0f, 2.0f, 4.0f,  1.0f, -1.0f};
+        float d[SK_ARRAY_COUNT(s1)];
+        program.eval(SK_ARRAY_COUNT(d), s1, s2, d);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(d); i++) {
+          REPORTER_ASSERT(r, d[i] == want[i]);
+        }
+    });
 }
 
 DEF_TEST(SkVM_hoist, r) {

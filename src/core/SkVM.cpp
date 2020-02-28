@@ -2074,6 +2074,15 @@ namespace skvm {
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
 
+                case Op::max_f32:
+                    vals[i] = I(b->CreateSelect(b->CreateFCmpOLT(F(vals[x]), F(vals[y])),
+                                                F(vals[y]), F(vals[x])));
+                    break;
+                case Op::min_f32:
+                    vals[i] = I(b->CreateSelect(b->CreateFCmpOLT(F(vals[y]), F(vals[x])),
+                                                F(vals[y]), F(vals[x])));
+                    break;
+
                 case Op::sqrt_f32:
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::sqrt, F(vals[x])));
                     break;
