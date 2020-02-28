@@ -50,6 +50,7 @@ protected:
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
+        GrMesh* mesh() { return fMesh; }
 
     protected:
         PatternHelper() = default;
@@ -71,6 +72,7 @@ protected:
         QuadHelper() = delete;
         QuadHelper(Target* target, size_t vertexStride, int quadsToDraw);
 
+        using PatternHelper::mesh;
         using PatternHelper::recordDraw;
         using PatternHelper::vertices;
 
@@ -89,10 +91,10 @@ protected:
 
 private:
     void onPrePrepare(GrRecordingContext* context,
-                      const GrSurfaceProxyView* dstView,
+                      const GrSurfaceProxyView* outputView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView) final {
-        this->onPrePrepareDraws(context, dstView, clip, dstProxyView);
+        this->onPrePrepareDraws(context, outputView, clip, dstProxyView);
     }
     void onPrepare(GrOpFlushState* state) final;
 

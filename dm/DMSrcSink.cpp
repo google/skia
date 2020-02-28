@@ -1647,6 +1647,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
                                                      SkIntToScalar(size.height())));
     if (!result.isOk()) {
+        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+        gpuTaskGroup->wait();
         return result;
     }
     sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
@@ -1657,6 +1659,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
+        gpuTaskGroup->add([gpuTestCtx] { gpuTestCtx->makeNotCurrent(); });
+        gpuTaskGroup->wait();
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
     }
 
