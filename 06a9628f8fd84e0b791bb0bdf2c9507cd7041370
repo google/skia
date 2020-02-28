@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "248b96ee_cd970c0b",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:45:47Z",
+      "side": 1,
+      "message": "Also a rb tree. Probably don\u0027t want that here.",
+      "range": {
+        "startLine": 410,
+        "startChar": 17,
+        "endLine": 410,
+        "endChar": 20
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49302057_01704486",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:45:47Z",
+      "side": 1,
+      "message": "Isn\u0027t this the same as \u0027break\u0027?",
+      "range": {
+        "startLine": 422,
+        "startChar": 20,
+        "endLine": 422,
+        "endChar": 26
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48ab9a66_8db0638d",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:45:47Z",
+      "side": 1,
+      "message": "This has become very indented. Since we\u0027re returning from above there\u0027s no need for nesting the \u0027else\u0027.",
+      "range": {
+        "startLine": 423,
+        "startChar": 18,
+        "endLine": 423,
+        "endChar": 24
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5159363d_f6e541dc",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:45:47Z",
+      "side": 1,
+      "message": "This can just be\n\nif (unresolvedRange !\u003d last.fText) {\n    // Resolved something, no need to repeat\n    break; //or return, same thing?\n}\n\nthat removes another level of indentation.",
+      "range": {
+        "startLine": 426,
+        "startChar": 20,
+        "endLine": 426,
+        "endChar": 56
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fa1057c_7f85aca6",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:45:47Z",
+      "side": 1,
+      "message": "Something google styled the include order?",
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
