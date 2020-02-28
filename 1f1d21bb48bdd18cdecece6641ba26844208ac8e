@@ -22,6 +22,30 @@
       "revId": "1f1d21bb48bdd18cdecece6641ba26844208ac8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef6a77c0_90b3bf13",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-28T17:24:45Z",
+      "side": 1,
+      "message": "Done, with api.path.pathsep.join([str(skia_dir.join(\u0027third_party\u0027, \u0027externals\u0027)), \u0027%%(PYTHONPATH)s\u0027])",
+      "parentUuid": "13b4433f_af67074a",
+      "range": {
+        "startLine": 220,
+        "startChar": 27,
+        "endLine": 220,
+        "endChar": 28
+      },
+      "revId": "1f1d21bb48bdd18cdecece6641ba26844208ac8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
