@@ -2323,7 +2323,10 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(u"AAAAA \U0001f600 BBBBB CCCCC DDDDD EEEEE");
         auto paragraph = builder.Build();
-        paragraph->layout(109);
+        paragraph->layout(width() / 2);
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, width()/2, paragraph->getHeight()), paint);
         paragraph->paint(canvas, 0, 0);
     }
 
