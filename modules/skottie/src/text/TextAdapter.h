@@ -43,7 +43,14 @@ protected:
     void onSync() override;
 
 private:
-    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>);
+    enum class AnchorPointGrouping : uint8_t {
+        kCharacter,
+        kWord,
+        kLine,
+        kAll,
+    };
+
+    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>, AnchorPointGrouping);
 
     struct FragmentRec {
         SkPoint                      fOrigin; // fragment position
@@ -62,18 +69,20 @@ private:
     void buildDomainMaps(const Shaper::Result&);
 
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
-                             const SkVector&) const;
+                             const SkVector&, const TextAnimator::DomainSpan*) const;
 
     void adjustLineTracking(const TextAnimator::ModulatorBuffer&,
                             const TextAnimator::DomainSpan&,
                             float line_tracking) const;
 
-    SkV2 fragmentAnchorPoint(const FragmentRec&, const SkVector&) const;
+    SkV2 fragmentAnchorPoint(const FragmentRec&, const SkVector&,
+                             const TextAnimator::DomainSpan*) const;
     uint32_t shaperFlags() const;
 
     const sk_sp<sksg::Group>         fRoot;
     const sk_sp<SkFontMgr>           fFontMgr;
     sk_sp<Logger>                    fLogger;
+    const AnchorPointGrouping        fAnchorPointGrouping;
 
     std::vector<sk_sp<TextAnimator>> fAnimators;
     std::vector<FragmentRec>         fFragments;
