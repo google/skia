@@ -34,6 +34,24 @@
       "revId": "a19c02f7137bd061b111e6e06b7c5f94153f9d17",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adbc0e6d_8fdd8f33",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-28T20:32:46Z",
+      "side": 1,
+      "message": "I think json would be more robust.",
+      "parentUuid": "c634475d_e979df97",
+      "revId": "a19c02f7137bd061b111e6e06b7c5f94153f9d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
