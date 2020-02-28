@@ -16,6 +16,24 @@
       "revId": "b1c4de1f938a3d8db2d9dbb70ee9d87371081647",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1dfcafb_9d0fa4e1",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-28T19:22:43Z",
+      "side": 1,
+      "message": "Ah, were we just not making good use of it for other images?",
+      "parentUuid": "69b58542_04ddc664",
+      "revId": "b1c4de1f938a3d8db2d9dbb70ee9d87371081647",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
