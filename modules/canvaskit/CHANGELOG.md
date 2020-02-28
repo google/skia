@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2020-02-28
+
 ### Deprecated
  - `MakeSkCornerPathEffect` will be renamed soon. Calls can be replaced with
    `PathEffect.MakeCorner`.
