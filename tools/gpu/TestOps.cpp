@@ -103,7 +103,7 @@ private:
                const SkMatrix& localMatrix);
 
     void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* dstView,
+                           const GrSurfaceProxyView* outputView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&) final;
     void onPrepareDraws(Target*) override;
@@ -160,7 +160,7 @@ TestRectOp::TestRectOp(const GrCaps* caps,
 }
 
 void TestRectOp::onPrePrepareDraws(GrRecordingContext* context,
-                                   const GrSurfaceProxyView* dstView,
+                                   const GrSurfaceProxyView* outputView,
                                    GrAppliedClip* clip,
                                    const GrXferProcessor::DstProxyView& dstProxyView) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
@@ -170,7 +170,7 @@ void TestRectOp::onPrePrepareDraws(GrRecordingContext* context,
 
     fPipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(context->priv().caps(),
                                                          arena,
-                                                         dstView,
+                                                         outputView,
                                                          std::move(appliedClip),
                                                          dstProxyView,
                                                          std::move(fProcessorSet),
