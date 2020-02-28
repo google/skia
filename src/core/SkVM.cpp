@@ -19,6 +19,7 @@
 #if defined(SKVM_LLVM)
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
+    #include <llvm/IR/Function.h>
     #include <llvm/IR/IRBuilder.h>
     #include <llvm/IR/Verifier.h>
     #include <llvm/Support/TargetSelect.h>
@@ -1985,6 +1986,19 @@ namespace skvm {
                 case Op::sub_f32: vals[i] = toI(b->CreateFSub(toF(vals[x]), toF(vals[y]))); break;
                 case Op::mul_f32: vals[i] = toI(b->CreateFMul(toF(vals[x]), toF(vals[y]))); break;
                 case Op::div_f32: vals[i] = toI(b->CreateFDiv(toF(vals[x]), toF(vals[y]))); break;
+                case Op::floor: {
+                    llvm::FunctionCallee fun;
+                    if (scalar) {
+                        fun = mod->getOrInsertFunction("llvm.floor.f32",
+                                                       f32,
+                                                       f32);
+                    } else {
+                        fun = mod->getOrInsertFunction("llvm.floor.v8f32",
+                                                       F32,
+                                                       F32);
+                    }
+                    vals[i] = toI(b->CreateCall(fun, toF(vals[x])));
+                } break;
 
                 case Op::gather32: {
                     // Our gather base pointer is immz bytes off of uniform immy.
