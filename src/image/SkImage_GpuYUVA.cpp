@@ -294,10 +294,11 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
         GrBitmapTextureMaker bitmapMaker(context, bmp);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
         GrSurfaceProxyView view;
-        std::tie(tempViews[i], proxyColorTypes[i]) = bitmapMaker.view(mipMapped);
+        tempViews[i] = bitmapMaker.view(mipMapped);
         if (!tempViews[i]) {
             return nullptr;
         }
+        proxyColorTypes[i] = bitmapMaker.colorType();
     }
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageSize, kNeedNewImageUniqueID,

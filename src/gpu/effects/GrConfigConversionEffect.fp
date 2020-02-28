@@ -60,9 +60,9 @@
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [dataView, ct] = maker.view(GrMipMapped::kNo);
+        auto dataView = maker.view(GrMipMapped::kNo);
 
-        if (!dataView.proxy()) {
+        if (!dataView) {
             return false;
         }
 

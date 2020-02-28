@@ -33,8 +33,8 @@ GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkIm
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 }
 
-GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(bool willBeMipped) {
-    return fImage->lockTextureProxyView(this->context(), fOriginalKey, fCachingHint, willBeMipped);
+GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(GrMipMapped mipMapped) {
+    return fImage->lockTextureProxyView(this->context(), fOriginalKey, fCachingHint, mipMapped);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,8 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkIma
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 }
 
-GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(bool willBeMipped) {
-    if (willBeMipped) {
+GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipMapped mipMapped) {
+    if (mipMapped == GrMipMapped::kYes) {
         return fImage->refMippedView(this->context());
     } else {
         if (const GrSurfaceProxyView* view = fImage->view(this->context())) {

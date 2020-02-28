@@ -31,7 +31,7 @@ public:
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 private:
-    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrMipMapped) override;
 
     GrSurfaceProxyView makeMippedCopy();
 
