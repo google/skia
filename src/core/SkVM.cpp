@@ -1915,9 +1915,7 @@ namespace skvm {
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
                    *i64 = llvm::Type::getInt64Ty(ctx),
                    *f32 = llvm::Type::getFloatTy(ctx),
-                   *F32 = llvm::VectorType::get(f32, K),
-                   *i32 = llvm::Type::getInt32Ty(ctx),
-                   *I32 = llvm::VectorType::get(i32, K);
+                   *i32 = llvm::Type::getInt32Ty(ctx);
 
         std::vector<llvm::Type*> arg_types = { i64 };
         for (size_t i = 0; i < fStrides.size(); i++) {
@@ -1946,26 +1944,19 @@ namespace skvm {
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
             auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
 
-            auto toI = [&](llvm::Value* v) { return b->CreateBitCast(v, scalar ? i32 : I32); };
-            auto toF = [&](llvm::Value* v) { return b->CreateBitCast(v, scalar ? f32 : F32); };
+            llvm::Type *I32 = scalar ? i32 : llvm::VectorType::get(i32, K),
+                       *F32 = scalar ? f32 : llvm::VectorType::get(f32, K);
+
+            auto I = [&](llvm::Value* v) { return b->CreateBitCast(v, I32); };
+            auto F = [&](llvm::Value* v) { return b->CreateBitCast(v, F32); };
 
             switch (op) {
                 default:
                     SkDebugf("can't llvm %s (%d)\n", name(op), op);
                     return false;
 
-                case Op::load32: {
-                    llvm::Value* ptr = b->CreateBitCast(args[immy],
-                                                        (scalar ? i32 : I32)->getPointerTo());
-                    vals[i] = b->CreateAlignedLoad(ptr, 1);
-                } break;
-
-                case Op::splat: {
-                    llvm::ConstantInt* imm = b->getInt32(immy);
-                    vals[i] = scalar ? imm
-                                     : llvm::ConstantVector::getSplat(K, imm);
-                    break;
-                }
+                case Op::load32: vals[i] = b->CreateAlignedLoad(I32, args[immy], 1); break;
+                case Op::splat:  vals[i] = llvm::ConstantInt::get(I32, immy);        break;
 
                 case Op::store32: {
                     llvm::Value* ptr = b->CreateBitCast(args[immy],
@@ -1981,29 +1972,27 @@ namespace skvm {
                 case Op::sub_i32: vals[i] = b->CreateSub(vals[x], vals[y]); break;
                 case Op::mul_i32: vals[i] = b->CreateMul(vals[x], vals[y]); break;
 
-                case Op::add_f32: vals[i] = toI(b->CreateFAdd(toF(vals[x]), toF(vals[y]))); break;
-                case Op::sub_f32: vals[i] = toI(b->CreateFSub(toF(vals[x]), toF(vals[y]))); break;
-                case Op::mul_f32: vals[i] = toI(b->CreateFMul(toF(vals[x]), toF(vals[y]))); break;
-                case Op::div_f32: vals[i] = toI(b->CreateFDiv(toF(vals[x]), toF(vals[y]))); break;
+                case Op::add_f32: vals[i] = I(b->CreateFAdd(F(vals[x]), F(vals[y]))); break;
+                case Op::sub_f32: vals[i] = I(b->CreateFSub(F(vals[x]), F(vals[y]))); break;
+                case Op::mul_f32: vals[i] = I(b->CreateFMul(F(vals[x]), F(vals[y]))); break;
+                case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
                 case Op::floor:
-                    vals[i] = toI(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, toF(vals[x])));
+                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
 
                 case Op::gather32: {
                     // Our gather base pointer is immz bytes off of uniform immy.
                     llvm::Value* base =
-                        b->CreateLoad(b->CreateBitCast(b->CreateGEP(args[immy], b->getInt32(immz)),
+                        b->CreateLoad(b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
                                                        i32->getPointerTo()->getPointerTo()));
 
                     llvm::Value* ptr = b->CreateGEP(base, vals[x]);
-                    if (scalar) {
-                        vals[i] = b->CreateAlignedLoad(ptr, 1);
-                    } else {
+                    if (ptr->getType()->isVectorTy()) {
                         vals[i] = b->CreateMaskedGather(ptr, 1);
+                    } else {
+                        vals[i] = b->CreateAlignedLoad(ptr, 1);
                     }
                 } break;
-
-                // Ops below this line shouldn't need to consider `scalar`... they're Just Math.
 
             }
             return true;
