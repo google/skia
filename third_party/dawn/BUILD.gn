@@ -653,5 +653,5 @@ static_library("libdawn_proc") {
   ]
   sources = get_target_outputs(":libdawn_proc_gen")
   sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
-  cflags = ["-Wno-strict-prototypes"]
+  cflags = [ "-Wno-strict-prototypes" ]
 }
