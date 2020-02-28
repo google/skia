@@ -194,8 +194,6 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitm
  *      - SkBitmap/SkPixelRef
  *      - SkImage
  *      - SkImageGenerator
- *
- *  Note: width/height must fit in 16bits for this impl.
  */
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds);
 
