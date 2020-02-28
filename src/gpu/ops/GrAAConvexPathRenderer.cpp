@@ -27,7 +27,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }

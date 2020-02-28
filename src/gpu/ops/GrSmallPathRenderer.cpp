@@ -27,7 +27,7 @@
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
 static constexpr size_t kPlotWidth = 512;

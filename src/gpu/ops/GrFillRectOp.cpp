@@ -21,6 +21,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 namespace {
 
