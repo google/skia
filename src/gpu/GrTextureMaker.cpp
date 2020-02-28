@@ -14,13 +14,12 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 
-GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState params,
-                                                                  bool willBeMipped) {
+GrSurfaceProxyView GrTextureMaker::onView(GrMipMapped mipMapped) {
     if (this->width() > this->context()->priv().caps()->maxTextureSize() ||
         this->height() > this->context()->priv().caps()->maxTextureSize()) {
         return {};
     }
-    return this->refOriginalTextureProxyView(willBeMipped);
+    return this->refOriginalTextureProxyView(mipMapped);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
@@ -41,7 +40,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         fmForDetermineDomain = &kBilerp;
     }
 
-    GrSurfaceProxyView view = this->viewForParams(filterOrNullForBicubic);
+    GrSurfaceProxyView view;
+    if (filterOrNullForBicubic) {
+        view = this->view(*filterOrNullForBicubic);
+    } else {
+        view = this->view(GrMipMapped::kNo);
+    }
     if (!view) {
         return nullptr;
     }

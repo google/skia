@@ -184,8 +184,7 @@ public:
     }
 protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
-                                         const SkIPoint& origin,
-                                         bool willBeMipped) override {
+                                         const SkIPoint& origin, GrMipMapped mipMapped) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 
@@ -196,8 +195,6 @@ protected:
         if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fView.proxy()->dimensions()) {
             return fView;
         }
-
-        GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
         // TODO: When we update this function to return a view instead of just a proxy then we can
         // remove the extra ref that happens when we call asTextureProxyRef.
@@ -273,8 +270,7 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
-        GrSurfaceProxyView view =
-                as_IB(image)->refView(canvas->getGrContext(), GrSamplerState::Filter::kBilerp);
+        GrSurfaceProxyView view = as_IB(image)->refView(canvas->getGrContext(), GrMipMapped::kNo);
         if (!view) {
             // show placeholder if we have no texture
             SkPaint paint;
