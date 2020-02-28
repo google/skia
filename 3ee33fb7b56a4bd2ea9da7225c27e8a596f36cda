@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fd6c4f7a_68d8a6ba",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-28T19:33:48Z",
+      "side": 1,
+      "message": "Removed two commented lines, but I really don\u0027t know what\u0027s *supposed* to be here. This seems to work.",
+      "parentUuid": "5f62192f_0f072dcf",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 388,
+        "endChar": 15
+      },
+      "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce95f5ef_4c6e206d",
         "filename": "public.bzl",
         "patchSetId": 1
@@ -69,6 +93,30 @@
       "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "719ec089_b5c1fe2e",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-28T19:33:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce95f5ef_4c6e206d",
+      "range": {
+        "startLine": 704,
+        "startChar": 14,
+        "endLine": 704,
+        "endChar": 18
+      },
+      "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
