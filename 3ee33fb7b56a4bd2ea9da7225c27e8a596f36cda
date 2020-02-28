@@ -22,6 +22,53 @@
       "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f62192f_0f072dcf",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-28T19:17:35Z",
+      "side": 1,
+      "message": "We have a lot of target-machine-specific code that lives in src/ports. This is a way to specify that we want all the ports we can get, except all those that we don\u0027t. I recognize this as code I had in my CL and it could probably use a cleanup or two.",
+      "parentUuid": "3def5452_6c4f2c1b",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 388,
+        "endChar": 15
+      },
+      "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce95f5ef_4c6e206d",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-28T19:17:35Z",
+      "side": 1,
+      "message": "Maybe add a comment comparing these to those in canvaskit/modules/compile.sh ?",
+      "range": {
+        "startLine": 704,
+        "startChar": 14,
+        "endLine": 704,
+        "endChar": 18
+      },
+      "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
