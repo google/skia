@@ -37,7 +37,40 @@ def upload_dm_results(buildername):
 
 
 def dm_flags(api, bot):
-  args = []
+  properties = [
+    'gitHash',              api.properties['revision'],
+    'builder',              api.vars.builder_name,
+    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
+    'task_id',              api.properties['task_id'],
+  ]
+  if api.vars.is_trybot:
+    properties.extend([
+      'issue',         api.vars.issue,
+      'patchset',      api.vars.patchset,
+      'patch_storage', api.vars.patch_storage,
+    ])
+  properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
+  properties.extend(['swarming_task_id', api.vars.swarming_task_id])
+
+  args = [
+    'dm',
+    '--nameByHash',
+    '--properties'
+  ] + properties
+
+  args.append('--key')
+  keys = key_params(api)
+
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    keys.extend(['renderer', 'skottie'])
+  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
+    # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
+    keys.extend(['style', 'DDL'])
+  else:
+    keys.extend(['style', 'default'])
+
+  args.extend(keys)
+
   configs = []
   blacklisted = []
 
@@ -779,6 +812,14 @@ def dm_flags(api, bot):
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 
+  # See skia:2789.
+  if 'AbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--abandonGpuContext')
+  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--preAbandonGpuContext')
+  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--releaseAndAbandonGpuContext')
+
   return args
 
 
@@ -860,68 +901,28 @@ def test_steps(api):
       use_hash_file = True
 
   # Run DM.
-  properties = [
-    'gitHash',              api.properties['revision'],
-    'builder',              api.vars.builder_name,
-    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
-    'task_id',              api.properties['task_id'],
-  ]
-  if api.vars.is_trybot:
-    properties.extend([
-      'issue',         api.vars.issue,
-      'patchset',      api.vars.patchset,
-      'patch_storage', api.vars.patch_storage,
-    ])
-  properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
-  properties.extend(['swarming_task_id', api.vars.swarming_task_id])
-
-  args = [
-    'dm',
+  args = dm_flags(api, api.vars.builder_name)
+  args.extend([
     '--resourcePath', api.flavor.device_dirs.resource_dir,
     '--skps', api.flavor.device_dirs.skp_dir,
     '--images', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'dm'),
     '--colorImages', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'colorspace'),
-    '--nameByHash',
-    '--properties'
-  ] + properties
-
-  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+    '--svgs', api.flavor.device_dirs.svg_dir,
+  ])
   if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
     args.extend([
       '--lotties',
       api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'skottie'),
-      api.flavor.device_dirs.lotties_dir])
-
-  args.append('--key')
-  keys = key_params(api)
-
-  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
-    keys.extend(['renderer', 'skottie'])
-  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
-    # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
-    keys.extend(['style', 'DDL'])
-  else:
-    keys.extend(['style', 'default'])
-
-  args.extend(keys)
+      api.flavor.device_dirs.lotties_dir,
+    ])
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
   if upload_dm_results(b):
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
-
-  args.extend(dm_flags(api, api.vars.builder_name))
-
-  # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--releaseAndAbandonGpuContext')
 
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
