@@ -80,6 +80,8 @@ public:
 
     bool hasBlur() const { return fHasBlur; }
 
+    bool requiresAnchorPoint() const { return fRequiresAnchorPoint; }
+
 private:
     TextAnimator(std::vector<sk_sp<RangeSelector>>&&,
                  const skjson::ObjectValue&,
@@ -91,9 +93,10 @@ private:
     const std::vector<sk_sp<RangeSelector>> fSelectors;
 
     AnimatedProps fTextProps;
-    bool          fHasFillColor   : 1,
-                  fHasStrokeColor : 1,
-                  fHasBlur        : 1;
+    bool          fHasFillColor        : 1,
+                  fHasStrokeColor      : 1,
+                  fHasBlur             : 1,
+                  fRequiresAnchorPoint : 1; // animator sensitive to transform origin?
 };
 
 } // namespace internal
