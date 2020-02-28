@@ -1943,11 +1943,13 @@ namespace skvm {
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (ctx),
                        *i8    = llvm::Type::getInt8Ty (ctx),
+                       *i8x4  = llvm::VectorType::get(i8, 4),
                        *i16   = llvm::Type::getInt16Ty(ctx),
                        *i16x2 = llvm::VectorType::get(i16, 2),
                        *f32   = llvm::Type::getFloatTy(ctx),
                        *I1    = scalar ? i1    : llvm::VectorType::get(i1 , K  ),
                        *I8    = scalar ? i8    : llvm::VectorType::get(i8 , K  ),
+                       *I8x4  = scalar ? i8x4  : llvm::VectorType::get(i8 , K*4),
                        *I16   = scalar ? i16   : llvm::VectorType::get(i16, K  ),
                        *I16x2 = scalar ? i16x2 : llvm::VectorType::get(i16, K*2),
                        *I32   = scalar ? i32   : llvm::VectorType::get(i32, K  ),
@@ -2105,6 +2107,36 @@ namespace skvm {
                 case Op::gte_i16x2:
                     vals[i] = I(S(I16x2, b->CreateICmpSGE(x2(vals[x]), x2(vals[y]))));
                     break;
+
+                case Op::bytes: {
+                    int N = vals[x]->getType()->isVectorTy() ? K : 1;
+
+                    uint32_t off = 0;
+                    auto nibble_to_mask = [&](uint8_t n) -> uint32_t {
+                        switch (n) {
+                            case 0: return       4*N;   // Select any byte in the second (zero) arg.
+                            case 1: return off +   0;   // 1st byte in this arg.
+                            case 2: return off +   1;   // 2nd ...
+                            case 3: return off +   2;   // 3rd ...
+                            case 4: return off +   3;   // 4th byte in this arg.
+                        }
+                        SkUNREACHABLE;
+                        return 0;
+                    };
+
+                    std::vector<uint32_t> mask(N*4);
+                    for (int i = 0; i < N; i++) {
+                        mask[4*i+0] = nibble_to_mask( (immy >>  0) & 0xf );
+                        mask[4*i+1] = nibble_to_mask( (immy >>  4) & 0xf );
+                        mask[4*i+2] = nibble_to_mask( (immy >>  8) & 0xf );
+                        mask[4*i+3] = nibble_to_mask( (immy >> 12) & 0xf );
+                        off += 4;
+                    }
+
+                    llvm::Value* input =  b->CreateBitCast(vals[x], I8x4);
+                    llvm::Value* zero  = llvm::Constant::getNullValue(I8x4);
+                    vals[i] = I(b->CreateShuffleVector(input, zero, mask));
+                } break;
             }
             return true;
         };
