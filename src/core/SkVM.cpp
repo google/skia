@@ -2029,7 +2029,7 @@ namespace skvm {
                 case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
 
                 case Op::eq_f32:  vals[i] = SE(b->CreateFCmpOEQ(F(vals[x]), F(vals[y]))); break;
-                case Op::neq_f32: vals[i] = SE(b->CreateFCmpONE(F(vals[x]), F(vals[y]))); break;
+                case Op::neq_f32: vals[i] = SE(b->CreateFCmpUNE(F(vals[x]), F(vals[y]))); break;
                 case Op::gt_f32:  vals[i] = SE(b->CreateFCmpOGT(F(vals[x]), F(vals[y]))); break;
                 case Op::gte_f32: vals[i] = SE(b->CreateFCmpOGE(F(vals[x]), F(vals[y]))); break;
 
