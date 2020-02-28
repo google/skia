@@ -417,7 +417,12 @@ DEF_TEST(SkVM_gathers, r) {
         b.store8 (buf8 , b.gather8 (uniforms,0, b.bit_and(x, b.splat(31))));
     }
 
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+#if defined(SKVM_LLVM)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
         const int img[] = {12,34,56,78, 90,98,76,54};
 
         constexpr int N = 20;
@@ -795,7 +800,12 @@ DEF_TEST(SkVM_NewOps, r) {
         SkDebugf("%.*s\n", blob->size(), blob->data());
     }
 
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+#if defined(SKVM_LLVM)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
         const int N = 31;
         int16_t buf[N];
         for (int i = 0; i < N; i++) {
