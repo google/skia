@@ -16,6 +16,24 @@
       "revId": "87f6be93bff431608628ec355ee3aa4649c0df35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01e3ea75_debff3c4",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-28T16:43:56Z",
+      "side": 1,
+      "message": "I tried testing but can\u0027t get AE to use those fonts (they show up in the selection list, but as soon as I start typing AE switches to Helvetica).\n\nSo far everything looks OK in tests, but I understand we may not be hitting any of the interesting corner cases you pointed out.\n\nAdded a note.",
+      "parentUuid": "736fbcd6_81a83c61",
+      "revId": "87f6be93bff431608628ec355ee3aa4649c0df35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
