@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3def5452_6c4f2c1b",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-28T19:06:01Z",
+      "side": 1,
+      "message": "Kevin, what is the purpose of this section?",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 388,
+        "endChar": 15
+      },
+      "revId": "3ee33fb7b56a4bd2ea9da7225c27e8a596f36cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
