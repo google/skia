@@ -226,6 +226,10 @@ private:
     void testingOnly_endCapture() override;
 #endif
 
+#ifdef SK_ENABLE_DUMP_GPU
+    void onDumpJSON(SkJSONWriter*) const override;
+#endif
+
     sk_sp<GrMtlCaps> fMtlCaps;
 
     id<MTLDevice> fDevice;
@@ -250,4 +254,3 @@ private:
 };
 
 #endif
-

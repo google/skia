@@ -1416,3 +1416,122 @@ void GrMtlGpu::testingOnly_endCapture() {
     }
 }
 #endif
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("Metal GPU");
+
+    writer->beginObject("Device");
+    writer->appendString("name", fDevice.name.utf8CString);
+    if (@available(macOS 10.11, *)) {
+        writer->appendBool("isHeadless", fDevice.isHeadless);
+        writer->appendBool("isLowPower", fDevice.isLowPower);
+    }
+    if (@available(macOS 10.13, *)) {
+        writer->appendBool("isRemovable", fDevice.isRemovable);
+    }
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        writer->appendU64("registryID", fDevice.registryID);
+    }
+    if (@available(macOS 10.15, *)) {
+        switch (fDevice.location) {
+            case MTLDeviceLocation.builtIn:
+                writer->appendString("location", "builtIn");
+                break;
+            case MTLDeviceLocation.slot:
+                writer->appendString("location", "slot");
+                break;
+            case MTLDeviceLocation.external:
+                writer->appendString("location", "external");
+                break;
+            case MTLDeviceLocation.unspecified:
+                writer->appendString("location", "unspecified");
+                break;
+            default:
+                writer->appendString("location", "unknown");
+                break;
+        }
+        writer->appendS32("locationNumber", fDevice.locationNumber);
+        writer->appendU64("maxTransferRate", fDevice.maxTransferRate);
+    }
+    if (@available(macOS 10.15, iOS 13.0, *)) {
+        writer->appendBool("hasUnifiedMemory", fDevice.hasUnifiedMemory);
+    }
+    if (@available(macOS 10.15, *)) {
+        writer->appendU64("peerGroupID", fDevice.peerGroupID);
+        writer->appendU32("peerCount", fDevice.peerCount);
+        writer->appendU32("peerIndex", fDevice.peerIndex);
+    }
+    if (@available(macOS 10.12, *)) {
+        writer->appendU64("recommendedMaxWorkingSetSize", fDevice.recommendedMaxWorkingSetSize);
+    }
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        writer->appendS32("currentAllocatedSize", fDevice.currentAllocatedSize);
+        writer->appendS32("maxThreadgroupMemoryLength", fDevice.maxThreadgroupMemoryLength);
+    }
+
+    writer->beginObject("maxThreadsPerThreadgroup");
+    writer->appendS32("width", fDevice.maxThreadsPerThreadgroup.width);
+    writer->appendS32("height", fDevice.maxThreadsPerThreadgroup.height);
+    writer->appendS32("depth", fDevice.maxThreadsPerThreadgroup.depth);
+    writer->endObject();
+
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        writer->appendBool("areProgrammableSamplePositionsSupported", fDevice.areProgrammableSamplePositionsSupported);
+        writer->appendBool("areRasterOrderGroupsSupported", fDevice.areRasterOrderGroupsSupported);
+    }
+    if (@available(macOS 10.11, *)) {
+        writer->appendBool("isDepth24Stencil8PixelFormatSupported", fDevice.isDepth24Stencil8PixelFormatSupported);
+
+    }
+    if (@available(macOS 10.15, *)) {
+        writer->appendBool("areBarycentricCoordsSupported", fDevice.areBarycentricCoordsSupported);
+        writer->appendBool("supportsShaderBarycentricCoordinates", fDevice.supportsShaderBarycentricCoordinates);
+    }
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        writer->appendS32("maxBufferLength", fDevice.maxBufferLength);
+    }
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        switch (fDevice.readWriteTextureSupport) {
+            case MTLReadWriteTextureTier.tier1:
+                writer->appendString("readWriteTextureSupport", "tier1");
+                break;
+            case MTLReadWriteTextureTier.tier2:
+                writer->appendString("readWriteTextureSupport", "tier2");
+                break;
+            case MTLReadWriteTextureTier.tierNone:
+                writer->appendString("readWriteTextureSupport", "tierNone");
+                break;
+            default:
+                writer->appendString("readWriteTextureSupport", "unknown");
+                break;
+        }
+        switch (fDevice.argumentBuffersSupport) {
+            case MTLArgumentBuffersTier.tier1:
+                writer->appendString("argumentBuffersSupport", "tier1");
+                break;
+            case MTLArgumentBuffersTier.tier2:
+                writer->appendString("argumentBuffersSupport", "tier2");
+                break;
+            default:
+                writer->appendString("argumentBuffersSupport", "unknown");
+                break;
+        }
+    }
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        writer->appendS32("maxArgumentBufferSamplerCount", fDevice.maxArgumentBufferSamplerCount);
+    }
+    if (@available(iOS 13.0, *)) {
+        writer->appendS32("sparseTileSizeInBytes", fDevice.sparseTileSizeInBytes);
+    }
+    writer->endObject();
+
+    writer->appendString("queue", fQueue.label.utf8CString);
+    writer->appendBool("disconnected", fDisconnected);
+
+    writer->endObject();
+}
+#endif
