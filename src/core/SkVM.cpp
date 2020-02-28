@@ -1897,7 +1897,7 @@ namespace skvm {
 #if defined(SKVM_LLVM)
     void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
                             const char* debug_name) {
-        thread_local static llvm::LLVMContext ctx;
+        thread_local static llvm::LLVMContext& ctx = *(new llvm::LLVMContext);
         auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
