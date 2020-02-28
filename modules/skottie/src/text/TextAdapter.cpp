@@ -50,7 +50,10 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     //            }
     //        ]
     //    },
-    //    "m": {}, // "more options" (TODO)
+    //    "m": { // "more options"
+    //           "g": 1,     // Anchor Point Grouping
+    //           "a": {...}  // Grouping Alignment
+    //         },
     //    "p": {}  // "path options" (TODO)
     // },
 
@@ -62,11 +65,24 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
         return nullptr;
     }
 
-    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr), std::move(logger)));
-    adapter->bind(*abuilder, jd, &adapter->fText.fCurrentValue);
-
     // "More options"
-    if (const skjson::ObjectValue* jm = (*jt)["m"]) {
+    const skjson::ObjectValue* jm = (*jt)["m"];
+    static constexpr AnchorPointGrouping gGroupingMap[] = {
+        AnchorPointGrouping::kCharacter, // 'g': 1
+        AnchorPointGrouping::kWord,      // 'g': 2
+        AnchorPointGrouping::kLine,      // 'g': 3
+        AnchorPointGrouping::kAll,       // 'g': 4
+    };
+    const auto apg = jm
+            ? SkTPin<int>(ParseDefault<int>((*jm)["g"], 1), 1, SK_ARRAY_COUNT(gGroupingMap))
+            : 1;
+
+    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
+                                                      std::move(logger),
+                                                      gGroupingMap[SkToSizeT(apg - 1)]));
+
+    adapter->bind(*abuilder, jd, &adapter->fText.fCurrentValue);
+    if (jm) {
         adapter->bind(*abuilder, (*jm)["a"], &adapter->fGroupingAlignment);
     }
 
@@ -89,10 +105,11 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     return adapter;
 }
 
-TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger)
+TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorPointGrouping apg)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
     , fLogger(std::move(logger))
+    , fAnchorPointGrouping(apg)
     , fHasBlurAnimator(false)
     , fRequiresAnchorPoint(false) {}
 
@@ -168,6 +185,12 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
            line       = 0,
            line_start = 0,
            word_start = 0;
+
+    float word_advance = 0,
+          word_ascent  = 0,
+          line_advance = 0,
+          line_ascent  = 0;
+
     bool in_word = false;
 
     // TODO: use ICU for building the word map?
@@ -177,31 +200,39 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
         if (frag.fIsWhitespace) {
             if (in_word) {
                 in_word = false;
-                fMaps.fWordsMap.push_back({word_start, i - word_start});
+                fMaps.fWordsMap.push_back({word_start, i - word_start, word_advance, word_ascent});
             }
         } else {
-            fMaps.fNonWhitespaceMap.push_back({i, 1});
+            fMaps.fNonWhitespaceMap.push_back({i, 1, 0, 0});
 
             if (!in_word) {
                 in_word = true;
                 word_start = i;
+                word_advance = word_ascent = 0;
             }
+
+            word_advance += frag.fAdvance;
+            word_ascent   = std::min(word_ascent, frag.fAscent); // negative ascent
         }
 
         if (frag.fLineIndex != line) {
             SkASSERT(frag.fLineIndex == line + 1);
-            fMaps.fLinesMap.push_back({line_start, i - line_start});
+            fMaps.fLinesMap.push_back({line_start, i - line_start, line_advance, line_ascent});
             line = frag.fLineIndex;
             line_start = i;
+            line_advance = line_ascent = 0;
         }
+
+        line_advance += frag.fAdvance;
+        line_ascent   = std::min(line_ascent, frag.fAscent); // negative ascent
     }
 
     if (i > word_start) {
-        fMaps.fWordsMap.push_back({word_start, i - word_start});
+        fMaps.fWordsMap.push_back({word_start, i - word_start, word_advance, word_ascent});
     }
 
     if (i > line_start) {
-        fMaps.fLinesMap.push_back({line_start, i - line_start});
+        fMaps.fLinesMap.push_back({line_start, i - line_start, line_advance, line_ascent});
     }
 }
 
@@ -307,6 +338,17 @@ void TextAdapter::onSync() {
     const auto grouping_alignment =
             ValueTraits<VectorValue>::As<SkVector>(fGroupingAlignment) * .01f; // percentage
 
+    const TextAnimator::DomainMap* grouping_domain = nullptr;
+    switch (fAnchorPointGrouping) {
+        // for word/line grouping, we rely on domain map info
+        case AnchorPointGrouping::kWord: grouping_domain = &fMaps.fWordsMap; break;
+        case AnchorPointGrouping::kLine: grouping_domain = &fMaps.fLinesMap; break;
+        // remaining grouping modes (character/all) do not need (or have) domain map data
+        default: break;
+    }
+
+    size_t grouping_span_index = 0;
+
     // Finally, push all props to their corresponding fragment.
     for (const auto& line_span : fMaps.fLinesMap) {
         float line_tracking = 0;
@@ -315,9 +357,19 @@ void TextAdapter::onSync() {
         // Tracking requires special treatment: unlike other props, its effect is not localized
         // to a single fragment, but requires re-alignment of the whole line.
         for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
+            // Track the grouping domain span in parallel.
+            if (grouping_domain && i >= (*grouping_domain)[grouping_span_index].fOffset +
+                                        (*grouping_domain)[grouping_span_index].fCount) {
+                grouping_span_index += 1;
+                SkASSERT(i < (*grouping_domain)[grouping_span_index].fOffset +
+                             (*grouping_domain)[grouping_span_index].fCount);
+            }
+
             const auto& props = buf[i].props;
             const auto& frag  = fFragments[i];
-            this->pushPropsToFragment(props, frag, grouping_alignment);
+            this->pushPropsToFragment(props, frag, grouping_alignment,
+                                      grouping_domain ? &(*grouping_domain)[grouping_span_index]
+                                                        : nullptr);
 
             line_tracking += props.tracking;
             line_has_tracking |= !SkScalarNearlyZero(props.tracking);
@@ -330,22 +382,66 @@ void TextAdapter::onSync() {
 }
 
 SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
-                                      const SkVector& group_alignment) const {
-    // TODO: implement word/line/paragraph alignment options.
+                                      const SkVector& grouping_alignment,
+                                      const TextAnimator::DomainSpan* grouping_span) const {
+    // Construct the following 2x ascent box:
+    //
+    //      -------------
+    //     |             |
+    //     |             | ascent
+    //     |             |
+    // ----+-------------+---------- baseline
+    //   (pos)           |
+    //     |             | ascent
+    //     |             |
+    //      -------------
+    //         advance
 
-    // Character alignment: origin is at [advance/2,0] (mid-advance, baseline)
-    const SkV2 ap = { rec.fAdvance * 0.5f, 0 };
+    auto make_box = [](const SkPoint& pos, float advance, float ascent) {
+        // note: negative ascent
+        return SkRect::MakeXYWH(pos.fX, pos.fY + ascent, advance, -2 * ascent);
+    };
 
-    // Group alignment is an origin adjustment relative to the
-    // ascent box [0, ascent, advance, 0]
-    return ap + SkV2{group_alignment.fX * (ap.x -           0),
-                     group_alignment.fY * (ap.y - rec.fAscent)};
+    // Compute a grouping-dependent anchor point box.
+    // The default anchor point is at the center, and gets adjusted relative to the bounds
+    // based on |grouping_alignment|.
+    auto anchor_box = [&]() -> SkRect {
+        switch (fAnchorPointGrouping) {
+        case AnchorPointGrouping::kCharacter:
+            // Anchor box relative to each individual fragment.
+            return make_box(rec.fOrigin, rec.fAdvance, rec.fAscent);
+        case AnchorPointGrouping::kWord:
+            // Fall through
+        case AnchorPointGrouping::kLine: {
+            SkASSERT(grouping_span);
+            // Anchor box relative to the first fragment in the word/line.
+            const auto& first_span_fragment = fFragments[grouping_span->fOffset];
+            return make_box(first_span_fragment.fOrigin,
+                            grouping_span->fAdvance,
+                            grouping_span->fAscent);
+        }
+        case AnchorPointGrouping::kAll:
+            // Anchor box is the same as the text box.
+            return fText->fBox;
+        }
+        SkUNREACHABLE;
+    };
+
+    const auto ab = anchor_box();
+
+    // Apply grouping alignment.
+    const auto ap = SkV2 { ab.centerX() + ab.width()  * 0.5f * grouping_alignment.fX,
+                           ab.centerY() + ab.height() * 0.5f * grouping_alignment.fY };
+
+    // The anchor point is relative to the fragment position.
+    return ap - SkV2 { rec.fOrigin.fX, rec.fOrigin.fY };
 }
 
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec,
-                                      const SkVector& grouping_alignment) const {
-    const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment);
+                                      const SkVector& grouping_alignment,
+                                      const TextAnimator::DomainSpan* grouping_span) const {
+    const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment, grouping_span);
 
     rec.fMatrixNode->setMatrix(
                 SkM44::Translate(props.position.x + rec.fOrigin.x() + anchor_point.x,
