@@ -736,6 +736,25 @@ DEF_TEST(SkVM_floor, r) {
     });
 }
 
+DEF_TEST(SkVM_round, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src = b.varying<float>();
+        skvm::Arg dst = b.varying<int>();
+        b.store32(dst, b.round(b.bit_cast(b.load32(src))));
+    }
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+              float buf[]  = { 0.0f, 0.2f, 0.6f, 1.0f, 1.4f, 2.0f };
+              int dst[SK_ARRAY_COUNT(buf)];
+              int want[] = {0, 0, 1, 1, 1, 2 };
+              program.eval(SK_ARRAY_COUNT(buf), buf, dst);
+              for (int i = 0; i < (int)SK_ARRAY_COUNT(dst); i++) {
+                  REPORTER_ASSERT(r, dst[i] == want[i]);
+              }
+            });
+}
+
 DEF_TEST(SkVM_hoist, r) {
     // This program uses enough constants that it will fail to JIT if we hoist them.
     // The JIT will try again without hoisting, and that'll just need 2 registers.
