@@ -68,7 +68,7 @@ public:
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        auto view = maker.view(GrMipMapped::kNo);
         if (!view) {
             return {};
         }

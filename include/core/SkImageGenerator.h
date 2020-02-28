@@ -140,7 +140,7 @@ public:
      *  overhead in later allocating mips and copying of the base layer.
      */
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                       const SkIPoint& origin, bool willNeedMipMaps);
+                                       const SkIPoint& origin, GrMipMapped);
 
     bool texturesAreCacheable() const { return this->onTexturesAreCacheable(); }
 #endif
@@ -183,8 +183,7 @@ protected:
     };
 
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                                    const SkIPoint&,
-                                                    bool willNeedMipMaps);  // returns nullptr
+                                                 const SkIPoint&, GrMipMapped);  // returns nullptr
     virtual bool onTexturesAreCacheable() const { return true; }
 #endif
 

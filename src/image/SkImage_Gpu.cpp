@@ -409,12 +409,12 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
                                                  uint32_t id, GrMipMapped mipMapped) {
-    auto[view, colorType] = producer->view(mipMapped);
-    if (!view.proxy()) {
+    auto view = producer->view(mipMapped);
+    if (!view) {
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, std::move(view),
-                                   GrColorTypeToSkColorType(colorType),
+                                   GrColorTypeToSkColorType(producer->colorType()),
                                    producer->alphaType(), sk_ref_sp(producer->colorSpace()));
 }
 
@@ -547,8 +547,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     bmp.installPixels(*pixmap);
     GrBitmapTextureMaker bitmapMaker(context, bmp);
     GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
-    auto[view, grCT] = bitmapMaker.view(mipMapped);
-    if (!view.proxy()) {
+    auto view = bitmapMaker.view(mipMapped);
+    if (!view) {
         return SkImage::MakeRasterCopy(*pixmap);
     }
 
@@ -560,7 +560,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
 
     std::unique_ptr<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
-    SkColorType skCT = GrColorTypeToSkColorType(grCT);
+    SkColorType skCT = GrColorTypeToSkColorType(bitmapMaker.colorType());
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), view.origin(),
                                                     std::move(sema), skCT,
                                                     pixmap->alphaType(),
