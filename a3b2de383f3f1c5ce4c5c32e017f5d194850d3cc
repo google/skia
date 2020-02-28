@@ -16,6 +16,24 @@
       "revId": "a3b2de383f3f1c5ce4c5c32e017f5d194850d3cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "942f67db_5f1e6b1b",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-28T18:35:14Z",
+      "side": 1,
+      "message": "The answer is invariably \"of course there is, I just haven\u0027t found it yet!\" 😊",
+      "parentUuid": "174cdf9b_2483f3a2",
+      "revId": "a3b2de383f3f1c5ce4c5c32e017f5d194850d3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
