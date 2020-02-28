@@ -21,6 +21,7 @@
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
@@ -215,20 +216,6 @@ private:
     GrAA fAA;
 };
 
-// When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
-public:
-    PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
-            : fMsg(key, contextUniqueID) {}
-
-private:
-    GrUniqueKeyInvalidatedMessage fMsg;
-
-    void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
-    }
-};
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -383,15 +370,15 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             // goes away we signal that the invalidator on the path can be removed. This prevents
             // unbounded growth of invalidators on long lived paths.
             auto invalidator =
-                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->priv().contextID());
+                    sk_make_sp<GrUniqueKeyInvalidator>(maskKey, args.fContext->priv().contextID());
 
             auto invalidateInvalidator = [](const void* ptr, void* /*context*/) {
-                auto invalidator = reinterpret_cast<const sk_sp<PathInvalidator>*>(ptr);
-                (*invalidator)->markShouldUnregisterFromPath();
+                auto invalidator = reinterpret_cast<const sk_sp<GrUniqueKeyInvalidator>*>(ptr);
+                (*invalidator)->markShouldUnregister();
                 delete invalidator;
             };
-            auto data = SkData::MakeWithProc(new sk_sp<PathInvalidator>(invalidator),
-                                             sizeof(sk_sp<PathInvalidator>),
+            auto data = SkData::MakeWithProc(new sk_sp<GrUniqueKeyInvalidator>(invalidator),
+                                             sizeof(sk_sp<GrUniqueKeyInvalidator>),
                                              invalidateInvalidator,
                                              nullptr);
             maskKey.setCustomData(std::move(data));

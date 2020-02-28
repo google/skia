@@ -477,7 +477,7 @@ uint32_t SkPathRef::genID() const {
     return fGenerationID;
 }
 
-void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
+void SkPathRef::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) {
     if (nullptr == listener || this == gEmpty) {
         return;
     }
@@ -486,13 +486,13 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 
     // Clean out any stale listeners before we append the new one.
     for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
-        if (fGenIDChangeListeners[i]->shouldUnregisterFromPath()) {
+        if (fGenIDChangeListeners[i]->shouldUnregister()) {
             fGenIDChangeListeners[i]->unref();
             fGenIDChangeListeners.removeShuffle(i--);  // No need to preserve the order after i.
         }
     }
 
-    SkASSERT(!listener->shouldUnregisterFromPath());
+    SkASSERT(!listener->shouldUnregister());
     *fGenIDChangeListeners.append() = listener.release();
 }
 
@@ -504,8 +504,8 @@ int SkPathRef::genIDChangeListenerCount() {
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     auto visit = [this]() {
-        for (GenIDChangeListener* listener : fGenIDChangeListeners) {
-            if (!listener->shouldUnregisterFromPath()) {
+        for (SkIDChangeListener* listener : fGenIDChangeListeners) {
+            if (!listener->shouldUnregister()) {
                 listener->onChange();
             }
             // Listeners get at most one shot, so whether these triggered or not, blow them away.

@@ -203,4 +203,17 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextID,
                                          SkPixelRef* pixelRef);
 
+class GrUniqueKeyInvalidator : public SkIDChangeListener {
+public:
+    GrUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
+            : fMsg(key, contextUniqueID) {}
+
+private:
+    GrUniqueKeyInvalidatedMessage fMsg;
+
+    void onChange() override {
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+    }
+};
+
 #endif
