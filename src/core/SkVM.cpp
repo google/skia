@@ -1963,9 +1963,11 @@ namespace skvm {
                 case Op::load8:  t = I8 ; goto load;
                 case Op::load16: t = I16; goto load;
                 case Op::load32: t = I32; goto load;
-                load:
-                    vals[i] = b->CreateZExt(b->CreateAlignedLoad(t, args[immy], 1), I32);
-                    break;
+                load: {
+                    llvm::Value* ptr = b->CreateBitCast(args[immy], t->getPointerTo());
+                    vals[i] = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), I32);
+                } break;
+
 
                 case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immy); break;
 
@@ -1973,8 +1975,9 @@ namespace skvm {
                 case Op::uniform16: t = i16; goto uniform;
                 case Op::uniform32: t = i32; goto uniform;
                 uniform: {
-                    llvm::Value* ptr = b->CreateConstGEP1_32(args[immy], immz);
-                    llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(t, ptr, 1), i32);
+                    llvm::Value* ptr = b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
+                                                        t->getPointerTo());
+                    llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), i32);
                     vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
                                                 : val;
                 } break;
