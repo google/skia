@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d48bba5a_cf133f58",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-28T02:15:57Z",
+      "side": 1,
+      "message": "These functions like RGB1(), RGBA(), etc are kind of legacy from before we allowed arbitrary swizzles. The constructor that takes a string is constexpr. Personally I think this is simpler as just:\n\nctInfo.fReadSwizzle \u003d {\"rgb1\"};\n\nBut feel free to ignore.",
+      "range": {
+        "startLine": 305,
+        "startChar": 49,
+        "endLine": 305,
+        "endChar": 53
+      },
+      "revId": "b53b25d91b52ddc42c49e4b22cc78d1721800e47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb64bcd5_7c475b15",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-28T02:15:57Z",
+      "side": 1,
+      "message": "static?",
+      "revId": "b53b25d91b52ddc42c49e4b22cc78d1721800e47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
