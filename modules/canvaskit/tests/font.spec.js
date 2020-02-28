@@ -355,4 +355,32 @@ describe('CanvasKit\'s Font Behavior', function() {
         }));
     });
 
+    it('can measure text very precisely with proper settings', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded]).then(catchException(done, () => {
+            const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+            const typeface = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+            const fontSizes = [257, 100, 11];
+            // The point of these values is to let us know 1) we can measure to sub-pixel levels
+            // and 2) that measurements don't drastically change. If these change a little bit,
+            // just update them with the new values. For super-accurate readings, one could
+            // run a C++ snippet of code and compare the values, but that is likely unnecessary
+            // unless we suspect a bug with the bindings.
+            const expectedSizes = [1178.71143, 458.64258, 50.450683]
+            for (const idx in fontSizes) {
+                const font = new CanvasKit.SkFont(typeface, fontSizes[idx]);
+                font.setHinting(CanvasKit.FontHinting.None);
+                font.setLinearMetrics(true);
+                font.setSubpixel(true);
+
+                const res = font.measureText('someText');
+                expect(res).toBeCloseTo(expectedSizes[idx], 5);
+                font.delete();
+            }
+
+            typeface.delete();
+            fontMgr.delete();
+            done();
+        }));
+    });
+
 });

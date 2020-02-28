@@ -9,6 +9,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._fontString = '10px monospace';
 
   this._font = new CanvasKit.SkFont(null, 10);
+  this._font.setSubpixel(true);
 
   this._strokeStyle    = CanvasKit.BLACK;
   this._fillStyle      = CanvasKit.BLACK;

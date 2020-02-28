@@ -245,9 +245,12 @@ var CanvasKit = {
 		getSkewX: function() {},
 		getTypeface: function() {},
 		measureText: function() {},
+		setHinting: function() {},
+		setLinearMetrics: function() {},
 		setScaleX: function() {},
 		setSize: function() {},
 		setSkewX: function() {},
+		setSubpixel: function() {},
 		setTypeface: function() {},
 		// private API (from C++ bindings)
 		_getWidths: function() {},
@@ -637,6 +640,13 @@ var CanvasKit = {
 		Upright: {},
 		Italic: {},
 		Oblique: {},
+	},
+
+	FontHinting: {
+		None: {},
+		Slight: {},
+		Normal: {},
+		Full: {},
 	},
 
 	FontWeight: {
