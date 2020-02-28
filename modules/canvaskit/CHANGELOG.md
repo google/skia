@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Stop compiling jpeg and webp encoders, for a smaller binary.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
