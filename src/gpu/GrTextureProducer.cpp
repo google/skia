@@ -167,62 +167,25 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
     }
 }
 
-GrSurfaceProxyView GrTextureProducer::viewForParams(
-        const GrSamplerState::Filter* filterOrNullForBicubic) {
-    GrSamplerState sampler; // Default is nearest + clamp
-    if (filterOrNullForBicubic) {
-        sampler.setFilterMode(*filterOrNullForBicubic);
-    }
-    if (fDomainNeedsDecal) {
-        // Assuming hardware support, switch to clamp-to-border instead of clamp
-        if (fContext->priv().caps()->clampToBorderSupport()) {
-            sampler.setWrapModeX(GrSamplerState::WrapMode::kClampToBorder);
-            sampler.setWrapModeY(GrSamplerState::WrapMode::kClampToBorder);
+GrSurfaceProxyView GrTextureProducer::view(GrMipMapped mipMapped) {
+    const GrCaps* caps = this->context()->priv().caps();
+    // Sanitize the MIP map request.
+    if (mipMapped == GrMipMapped::kYes) {
+        if ((this->width() == 1 && this->height() == 1) || !caps->mipMapSupport()) {
+            mipMapped = GrMipMapped::kNo;
         }
     }
-    return this->viewForParams(sampler);
-}
-
-GrSurfaceProxyView GrTextureProducer::viewForParams(GrSamplerState sampler) {
-    const GrCaps* caps = this->context()->priv().caps();
-
-    int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        caps->mipMapSupport();
-
-    auto result = this->onRefTextureProxyViewForParams(sampler, willBeMipped);
-    if (!result) {
-        return {};
-    }
-
-    SkASSERT(result.asTextureProxy());
-
-    // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
-    // maps, unless the config is not copyable.
-    SkASSERT(!willBeMipped || result.asTextureProxy()->mipMapped() == GrMipMapped::kYes ||
+    auto result = this->onView(mipMapped);
+    // Check to make sure if we requested MIPs that the returned texture has MIP maps or the format
+    // is not copyable.
+    SkASSERT(!result || mipMapped == GrMipMapped::kNo ||
+             result.asTextureProxy()->mipMapped() == GrMipMapped::kYes ||
              !caps->isFormatCopyable(result.proxy()->backendFormat()));
-
-    SkASSERT(result.proxy()->dimensions() == this->dimensions());
-
     return result;
 }
 
-std::pair<GrSurfaceProxyView, GrColorType> GrTextureProducer::view(GrMipMapped willNeedMips) {
-    GrSamplerState::Filter filter =
-            GrMipMapped::kNo == willNeedMips ? GrSamplerState::Filter::kNearest
-                                             : GrSamplerState::Filter::kMipMap;
-    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, filter);
-
-    auto result = this->viewForParams(sampler);
-
-#ifdef SK_DEBUG
-    const GrCaps* caps = this->context()->priv().caps();
-    // Check that the resulting proxy format is compatible with the GrColorType of this producer
-    SkASSERT(!result.proxy() ||
-             result.proxy()->isFormatCompressed(caps) ||
-             caps->areColorTypeAndFormatCompatible(this->colorType(),
-                                                   result.proxy()->backendFormat()));
-#endif
-
-    return {result, this->colorType()};
+GrSurfaceProxyView GrTextureProducer::view(GrSamplerState::Filter filter) {
+    auto mipMapped = filter == GrSamplerState::Filter::kMipMap ? GrMipMapped::kYes
+                                                               : GrMipMapped::kNo;
+    return this->view(mipMapped);
 }
