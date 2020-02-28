@@ -1733,12 +1733,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
     // A value object is much simpler than a class - it is returned as a JS
     // object and does not require delete().
     // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+
+#ifndef SK_NO_FONTS
     value_object<ShapedTextOpts>("ShapedTextOpts")
         .field("font",        &ShapedTextOpts::font)
         .field("leftToRight", &ShapedTextOpts::leftToRight)
         .field("text",        &ShapedTextOpts::text)
         .field("width",       &ShapedTextOpts::width);
-
+#endif
     value_object<SkRect>("SkRect")
         .field("fLeft",   &SkRect::fLeft)
         .field("fTop",    &SkRect::fTop)
