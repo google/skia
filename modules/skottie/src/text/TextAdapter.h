@@ -52,6 +52,9 @@ private:
         sk_sp<sksg::Color>           fFillColorNode,
                                      fStrokeColorNode;
         sk_sp<sksg::BlurImageFilter> fBlur;
+
+        float                        fAdvance, // used for transform anchor point calculations
+                                     fAscent;  // ^
     };
 
     void reshape();

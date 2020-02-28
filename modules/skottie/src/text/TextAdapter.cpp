@@ -101,7 +101,9 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     auto blob_node = sksg::TextBlob::Make(frag.fBlob);
 
     FragmentRec rec;
-    rec.fOrigin = frag.fPos;
+    rec.fOrigin     = frag.fPos;
+    rec.fAdvance    = frag.fAdvance;
+    rec.fAscent     = frag.fAscent;
     rec.fMatrixNode = sksg::Matrix<SkM44>::Make(SkM44::Translate(frag.fPos.x(), frag.fPos.y()));
 
     std::vector<sk_sp<sksg::RenderNode>> draws;
@@ -122,6 +124,16 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     }
 
     SkASSERT(!draws.empty());
+
+    if (0) {
+        // enable to visualize fragment ascent boxes
+        auto box_color = sksg::Color::Make(0xff0000ff);
+        box_color->setStyle(SkPaint::kStroke_Style);
+        box_color->setStrokeWidth(1);
+        box_color->setAntiAlias(true);
+        auto box = SkRect::MakeLTRB(0, rec.fAscent, rec.fAdvance, 0);
+        draws.push_back(sksg::Draw::Make(sksg::Rect::Make(box), std::move(box_color)));
+    }
 
     auto draws_node = (draws.size() > 1)
             ? sksg::Group::Make(std::move(draws))
@@ -296,14 +308,19 @@ void TextAdapter::onSync() {
 
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec) const {
+    // For now hard-code to default center/baseline.
+    // TODO: add support for grouping/adjustments.
+    const SkV3 anchor_point = { rec.fAdvance * 0.5f, 0, 0 };
+
     rec.fMatrixNode->setMatrix(
-                SkM44::Translate(rec.fOrigin.x() + props.position.x,
-                                 rec.fOrigin.y() + props.position.y,
-                                                   props.position.z)
+                SkM44::Translate(anchor_point.x + props.position.x + rec.fOrigin.x(),
+                                 anchor_point.y + props.position.y + rec.fOrigin.y(),
+                                 anchor_point.z + props.position.z)
               * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(props.rotation.x))
               * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(props.rotation.y))
               * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(props.rotation.z))
-              * SkM44::Scale(props.scale.x, props.scale.y, props.scale.z));
+              * SkM44::Scale(props.scale.x, props.scale.y, props.scale.z)
+              * SkM44::Translate(-anchor_point.x, -anchor_point.y, -anchor_point.z));
 
     const auto scale_alpha = [](SkColor c, float o) {
         return SkColorSetA(c, SkScalarRoundToInt(o * SkColorGetA(c)));

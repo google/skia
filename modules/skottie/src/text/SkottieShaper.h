@@ -27,6 +27,8 @@ public:
         SkPoint           fPos;
 
         // Only valid for kFragmentGlyphs
+        float             fAdvance,
+                          fAscent;
         uint32_t          fLineIndex;    // 0-based index for the line this fragment belongs to.
         bool              fIsWhitespace; // True if the first code point in the corresponding
                                          // cluster is whitespace.
