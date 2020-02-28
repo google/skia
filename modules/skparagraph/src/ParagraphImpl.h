@@ -144,13 +144,6 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
-    void shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift);
-
-    SkScalar posShift(RunIndex index, size_t pos) const {
-        if (fRunShifts.count() == 0) return 0.0;
-        return fRunShifts[index].fShifts[pos];
-    }
-
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
     bool strutForceHeight() const {
         return paragraphStyle().getStrutStyle().getForceStrutHeight();
@@ -179,7 +172,6 @@ public:
 
     void resetContext();
     void resolveStrut();
-    void resetRunShifts();
     void buildClusterTable();
     void markLineBreaks();
     bool shapeTextIntoEndlessLine();
@@ -207,7 +199,6 @@ private:
     friend class OneLineShaper;
 
     void calculateBoundaries();
-    void extractStyles();
 
     void markGraphemes16();
     void markGraphemes();
@@ -236,7 +227,6 @@ private:
     SkTHashSet<size_t> fGraphemes;
     size_t fUnresolvedGlyphs;
 
-    SkTArray<RunShifts, false> fRunShifts;
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
     sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)
 

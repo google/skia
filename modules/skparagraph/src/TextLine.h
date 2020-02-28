@@ -115,6 +115,8 @@ private:
         return fTextRange.contains(cluster->textRange());
     }
 
+    void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
+
     ParagraphImpl* fMaster;
     BlockRange fBlockRange;
     TextRange fTextRange;
