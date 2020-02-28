@@ -740,7 +740,7 @@ def dm_flags(api, bot):
     match.append('~^ProcessorCloneTest$')
     match.append('~^GrMeshTest$')
 
-  if 'Mac' in bot and 'IntelHD615' in bot:
+  if 'Mac' in bot and ('IntelHD615' in bot or 'RadeonRX560' in bot):
     # skia:7603
     match.append('~^GrMeshTest$')
 

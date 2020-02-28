@@ -584,6 +584,10 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
 		}
+		if os == "Mac10.15" && parts["model"] == "MacMini8.1" {
+			// MacMini8.1 is at a newer version of MacOS.
+			d["os"] = "Mac-10.15.3"
+		}
 		if parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
@@ -724,6 +728,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
 					"RadeonHD8870M": "1002:6821-4.0.20-3.2.8",
+					"RadeonRX560":   "1002:67ef",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
