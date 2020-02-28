@@ -24,10 +24,6 @@ public:
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
 
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
-    }
-
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
     SkImage::CachingHint    fCachingHint;
@@ -43,15 +39,9 @@ public:
     // This could be made more nuanced and compare all of the texture proxy resolutions, but
     // it's probably not worth the effort.
     bool hasMixedResolutions() const override { return true; }
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
 
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
-    }
+protected:
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
         const SkMatrix& textureMatrix,

@@ -15,29 +15,20 @@
 class GrRecordingContext;
 
 /**
- * Base class for sources that start out as textures. Optionally allows for a content area subrect.
- * The intent is not to use content area for subrect rendering. Rather, the pixels outside the
- * content area have undefined values and shouldn't be read *regardless* of filtering mode or
- * the SkCanvas::SrcRectConstraint used for subrect draws.
+ * GrTextureProducer subclass that can be used when the user already has a texture that represents
+ * image contents.
  */
-class GrTextureAdjuster : public GrTextureProducer {
+class GrTextureAdjuster final : public GrTextureProducer {
 public:
+    GrTextureAdjuster(GrRecordingContext*, GrSurfaceProxyView, const GrColorInfo&,
+                      uint32_t uniqueID, bool useDecal = false);
+
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
             const SkRect& constraintRect,
             FilterConstraint,
             bool coordsLimitedToConstraintRect,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
-
-    GrTextureAdjuster(GrRecordingContext*, GrSurfaceProxyView, const GrColorInfo&,
-                      uint32_t uniqueID, bool useDecal = false);
-
-protected:
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override;
-
-    const GrSurfaceProxyView& originalProxyView() const { return fOriginal; }
-    GrSurfaceProxyView originalProxyViewRef() const { return fOriginal; }
 
 private:
     GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;
