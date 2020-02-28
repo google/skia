@@ -141,7 +141,7 @@ public:
             // All glyphs are pending in a single blob.
             SkASSERT(fResult.fFragments.empty());
             fResult.fFragments.reserve(1);
-            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, false});
+            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, 0, 0, false});
         }
 
         const auto ascent = this->ascent();
@@ -262,6 +262,20 @@ private:
             return c == ' ' || c == '\t' || c == '\r' || c == '\n';
         };
 
+        float ascent = 0;
+
+        if (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent) {
+            SkFontMetrics metrics;
+            rec.fFont.getMetrics(&metrics);
+            ascent = metrics.fAscent;
+
+            // Note: we use per-glyph advances for anchoring, but it's unclear whether this
+            // is exactly the same as AE.  E.g. are 'acute' glyphs anchored separately for fonts
+            // in which they're distinct?
+            fAdvanceBuffer.resize(rec.fGlyphCount);
+            fFont.getWidths(glyphs, SkToInt(rec.fGlyphCount), fAdvanceBuffer.data());
+        }
+
         // In fragmented mode we immediately push the glyphs to fResult,
         // one fragment (blob) per glyph.  Glyph positioning is externalized
         // (positions returned in Fragment::fPos).
@@ -270,10 +284,15 @@ private:
             blob_buffer.glyphs[0] = glyphs[i];
             blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
 
+            const auto advance = (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent)
+                    ? fAdvanceBuffer[SkToInt(i)]
+                    : 0.0f;
+
             // Note: we only check the first code point in the cluster for whitespace.
             // It's unclear whether thers's a saner approach.
             fResult.fFragments.push_back({fBuilder.make(),
                                           { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
+                                          advance, ascent,
                                           line_index, is_whitespace(fUTF8[clusters[i]])
                                          });
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
@@ -326,6 +345,8 @@ private:
     SkAutoSTMalloc<64, uint32_t>  fLineClusters;
     SkSTArray<16, RunRec>         fLineRuns;
     size_t                        fLineGlyphCount = 0;
+
+    SkSTArray<64, float, true>    fAdvanceBuffer;
 
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };

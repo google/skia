@@ -70,7 +70,9 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
         for (const skjson::ObjectValue* janimator : *janimators) {
             if (auto animator = TextAnimator::Make(janimator, abuilder, adapter.get())) {
-                adapter->fHasBlur |= animator->hasBlur();
+                adapter->fHasBlurAnimator     |= animator->hasBlur();
+                adapter->fRequiresAnchorPoint |= animator->requiresAnchorPoint();
+
                 adapter->fAnimators.push_back(std::move(animator));
             }
         }
@@ -84,7 +86,9 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
-    , fLogger(std::move(logger)) {}
+    , fLogger(std::move(logger))
+    , fHasBlurAnimator(false)
+    , fRequiresAnchorPoint(false) {}
 
 TextAdapter::~TextAdapter() = default;
 
@@ -101,7 +105,9 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
     auto blob_node = sksg::TextBlob::Make(frag.fBlob);
 
     FragmentRec rec;
-    rec.fOrigin = frag.fPos;
+    rec.fOrigin     = frag.fPos;
+    rec.fAdvance    = frag.fAdvance;
+    rec.fAscent     = frag.fAscent;
     rec.fMatrixNode = sksg::Matrix<SkM44>::Make(SkM44::Translate(frag.fPos.x(), frag.fPos.y()));
 
     std::vector<sk_sp<sksg::RenderNode>> draws;
@@ -123,11 +129,21 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
 
     SkASSERT(!draws.empty());
 
+    if (0) {
+        // enable to visualize fragment ascent boxes
+        auto box_color = sksg::Color::Make(0xff0000ff);
+        box_color->setStyle(SkPaint::kStroke_Style);
+        box_color->setStrokeWidth(1);
+        box_color->setAntiAlias(true);
+        auto box = SkRect::MakeLTRB(0, rec.fAscent, rec.fAdvance, 0);
+        draws.push_back(sksg::Draw::Make(sksg::Rect::Make(box), std::move(box_color)));
+    }
+
     auto draws_node = (draws.size() > 1)
             ? sksg::Group::Make(std::move(draws))
             : std::move(draws[0]);
 
-    if (fHasBlur) {
+    if (fHasBlurAnimator) {
         // Optional blur effect.
         rec.fBlur = sksg::BlurImageFilter::Make();
         draws_node = sksg::ImageFilterEffect::Make(std::move(draws_node), rec.fBlur);
@@ -188,6 +204,16 @@ void TextAdapter::setText(const TextValue& txt) {
     this->onSync();
 }
 
+uint32_t TextAdapter::shaperFlags() const {
+    uint32_t flags = Shaper::Flags::kNone;
+
+    SkASSERT(!(fRequiresAnchorPoint && fAnimators.empty()));
+    if (!fAnimators.empty() ) flags |= Shaper::Flags::kFragmentGlyphs;
+    if (fRequiresAnchorPoint) flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
+
+    return flags;
+}
+
 void TextAdapter::reshape() {
     const Shaper::TextDesc text_desc = {
         fText->fTypeface,
@@ -197,7 +223,7 @@ void TextAdapter::reshape() {
         fText->fHAlign,
         fText->fVAlign,
         fText->fResize,
-        fAnimators.empty() ? Shaper::Flags::kNone : Shaper::Flags::kFragmentGlyphs,
+        this->shaperFlags(),
     };
     const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
@@ -296,14 +322,19 @@ void TextAdapter::onSync() {
 
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec) const {
+    // For now hard-code to default center/baseline.
+    // TODO: add support for grouping/adjustments.
+    const SkV3 anchor_point = { rec.fAdvance * 0.5f, 0, 0 };
+
     rec.fMatrixNode->setMatrix(
-                SkM44::Translate(rec.fOrigin.x() + props.position.x,
-                                 rec.fOrigin.y() + props.position.y,
-                                                   props.position.z)
+                SkM44::Translate(anchor_point.x + props.position.x + rec.fOrigin.x(),
+                                 anchor_point.y + props.position.y + rec.fOrigin.y(),
+                                 anchor_point.z + props.position.z)
               * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(props.rotation.x))
               * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(props.rotation.y))
               * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(props.rotation.z))
-              * SkM44::Scale(props.scale.x, props.scale.y, props.scale.z));
+              * SkM44::Scale(props.scale.x, props.scale.y, props.scale.z)
+              * SkM44::Translate(-anchor_point.x, -anchor_point.y, -anchor_point.z));
 
     const auto scale_alpha = [](SkColor c, float o) {
         return SkColorSetA(c, SkScalarRoundToInt(o * SkColorGetA(c)));
