@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "616d108f_decd3324",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1450,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-28T22:13:02Z",
+      "side": 1,
+      "message": "Could we just keep these as JSON?",
+      "range": {
+        "startLine": 1450,
+        "startChar": 27,
+        "endLine": 1450,
+        "endChar": 53
+      },
+      "revId": "af8914efb2d7cda6db7020826abfd8832a01a9a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
