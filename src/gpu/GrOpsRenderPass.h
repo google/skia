@@ -66,8 +66,13 @@ public:
     // again with a different array for primProcTextures. (On subsequent calls, if the backend is
     // capable of updating the primitive processor textures independently, then it will
     // automatically skip binding textures from GrPipeline.)
+    //
+    // If the current program does not use textures, this is a no-op.
     void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                       const GrSurfaceProxy* const primProcTextures[]);
+
+    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                     const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     // Draws the given array of meshes using the current pipeline state. The client must call
     // bindPipeline() before using this method.
@@ -76,18 +81,19 @@ public:
     // setScissor() and bindTextures() on the client's behalf.
     void drawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount);
 
-    // These methods issue draws using the current pipeline state. The client must call
-    // bindPipeline(), followed by setScissor() and/or bindTextures() if applicable, before using
-    // these methods.
-    void draw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
-    void drawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex, GrPrimitiveRestart,
-                     uint16_t minIndexValue, uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
+    // These methods issue draws using the current pipeline state. Before drawing, the caller must
+    // configure the pipeline and dynamic state:
+    //
+    //   - Call bindPipeline()
+    //   - If the scissor test is enabled, call setScissorRect()
+    //   - If the current program uses textures, call bindTextures()
+    //   - Call bindBuffers() (even if all buffers are null)
+    void draw(int vertexCount, int baseVertex);
+    void drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
                      int baseVertex);
-    void drawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
-                       const GrBuffer* vertexBuffer, int vertexCount, int baseVertex);
-    void drawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                              GrPrimitiveRestart, const GrBuffer* instanceBuffer, int instanceCount,
-                              int baseInstance, const GrBuffer* vertexBuffer, int baseVertex);
+    void drawInstanced(int instanceCount, int baseInstance, int vertexCount, int baseVertex);
+    void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
+                              int baseVertex);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -132,17 +138,15 @@ private:
     virtual void onSetScissorRect(const SkIRect&) = 0;
     virtual bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                                 const GrSurfaceProxy* const primProcTextures[]) = 0;
-    virtual void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) = 0;
-    virtual void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                               GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
-                               const GrBuffer* vertexBuffer, int baseVertex) = 0;
-    virtual void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount,
-                                 int baseInstance, const GrBuffer* vertexBuffer, int vertexCount,
+    virtual void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                               const GrBuffer* vertexBuffer, GrPrimitiveRestart) = 0;
+    virtual void onDraw(int vertexCount, int baseVertex) = 0;
+    virtual void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                               uint16_t maxIndexValue, int baseVertex) = 0;
+    virtual void onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
                                  int baseVertex) = 0;
-    virtual void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                                        GrPrimitiveRestart, const GrBuffer* instanceBuffer,
-                                        int instanceCount, int baseInstance,
-                                        const GrBuffer* vertexBuffer, int baseVertex) = 0;
+    virtual void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
+                                        int baseInstance, int baseVertex) = 0;
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
     virtual void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
@@ -165,8 +169,9 @@ private:
 
     DynamicStateStatus fScissorStatus = DynamicStateStatus::kDisabled;
     DynamicStateStatus fTextureBindingStatus = DynamicStateStatus::kDisabled;
-    bool fHasVertexAttributes = false;
-    bool fHasInstanceAttributes = false;
+    bool fHasIndexBuffer = false;
+    DynamicStateStatus fInstanceBufferStatus = DynamicStateStatus::kDisabled;
+    DynamicStateStatus fVertexBufferStatus = DynamicStateStatus::kDisabled;
 #endif
 
     typedef GrOpsRenderPass INHERITED;
