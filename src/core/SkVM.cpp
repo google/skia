@@ -1942,18 +1942,20 @@ namespace skvm {
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
             auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
 
-            llvm::Type *i8  = llvm::Type::getInt8Ty (ctx),
+            llvm::Type *i1  = llvm::Type::getInt1Ty (ctx),
+                       *i8  = llvm::Type::getInt8Ty (ctx),
                        *i16 = llvm::Type::getInt16Ty(ctx),
                        *i32 = llvm::Type::getInt32Ty(ctx),
                        *f32 = llvm::Type::getFloatTy(ctx),
+                       *I1  = scalar ? i1  : llvm::VectorType::get(i1 , K),
                        *I8  = scalar ? i8  : llvm::VectorType::get(i8 , K),
                        *I16 = scalar ? i16 : llvm::VectorType::get(i16, K),
                        *I32 = scalar ? i32 : llvm::VectorType::get(i32, K),
                        *F32 = scalar ? f32 : llvm::VectorType::get(f32, K);
 
-            auto I = [&](llvm::Value* v)  { return b->CreateBitCast(v, I32); };
-            auto F = [&](llvm::Value* v)  { return b->CreateBitCast(v, F32); };
-            auto SE = [&](llvm::Value* v) { return b->CreateSExt(v, I32);    };
+            auto I  = [&](llvm::Value* v) { return b->CreateBitCast(v, I32); };
+            auto F  = [&](llvm::Value* v) { return b->CreateBitCast(v, F32); };
+            auto SE = [&](llvm::Value* v) { return b->CreateSExt   (v, I32); };
 
             switch (llvm::Type* t = nullptr; op) {
                 default:
@@ -2001,25 +2003,34 @@ namespace skvm {
                     vals[i] = b->CreateZExt(gathered, I32);
                 } break;
 
-                case Op::store32: {
+                case Op::store8:  t = I8 ; goto store;
+                case Op::store16: t = I16; goto store;
+                case Op::store32: t = I32; goto store;
+                store: {
+                    llvm::Value* val = b->CreateTrunc(vals[x], t);
                     llvm::Value* ptr = b->CreateBitCast(args[immy],
-                                                        vals[x]->getType()->getPointerTo());
-                    vals[i] = b->CreateAlignedStore(vals[x], ptr, 1);
+                                                        val->getType()->getPointerTo());
+                    vals[i] = b->CreateAlignedStore(val, ptr, 1);
                 } break;
 
                 case Op::bit_and: vals[i] = b->CreateAnd(vals[x], vals[y]); break;
                 case Op::bit_or : vals[i] = b->CreateOr (vals[x], vals[y]); break;
                 case Op::bit_xor: vals[i] = b->CreateXor(vals[x], vals[y]); break;
 
+                case Op::select:
+                    vals[i] = b->CreateSelect(b->CreateTrunc(vals[x], I1), vals[y], vals[z]);
+                    break;
+
                 case Op::add_i32: vals[i] = b->CreateAdd(vals[x], vals[y]); break;
                 case Op::sub_i32: vals[i] = b->CreateSub(vals[x], vals[y]); break;
                 case Op::mul_i32: vals[i] = b->CreateMul(vals[x], vals[y]); break;
-                case Op::shl_i32: vals[i] = b->CreateShl(vals[x], immy); break;
+
+                case Op::shl_i32: vals[i] = b->CreateShl (vals[x], immy); break;
                 case Op::sra_i32: vals[i] = b->CreateAShr(vals[x], immy); break;
                 case Op::shr_i32: vals[i] = b->CreateLShr(vals[x], immy); break;
 
-                case Op::eq_i32:  vals[i] = SE(b->CreateICmpEQ(vals[x], vals[y])); break;
-                case Op::neq_i32: vals[i] = SE(b->CreateICmpNE(vals[x], vals[y])); break;
+                case Op::eq_i32:  vals[i] = SE(b->CreateICmpEQ (vals[x], vals[y])); break;
+                case Op::neq_i32: vals[i] = SE(b->CreateICmpNE (vals[x], vals[y])); break;
                 case Op::gt_i32:  vals[i] = SE(b->CreateICmpSGT(vals[x], vals[y])); break;
                 case Op::gte_i32: vals[i] = SE(b->CreateICmpSGE(vals[x], vals[y])); break;
 
