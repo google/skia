@@ -1962,6 +1962,8 @@ namespace skvm {
                     SkDebugf("can't llvm %s (%d)\n", name(op), op);
                     return false;
 
+                case Op::assert_true: /*TODO*/ break;
+
                 case Op::load8:  t = I8 ; goto load;
                 case Op::load16: t = I16; goto load;
                 case Op::load32: t = I32; goto load;
@@ -2013,9 +2015,12 @@ namespace skvm {
                     vals[i] = b->CreateAlignedStore(val, ptr, 1);
                 } break;
 
-                case Op::bit_and: vals[i] = b->CreateAnd(vals[x], vals[y]); break;
-                case Op::bit_or : vals[i] = b->CreateOr (vals[x], vals[y]); break;
-                case Op::bit_xor: vals[i] = b->CreateXor(vals[x], vals[y]); break;
+                case Op::bit_and:   vals[i] = b->CreateAnd(vals[x], vals[y]); break;
+                case Op::bit_or :   vals[i] = b->CreateOr (vals[x], vals[y]); break;
+                case Op::bit_xor:   vals[i] = b->CreateXor(vals[x], vals[y]); break;
+                case Op::bit_clear: vals[i] = b->CreateAnd(vals[x], b->CreateNot(vals[y])); break;
+
+                case Op::pack: vals[i] = b->CreateOr(vals[x], b->CreateShl(vals[y], immz)); break;
 
                 case Op::select:
                     vals[i] = b->CreateSelect(b->CreateTrunc(vals[x], I1), vals[y], vals[z]);
@@ -2056,6 +2061,11 @@ namespace skvm {
                 case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
                 case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
 
+                case Op::round:
+                    // TODO: cvtps2dq, lround, etc. ?
+                    vals[i] = b->CreateFPToSI(b->CreateFAdd(F(vals[x]),
+                                                            llvm::ConstantFP::get(F32, 0.5)), I32);
+                    break;
             }
             return true;
         };
