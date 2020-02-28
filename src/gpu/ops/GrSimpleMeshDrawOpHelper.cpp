@@ -109,7 +109,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
 const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 const GrCaps* caps,
                                                 SkArenaAlloc* arena,
-                                                const GrSurfaceProxyView* dstView,
+                                                const GrSurfaceProxyView* outputView,
                                                 GrAppliedClip&& appliedClip,
                                                 const GrXferProcessor::DstProxyView& dstProxyView,
                                                 GrProcessorSet&& processorSet,
@@ -121,7 +121,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
     pipelineArgs.fDstProxyView = dstProxyView;
     pipelineArgs.fCaps = caps;
     pipelineArgs.fUserStencil = stencilSettings;
-    pipelineArgs.fOutputSwizzle = dstView->swizzle();
+    pipelineArgs.fOutputSwizzle = outputView->swizzle();
 
     return arena->make<GrPipeline>(pipelineArgs,
                                    std::move(processorSet),

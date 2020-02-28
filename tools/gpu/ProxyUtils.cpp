@@ -57,7 +57,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
 GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkArenaAlloc* arena,
-                                 const GrSurfaceProxyView* dstView,
+                                 const GrSurfaceProxyView* outputView,
                                  GrAppliedClip&& appliedClip,
                                  const GrXferProcessor::DstProxyView& dstProxyView,
                                  GrGeometryProcessor* geomProc,
@@ -71,7 +71,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
     initArgs.fUserStencil = stencil;
     initArgs.fCaps = caps;
     initArgs.fDstProxyView = dstProxyView;
-    initArgs.fOutputSwizzle = dstView->swizzle();
+    initArgs.fOutputSwizzle = outputView->swizzle();
 
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
 
@@ -94,11 +94,11 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                    std::move(processors),
                                                    std::move(appliedClip));
 
-    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
-    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
-                                      dstProxy->numStencilSamples(),
-                                      dstProxy->backendFormat(),
-                                      dstView->origin(),
+    GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(outputProxy->numSamples(),
+                                      outputProxy->numStencilSamples(),
+                                      outputProxy->backendFormat(),
+                                      outputView->origin(),
                                       pipeline,
                                       geomProc,
                                       fixedDynamicState,

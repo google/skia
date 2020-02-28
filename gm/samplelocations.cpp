@@ -243,7 +243,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext* context,
-                      const GrSurfaceProxyView* dstView,
+                      const GrSurfaceProxyView* outputView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView) final {
         // We're going to create the GrProgramInfo (and the GrPipeline and geometry processor
@@ -255,7 +255,7 @@ private:
 
         GrGeometryProcessor* geomProc = SampleLocationsTestProcessor::Make(arena, fGradType);
 
-        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, dstView,
+        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, outputView,
                                                       std::move(appliedClip), dstProxyView,
                                                       geomProc, SkBlendMode::kSrcOver,
                                                       GrPrimitiveType::kTriangleStrip,
