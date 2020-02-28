@@ -14,7 +14,7 @@
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
     subset of the pixelref specified by the bitmap. */
-class GrBitmapTextureMaker : public GrTextureMaker {
+class GrBitmapTextureMaker final : public GrTextureMaker {
 public:
     enum class Cached { kNo, kYes };
 
@@ -24,9 +24,6 @@ public:
 
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
-
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override;
 
     const SkBitmap     fBitmap;
     const SkBackingFit fFit;

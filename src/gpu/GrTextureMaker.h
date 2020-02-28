@@ -27,6 +27,7 @@ protected:
     GrTextureMaker(GrRecordingContext* context, const GrImageInfo& info, bool domainNeedsLocal)
             : INHERITED(context, info, domainNeedsLocal) {}
 
+private:
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
@@ -36,8 +37,7 @@ protected:
      */
     virtual GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) = 0;
 
-private:
-    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped) final;
 
     typedef GrTextureProducer INHERITED;
 };

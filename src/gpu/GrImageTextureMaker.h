@@ -16,17 +16,13 @@ class SkImage_GpuYUVA;
 
 /** This class manages the conversion of generator-backed images to GrTextures. If the caching hint
     is kAllow the image's ID is used for the cache key. */
-class GrImageTextureMaker : public GrTextureMaker {
+class GrImageTextureMaker final : public GrTextureMaker {
 public:
     GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                         SkImage::CachingHint chint, bool useDecal = false);
 
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
-
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
-    }
 
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
@@ -36,31 +32,24 @@ private:
 };
 
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
-class GrYUVAImageTextureMaker : public GrTextureMaker {
+class GrYUVAImageTextureMaker final : public GrTextureMaker {
 public:
     GrYUVAImageTextureMaker(GrContext* context, const SkImage* client, bool useDecal = false);
+
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
     // This could be made more nuanced and compare all of the texture proxy resolutions, but
     // it's probably not worth the effort.
     bool hasMixedResolutions() const override { return true; }
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
-
-    void makeMipMappedKey(GrUniqueKey* mipMappedKey) override;
-    void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey, uint32_t contextUniqueID) override {
-    }
-
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
-        const SkMatrix& textureMatrix,
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 private:
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
+
     const SkImage_GpuYUVA*  fImage;
     GrUniqueKey             fOriginalKey;
 

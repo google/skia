@@ -116,15 +116,3 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(bool willBe
     }
     return {};
 }
-
-void GrBitmapTextureMaker::makeMipMappedKey(GrUniqueKey* mipMappedKey) {
-    // Destination color space is irrelevant - we always upload the bitmap's contents as-is
-    if (fOriginalKey.isValid()) {
-        MakeMipMappedKeyFromOriginalKey(fOriginalKey, mipMappedKey);
-    }
-}
-
-void GrBitmapTextureMaker::didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey,
-                                                 uint32_t contextUniqueID) {
-    GrInstallBitmapUniqueKeyInvalidator(mipMappedKey, contextUniqueID, fBitmap.pixelRef());
-}
