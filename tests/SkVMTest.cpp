@@ -604,7 +604,12 @@ DEF_TEST(SkVM_i16x2, r) {
         b.store32(buf, u);
     }
 
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+#if defined(SKVM_LLVM)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
         uint16_t buf[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13 };
 
         program.eval(SK_ARRAY_COUNT(buf)/2, buf);
@@ -637,7 +642,12 @@ DEF_TEST(SkVM_cmp_i16, r) {
         b.store32(buf, m);
     }
 
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+#if defined(SKVM_LLVM)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
         int16_t buf[] = { 0,1, 2,3, 4,5, 6,7, 8,9 };
 
         program.eval(SK_ARRAY_COUNT(buf)/2, buf);
