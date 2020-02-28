@@ -1288,6 +1288,7 @@ int main(int argc, char** argv) {
                 auto stop = now_ms() + 1000;
                 do {
                     time(loops, bench.get(), target);
+                    pool.drain();
                 } while (now_ms() < stop);
             }
 
@@ -1296,11 +1297,13 @@ int main(int argc, char** argv) {
                 auto stop = now_ms() + FLAGS_ms;
                 do {
                     samples.push_back(time(loops, bench.get(), target) / loops);
+                    pool.drain();
                 } while (now_ms() < stop);
             } else {
                 samples.reset(FLAGS_samples);
                 for (int s = 0; s < FLAGS_samples; s++) {
                     samples[s] = time(loops, bench.get(), target) / loops;
+                    pool.drain();
                 }
             }
 
