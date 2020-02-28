@@ -104,31 +104,6 @@ protected:
 
     GrColorType colorType() const { return fImageInfo.colorType(); }
 
-    /** Helper for creating a key for a copy from an original key. */
-    static void MakeMipMappedKeyFromOriginalKey(const GrUniqueKey& origKey,
-                                                GrUniqueKey* mipMappedKey) {
-        SkASSERT(!mipMappedKey->isValid());
-        if (origKey.isValid()) {
-            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-            GrUniqueKey::Builder builder(mipMappedKey, origKey, kDomain, 0);
-        }
-    }
-
-    /**
-     * If we need to make a copy with MIP maps the producer is asked to return a key that identifies
-     * the original conteny + the addition of MIP map levels. If the producer does not want to cache
-     * the copy it can simply leave the key uninitialized.
-     */
-    virtual void makeMipMappedKey(GrUniqueKey* mipMappedKey) = 0;
-
-    /**
-     *  If a stretched version of the texture is generated, it may be cached (assuming that
-     *  makeMipMappedKey() returns true). In that case, the maker is notified in case it
-     *  wants to note that for when the maker is destroyed.
-     */
-    virtual void didCacheMipMappedCopy(const GrUniqueKey& mipMappedKey,
-                                       uint32_t contextUniqueID) = 0;
-
     enum DomainMode {
         kNoDomain_DomainMode,
         kDomain_DomainMode,
