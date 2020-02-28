@@ -16,7 +16,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
                                     const GrShaderCaps* shaderCaps,

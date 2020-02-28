@@ -25,7 +25,7 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer() {
 }
