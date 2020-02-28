@@ -126,7 +126,7 @@ public:
     static const GrPipeline* CreatePipeline(
                                 const GrCaps*,
                                 SkArenaAlloc*,
-                                const GrSurfaceProxyView* dstView,
+                                const GrSurfaceProxyView* outputView,
                                 GrAppliedClip&&,
                                 const GrXferProcessor::DstProxyView&,
                                 GrProcessorSet&&,

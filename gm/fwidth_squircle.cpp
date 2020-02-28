@@ -171,7 +171,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext* context,
-                      const GrSurfaceProxyView* dstView,
+                      const GrSurfaceProxyView* outputView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView) final {
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
@@ -182,7 +182,7 @@ private:
         GrGeometryProcessor* geomProc = FwidthSquircleTestProcessor::Make(arena, fViewMatrix);
 
         // TODO: need to also give this to the recording context
-        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, dstView,
+        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, outputView,
                                                       std::move(appliedClip), dstProxyView,
                                                       geomProc, SkBlendMode::kSrcOver,
                                                       GrPrimitiveType::kTriangleStrip);

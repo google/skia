@@ -51,7 +51,9 @@ public:
         }
     }
 
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) final;
 
     void onPrepare(GrOpFlushState*) final;
@@ -93,7 +95,7 @@ private:
     // Create a GrProgramInfo object in the provided arena
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
-                                     const GrSurfaceProxyView* dstView,
+                                     const GrSurfaceProxyView* outputView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&);
 
@@ -555,7 +557,7 @@ static constexpr uint16_t kMSAAIndexData[] = {
 GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
 
 void FillRRectOp::onPrePrepare(GrRecordingContext* context,
-                               const GrSurfaceProxyView* dstView,
+                               const GrSurfaceProxyView* outputView,
                                GrAppliedClip* clip,
                                const GrXferProcessor::DstProxyView& dstProxyView) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
@@ -567,7 +569,7 @@ void FillRRectOp::onPrePrepare(GrRecordingContext* context,
     // in the record-time arena. Then, if the program info had already been seen, we could
     // get pointers back to the prior versions and be able to return the allocated space
     // back to the arena.
-    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
+    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
                                            std::move(appliedClip), dstProxyView);
 
     context->priv().recordProgramInfo(fProgramInfo);
@@ -863,7 +865,7 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
 
 GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                               SkArenaAlloc* arena,
-                                              const GrSurfaceProxyView* dstView,
+                                              const GrSurfaceProxyView* outputView,
                                               GrAppliedClip&& appliedClip,
                                               const GrXferProcessor::DstProxyView& dstProxyView) {
     GrGeometryProcessor* geomProc = Processor::Make(arena, fAAType, fFlags);
@@ -875,7 +877,7 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
     }
     initArgs.fCaps = caps;
     initArgs.fDstProxyView = dstProxyView;
-    initArgs.fOutputSwizzle = dstView->swizzle();
+    initArgs.fOutputSwizzle = outputView->swizzle();
 
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
 
@@ -888,11 +890,11 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                                    std::move(fProcessors),
                                                    std::move(appliedClip));
 
-    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
-    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
-                                      dstProxy->numStencilSamples(),
-                                      dstProxy->backendFormat(),
-                                      dstView->origin(),
+    GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(outputProxy->numSamples(),
+                                      outputProxy->numStencilSamples(),
+                                      outputProxy->backendFormat(),
+                                      outputView->origin(),
                                       pipeline,
                                       geomProc,
                                       fixedDynamicState,
@@ -906,11 +908,9 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     if (!fProgramInfo) {
-        const GrSurfaceProxyView* dstView = flushState->view();
-
         fProgramInfo = this->createProgramInfo(&flushState->caps(),
                                                flushState->allocator(),
-                                               dstView,
+                                               flushState->view(),
                                                flushState->detachAppliedClip(),
                                                flushState->dstProxyView());
     }
