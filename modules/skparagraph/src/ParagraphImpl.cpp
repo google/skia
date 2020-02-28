@@ -129,12 +129,10 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
-        this->fRunShifts.reset();
         this->fClusters.reset();
     } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         this->fClusters.reset();
-        this->resetRunShifts();
         fState = kShaped;
     }
 
@@ -167,7 +165,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         }
 
         this->fClusters.reset();
-        this->resetRunShifts();
         fState = kShaped;
     }
 
@@ -1062,22 +1059,6 @@ Block& ParagraphImpl::block(BlockIndex blockIndex) {
     return fTextStyles[blockIndex];
 }
 
-// TODO: Cache this information
-void ParagraphImpl::resetRunShifts() {
-
-    if (fRunShifts.empty()) {
-        fRunShifts.resize(fRuns.size());
-    }
-
-    for (size_t i = 0; i < fRuns.size(); ++i) {
-        auto& run = fRuns[i];
-        auto& shifts = fRunShifts[i];
-        run.resetShifts();
-        shifts.fShifts.reset();
-        shifts.fShifts.push_back_n(run.size() + 1, 0.0);
-    }
-}
-
 void ParagraphImpl::setState(InternalState state) {
     if (fState <= state) {
         fState = state;
@@ -1096,7 +1077,6 @@ void ParagraphImpl::setState(InternalState state) {
             this->resetContext();
             this->resolveStrut();
             this->computeEmptyMetrics();
-            this->fRunShifts.reset();
             fLines.reset();
         case kFormatted:
             fPicture = nullptr;
@@ -1257,28 +1237,6 @@ bool ParagraphImpl::calculateBidiRegions(SkTArray<BidiRegion>* regions) {
     }
 
     return true;
-}
-
-void ParagraphImpl::shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift) {
-    auto& cluster = fClusters[index];
-    auto& runShift = fRunShifts[cluster.runIndex()];
-    auto& run = fRuns[cluster.runIndex()];
-    auto start = cluster.startPos();
-    auto end = cluster.endPos();
-    if (!run.leftToRight()) {
-        runShift.fShifts[start] = lastShift;
-        ++start;
-        ++end;
-    }
-
-    if (end == runShift.fShifts.size() - 1) {
-        // Set the same shift for the fake last glyph (to avoid all extra checks)
-        ++end;
-    }
-
-    for (size_t pos = start; pos < end; ++pos) {
-        runShift.fShifts[pos] = shift;
-    }
 }
 
 }  // namespace textlayout

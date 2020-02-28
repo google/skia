@@ -559,12 +559,12 @@ void TextLine::justify(SkScalar maxWidth) {
 
         if (ghost) {
             if (leftToRight) {
-                fMaster->shiftCluster(index, ghostShift, ghostShift);
+                shiftCluster(cluster, ghostShift, ghostShift);
             }
             return true;
         }
 
-        auto lastShift = shift;
+        auto prevShift = shift;
         if (cluster->isWhitespaces()) {
             if (!whitespacePatch) {
                 shift += step;
@@ -574,7 +574,7 @@ void TextLine::justify(SkScalar maxWidth) {
         } else {
             whitespacePatch = false;
         }
-        fMaster->shiftCluster(index, shift, lastShift);
+        shiftCluster(cluster, shift, prevShift);
         return true;
     });
 
@@ -583,6 +583,26 @@ void TextLine::justify(SkScalar maxWidth) {
 
     this->fWidthWithSpaces += ghostShift;
     this->fAdvance.fX = maxWidth;
+}
+
+void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift) {
+
+    auto run = cluster->run();
+    auto start = cluster->startPos();
+    auto end = cluster->endPos();
+    if (!run->leftToRight()) {
+        ++start;
+        ++end;
+    }
+
+    if (end == run->size() - 1) {
+        // Set the same shift for the fake last glyph (to avoid all extra checks)
+        ++end;
+    }
+
+    for (size_t pos = start; pos < end; ++pos) {
+        run->fJustificationShifts[start] = { shift, prevShift };
+    }
 }
 
 void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool) {

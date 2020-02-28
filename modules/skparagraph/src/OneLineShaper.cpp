@@ -435,7 +435,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                     // Not a single codepoint could be resolved but we can switch to another block
                     break;
                 }
-                
+
                 // We can stop here or we can switch to another DIFFERENT codepoint
                 while (ch != unresolvedText.end()) {
                     unicode = utf8_next(&ch, unresolvedText.end());
