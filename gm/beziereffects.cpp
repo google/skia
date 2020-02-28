@@ -33,9 +33,11 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -81,12 +83,60 @@ protected:
         this->setBounds(rect, HasAABloat::kYes, IsHairline::kNo);
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
-                                                                 std::move(fProcessorSet),
-                                                                 GrPipeline::InputFlags::kNone);
+    virtual GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) = 0;
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+        auto gp = this->makeGP(*caps, arena);
+        if (!gp) {
+            return nullptr;
+        }
+
+        GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone;
+
+        return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                           std::move(appliedClip), dstProxyView,
+                                                           gp, std::move(fProcessorSet), flags);
+    }
+
+    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
+        return this->createProgramInfo(&flushState->caps(),
+                                       flushState->allocator(),
+                                       flushState->view(),
+                                       flushState->detachAppliedClip(),
+                                       flushState->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) final {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(flushState);
+        }
+
+        if (!fProgramInfo) {
+            return;
+        }
+
+        static constexpr int kOneMesh = 1;
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, kOneMesh);
     }
 
     GrClipEdgeType edgeType() const { return fEdgeType; }
@@ -94,11 +144,15 @@ protected:
     const SkRect& rect() const { return fRect; }
     const SkPMColor4f& color() const { return fColor; }
 
+protected:
+    GrMesh*              fMesh = nullptr;  // filled in by the derived classes
+
 private:
-    SkRect fRect;
-    SkPMColor4f fColor;
-    GrClipEdgeType fEdgeType;
-    GrProcessorSet fProcessorSet;
+    SkRect               fRect;
+    SkPMColor4f          fColor;
+    GrClipEdgeType       fEdgeType;
+    GrProcessorSet       fProcessorSet;
+    GrProgramInfo*       fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -110,7 +164,7 @@ class BezierConicTestOp : public BezierTestOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "BezierConicTestOp"; }
+    const char* name() const final { return "BezierConicTestOp"; }
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrClipEdgeType et,
@@ -134,29 +188,30 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) override {
-        GrGeometryProcessor* gp = GrConicEffect::Make(target->allocator(), this->color(),
-                                                      SkMatrix::I(), this->edgeType(),
-                                                      target->caps(), SkMatrix::I(), false);
-        if (!gp) {
-            return;
+    GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) final {
+        auto tmp = GrConicEffect::Make(arena, this->color(), SkMatrix::I(), this->edgeType(),
+                                       caps, SkMatrix::I(), false);
+        if (!tmp) {
+            return nullptr;
         }
+        SkASSERT(tmp->vertexStride() == sizeof(Vertex));
+        return tmp;
+    }
 
-        SkASSERT(gp->vertexStride() == sizeof(Vertex));
+    void onPrepareDraws(Target* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
             return;
         }
         SkRect rect = this->rect();
-        SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect.fLeft, rect.fTop, rect.fRight,
-                                     rect.fBottom, sizeof(Vertex));
+        SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
             SkPoint3 pt3 = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
             fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
         }
 
-        helper.recordDraw(target, gp);
+        fMesh = helper.mesh();
     }
 
     SkMatrix fKLM;
@@ -343,15 +398,17 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) override {
-        GrGeometryProcessor* gp = GrQuadEffect::Make(target->allocator(), this->color(),
-                                                     SkMatrix::I(), this->edgeType(),
-                                                     target->caps(), SkMatrix::I(), false);
-        if (!gp) {
-            return;
+    GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) final {
+        auto tmp = GrQuadEffect::Make(arena, this->color(), SkMatrix::I(), this->edgeType(),
+                                      caps, SkMatrix::I(), false);
+        if (!tmp) {
+            return nullptr;
         }
+        SkASSERT(tmp->vertexStride() == sizeof(Vertex));
+        return tmp;
+    }
 
-        SkASSERT(gp->vertexStride() == sizeof(Vertex));
+    void onPrepareDraws(Target* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
@@ -360,7 +417,8 @@ private:
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
-        helper.recordDraw(target, gp);
+
+        fMesh = helper.mesh();
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;

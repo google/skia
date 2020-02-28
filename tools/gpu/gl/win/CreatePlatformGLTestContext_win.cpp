@@ -193,7 +193,7 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
     }
 
     if (!wglMakeCurrent(dc, glrc)) {
-        SkDebugf("Could not create rendering context.\n");
+        SkDebugf("Could not make current.\n");
     }
 }
 
