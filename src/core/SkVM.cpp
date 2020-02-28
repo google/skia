@@ -1985,6 +1985,9 @@ namespace skvm {
                 case Op::sub_f32: vals[i] = toI(b->CreateFSub(toF(vals[x]), toF(vals[y]))); break;
                 case Op::mul_f32: vals[i] = toI(b->CreateFMul(toF(vals[x]), toF(vals[y]))); break;
                 case Op::div_f32: vals[i] = toI(b->CreateFDiv(toF(vals[x]), toF(vals[y]))); break;
+                case Op::floor:
+                    vals[i] = toI(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, toF(vals[x])));
+                    break;
 
                 case Op::gather32: {
                     // Our gather base pointer is immz bytes off of uniform immy.
@@ -2099,7 +2102,7 @@ namespace skvm {
 
         SkASSERT(false == llvm::verifyModule(*mod, &llvm::outs()));
 
-        if (false) {
+        if (true) {
             SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
             std::error_code err;
             llvm::raw_fd_ostream os(path.c_str(), err);
