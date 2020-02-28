@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "392dad30_c8e7e68b",
+        "filename": "src/gpu/GrOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-28T14:20:33Z",
+      "side": 1,
+      "message": "I find if (\u003cvar\u003e !\u003d \u003cvalue\u003e) easier to mentally parse though I know a lot of our older code does the reverse. (and ditto for asserts and other if in this function and asserts in other functions).",
+      "range": {
+        "startLine": 157,
+        "startChar": 8,
+        "endLine": 157,
+        "endChar": 54
+      },
+      "revId": "a56db05219f43cb932273e70b2647cdabb74f1a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
