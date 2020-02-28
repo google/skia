@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83f790da_457ecf86",
+        "filename": "include/core/SkMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-28T16:03:17Z",
+      "side": 1,
+      "message": "I was going to ask about this - it wasn\u0027t clear from above what the semantics of vertexDataCount were. I think it\u0027s clearer if positionCount is called vertexCount, then every vertex is position, plus some number of extra floats...",
+      "range": {
+        "startLine": 111,
+        "startChar": 33,
+        "endLine": 111,
+        "endChar": 64
+      },
+      "revId": "5a9f6040eaf65177e62605933b0e33924751a6cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
