@@ -22,6 +22,30 @@
       "revId": "746569992ac35ca619d4ebeacfeb3acc7a17bd5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d0a5d1b_649cb227",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-02-28T13:09:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef6a9cf7_4f799f13",
+      "range": {
+        "startLine": 363,
+        "startChar": 18,
+        "endLine": 363,
+        "endChar": 31
+      },
+      "revId": "746569992ac35ca619d4ebeacfeb3acc7a17bd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
