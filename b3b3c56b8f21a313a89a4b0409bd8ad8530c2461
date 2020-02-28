@@ -22,6 +22,30 @@
       "revId": "b3b3c56b8f21a313a89a4b0409bd8ad8530c2461",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c3486e_7b349547",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T19:56:39Z",
+      "side": 1,
+      "message": "Whoops, forgot to adjust the comment. In a future CL which probably isn\u0027t going to happen, we provide dm_flags as a build property and also generate them here, and fail a comparison step if they differ.",
+      "parentUuid": "02971b55_abd0dbc8",
+      "range": {
+        "startLine": 917,
+        "startChar": 13,
+        "endLine": 917,
+        "endChar": 20
+      },
+      "revId": "b3b3c56b8f21a313a89a4b0409bd8ad8530c2461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
