@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05cfe627_ae062167",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-28T15:27:00Z",
+      "side": 1,
+      "message": "This seems like an unnecessary place to be checking max texture size but will leave for now.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 5
+      },
+      "revId": "1ddb32160520cca2b6e6583301f239e5eff82979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
