@@ -6,6 +6,9 @@
 # Recipe module for Skia Swarming test.
 
 
+import re
+
+
 DEPS = [
   'env',
   'flavor',
@@ -25,6 +28,7 @@ DEPS = [
 def upload_dm_results(buildername):
   skip_upload_bots = [
     'ASAN',
+    'AbandonGpuContext',
     'Coverage',
     'MSAN',
     'TSAN',
@@ -36,8 +40,58 @@ def upload_dm_results(buildername):
   return True
 
 
+def key_params(api):
+  """Build a unique key from the builder name (as a list).
+
+  E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
+  """
+  # Don't bother to include role, which is always Test.
+  blacklist = ['role', 'test_filter']
+
+  flat = []
+  for k in sorted(api.vars.builder_cfg.keys()):
+    if k not in blacklist:
+      flat.append(k)
+      flat.append(api.vars.builder_cfg[k])
+
+  return flat
+
+
 def dm_flags(api, bot):
-  args = []
+  issue = str(api.vars.issue) if api.vars.is_trybot else ''
+  patchset = str(api.vars.patchset) if api.vars.is_trybot else ''
+  patch_storage = str(api.vars.patch_storage) if api.vars.is_trybot else ''
+  properties = [
+    'gitHash',              api.properties['revision'],
+    'builder',              api.vars.builder_name,
+    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
+    'task_id',              api.properties['task_id'],
+    'issue',                issue,
+    'patchset',             patchset,
+    'patch_storage',        patch_storage,
+    'swarming_bot_id',      api.vars.swarming_bot_id,
+    'swarming_task_id',     api.vars.swarming_task_id,
+  ]
+
+  args = [
+    'dm',
+    '--nameByHash',
+    '--properties'
+  ] + properties
+
+  args.append('--key')
+  keys = key_params(api)
+
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    keys.extend(['renderer', 'skottie'])
+  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
+    # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
+    keys.extend(['style', 'DDL'])
+  else:
+    keys.extend(['style', 'default'])
+
+  args.extend(keys)
+
   configs = []
   blacklisted = []
 
@@ -325,16 +379,6 @@ def dm_flags(api, bot):
       configs = ddl_configs + ddl2_configs
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
-
-  tf = api.vars.builder_cfg.get('test_filter')
-  if 'All' != tf:
-    # Expected format: shard_XX_YY
-    parts = tf.split('_')
-    if len(parts) == 3:
-      args.extend(['--shard', parts[1]])
-      args.extend(['--shards', parts[2]])
-    else: # pragma: nocover
-      raise Exception('Invalid task name - bad shards: %s' % tf)
 
   args.append('--config')
   args.extend(configs)
@@ -765,11 +809,6 @@ def dm_flags(api, bot):
   if 'Nexus5' in bot or 'Nexus9' in bot:
     args.append('--noRAW_threading')
 
-  if 'FSAA' in bot:
-    args.extend(['--analyticAA', 'false'])
-  if 'FAAA' in bot:
-    args.extend(['--forceAnalyticAA'])
-
   if 'NativeFonts' not in bot:
     args.append('--nonativeFonts')
 
@@ -779,24 +818,15 @@ def dm_flags(api, bot):
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 
+  # See skia:2789.
+  if 'AbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--abandonGpuContext')
+  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--preAbandonGpuContext')
+  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
+    args.append('--releaseAndAbandonGpuContext')
+
   return args
-
-
-def key_params(api):
-  """Build a unique key from the builder name (as a list).
-
-  E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
-  """
-  # Don't bother to include role, which is always Test.
-  blacklist = ['role', 'test_filter']
-
-  flat = []
-  for k in sorted(api.vars.builder_cfg.keys()):
-    if k not in blacklist:
-      flat.append(k)
-      flat.append(api.vars.builder_cfg[k])
-
-  return flat
 
 
 def test_steps(api):
@@ -859,70 +889,58 @@ def test_steps(api):
       api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
       use_hash_file = True
 
-  # Run DM.
-  properties = [
-    'gitHash',              api.properties['revision'],
-    'builder',              api.vars.builder_name,
-    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
-    'task_id',              api.properties['task_id'],
-  ]
-  if api.vars.is_trybot:
-    properties.extend([
-      'issue',         api.vars.issue,
-      'patchset',      api.vars.patchset,
-      'patch_storage', api.vars.patch_storage,
-    ])
-  properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
-  properties.extend(['swarming_task_id', api.vars.swarming_task_id])
+  # Find and compare DM flags.
+  args = dm_flags(api, api.vars.builder_name)
+  test_args = api.properties.get('dm_flags', '').split(' ')
+  env_regex = re.compile('\$\{([A-Z_]+)\}')
+  env_map = {
+    'SWARMING_BOT_ID': api.vars.swarming_bot_id,
+    'SWARMING_TASK_ID': api.vars.swarming_task_id,
+  }
+  for i, arg in enumerate(test_args):
+    m = env_regex.match(arg)
+    if m:
+      repl = env_map.get(m.groups()[0])
+      if repl:
+        test_args[i] = repl
+  api.run(api.python.inline, name='validate dm flags', program='''
+import sys
 
-  args = [
-    'dm',
+expect = sys.argv[1].split(' ')
+actual = sys.argv[2].split(' ')
+if len(expect) != len(actual):
+  raise Exception('Argument list lengths differ!')
+  
+for i, arg in enumerate(expect):
+  if actual[i] != arg:
+    raise Exception(
+        'Argument at %d differs; expected %s but got %s', i, arg, actual[i])
+''',
+    args=[' '.join(args), ' '.join(test_args)])
+
+  # Paths to required resources.
+  args.extend([
     '--resourcePath', api.flavor.device_dirs.resource_dir,
     '--skps', api.flavor.device_dirs.skp_dir,
     '--images', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'dm'),
     '--colorImages', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'colorspace'),
-    '--nameByHash',
-    '--properties'
-  ] + properties
-
-  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+    '--svgs', api.flavor.device_dirs.svg_dir,
+  ])
   if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
     args.extend([
       '--lotties',
-      api.flavor.device_path_join(
-          api.flavor.device_dirs.resource_dir, 'skottie'),
-      api.flavor.device_dirs.lotties_dir])
-
-  args.append('--key')
-  keys = key_params(api)
-
-  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
-    keys.extend(['renderer', 'skottie'])
-  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
-    # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
-    keys.extend(['style', 'DDL'])
-  else:
-    keys.extend(['style', 'default'])
-
-  args.extend(keys)
+      api.flavor.device_path_join(api.flavor.device_dirs.resource_dir, 'skottie'),
+      api.flavor.device_dirs.lotties_dir,
+    ])
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
   if upload_dm_results(b):
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
-  args.extend(dm_flags(api, api.vars.builder_name))
-
-  # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
-    args.append('--releaseAndAbandonGpuContext')
-
+  # Run DM.
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if upload_dm_results(b):
@@ -948,72 +966,308 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android',
-  ('Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All'
-   '-Android_NoGPUThreads'),
-  ('Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All'
-   '-Android_Vulkan'),
-  'Test-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Release-All-Android',
+  'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android_NoGPUThreads',
+  'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android',
+  'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NativeFonts',
+  'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NoGPUThreads',
+  'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
+  'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android',
+  'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android',
+  'Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android',
+  'Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android',
+  'Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-CPU-TegraX1-arm-Debug-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-CPU-TegraX1-arm-Debug-All-Android_NativeFonts',
+  'Test-Android-Clang-NVIDIA_Shield-CPU-TegraX1-arm-Release-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-CPU-TegraX1-arm64-Debug-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-CPU-TegraX1-arm64-Release-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm-Debug-All-Android_ASAN_Vulkan',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm-Debug-All-Android_NoGPUThreads',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm-Release-All-Android_NoGPUThreads',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm-Release-All-Android_Vulkan',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_ASAN',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_ASAN_Vulkan',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_DDL1_Vulkan',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_DDL3_Vulkan',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_Vulkan_NoGPUThreads',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan_NoGPUThreads',
+  'Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Debug-All-Android',
+  'Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
-  'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android',
+  'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
+  'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Debug-All-Android',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Debug-All-Android_DDL1_Vulkan',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Debug-All-Android_DDL3_Vulkan',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android',
+  'Test-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel-CPU-Snapdragon821-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Pixel-CPU-Snapdragon821-arm64-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
-  'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan',
   'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android',
+  'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android',
+  'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_DDL1_Vulkan',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_DDL3_Vulkan',
   'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Release-All-Android',
+  'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Release-All-Android_Vulkan',
   'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android',
-  ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
-   'arm-Debug-All'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
-  ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
-   '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
-  ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
-   '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
-  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader',
-  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
-  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
+  'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Debug-All-Android',
+  'Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Release-All-Android',
+  'Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Release-All-Android_Vulkan',
+  'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
+  'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Release-All-Android',
+  'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All',
+  'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
+  'Test-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Debug-All',
+  'Test-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All',
+  'Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm-Debug-All',
+  'Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm-Release-All',
+  'Test-ChromeOS-Clang-Pixelbook-GPU-IntelHDGraphics615-x86_64-Debug-All',
+  'Test-ChromeOS-Clang-Pixelbook-GPU-IntelHDGraphics615-x86_64-Release-All',
+  'Test-ChromeOS-Clang-SamsungChromebook2012-GPU-MaliT604-arm-Debug-All',
+  'Test-ChromeOS-Clang-SamsungChromebook2012-GPU-MaliT604-arm-Release-All',
+  'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Debug-All',
+  'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
+  'Test-Debian10-GCC-GCE-CPU-AVX2-x86-Debug-All-Docker',
+  'Test-Debian10-GCC-GCE-CPU-AVX2-x86-Release-All-Docker',
   'Test-Debian10-GCC-GCE-CPU-AVX2-x86_64-Debug-All-Docker',
-  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
-  ('Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All'
-   '-NativeFonts'),
+  'Test-Debian10-GCC-GCE-CPU-AVX2-x86_64-Release-All-Docker',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_BonusConfigs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM_ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN_BonusConfigs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE2',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE41',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SkVM',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SkVM_MSAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN_BonusConfigs',
+  'Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Debug-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Release-All',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All',
+  'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1_Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN_Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-DDL3_TSAN',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-DDL3_TSAN_Vulkan',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan',
+  'Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All',
+  'Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All',
+  'Test-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug-All',
+  'Test-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-DDL1_Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-DDL3_Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-DDL1_Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-DDL3_Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-Metal',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts',
+  'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN',
+  'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts',
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-PDF',
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All',
-  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal',
-  ('Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All'
-   '-CommandBuffer'),
-  'Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
-  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan',
-  ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-ASAN',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-ASAN_Metal',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN',
+  'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN_Metal',
+  'Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All',
+  'Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
+  'Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-Metal',
+  'Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
+  'Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-Metal',
+  'Test-Mac10.13-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts',
+  'Test-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-NativeFonts',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All',
+  'Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal',
+  'Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN',
   'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
-  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
-  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN_Vulkan',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All',
+  'Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All',
+  'Test-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR',
-  ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-ReleaseAndAbandonGpuContext'),
-  'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ReleaseAndAbandonGpuContext',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_ProcDump',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ReleaseAndAbandonGpuContext',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
+  'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts',
+  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All',
+  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-NativeFonts',
+  'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All',
+  'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All',
+  'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan',
+  'Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All',
+  'Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan',
+  'Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All',
+  'Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan',
+  'Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All',
   'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
-  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
-  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_BonusConfigs',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All',
+  'Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All',
+  'Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All',
+  'Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
+  'Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI',
+  'Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All',
+  'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All',
+  'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All-Metal',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
-  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
-  'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
+  'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All-Metal',
+  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All',
+  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All-Metal',
+  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All',
+  'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
+  'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All',
+  'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal',
+  'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All',
+  'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All-Metal',
+  'Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All',
+  'Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-Metal',
+  'Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All',
+  'Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal',
 ]
 
+# Lottie is used in a dependent repo.
+TEST_BUILDERS.append('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie')
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
@@ -1021,6 +1275,7 @@ def GenTests(api):
       api.test(builder) +
       api.properties(buildername=builder,
                      buildbucket_build_id='123454321',
+                     dm_flags='bot ${SWARMING_BOT_ID}',
                      revision='abc123',
                      path_config='kitchen',
                      gold_hashes_url='https://example.com/hashes.txt',
