@@ -1913,9 +1913,7 @@ namespace skvm {
         }
 
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
-                   *i64 = llvm::Type::getInt64Ty(ctx),
-                   *f32 = llvm::Type::getFloatTy(ctx),
-                   *i32 = llvm::Type::getInt32Ty(ctx);
+                   *i64 = llvm::Type::getInt64Ty(ctx);
 
         std::vector<llvm::Type*> arg_types = { i64 };
         for (size_t i = 0; i < fStrides.size(); i++) {
@@ -1944,20 +1942,61 @@ namespace skvm {
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
             auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
 
-            llvm::Type *I32 = scalar ? i32 : llvm::VectorType::get(i32, K),
+            llvm::Type *i8  = llvm::Type::getInt8Ty (ctx),
+                       *i16 = llvm::Type::getInt16Ty(ctx),
+                       *i32 = llvm::Type::getInt32Ty(ctx),
+                       *f32 = llvm::Type::getFloatTy(ctx),
+                       *I8  = scalar ? i8  : llvm::VectorType::get(i8 , K),
+                       *I16 = scalar ? i16 : llvm::VectorType::get(i16, K),
+                       *I32 = scalar ? i32 : llvm::VectorType::get(i32, K),
                        *F32 = scalar ? f32 : llvm::VectorType::get(f32, K);
 
             auto I = [&](llvm::Value* v)  { return b->CreateBitCast(v, I32); };
             auto F = [&](llvm::Value* v)  { return b->CreateBitCast(v, F32); };
             auto SE = [&](llvm::Value* v) { return b->CreateSExt(v, I32);    };
 
-            switch (op) {
+            switch (llvm::Type* t = nullptr; op) {
                 default:
                     SkDebugf("can't llvm %s (%d)\n", name(op), op);
                     return false;
 
-                case Op::load32: vals[i] = b->CreateAlignedLoad(I32, args[immy], 1); break;
-                case Op::splat:  vals[i] = llvm::ConstantInt::get(I32, immy);        break;
+                case Op::load8:  t = I8 ; goto load;
+                case Op::load16: t = I16; goto load;
+                case Op::load32: t = I32; goto load;
+                load:
+                    vals[i] = b->CreateZExt(b->CreateAlignedLoad(t, args[immy], 1), I32);
+                    break;
+
+                case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immy); break;
+
+                case Op::uniform8:  t = i8 ; goto uniform;
+                case Op::uniform16: t = i16; goto uniform;
+                case Op::uniform32: t = i32; goto uniform;
+                uniform: {
+                    llvm::Value* ptr = b->CreateConstGEP1_32(args[immy], immz);
+                    llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(t, ptr, 1), i32);
+                    vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
+                                                : val;
+                } break;
+
+                case Op::gather8:  t = i8 ; goto gather;
+                case Op::gather16: t = i16; goto gather;
+                case Op::gather32: t = i32; goto gather;
+                gather: {
+                    // Our gather base pointer is immz bytes off of uniform immy.
+                    llvm::Value* base =
+                        b->CreateLoad(b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
+                                                       t->getPointerTo()->getPointerTo()));
+
+                    llvm::Value* ptr = b->CreateGEP(base, vals[x]);
+                    llvm::Value* gathered;
+                    if (ptr->getType()->isVectorTy()) {
+                        gathered = b->CreateMaskedGather(ptr, 1);
+                    } else {
+                        gathered = b->CreateAlignedLoad(ptr, 1);
+                    }
+                    vals[i] = b->CreateZExt(gathered, I32);
+                } break;
 
                 case Op::store32: {
                     llvm::Value* ptr = b->CreateBitCast(args[immy],
@@ -2002,20 +2041,6 @@ namespace skvm {
 
                 case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
                 case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
-
-                case Op::gather32: {
-                    // Our gather base pointer is immz bytes off of uniform immy.
-                    llvm::Value* base =
-                        b->CreateLoad(b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
-                                                       i32->getPointerTo()->getPointerTo()));
-
-                    llvm::Value* ptr = b->CreateGEP(base, vals[x]);
-                    if (ptr->getType()->isVectorTy()) {
-                        vals[i] = b->CreateMaskedGather(ptr, 1);
-                    } else {
-                        vals[i] = b->CreateAlignedLoad(ptr, 1);
-                    }
-                } break;
 
             }
             return true;
