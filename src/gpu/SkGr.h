@@ -164,11 +164,12 @@ static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
 // Texture management
 
 /**
- * Returns a view that wraps a texture representing the bitmap that is compatible with the
- * GrSamplerState. The texture is inserted into the cache (unless the bitmap is marked volatile)
- * and can be retrieved again via this function.
+ * Returns a view that wraps a texture representing the bitmap. The texture is inserted into the
+ * cache (unless the bitmap is marked volatile and can be retrieved again via this function.
+ * A MIP mapped texture may be returned even when GrMipMapped is kNo. The function will succeed
+ * with a non-MIP mapped texture if GrMipMapped is kYes but MIP mapping is not supported.
  */
-GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, GrSamplerState);
+GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, GrMipMapped);
 
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.

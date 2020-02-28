@@ -85,7 +85,7 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState) const override;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrMipMapped) const override;
 #endif
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
@@ -174,7 +174,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
 
 #if SK_SUPPORT_GPU
 GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
-                                           GrSamplerState params) const {
+                                           GrMipMapped mipMapped) const {
     if (!context) {
         return {};
     }
@@ -183,10 +183,10 @@ GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
     if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
         GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
                                    fPinnedUniqueID);
-        return adjuster.viewForParams(params);
+        return adjuster.view(mipMapped);
     }
 
-    return GrRefCachedBitmapView(context, fBitmap, params);
+    return GrRefCachedBitmapView(context, fBitmap, mipMapped);
 }
 #endif
 
@@ -209,7 +209,7 @@ bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedView = GrRefCachedBitmapView(ctx, fBitmap, GrSamplerState::Filter::kNearest);
+        fPinnedView = GrRefCachedBitmapView(ctx, fBitmap, GrMipMapped::kNo);
         if (!fPinnedView) {
             return false;
         }

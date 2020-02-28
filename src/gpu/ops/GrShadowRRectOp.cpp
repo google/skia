@@ -668,7 +668,7 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* context) {
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(context, bitmap);
-    auto[view, grCT] = maker.view(GrMipMapped::kNo);
+    auto view = maker.view(GrMipMapped::kNo);
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
 
     if (view) {

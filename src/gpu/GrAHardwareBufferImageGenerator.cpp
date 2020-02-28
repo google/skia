@@ -186,9 +186,10 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     return GrSurfaceProxyView(std::move(texProxy), fSurfaceOrigin, readSwizzle);
 }
 
-GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
-        GrRecordingContext* context, const SkImageInfo& info,
-        const SkIPoint& origin, bool willNeedMipMaps) {
+GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(GrRecordingContext* context,
+                                                                      const SkImageInfo& info,
+                                                                      const SkIPoint& origin,
+                                                                      GrMipMapped mipMapped) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
         return {};
@@ -203,8 +204,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
     }
     // Otherwise, make a copy for the requested subset.
     SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-
-    GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
     return GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(), grColorType,
