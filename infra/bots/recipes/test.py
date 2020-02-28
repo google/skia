@@ -36,21 +36,35 @@ def upload_dm_results(buildername):
   return True
 
 
-def dm_flags(api, bot):
+def dm_flags(bot, parts, task_id, revision, issue, patchset, patch_storage,
+             buildbucket_build_id, swarming_bot_id, swarming_task_id,
+             internal_hardware_label):
+  # TODO(borenet): This duplicates code in recipes_modules/vars/api.py and will
+  # be removed soon.
+  is_linux = (
+        'Ubuntu' in bot
+     or 'Debian' in bot
+     or 'Housekeeper' in bot
+  )
+  extra_tokens = []
+  if len(parts.get('extra_config', '')) > 0:
+    if parts['extra_config'].startswith('SK'):
+      assert parts['extra_config'].isupper()
+      extra_tokens = [parts['extra_config']]
+    else:
+      extra_tokens = parts['extra_config'].split('_')
+
   properties = [
-    'gitHash',              api.properties['revision'],
-    'builder',              api.vars.builder_name,
-    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
-    'task_id',              api.properties['task_id'],
+    'gitHash',              revision,
+    'builder',              bot,
+    'buildbucket_build_id', buildbucket_build_id,
+    'task_id',              task_id,
+    'issue',                issue,
+    'patchset',             patchset,
+    'patch_storage',        patch_storage,
+    'swarming_bot_id',      swarming_bot_id,
+    'swarming_task_id',     swarming_task_id,
   ]
-  if api.vars.is_trybot:
-    properties.extend([
-      'issue',         api.vars.issue,
-      'patchset',      api.vars.patchset,
-      'patch_storage', api.vars.patch_storage,
-    ])
-  properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
-  properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
   args = [
     'dm',
@@ -59,11 +73,11 @@ def dm_flags(api, bot):
   ] + properties
 
   args.append('--key')
-  keys = key_params(api)
+  keys = key_params(parts)
 
-  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+  if 'Lottie' in parts.get('extra_config', ''):
     keys.extend(['renderer', 'skottie'])
-  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
+  if 'DDL' in parts.get('extra_config', ''):
     # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
     keys.extend(['style', 'DDL'])
   else:
@@ -118,11 +132,11 @@ def dm_flags(api, bot):
   if thread_limit is not None:
     args.extend(['--threads', str(thread_limit)])
 
-  if 'SwiftShader' in api.vars.extra_tokens:
+  if 'SwiftShader' in extra_tokens:
     configs.extend(['gles', 'glesdft'])
     args.append('--disableDriverCorrectnessWorkarounds')
 
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+  elif parts.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
 
     configs.append('8888')
@@ -142,7 +156,7 @@ def dm_flags(api, bot):
       blacklist('pdf gm _ hairmodes')
       blacklist('pdf gm _ longpathdash')
 
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  elif parts.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
     # Add in either gles or gl configs to the canonical set based on OS
@@ -187,7 +201,7 @@ def dm_flags(api, bot):
     # GL is used by Chrome, GLES is used by ChromeOS.
     # Also do the Ganesh threading verification test (render with and without
     # worker threads, using only the SW path renderer, and compare the results).
-    if 'Intel' in bot and api.vars.is_linux:
+    if 'Intel' in bot and is_linux:
       configs.extend(['gles',
                       'glesdft',
                       'glessrgb',
@@ -287,7 +301,7 @@ def dm_flags(api, bot):
     # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
     # on the GL bots.
     if ('QuadroP400' in bot and 'PreAbandonGpuContext' not in bot and
-        'TSAN' not in bot and api.vars.is_linux):
+        'TSAN' not in bot and is_linux):
       if 'Vulkan' in bot:
         configs.append('vk1010102')
         # Decoding transparent images to 1010102 just looks bad
@@ -321,7 +335,7 @@ def dm_flags(api, bot):
 
     # Test rendering to wrapped dsts on a few bots
     # Also test 'glenarrow', which hits F16 surfaces and F16 vertex colors.
-    if 'BonusConfigs' in api.vars.extra_tokens:
+    if 'BonusConfigs' in extra_tokens:
       configs = ['glbetex', 'glbert', 'glenarrow']
 
 
@@ -359,13 +373,13 @@ def dm_flags(api, bot):
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
 
-  tf = api.vars.builder_cfg.get('test_filter')
+  tf = parts.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
-    parts = tf.split('_')
-    if len(parts) == 3:
-      args.extend(['--shard', parts[1]])
-      args.extend(['--shards', parts[2]])
+    split = tf.split('_')
+    if len(split) == 3:
+      args.extend(['--shard', split[1]])
+      args.extend(['--shards', split[2]])
     else: # pragma: nocover
       raise Exception('Invalid task name - bad shards: %s' % tf)
 
@@ -374,7 +388,7 @@ def dm_flags(api, bot):
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image lottie colorImage svg skp'.split(' '))
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if parts.get('cpu_or_gpu') == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
   elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN':
@@ -406,7 +420,7 @@ def dm_flags(api, bot):
     # No other bots render the .skps.
     remove_from_args('skp')
 
-  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+  if 'Lottie' in parts.get('extra_config', ''):
     # Only run the lotties on Lottie bots.
     remove_from_args('tests')
     remove_from_args('gm')
@@ -516,7 +530,7 @@ def dm_flags(api, bot):
     # Android and iOS. skia:5438
     blacklist('_ test _ GrShape')
 
-  if api.vars.internal_hardware_label == '5':
+  if internal_hardware_label == '5':
     # http://b/118312149#comment9
     blacklist('_ test _ SRGBReadWritePixels')
 
@@ -711,10 +725,10 @@ def dm_flags(api, bot):
       match.extend(['~WritePixelsNonTextureMSAA_Gpu'])
       match.extend(['~WritePixelsMSAA_Gpu'])
 
-  if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
+  if 'Vulkan' in bot and is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
-  if api.vars.is_linux and 'IntelIris640' in bot:
+  if is_linux and 'IntelIris640' in bot:
     match.extend(['~Programs']) # skia:7849
 
   if 'TecnoSpark3Pro' in bot:
@@ -723,7 +737,7 @@ def dm_flags(api, bot):
   if 'IntelIris640' in bot or 'IntelHD615' in bot or 'IntelHDGraphics615' in bot:
     match.append('~^SRGBReadWritePixels$') # skia:9225
 
-  if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
+  if 'Vulkan' in bot and is_linux and 'IntelHD405' in bot:
     # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
     blacklist(['vk', 'gm', '_', 'filltypespersp'])
@@ -777,7 +791,7 @@ def dm_flags(api, bot):
     # skia:7603
     match.append('~^GrMeshTest$')
 
-  if 'LenovoYogaC630' in bot and 'ANGLE' in api.vars.extra_tokens:
+  if 'LenovoYogaC630' in bot and 'ANGLE' in extra_tokens:
     # skia:9275
     blacklist(['_', 'tests', '_', 'Programs'])
     # skia:8976
@@ -813,17 +827,17 @@ def dm_flags(api, bot):
   args.append('--verbose')
 
   # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
+  if 'AbandonGpuContext' in extra_tokens:
     args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
+  if 'PreAbandonGpuContext' in extra_tokens:
     args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
+  if 'ReleaseAndAbandonGpuContext' in extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
   return args
 
 
-def key_params(api):
+def key_params(parts):
   """Build a unique key from the builder name (as a list).
 
   E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
@@ -832,10 +846,10 @@ def key_params(api):
   blacklist = ['role', 'test_filter']
 
   flat = []
-  for k in sorted(api.vars.builder_cfg.keys()):
+  for k in sorted(parts.keys()):
     if k not in blacklist:
       flat.append(k)
-      flat.append(api.vars.builder_cfg[k])
+      flat.append(parts[k])
 
   return flat
 
@@ -900,8 +914,25 @@ def test_steps(api):
       api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
       use_hash_file = True
 
-  # Run DM.
-  args = dm_flags(api, api.vars.builder_name)
+  # Find DM flags.
+  issue = str(api.vars.issue) if api.vars.is_trybot else ''
+  patchset = str(api.vars.patchset) if api.vars.is_trybot else ''
+  patch_storage = str(api.vars.patch_storage) if api.vars.is_trybot else ''
+  args = dm_flags(
+    bot=api.vars.builder_name,
+    parts=api.vars.builder_cfg,
+    task_id=api.properties['task_id'],
+    revision=api.properties['revision'],
+    issue=str(api.vars.issue) if api.vars.is_trybot else '',
+    patchset=str(api.vars.patchset) if api.vars.is_trybot else '',
+    patch_storage=str(api.vars.patch_storage) if api.vars.is_trybot else '',
+    buildbucket_build_id=api.properties.get('buildbucket_build_id', ''),
+    swarming_bot_id=api.vars.swarming_bot_id,
+    swarming_task_id=api.vars.swarming_task_id,
+    internal_hardware_label=api.vars.internal_hardware_label,
+  )
+
+  # Paths to required resources.
   args.extend([
     '--resourcePath', api.flavor.device_dirs.resource_dir,
     '--skps', api.flavor.device_dirs.skp_dir,
