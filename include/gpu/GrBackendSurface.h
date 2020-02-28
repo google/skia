@@ -143,7 +143,7 @@ public:
      * If the backend API is Direct3D this gets the format as a DXGI_FORMAT and returns true.
      * Otherwise, returns false.
      */
-     bool asDxgiFormat(DXGI_FORMAT*) const;
+    bool asDxgiFormat(DXGI_FORMAT*) const;
 #endif
 
     /**

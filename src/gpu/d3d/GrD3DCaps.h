@@ -30,7 +30,7 @@ public:
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(const GrBackendFormat&) const override;
 
-    bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
+    bool isFormatCopyable(const GrBackendFormat&) const override { return false; }
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
@@ -84,6 +84,8 @@ private:
                     const D3D12_FEATURE_DATA_D3D12_OPTIONS2&);
     void initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc);
 
+    void initFormatTable(const DXGI_ADAPTER_DESC&, ID3D12Device*);
+
     void applyDriverCorrectnessWorkarounds(int vendorID);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
@@ -95,6 +97,63 @@ private:
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
+
+    // ColorTypeInfo for a specific format
+    struct ColorTypeInfo {
+        GrColorType fColorType = GrColorType::kUnknown;
+        enum {
+            kUploadData_Flag = 0x1,
+            // Does Ganesh itself support rendering to this colorType & format pair. Renderability
+            // still additionally depends on if the format itself is renderable.
+            kRenderable_Flag = 0x2,
+            // Indicates that this colorType is supported only if we are wrapping a texture with
+            // the given format and colorType. We do not allow creation with this pair.
+            kWrappedOnly_Flag = 0x4,
+        };
+        uint32_t fFlags = 0;
+
+        GrSwizzle fReadSwizzle;
+        GrSwizzle fOutputSwizzle;
+    };
+
+    struct FormatInfo {
+        uint32_t colorTypeFlags(GrColorType colorType) const {
+            for (int i = 0; i < fColorTypeInfoCount; ++i) {
+                if (fColorTypeInfos[i].fColorType == colorType) {
+                    return fColorTypeInfos[i].fFlags;
+                }
+            }
+            return 0;
+        }
+
+        void init(const DXGI_ADAPTER_DESC&, ID3D12Device*, DXGI_FORMAT);
+        static void InitFormatFlags(const D3D12_FEATURE_DATA_FORMAT_SUPPORT&, uint16_t* flags);
+        void initSampleCounts(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Device*, DXGI_FORMAT);
+
+        enum {
+            kTexturable_Flag = 0x1, // Can be sampled in a shader
+            kRenderable_Flag = 0x2, // Rendertarget and blendable
+            kMSAA_Flag = 0x4,
+            kResolve_Flag = 0x8,
+        };
+
+        uint16_t fFlags = 0;
+
+        SkTDArray<int> fColorSampleCounts;
+        // This value is only valid for regular formats. Compressed formats will be 0.
+        size_t fBytesPerPixel = 0;
+
+        std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
+        int fColorTypeInfoCount = 0;
+    };
+    static const size_t kNumDxgiFormats = 16;
+    FormatInfo fFormatTable[kNumDxgiFormats];
+
+    FormatInfo& getFormatInfo(DXGI_FORMAT);
+    const FormatInfo& getFormatInfo(DXGI_FORMAT) const;
+
+    DXGI_FORMAT fColorTypeToFormatTable[kGrColorTypeCnt];
+    void setColorType(GrColorType, std::initializer_list<DXGI_FORMAT> formats);
 
     int fMaxPerStageShaderResourceViews;
     int fMaxPerStageUnorderedAccessViews;
