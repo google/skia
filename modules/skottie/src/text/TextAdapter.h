@@ -52,8 +52,12 @@ private:
         sk_sp<sksg::Color>           fFillColorNode,
                                      fStrokeColorNode;
         sk_sp<sksg::BlurImageFilter> fBlur;
+
+        float                        fAdvance, // used for transform anchor point calculations
+                                     fAscent;  // ^
     };
 
+    uint32_t shaperFlags() const;
     void reshape();
     void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
@@ -91,7 +95,8 @@ private:
     };
 
     TextValueTracker fText;
-    bool             fHasBlur = false; // tracks whether any animator targets blur
+    bool             fHasBlurAnimator     : 1,
+                     fRequiresAnchorPoint : 1;
 };
 
 } // namespace internal
