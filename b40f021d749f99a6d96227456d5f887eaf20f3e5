@@ -22,6 +22,30 @@
       "revId": "b40f021d749f99a6d96227456d5f887eaf20f3e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d90cdc89_4802a520",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-02-28T14:15:42Z",
+      "side": 1,
+      "message": "Done. I\u0027m assuming the debugger doesn\u0027t need jpeg or png encoding either? I\u0027ve turned them off, but let me know if I should turn e.g. png encoding back on.",
+      "parentUuid": "1a6302c3_872df870",
+      "range": {
+        "startLine": 92,
+        "startChar": 23,
+        "endLine": 92,
+        "endChar": 27
+      },
+      "revId": "b40f021d749f99a6d96227456d5f887eaf20f3e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
