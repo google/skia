@@ -1947,8 +1947,9 @@ namespace skvm {
             llvm::Type *I32 = scalar ? i32 : llvm::VectorType::get(i32, K),
                        *F32 = scalar ? f32 : llvm::VectorType::get(f32, K);
 
-            auto I = [&](llvm::Value* v) { return b->CreateBitCast(v, I32); };
-            auto F = [&](llvm::Value* v) { return b->CreateBitCast(v, F32); };
+            auto I = [&](llvm::Value* v)  { return b->CreateBitCast(v, I32); };
+            auto F = [&](llvm::Value* v)  { return b->CreateBitCast(v, F32); };
+            auto SE = [&](llvm::Value* v) { return b->CreateSExt(v, I32);    };
 
             switch (op) {
                 default:
@@ -1975,10 +1976,20 @@ namespace skvm {
                 case Op::sra_i32: vals[i] = b->CreateAShr(vals[x], immy); break;
                 case Op::shr_i32: vals[i] = b->CreateLShr(vals[x], immy); break;
 
+                case Op::eq_i32:  vals[i] = SE(b->CreateICmpEQ(vals[x], vals[y])); break;
+                case Op::neq_i32: vals[i] = SE(b->CreateICmpNE(vals[x], vals[y])); break;
+                case Op::gt_i32:  vals[i] = SE(b->CreateICmpSGT(vals[x], vals[y])); break;
+                case Op::gte_i32: vals[i] = SE(b->CreateICmpSGE(vals[x], vals[y])); break;
+
                 case Op::add_f32: vals[i] = I(b->CreateFAdd(F(vals[x]), F(vals[y]))); break;
                 case Op::sub_f32: vals[i] = I(b->CreateFSub(F(vals[x]), F(vals[y]))); break;
                 case Op::mul_f32: vals[i] = I(b->CreateFMul(F(vals[x]), F(vals[y]))); break;
                 case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
+
+                case Op::eq_f32:  vals[i] = SE(b->CreateFCmpOEQ(F(vals[x]), F(vals[y]))); break;
+                case Op::neq_f32: vals[i] = SE(b->CreateFCmpONE(F(vals[x]), F(vals[y]))); break;
+                case Op::gt_f32:  vals[i] = SE(b->CreateFCmpOGT(F(vals[x]), F(vals[y]))); break;
+                case Op::gte_f32: vals[i] = SE(b->CreateFCmpOGE(F(vals[x]), F(vals[y]))); break;
 
                 case Op::mad_f32:
                     vals[i] = I(b->CreateFAdd(b->CreateFMul(F(vals[x]), F(vals[y])),
@@ -2103,7 +2114,7 @@ namespace skvm {
 
         SkASSERT(false == llvm::verifyModule(*mod, &llvm::outs()));
 
-        if (false) {
+        if (true) {
             SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
             std::error_code err;
             llvm::raw_fd_ostream os(path.c_str(), err);
