@@ -1416,3 +1416,91 @@ void GrMtlGpu::testingOnly_endCapture() {
     }
 }
 #endif
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("Metal GPU");
+
+    writer->beginObject("Device");
+    writer->appendString("name", fDevice.name);
+    writer->appendBool("isHeadless", fDevice.isHeadless);
+    writer->appendBool("isLowPower", fDevice.isLowPower);
+    writer->appendBool("isRemovable", fDevice.isRemovable);
+    writer->appendU64("registryID", fDevice.registryID);
+    switch (fDevice.location) {
+        case MTLDeviceLocation::builtIn:
+            writer->appendString("location", "builtIn");
+            break;
+        case MTLDeviceLocation::slot:
+            writer->appendString("location", "slot");
+            break;
+        case MTLDeviceLocation::external:
+            writer->appendString("location", "external");
+            break;
+        case MTLDeviceLocation::unspecified:
+            writer->appendString("location", "unspecified");
+            break;
+        default:
+            writer->appendString("location", "unknown");
+            break;
+    }
+    writer->appendS32("locationNumber", fDevice.locationNumber);
+    writer->appendU64("maxTransferRate", fDevice.maxTransferRate);
+    writer->appendBool("hasUnifiedMemory", fDevice.hasUnifiedMemory);
+    writer->appendU64("peerGroupID", fDevice.peerGroupID);
+    writer->appendU32("peerCount", fDevice.peerCount);
+    writer->appendU32("peerIndex", fDevice.peerIndex);
+    writer->appendU64("recommendedMaxWorkingSetSize", fDevice.recommendedMaxWorkingSetSize);
+    writer->appendS32("currentAllocatedSize", fDevice.currentAllocatedSize);
+    writer->appendS32("maxThreadgroupMemoryLength", fDevice.maxThreadgroupMemoryLength);
+
+    writer->beginObject("maxThreadsPerThreadgroup");
+    writer->appendS32("width", fDevice.maxThreadsPerThreadgroup.width);
+    writer->appendS32("height", fDevice.maxThreadsPerThreadgroup.height);
+    writer->appendS32("depth", fDevice.maxThreadsPerThreadgroup.depth);
+    writer->endObject();
+
+    writer->appendBool("areProgrammableSamplePositionsSupported", fDevice.areProgrammableSamplePositionsSupported);
+    writer->appendBool("areRasterOrderGroupsSupported", fDevice.areRasterOrderGroupsSupported);
+    writer->appendBool("isDepth24Stencil8PixelFormatSupported", fDevice.isDepth24Stencil8PixelFormatSupported);
+    writer->appendBool("areBarycentricCoordsSupported", fDevice.areBarycentricCoordsSupported);
+    writer->appendBool("supportsShaderBarycentricCoordinates", fDevice.supportsShaderBarycentricCoordinates);
+    writer->appendS32("maxBufferLength", fDevice.maxBufferLength);
+    switch (fDevice.readWriteTextureSupport) {
+        case MTLReadWriteTextureTier::tier1:
+            writer->appendString("readWriteTextureSupport", "tier1");
+            break;
+        case MTLReadWriteTextureTier::tier2:
+            writer->appendString("readWriteTextureSupport", "tier2");
+            break;
+        case MTLReadWriteTextureTier::tierNone:
+            writer->appendString("readWriteTextureSupport", "tierNone");
+            break;
+        default:
+            writer->appendString("readWriteTextureSupport", "unknown");
+            break;
+    }
+    switch (fDevice.argumentBuffersSupport) {
+        case MTLArgumentBuffersTier::tier1:
+            writer->appendString("argumentBuffersSupport", "tier1");
+            break;
+        case MTLArgumentBuffersTier::tier2:
+            writer->appendString("argumentBuffersSupport", "tier2");
+            break;
+        default:
+            writer->appendString("argumentBuffersSupport", "unknown");
+            break;
+    }
+    writer->appendS32("maxArgumentBufferSamplerCount", fDevice.maxArgumentBufferSamplerCount);
+    writer->appendS32("sparseTileSizeInBytes", fDevice.sparseTileSizeInBytes);
+    writer->endObject();
+
+    writer->appendString("queue", fQueue.label);
+    writer->appendBool("disconnected", fDisconnected);
+
+    writer->endObject();
+}
+#endif
