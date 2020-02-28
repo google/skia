@@ -60,7 +60,6 @@ public:
     // Returns the texture proxy. If we're going to generate and cache the texture, we should use
     // the passed in key (if the key is valid).
     GrSurfaceProxyView lockTextureProxyView(GrRecordingContext*,
-                                            const GrUniqueKey& key,
                                             SkImage::CachingHint,
                                             GrMipMapped) const;
 
@@ -69,8 +68,6 @@ public:
     // data to a texture but the GPU doesn't support the format of CPU data. In this case we convert
     // the data to RGBA_8888 unorm on the CPU then upload that.
     GrColorType colorTypeOfLockTextureProxy(const GrCaps* caps) const;
-
-    void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) const;
 #endif
 
 private:
