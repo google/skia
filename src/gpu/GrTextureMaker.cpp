@@ -20,51 +20,7 @@ GrSurfaceProxyView GrTextureMaker::onRefTextureProxyViewForParams(GrSamplerState
         this->height() > this->context()->priv().caps()->maxTextureSize()) {
         return {};
     }
-
-    GrSurfaceProxyView original = this->refOriginalTextureProxyView(willBeMipped);
-    if (!original) {
-        return {};
-    }
-    SkASSERT(original.asTextureProxy());
-
-    GrTextureProxy* texProxy = original.asTextureProxy();
-    if (!GrGpu::IsACopyNeededForMips(this->context()->priv().caps(), texProxy, params.filter())) {
-        return original;
-    }
-
-    GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
-
-    GrSurfaceOrigin origOrigin = original.proxy() ? original.origin() : kTopLeft_GrSurfaceOrigin;
-    GrUniqueKey mipMappedKey;
-    this->makeMipMappedKey(&mipMappedKey);
-    if (mipMappedKey.isValid()) {
-        auto cachedProxy =
-                proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey, this->colorType());
-        if (cachedProxy) {
-            SkASSERT(cachedProxy->mipMapped() == GrMipMapped::kYes);
-            return GrSurfaceProxyView(std::move(cachedProxy), origOrigin, original.swizzle());
-        }
-    }
-
-    GrSurfaceProxyView result = GrCopyBaseMipMapToTextureProxy(
-            this->context(), original.proxy(), original.origin(), this->colorType());
-    if (!result) {
-        // If we were unable to make a copy and we only needed a copy for mips, then we will return
-        // the source texture here and require that the GPU backend is able to fall back to using
-        // bilerp if mips are required.
-        return original;
-    }
-
-    // We believe all Makers already have tried to add MIP maps in refOriginalTextureProxyView()
-    // if willBeMipped was true and therefore we should never get here.
-    SkASSERT(false);
-
-    if (mipMappedKey.isValid()) {
-        SkASSERT(result.origin() == origOrigin);
-        proxyProvider->assignUniqueKeyToProxy(mipMappedKey, result.asTextureProxy());
-        this->didCacheMipMappedCopy(mipMappedKey, proxyProvider->contextID());
-    }
-    return result;
+    return this->refOriginalTextureProxyView(willBeMipped);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
