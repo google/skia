@@ -126,7 +126,7 @@ public:
     static const GrPipeline* CreatePipeline(
                                 const GrCaps*,
                                 SkArenaAlloc*,
-                                const GrSurfaceProxyView* dstView,
+                                const GrSurfaceProxyView* outputView,
                                 GrAppliedClip&&,
                                 const GrXferProcessor::DstProxyView&,
                                 GrProcessorSet&&,
@@ -139,6 +139,15 @@ public:
                                 const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     const GrPipeline* createPipeline(GrOpFlushState* flushState);
+
+    static GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                            SkArenaAlloc*,
+                                            const GrSurfaceProxyView* outputView,
+                                            GrAppliedClip&&,
+                                            const GrXferProcessor::DstProxyView&,
+                                            GrGeometryProcessor*,
+                                            GrProcessorSet&&,
+                                            GrPipeline::InputFlags pipelineFlags);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
