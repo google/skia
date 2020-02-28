@@ -34,6 +34,24 @@
       "revId": "b1c4de1f938a3d8db2d9dbb70ee9d87371081647",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28aa4f53_e2cf45df",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-28T19:34:58Z",
+      "side": 1,
+      "message": "Yes, it was only being used for lazy images at the time. It was on image_base for api access reasons (from cacherator), but once I removed cacherator it made sense to localize it to the one client. We could certainly move it back up.",
+      "parentUuid": "f1dfcafb_9d0fa4e1",
+      "revId": "b1c4de1f938a3d8db2d9dbb70ee9d87371081647",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
