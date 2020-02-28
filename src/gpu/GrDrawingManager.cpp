@@ -412,7 +412,6 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     }
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
-
     return result;
 }
 
