@@ -16,6 +16,24 @@
       "revId": "2273bd8988614c4ee82eb3a4cc320219ee977e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90cb9823_0dfaec01",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-02-28T22:02:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fa31e85_6d6cf4f1",
+      "revId": "2273bd8988614c4ee82eb3a4cc320219ee977e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
