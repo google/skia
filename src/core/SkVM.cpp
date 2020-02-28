@@ -1976,9 +1976,18 @@ namespace skvm {
                 case Op::sub_f32: vals[i] = I(b->CreateFSub(F(vals[x]), F(vals[y]))); break;
                 case Op::mul_f32: vals[i] = I(b->CreateFMul(F(vals[x]), F(vals[y]))); break;
                 case Op::div_f32: vals[i] = I(b->CreateFDiv(F(vals[x]), F(vals[y]))); break;
+
+                case Op::mad_f32:
+                    vals[i] = I(b->CreateFAdd(b->CreateFMul(F(vals[x]), F(vals[y])),
+                                              F(vals[z])));
+                    break;
+
                 case Op::floor:
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
+
+                case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
+                case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
 
                 case Op::gather32: {
                     // Our gather base pointer is immz bytes off of uniform immy.
