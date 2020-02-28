@@ -49,10 +49,6 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void setupGeometry(const GrBuffer* indexBuffer, const GrBuffer* vertexBuffer, int baseVertex,
-                       const GrBuffer* instanceBuffer, int baseInstance,
-                       GrPrimitiveRestart enablePrimitiveRestart);
-
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect& scissor) override;
     bool onBindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
@@ -76,7 +72,6 @@ private:
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     // Per-pipeline state.
-    sk_sp<GrGLProgram> fGLProgram;
     GrPrimitiveType fPrimitiveType;
 
     typedef GrOpsRenderPass INHERITED;
