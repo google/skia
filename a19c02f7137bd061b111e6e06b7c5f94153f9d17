@@ -16,6 +16,24 @@
       "revId": "a19c02f7137bd061b111e6e06b7c5f94153f9d17",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c634475d_e979df97",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T20:01:59Z",
+      "side": 1,
+      "message": "The idea is to have gen_tasks call this script to get the DM flags for each of the bots which run the \"test\" recipe.  So far, I haven\u0027t seen any weird quoting issues which would require anything other than a space-separated list.",
+      "parentUuid": "d898c40b_4604e612",
+      "revId": "a19c02f7137bd061b111e6e06b7c5f94153f9d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
