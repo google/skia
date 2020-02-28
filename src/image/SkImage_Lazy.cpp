@@ -346,15 +346,6 @@ sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const
 
 #if SK_SUPPORT_GPU
 
-void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey,
-                                           GrUniqueKey* cacheKey) const {
-    SkASSERT(!cacheKey->isValid());
-    if (origKey.isValid()) {
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 0, "Image");
-    }
-}
-
 class Generator_GrYUVProvider : public GrYUVProvider {
 public:
     Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
@@ -420,7 +411,6 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
  *  4. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
-                                                      const GrUniqueKey& origKey,
                                                       SkImage::CachingHint chint,
                                                       GrMipMapped mipMapped) const {
     // Values representing the various texture lock paths we can take. Used for logging the path
@@ -441,13 +431,9 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
         return mipMapped == GrMipMapped::kNo ||
                view.asTextureProxy()->mipMapped() == GrMipMapped::kYes;
     };
-    // Build our texture key.
-    // Even though some proxies created here may have a specific origin and use that origin, we do
-    // not include that in the key. Since SkImages are meant to be immutable, a given SkImage will
-    // always have an associated proxy that is always one origin or the other. It never can change
-    // origins. Thus we don't need to include that info in the key iteself.
+
     GrUniqueKey key;
-    this->makeCacheKeyFromOrigKey(origKey, &key);
+    GrMakeKeyFromImageID(&key, this->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 
     const GrCaps* caps = ctx->priv().caps();
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
