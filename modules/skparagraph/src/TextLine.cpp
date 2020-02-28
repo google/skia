@@ -559,12 +559,12 @@ void TextLine::justify(SkScalar maxWidth) {
 
         if (ghost) {
             if (leftToRight) {
-                fMaster->shiftCluster(index, ghostShift, ghostShift);
+                shiftCluster(cluster, ghostShift, ghostShift);
             }
             return true;
         }
 
-        auto lastShift = shift;
+        auto prevShift = shift;
         if (cluster->isWhitespaces()) {
             if (!whitespacePatch) {
                 shift += step;
@@ -574,7 +574,7 @@ void TextLine::justify(SkScalar maxWidth) {
         } else {
             whitespacePatch = false;
         }
-        fMaster->shiftCluster(index, shift, lastShift);
+        shiftCluster(cluster, shift, prevShift);
         return true;
     });
 
@@ -583,6 +583,27 @@ void TextLine::justify(SkScalar maxWidth) {
 
     this->fWidthWithSpaces += ghostShift;
     this->fAdvance.fX = maxWidth;
+}
+
+void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift) {
+
+    auto run = cluster->run();
+    auto start = cluster->startPos();
+    auto end = cluster->endPos();
+
+    if (end == run->size()) {
+        // Set the same shift for the fake last glyph (to avoid all extra checks)
+        ++end;
+    }
+
+    if (run->fJustificationShifts.empty()) {
+        // Do not fill this array until needed
+        run->fJustificationShifts.push_back_n(run->size() + 1, { 0, 0 });
+    }
+
+    for (size_t pos = start; pos < end; ++pos) {
+        run->fJustificationShifts[pos] = { shift, prevShift };
+    }
 }
 
 void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool) {
@@ -698,7 +719,15 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
     auto textStartInRun = run->positionX(start->startPos());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
-
+/*
+    if (!run->fJustificationShifts.empty()) {
+        SkDebugf("Justification for [%d:%d)\n", textRange.start, textRange.end);
+        for (auto i = result.pos; i < result.pos + result.size; ++i) {
+            auto j = run->fJustificationShifts[i];
+            SkDebugf("[%d] = %f %f\n", i, j.fX, j.fY);
+        }
+    }
+*/
     // Calculate the clipping rectangle for the text with cluster edges
     // There are 2 cases:
     // EOL (when we expect the last cluster clipped without any spaces)
@@ -861,7 +890,6 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         start = intersect.start;
         size = intersect.width();
     }
-
     return textOffsetInRun;
 }
 

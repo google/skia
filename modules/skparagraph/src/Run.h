@@ -49,6 +49,7 @@ public:
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
+
     ~Run() {}
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
@@ -169,6 +170,10 @@ public:
         for (auto& r: fShifts) { r = 0; }
         fSpaced = false;
     }
+
+    void resetJustificationShifts() {
+        fJustificationShifts.reset();
+    }
 private:
     friend class ParagraphImpl;
     friend class TextLine;
@@ -193,11 +198,12 @@ private:
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, true> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;
+    SkSTArray<128, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
     SkSTArray<128, SkPoint, true> fOffsets;
     SkSTArray<128, uint32_t, true> fClusterIndexes;
     SkSTArray<128, SkRect, true> fBounds;
 
-    SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing, justification)
+    SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
     bool fSpaced;
 };
 

@@ -193,9 +193,7 @@ void ParagraphCache::updateFrom(const ParagraphImpl* paragraph, Entry* entry) {
 
     for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
         auto& run = paragraph->fRuns[i];
-        if (run.fSpaced) {
-            entry->fValue->fRuns[i] = run;
-        }
+        entry->fValue->fRuns[i] = run;
     }
 }
 
@@ -276,8 +274,8 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
         fChecker(paragraph, "addedParagraph", true);
         return true;
     } else {
-        updateFrom(paragraph, entry->get());
-        fChecker(paragraph, "updatedParagraph", true);
+        //updateFrom(paragraph, entry->get());
+        //fChecker(paragraph, "updatedParagraph", true);
         return false;
     }
 }
