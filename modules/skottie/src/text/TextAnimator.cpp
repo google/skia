@@ -155,18 +155,21 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const skjson::ObjectValue& jprops,
                            const AnimationBuilder* abuilder,
                            AnimatablePropertyContainer* acontainer)
-    : fSelectors(std::move(selectors)) {
+    : fSelectors(std::move(selectors))
+    , fRequiresAnchorPoint(false) {
 
-    acontainer->bind(*abuilder, jprops["p" ], &fTextProps.position);
-    acontainer->bind(*abuilder, jprops["s" ], &fTextProps.scale   );
-    acontainer->bind(*abuilder, jprops["o" ], &fTextProps.opacity );
-    acontainer->bind(*abuilder, jprops["t" ], &fTextProps.tracking);
+    acontainer->bind(*abuilder, jprops["p"], &fTextProps.position);
+    acontainer->bind(*abuilder, jprops["o"], &fTextProps.opacity );
+    acontainer->bind(*abuilder, jprops["t"], &fTextProps.tracking);
+
+    // Scale and rotation are anchor-point-dependent.
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["s"], &fTextProps.scale);
 
     // Depending on whether we're in 2D/3D mode, some of these will stick and some will not.
     // It's fine either way.
-    acontainer->bind(*abuilder, jprops["rx"], &fTextProps.rotation.x);
-    acontainer->bind(*abuilder, jprops["ry"], &fTextProps.rotation.y);
-    acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation.z);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["rx"], &fTextProps.rotation.x);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["ry"], &fTextProps.rotation.y);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation.z);
 
     fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], &fTextProps.fill_color  );
     fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], &fTextProps.stroke_color);
