@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "582a47bd_0316da6d",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-28T18:00:58Z",
+      "side": 1,
+      "message": "Suspected this, done.",
+      "parentUuid": "c6772a59_fe83bdce",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 7
+      },
+      "revId": "a89bdeb558a6612bdd458d564981cbda30f8e2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8992878b_8b5dc79b",
         "filename": "commit-queue.cfg",
         "patchSetId": 1
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "Yes, definitely do not want G3. I\u0027ll update that script.",
       "parentUuid": "8992878b_8b5dc79b",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 280,
+        "endChar": 34
+      },
+      "revId": "a89bdeb558a6612bdd458d564981cbda30f8e2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51a2e840_837f4149",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-28T18:00:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aea7e206_e19b7534",
       "range": {
         "startLine": 279,
         "startChar": 0,
