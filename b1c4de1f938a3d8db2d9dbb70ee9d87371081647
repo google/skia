@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69b58542_04ddc664",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-28T19:11:47Z",
+      "side": 1,
+      "message": "FYI: It used to be on SkImage_Base, until https://skia-review.googlesource.com/c/skia/+/153546/",
+      "revId": "b1c4de1f938a3d8db2d9dbb70ee9d87371081647",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
