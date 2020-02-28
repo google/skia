@@ -2323,23 +2323,45 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(u"AAAAA \U0001f600 BBBBB CCCCC DDDDD EEEEE");
         auto paragraph = builder.Build();
-        paragraph->layout(109);
+        paragraph->layout(width() / 2);
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, width()/2, paragraph->getHeight()), paint);
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
-/*
-void main() {
-  runApp(new Text('AAAAA \u{1f600} BBBBB CCCCC DDDDD EEEEE',
-    style: TextStyle(fontSize: 36.0),
-    textDirection: TextDirection.ltr,
-    textAlign: TextAlign.justify,
-  ));
-}
-}
- */
+
+class ParagraphView34 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph34"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = getFontCollection();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(36);
+        builder.pushStyle(text_style);
+        builder.addText("Something");
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->layout(0);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2375,3 +2397,4 @@ DEF_SAMPLE(return new ParagraphView30();)
 DEF_SAMPLE(return new ParagraphView31();)
 DEF_SAMPLE(return new ParagraphView32();)
 DEF_SAMPLE(return new ParagraphView33();)
+DEF_SAMPLE(return new ParagraphView34();)
