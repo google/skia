@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c99acd1_2684dbfa",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T18:11:32Z",
+      "side": 1,
+      "message": "These too, please!",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 7
+      },
+      "revId": "190f12eab36fedaa8cea3eb2cc17b62425f1f9a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
