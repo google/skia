@@ -50,6 +50,7 @@ protected:
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
+        GrMesh* mesh() { return fMesh; }
 
     protected:
         PatternHelper() = default;
@@ -71,6 +72,7 @@ protected:
         QuadHelper() = delete;
         QuadHelper(Target* target, size_t vertexStride, int quadsToDraw);
 
+        using PatternHelper::mesh;
         using PatternHelper::recordDraw;
         using PatternHelper::vertices;
 

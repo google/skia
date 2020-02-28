@@ -287,6 +287,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     }
 
     GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
+    direct->fFoo = &flushState;
 
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
@@ -412,6 +413,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     }
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
+    direct->fFoo = nullptr;
 
     return result;
 }
@@ -431,6 +433,17 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 #endif
 
     bool anyRenderTasksExecuted = false;
+
+#if 0
+    for (int i = startIndex; i < stopIndex; ++i) {
+        GrRenderTask* renderTask = fDAG.renderTask(i);
+        if (!renderTask) {
+            continue;
+        }
+
+        renderTask->prePrepare(fContext);
+    }
+#endif
 
     for (int i = startIndex; i < stopIndex; ++i) {
         GrRenderTask* renderTask = fDAG.renderTask(i);
