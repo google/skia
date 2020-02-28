@@ -699,7 +699,6 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID,
                                     const SkIRect& imageRect,
                                     const SkMatrix& viewMatrix,
                                     const SkMatrix& srcToDstRect,
-                                    GrSamplerState params,
                                     const SkRect* srcRectPtr,
                                     int maxTileSize,
                                     int* tileSize,
@@ -754,7 +753,6 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     // If image is explicitly texture backed then we shouldn't get here.
     SkASSERT(!image->isTextureBacked());
 
-    GrSamplerState samplerState;
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
             image->width(), image->height(), quality, viewMatrix, srcToDstRect,
@@ -768,7 +766,6 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     } else {
         tileFilterPad = 1;
     }
-    samplerState.setFilterMode(textureFilterMode);
 
     int maxTileSize = this->caps()->maxTileSize() - 2 * tileFilterPad;
 
@@ -777,8 +774,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     SkIRect outClippedSrcRect;
 
     return this->shouldTileImageID(image->unique(), image->bounds(), viewMatrix, srcToDstRect,
-                                   samplerState, srcRectPtr, maxTileSize, &outTileSize,
-                                   &outClippedSrcRect);
+                                   srcRectPtr, maxTileSize, &outTileSize, &outClippedSrcRect);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -821,7 +817,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkMatrix& dstMatrix,
                                   const SkRect& srcRect,
                                   const SkIRect& clippedSrcIRect,
-                                  GrSamplerState params,
+                                  GrSamplerState::Filter filter,
                                   const SkPaint& origPaint,
                                   SkCanvas::SrcRectConstraint constraint,
                                   int tileSize,
@@ -864,7 +860,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                             SkIntToScalar(iTileR.fTop));
             SkRect rectToDraw = tileR;
             dstMatrix.mapRect(&rectToDraw);
-            if (GrSamplerState::Filter::kNearest != params.filter() || bicubic) {
+            if (filter != GrSamplerState::Filter::kNearest || bicubic) {
                 SkIRect iClampRect;
 
                 if (SkCanvas::kFast_SrcRectConstraint == constraint) {
@@ -891,7 +887,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                      viewMatrix,
                                      rectToDraw,
                                      tileR,
-                                     params,
+                                     filter,
                                      *paint,
                                      constraint,
                                      bicubic,
@@ -905,7 +901,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& dstRect,
                                  const SkRect& srcRect,
-                                 GrSamplerState samplerState,
+                                 GrSamplerState::Filter filter,
                                  const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint,
                                  bool bicubic,
@@ -916,9 +912,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // We should be respecting the max tile size by the time we get here.
     SkASSERT(bitmap.width() <= this->caps()->maxTileSize() &&
              bitmap.height() <= this->caps()->maxTileSize());
-    SkASSERT(!samplerState.isRepeated());
 
-    GrSurfaceProxyView view = GrRefCachedBitmapView(fContext.get(), bitmap, samplerState);
+    GrMipMapped mipMapped = filter == GrSamplerState::Filter::kMipMap ? GrMipMapped::kYes
+                                                                      : GrMipMapped::kNo;
+    GrSurfaceProxyView view = GrRefCachedBitmapView(fContext.get(), bitmap, mipMapped);
     if (!view) {
         return;
     }
@@ -937,19 +934,18 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
             fp = GrBicubicEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix,
-                                             samplerState.wrapModeX(), samplerState.wrapModeY(),
-                                             srcRect, kDir, caps);
+                                             GrSamplerState::WrapMode::kClamp,
+                                             GrSamplerState::WrapMode::kClamp, srcRect, kDir, caps);
         } else {
-            fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix,
-                                             samplerState, srcRect, caps);
+            fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix, filter,
+                                             srcRect, caps);
         }
     } else if (bicubic) {
-        SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
+        SkASSERT(GrSamplerState::Filter::kNearest == filter);
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        fp = GrBicubicEffect::Make(std::move(view), srcAlphaType, texMatrix,
-                                   samplerState.wrapModeX(), samplerState.wrapModeY(), kDir, caps);
+        fp = GrBicubicEffect::Make(std::move(view), srcAlphaType, texMatrix, kDir);
     } else {
-        fp = GrTextureEffect::Make(std::move(view), srcAlphaType, texMatrix, samplerState, caps);
+        fp = GrTextureEffect::Make(std::move(view), srcAlphaType, texMatrix, filter);
     }
 
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
@@ -1043,14 +1039,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
     SkRect srcRect = SkRect::Make(subset);
     if (clipImage) {
-        // Add the image as a simple texture effect applied to coverage. Accessing content outside
-        // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
-        // limit pixels touched and hardware checks, we draw the clip image geometry to get the
-        // decal effect.
-        auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
-                              ? GrSamplerState::Filter::kBilerp
-                              : GrSamplerState::Filter::kNearest;
-        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), filter);
+        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), GrMipMapped::kNo);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
         SkMatrix inverseClipMatrix;
@@ -1060,7 +1049,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
 
             cfp = GrTextureEffect::Make(std::move(clipView), clipImage->alphaType(),
-                                        inverseClipMatrix, filter);
+                                        inverseClipMatrix);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
@@ -1142,7 +1131,6 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         int tileSize;
         SkIRect clippedSrcRect;
 
-        GrSamplerState sampleState;
         bool doBicubic;
         GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
                 bitmap.width(), bitmap.height(), paint.getFilterQuality(), this->localToDevice(),
@@ -1157,14 +1145,14 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         } else {
             tileFilterPad = 1;
         }
-        sampleState.setFilterMode(textureFilterMode);
 
         int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
         if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(),
-                                    this->localToDevice(), srcToDstMatrix, sampleState, src,
+                                    this->localToDevice(), srcToDstMatrix, src,
                                     maxTileSizeForFilter, &tileSize, &clippedSrcRect)) {
-            this->drawTiledBitmap(bitmap, this->localToDevice(), srcToDstMatrix, *src, clippedSrcRect,
-                                  sampleState, paint, constraint, tileSize, doBicubic);
+            this->drawTiledBitmap(bitmap, this->localToDevice(), srcToDstMatrix, *src,
+                                  clippedSrcRect, textureFilterMode, paint, constraint, tileSize,
+                                  doBicubic);
             return;
         }
     }
@@ -1343,7 +1331,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto view = producer->viewForParams(&filter);
+    auto view = producer->view(filter);
     if (!view) {
         return;
     }
