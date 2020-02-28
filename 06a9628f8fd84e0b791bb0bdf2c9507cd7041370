@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4831f9c2_f6728423",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-02-28T16:57:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "248b96ee_cd970c0b",
+      "range": {
+        "startLine": 410,
+        "startChar": 17,
+        "endLine": 410,
+        "endChar": 20
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49302057_01704486",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "656fe1b0_9722709e",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-02-28T16:57:33Z",
+      "side": 1,
+      "message": "No. Break leaves the inner loop (going through all unresolved SkUnichar) and switches to another unresolved block. Return leaves the entire procedure because the visitor said to stop.",
+      "parentUuid": "49302057_01704486",
+      "range": {
+        "startLine": 422,
+        "startChar": 20,
+        "endLine": 422,
+        "endChar": 26
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "88520c76_c6168d15",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-02-28T16:57:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48ab9a66_8db0638d",
+      "range": {
+        "startLine": 423,
+        "startChar": 18,
+        "endLine": 423,
+        "endChar": 24
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5159363d_f6e541dc",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 10
@@ -91,6 +163,30 @@
       "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe85ea60_393aec2d",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-02-28T16:57:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5159363d_f6e541dc",
+      "range": {
+        "startLine": 426,
+        "startChar": 20,
+        "endLine": 426,
+        "endChar": 56
+      },
+      "revId": "06a9628f8fd84e0b791bb0bdf2c9507cd7041370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
