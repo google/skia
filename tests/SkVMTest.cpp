@@ -590,6 +590,24 @@ DEF_TEST(SkVM_cmp_f32, r) {
     });
 }
 
+DEF_TEST(SkVM_index, r) {
+    skvm::Builder b;
+    b.store32(b.varying<int>(), b.index());
+
+#if defined(SKVM_LLVM) || defined(SK_CPU_X86)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
+        int buf[23];
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] == (int)SK_ARRAY_COUNT(buf)-i);
+        }
+    });
+}
+
 DEF_TEST(SkVM_i16x2, r) {
     skvm::Builder b;
     {
