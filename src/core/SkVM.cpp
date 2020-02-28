@@ -2124,8 +2124,11 @@ namespace skvm {
             llvm::WriteBitcodeToFile(*mod, os);
         }
 
-        SkAssertResult(false == llvm::InitializeNativeTarget());
-        SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
+        static SkOnce once;
+        once([]{
+            SkAssertResult(false == llvm::InitializeNativeTarget());
+            SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
+        });
 
         fEE = llvm::EngineBuilder(std::move(mod))
                     .setEngineKind(llvm::EngineKind::JIT)
