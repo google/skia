@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02971b55_abd0dbc8",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-28T19:40:50Z",
+      "side": 1,
+      "message": "What does this mean?",
+      "range": {
+        "startLine": 917,
+        "startChar": 13,
+        "endLine": 917,
+        "endChar": 20
+      },
+      "revId": "b3b3c56b8f21a313a89a4b0409bd8ad8530c2461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
