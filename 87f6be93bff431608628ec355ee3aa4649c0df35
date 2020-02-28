@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "736fbcd6_81a83c61",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:09:29Z",
+      "side": 1,
+      "message": "Did we determine this is what they\u0027re using? Just curious to know if I use a font were \u0027e acute\u0027 is two glyphs if the \u0027e\u0027 and \u0027acute\u0027 rotate separately (the \u0027e\u0027 would have an advance, but \u0027acute\u0027 often has zero advance). It\u0027s so hard to tell with AE what is glyph based and what is grapheme based (I would have made all the \u0027per-character\u0027 stuff grapheme based just for sanity, but I\u0027m not sure if that\u0027s what happens or not).\n\nWe actually have some fonts to test this under resources/fonts/abc . Might want to test with that. At the very least I would put a comment here that we\u0027re doing this per glyph, but we\u0027re not really sure what the right grouping is (though I suppose that goes for all the \u0027per-character\u0027 stuff).",
+      "revId": "87f6be93bff431608628ec355ee3aa4649c0df35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
