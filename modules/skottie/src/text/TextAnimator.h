@@ -66,7 +66,10 @@ public:
     // Each domain[i] represents a [domain[i].fOffset.. domain[i].fOffset+domain[i].fCount-1]
     // fragment subset.
     struct DomainSpan {
-        size_t fOffset, fCount;
+        size_t fOffset,
+               fCount;
+        float  fAdvance, // cumulative advance for all fragments in span
+               fAscent;  // max ascent for all fragments in span
     };
     using DomainMap = std::vector<DomainSpan>;
 
