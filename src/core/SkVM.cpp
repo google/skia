@@ -1913,9 +1913,9 @@ namespace skvm {
         }
 
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
-                   *i64 = llvm::Type::getInt64Ty(ctx);
+                   *i32 = llvm::Type::getInt32Ty(ctx);
 
-        std::vector<llvm::Type*> arg_types = { i64 };
+        std::vector<llvm::Type*> arg_types = { i32 };
         for (size_t i = 0; i < fStrides.size(); i++) {
             arg_types.push_back(ptr);
         }
@@ -1934,7 +1934,6 @@ namespace skvm {
 
         using IRBuilder = llvm::IRBuilder<>;
 
-        // `n` won't be used in emit, but `args` will be and they're clearest kept together.
         llvm::PHINode*                 n;
         std::vector<llvm::PHINode*> args;
         std::vector<llvm::Value*> vals(instructions.size());
@@ -1945,7 +1944,6 @@ namespace skvm {
             llvm::Type *i1    = llvm::Type::getInt1Ty (ctx),
                        *i8    = llvm::Type::getInt8Ty (ctx),
                        *i16   = llvm::Type::getInt16Ty(ctx),
-                       *i32   = llvm::Type::getInt32Ty(ctx),
                        *i16x2 = llvm::VectorType::get(i16, 2),
                        *f32   = llvm::Type::getFloatTy(ctx),
                        *I1    = scalar ? i1    : llvm::VectorType::get(i1 , K  ),
@@ -1967,6 +1965,18 @@ namespace skvm {
                     return false;
 
                 case Op::assert_true: /*TODO*/ break;
+
+                case Op::index:
+                    if (I32->isVectorTy()) {
+                        std::vector<llvm::Constant*> iota(K);
+                        for (int j = 0; j < K; j++) {
+                            iota[j] = b->getInt32(j);
+                        }
+                        vals[i] = b->CreateSub(b->CreateVectorSplat(K, n),
+                                               llvm::ConstantVector::get(iota));
+                    } else {
+                        vals[i] = n;
+                    } break;
 
                 case Op::load8:  t = I8 ; goto load;
                 case Op::load16: t = I16; goto load;
@@ -2116,7 +2126,7 @@ namespace skvm {
                 args.back()->addIncoming(arg++, enter);
             }
 
-            b.CreateCondBr(b.CreateICmpUGE(n, b.getInt64(K)), loopK, test1);
+            b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(K)), loopK, test1);
         }
 
         // loopK:  ... insts on K x T vectors; N -= K, args += K*stride; goto testK;
@@ -2129,12 +2139,12 @@ namespace skvm {
             }
 
             // n -= K
-            llvm::Value* n_next = b.CreateSub(n, b.getInt64(K));
+            llvm::Value* n_next = b.CreateSub(n, b.getInt32(K));
             n->addIncoming(n_next, loopK);
 
             // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt64(K*fStrides[i]));
+                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt32(K*fStrides[i]));
                 args[i]->addIncoming(arg_next, loopK);
             }
             b.CreateBr(testK);
@@ -2156,7 +2166,7 @@ namespace skvm {
                 args[i] = arg_new;
             }
 
-            b.CreateCondBr(b.CreateICmpUGE(n, b.getInt64(1)), loop1, leave);
+            b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(1)), loop1, leave);
         }
 
         // loop1:  ... insts on scalars; N -= 1, args += stride; goto test1;
@@ -2169,12 +2179,12 @@ namespace skvm {
             }
 
             // n -= 1
-            llvm::Value* n_next = b.CreateSub(n, b.getInt64(1));
+            llvm::Value* n_next = b.CreateSub(n, b.getInt32(1));
             n->addIncoming(n_next, loop1);
 
             // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt64(fStrides[i]));
+                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt32(fStrides[i]));
                 args[i]->addIncoming(arg_next, loop1);
             }
             b.CreateBr(test1);
