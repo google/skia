@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "174cdf9b_2483f3a2",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T18:28:16Z",
+      "side": 1,
+      "message": "You sure there isn\u0027t some way to create a \u0027z\u0027 anchor point in AE? :-P",
+      "revId": "a3b2de383f3f1c5ce4c5c32e017f5d194850d3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
