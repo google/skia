@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13b4433f_af67074a",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T11:27:53Z",
+      "side": 1,
+      "message": "Nit: let\u0027s go ahead and do:\nenv[\u0027PYTHONPATH\u0027] \u003d self.m.path.pathsep.join(skia_dir.join(\u0027third_party\u0027, \u0027externals\u0027), \u0027%%(PYTHONPATH)s\u0027)\n\nThe typical workflow is just to add a new job to the jobs.json file and track down any problems/misbehaviors later.  Using the correct separator now will prevent a headache for the next person.  Note that recipes are magical and using the built-in os library is frowned upon, hence \"self.m.path.pathsep\".",
+      "range": {
+        "startLine": 220,
+        "startChar": 27,
+        "endLine": 220,
+        "endChar": 28
+      },
+      "revId": "1f1d21bb48bdd18cdecece6641ba26844208ac8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
