@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrRect.h"
@@ -118,9 +119,9 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
     GrPipeline::InitArgs pipelineArgs;
 
     pipelineArgs.fInputFlags = pipelineFlags;
-    pipelineArgs.fDstProxyView = dstProxyView;
-    pipelineArgs.fCaps = caps;
     pipelineArgs.fUserStencil = stencilSettings;
+    pipelineArgs.fCaps = caps;
+    pipelineArgs.fDstProxyView = dstProxyView;
     pipelineArgs.fOutputSwizzle = outputView->swizzle();
 
     return arena->make<GrPipeline>(pipelineArgs,
@@ -151,6 +152,45 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flush
                           flushState->dstProxyView(),
                           this->detachProcessorSet(),
                           this->pipelineFlags());
+}
+
+GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
+            const GrCaps* caps,
+            SkArenaAlloc* arena,
+            const GrSurfaceProxyView* outputView,
+            GrAppliedClip&& appliedClip,
+            const GrXferProcessor::DstProxyView& dstProxyView,
+            GrGeometryProcessor* geometryProcessor,
+            GrProcessorSet&& processorSet,
+            GrPipeline::InputFlags pipelineFlags) {
+    static constexpr int kZeroPrimProcTextures = 0;
+    auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena,
+                                                                         &appliedClip,
+                                                                         kZeroPrimProcTextures);
+
+    auto pipeline = CreatePipeline(caps,
+                                   arena,
+                                   outputView,
+                                   std::move(appliedClip),
+                                   dstProxyView,
+                                   std::move(processorSet),
+                                   pipelineFlags);
+
+    GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
+
+    static constexpr int kOneMesh = 1;
+    auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
+                                          outputProxy->numStencilSamples(),
+                                          outputProxy->backendFormat(),
+                                          outputView->origin(),
+                                          pipeline,
+                                          geometryProcessor,
+                                          fixedDynamicState,
+                                          nullptr,
+                                          kOneMesh,
+                                          GrPrimitiveType::kTriangles);
+    SkASSERT(tmp->primProc().numTextureSamplers() <= 0);
+    return tmp;
 }
 
 #ifdef SK_DEBUG
