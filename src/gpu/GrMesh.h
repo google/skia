@@ -200,30 +200,33 @@ inline void GrMesh::setVertexData(sk_sp<const GrBuffer> vertexBuffer, int baseVe
 inline void GrMesh::draw(GrOpsRenderPass* opsRenderPass) const {
     if (this->isInstanced()) {
         if (!this->isIndexed()) {
-            opsRenderPass->drawInstanced(fInstanceBuffer.get(), fInstanceData.fInstanceCount,
-                                         fInstanceData.fBaseInstance, fVertexBuffer.get(),
+            opsRenderPass->bindBuffers(nullptr, fInstanceBuffer.get(),  fVertexBuffer.get());
+            opsRenderPass->drawInstanced(fInstanceData.fInstanceCount, fInstanceData.fBaseInstance,
                                          fInstanceNonIndexData.fVertexCount, fBaseVertex);
         } else {
+            opsRenderPass->bindBuffers(fIndexBuffer.get(), fInstanceBuffer.get(),
+                                       fVertexBuffer.get(), this->primitiveRestart());
             opsRenderPass->drawIndexedInstanced(
-                    fIndexBuffer.get(), fInstanceIndexData.fIndexCount, 0, this->primitiveRestart(),
-                    fInstanceBuffer.get(), fInstanceData.fInstanceCount,
-                    fInstanceData.fBaseInstance, fVertexBuffer.get(), fBaseVertex);
+                    fInstanceIndexData.fIndexCount, 0, fInstanceData.fInstanceCount,
+                    fInstanceData.fBaseInstance, fBaseVertex);
         }
         return;
     }
 
     if (!this->isIndexed()) {
         SkASSERT(fNonIndexNonInstanceData.fVertexCount > 0);
-        opsRenderPass->draw(fVertexBuffer.get(), fNonIndexNonInstanceData.fVertexCount,
-                            fBaseVertex);
+        opsRenderPass->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+        opsRenderPass->draw(fNonIndexNonInstanceData.fVertexCount, fBaseVertex);
         return;
     }
 
+    opsRenderPass->bindBuffers(fIndexBuffer.get(), nullptr, fVertexBuffer.get(),
+                               this->primitiveRestart());
+
     if (0 == fIndexData.fPatternRepeatCount) {
-        opsRenderPass->drawIndexed(
-                fIndexBuffer.get(), fIndexData.fIndexCount, fNonPatternIndexData.fBaseIndex,
-                this->primitiveRestart(), fNonPatternIndexData.fMinIndexValue,
-                fNonPatternIndexData.fMaxIndexValue, fVertexBuffer.get(), fBaseVertex);
+        opsRenderPass->drawIndexed(fIndexData.fIndexCount, fNonPatternIndexData.fBaseIndex,
+                                   fNonPatternIndexData.fMinIndexValue,
+                                   fNonPatternIndexData.fMaxIndexValue, fBaseVertex);
         return;
     }
 
@@ -237,8 +240,7 @@ inline void GrMesh::draw(GrOpsRenderPass* opsRenderPass) const {
         int minIndexValue = 0;
         int maxIndexValue = fPatternData.fVertexCount * repeatCount - 1;
         SkASSERT(!(fFlags & Flags::kUsePrimitiveRestart));
-        opsRenderPass->drawIndexed(fIndexBuffer.get(), indexCount, 0, this->primitiveRestart(),
-                                   minIndexValue, maxIndexValue, fVertexBuffer.get(),
+        opsRenderPass->drawIndexed(indexCount, 0, minIndexValue, maxIndexValue,
                                    fBaseVertex + fPatternData.fVertexCount * baseRepetition);
         baseRepetition += repeatCount;
     } while (baseRepetition < fIndexData.fPatternRepeatCount);
