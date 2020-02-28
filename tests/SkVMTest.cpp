@@ -887,6 +887,32 @@ DEF_TEST(SkVM_NewOps, r) {
     });
 }
 
+DEF_TEST(SkVM_sqrt, r) {
+    skvm::Builder b;
+    auto buf = b.varying<int>();
+    b.store32(buf, b.bit_cast(b.sqrt(b.bit_cast(b.load32(buf)))));
+
+#if defined(SKVM_LLVM) || defined(SK_CPU_X86)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
+        constexpr int K = 17;
+        float buf[K];
+        for (int i = 0; i < K; i++) {
+            buf[i] = (float)(i*i);
+        }
+
+        // x^2 -> x
+        program.eval(K, buf);
+
+        for (int i = 0; i < K; i++) {
+            REPORTER_ASSERT(r, buf[i] == (float)i);
+        }
+    });
+}
+
 DEF_TEST(SkVM_MSAN, r) {
     // This little memset32() program should be able to JIT, but if we run that
     // JIT code in an MSAN build, it won't see the writes initialize buf.  So

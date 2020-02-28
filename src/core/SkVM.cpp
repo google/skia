@@ -2072,6 +2072,10 @@ namespace skvm {
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
 
+                case Op::sqrt_f32:
+                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::sqrt, F(vals[x])));
+                    break;
+
                 case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
                 case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
 
