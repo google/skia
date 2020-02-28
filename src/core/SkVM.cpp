@@ -2045,8 +2045,8 @@ namespace skvm {
                 case Op::gte_f32: vals[i] = SE(b->CreateFCmpOGE(F(vals[x]), F(vals[y]))); break;
 
                 case Op::mad_f32:
-                    vals[i] = I(b->CreateFAdd(b->CreateFMul(F(vals[x]), F(vals[y])),
-                                              F(vals[z])));
+                    vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fmuladd, {F32},
+                                                   {F(vals[x]), F(vals[y]), F(vals[z])}));
                     break;
 
                 case Op::floor:
