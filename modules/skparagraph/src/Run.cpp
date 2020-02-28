@@ -66,9 +66,9 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
         shift = fShifts[clip ? end - 1 : end] - fShifts[start];
     }
     auto correction = 0.0f;
-    if (end > start) {
-        correction = fMaster->posShift(fIndex, clip ? end - 1 : end) -
-                     fMaster->posShift(fIndex, start);
+    if (end > start && !fJustificationShifts.empty()) {
+        correction = fJustificationShifts[end - 1].fX -
+                     fJustificationShifts[start].fY;
     }
     return posX(end) - posX(start) + shift + correction;
 }
@@ -84,7 +84,9 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
         if (fSpaced) {
             point.fX += fShifts[i + pos];
         }
-        point.fX += fMaster->posShift(fIndex, i + pos);
+        if (!fJustificationShifts.empty()) {
+            point.fX += fJustificationShifts[i + pos].fX;
+        }
         blobBuffer.points()[i] = point + runOffset;
     }
 }
@@ -347,7 +349,8 @@ SkScalar Cluster::trimmedWidth(size_t pos) const {
 }
 
 SkScalar Run::positionX(size_t pos) const {
-    return posX(pos) + fShifts[pos] + fMaster->posShift(fIndex, pos);
+    return posX(pos) + fShifts[pos] +
+            (fJustificationShifts.empty() ? 0 : fJustificationShifts[pos].fY);
 }
 
 PlaceholderStyle* Run::placeholderStyle() const {

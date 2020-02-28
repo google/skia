@@ -204,6 +204,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
         auto piece = &this->fParagraph->fRuns.back();
 
         // TODO: Optimize copying
+        auto zero = run->fPositions[glyphs.start];
         for (size_t i = glyphs.start; i <= glyphs.end; ++i) {
 
             auto index = i - glyphs.start;
@@ -213,7 +214,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
             }
             piece->fClusterIndexes[index] = run->fClusterIndexes[i];
             piece->fOffsets[index] = run->fOffsets[i];
-            piece->fPositions[index] = run->fPositions[i];
+            piece->fPositions[index] = run->fPositions[i] - zero;
             piece->addX(index, advanceX);
         }
 
