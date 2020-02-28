@@ -281,7 +281,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        auto view = maker.view(GrMipMapped::kNo);
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
@@ -304,7 +304,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (uint8_t*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        auto view = maker.view(GrMipMapped::kNo);
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
@@ -331,8 +331,7 @@ GrSurfaceProxyView make_input_texture(GrRecordingContext* context, int width, in
                          [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
     bitmap.setImmutable();
     GrBitmapTextureMaker maker(context, bitmap);
-    auto[view, grCT] = maker.view(GrMipMapped::kNo);
-    return view;
+    return maker.view(GrMipMapped::kNo);
 }
 
 // We tag logged  data as unpremul to avoid conversion when encoding as  PNG. The input texture

@@ -67,14 +67,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         bitmap.installPixels(ii, alphaDataCopy, ii.minRowBytes());
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
+        auto view = maker.view(GrMipMapped::kNo);
         if (!view.proxy()) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
 
-        auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
-                                               nullptr);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), maker.colorType(),
+                                               kPremul_SkAlphaType, nullptr);
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 

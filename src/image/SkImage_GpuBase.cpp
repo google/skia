@@ -187,7 +187,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 }
 
 GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
-                                            GrSamplerState params) const {
+                                            GrMipMapped mipMapped) const {
     if (!context || !fContext->priv().matches(context)) {
         SkASSERT(0);
         return {};
@@ -195,7 +195,7 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
 
     GrTextureAdjuster adjuster(fContext.get(), *this->view(context), this->imageInfo().colorInfo(),
                                this->uniqueID());
-    return adjuster.viewForParams(params);
+    return adjuster.view(mipMapped);
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,

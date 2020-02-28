@@ -93,9 +93,10 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     refHelper->unref();
 }
 
-GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
-        GrRecordingContext* context, const SkImageInfo& info,
-        const SkIPoint& origin, bool willNeedMipMaps) {
+GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(GrRecordingContext* context,
+                                                                     const SkImageInfo& info,
+                                                                     const SkIPoint& origin,
+                                                                     GrMipMapped mipMapped) {
     SkASSERT(context);
 
     if (context->backend() != fBackendTexture.backend()) {
@@ -144,7 +145,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     GrColorType grColorType = SkColorTypeToGrColorType(info.colorType());
 
-    GrMipMapped mipMapped = fBackendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipMapped textureIsMipMapped = fBackendTexture.hasMipMaps() ? GrMipMapped::kYes
+                                                                  : GrMipMapped::kNo;
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
@@ -155,12 +157,11 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actually execute the lambda.
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [
-              refHelper = fRefHelper, releaseProcHelper, backendTexture = fBackendTexture,
-              grColorType
-            ](GrResourceProvider * resourceProvider)
-                    ->GrSurfaceProxy::LazyCallbackResult {
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createLazyProxy(
+                    [refHelper = fRefHelper, releaseProcHelper, backendTexture = fBackendTexture,
+                     grColorType](GrResourceProvider* resourceProvider)
+                            -> GrSurfaceProxy::LazyCallbackResult {
                         if (refHelper->fSemaphore) {
                             resourceProvider->priv().gpu()->waitSemaphore(
                                     refHelper->fSemaphore.get());
@@ -201,22 +202,22 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                         return {std::move(tex), true,
                                 GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                     },
-            backendFormat, fBackendTexture.dimensions(), readSwizzle, GrRenderable::kNo, 1,
-            mipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+                    backendFormat, fBackendTexture.dimensions(), readSwizzle, GrRenderable::kNo, 1,
+                    textureIsMipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly,
+                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
+                    GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return {};
     }
 
     if (origin.isZero() && info.dimensions() == fBackendTexture.dimensions() &&
-        (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
+        (mipMapped == GrMipMapped::kNo || proxy->mipMapped() == GrMipMapped::kYes)) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw. All other copies would require a
         // layout change in Vulkan and we do not change the layout of borrowed images.
-        GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
         return GrSurfaceProxy::Copy(

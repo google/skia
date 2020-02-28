@@ -104,6 +104,5 @@ GrSurfaceProxyView GrSWMaskHelper::toTextureView(GrRecordingContext* context, Sk
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
-    auto[textureView, ct] = maker.view(GrMipMapped::kNo);
-    return textureView;
+    return maker.view(GrMipMapped::kNo);
 }

@@ -39,8 +39,8 @@ protected:
     // do that safely (we might be on another thread). So assume everything is fine.
     bool onIsValid(GrContext*) const override { return true; }
 
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                         const SkIPoint&, bool willNeedMipMaps) override;
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
+                                         GrMipMapped mipMapped) override;
     bool onTexturesAreCacheable() const override { return false; }
 
 private:

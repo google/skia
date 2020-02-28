@@ -99,7 +99,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -215,7 +215,7 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -311,7 +311,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(views[i], std::ignore) = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;

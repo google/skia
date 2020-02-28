@@ -28,7 +28,7 @@ public:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
 
-    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState) const final;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrMipMapped) const final;
 
     GrSurfaceProxyView refPinnedView(GrRecordingContext* context, uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();

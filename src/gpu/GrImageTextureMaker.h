@@ -22,7 +22,7 @@ public:
                         SkImage::CachingHint chint, bool useDecal = false);
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
 
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
@@ -48,7 +48,7 @@ public:
     bool hasMixedResolutions() const override { return true; }
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
 
     const SkImage_GpuYUVA*  fImage;
     GrUniqueKey             fOriginalKey;

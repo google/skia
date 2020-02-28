@@ -241,14 +241,14 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     if (attemptDrawTexture && can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto[view, ct] = producer->view(GrMipMapped::kNo);
+        auto view = producer->view(GrMipMapped::kNo);
         if (!view) {
             return;
         }
 
-        draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     std::move(view),
-                     {ct, producer->alphaType(), sk_ref_sp(producer->colorSpace())});
+        draw_texture(
+                rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint, std::move(view),
+                {producer->colorType(), producer->alphaType(), sk_ref_sp(producer->colorSpace())});
         return;
     }
 
@@ -537,7 +537,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             uint32_t uniqueID;
             view = image->refPinnedView(this->context(), &uniqueID);
             if (!view) {
-                view = image->refView(this->context(), GrSamplerState::Filter::kBilerp);
+                view = image->refView(this->context(), GrMipMapped::kNo);
             }
         }
 

@@ -23,7 +23,7 @@ public:
                          bool useDecal = false);
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
 
     const SkBitmap     fBitmap;
     const SkBackingFit fFit;

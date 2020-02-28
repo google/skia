@@ -210,8 +210,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 static GrSurfaceProxyView create_proxy_view(GrRecordingContext* context) {
     SkBitmap srcBM = create_bm();
     GrBitmapTextureMaker maker(context, srcBM);
-    auto[view, grCT] = maker.view(GrMipMapped::kNo);
-    return view;
+    return maker.view(GrMipMapped::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {

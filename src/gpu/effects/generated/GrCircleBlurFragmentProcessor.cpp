@@ -234,7 +234,7 @@ static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context, co
     bm.setImmutable();
 
     GrBitmapTextureMaker maker(context, bm);
-    auto[blurView, grCT] = maker.view(GrMipMapped::kNo);
+    auto blurView = maker.view(GrMipMapped::kNo);
     if (!blurView) {
         return {};
     }

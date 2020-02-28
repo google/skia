@@ -52,8 +52,7 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     return copyView;
 }
 
-GrSurfaceProxyView GrTextureAdjuster::onRefTextureProxyViewForParams(GrSamplerState params,
-                                                                     bool willBeMipped) {
+GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {
     if (this->context()->priv().abandoned()) {
         // The texture was abandoned.
         return {};
@@ -64,7 +63,7 @@ GrSurfaceProxyView GrTextureAdjuster::onRefTextureProxyViewForParams(GrSamplerSt
 
     GrTextureProxy* texProxy = fOriginal.asTextureProxy();
     SkASSERT(texProxy);
-    if (!GrGpu::IsACopyNeededForMips(this->context()->priv().caps(), texProxy, params.filter())) {
+    if (mipMapped == GrMipMapped::kNo || texProxy->mipMapped() == GrMipMapped::kYes) {
         return fOriginal;
     }
 
@@ -85,7 +84,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
-    GrSurfaceProxyView view = this->viewForParams(filterOrNullForBicubic);
+    GrSurfaceProxyView view;
+    if (filterOrNullForBicubic) {
+        view = this->view(*filterOrNullForBicubic);
+    } else {
+        view = this->view(GrMipMapped::kNo);
+    }
     if (!view) {
         return nullptr;
     }
