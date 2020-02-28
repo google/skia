@@ -887,7 +887,8 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
 
     return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
                                                        std::move(appliedClip), dstProxyView,
-                                                       gp, std::move(fProcessors), flags);
+                                                       gp, std::move(fProcessors),
+                                                       GrPrimitiveType::kTriangles, flags);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
