@@ -57,16 +57,19 @@ private:
                                      fAscent;  // ^
     };
 
-    uint32_t shaperFlags() const;
     void reshape();
     void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
-    void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&) const;
+    void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
+                             const SkVector&) const;
 
     void adjustLineTracking(const TextAnimator::ModulatorBuffer&,
                             const TextAnimator::DomainSpan&,
                             float line_tracking) const;
+
+    SkV2 fragmentAnchorPoint(const FragmentRec&, const SkVector&) const;
+    uint32_t shaperFlags() const;
 
     const sk_sp<sksg::Group>         fRoot;
     const sk_sp<SkFontMgr>           fFontMgr;
@@ -95,6 +98,8 @@ private:
     };
 
     TextValueTracker fText;
+    VectorValue      fGroupingAlignment;
+
     bool             fHasBlurAnimator     : 1,
                      fRequiresAnchorPoint : 1;
 };

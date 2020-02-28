@@ -65,6 +65,12 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr), std::move(logger)));
     adapter->bind(*abuilder, jd, &adapter->fText.fCurrentValue);
 
+    // "More options"
+    if (const skjson::ObjectValue* jm = (*jt)["m"]) {
+        adapter->bind(*abuilder, (*jm)["a"], &adapter->fGroupingAlignment);
+    }
+
+    // Animators
     if (const skjson::ArrayValue* janimators = (*jt)["a"]) {
         adapter->fAnimators.reserve(janimators->size());
 
@@ -298,6 +304,9 @@ void TextAdapter::onSync() {
         animator->modulateProps(fMaps, buf);
     }
 
+    const auto grouping_alignment =
+            ValueTraits<VectorValue>::As<SkVector>(fGroupingAlignment) * .01f; // percentage
+
     // Finally, push all props to their corresponding fragment.
     for (const auto& line_span : fMaps.fLinesMap) {
         float line_tracking = 0;
@@ -308,7 +317,7 @@ void TextAdapter::onSync() {
         for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
             const auto& props = buf[i].props;
             const auto& frag  = fFragments[i];
-            this->pushPropsToFragment(props, frag);
+            this->pushPropsToFragment(props, frag, grouping_alignment);
 
             line_tracking += props.tracking;
             line_has_tracking |= !SkScalarNearlyZero(props.tracking);
@@ -320,21 +329,33 @@ void TextAdapter::onSync() {
     }
 }
 
+SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
+                                      const SkVector& group_alignment) const {
+    // TODO: implement word/line/paragraph alignment options.
+
+    // Character alignment: origin is at [advance/2,0] (mid-advance, baseline)
+    const SkV2 ap = { rec.fAdvance * 0.5f, 0 };
+
+    // Group alignment is an origin adjustment relative to the
+    // ascent box [0, ascent, advance, 0]
+    return ap + SkV2{group_alignment.fX * (ap.x -           0),
+                     group_alignment.fY * (ap.y - rec.fAscent)};
+}
+
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
-                                      const FragmentRec& rec) const {
-    // For now hard-code to default center/baseline.
-    // TODO: add support for grouping/adjustments.
-    const SkV3 anchor_point = { rec.fAdvance * 0.5f, 0, 0 };
+                                      const FragmentRec& rec,
+                                      const SkVector& grouping_alignment) const {
+    const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment);
 
     rec.fMatrixNode->setMatrix(
-                SkM44::Translate(anchor_point.x + props.position.x + rec.fOrigin.x(),
-                                 anchor_point.y + props.position.y + rec.fOrigin.y(),
-                                 anchor_point.z + props.position.z)
+                SkM44::Translate(props.position.x + rec.fOrigin.x() + anchor_point.x,
+                                 props.position.y + rec.fOrigin.y() + anchor_point.y,
+                                 props.position.z)
               * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(props.rotation.x))
               * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(props.rotation.y))
               * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(props.rotation.z))
               * SkM44::Scale(props.scale.x, props.scale.y, props.scale.z)
-              * SkM44::Translate(-anchor_point.x, -anchor_point.y, -anchor_point.z));
+              * SkM44::Translate(-anchor_point.x, -anchor_point.y, 0));
 
     const auto scale_alpha = [](SkColor c, float o) {
         return SkColorSetA(c, SkScalarRoundToInt(o * SkColorGetA(c)));
