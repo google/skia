@@ -83,6 +83,7 @@ def update_infra_config(old_branch, new_branch):
                          '--owner', owner,
                          '--exclude-trybots=chromium.*',
                          '--exclude-trybots=.*Android_Framework.*',
+                         '--exclude-trybots=.*G3_Framework.*',
                          '--submit'])
 
 
