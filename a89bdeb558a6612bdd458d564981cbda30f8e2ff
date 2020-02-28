@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6772a59_fe83bdce",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T17:24:39Z",
+      "side": 1,
+      "message": "Sorry, I forgot to mention: we don\u0027t want to include chromium/try or Android_Framework bots on non-master branches.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 7
+      },
+      "revId": "a89bdeb558a6612bdd458d564981cbda30f8e2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8992878b_8b5dc79b",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-02-28T17:24:39Z",
+      "side": 1,
+      "message": "Ravi, we probably don\u0027t want to include G3 either, right?  In which case we should probably update https://skia.googlesource.com/skia/+/master/tools/chrome_release_branch.py#84",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 280,
+        "endChar": 34
+      },
+      "revId": "a89bdeb558a6612bdd458d564981cbda30f8e2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
