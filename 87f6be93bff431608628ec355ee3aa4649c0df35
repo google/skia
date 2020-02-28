@@ -34,6 +34,24 @@
       "revId": "87f6be93bff431608628ec355ee3aa4649c0df35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e520fdbc_23b3b777",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-28T16:59:07Z",
+      "side": 1,
+      "message": "Ah, those fonts only have \u0027a\u0027, \u0027b\u0027, \u0027c\u0027, and \u0027à\u0027 or \u0027 ̀ \u0027 (U+0300, which is going to be hard to copy due to wanting to combine with everything, but is the interesting one). Anything else will probably cause fallback.",
+      "parentUuid": "01e3ea75_debff3c4",
+      "revId": "87f6be93bff431608628ec355ee3aa4649c0df35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
