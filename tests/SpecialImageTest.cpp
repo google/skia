@@ -224,18 +224,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
     {
         // gpu
         GrBitmapTextureMaker maker(context, bm);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
-        if (!view.proxy()) {
+        auto view = maker.view(GrMipMapped::kNo);
+        if (!view) {
             return;
         }
 
-        sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeDeferredFromGpu(
-                                                            context,
-                                                            SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            kNeedNewImageUniqueID_SpecialImage,
-                                                            std::move(view),
-                                                            grCT,
-                                                            nullptr));
+        sk_sp<SkSpecialImage> gpuImage(
+                SkSpecialImage::MakeDeferredFromGpu(context,
+                                                    SkIRect::MakeWH(kFullSize, kFullSize),
+                                                    kNeedNewImageUniqueID_SpecialImage,
+                                                    std::move(view),
+                                                    maker.colorType(),
+                                                    nullptr));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -255,28 +255,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
     GrBitmapTextureMaker maker(context, bm);
-    auto[view, grCT] = maker.view(GrMipMapped::kNo);
+    auto view = maker.view(GrMipMapped::kNo);
     if (!view.proxy()) {
         return;
     }
 
-    sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
-                                                            context,
-                                                            SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            kNeedNewImageUniqueID_SpecialImage,
-                                                            view,
-                                                            grCT,
-                                                            nullptr));
+    sk_sp<SkSpecialImage> fullSImg(
+            SkSpecialImage::MakeDeferredFromGpu(context,
+                                                SkIRect::MakeWH(kFullSize, kFullSize),
+                                                kNeedNewImageUniqueID_SpecialImage,
+                                                view,
+                                                maker.colorType(),
+                                                nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
-                                                               context, subset,
-                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                               std::move(view),
-                                                               grCT,
-                                                               nullptr));
+                context,
+                subset,
+                kNeedNewImageUniqueID_SpecialImage,
+                std::move(view),
+                maker.colorType(),
+                nullptr));
         test_image(subSImg1, reporter, context, true);
     }
 
