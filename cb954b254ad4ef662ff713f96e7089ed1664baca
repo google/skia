@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e55e6796_9b96a70c",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-29T00:07:26Z",
+      "side": 0,
+      "message": "I don\u0027t think this adds much value and is outdated in that the origin is a property of the view not the proxy. There is always use case-dependent context required to interpret a thing retrieved from the cache. This doesn\u0027t seem unusual enough to me to especially call out. Why\nwould we ever put the same contents into the cache with different origins?",
+      "range": {
+        "startLine": 444,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 75
+      },
+      "revId": "cb954b254ad4ef662ff713f96e7089ed1664baca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
