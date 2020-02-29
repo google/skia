@@ -21,11 +21,13 @@ public:
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 protected:
-    GrTextureMaker(GrRecordingContext* context, const GrImageInfo& info, bool domainNeedsLocal)
-            : INHERITED(context, info, domainNeedsLocal) {}
+    GrTextureMaker(GrRecordingContext* context, const GrImageInfo& info)
+            : INHERITED(context, info) {}
 
 private:
     /**

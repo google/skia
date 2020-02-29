@@ -1164,7 +1164,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
     }
     GrBitmapTextureMaker maker(fContext.get(), bitmap, GrBitmapTextureMaker::Cached::kYes);
-    this->drawTextureProducer(&maker, src, dst, constraint, this->localToDevice(), paint, true);
+    this->drawTextureProducer(&maker, src, dst, constraint, this->localToDevice(), paint);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {

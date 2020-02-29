@@ -221,8 +221,7 @@ private:
                              const SkRect* dstRect,
                              SkCanvas::SrcRectConstraint,
                              const SkMatrix& viewMatrix,
-                             const SkPaint&,
-                             bool attemptDrawTexture);
+                             const SkPaint&);
 
     void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
                              const SkPaint&);
