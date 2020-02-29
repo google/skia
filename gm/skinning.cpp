@@ -16,6 +16,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 
+#ifdef SK_SUPPORT_VERTICES_BONES
+
 #include <stdint.h>
 
 using namespace skiagm;
@@ -209,3 +211,5 @@ DEF_GM(return new SkinningGM(true, true);)
 DEF_GM(return new SkinningGM(false, true);)
 DEF_GM(return new SkinningGM(true, false);)
 DEF_GM(return new SkinningGM(false, false);)
+
+#endif
