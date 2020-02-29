@@ -27,10 +27,8 @@ static GrImageInfo get_image_info(GrRecordingContext* context, const SkBitmap& b
 }
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                                           Cached cached, SkBackingFit fit, bool useDecal)
-        : INHERITED(context, get_image_info(context, bitmap), useDecal)
-        , fBitmap(bitmap)
-        , fFit(fit) {
+                                           Cached cached, SkBackingFit fit)
+        : INHERITED(context, get_image_info(context, bitmap)), fBitmap(bitmap), fFit(fit) {
     if (!bitmap.isVolatile() && cached == Cached::kYes) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
