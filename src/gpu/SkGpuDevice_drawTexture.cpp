@@ -232,13 +232,22 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc,
-                                  const GrClip& clip, const SkMatrix& ctm,
-                                  const SkPaint& paint, GrTextureProducer* producer,
-                                  const SkRect& src, const SkRect& dst, const SkPoint dstClip[4],
-                                  const SkMatrix& srcToDst, GrAA aa, GrQuadAAFlags aaFlags,
-                                  SkCanvas::SrcRectConstraint constraint, bool attemptDrawTexture) {
-    if (attemptDrawTexture && can_use_draw_texture(paint)) {
+static void draw_texture_producer(GrContext* context,
+                                  GrRenderTargetContext* rtc,
+                                  const GrClip& clip,
+                                  const SkMatrix& ctm,
+                                  const SkPaint& paint,
+                                  GrTextureProducer* producer,
+                                  const SkRect& src,
+                                  const SkRect& dst,
+                                  const SkPoint dstClip[4],
+                                  const SkMatrix& srcToDst,
+                                  GrAA aa,
+                                  GrQuadAAFlags aaFlags,
+                                  SkCanvas::SrcRectConstraint constraint,
+                                  GrSamplerState::WrapMode wm) {
+    if (wm == GrSamplerState::WrapMode::kClamp && !producer->isPlanar() &&
+        can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
         auto view = producer->view(GrMipMapped::kNo);
@@ -287,7 +296,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     // Check for optimization to drop the src rect constraint when on bilerp.
     if (filterMode && GrSamplerState::Filter::kBilerp == *filterMode &&
         GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect &&
-        !producer->hasMixedResolutions()) {
+        !producer->isPlanar()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
         if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->numSamples())) {
@@ -304,7 +313,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
         }
     }
     auto fp = producer->createFragmentProcessor(textureMatrix, src, constraintMode,
-                                                coordsAllInsideSrcRect, filterMode);
+                                                coordsAllInsideSrcRect, wm, wm, filterMode);
     fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
                                        rtc->colorInfo().colorSpace());
     if (!fp) {
@@ -373,8 +382,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     // Depending on the nature of image, it can flow through more or less optimal pipelines
-    bool useDecal = mode == ImageDrawMode::kDecal;
-    bool attemptDrawTexture = !useDecal; // rtc->drawTexture() only clamps
+    GrSamplerState::WrapMode wrapMode = mode == ImageDrawMode::kDecal
+                                                ? GrSamplerState::WrapMode::kClampToBorder
+                                                : GrSamplerState::WrapMode::kClamp;
 
     // Get final CTM matrix
     SkMatrix ctm = this->localToDevice();
@@ -389,10 +399,10 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
-        GrYUVAImageTextureMaker maker(fContext.get(), image, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              /* attempt draw texture */ false);
+        GrYUVAImageTextureMaker maker(fContext.get(), image);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
+                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              wrapMode);
         return;
     }
 
@@ -412,16 +422,10 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             colorInfo = GrColorInfo(image->imageInfo().colorInfo());
         }
 
-        if (attemptDrawTexture && can_use_draw_texture(paint)) {
-            draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src, dst, dstClip,
-                         aa, aaFlags, constraint, std::move(view), colorInfo);
-            return;
-        }
-        GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID,
-                                   useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
-                              constraint, /* attempt draw_texture */ false);
+        GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
+                              &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              wrapMode);
         return;
     }
 
@@ -444,18 +448,18 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              attemptDrawTexture);
+        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
+                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              wrapMode);
         return;
     }
     if (as_IB(image)->getROPixels(&bm)) {
         GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes,
-                                   SkBackingFit::kExact, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              attemptDrawTexture);
+                                   SkBackingFit::kExact);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
+                              &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              wrapMode);
     }
 
     // Otherwise don't know how to draw it
@@ -595,8 +599,7 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                                       const SkRect* dstRect,
                                       SkCanvas::SrcRectConstraint constraint,
                                       const SkMatrix& viewMatrix,
-                                      const SkPaint& paint,
-                                      bool attemptDrawTexture) {
+                                      const SkPaint& paint) {
     // The texture refactor split the old logic of drawTextureProducer into the beginning of
     // drawImageQuad() and into the static draw_texture_producer. Replicate necessary logic that
     // drawImageQuad() handles.
@@ -616,5 +619,5 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                           paint, producer, src, dst, /* clip */ nullptr, srcToDst,
                           GrAA(paint.isAntiAlias()),
                           paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                          constraint, attemptDrawTexture);
+                          constraint, GrSamplerState::WrapMode::kClamp);
 }

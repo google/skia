@@ -133,20 +133,20 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorForDomainAndFilter(
+std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorForSubsetAndFilter(
         GrSurfaceProxyView view,
         const SkMatrix& textureMatrix,
         DomainMode domainMode,
         const SkRect& domain,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
     SkASSERT(view.asTextureProxy());
     const auto& caps = *fContext->priv().caps();
     SkAlphaType srcAlphaType = this->alphaType();
-    auto wm = fDomainNeedsDecal ? GrSamplerState::WrapMode::kClampToBorder
-                                : GrSamplerState::WrapMode::kClamp;
     if (filterOrNullForBicubic) {
-        GrSamplerState samplerState(wm, *filterOrNullForBicubic);
+        GrSamplerState samplerState(wrapX, wrapY, *filterOrNullForBicubic);
         if (kNoDomain_DomainMode == domainMode) {
             return GrTextureEffect::Make(std::move(view), srcAlphaType, textureMatrix, samplerState,
                                          caps);
@@ -158,11 +158,11 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
         const auto& caps = *fContext->priv().caps();
         if (kDomain_DomainMode == domainMode) {
-            return GrBicubicEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix, wm, wm,
-                                               domain, kDir, caps);
+            return GrBicubicEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix, wrapX,
+                                               wrapY, domain, kDir, caps);
         } else {
-            return GrBicubicEffect::Make(std::move(view), srcAlphaType, textureMatrix, wm, wm, kDir,
-                                         caps);
+            return GrBicubicEffect::Make(std::move(view), srcAlphaType, textureMatrix, wrapX, wrapY,
+                                         kDir, caps);
         }
     }
 }

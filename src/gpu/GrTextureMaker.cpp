@@ -27,6 +27,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     const GrSamplerState::Filter* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic &&
@@ -55,6 +57,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                             view.proxy(), fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
-    return this->createFragmentProcessorForDomainAndFilter(
-            std::move(view), textureMatrix, domainMode, domain, filterOrNullForBicubic);
+    return this->createFragmentProcessorForSubsetAndFilter(std::move(view), textureMatrix,
+                                                           domainMode, domain, wrapX, wrapY,
+                                                           filterOrNullForBicubic);
 }

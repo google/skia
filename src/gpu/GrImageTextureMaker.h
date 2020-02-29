@@ -19,7 +19,7 @@ class SkImage_GpuYUVA;
 class GrImageTextureMaker final : public GrTextureMaker {
 public:
     GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                        SkImage::CachingHint chint, bool useDecal = false);
+                        SkImage::CachingHint chint);
 
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
@@ -33,18 +33,18 @@ private:
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
 class GrYUVAImageTextureMaker final : public GrTextureMaker {
 public:
-    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client, bool useDecal = false);
+    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
-    // This could be made more nuanced and compare all of the texture proxy resolutions, but
-    // it's probably not worth the effort.
-    bool hasMixedResolutions() const override { return true; }
+    bool isPlanar() const override { return true; }
 
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;

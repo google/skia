@@ -16,9 +16,8 @@
 GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
                                      GrSurfaceProxyView original,
                                      const GrColorInfo& colorInfo,
-                                     uint32_t uniqueID,
-                                     bool useDecal)
-        : INHERITED(context, {colorInfo, original.proxy()->dimensions()}, useDecal)
+                                     uint32_t uniqueID)
+        : INHERITED(context, {colorInfo, original.proxy()->dimensions()})
         , fOriginal(std::move(original))
         , fUniqueID(uniqueID) {}
 
@@ -83,6 +82,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     GrSurfaceProxyView view;
     if (filterOrNullForBicubic) {
@@ -115,6 +116,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    return this->createFragmentProcessorForDomainAndFilter(
-            std::move(view), textureMatrix, domainMode, domain, filterOrNullForBicubic);
+    return this->createFragmentProcessorForSubsetAndFilter(std::move(view), textureMatrix,
+                                                           domainMode, domain, wrapX, wrapY,
+                                                           filterOrNullForBicubic);
 }
