@@ -413,7 +413,7 @@ PORTS_SRCS_WASM = struct(
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
         "src/ports/SkTLS_none.cpp",
-    ],
+    ]
 )
 
 def base_srcs():
