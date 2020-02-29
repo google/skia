@@ -20,19 +20,19 @@ def portable_select(select_dict, bazel_condition, default_condition):
         return select(select_dict)
 
 def skia_select(conditions, results):
-    """Replaces select() for conditions [UNIX, ANDROID, IOS, WASM]
+    """Replaces select() for conditions [UNIX, ANDROID, IOS]
 
     Args:
-      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS, CONDITION_WASM]
-      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS, RESULT_WASM]
+      conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS]
+      results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS]
     Returns:
       The result matching the platform condition.
     """
-    if len(conditions) != 4 or len(results) != 4:
-        fail("Must provide exactly 4 conditions and 4 results")
+    if len(conditions) != 3 or len(results) != 3:
+        fail("Must provide exactly 3 conditions and 3 results")
 
     selector = {}
-    for i in range(4):
+    for i in range(3):
         selector[conditions[i]] = results[i]
     return portable_select(selector, conditions[2], conditions[0])
 
@@ -378,44 +378,6 @@ PORTS_SRCS_IOS = struct(
     ],
 )
 
-GL_SRCS_WASM = struct(
-    include = [
-        "src/gpu/gl/GrGLMakeNativeInterface_egl.cpp",
-        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
-    ],
-    exclude = [],
-)
-PORTS_SRCS_WASM = struct(
-    include = [
-        "src/ports/**/*.cpp",
-        "src/ports/**/*.h",
-    ],
-    exclude = [
-        "src/ports/*FontConfig*",
-        "src/ports/*FreeType*",
-        "src/ports/*WIC*",
-        "src/ports/*CG*",
-        "src/ports/*android*",
-        "src/ports/*chromium*",
-        "src/ports/*fontconfig*",
-        "src/ports/*mac*",
-        "src/ports/*mozalloc*",
-        "src/ports/*nacl*",
-        "src/ports/*win*",
-        "src/ports/SkFontMgr_custom.cpp",
-        "src/ports/SkFontMgr_custom_directory.cpp",
-        "src/ports/SkFontMgr_custom_directory_factory.cpp",
-        "src/ports/SkFontMgr_custom_embedded.cpp",
-        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
-        "src/ports/SkFontMgr_custom_empty.cpp",
-        "src/ports/SkFontMgr_custom_empty_factory.cpp",
-        "src/ports/SkFontMgr_fontconfig_factory.cpp",
-        "src/ports/SkFontMgr_fuchsia.cpp",
-        "src/ports/SkImageGenerator_none.cpp",
-        "src/ports/SkTLS_none.cpp",
-    ]
-)
-
 def base_srcs():
     return skia_glob(BASE_SRCS_ALL)
 
@@ -426,7 +388,6 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_UNIX),
             skia_glob(PORTS_SRCS_ANDROID),
             skia_glob(PORTS_SRCS_IOS),
-            skia_glob(PORTS_SRCS_WASM),
         ],
     )
 
@@ -437,7 +398,6 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_UNIX),
             skia_glob(GL_SRCS_ANDROID),
             skia_glob(GL_SRCS_IOS),
-            skia_glob(GL_SRCS_WASM),
         ],
     )
 
@@ -602,7 +562,6 @@ def dm_srcs(os_conditions):
             ["tests/FontMgrFontConfigTest.cpp"],
             ["tests/FontMgrAndroidParserTest.cpp"],
             [],
-            [],
         ],
     )
 
@@ -643,10 +602,6 @@ def base_copts(os_conditions):
                 "-Wno-error=attributes",
             ],
             # IOS
-            [
-                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
-            ],
-            # WASM
             [
                 "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
             ],
@@ -699,17 +654,6 @@ def base_defines(os_conditions):
                 "SK_BUILD_NO_OPTS",
                 "SKNX_NO_SIMD",
             ],
-            # WASM
-            [
-                "SK_DISABLE_LEGACY_SHADERCONTEXT",
-                "SK_DISABLE_TRACING",
-                "GR_GL_CHECK_ALLOC_WITH_GET_ERROR=0",
-                "SK_SUPPORT_GPU=1",
-                "SK_DISABLE_AAA",
-                "SK_DISABLE_EFFECT_DESERIALIZATION",
-                "SK_FORCE_8_BYTE_ALIGNMENT",
-                "SKNX_NO_SIMD",
-            ],
         ],
     )
 
@@ -739,9 +683,6 @@ def base_linkopts(os_conditions):
                 "-framework MobileCoreServices",
             ],
         ],
-        # WASM # these are very specific to the target being built, you'll find them in
-        # google3/third_party/skia/HEAD/modules/canvaskit/BUILD
-        [],
     )
 
 ################################################################################
