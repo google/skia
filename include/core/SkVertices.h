@@ -208,24 +208,7 @@ public:
     };
 
     uint32_t uniqueID() const { return fUniqueID; }
-    VertexMode mode() const { return fMode; }
     const SkRect& bounds() const { return fBounds; }
-
-    bool hasColors() const { return SkToBool(this->colors()); }
-    bool hasTexCoords() const { return SkToBool(this->texCoords()); }
-    bool hasBones() const { return SkToBool(this->boneIndices()); }
-    bool hasIndices() const { return SkToBool(this->indices()); }
-
-    int vertexCount() const { return fVertexCnt; }
-    const SkPoint* positions() const { return fPositions; }
-    const SkPoint* texCoords() const { return fTexs; }
-    const SkColor* colors() const { return fColors; }
-
-    const BoneIndices* boneIndices() const { return fBoneIndices; }
-    const BoneWeights* boneWeights() const { return fBoneWeights; }
-
-    int indexCount() const { return fIndexCnt; }
-    const uint16_t* indices() const { return fIndices; }
 
     bool isVolatile() const { return fIsVolatile; }
 
@@ -245,6 +228,26 @@ public:
      *  by calling Decode() with the buffer.
      */
     sk_sp<SkData> encode() const;
+
+#ifndef SK_SUPPORT_VERTICES_GETTERS
+private:
+#endif
+    VertexMode mode() const { return fMode; }
+    bool hasColors() const { return SkToBool(this->colors()); }
+    bool hasTexCoords() const { return SkToBool(this->texCoords()); }
+    bool hasBones() const { return SkToBool(this->boneIndices()); }
+    bool hasIndices() const { return SkToBool(this->indices()); }
+
+    int vertexCount() const { return fVertexCnt; }
+    const SkPoint* positions() const { return fPositions; }
+    const SkPoint* texCoords() const { return fTexs; }
+    const SkColor* colors() const { return fColors; }
+
+    const BoneIndices* boneIndices() const { return fBoneIndices; }
+    const BoneWeights* boneWeights() const { return fBoneWeights; }
+
+    int indexCount() const { return fIndexCnt; }
+    const uint16_t* indices() const { return fIndices; }
 
 private:
     SkVertices() {}
@@ -276,6 +279,8 @@ private:
 
     VertexMode fMode;
     // below here is where the actual array data is stored.
+
+    friend class SkVerticesPriv;
 };
 
 #endif

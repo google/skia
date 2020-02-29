@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -88,17 +89,17 @@ private:
         bool fIgnoreColors;
 
         bool hasExplicitLocalCoords() const {
-            return fVertices->hasTexCoords() && !fIgnoreTexCoords;
+            return SkVerticesPriv::HasTexCoords(fVertices.get()) && !fIgnoreTexCoords;
         }
 
         bool hasPerVertexColors() const {
-            return fVertices->hasColors() && !fIgnoreColors;
+            return SkVerticesPriv::HasColors(fVertices.get()) && !fIgnoreColors;
         }
     };
 
     bool isIndexed() const {
         // Consistency enforced in onCombineIfPossible.
-        return fMeshes[0].fVertices->hasIndices();
+        return SkVerticesPriv::HasIndices(fMeshes[0].fVertices.get());
     }
 
     bool requiresPerVertexColors() const {
@@ -144,9 +145,9 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(vertices);
 
-    fVertexCount = vertices->vertexCount();
-    fIndexCount = vertices->indexCount();
-    fColorArrayType = vertices->hasColors() ? ColorArrayType::kSkColor
+    fVertexCount = SkVerticesPriv::VertexCount(vertices.get());
+    fIndexCount = SkVerticesPriv::IndexCount(vertices.get());
+    fColorArrayType = SkVerticesPriv::HasColors(vertices.get()) ? ColorArrayType::kSkColor
                                             : ColorArrayType::kPremulGrColor;
 
     Mesh& mesh = fMeshes.push_back();
@@ -156,7 +157,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
     mesh.fIgnoreTexCoords = false;
     mesh.fIgnoreColors = false;
 
-    if (mesh.fVertices->hasBones() && bones) {
+    if (SkVerticesPriv::HasBones(mesh.fVertices.get()) && bones) {
         // Perform the transformations on the CPU instead of the GPU.
         mesh.fVertices = mesh.fVertices->applyBones(bones, boneCount);
     } else {
@@ -173,7 +174,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
 
     // Special case for meshes with a world transform but no bone weights.
     // These will be considered normal vertices draws without bones.
-    if (!mesh.fVertices->hasBones() && boneCount == 1) {
+    if (!SkVerticesPriv::HasBones(mesh.fVertices.get()) && boneCount == 1) {
         SkMatrix worldTransform;
         worldTransform.setAffine(bones[0].values);
         mesh.fViewMatrix.preConcat(worldTransform);
@@ -420,17 +421,17 @@ void DrawVerticesOp::fillBuffers(bool hasColorAttribute,
 
         // Copy data into the index buffer.
         if (indices) {
-            int indexCount = mesh.fVertices->indexCount();
+            int indexCount = SkVerticesPriv::IndexCount(mesh.fVertices.get());
             for (int j = 0; j < indexCount; ++j) {
-                *indices++ = mesh.fVertices->indices()[j] + vertexOffset;
+                *indices++ = SkVerticesPriv::Indices(mesh.fVertices.get())[j] + vertexOffset;
             }
         }
 
         // Copy data into the vertex buffer.
-        int vertexCount = mesh.fVertices->vertexCount();
-        const SkPoint* positions = mesh.fVertices->positions();
-        const SkColor* colors = mesh.fVertices->colors();
-        const SkPoint* localCoords = mesh.fVertices->texCoords();
+        int vertexCount = SkVerticesPriv::VertexCount(mesh.fVertices.get());
+        const SkPoint* positions = SkVerticesPriv::Positions(mesh.fVertices.get());
+        const SkColor* colors = SkVerticesPriv::Colors(mesh.fVertices.get());
+        const SkPoint* localCoords = SkVerticesPriv::TexCoords(mesh.fVertices.get());
         bool fastMesh = (!this->hasMultipleViewMatrices() ||
                          mesh.fViewMatrix.getType() <= SkMatrix::kTranslate_Mask) &&
                         mesh.hasPerVertexColors();
@@ -536,7 +537,7 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
-    if (fMeshes[0].fVertices->hasIndices() != that->fMeshes[0].fVertices->hasIndices()) {
+    if (SkVerticesPriv::HasIndices(fMeshes[0].fVertices.get()) != SkVerticesPriv::HasIndices(that->fMeshes[0].fVertices.get())) {
         return CombineResult::kCannotCombine;
     }
 
@@ -585,7 +586,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPrimitiveType* overridePrimType) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType ? *overridePrimType
-                                                : SkVertexModeToGrPrimitiveType(vertices->mode());
+                                                : SkVertexModeToGrPrimitiveType(SkVerticesPriv::::Mode(vertices.get()));
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
                                                                    std::move(vertices),
                                                                    bones, boneCount,

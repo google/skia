@@ -10,6 +10,7 @@
 #include "include/core/SkVertices.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
 #include "tests/Test.h"
 
@@ -25,9 +26,9 @@ void check_result(skiatest::Reporter* reporter, sk_sp<SkVertices> verts,
                expectSuccess ? "succeed" : "fail");
     }
     if (SkToBool(verts)) {
-        if (kDont_ExpectVerts == expectVerts && verts->vertexCount()) {
+        if (kDont_ExpectVerts == expectVerts && SkVerticesPriv::VertexCount(verts.get())) {
             ERRORF(reporter, "Expected shadow tessellation to generate no vertices but it did.");
-        } else if (kDo_ExpectVerts == expectVerts && !verts->vertexCount()) {
+        } else if (kDo_ExpectVerts == expectVerts && !SkVerticesPriv::VertexCount(verts.get())) {
             ERRORF(reporter, "Expected shadow tessellation to generate vertices but it didn't.");
         }
     }

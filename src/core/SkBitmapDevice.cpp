@@ -23,6 +23,7 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVerticesPriv.h"
 
 struct Bounder {
     SkRect  fBounds;
@@ -552,10 +553,10 @@ void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
                                   int boneCount, SkBlendMode bmode, const SkPaint& paint) {
-    BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                              vertices->texCoords(), vertices->colors(), vertices->boneIndices(),
-                              vertices->boneWeights(), bmode, vertices->indices(),
-                              vertices->indexCount(), paint, bones, boneCount);
+    BDDraw(this).drawVertices(SkVerticesPriv::Mode(vertices), SkVerticesPriv::VertexCount(vertices), SkVerticesPriv::Positions(vertices),
+                              SkVerticesPriv::TexCoords(vertices), SkVerticesPriv::Colors(vertices), SkVerticesPriv::BoneIndices(vertices),
+                              SkVerticesPriv::BoneWeights(vertices), bmode, SkVerticesPriv::Indices(vertices),
+                              SkVerticesPriv::IndexCount(vertices), paint, bones, boneCount);
 }
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
