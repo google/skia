@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81b8db58_d7295744",
+        "filename": "src/image/SkImage_Lazy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-29T15:41:40Z",
+      "side": 1,
+      "message": "Outdated comment.",
+      "range": {
+        "startLine": 60,
+        "startChar": 34,
+        "endLine": 61,
+        "endChar": 47
+      },
+      "revId": "f0edc3db1bb40b08135c54fed0548723b68d7d69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
