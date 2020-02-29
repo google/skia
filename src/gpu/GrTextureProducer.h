@@ -64,6 +64,8 @@ public:
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
             const GrSamplerState::Filter* filterOrNullForBicubic) = 0;
 
     /**
@@ -83,17 +85,14 @@ public:
     SkAlphaType alphaType() const { return fImageInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fImageInfo.colorType()); }
-    bool domainNeedsDecal() const { return fDomainNeedsDecal; }
-    // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
-    virtual bool hasMixedResolutions() const { return false; }
+    /* Is it a planar image consisting of multiple textures that may have different resolutions? */
+    virtual bool isPlanar() const { return false; }
 
 protected:
     friend class GrTextureProducer_TestAccess;
 
-    GrTextureProducer(GrRecordingContext* context,
-                      const GrImageInfo& imageInfo,
-                      bool domainNeedsDecal)
-            : fContext(context), fImageInfo(imageInfo), fDomainNeedsDecal(domainNeedsDecal) {}
+    GrTextureProducer(GrRecordingContext* context, const GrImageInfo& imageInfo)
+            : fContext(context), fImageInfo(imageInfo) {}
 
     enum DomainMode {
         kNoDomain_DomainMode,
@@ -108,11 +107,13 @@ protected:
                                           const GrSamplerState::Filter* filterModeOrNullForBicubic,
                                           SkRect* domainRect);
 
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForDomainAndFilter(
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForSubsetAndFilter(
             GrSurfaceProxyView view,
             const SkMatrix& textureMatrix,
             DomainMode,
             const SkRect& domain,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
     GrRecordingContext* context() const { return fContext; }
@@ -122,9 +123,6 @@ private:
 
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;
-    // If true, any domain effect uses kDecal instead of kClamp, and sampler filter uses
-    // kClampToBorder instead of kClamp.
-    const bool  fDomainNeedsDecal;
 
     typedef SkNoncopyable INHERITED;
 };
