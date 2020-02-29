@@ -1969,7 +1969,11 @@ void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices:
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
     SkASSERT(boneCount <= 80);
+#ifdef SK_SUPPORT_VERTICES_BONES
     this->onDrawVerticesObject(vertices.get(), bones, boneCount, mode, paint);
+#else
+    this->onDrawVerticesObject(vertices.get(), nullptr, 0, mode, paint);
+#endif
 }
 
 void SkCanvas::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
