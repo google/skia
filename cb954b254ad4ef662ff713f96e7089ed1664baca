@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09bc94a5_0bad8fd8",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-29T14:34:41Z",
+      "side": 1,
+      "message": "This comment is in the wrong spot now (should be at the last return of this function). This code path is now total failure to produce a proxy, independent of mip status.",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 546,
+        "endChar": 0
+      },
+      "revId": "cb954b254ad4ef662ff713f96e7089ed1664baca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
