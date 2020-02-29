@@ -17,8 +17,8 @@
 package com.google.skar.examples.helloskar.helpers;
 
 import android.app.Activity;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.Snackbar;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 
 /**

@@ -27,7 +27,7 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import android.support.design.widget.BottomNavigationView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
