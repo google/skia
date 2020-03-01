@@ -124,6 +124,11 @@ sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {
 }
 
 auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
+
+    // Check head because it is likely the strike we are looking for.
+    if (fHead != nullptr && fHead->getDescriptor() == desc) { return sk_ref_sp(fHead); }
+
+    // Do the heavy search looking for the strike.
     sk_sp<Strike>* strikeHandle = fStrikeLookup.find(desc);
     if (strikeHandle == nullptr) { return nullptr; }
     Strike* strikePtr = strikeHandle->get();
