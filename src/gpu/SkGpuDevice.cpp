@@ -1039,6 +1039,13 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
     SkRect srcRect = SkRect::Make(subset);
     if (clipImage) {
+        // Add the image as a simple texture effect applied to coverage. Accessing content outside
+        // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
+        // limit pixels touched and hardware checks, we draw the clip image geometry to get the
+        // decal effect.
+        auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
+                              ? GrSamplerState::Filter::kBilerp
+                              : GrSamplerState::Filter::kNearest;
         GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), GrMipMapped::kNo);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
@@ -1049,7 +1056,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
 
             cfp = GrTextureEffect::Make(std::move(clipView), clipImage->alphaType(),
-                                        inverseClipMatrix);
+                                        inverseClipMatrix, filter);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
