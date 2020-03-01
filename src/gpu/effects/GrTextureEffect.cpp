@@ -18,10 +18,27 @@
 using Mode = GrSamplerState::WrapMode;
 using Filter = GrSamplerState::Filter;
 
+struct GrTextureEffect::Sampling {
+    GrSamplerState fHWSampler;
+    ShaderMode fShaderModes[2] = {ShaderMode::kNone, ShaderMode::kNone};
+    SkRect fShaderSubset = {0, 0, 0, 0};
+    SkRect fShaderClamp  = {0, 0, 0, 0};
+    float fBorder[4] = {0, 0, 0, 0};
+    Sampling(GrSamplerState::Filter filter) : fHWSampler(filter) {}
+    Sampling(const GrSurfaceProxy& proxy,
+             GrSamplerState sampler,
+             const SkRect&,
+             const SkRect*,
+             const float border[4],
+             const GrCaps&);
+    inline bool hasBorderAlpha() const;
+};
+
 GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     GrSamplerState sampler,
                                     const SkRect& subset,
                                     const SkRect* domain,
+                                    const float border[4],
                                     const GrCaps& caps) {
     struct Span {
         float fA = 0.f, fB = 0.f;
@@ -46,13 +63,20 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     auto type = proxy.asTextureProxy()->textureType();
     auto filter = sampler.filter();
 
-    auto resolve = [type, &caps, filter](int size, Mode mode, Span subset, Span domain) {
+    auto resolve = [type, &caps, filter, &border](int size, Mode mode, Span subset, Span domain) {
         Result1D r;
-        bool canDoHW = (mode != Mode::kClampToBorder || caps.clampToBorderSupport()) &&
-                       (mode == Mode::kClamp || caps.npotTextureTileSupport() || SkIsPow2(size)) &&
-                       (mode == Mode::kClamp || mode == Mode::kClampToBorder ||
-                        type == GrTextureType::k2D);
-        if (canDoHW && size > 0 && subset.fA <= 0 && subset.fB >= size) {
+        bool canDoModeInHW = true;
+        // TODO: Use HW border color when available.
+        if (mode == Mode::kClampToBorder &&
+            (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
+            canDoModeInHW = false;
+        } else if (mode != Mode::kClamp && !caps.npotTextureTileSupport() && !SkIsPow2(size)) {
+            canDoModeInHW = false;
+        } else if (type != GrTextureType::k2D &&
+                   !(mode == Mode::kClamp || mode == Mode::kClampToBorder)) {
+            canDoModeInHW = false;
+        }
+        if (canDoModeInHW && size > 0 && subset.fA <= 0 && subset.fB >= size) {
             r.fShaderMode = ShaderMode::kNone;
             r.fHWMode = mode;
             r.fShaderSubset = r.fShaderClamp = {0, 0};
@@ -109,12 +133,19 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                      x.fShaderSubset.fB, y.fShaderSubset.fB};
     fShaderClamp = {x.fShaderClamp.fA, y.fShaderClamp.fA,
                     x.fShaderClamp.fB, y.fShaderClamp.fB};
+    std::copy_n(border, 4, fBorder);
 }
 
-bool GrTextureEffect::Sampling::usesDecal() const {
-    return fShaderModes[0] == ShaderMode::kDecal || fShaderModes[1] == ShaderMode::kDecal ||
-           fHWSampler.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
-           fHWSampler.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
+bool GrTextureEffect::Sampling::hasBorderAlpha() const {
+    if (fHWSampler.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
+        fHWSampler.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder) {
+        return true;
+    }
+    if (fShaderModes[0] == ShaderMode::kClampToBorder ||
+        fShaderModes[1] == ShaderMode::kClampToBorder) {
+        return fBorder[3] < 1.f;
+    }
+    return false;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
@@ -129,9 +160,10 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
                                                            GrSamplerState sampler,
-                                                           const GrCaps& caps) {
+                                                           const GrCaps& caps,
+                                                           const float border[4]) {
     Sampling sampling(*view.proxy(), sampler, SkRect::Make(view.proxy()->dimensions()), nullptr,
-                      caps);
+                      border, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -141,8 +173,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const SkMatrix& matrix,
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
-                                                                 const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, subset, nullptr, caps);
+                                                                 const GrCaps& caps,
+                                                                 const float border[4]) {
+    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -153,8 +186,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const SkRect& domain,
-                                                                 const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, subset, &domain, caps);
+                                                                 const GrCaps& caps,
+                                                                 const float border[4]) {
+    Sampling sampling(*view.proxy(), sampler, subset, &domain, border, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -176,9 +210,9 @@ GrTextureEffect::FilterLogic GrTextureEffect::GetFilterLogic(ShaderMode mode,
                     return FilterLogic::kRepeatMipMap;
             }
             SkUNREACHABLE;
-        case ShaderMode::kDecal:
-            return filter > GrSamplerState::Filter::kNearest ? FilterLogic::kDecalFilter
-                                                             : FilterLogic::kDecalNearest;
+        case ShaderMode::kClampToBorder:
+            return filter > GrSamplerState::Filter::kNearest ? FilterLogic::kClampToBorderFilter
+                                                             : FilterLogic::kClampToBorderNearest;
     }
     SkUNREACHABLE;
 }
@@ -188,6 +222,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
         UniformHandle fSubsetUni;
         UniformHandle fClampUni;
         UniformHandle fNormUni;
+        UniformHandle fBorderUni;
 
     public:
         void emitCode(EmitArgs& args) override {
@@ -215,14 +250,14 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 // 1) Map the coordinates into the subset range [Repeat and MirrorRepeat], or pass
                 //    through output of 0).
                 // 2) Clamp the coordinates to a 0.5 inset of the subset rect [Clamp, Repeat, and
-                //    MirrorRepeat always or Decal only when filtering] or pass through output of
-                //    1). The clamp rect collapses to a line or point it if the subset rect is less
-                //    than one pixel wide/tall.
+                //    MirrorRepeat always or ClampToBorder only when filtering] or pass through
+                //    output of 1). The clamp rect collapses to a line or point it if the subset
+                //    rect is less than one pixel wide/tall.
                 // 3) Look up texture with output of 2) [All]
                 // 3) Use the difference between 1) and 2) to apply filtering at edge [Repeat or
-                //    Decal]. In the Repeat case this requires extra texture lookups on the other
-                //    side of the subset (up to 3 more reads). Or if Decal and not filtering
-                //    do a hard less than/greater than test with the subset rect.
+                //    ClampToBorder]. In the Repeat case this requires extra texture lookups on the
+                //    other side of the subset (up to 3 more reads). Or if ClampToBorder and not
+                //    filtering do a hard less than/greater than test with the subset rect.
 
                 // Convert possible projective texture coordinates into non-homogeneous half2.
                 fb->codeAppendf(
@@ -236,14 +271,20 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 FilterLogic filterLogic[2] = {GetFilterLogic(m[0], filter),
                                               GetFilterLogic(m[1], filter)};
 
+                const char* borderName = nullptr;
+                if (te.fShaderModes[0] == ShaderMode::kClampToBorder ||
+                    te.fShaderModes[1] == ShaderMode::kClampToBorder) {
+                    fBorderUni = args.fUniformHandler->addUniform(
+                            kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
+                }
                 auto modeUsesSubset = [](ShaderMode m) {
                     return m == ShaderMode::kRepeat || m == ShaderMode::kMirrorRepeat ||
-                           m == ShaderMode::kDecal;
+                           m == ShaderMode::kClampToBorder;
                 };
 
                 auto modeUsesClamp = [filter](ShaderMode m) {
                     return m != ShaderMode::kNone &&
-                           (m != ShaderMode::kDecal || filter > Filter::kNearest);
+                           (m != ShaderMode::kClampToBorder || filter > Filter::kNearest);
                 };
 
                 bool useSubset[2] = {modeUsesSubset(m[0]), modeUsesSubset(m[1])};
@@ -300,7 +341,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                         // These modes either don't use the subset rect or don't need to map the
                         // coords to be within the subset.
                         case ShaderMode::kNone:
-                        case ShaderMode::kDecal:
+                        case ShaderMode::kClampToBorder:
                         case ShaderMode::kClamp:
                             fb->codeAppendf("subsetCoord.%s = inCoord.%s;", coordSwizzle,
                                             coordSwizzle);
@@ -445,17 +486,17 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 SkString repeatBilerpReadY;
 
                 // Calculate the amount the coord moved for clamping. This will be used
-                // to implement shader-based filtering for kDecal and kRepeat.
+                // to implement shader-based filtering for kClampToBorder and kRepeat.
 
                 if (filterLogic[0] == FilterLogic::kRepeatBilerp ||
-                    filterLogic[0] == FilterLogic::kDecalFilter) {
+                    filterLogic[0] == FilterLogic::kClampToBorderFilter) {
                     fb->codeAppend("half errX = half(subsetCoord.x - clampedCoord.x);");
                     fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;", clampName,
                                     clampName);
                     repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
                 }
                 if (filterLogic[1] == FilterLogic::kRepeatBilerp ||
-                    filterLogic[1] == FilterLogic::kDecalFilter) {
+                    filterLogic[1] == FilterLogic::kClampToBorderFilter) {
                     fb->codeAppend("half errY = half(subsetCoord.y - clampedCoord.y);");
                     fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;", clampName,
                                     clampName);
@@ -496,32 +537,32 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                             ifStr, repeatBilerpReadY.c_str());
                 }
 
-                // Do soft edge shader filtering against transparent black for kDecalFilter using
+                // Do soft edge shader filtering against border color for kClampToBorderFilter using
                 // the err values calculated above.
-                if (filterLogic[0] == FilterLogic::kDecalFilter) {
-                    fb->codeAppendf(
-                            "textureColor = mix(textureColor, half4(0), min(abs(errX), 1));");
+                if (filterLogic[0] == FilterLogic::kClampToBorderFilter) {
+                    fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errX), 1));",
+                                    borderName);
                 }
-                if (filterLogic[1] == FilterLogic::kDecalFilter) {
-                    fb->codeAppendf(
-                            "textureColor = mix(textureColor, half4(0), min(abs(errY), 1));");
+                if (filterLogic[1] == FilterLogic::kClampToBorderFilter) {
+                    fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errY), 1));",
+                                    borderName);
                 }
 
-                // Do hard-edge shader transition to transparent black for kDecalNearest at the
+                // Do hard-edge shader transition to border color for kClampToBorderNearest at the
                 // subset boundaries.
-                if (filterLogic[0] == FilterLogic::kDecalNearest) {
+                if (filterLogic[0] == FilterLogic::kClampToBorderNearest) {
                     fb->codeAppendf(
                             "if (inCoord.x < %s.x || inCoord.x > %s.z) {"
-                            "    textureColor = half4(0);"
+                            "    textureColor = %s;"
                             "}",
-                            subsetName, subsetName);
+                            subsetName, subsetName, borderName);
                 }
-                if (filterLogic[1] == FilterLogic::kDecalNearest) {
+                if (filterLogic[1] == FilterLogic::kClampToBorderNearest) {
                     fb->codeAppendf(
                             "if (inCoord.y < %s.y || inCoord.y > %s.w) {"
-                            "    textureColor = half4(0);"
+                            "    textureColor = %s;"
                             "}",
-                            subsetName, subsetName);
+                            subsetName, subsetName, borderName);
                 }
                 fb->codeAppendf("%s = %s * textureColor;", args.fOutputColor, args.fInputColor);
             }
@@ -569,6 +610,9 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 float subset[] = {c.fLeft, c.fTop, c.fRight, c.fBottom};
                 pushRect(subset, fClampUni);
             }
+            if (fBorderUni.isValid()) {
+                pdm.set4fv(fBorderUni, 1, te.fBorder);
+            }
         }
     };
     return new Impl;
@@ -585,14 +629,24 @@ void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyB
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     auto that = other.cast<GrTextureEffect>();
-    return fShaderModes[0] == that.fShaderModes[0] && fShaderModes[1] == that.fShaderModes[1] &&
-           fSubset == that.fSubset;
+    if (fShaderModes[0] != that.fShaderModes[0] || fShaderModes[1] != that.fShaderModes[1]) {
+        return false;
+    }
+    if (fSubset != that.fSubset) {
+        return false;
+    }
+    if ((fShaderModes[0] == ShaderMode::kClampToBorder ||
+         fShaderModes[1] == ShaderMode::kClampToBorder) &&
+        !std::equal(fBorder, fBorder + 4, that.fBorder)) {
+        return false;
+    }
+    return true;
 }
 
 GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
                                  const SkMatrix& matrix, const Sampling& sampling)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
-                              ModulateForSamplerOptFlags(alphaType, sampling.usesDecal()))
+                              ModulateForSamplerOptFlags(alphaType, sampling.hasBorderAlpha()))
         , fCoordTransform(matrix, view.proxy(), view.origin())
         , fSampler(std::move(view), sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
@@ -604,6 +658,7 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
     SkASSERT(fShaderModes[1] != ShaderMode::kNone || (fSubset.fTop == 0 && fSubset.fBottom == 0));
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fCoordTransform);
+    std::copy_n(sampling.fBorder, 4, fBorder);
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)

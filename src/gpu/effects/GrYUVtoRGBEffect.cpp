@@ -15,64 +15,86 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
+static void border_colors(SkYUVColorSpace cs,
+                          const SkYUVAIndex yuvaIndices[4],
+                          float planeBorders[4][4]) {
+    float m[20];
+    SkColorMatrix_RGB2YUV(cs, m);
+    for (int i = 0; i < 4; ++i) {
+        if (yuvaIndices[i].fIndex == -1) {
+            return;
+        }
+        auto c = static_cast<int>(yuvaIndices[i].fChannel);
+        planeBorders[yuvaIndices[i].fIndex][c] = m[i*5 + 4];
+    }
+}
+
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView views[],
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
-                                                            GrSamplerState::Filter filterMode,
+                                                            GrSamplerState samplerState,
                                                             const GrCaps& caps,
                                                             const SkMatrix& localMatrix,
-                                                            const SkRect* domain) {
+                                                            const SkRect* subset) {
     int numPlanes;
     SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
-    const SkISize YDimensions =
-        views[yuvaIndices[SkYUVAIndex::kY_Index].fIndex].proxy()->dimensions();
+    const SkISize yDimensions =
+            views[yuvaIndices[SkYUVAIndex::kY_Index].fIndex].proxy()->dimensions();
 
     // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
     // do_fancy_upsampling option. However, skbug.com/9693.
-    GrSamplerState::Filter subsampledPlaneFilterMode = GrSamplerState::Filter::kMipMap == filterMode
-                                                               ? GrSamplerState::Filter::kMipMap
-                                                               : GrSamplerState::Filter::kBilerp;
+    GrSamplerState::Filter subsampledPlaneFilterMode =
+            std::max(samplerState.filter(), GrSamplerState::Filter::kBilerp);
+
+    bool usesBorder = samplerState.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
+                      samplerState.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
+    float planeBorders[4][4] = {};
+    if (usesBorder) {
+        border_colors(yuvColorSpace, yuvaIndices, planeBorders);
+    }
+
     std::unique_ptr<GrFragmentProcessor> planeFPs[4];
     for (int i = 0; i < numPlanes; ++i) {
         SkISize dimensions = views[i].proxy()->dimensions();
         SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&localMatrix);
-        GrSamplerState::Filter planeFilter = filterMode;
+        GrSamplerState::Filter planeFilter = samplerState.filter();
         SkRect planeDomain;
-        if (dimensions != YDimensions) {
+        if (dimensions != yDimensions) {
             // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
             // the image size divided by the subsampling factor (2). Our API for creating YUVA
             // doesn't capture the intended subsampling (and we should fix that). This fixes up 2x
             // subsampling for images with odd widths/heights (e.g. JPEG 420 or 422).
-            float sx = (float)dimensions.width() / YDimensions.width();
-            float sy = (float)dimensions.height() / YDimensions.height();
-            if ((YDimensions.width() & 0b1) && dimensions.width() == YDimensions.width() / 2 + 1) {
+            float sx = (float)dimensions.width()  / yDimensions.width();
+            float sy = (float)dimensions.height() / yDimensions.height();
+            if ((yDimensions.width() & 0b1) && dimensions.width() == yDimensions.width() / 2 + 1) {
                 sx = 0.5f;
             }
-            if ((YDimensions.height() & 0b1) &&
-                dimensions.height() == YDimensions.height() / 2 + 1) {
+            if ((yDimensions.height() & 0b1) &&
+                dimensions.height() == yDimensions.height() / 2 + 1) {
                 sy = 0.5f;
             }
             *planeMatrix.writable() = SkMatrix::MakeScale(sx, sy);
             planeMatrix.writable()->preConcat(localMatrix);
             planeFilter = subsampledPlaneFilterMode;
-            if (domain) {
-                planeDomain = {domain->fLeft   * sx,
-                               domain->fTop    * sy,
-                               domain->fRight  * sx,
-                               domain->fBottom * sy};
+            if (subset) {
+                planeDomain = {subset->fLeft   * sx,
+                               subset->fTop    * sy,
+                               subset->fRight  * sx,
+                               subset->fBottom * sy};
             }
-        } else if (domain) {
-            planeDomain = *domain;
+        } else if (subset) {
+            planeDomain = *subset;
         }
-
-        if (domain) {
+        samplerState.setFilterMode(planeFilter);
+        if (subset) {
             SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
-            planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
-                                                      *planeMatrix, planeFilter, planeDomain, caps);
+            planeFPs[i] =
+                    GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType, *planeMatrix,
+                                                samplerState, planeDomain, caps, planeBorders[i]);
         } else {
             planeFPs[i] = GrTextureEffect::Make(views[i], kUnknown_SkAlphaType, *planeMatrix,
-                                                planeFilter);
+                                                samplerState, caps, planeBorders[i]);
         }
     }
 
