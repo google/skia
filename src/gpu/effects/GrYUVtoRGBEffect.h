@@ -23,10 +23,10 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView views[],
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,
-                                                     GrSamplerState::Filter filterMode,
+                                                     GrSamplerState samplerState,
                                                      const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
-                                                     const SkRect* domain = nullptr);
+                                                     const SkRect* subset = nullptr);
 #ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif

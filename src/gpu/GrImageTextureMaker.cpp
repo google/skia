@@ -65,9 +65,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         GrSamplerState::WrapMode wrapY,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     // Check simple cases to see if we need to fall back to flattening the image (or whether it's
-    // already been flattened.) GrYUVtoRGBEffect only supports kClamp (for now.)
-    if (!filterOrNullForBicubic || wrapX != GrSamplerState::WrapMode::kClamp ||
-        wrapY != GrSamplerState::WrapMode::kClamp || fImage->fRGBView.proxy()) {
+    // already been flattened.)
+    if (!filterOrNullForBicubic || fImage->fRGBView.proxy()) {
         return this->INHERITED::createFragmentProcessor(
                 textureMatrix, constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                 wrapX, wrapY, filterOrNullForBicubic);
