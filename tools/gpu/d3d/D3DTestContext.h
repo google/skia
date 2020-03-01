@@ -19,6 +19,10 @@ class D3DTestContext : public TestContext {
 public:
     virtual GrBackendApi backend() override { return GrBackendApi::kDirect3D; }
 
+    const GrD3DBackendContext& getD3DBackendContext() const {
+        return fD3D;
+    }
+
 protected:
     D3DTestContext(const GrD3DBackendContext& d3d, bool ownsContext)
             : fD3D(d3d)
