@@ -95,6 +95,17 @@ bool Parse<SkPoint>(const Value& v, SkPoint* pt) {
 }
 
 template <>
+bool Parse<SkV2>(const Value& v, SkV2* v2) {
+    if (!v.is<ArrayValue>())
+        return false;
+    const auto& av = v.as<ArrayValue>();
+
+    return av.size() >= 2
+        && Parse<SkScalar>(av[0], &v2->x)
+        && Parse<SkScalar>(av[1], &v2->y);
+}
+
+template <>
 bool Parse<std::vector<float>>(const Value& v, std::vector<float>* vec) {
     if (!v.is<ArrayValue>())
         return false;

@@ -47,6 +47,9 @@ void AnimatablePropertyContainer::shrink_to_fit() {
 }
 
 namespace  {
+inline float lerp(float a, float b, float t) {
+    return a + (b - a) * t;
+}
 
 class KeyframeAnimatorBase : public sksg::Animator {
 public:
@@ -413,11 +416,70 @@ private:
     void onTick(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
-        *fTarget = lerp_info.vrec0.flt +
-                  (lerp_info.vrec1.flt - lerp_info.vrec0.flt) * lerp_info.weight;
+        *fTarget = lerp(lerp_info.vrec0.flt, lerp_info.vrec1.flt, lerp_info.weight);
     }
 
     ScalarValue* fTarget;
+};
+
+class Spatial2DKeyframeAnimator final : public KeyframeAnimatorBase {
+public:
+    static sk_sp<Spatial2DKeyframeAnimator> Make(const AnimationBuilder& abuilder,
+                                               const skjson::ArrayValue* jkfs,
+                                               Vector2DValue* target_value) {
+        if (!jkfs || jkfs->size() < 1) {
+            return nullptr;
+        }
+
+        sk_sp<Spatial2DKeyframeAnimator> animator(new Spatial2DKeyframeAnimator(target_value));
+
+        animator->fValues.reserve(jkfs->size());
+        if (!animator->parseKeyFrames(abuilder, *jkfs)) {
+            return nullptr;
+        }
+        animator->fValues.shrink_to_fit();
+
+        return animator;
+    }
+
+private:
+    struct SpatialValue {
+        Vector2DValue  v2;
+        bool operator==(const SpatialValue& other) const { return v2 == other.v2; }
+        bool operator!=(const SpatialValue& other) const { return !(*this == other); }
+    };
+
+    explicit Spatial2DKeyframeAnimator(Vector2DValue* target_value)
+        : fTarget(target_value) {}
+    
+    bool parseValue(const AnimationBuilder&, const skjson::Value& jv, Value* v) override {
+        SpatialValue val;
+        if (!Parse(jv, &val.v2)) {
+            return false;
+        }
+
+        if (fValues.empty() || val != fValues.back()) {
+            fValues.push_back(val);
+        }
+
+        v->idx = SkToU32(fValues.size() - 1);
+
+        return true;
+    }
+
+    void onTick(float t) override {
+        const auto& lerp_info = this->getLERPInfo(t);
+        const auto& v0 = fValues[lerp_info.vrec0.idx];
+        const auto& v1 = fValues[lerp_info.vrec1.idx];
+
+        *fTarget = {
+            lerp(v0.v2.x, v1.v2.x, lerp_info.weight),
+            lerp(v0.v2.y, v1.v2.y, lerp_info.weight),
+        };
+    }
+
+    std::vector<SpatialValue> fValues;
+    Vector2DValue*            fTarget;
 };
 
 template <typename T>
@@ -431,6 +493,12 @@ auto make_animator(const AnimationBuilder& abuilder,
                    const skjson::ArrayValue* jkfs,
                    ScalarValue* target_value) {
     return ScalarKeyframeAnimator::Make(abuilder, jkfs, target_value);
+}
+
+auto make_animator(const AnimationBuilder& abuilder,
+                   const skjson::ArrayValue* jkfs,
+                   Vector2DValue* target_value) {
+    return Spatial2DKeyframeAnimator::Make(abuilder, jkfs, target_value);
 }
 
 template <typename T>
@@ -491,6 +559,24 @@ bool AnimatablePropertyContainer::bind<ScalarValue>(const AnimationBuilder& abui
                                                     const skjson::ObjectValue* jprop,
                                                     ScalarValue* v) {
     return BindPropertyImpl(abuilder, jprop, &fAnimators, v);
+}
+
+template <>
+bool AnimatablePropertyContainer::bind<Vector2DValue>(const AnimationBuilder& abuilder,
+                                                      const skjson::ObjectValue* jprop,
+                                                      Vector2DValue* v) {
+    if (!jprop) {
+        return false;
+    }
+
+    if (!ParseDefault<bool>((*jprop)["s"], false)) {
+        // Regular (static or keyframed) 2D value.
+        return BindPropertyImpl(abuilder, jprop, &fAnimators, v);
+    }
+
+    // Separate-dimensions vector value: each component is animated independently.
+    return this->bind(abuilder, (*jprop)["x"], &v->x)
+         | this->bind(abuilder, (*jprop)["y"], &v->y);
 }
 
 template <>

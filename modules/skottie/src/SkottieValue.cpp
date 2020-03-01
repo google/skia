@@ -35,6 +35,12 @@ void ValueTraits<ScalarValue>::Lerp(const ScalarValue& v0, const ScalarValue& v1
 }
 
 template <>
+bool ValueTraits<Vector2DValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
+                                          Vector2DValue* v) {
+    return Parse(jv, v);
+}
+
+template <>
 template <>
 SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
     return v;
