@@ -41,6 +41,11 @@ Run::Run(ParagraphImpl* master,
     fOffsets.push_back_n(info.glyphCount + 1);
     fClusterIndexes.push_back_n(info.glyphCount + 1);
     fShifts.push_back_n(info.glyphCount + 1, 0.0);
+    if (info.fFont.getTypeface() != nullptr) {
+        SkString ff;
+        info.fFont.getTypeface()->getFamilyName(&ff);
+        SkDebugf("getMetrics for %s\n", ff.c_str());
+    }
     info.fFont.getMetrics(&fFontMetrics);
     fSpaced = false;
     // To make edge cases easier:

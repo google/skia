@@ -725,7 +725,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         &line != &fLines.back())
                     {
                         // TODO: this is just a patch. Make it right later (when it's clear what and how)
-                        clip.fLeft = 0;
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = line.width();
                         clip.fRight = line.width();
                     } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kRtl &&
                         !run->leftToRight())
