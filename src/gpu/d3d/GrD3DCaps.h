@@ -29,18 +29,23 @@ public:
 
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(const GrBackendFormat&) const override;
+    bool isFormatTexturable(DXGI_FORMAT) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return false; }
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
     bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
+    bool isFormatRenderable(DXGI_FORMAT, int sampleCount) const;
 
     int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const override;
+    int getRenderTargetSampleCount(int requestedCount, DXGI_FORMAT) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
+    int maxRenderTargetSampleCount(DXGI_FORMAT) const;
 
     size_t bytesPerPixel(const GrBackendFormat&) const override;
+    size_t bytesPerPixel(DXGI_FORMAT) const;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
@@ -52,6 +57,11 @@ public:
                                                   bool isAlphaChannel) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+
+    DXGI_FORMAT getFormatFromColorType(GrColorType colorType) const {
+        int idx = static_cast<int>(colorType);
+        return fColorTypeToFormatTable[idx];
+    }
 
     GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
