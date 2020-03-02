@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
+#include "src/core/SkIDChangeListener.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpuResourcePriv.h"
@@ -133,10 +134,13 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
 
 SkImage_Lazy::~SkImage_Lazy() {
 #if SK_SUPPORT_GPU
-    for (int i = 0; i < fUniqueKeyInvalidatedMessages.count(); ++i) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fUniqueKeyInvalidatedMessages[i]);
+    // We don't need the mutex. No other thread should have this image while it's being destroyed.
+    for (int i = 0; i < fUniqueIDListeners.count(); ++i) {
+        if (!fUniqueIDListeners[i]->shouldDeregister()) {
+            fUniqueIDListeners[i]->changed();
+        }
+        fUniqueIDListeners[i]->unref();
     }
-    fUniqueKeyInvalidatedMessages.deleteAll();
 #endif
 }
 
@@ -368,23 +372,6 @@ private:
     typedef GrYUVProvider INHERITED;
 };
 
-static void set_key_on_proxy(GrProxyProvider* proxyProvider,
-                             GrTextureProxy* proxy, GrTextureProxy* originalProxy,
-                             const GrUniqueKey& key) {
-    if (key.isValid()) {
-        if (originalProxy && originalProxy->getUniqueKey().isValid()) {
-            SkASSERT(originalProxy->getUniqueKey() == key);
-            SkASSERT(GrMipMapped::kYes == proxy->mipMapped() &&
-                     GrMipMapped::kNo == originalProxy->mipMapped());
-            // If we had an originalProxy with a valid key, that means there already is a proxy in
-            // the cache which matches the key, but it does not have mip levels and we require them.
-            // Thus we must remove the unique key from that proxy.
-            SkASSERT(originalProxy->getUniqueKey() == key);
-            proxyProvider->removeUniqueKeyFromProxy(originalProxy);
-        }
-        proxyProvider->assignUniqueKeyToProxy(key, proxy);
-    }
-}
 
 sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
                                             SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
@@ -439,6 +426,37 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     GrSurfaceProxyView view;
 
+    auto installKey = [&](const GrSurfaceProxyView& view,
+                          const GrSurfaceProxyView& previouslyKeyedView = {}) {
+        SkASSERT(view && view.asTextureProxy());
+        if (key.isValid()) {
+            if (!previouslyKeyedView) {
+                // We will add an invalidator to the image so that if the path goes away we will
+                // delete or recycle the mask texture.
+                auto listener = GrMakeUniqueKeyInvalidationListener(&key, ctx->priv().contextID());
+                this->addUniqueIDListener(std::move(listener));
+            } else {
+                auto previousProxy = previouslyKeyedView.asTextureProxy();
+                SkASSERT(previousProxy->getUniqueKey() == key);
+                SkASSERT(view.asTextureProxy()->mipMapped() == GrMipMapped::kYes &&
+                         previousProxy->mipMapped()         == GrMipMapped::kNo);
+                // If we had an previousProxy with a valid key, that means there already is a proxy
+                // in the cache which matches the key, but it does not have mip levels and we
+                // require them. Thus we must remove the unique key from that proxy.
+                SkASSERT(previousProxy->getUniqueKey() == key);
+                // We should have already put a listener invalidator on previousProxy's key. We
+                // *may* have already put the listener on our local key. That depends on whether
+                // previousProxy was created in this call or a previous call.
+                SkASSERT(previousProxy->getUniqueKey().getCustomData());
+                if (!key.getCustomData()) {
+                    key.setCustomData(sk_ref_sp(previousProxy->getUniqueKey().getCustomData()));
+                }
+                proxyProvider->removeUniqueKeyFromProxy(previousProxy);
+            }
+            proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+        }
+    };
+
     auto ct = this->colorTypeOfLockTextureProxy(caps);
 
     // 1. Check the cache for a pre-existing one
@@ -456,20 +474,14 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     }
 
     // 2. Ask the generator to natively create one
-    if (!view.proxy()) {
+    if (!view) {
         ScopedGenerator generator(fSharedGenerator);
         view = generator->generateTexture(ctx, this->imageInfo(), fOrigin, mipMapped);
-        if (view.proxy()) {
+        if (view) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
-            GrTextureProxy* proxy = view.asTextureProxy();
-            SkASSERT(proxy);
-            set_key_on_proxy(proxyProvider, proxy, nullptr, key);
+            installKey(view);
             if (satisfiesMipMapRequest(view)) {
-                if (generator->texturesAreCacheable()) {
-                    *fUniqueKeyInvalidatedMessages.append() =
-                        new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
-                }
                 return view;
             }
         }
@@ -477,8 +489,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we fall through here and have the CPU generate the mip maps for us.
-    if (!view.proxy() && mipMapped == GrMipMapped::kNo &&
-        !ctx->priv().options().fDisableGpuYUVConversion) {
+    if (!view && mipMapped == GrMipMapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
         SkColorType colorType = this->colorType();
 
         ScopedGenerator generator(fSharedGenerator);
@@ -496,32 +507,26 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
         view = provider.refAsTextureProxyView(ctx, this->imageInfo().dimensions(),
                                               SkColorTypeToGrColorType(colorType),
                                               generatorColorSpace, thisColorSpace);
-        if (view.proxy()) {
+        if (view) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            GrTextureProxy* proxy = view.asTextureProxy();
-            SkASSERT(proxy);
-            set_key_on_proxy(proxyProvider, proxy, nullptr, key);
-            *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
+            installKey(view);
             return view;
         }
     }
 
     // 4. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (!view.proxy() && this->getROPixels(&bitmap, chint)) {
-        GrBitmapTextureMaker bitmapMaker(ctx, bitmap);
+    if (!view && this->getROPixels(&bitmap, chint)) {
+        GrBitmapTextureMaker bitmapMaker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo);
         view = bitmapMaker.view(mipMapped);
-        GrTextureProxy* proxy = view.asTextureProxy();
-        if (proxy && satisfiesMipMapRequest(view)) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
-                                     kLockTexturePathCount);
-            SkASSERT(proxy);
-            set_key_on_proxy(proxyProvider, proxy, nullptr, key);
-            *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
-            return view;
+        if (view) {
+            installKey(view);
+            if (satisfiesMipMapRequest(view)) {
+                SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
+                                         kLockTexturePathCount);
+                return view;
+            }
         }
     }
 
@@ -537,14 +542,11 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     // generate the rest of the mips.
     SkASSERT(mipMapped == GrMipMapped::kYes);
     SkASSERT(view.asTextureProxy()->mipMapped() == GrMipMapped::kNo);
-    *fUniqueKeyInvalidatedMessages.append() =
-            new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
     GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
     GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(
             ctx, view.proxy(), kTopLeft_GrSurfaceOrigin, srcColorType);
-    auto mippedProxy = mippedView.asTextureProxy();
-    if (mippedProxy) {
-        set_key_on_proxy(proxyProvider, mippedProxy, view.asTextureProxy(), key);
+    if (mippedView) {
+        installKey(mippedView, view);
         return mippedView;
     }
     // We failed to make a mipped proxy with the base copied into it. This could have
@@ -561,6 +563,18 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
     }
     return ct;
 }
+
+#if SK_SUPPORT_GPU
+void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
+    // Don't bother with the expense of a mutex lock if no other thread can have this image.
+    if (this->unique()) {
+        fUniqueIDListeners.push_back(listener.release());
+    } else {
+        SkAutoMutexExclusive lock(fUniqueIDListenersMutex);
+        fUniqueIDListeners.push_back(listener.release());
+    }
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
