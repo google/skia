@@ -19,6 +19,7 @@
 #include "src/core/SkPictureRecord.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
 // matches old SkCanvas::SaveFlags
@@ -550,14 +551,12 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);
             const int boneCount = reader->readInt();
-            const SkVertices::Bone* bones = boneCount ?
-                    (const SkVertices::Bone*) reader->skip(boneCount, sizeof(SkVertices::Bone)) :
-                    nullptr;
+            (void)reader->skip(boneCount, sizeof(SkVertices_DeprecatedBone));
             SkBlendMode bmode = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && vertices) {
-                canvas->drawVertices(vertices, bones, boneCount, bmode, *paint);
+                canvas->drawVertices(vertices, bmode, *paint);
             }
         } break;
         case RESTORE:
