@@ -18,6 +18,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkIDChangeListener.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"
@@ -381,7 +382,7 @@ private:
 static void* kNamespace;
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class ShadowInvalidator : public SkPathRef::GenIDChangeListener {
+class ShadowInvalidator : public SkIDChangeListener {
 public:
     ShadowInvalidator(const SkResourceCache::Key& key) {
         fKey.reset(new uint8_t[key.size()]);
@@ -398,7 +399,7 @@ private:
         return false;
     }
 
-    void onChange() override {
+    void changed() override {
         SkResourceCache::Find(this->getKey(), ShadowInvalidator::FindVisitor, nullptr);
     }
 
