@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f6d20403_0d696bec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T15:39:29Z",
+      "side": 1,
+      "message": "This was the fix: passing the dm_properties separately allows the recipe to just exclude them",
+      "parentUuid": "8f90a360_00db5b7a",
+      "revId": "46aeb8e6288ce78240627baf5c419768dcc90276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1053e8bc_c9811443",
         "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN.json",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2020-03-02T15:38:16Z",
       "side": 1,
       "message": "Sorry, I should have realized the empty values would be a problem in this case.",
+      "revId": "46aeb8e6288ce78240627baf5c419768dcc90276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32cd97b6_fcb9ff42",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T15:39:29Z",
+      "side": 1,
+      "message": "I anticipated it, but was surprised that it worked fine for some platforms and not for others.",
+      "parentUuid": "1053e8bc_c9811443",
       "revId": "46aeb8e6288ce78240627baf5c419768dcc90276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
