@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "660e802b_99ca1904",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-02T18:41:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "159edac0_7689a214",
+      "revId": "e999f23ed71278cdf88bc4a0669a37ddf6e174aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8430335c_b1e8289d",
         "filename": "src/core/SkVerticesPriv.h",
         "patchSetId": 2
