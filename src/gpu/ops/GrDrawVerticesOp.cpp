@@ -47,29 +47,41 @@ private:
         kSkColor,
     };
 
+    GrProgramInfo* createProgramInfo(const GrCaps*,
+                                     SkArenaAlloc*,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&&,
+                                     const GrXferProcessor::DstProxyView&) const;
+    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) const {
+        return this->createProgramInfo(&flushState->caps(),
+                                       flushState->allocator(),
+                                       flushState->view(),
+                                       flushState->detachAppliedClip(),
+                                       flushState->dstProxyView());
+    }
+
+
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outpurView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    void drawVolatile(Target*);
-    void drawNonVolatile(Target*);
+    void drawVolatile(Target*, GrGeometryProcessor* gp);
+    void drawNonVolatile(Target*, GrGeometryProcessor* gp);
 
-    void fillBuffers(bool hasColorAttribute,
-                     bool hasLocalCoordsAttribute,
-                     size_t vertexStride,
+    void fillBuffers(size_t vertexStride,
                      void* verts,
                      uint16_t* indices) const;
 
-    void drawVertices(Target*,
-                      const GrGeometryProcessor*,
-                      sk_sp<const GrBuffer> vertexBuffer,
-                      int firstVertex,
-                      sk_sp<const GrBuffer> indexBuffer,
-                      int firstIndex);
+    void createMesh(Target*,
+                    sk_sp<const GrBuffer> vertexBuffer,
+                    int firstVertex,
+                    sk_sp<const GrBuffer> indexBuffer,
+                    int firstIndex);
 
-    GrGeometryProcessor* makeGP(SkArenaAlloc* arena,
-                                const GrShaderCaps* shaderCaps,
-                                bool* hasColorAttribute,
-                                bool* hasLocalCoordAttribute) const;
+    GrGeometryProcessor* makeGP(SkArenaAlloc* arena, const GrShaderCaps* shaderCaps);
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -117,6 +129,10 @@ private:
         kRequiresPerVertexColors_Flag       = 0x1,
         kAnyMeshHasExplicitLocalCoords_Flag = 0x2,
         kHasMultipleViewMatrices_Flag       = 0x4,
+
+        kHasLocalCoordAttribute_Flag        = 0x8,
+        kHasColorAttribute_Flag             = 0x10,
+        kWasCharacterized_Flag              = 0x20,
     };
 
     Helper fHelper;
@@ -129,6 +145,9 @@ private:
     int fIndexCount;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
+
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -230,25 +249,20 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
     return result;
 }
 
-GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena,
-                                            const GrShaderCaps* shaderCaps,
-                                            bool* hasColorAttribute,
-                                            bool* hasLocalCoordAttribute) const {
+GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena, const GrShaderCaps* shaderCaps) {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
         // If we have multiple view matrices we will transform the positions into device space. We
         // must then also provide untransformed positions as local coords.
         if (this->anyMeshHasExplicitLocalCoords() || this->hasMultipleViewMatrices()) {
-            *hasLocalCoordAttribute = true;
+            fFlags |= kHasLocalCoordAttribute_Flag;
             localCoordsType = LocalCoords::kHasExplicit_Type;
         } else {
-            *hasLocalCoordAttribute = false;
             localCoordsType = LocalCoords::kUsePosition_Type;
         }
     } else {
         localCoordsType = LocalCoords::kUnused_Type;
-        *hasLocalCoordAttribute = false;
     }
 
     Color color(fMeshes[0].fColor);
@@ -259,13 +273,12 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena,
             color.fType = Color::kUnpremulSkColorAttribute_Type;
             color.fColorSpaceXform = fColorSpaceXform;
         }
-        *hasColorAttribute = true;
-    } else {
-        *hasColorAttribute = false;
+        fFlags |= kHasColorAttribute_Flag;
     }
 
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
+    fFlags |= kWasCharacterized_Flag;
     return GrDefaultGeoProcFactory::Make(arena,
                                          shaderCaps,
                                          color,
@@ -274,22 +287,41 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena,
                                          vm);
 }
 
+GrProgramInfo* DrawVerticesOp::createProgramInfo(const GrCaps* caps,
+                                                 SkArenaAlloc* arena,
+                                                 const GrSurfaceProxyView* outputView,
+                                                 GrAppliedClip&& appliedClip,
+                                                 const GrXferProcessor::DstProxyView& dstProxyView) const {
+    return nullptr;
+}
+
+void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
+                                       const GrSurfaceProxyView* outputView,
+                                       GrAppliedClip* clip,
+                                       const GrXferProcessor::DstProxyView& dstProxyView) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // This is equivalent to a GrOpFlushState::detachAppliedClip
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                           std::move(appliedClip), dstProxyView);
+
+    context->priv().recordProgramInfo(fProgramInfo);
+}
+
 void DrawVerticesOp::onPrepareDraws(Target* target) {
+    GrGeometryProcessor* gp = this->makeGP(target->allocator(), target->caps().shaderCaps());
+
     bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
     if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
-        this->drawVolatile(target);
+        this->drawVolatile(target, gp);
     } else {
-        this->drawNonVolatile(target);
+        this->drawNonVolatile(target, gp);
     }
 }
 
-void DrawVerticesOp::drawVolatile(Target* target) {
-    bool hasColorAttribute;
-    bool hasLocalCoordsAttribute;
-    GrGeometryProcessor* gp = this->makeGP(target->allocator(),
-                                           target->caps().shaderCaps(),
-                                           &hasColorAttribute,
-                                           &hasLocalCoordsAttribute);
+void DrawVerticesOp::drawVolatile(Target* target, GrGeometryProcessor* gp) {
 
     // Allocate buffers.
     size_t vertexStride = gp->vertexStride();
@@ -312,26 +344,13 @@ void DrawVerticesOp::drawVolatile(Target* target) {
         }
     }
 
-    // Fill the buffers.
-    this->fillBuffers(hasColorAttribute,
-                      hasLocalCoordsAttribute,
-                      vertexStride,
-                      verts,
-                      indices);
+    this->fillBuffers(vertexStride, verts, indices);
 
-    // Draw the vertices.
-    this->drawVertices(target, gp, std::move(vertexBuffer), firstVertex, indexBuffer, firstIndex);
+    this->createMesh(target, std::move(vertexBuffer), firstVertex, indexBuffer, firstIndex);
 }
 
-void DrawVerticesOp::drawNonVolatile(Target* target) {
+void DrawVerticesOp::drawNonVolatile(Target* target, GrGeometryProcessor* gp) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-
-    bool hasColorAttribute;
-    bool hasLocalCoordsAttribute;
-    GrGeometryProcessor* gp = this->makeGP(target->allocator(),
-                                           target->caps().shaderCaps(),
-                                            &hasColorAttribute,
-                                            &hasLocalCoordsAttribute);
 
     SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
 
@@ -355,7 +374,7 @@ void DrawVerticesOp::drawNonVolatile(Target* target) {
 
     // Draw using the cached buffers if possible.
     if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->drawVertices(target, gp, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
+        this->createMesh(target, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
         return;
     }
 
@@ -381,14 +400,8 @@ void DrawVerticesOp::drawNonVolatile(Target* target) {
         }
     }
 
-    // Fill the buffers.
-    this->fillBuffers(hasColorAttribute,
-                      hasLocalCoordsAttribute,
-                      vertexStride,
-                      verts,
-                      indices);
+    this->fillBuffers(vertexStride, verts, indices);
 
-    // Unmap the buffers.
     vertexBuffer->unmap();
     if (indexBuffer) {
         indexBuffer->unmap();
@@ -399,15 +412,14 @@ void DrawVerticesOp::drawNonVolatile(Target* target) {
     rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
 
     // Draw the vertices.
-    this->drawVertices(target, gp, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
+    this->createMesh(target, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
 }
 
-void DrawVerticesOp::fillBuffers(bool hasColorAttribute,
-                                 bool hasLocalCoordsAttribute,
-                                 size_t vertexStride,
-                                 void* verts,
-                                 uint16_t* indices) const {
+void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const {
     int instanceCount = fMeshes.count();
+    bool hasColorAttribute = SkToBool(fFlags & kHasColorAttribute_Flag);
+    bool hasLocalCoordsAttribute = SkToBool(fFlags & kHasLocalCoordAttribute_Flag);
+    SkASSERT(fFlags & kWasCharacterized_Flag);
 
     // Copy data into the buffers.
     int vertexOffset = 0;
@@ -494,27 +506,36 @@ void DrawVerticesOp::fillBuffers(bool hasColorAttribute,
     }
 }
 
-void DrawVerticesOp::drawVertices(Target* target,
-                                  const GrGeometryProcessor* gp,
-                                  sk_sp<const GrBuffer> vertexBuffer,
-                                  int firstVertex,
-                                  sk_sp<const GrBuffer> indexBuffer,
-                                  int firstIndex) {
-    GrMesh* mesh = target->allocMesh();
+void DrawVerticesOp::createMesh(Target* target,
+                                sk_sp<const GrBuffer> vertexBuffer,
+                                int firstVertex,
+                                sk_sp<const GrBuffer> indexBuffer,
+                                int firstIndex) {
+    SkASSERT(!fMesh);
+
+    fMesh = target->allocMesh();
     if (this->isIndexed()) {
-        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
                          GrPrimitiveRestart::kNo);
     } else {
-        mesh->setNonIndexedNonInstanced(fVertexCount);
+        fMesh->setNonIndexedNonInstanced(fVertexCount);
     }
-    mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-    target->recordDraw(gp, mesh, 1, this->primitiveType());
+    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
+
+//    target->recordDraw(gp, mesh, 1, this->primitiveType());
 }
 
 void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    auto pipeline = fHelper.createPipeline(flushState);
+//    auto pipeline = fHelper.createPipeline(flushState);
 
-    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+    //flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+
+    if (!fProgramInfo) {
+        fProgramInfo = this->createProgramInfo(flushState);
+    }
+
+    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+    flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
 }
 
 GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
