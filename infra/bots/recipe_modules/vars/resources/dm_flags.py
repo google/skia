@@ -859,4 +859,4 @@ if __name__ == '__main__':
     swarming_task_id=args.swarming_task_id,
     internal_hardware_label=args.internal_hardware_label,
   )
-  print json.dumps(f)
+  print json.dumps(f, separators=(',', ':'))
