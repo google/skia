@@ -16,6 +16,24 @@
       "revId": "819f57813d18ac91933dfa92ef2eda4051a9c4e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca6af693_632d016c",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T17:56:44Z",
+      "side": 0,
+      "message": "I made it so that we call installKey in the maker case whenever it makes a proxy, even if it doesn\u0027t satisfy mipMapped.\n\nI also made some cosmetic changes that to my eye improve the readability of the main function body at the expense of some additional asserts, members accesses in installKey. Though, you may disagree.",
+      "parentUuid": "0d9ec024_91d14f48",
+      "revId": "819f57813d18ac91933dfa92ef2eda4051a9c4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
