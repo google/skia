@@ -2341,28 +2341,66 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = getFontCollection();
+        auto text = "ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن";
+        //auto text = "ى،😗😃😄😍بب";
+        //auto text1 = "World domination is such an ugly phrase - I prefer to call it world optimisation";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kJustify);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(36);
+        text_style.setFontFamilies({SkString("Noto Color Emoji")});
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
-        builder.addText("Something");
+        builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
-        paragraph->layout(0);
+        paragraph->layout(1041); // 1041
+
+        SkColor colors[] = {SK_ColorBLUE, SK_ColorCYAN,  SK_ColorLTGRAY, SK_ColorGREEN,
+                            SK_ColorRED,  SK_ColorWHITE, SK_ColorYELLOW, SK_ColorMAGENTA };
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        SkPaint paint;
+        size_t wordPos = 0;
+        size_t index = 0;
+        while (wordPos < 72) {
+            auto res2 = paragraph->getWordBoundary(wordPos);
+            if (res2.width() == 0) {
+                break;
+            }
+            wordPos = res2.end;
+            auto res3 = paragraph->getRectsForRange(
+                    res2.start, res2.end,
+                    RectHeightStyle::kTight, RectWidthStyle::kTight);
+            paint.setColor(colors[index % 8]);
+            ++index;
+            if (!res3.empty()) {
+                auto rect = res3[0].rect;
+                auto pos = SkPoint::Make (rect.fLeft + rect.width() / 2, rect.fTop + rect.height() / 2);
+                auto res1 = paragraph->getGlyphPositionAtCoordinate(pos.fX, pos.fY);
+                if (res1.position < res2.start || res1.position > res2.end) {
+                    SkDebugf("**** [%d:%d) %d %s %d\n", res2.start, res2.end, res1.position,
+                             res1.affinity == Affinity::kUpstream ? "up" : "down", res2.width());
+                } else if (res1.position == res2.end && res1.affinity == Affinity::kDownstream) {
+                    SkDebugf("down   [%d:%d) %d %d\n", res2.start, res2.end, res1.position, res2.width());
+                } else if (res1.position == res2.start && res1.affinity == Affinity::kUpstream) {
+                    SkDebugf("up     [%d:%d) %d %d\n", res2.start, res2.end, res1.position, res2.width());
+                } else {
+                    SkDebugf("     [%d:%d) %d %s %d\n", res2.start, res2.end, res1.position,
+                            res1.affinity == Affinity::kUpstream ? "up" : "down", res2.width());
+                }
+                canvas->drawRect(res3[0].rect, paint);
+            }
+        }
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
-//
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
