@@ -1951,37 +1951,15 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], con
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
                             const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(vertices);
-    // We expect fans to be converted to triangles when building or deserializing SkVertices.
-    SkASSERT(vertices->mode() != SkVertices::kTriangleFan_VertexMode);
-    this->onDrawVerticesObject(vertices.get(), nullptr, 0, mode, paint);
+    this->drawVertices(vertices.get(), mode, paint);
 }
 
 void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
-    this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
-}
-
-void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone bones[],
-                            int boneCount, SkBlendMode mode, const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(vertices);
-    SkASSERT(boneCount <= 80);
-#ifdef SK_SUPPORT_VERTICES_BONES
-    this->onDrawVerticesObject(vertices.get(), bones, boneCount, mode, paint);
-#else
-    this->onDrawVerticesObject(vertices.get(), nullptr, 0, mode, paint);
-#endif
-}
-
-void SkCanvas::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
-                            int boneCount, SkBlendMode mode, const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(vertices);
-    SkASSERT(boneCount <= 80);
-    this->onDrawVerticesObject(vertices, bones, boneCount, mode, paint);
+    // We expect fans to be converted to triangles when building or deserializing SkVertices.
+    SkASSERT(vertices->mode() != SkVertices::kTriangleFan_VertexMode);
+    this->onDrawVerticesObject(vertices, mode, paint);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -2814,7 +2792,7 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices
 
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVertices(vertices, bones, boneCount, bmode, draw.paint());
+        iter.fDevice->drawVertices(vertices, bmode, draw.paint());
     }
 
     DRAW_END

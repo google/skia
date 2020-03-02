@@ -155,7 +155,7 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
                                                this->imageInfo().colorSpace());
     if (vertices) {
-        this->drawVertices(vertices.get(), nullptr, 0, bmode, paint);
+        this->drawVertices(vertices.get(), bmode, paint);
     }
 }
 
@@ -267,7 +267,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     }
     SkPaint p(paint);
     p.setShader(atlas->makeShader());
-    this->drawVertices(builder.detach().get(), nullptr, 0, mode, p);
+    this->drawVertices(builder.detach().get(), mode, p);
 }
 
 
