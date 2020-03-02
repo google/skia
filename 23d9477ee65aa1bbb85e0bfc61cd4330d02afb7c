@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67173e52_355b56c1",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T18:52:40Z",
+      "side": 1,
+      "message": "I assume these args are ignored if --outResultsFile is not specified.",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 32
+      },
+      "revId": "23d9477ee65aa1bbb85e0bfc61cd4330d02afb7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "896b5bc9_7ee01238",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T18:52:40Z",
+      "side": 1,
+      "message": "I don\u0027t know what this arg does. Is it ok that we\u0027re now passing it for GPU tasks rather than only CPU tasks?",
+      "range": {
+        "startLine": 333,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 72
+      },
+      "revId": "23d9477ee65aa1bbb85e0bfc61cd4330d02afb7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
