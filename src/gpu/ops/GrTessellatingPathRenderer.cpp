@@ -6,9 +6,9 @@
  */
 
 #include "src/gpu/ops/GrTessellatingPathRenderer.h"
-#include <stdio.h>
+
+#include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkIDChangeListener.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
@@ -25,6 +25,8 @@
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
+
+#include <stdio.h>
 
 #ifndef GR_AA_TESSELLATOR_MAX_VERB_COUNT
 #define GR_AA_TESSELLATOR_MAX_VERB_COUNT 10
