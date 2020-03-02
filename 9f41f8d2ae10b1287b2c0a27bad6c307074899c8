@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b32c8103_e0b869cf",
+        "filename": "gm/imagefilters.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-02T21:28:46Z",
+      "side": 1,
+      "message": "This was needed to make sure the image was considered a sprite for GPU devices.",
+      "range": {
+        "startLine": 204,
+        "startChar": 16,
+        "endLine": 204,
+        "endChar": 64
+      },
+      "revId": "9f41f8d2ae10b1287b2c0a27bad6c307074899c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "829fa040_1848631b",
+        "filename": "gm/imagefilters.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-02T21:28:46Z",
+      "side": 1,
+      "message": "These crops are needed for SkCanvas to consider the sprite optimization.",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 27
+      },
+      "revId": "9f41f8d2ae10b1287b2c0a27bad6c307074899c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
