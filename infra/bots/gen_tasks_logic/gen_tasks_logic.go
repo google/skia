@@ -9,10 +9,12 @@ package gen_tasks_logic
 */
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -361,6 +363,16 @@ func (b *builder) logdogAnnotationUrl() string {
 	return fmt.Sprintf("logdog://logs.chromium.org/%s/${SWARMING_TASK_ID}/+/annotations", b.cfg.Project)
 }
 
+// marshalJson encodes the given data as JSON and fixes escaping of '<' which Go
+// does by default.
+func marshalJson(data interface{}) string {
+	j, err := json.Marshal(data)
+	if err != nil {
+		glog.Fatal(err)
+	}
+	return strings.Replace(string(j), "\\u003c", "<", -1)
+}
+
 // props creates a properties JSON string.
 func props(p map[string]string) string {
 	d := make(map[string]interface{}, len(p)+1)
@@ -374,12 +386,7 @@ func props(p map[string]string) string {
 		DevShell: true,
 		GitAuth:  true,
 	}
-
-	j, err := json.Marshal(d)
-	if err != nil {
-		glog.Fatal(err)
-	}
-	return strings.Replace(string(j), "\\u003c", "<", -1)
+	return marshalJson(d)
 }
 
 // kitchenTask returns a specs.TaskSpec instance which uses Kitchen to run a
@@ -1420,8 +1427,42 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		extraProps[k] = v
 	}
 	iid := b.internalHardwareLabel(parts)
+	iidStr := ""
 	if iid != nil {
-		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
+		iidStr = strconv.Itoa(*iid)
+	}
+	if recipe == "test" {
+		partsJson, err := json.Marshal(parts)
+		if err != nil {
+			glog.Fatal(err)
+		}
+		dmFlagsScript := filepath.Join(CheckoutRoot(), "infra", "bots", "recipe_modules", "vars", "resources", "dm_flags.py")
+		out, err := exec.Command(
+			"python", dmFlagsScript,
+			"--bot", name,
+			"--parts", string(partsJson),
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--issue", specs.PLACEHOLDER_ISSUE,
+			"--patchset", specs.PLACEHOLDER_PATCHSET,
+			"--patch_storage", specs.PLACEHOLDER_PATCH_STORAGE,
+			"--buildbucket_build_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
+			"--swarming_bot_id", "${SWARMING_BOT_ID}",
+			"--swarming_task_id", "${SWARMING_TASK_ID}",
+			"--internal_hardware_label", iidStr,
+		).CombinedOutput()
+		if err != nil {
+			glog.Fatal(err)
+		}
+		var res struct {
+			DmFlags []string          `json:"dm_flags"`
+			DmProps map[string]string `json:"dm_properties"`
+		}
+		if err := json.NewDecoder(bytes.NewBuffer(out)).Decode(&res); err != nil {
+			glog.Fatal(err)
+		}
+		extraProps["dm_flags"] = marshalJson(res.DmFlags)
+		extraProps["dm_properties"] = marshalJson(res.DmProps)
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
