@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "635a8668_aadef83b",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T18:15:58Z",
+      "side": 1,
+      "message": "Is there any reason to have this list?  Seems like it\u0027s doomed to be out of date.  Same below.",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 291,
+        "endChar": 71
+      },
+      "revId": "5c146d612234c422547392dbdd9e7df5c14218a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
