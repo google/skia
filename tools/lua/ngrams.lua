@@ -6,7 +6,7 @@
 -- $ lua tools/lua/ngrams_aggregate.lua
 
 -- To run on Cluster Telemetry, copy and paste the contents of this file into
--- the box at https://skia-tree-status.appspot.com/skia-telemetry/lua_script,
+-- the box at https://ct.skia.org/lua_script/,
 -- and paste the contents of ngrams_aggregate.lua into the "aggregator script"
 -- box on the same page.
 

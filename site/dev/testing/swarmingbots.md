@@ -69,7 +69,7 @@ a bug][infra bug] and assign to jcgregorio for reassignment.
 For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
 more info in the [Skolo maintenance doc][remote access] remote access section.
 
-[current trooper]: http://skia-tree-status.appspot.com/trooper
+[current trooper]: http://tree-status.skia.org/trooper
 [remote access]:
     https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
