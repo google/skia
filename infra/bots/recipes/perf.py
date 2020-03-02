@@ -7,7 +7,7 @@
 
 
 import calendar
-import imp
+import json
 import os
 
 
@@ -51,19 +51,8 @@ def perf_steps(api):
         api.flavor.device_dirs.perf_data_dir)
 
   # Find nanobench flags.
-  nanobench_flags_path = os.path.join(
-      os.path.dirname(os.path.abspath(__file__)), os.pardir, 'recipe_modules',
-      'vars', 'resources', 'nanobench_flags.py')
-  nanobench_flags = imp.load_source('nanobench_flags', nanobench_flags_path)
-  args, props = nanobench_flags.nanobench_flags(
-    bot=b,
-    parts=api.vars.builder_cfg,
-    do_upload=upload_perf_results(b),
-    revision=api.properties['revision'],
-    issue=str(api.vars.issue) if api.vars.is_trybot else '',
-    patchset=str(api.vars.patchset) if api.vars.is_trybot else '',
-    patch_storage=str(api.vars.patch_storage) if api.vars.is_trybot else '',
-  )
+  args = json.loads(api.properties['nanobench_flags'])
+  props = json.loads(api.properties['nanobench_properties'])
   swarming_bot_id = api.vars.swarming_bot_id
   swarming_task_id = api.vars.swarming_task_id
   if upload_perf_results(b):
@@ -133,34 +122,9 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android',
-  'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
-  ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
-   'Android_NoGPUThreads'),
-  'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
-  'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
-  'Perf-Android-Clang-Pixel3-GPU-Adreno630-arm64-Release-All-Android_Vulkan',
-  'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
-  'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
-  'Perf-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs',
-  ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
-   'SK_FORCE_RASTER_PIPELINE_BLITTER'),
-  'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
-  'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
-  ('Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-'
-   'CommandBuffer'),
-  ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
-   'Metal'),
-  ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
-   'CommandBuffer'),
   ('Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
-  'Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
-  'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
-  'Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
 ]
 
 
@@ -169,6 +133,10 @@ def GenTests(api):
     test = (
       api.test(builder) +
       api.properties(buildername=builder,
+                     nanobench_flags='["nanobench","--dummy","--flags"]',
+                     nanobench_properties=('{"key1":"value1","key2":"",'
+                                           '"bot":"${SWARMING_BOT_ID}",'
+                                           '"task":"${SWARMING_TASK_ID}"}'),
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -189,28 +157,3 @@ def GenTests(api):
       test += api.platform('win', 64)
 
     yield test
-
-  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All'
-  yield (
-    api.test('trybot') +
-    api.properties(buildername=builder,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.properties(patch_storage='gerrit') +
-    api.properties.tryserver(
-          buildername=builder,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )+
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
-  )
