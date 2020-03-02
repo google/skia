@@ -22,6 +22,30 @@
       "revId": "af8914efb2d7cda6db7020826abfd8832a01a9a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f171d192_fb7a5d31",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1450,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T12:09:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "616d108f_decd3324",
+      "range": {
+        "startLine": 1450,
+        "startChar": 27,
+        "endLine": 1450,
+        "endChar": 53
+      },
+      "revId": "af8914efb2d7cda6db7020826abfd8832a01a9a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
