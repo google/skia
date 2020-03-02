@@ -9,12 +9,10 @@ package gen_tasks_logic
 */
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -1527,32 +1525,9 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 		extraProps[k] = v
 	}
 	if recipe == "perf" {
-		nanoFlagsScript := filepath.Join(CheckoutRoot(), "infra", "bots", "recipe_modules", "vars", "resources", "nanobench_flags.py")
-		args := []string{
-			nanoFlagsScript,
-			"--bot", name,
-			"--parts", marshalJson(parts),
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--issue", specs.PLACEHOLDER_ISSUE,
-			"--patchset", specs.PLACEHOLDER_PATCHSET,
-			"--patch_storage", specs.PLACEHOLDER_PATCH_STORAGE,
-		}
-		if doUpload {
-			args = append(args, "--do_upload")
-		}
-		out, err := exec.Command("python", args...).CombinedOutput()
-		if err != nil {
-			glog.Fatal(err)
-		}
-		var res struct {
-			NanoFlags []string          `json:"nanobench_flags"`
-			NanoProps map[string]string `json:"nanobench_properties"`
-		}
-		if err := json.NewDecoder(bytes.NewBuffer(out)).Decode(&res); err != nil {
-			glog.Fatal(err)
-		}
-		extraProps["nanobench_flags"] = marshalJson(res.NanoFlags)
-		extraProps["nanobench_properties"] = marshalJson(res.NanoProps)
+		flags, props := nanobenchFlags(name, parts, doUpload)
+		extraProps["nanobench_flags"] = marshalJson(flags)
+		extraProps["nanobench_properties"] = marshalJson(props)
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
