@@ -2342,6 +2342,7 @@ protected:
 
         canvas->drawColor(SK_ColorWHITE);
 
+        auto text = "type a few lines of text. type a few lines of text. type a few lines of text. type a few lines of text. type a few lines of text. type a few lines of text. type a few lines of text. type a few lines of text.";
         auto fontCollection = getFontCollection();
 
         ParagraphStyle paragraph_style;
@@ -2350,12 +2351,18 @@ protected:
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(36);
+        text_style.setFontSize(16);
         builder.pushStyle(text_style);
-        builder.addText("Something");
+        builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
-        paragraph->layout(0);
+        paragraph->layout(333);
+
+        auto result = paragraph->getRectsForRange(25, 75, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        for (auto& r : result) {
+            canvas->drawRect(r.rect, paint);
+        }
         paragraph->paint(canvas, 0, 0);
     }
 
