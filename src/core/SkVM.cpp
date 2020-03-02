@@ -1928,13 +1928,13 @@ namespace skvm {
             fn->addParamAttr(i+1, llvm::Attribute::NoAlias);
         }
 
-        llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
-                         *hoist = llvm::BasicBlock::Create(ctx, "hoist", fn),
-                         *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
-                         *loopK = llvm::BasicBlock::Create(ctx, "loopK", fn),
-                         *test1 = llvm::BasicBlock::Create(ctx, "test1", fn),
-                         *loop1 = llvm::BasicBlock::Create(ctx, "loop1", fn),
-                         *leave = llvm::BasicBlock::Create(ctx, "leave", fn);
+        llvm::BasicBlock *enter  = llvm::BasicBlock::Create(ctx, "enter" , fn),
+                         *hoistK = llvm::BasicBlock::Create(ctx, "hoistK", fn),
+                         *testK  = llvm::BasicBlock::Create(ctx, "testK" , fn),
+                         *loopK  = llvm::BasicBlock::Create(ctx, "loopK" , fn),
+                         *test1  = llvm::BasicBlock::Create(ctx, "test1" , fn),
+                         *loop1  = llvm::BasicBlock::Create(ctx, "loop1" , fn),
+                         *leave  = llvm::BasicBlock::Create(ctx, "leave" , fn);
 
         using IRBuilder = llvm::IRBuilder<>;
 
@@ -2160,14 +2160,14 @@ namespace skvm {
 
         {
             IRBuilder b(enter);
-            b.CreateBr(hoist);
+            b.CreateBr(hoistK);
         }
 
-        // hoist: emit each hoistable vector instruction; goto testK;
+        // hoistK: emit each hoistable vector instruction; goto testK;
         // LLVM can do this sort of thing itself, but we've got the information cheap,
         // and pointer aliasing makes it easier to manually hoist than teach LLVM it's safe.
         {
-            IRBuilder b(hoist);
+            IRBuilder b(hoistK);
 
             // Hoisted instructions will need args (think, uniforms), so set that up now.
             // These phi nodes are degenerate... they'll always be the passed-in args from enter.
@@ -2192,16 +2192,16 @@ namespace skvm {
         {
             IRBuilder b(testK);
 
-            // New phi nodes for `n` and each pointer argument from hoist; later we'll add loopK.
-            // These also start as the initial function arguments; hoist can't have changed them.
+            // New phi nodes for `n` and each pointer argument from hoistK; later we'll add loopK.
+            // These also start as the initial function arguments; hoistK can't have changed them.
             llvm::Argument* arg = fn->arg_begin();
 
             n = b.CreatePHI(arg->getType(), 2);
-            n->addIncoming(arg++, hoist);
+            n->addIncoming(arg++, hoistK);
 
             for (size_t i = 0; i < fStrides.size(); i++) {
                 args[i] = b.CreatePHI(arg->getType(), 2);
-                args[i]->addIncoming(arg++, hoist);
+                args[i]->addIncoming(arg++, hoistK);
             }
 
             b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(K)), loopK, test1);
