@@ -142,7 +142,6 @@ public:
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
                                        const SkIPoint& origin, GrMipMapped);
 
-    bool texturesAreCacheable() const { return this->onTexturesAreCacheable(); }
 #endif
 
     /**
@@ -184,7 +183,6 @@ protected:
 
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                                  const SkIPoint&, GrMipMapped);  // returns nullptr
-    virtual bool onTexturesAreCacheable() const { return true; }
 #endif
 
 private:

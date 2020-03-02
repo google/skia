@@ -9,9 +9,9 @@
 #define GrSoftwarePathRenderer_DEFINED
 
 #include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 class GrProxyProvider;
-class GrTextureProxy;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and

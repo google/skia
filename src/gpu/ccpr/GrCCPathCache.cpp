@@ -87,7 +87,7 @@ uint32_t* GrCCPathCache::Key::data() {
     return reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(this) + sizeof(Key));
 }
 
-void GrCCPathCache::Key::onChange() {
+void GrCCPathCache::Key::changed() {
     // Our key's corresponding path was invalidated. Post a thread-safe eviction message.
     SkMessageBus<sk_sp<Key>>::Post(sk_ref_sp(this));
 }
@@ -258,7 +258,7 @@ void GrCCPathCache::evict(const GrCCPathCache::Key& key, GrCCPathCacheEntry* ent
     }
     SkASSERT(*entry->fCacheKey == key);
     SkASSERT(!entry->hasBeenEvicted());
-    entry->fCacheKey->markShouldUnregisterFromPath();  // Unregister the path listener.
+    entry->fCacheKey->markShouldDeregister();  // Unregister the path listener.
     entry->releaseCachedAtlas(this);
     fLRU.remove(entry);
     fHashTable.remove(key);
@@ -325,7 +325,7 @@ void GrCCPathCache::evictInvalidatedCacheKeys() {
     SkTArray<sk_sp<Key>> invalidatedKeys;
     fInvalidatedKeysInbox.poll(&invalidatedKeys);
     for (const sk_sp<Key>& key : invalidatedKeys) {
-        bool isInCache = !key->shouldUnregisterFromPath();  // Gets set upon exiting the cache.
+        bool isInCache = !key->shouldDeregister();  // Gets set upon exiting the cache.
         if (isInCache) {
             this->evict(*key);
         }

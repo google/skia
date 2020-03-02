@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrSoftwarePathRenderer.h"
+
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
@@ -19,8 +21,8 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
-#include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
@@ -215,20 +217,6 @@ private:
     GrAA fAA;
 };
 
-// When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
-public:
-    PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
-            : fMsg(key, contextUniqueID) {}
-
-private:
-    GrUniqueKeyInvalidatedMessage fMsg;
-
-    void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
-    }
-};
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,25 +367,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
 
             // We will add an invalidator to the path so that if the path goes away we will
-            // delete or recycle the mask texture. We also invalidate the other way: If the mask
-            // goes away we signal that the invalidator on the path can be removed. This prevents
-            // unbounded growth of invalidators on long lived paths.
-            auto invalidator =
-                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->priv().contextID());
-
-            auto invalidateInvalidator = [](const void* ptr, void* /*context*/) {
-                auto invalidator = reinterpret_cast<const sk_sp<PathInvalidator>*>(ptr);
-                (*invalidator)->markShouldUnregisterFromPath();
-                delete invalidator;
-            };
-            auto data = SkData::MakeWithProc(new sk_sp<PathInvalidator>(invalidator),
-                                             sizeof(sk_sp<PathInvalidator>),
-                                             invalidateInvalidator,
-                                             nullptr);
-            maskKey.setCustomData(std::move(data));
+            // delete or recycle the mask texture.
+            auto listener = GrMakeUniqueKeyInvalidationListener(&maskKey,
+                                                                args.fContext->priv().contextID());
             fProxyProvider->assignUniqueKeyToProxy(maskKey, view.asTextureProxy());
-
-            args.fShape->addGenIDChangeListener(std::move(invalidator));
+            args.fShape->addGenIDChangeListener(std::move(listener));
         }
     }
     SkASSERT(view);

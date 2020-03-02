@@ -202,4 +202,12 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextID,
                                          SkPixelRef* pixelRef);
 
+/**
+ * Makes a SkIDChangeListener from a GrUniqueKey. The key will be invalidated in the resource
+ * cache if the ID becomes invalid. This also modifies the key so that it will cause the listener
+ * to be deregistered if the key is destroyed (to prevent unbounded listener growth when resources
+ * are purged before listeners trigger).
+ */
+sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey*, uint32_t contextID);
+
 #endif
