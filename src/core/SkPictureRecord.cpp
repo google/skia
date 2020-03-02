@@ -646,7 +646,9 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
 }
 
 void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices,
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
                                            const SkVertices::Bone bones[], int boneCount,
+#endif
                                            SkBlendMode mode, const SkPaint& paint) {
     // op + paint index + vertices index + zero_bones + mode
     size_t size = 5 * kUInt32Size;
