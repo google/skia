@@ -15,6 +15,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -23,7 +24,10 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkOverdrawColorFilter.h"
+#include "include/effects/SkShaderMaskFilter.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -189,3 +193,83 @@ protected:
 };
 
 DEF_GM(return new SaveLayerWithBackdropGM();)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Test that color filters and mask filters are applied in the same order (after the image filter)
+// when the image filter is on the draw's paint or via an explicit saveLayer()
+DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
+    SkISize kernelSize = SkISize::Make(3, 3);
+    SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+    // A Laplacian edge detector, ie https://en.wikipedia.org/wiki/Kernel_(image_processing)
+    SkScalar kernel[9] = {-1.f, -1.f, -1.f,
+                          -1.f,  8.f, -1.f,
+                          -1.f, -1.f, -1.f};
+    auto edgeDetector = SkImageFilters::MatrixConvolution(
+            kernelSize, kernel, 1.f, 0.f, kernelOffset, SkTileMode::kClamp, false, nullptr);
+    // A color filter intended to classify the detected edges into 4 bins based on their magnitude.
+    // If this filter is processed before the edge detector, the resulting image will be very odd.
+    // Sum of RGB, scale by kNumColors - 1 / 255 for overdraw buckets.
+    float scale = (SkOverdrawColorFilter::kNumColors - 1.f) / (255.f);
+    float scaleSumRGBAsAlpha[20] = { 0.f, 0.f, 0.f, 0.f, 0.f,
+                                     0.f, 0.f, 0.f, 0.f, 0.f,
+                                     0.f, 0.f, 0.f, 0.f, 0.f,
+                                     scale, scale, scale, 0.f, 0.f};
+    auto approxEdgeMagnitude = SkColorFilters::Matrix(scaleSumRGBAsAlpha);
+    SkPMColor edgeColors[SkOverdrawColorFilter::kNumColors] = {SK_ColorBLACK,
+                                                               SK_ColorBLACK,
+                                                               SK_ColorDKGRAY,
+                                                               SK_ColorGRAY,
+                                                               SK_ColorLTGRAY,
+                                                               SK_ColorWHITE};
+    auto edgeClassify = SkColorFilters::Compose(SkOverdrawColorFilter::MakeWithSkColors(edgeColors),
+                                                std::move(approxEdgeMagnitude));
+
+    SkPaint edgePaint;
+    // edgePaint.setImageFilter(edgeDetector);
+    edgePaint.setColorFilter(edgeClassify);
+
+    // Draw the image twice, once with the paint directly, and once with a
+    // layer that uses the paint
+    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
+    canvas->drawImage(image, 0, 0, &edgePaint); // Filter applied by draw's SkPaint
+
+    canvas->save();
+    canvas->translate(256, 0);
+    canvas->clipRect(SkRect::MakeIWH(256, 256));
+    canvas->saveLayer(nullptr, &edgePaint);     // Filter applied by saveLayer
+    canvas->drawImage(image, 0, 0, nullptr);
+    canvas->restore();
+    canvas->restore();
+
+    // Now test mask filters. This is drawn with kSrc; if the mask filter was converted to alpha
+    // by a preempti v
+
+    // This mask filter pokes a hole in the center of the image
+    static constexpr SkColor kAlphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    static constexpr SkScalar kPos[] = { 0.4f, 0.9f };
+    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(SkGradientShader::MakeRadial(
+            {128.f, 128.f}, 128.f, kAlphas, kPos, 2, SkTileMode::kClamp));
+
+    SkPaint maskPaint;
+    maskPaint.setImageFilter(edgeDetector);
+    maskPaint.setMaskFilter(maskFilter);
+    maskPaint.setBlendMode(SkBlendMode::kSrc);
+
+    canvas->translate(0, 256);
+
+    canvas->save();
+    canvas->clipRect(SkRect::MakeIWH(256, 256));
+    canvas->drawImage(image, 0, 0, nullptr);    // Original as background
+    canvas->drawImage(image, 0, 0, &maskPaint); // Filter applied by draw's SkPaint
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(256, 0);
+    canvas->drawImage(image, 0, 0, nullptr);    // Original as background
+    canvas->clipRect(SkRect::MakeIWH(256, 256));
+    canvas->saveLayer(nullptr, &maskPaint);     // Filter applied by saveLayer
+    canvas->drawImage(image, 0, 0, nullptr);
+    canvas->restore();
+    canvas->restore();
+}

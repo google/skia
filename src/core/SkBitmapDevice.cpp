@@ -624,30 +624,9 @@ private:
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint,
                                  SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!src->isTextureBacked());
+    SkASSERT(!origPaint.getImageFilter());
 
-    sk_sp<SkSpecialImage> filteredImage;
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-
-    if (SkImageFilter* filter = paint->getImageFilter()) {
-        SkIPoint offset = SkIPoint::Make(0, 0);
-        const SkMatrix matrix = SkMatrix::Concat(
-            SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->localToDevice());
-        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
-        sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), fBitmap.colorType(),
-                                        fBitmap.colorSpace(), src);
-
-        filteredImage = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
-        if (!filteredImage) {
-            return;
-        }
-
-        src = filteredImage.get();
-        paint.writable()->setImageFilter(nullptr);
-        x += offset.x();
-        y += offset.y();
-    }
-
     if (paint->getMaskFilter()) {
         paint.writable()->setMaskFilter(
                 paint->getMaskFilter()->makeWithMatrix(this->localToDevice()));

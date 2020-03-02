@@ -1436,11 +1436,44 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint,
         // drawSpecial() take an SkMatrix, this can switch to getRelativeTransform() instead.
         SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
         if (filter || clipImage) {
+            SkTCopyOnFirstWrite<SkPaint> filteredPaint(*paint);
             sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
+            // Apply the image filter to get a new special image and remove the filter from the
+            // paint so that SkDevice's don't need to worry about image filters when drawing.
+            if (specialImage && filter) {
+                auto justColorFilter = image_to_color_filter(*paint);
+                if (justColorFilter) {
+                    // Just apply the color filter to the original snapped image, need to allocate
+                    // an extra array.
+                    filteredPaint.writable()->setColorFilter(std::move(justColorFilter));
+                    filteredPaint.writable()->setImageFilter(nullptr);
+                } else {
+                    // Have to actually evaluate the image filter, so prepare filtering context.
+                    // Map the destination's output into the src device's coordinate space
+                    const SkIRect clipBounds = dstDev->devClipBounds().makeOffset(-pos.x(),
+                                                                                  -pos.y());
+                    SkColorSpace* colorSpace = dstDev->imageInfo().colorSpace();
+                    SkColorType colorType = dstDev->imageInfo().colorType();
+                    if (colorType == kUnknown_SkColorType) {
+                        colorType = kRGBA_8888_SkColorType;
+                    }
+                    SkImageFilter_Base::Context ctx(srcDev->localToDevice(), clipBounds,
+                            srcDev->getImageFilterCache(), colorType, colorSpace,
+                            specialImage.get());
+
+                    // Replace 'specialImage' with the filtered results and update draw position.
+                    SkIPoint offset;
+                    specialImage = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
+                    pos += offset;
+                    filteredPaint.writable()->setImageFilter(nullptr);
+                }
+            }
+
             if (specialImage) {
                 check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
                                              specialImage->getColorSpace());
-                dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *paint,
+                SkDebugf("drawSpecial() -> %d %d\n", filter != nullptr, filteredPaint->getImageFilter() != nullptr);
+                dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *filteredPaint,
                                     clipImage, clipMatrix);
             }
         } else {
@@ -2532,7 +2565,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     sk_sp<SkSpecialImage> special;
     bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(),
                                                     *paint);
-    if (drawAsSprite && paint->getImageFilter()) {
+    if (false && drawAsSprite && paint->getImageFilter()) {
         special = this->getDevice()->makeSpecial(image);
         if (!special) {
             drawAsSprite = false;

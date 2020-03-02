@@ -153,27 +153,6 @@ std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
             origin, budgeted, surfaceProps);
 }
 
-sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
-                                                 int left, int top,
-                                                 SkIPoint* offset,
-                                                 const SkImageFilter* filter) {
-    SkASSERT(srcImg->isTextureBacked());
-    SkASSERT(filter);
-
-    SkMatrix matrix = this->localToDevice();
-    matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
-    const SkIRect clipBounds = this->devClipBounds().makeOffset(-left, -top);
-    sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkColorType colorType = GrColorTypeToSkColorType(fRenderTargetContext->colorInfo().colorType());
-    if (colorType == kUnknown_SkColorType) {
-        colorType = kRGBA_8888_SkColorType;
-    }
-    SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), colorType,
-                                    fRenderTargetContext->colorInfo().colorSpace(), srcImg);
-
-    return as_IFB(filter)->filterImage(ctx).imageAndOffset(offset);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
@@ -989,23 +968,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
-    sk_sp<SkSpecialImage> result;
-    if (paint.getImageFilter()) {
-        SkIPoint offset = { 0, 0 };
-
-        result = this->filterTexture(special, left, top, &offset, paint.getImageFilter());
-        if (!result) {
-            return;
-        }
-
-        left += offset.fX;
-        top += offset.fY;
-    } else {
-        result = sk_ref_sp(special);
-    }
-
-    SkASSERT(result->isTextureBacked());
-    GrSurfaceProxyView view = result->view(this->context());
+    SkASSERT(!paint.getImageFilter());
+    SkASSERT(special->isTextureBacked());
+    GrSurfaceProxyView view = special->view(this->context());
     if (!view) {
         return;
     }
@@ -1021,9 +986,10 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
+    fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                       special->getColorSpace(), special->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
-    if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
+    if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(special->colorType()))) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
         if (paint.getColor4f().isOpaque()) {
@@ -1039,7 +1005,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         return;
     }
 
-    const SkIRect& subset = result->subset();
+    const SkIRect& subset = special->subset();
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
     SkRect srcRect = SkRect::Make(subset);
     if (clipImage) {

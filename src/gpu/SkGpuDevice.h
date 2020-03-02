@@ -181,11 +181,6 @@ private:
                          SkCanvas::SrcRectConstraint constraint, SkFilterQuality quality,
                          const SkMatrix& viewMatrix, const SkMatrix& srcToDstRect) const;
 
-    sk_sp<SkSpecialImage> filterTexture(SkSpecialImage*,
-                                        int left, int top,
-                                        SkIPoint* offset,
-                                        const SkImageFilter* filter);
-
     // Splits bitmap into tiles of tileSize and draws them using separate textures for each tile.
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkMatrix& viewMatrix,
