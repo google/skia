@@ -67,6 +67,9 @@ public:
     static std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
             const skjson::ObjectValue&, const AnimationBuilder*,
             std::vector<sk_sp<sksg::GeometryNode>>&&);
+    static std::vector<sk_sp<sksg::GeometryNode>> AdjustStrokeGeometry(
+            const skjson::ObjectValue&, const AnimationBuilder*,
+            std::vector<sk_sp<sksg::GeometryNode>>&&);
 
     static std::vector<sk_sp<sksg::RenderNode>> AttachRepeaterDrawEffect(
             const skjson::ObjectValue&,
