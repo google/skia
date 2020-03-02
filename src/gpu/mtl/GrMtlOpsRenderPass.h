@@ -43,15 +43,14 @@ private:
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                         const GrSurfaceProxy* const primProcTextures[]) override;
-    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
-    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                       GrPrimitiveRestart, uint16_t minIndexValue, uint16_t maxIndexValue,
-                       const GrBuffer* vertexBuffer, int baseVertex) override;
-    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
-                         const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
-    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
-                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+    void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                       const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
+    void onDraw(int vertexCount, int baseVertex) override;
+    void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                       uint16_t maxIndexValue, int baseVertex) override;
+    void onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                         int baseVertex) override;
+    void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override;
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
@@ -61,11 +60,8 @@ private:
     void setupRenderPass(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                          const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
-    void bindGeometry(const GrBuffer* vertexBuffer, size_t vertexOffset,
-                      const GrBuffer* instanceBuffer);
-
     void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t offset,
-                         size_t index);
+                         size_t inputBufferIndex);
     void resetBufferBindings();
     void precreateCmdEncoder();
 
@@ -76,6 +72,12 @@ private:
     MTLPrimitiveType            fActivePrimitiveType;
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
+
+    // The index buffer in metal is an argument to the draw call, rather than a stateful binding.
+    sk_sp<const GrMtlBuffer>    fIndexBuffer;
+
+    // We defer binding of the vertex buffer because Metal doesn't have baseVertex for drawIndexed.
+    sk_sp<const GrMtlBuffer>    fDeferredVertexBuffer;
     size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;

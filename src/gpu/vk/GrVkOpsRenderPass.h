@@ -63,30 +63,22 @@ private:
 
     GrVkCommandBuffer* currentCommandBuffer();
 
-    // Bind vertex and index buffers
-    void bindGeometry(const GrGpuBuffer* indexBuffer,
-                      const GrGpuBuffer* vertexBuffer,
-                      const GrGpuBuffer* instanceBuffer);
-
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
                         const GrSurfaceProxy* const primProcTextures[]) override;
-    void onDraw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override {
-        this->onDrawInstanced(nullptr, 1, 0, vertexBuffer, vertexCount, baseVertex);
+    void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                       const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
+    void onDraw(int vertexCount, int baseVertex) override {
+        this->onDrawInstanced(1, 0, vertexCount, baseVertex);
     }
-    void onDrawIndexed(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                       GrPrimitiveRestart primitiveRestart, uint16_t minIndexValue,
-                       uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
-                       int baseVertex) override {
-        this->onDrawIndexedInstanced(indexBuffer, indexCount, baseIndex, primitiveRestart, nullptr,
-                                     1, 0, vertexBuffer, baseVertex);
+    void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                       uint16_t maxIndexValue, int baseVertex) override {
+        this->onDrawIndexedInstanced(indexCount, baseIndex, 1, 0, baseVertex);
     }
-    void onDrawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
-                         const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) override;
-    void onDrawIndexedInstanced(const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                                GrPrimitiveRestart, const GrBuffer* instanceBuffer,
-                                int instanceCount, int baseInstance, const GrBuffer* vertexBuffer,
+    void onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                         int baseVertex) override;
+    void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override;
 
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override;

@@ -91,8 +91,11 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     }
     fTextureBindingStatus = (hasTextures) ?
             DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
-    fHasVertexAttributes = programInfo.primProc().hasVertexAttributes();
-    fHasInstanceAttributes = programInfo.primProc().hasInstanceAttributes();
+    fHasIndexBuffer = false;
+    fInstanceBufferStatus = (programInfo.primProc().hasInstanceAttributes()) ?
+            DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
+    fVertexBufferStatus = (programInfo.primProc().hasVertexAttributes()) ?
+            DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
 #endif
 
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
@@ -149,6 +152,36 @@ void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrMesh 
     }
 }
 
+void GrOpsRenderPass::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                                  const GrBuffer* vertexBuffer, GrPrimitiveRestart primRestart) {
+    if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
+        SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
+        return;
+    }
+
+#ifdef SK_DEBUG
+    if (indexBuffer) {
+        fHasIndexBuffer = true;
+    }
+
+    SkASSERT((DynamicStateStatus::kDisabled == fInstanceBufferStatus) != SkToBool(instanceBuffer));
+    if (instanceBuffer) {
+        fInstanceBufferStatus = DynamicStateStatus::kConfigured;
+    }
+
+    SkASSERT((DynamicStateStatus::kDisabled == fVertexBufferStatus) != SkToBool(vertexBuffer));
+    if (vertexBuffer) {
+        fVertexBufferStatus = DynamicStateStatus::kConfigured;
+    }
+
+    if (GrPrimitiveRestart::kYes == primRestart) {
+        SkASSERT(this->gpu()->caps()->usePrimitiveRestart());
+    }
+#endif
+
+    this->onBindBuffers(indexBuffer, instanceBuffer, vertexBuffer, primRestart);
+}
+
 bool GrOpsRenderPass::prepareToDraw() {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
@@ -164,52 +197,45 @@ bool GrOpsRenderPass::prepareToDraw() {
     return true;
 }
 
-void GrOpsRenderPass::draw(const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
+void GrOpsRenderPass::draw(int vertexCount, int baseVertex) {
     if (!this->prepareToDraw()) {
         return;
     }
-    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
-    this->onDraw(vertexBuffer, vertexCount, baseVertex);
+    SkASSERT(!fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kConfigured != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDraw(vertexCount, baseVertex);
 }
 
-void GrOpsRenderPass::drawIndexed(const GrBuffer* indexBuffer, int indexCount,
-                                  int baseIndex, GrPrimitiveRestart primitiveRestart,
-                                  uint16_t minIndexValue, uint16_t maxIndexValue,
-                                  const GrBuffer* vertexBuffer, int baseVertex) {
+void GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                                  uint16_t maxIndexValue, int baseVertex) {
     if (!this->prepareToDraw()) {
         return;
     }
-    SkASSERT(GrPrimitiveRestart::kNo == primitiveRestart ||
-             this->gpu()->caps()->usePrimitiveRestart());
-    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
-    this->onDrawIndexed(indexBuffer, indexCount, baseIndex, primitiveRestart, minIndexValue,
-                        maxIndexValue, vertexBuffer, baseVertex);
+    SkASSERT(fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kConfigured != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDrawIndexed(indexCount, baseIndex, minIndexValue, maxIndexValue, baseVertex);
 }
 
-void GrOpsRenderPass::drawInstanced(const GrBuffer* instanceBuffer, int instanceCount, int
-                                    baseInstance, const GrBuffer* vertexBuffer, int vertexCount,
+void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int vertexCount,
                                     int baseVertex) {
     if (!this->prepareToDraw()) {
         return;
     }
-    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
-    SkASSERT(SkToBool(instanceBuffer) == fHasInstanceAttributes);
-    this->onDrawInstanced(instanceBuffer, instanceCount, baseInstance, vertexBuffer, vertexCount,
-                          baseVertex);
+    SkASSERT(!fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDrawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
 }
 
-void GrOpsRenderPass::drawIndexedInstanced(
-        const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-        GrPrimitiveRestart primitiveRestart, const GrBuffer* instanceBuffer, int instanceCount,
-        int baseInstance, const GrBuffer* vertexBuffer, int baseVertex) {
+void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
+                                           int baseInstance, int baseVertex) {
     if (!this->prepareToDraw()) {
         return;
     }
-    SkASSERT(GrPrimitiveRestart::kNo == primitiveRestart ||
-             this->gpu()->caps()->usePrimitiveRestart());
-    SkASSERT(SkToBool(vertexBuffer) == fHasVertexAttributes);
-    SkASSERT(SkToBool(instanceBuffer) == fHasInstanceAttributes);
-    this->onDrawIndexedInstanced(indexBuffer, indexCount, baseIndex, primitiveRestart,
-                                 instanceBuffer, instanceCount, baseInstance, vertexBuffer,
-                                 baseVertex);
+    SkASSERT(fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance, baseVertex);
 }
