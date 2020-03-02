@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8279054_cee569d8",
+        "filename": "src/core/SkIDChangeListener.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T16:20:47Z",
+      "side": 1,
+      "message": "Minor name change from onChanged(). I changed it because we mostly use \"on\" as the private virtual implementation of a non-virtual public method. I don\u0027t feel strongly and am happy to change it back or make it \"wasChanged\" or any other reasonable name.",
+      "range": {
+        "startLine": 28,
+        "startChar": 17,
+        "endLine": 28,
+        "endChar": 24
+      },
+      "revId": "7f8e36b848df20c804bde648af085f6c696bbe2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d275097_ffed6747",
+        "filename": "src/core/SkIDChangeListener.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T16:20:47Z",
+      "side": 1,
+      "message": "Another name change. Old was \"unregister\". Rationale: Unregistered \u003d never registered. Deregistered \u003d was registered but no longer.",
+      "range": {
+        "startLine": 34,
+        "startChar": 19,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "7f8e36b848df20c804bde648af085f6c696bbe2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
