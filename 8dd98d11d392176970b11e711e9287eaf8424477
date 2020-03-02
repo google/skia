@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c594493d_6c88db2a",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T20:46:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff971ecd_7a92d1a5",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "8dd98d11d392176970b11e711e9287eaf8424477",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88411159_68465171",
         "filename": "src/gpu/GrBitmapTextureMaker.cpp",
         "patchSetId": 4
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "I think that makes sense. We obviously don\u0027t want to be hitting this code path, and if we\u0027re successful in making mip-status immutable, this can be avoided entirely.",
       "parentUuid": "88411159_68465171",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 36
+      },
+      "revId": "8dd98d11d392176970b11e711e9287eaf8424477",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "957a9d1d_c65d4ffd",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T20:46:24Z",
+      "side": 1,
+      "message": "Will do in another CL.",
+      "parentUuid": "86d285e2_84b3f8f2",
       "range": {
         "startLine": 108,
         "startChar": 0,
