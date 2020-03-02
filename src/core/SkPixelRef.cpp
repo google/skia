@@ -8,6 +8,7 @@
 #include "include/core/SkPixelRef.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkIDChangeListener.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkPixelRefPriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -73,14 +74,21 @@ uint32_t SkPixelRef::getGenerationID() const {
     return id & ~1u;  // Mask off bottom unique bit.
 }
 
-void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (nullptr == listener || !this->genIDIsUnique()) {
+void SkPixelRef::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) {
+    if (!listener || !this->genIDIsUnique()) {
         // No point in tracking this if we're not going to call it.
-        delete listener;
         return;
     }
+    SkASSERT(!listener->shouldDeregister());
     SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
-    *fGenIDChangeListeners.append() = listener;
+    // Clean out any stale listeners before we append the new one.
+    for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
+        if (fGenIDChangeListeners[i]->shouldDeregister()) {
+            fGenIDChangeListeners[i]->unref();
+            fGenIDChangeListeners.removeShuffle(i--);  // No need to preserve the order after i.
+        }
+    }
+    *fGenIDChangeListeners.append() = listener.release();
 }
 
 // we need to be called *before* the genID gets changed or zerod
@@ -89,7 +97,9 @@ void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
     if (this->genIDIsUnique()) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
-            fGenIDChangeListeners[i]->onChange();
+            if (!fGenIDChangeListeners[i]->shouldDeregister()) {
+                fGenIDChangeListeners[i]->changed();
+            }
         }
 
         if (fAddedToCache.exchange(false)) {
@@ -97,7 +107,7 @@ void SkPixelRef::callGenIDChangeListeners() {
         }
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.deleteAll();
+    fGenIDChangeListeners.unrefAll();
 }
 
 void SkPixelRef::notifyPixelsChanged() {
