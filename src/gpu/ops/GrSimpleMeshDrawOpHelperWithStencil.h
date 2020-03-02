@@ -24,6 +24,7 @@ public:
 
     const GrPipeline* createPipelineWithStencil(GrOpFlushState* flushState);
 
+
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
     static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext* context, GrPaint&& paint,

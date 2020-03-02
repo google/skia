@@ -45,7 +45,7 @@ public:
                    const GrPipeline::FixedDynamicState* fixedDynamicState, const GrMesh& mesh,
                    const SkRect& bounds) {
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->view()->origin(),
+                                  state->proxy()->backendFormat(), state->outputView()->origin(),
                                   pipeline, this, fixedDynamicState, nullptr, 0,
                                   fPrimitiveType, fTessellationPatchVertexCount);
         state->opsRenderPass()->bindPipeline(programInfo, bounds);
