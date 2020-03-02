@@ -285,7 +285,10 @@ def CheckChangeOnUpload(input_api, output_api):
   """Presubmit checks for the change on upload.
 
   The following are the presubmit checks:
-  * Check change has one and only one EOL.
+  * The common checks in _CommonChecks.
+  * Run infra/bots/infra_tests.py
+  * Check that .gn files are formatted.
+  * Check that release notes have been updated with public API changes.
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
@@ -527,10 +530,10 @@ def CheckChangeOnCommit(input_api, output_api):
   """Presubmit checks for the change on commit.
 
   The following are the presubmit checks:
-  * Check change has one and only one EOL.
-  * Ensures that the Skia tree is open in
-    http://skia-tree-status.appspot.com/. Shows a warning if it is in 'Caution'
-    state and an error if it is in 'Closed' state.
+  * The common checks in _CommonChecks.
+  * Check that public API changes have LGTMs from owners.
+  * Check that CL owner is in authors file.
+  * Check for the presence of 'DO NOT''SUBMIT'.
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
