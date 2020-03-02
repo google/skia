@@ -74,6 +74,16 @@ action("commit_id") {
     commit_id_output_file,
   ]
 
+  # Add ANGLE git as a dependency if it is available.
+  angle_git_is_present =
+      exec_script("$angle_root/src/commit_id.py", [ "check" ], "value") == 1
+  if (angle_git_is_present) {
+    # commit id should depend on angle's HEAD revision
+    inputs = [
+      "$angle_root/.git/HEAD",
+    ]
+  }
+
   args = [
     "gen",
     rebase_path(commit_id_output_file, root_build_dir),
