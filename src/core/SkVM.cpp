@@ -1924,6 +1924,9 @@ namespace skvm {
                                                               arg_types, /*vararg?=*/false);
         llvm::Function* fn
             = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, *mod);
+        for (size_t i = 0; i < fStrides.size(); i++) {
+            fn->addParamAttr(i+1, llvm::Attribute::NoAlias);
+        }
 
         llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
                          *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
@@ -1995,7 +1998,9 @@ namespace skvm {
                 case Op::uniform16: t = i16; goto uniform;
                 case Op::uniform32: t = i32; goto uniform;
                 uniform: {
-                    llvm::Value* ptr = b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
+                    llvm::Value* ptr = b->CreateBitCast(b->CreateConstInBoundsGEP1_32(nullptr,
+                                                                                      args[immy],
+                                                                                      immz),
                                                         t->getPointerTo());
                     llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), i32);
                     vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
@@ -2008,10 +2013,12 @@ namespace skvm {
                 gather: {
                     // Our gather base pointer is immz bytes off of uniform immy.
                     llvm::Value* base =
-                        b->CreateLoad(b->CreateBitCast(b->CreateConstGEP1_32(args[immy], immz),
+                        b->CreateLoad(b->CreateBitCast(b->CreateConstInBoundsGEP1_32(nullptr,
+                                                                                     args[immy],
+                                                                                     immz),
                                                        t->getPointerTo()->getPointerTo()));
 
-                    llvm::Value* ptr = b->CreateGEP(base, vals[x]);
+                    llvm::Value* ptr = b->CreateInBoundsGEP(nullptr, base, vals[x]);
                     llvm::Value* gathered;
                     if (ptr->getType()->isVectorTy()) {
                         gathered = b->CreateMaskedGather(ptr, 1);
@@ -2189,7 +2196,8 @@ namespace skvm {
 
             // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt32(K*fStrides[i]));
+                llvm::Value* arg_next
+                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], K*fStrides[i]);
                 args[i]->addIncoming(arg_next, loopK);
             }
             b.CreateBr(testK);
@@ -2229,7 +2237,8 @@ namespace skvm {
 
             // Each arg ptr += K
             for (size_t i = 0; i < fStrides.size(); i++) {
-                llvm::Value* arg_next = b.CreateGEP(args[i], b.getInt32(fStrides[i]));
+                llvm::Value* arg_next
+                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], fStrides[i]);
                 args[i]->addIncoming(arg_next, loop1);
             }
             b.CreateBr(test1);
