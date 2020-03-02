@@ -23,8 +23,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
-                   const SkVertices::Bone bones[], int boneCount, GrPrimitiveType, GrAAType,
-                   sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
+                   GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -134,9 +133,8 @@ private:
 };
 
 DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
-                               sk_sp<SkVertices> vertices, const SkVertices::Bone bones[],
-                               int boneCount, GrPrimitiveType primitiveType, GrAAType aaType,
-                               sk_sp<GrColorSpaceXform> colorSpaceXform,
+                               sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
+                               GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                                const SkMatrix& viewMatrix)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
@@ -156,27 +154,12 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
     mesh.fIgnoreTexCoords = false;
     mesh.fIgnoreColors = false;
 
-    if (mesh.fVertices->hasBones() && bones) {
-        // Perform the transformations on the CPU instead of the GPU.
-        mesh.fVertices = mesh.fVertices->applyBones(bones, boneCount);
-    } else {
-        SkASSERT(!bones || boneCount == 1);
-    }
-
     fFlags = 0;
     if (mesh.hasPerVertexColors()) {
         fFlags |= kRequiresPerVertexColors_Flag;
     }
     if (mesh.hasExplicitLocalCoords()) {
         fFlags |= kAnyMeshHasExplicitLocalCoords_Flag;
-    }
-
-    // Special case for meshes with a world transform but no bone weights.
-    // These will be considered normal vertices draws without bones.
-    if (!mesh.fVertices->hasBones() && boneCount == 1) {
-        SkMatrix worldTransform;
-        worldTransform.setAffine(bones[0].values);
-        mesh.fViewMatrix.preConcat(worldTransform);
     }
 
     IsHairline zeroArea;
@@ -577,8 +560,6 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
-                                                 const SkVertices::Bone bones[],
-                                                 int boneCount,
                                                  const SkMatrix& viewMatrix,
                                                  GrAAType aaType,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -588,7 +569,6 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                 : SkVertexModeToGrPrimitiveType(vertices->mode());
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
                                                                    std::move(vertices),
-                                                                   bones, boneCount,
                                                                    primType, aaType,
                                                                    std::move(colorSpaceXform),
                                                                    viewMatrix);
@@ -712,7 +692,7 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), nullptr, 0,
+    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices),
                                   viewMatrix, aaType, std::move(colorSpaceXform), &type);
 }
 
