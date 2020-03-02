@@ -2341,28 +2341,110 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = getFontCollection();
+        auto text = "ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن";
+        //auto text = "ى،😗😃😄😍بب";
+        //auto text1 = "World domination is such an ugly phrase - I prefer to call it world optimisation";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kJustify);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(36);
+        text_style.setFontFamilies({SkString("Noto Color Emoji")});
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
-        builder.addText("Something");
+        builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
-        paragraph->layout(0);
+        paragraph->layout(1041); // 1041
+
+        SkColor colors[] = {SK_ColorBLUE, SK_ColorCYAN,  SK_ColorLTGRAY, SK_ColorGREEN,
+                            SK_ColorRED,  SK_ColorWHITE, SK_ColorYELLOW, SK_ColorMAGENTA };
+        SkPaint paint;
+        size_t wordPos = 0;
+        size_t index = 0;
+        while (wordPos < 72) {
+            auto res2 = paragraph->getWordBoundary(wordPos);
+            if (res2.width() == 0) {
+                break;
+            }
+            wordPos = res2.end;
+            auto res3 = paragraph->getRectsForRange(
+                    res2.start, res2.end,
+                    RectHeightStyle::kTight, RectWidthStyle::kTight);
+            paint.setColor(colors[index % 8]);
+            ++index;
+            if (!res3.empty()) {
+                canvas->drawRect(res3[0].rect, paint);
+            }
+        }
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
-//
+
+class ParagraphView35 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph35"); }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return new Click;
+    }
+
+    bool onClick(Click* click) override {
+        fPoint = click->fCurr;
+        return true;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto text = u"hzbzzj sjsjjs sjkkahgafa\u09A4\u09A1\u09A4\u09A0\u09A4\u09A0 jsjzjgvsh sjsjsksbsbsjs sjjajajahhav jssjbxx jsisudg \u09AF\u09A0\u09AF\u09A0\u09A4\u09A0\u09A4\u09A0\u09A5 \u062A\u0624\u062A\u064A\u0646\u0646\u064A\u0621\u0646\u0627\u0644\u0631\u0631\u064A\u0644\u0627 \u062A\u062A\u0644\u0649 \u062A\u0627\u0631\u064A\u062E \u062A\u0633\u0628\u0628 \u0624\u062A\u064A\u062A\u0624\u062A\u0624\u062A\u0624\u062A\u0624 dhishsbs \u7238\u7238\u4E0D\u5BF9\u52B2\u5927\u5BB6\u90FD\u597D\u8BB0\u5F97\u8BB0\u5F97hshs\u099B\u09A1\u099B\u09A1\u099A jdjdj jdjdjd dbbdbdbdbddbnd\u09A2\u099B\u09A1\u09A2\u09A3\u099B\u09B0\u099A\u0998\u09A0\u09A0\u09B8\u09AB\u0997\u09A3\u09A4\u099C\u09B0\u09A5\u099B\u099B\u09A5\u09A6\u099D\u09A6\u09B2\u09A5\u09A4\u09A3\u09A2\u0997\u0996\u09A0\u0998\u0999\u09A3\u099A\u09A5\u09A4\u09A3\u062A\u0628\u0646\u064A\u0646 \u09A5\u09A3\u09A3 \u09A4\u0998\u0998\u0998\u099B\u09A4 \u09A4\u09A3 \u09A3\u0998\u09A2\u09A3\u0999\u0648\u064A\u0648\u0621\u062A\u064A\u0632\u0633\u0646\u0632\u0624\u0624\u0645\u0645\u0624\u0648\u0624\u0648\u0648\u064A\u0646\u0624\u0646\u0624\u0646\u0624\u0624 \u09A4\u09A4\u09A2\u09A2\u09A4\u09A4 \u0999\u0998\u0997\u09C1\u099B\u09A5 \u09A4\u0997\u0998\u09A3\u099A\u099C\u09A6\u09A5\u0632\u0624\u0648\u0624\u0648\u0624 \u09A4\u09A4\u09A3\u0998\u09A2\u09A4\u099B\u09A6\u09A5\u09A4\u0999\u0998\u09A3 \u0648\u0624\u0648\u0624\u0648\u0624\u0632\u0624\u0646\u0633\u0643\u0633\u0643\u0628\u0646\u09A4\u09AD\u0996\u0996\u099F\u09C0\u09C1\u099B\u09A6\u09C0\u09C1\u09C2\u09C7\u0648\u0624\u0646\u0621\u0646\u0624\u0646 \u09C7\u09C2\u09C0\u09C2\u099A\u09A3\u09A2\u09A4\u09A5\u09A5\u0632\u064A\u09C7\u09C2\u09C0\u09C2\u099A\u09A3\u09A2\u09AE\u09A4\u09A5\u09A5 \U0001f34d\U0001f955\U0001f4a7\U0001f4a7\U0001f4a6\U0001f32a";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+        for (size_t i = 0; i < 402; ++i) {
+            //auto res1 = paragraph->getGlyphPositionAtCoordinate(fPoint.fX, fPoint.fY);
+            //auto res2 = paragraph->getWordBoundary(res1.position);
+            auto res3 = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            if (res3.empty()) {
+                SkDebugf("empty: %f %d %d\n", width(), i, i + 1);
+            }
+        }
+/*
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        for (auto& r : res3) {
+            if (SkScalarNearlyZero(r.rect.fLeft) && SkScalarNearlyZero(r.rect.fTop)) {
+                SkDebugf("0, 0: %f %d %d\n", width(), res2.start, res2.end);
+            }
+            canvas->drawRect(r.rect, paint);
+        }
+*/
+    }
+
+private:
+    typedef Sample INHERITED;
+    SkPoint fPoint;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2398,3 +2480,4 @@ DEF_SAMPLE(return new ParagraphView31();)
 DEF_SAMPLE(return new ParagraphView32();)
 DEF_SAMPLE(return new ParagraphView33();)
 DEF_SAMPLE(return new ParagraphView34();)
+DEF_SAMPLE(return new ParagraphView35();)
