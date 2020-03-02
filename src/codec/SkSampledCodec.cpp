@@ -273,7 +273,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
 
     SkSampler* sampler = this->codec()->getSampler(true);
     if (!sampler) {
-        return SkCodec::kUnimplemented;
+        return SkCodec::kInternalError;
     }
 
     if (sampler->setSampleX(sampleX) != info.width()) {

@@ -553,7 +553,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         this->initializeSwizzler(dstInfo, options, true);
     }
 
-    this->allocateStorage(dstInfo);
+    if (!this->allocateStorage(dstInfo)) {
+        return kInternalError;
+    }
 
     int rows = this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height(), options);
     if (rows < dstInfo.height()) {
@@ -564,7 +566,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
+bool SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     int dstWidth = dstInfo.width();
 
     size_t swizzleBytes = 0;
@@ -582,11 +584,14 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
     size_t totalBytes = swizzleBytes + xformBytes;
     if (totalBytes > 0) {
-        fStorage.reset(totalBytes);
+        if (!fStorage.reset(totalBytes)) {
+            return false;
+        }
         fSwizzleSrcRow = (swizzleBytes > 0) ? fStorage.get() : nullptr;
         fColorXformSrcRow = (xformBytes > 0) ?
                 SkTAddOffset<uint32_t>(fStorage.get(), swizzleBytes) : nullptr;
     }
+    return true;
 }
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
@@ -646,7 +651,9 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
             fDecoderMgr->dinfo()->out_color_space, this->getEncodedInfo().profile(),
             this->colorXform());
     this->initializeSwizzler(this->dstInfo(), this->options(), needsCMYKToRGB);
-    this->allocateStorage(this->dstInfo());
+    if (!this->allocateStorage(this->dstInfo())) {
+        return nullptr;
+    }
     return fSwizzler.get();
 }
 
@@ -709,7 +716,9 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         this->initializeSwizzler(dstInfo, options, true);
     }
 
-    this->allocateStorage(dstInfo);
+    if (!this->allocateStorage(dstInfo)) {
+        return kInternalError;
+    }
 
     return kSuccess;
 }
