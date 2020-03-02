@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c323e75a_7870976a",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-02T17:52:17Z",
+      "side": 1,
+      "message": "Maybe add SK_WARN_UNUSED_RESULT here, too?",
+      "range": {
+        "startLine": 109,
+        "startChar": 8,
+        "endLine": 109,
+        "endChar": 9
+      },
+      "revId": "3acbc46858af2523ebc1a7da1fda71c21c5e0767",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
