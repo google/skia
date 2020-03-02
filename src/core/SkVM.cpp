@@ -1901,8 +1901,8 @@ namespace skvm {
         auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
-        const int K = (true && SkCpu::Supports(SkCpu::SKX)) ? 16 :
-                      (true && SkCpu::Supports(SkCpu::HSW)) ?  8 : 4;
+        // Everything I've tested runs faster at K=8 (using ymm) than K=16 (zmm) on SKX machines.
+        const int K = (true && SkCpu::Supports(SkCpu::HSW)) ? 8 : 4;
 
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
                    *i32 = llvm::Type::getInt32Ty(ctx);
