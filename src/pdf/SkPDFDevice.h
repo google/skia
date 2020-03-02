@@ -88,8 +88,7 @@ public:
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
-                      const SkPaint&) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 

@@ -807,8 +807,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         sk_sp<SkVertices> vertices = builder.detach();
 
         paint.addCoverageFragmentProcessor(std::move(fp));
-        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix, std::move(vertices),
-                                          nullptr, 0);
+        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix, std::move(vertices));
     } else {
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {
