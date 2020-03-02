@@ -191,7 +191,6 @@ public:
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
-    virtual const GrSurfaceProxyView* outputView() const = 0;
 
     virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;

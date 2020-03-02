@@ -11,7 +11,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil
         GrOpFlushState* flushState) {
     return GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
                                                     flushState->allocator(),
-                                                    flushState->outputView(),
+                                                    flushState->view(),
                                                     flushState->detachAppliedClip(),
                                                     flushState->dstProxyView(),
                                                     this->detachProcessorSet(),
