@@ -282,11 +282,7 @@ def _CommonChecks(input_api, output_api):
 
 
 def CheckChangeOnUpload(input_api, output_api):
-  """Presubmit checks for the change on upload.
-
-  The following are the presubmit checks:
-  * Check change has one and only one EOL.
-  """
+  """Presubmit checks for the change on upload."""
   results = []
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
@@ -524,14 +520,7 @@ def PostUploadHook(gerrit, change, output_api):
 
 
 def CheckChangeOnCommit(input_api, output_api):
-  """Presubmit checks for the change on commit.
-
-  The following are the presubmit checks:
-  * Check change has one and only one EOL.
-  * Ensures that the Skia tree is open in
-    http://skia-tree-status.appspot.com/. Shows a warning if it is in 'Caution'
-    state and an error if it is in 'Closed' state.
-  """
+  """Presubmit checks for the change on commit."""
   results = []
   results.extend(_CommonChecks(input_api, output_api))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
