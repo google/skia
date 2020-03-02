@@ -33,24 +33,57 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-    : fInfo(info)
-    , fSurfaceProps(surfaceProps)
-{
-    fOrigin = {0, 0};
-    fCTM.reset();
+        : fInfo(info)
+        , fSurfaceProps(surfaceProps) {
+    fDeviceToGlobal.reset();
+    fGlobalToDevice.reset();
+    fLocalToDevice.reset();
 }
 
-void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
-    fOrigin.set(x, y);
-    fCTM = globalCTM;
-    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
+                                             const SkMatrix& localToDevice,
+                                             int deviceOriginX,
+                                             int deviceOriginY) {
+    fDeviceToGlobal = deviceToGlobal;
+    SkAssertResult(deviceToGlobal.invert(&fGlobalToDevice));
+    fLocalToDevice = localToDevice;
+    if (deviceOriginX | deviceOriginY) {
+        fDeviceToGlobal.preTranslate(deviceOriginX, deviceOriginY);
+        fGlobalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
+        fLocalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
+    }
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
-    fCTM = ctm;
-    if (fOrigin.fX | fOrigin.fY) {
-        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    fLocalToDevice = ctm;
+    if (!fGlobalToDevice.isIdentity()) {
+        // Map from the global CTM state to this device's coordinate system.
+        fLocalToDevice.postConcat(fGlobalToDevice);
     }
+}
+
+bool SkBaseDevice::isPixelAlignedToGlobal() const {
+    return fDeviceToGlobal.isTranslate() &&
+           SkScalarIsInt(fDeviceToGlobal.getTranslateX()) &&
+           SkScalarIsInt(fDeviceToGlobal.getTranslateY());
+}
+
+SkIPoint SkBaseDevice::getOrigin() const {
+    // getOrigin() is deprecated, the old origin has been moved into the fDeviceToGlobal matrix.
+    // This extracts the origin from the matrix, but asserts that a more complicated coordinate
+    // space hasn't been set of the device. This function can be removed once existing use cases
+    // have been updated to use the device-to-global matrix instead or have themselves been removed
+    // (e.g. Android's device-space clip regions are going away, and are not compatible with the
+    // generalized device coordinate system).
+    SkASSERT(this->isPixelAlignedToGlobal());
+    return SkIPoint::Make(SkScalarFloorToInt(fDeviceToGlobal.getTranslateX()),
+                          SkScalarFloorToInt(fDeviceToGlobal.getTranslateY()));
+}
+
+SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
+    // To get the transform from the input's space to this space, transform from the input space to
+    // the global space, and then from the global space back to this space.
+    return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
 bool SkBaseDevice::clipIsWideOpen() const {
@@ -83,12 +116,12 @@ static inline bool is_int(float x) {
 }
 
 void SkBaseDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
-    const SkMatrix& ctm = this->ctm();
-    bool isNonTranslate = ctm.getType() & ~(SkMatrix::kTranslate_Mask);
+    const SkMatrix& localToDevice = this->localToDevice();
+    bool isNonTranslate = localToDevice.getType() & ~(SkMatrix::kTranslate_Mask);
     bool complexPaint = paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
                         paint.getPathEffect();
-    bool antiAlias = paint.isAntiAlias() && (!is_int(ctm.getTranslateX()) ||
-                                             !is_int(ctm.getTranslateY()));
+    bool antiAlias = paint.isAntiAlias() && (!is_int(localToDevice.getTranslateX()) ||
+                                             !is_int(localToDevice.getTranslateY()));
     if (isNonTranslate || complexPaint || antiAlias) {
         SkPath path;
         region.getBoundaryPath(&path);
@@ -125,7 +158,7 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
-    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
+    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->localToDevice());
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
                                                this->imageInfo().colorSpace());
     if (vertices) {
@@ -270,7 +303,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
     SkASSERT(!paint.getPathEffect());
 
     SkPaint entryPaint = paint;
-    const SkMatrix baseCTM = this->ctm();
+    const SkMatrix baseLocalToDevice = this->localToDevice();
     int clipIndex = 0;
     for (int i = 0; i < count; ++i) {
         // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
@@ -283,8 +316,8 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         SkASSERT(images[i].fMatrixIndex < 0 || preViewMatrices);
         if (images[i].fMatrixIndex >= 0) {
             this->save();
-            this->setGlobalCTM(SkMatrix::Concat(
-                    baseCTM, preViewMatrices[images[i].fMatrixIndex]));
+            this->setLocalToDevice(SkMatrix::Concat(
+                    baseLocalToDevice, preViewMatrices[images[i].fMatrixIndex]));
             needsRestore = true;
         }
 
@@ -303,7 +336,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
                             entryPaint, constraint);
         if (needsRestore) {
-            this->restore(baseCTM);
+            this->restoreLocal(baseLocalToDevice);
         }
     }
 }
@@ -366,8 +399,8 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
                                        const SkRSXform xform[], int count, SkPoint origin,
                                        const SkPaint& paint) {
-    const SkMatrix originalCTM = this->ctm();
-    if (!originalCTM.isFinite() || !SkScalarIsFinite(font.getSize()) ||
+    const SkMatrix originalLocalToDevice = this->localToDevice();
+    if (!originalLocalToDevice.isFinite() || !SkScalarIsFinite(font.getSize()) ||
         !SkScalarIsFinite(font.getScaleX()) ||
         !SkScalarIsFinite(font.getSkewX())) {
         return;
@@ -387,8 +420,8 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         glyphID = glyphs[i];
         // now "glyphRun" is pointing at the current glyphID
 
-        SkMatrix ctm;
-        ctm.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
+        SkMatrix glyphToDevice;
+        glyphToDevice.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
 
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
@@ -397,19 +430,19 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         auto shader = transformingPaint.getShader();
         if (shader) {
             SkMatrix inverse;
-            if (ctm.invert(&inverse)) {
+            if (glyphToDevice.invert(&inverse)) {
                 transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
             } else {
                 transformingPaint.setShader(nullptr);  // can't handle this xform
             }
         }
 
-        ctm.setConcat(originalCTM, ctm);
-        this->setCTM(ctm);
+        glyphToDevice.postConcat(originalLocalToDevice);
+        this->setLocalToDevice(glyphToDevice);
 
         this->drawGlyphRunList(SkGlyphRunList{glyphRun, transformingPaint});
     }
-    this->setCTM(originalCTM);
+    this->setLocalToDevice(originalLocalToDevice);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

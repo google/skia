@@ -333,7 +333,7 @@ protected:
         GrTextContext::SanitizeOptions(&options);
 
         fPainter.processGlyphRunList(glyphRunList,
-                                     this->ctm(),
+                                     this->localToDevice(),
                                      this->surfaceProps(),
                                      fDFTSupport,
                                      options,
