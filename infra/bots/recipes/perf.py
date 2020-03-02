@@ -42,8 +42,27 @@ def upload_perf_results(buildername):
   return True
 
 
-def nanobench_flags(api, bot):
-  args = ['--pre_log']
+def nanobench_flags(bot, parts, do_upload, revision, issue, patchset,
+                    patch_storage):
+  # TODO(borenet): This duplicates code in recipes_modules/vars/api.py and will
+  # be removed soon.
+  is_linux = (
+        'Ubuntu' in bot
+     or 'Debian' in bot
+     or 'Housekeeper' in bot
+  )
+  extra_tokens = []
+  if len(parts.get('extra_config', '')) > 0:
+    if parts['extra_config'].startswith('SK'):
+      assert parts['extra_config'].isupper()
+      extra_tokens = [parts['extra_config']]
+    else:
+      extra_tokens = parts['extra_config'].split('_')
+
+  args = [
+      'nanobench',
+      '--pre_log',
+  ]
 
   if 'GPU' in bot:
     args.append('--images')
@@ -55,7 +74,7 @@ def nanobench_flags(api, bot):
     args.extend(['--skps', 'ignore_skps'])
 
   configs = []
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+  if parts.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
     configs.extend(['8888', 'nonrendering'])
 
@@ -71,11 +90,7 @@ def nanobench_flags(api, bot):
     if 'Nexus7' in bot:
       args.append('--purgeBetweenBenches')  # Debugging skia:8929
 
-    if 'Android' in bot:
-      assert api.flavor.device_dirs.texttraces_dir
-      args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
-
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  elif parts.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
     gl_prefix = 'gl'
@@ -105,7 +120,7 @@ def nanobench_flags(api, bot):
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
-    if 'Intel' in bot and api.vars.is_linux:
+    if 'Intel' in bot and is_linux:
       configs.extend(['gles', 'glessrgb'])
 
     if 'CommandBuffer' in bot:
@@ -183,10 +198,10 @@ def nanobench_flags(api, bot):
   if 'iOS' in bot and 'Metal' in bot:
     # skia:9799
     match.append('~compositing_images_tile_size')
-  if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
+  if ('Intel' in bot and is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
-  if 'IntelHD405' in bot and api.vars.is_linux and 'Vulkan' in bot:
+  if 'IntelHD405' in bot and is_linux and 'Vulkan' in bot:
     # skia:7322
     match.append('~desk_carsvg.skp_1')
     match.append('~desk_googlehome.skp')
@@ -260,7 +275,23 @@ def nanobench_flags(api, bot):
   if verbose:
     args.append('--verbose')
 
-  return args
+  props = {
+    'gitHash': revision,
+    'issue': issue,
+    'patchset': patchset,
+    'patch_storage': patch_storage,
+    'swarming_bot_id': '${SWARMING_BOT_ID}',
+    'swarming_task_id': '${SWARMING_TASK_ID}',
+  }
+
+  if do_upload:
+    keys_blacklist = ['configuration', 'role', 'test_filter']
+    args.append('--key')
+    for k in sorted(parts.keys()):
+      if not k in keys_blacklist:
+        args.extend([k, parts[k]])
+
+  return args, props
 
 
 def perf_steps(api):
@@ -270,34 +301,44 @@ def perf_steps(api):
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
 
-  # Run nanobench.
-  properties = [
-    '--properties',
-    'gitHash', api.properties['revision'],
-  ]
-  if api.vars.is_trybot:
-    properties.extend([
-      'issue',    api.vars.issue,
-      'patchset', api.vars.patchset,
-      'patch_storage', api.vars.patch_storage,
-    ])
-  properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
-  properties.extend(['swarming_task_id', api.vars.swarming_task_id])
+  # Find nanobench flags.
+  args, props = nanobench_flags(
+    bot=b,
+    parts=api.vars.builder_cfg,
+    do_upload=upload_perf_results(b),
+    revision=api.properties['revision'],
+    issue=str(api.vars.issue) if api.vars.is_trybot else '',
+    patchset=str(api.vars.patchset) if api.vars.is_trybot else '',
+    patch_storage=str(api.vars.patch_storage) if api.vars.is_trybot else '',
+  )
+  swarming_bot_id = api.vars.swarming_bot_id
+  swarming_task_id = api.vars.swarming_task_id
+  if upload_perf_results(b):
+    args.append('--properties')
+    # Map iteration order is arbitrary; in order to maintain a consistent step
+    # ordering, sort by key.
+    for k in sorted(props.keys()):
+      v = props[k]
+      if v == '${SWARMING_BOT_ID}':
+        v = swarming_bot_id
+      elif v == '${SWARMING_TASK_ID}':
+        v = swarming_task_id
+      if v != '':
+        args.extend([k, v])
 
-  target = 'nanobench'
-  args = [
-      target,
+  # Paths to required resources.
+  args.extend([
       '-i',       api.flavor.device_dirs.resource_dir,
       '--skps',   api.flavor.device_dirs.skp_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.images_dir, 'nanobench'),
-  ]
-
+  ])
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU' and 'Android' in b:
+    assert api.flavor.device_dirs.texttraces_dir
+    args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
   # Do not run svgs on Valgrind.
-  if 'Valgrind' not in api.vars.builder_name:
+  if 'Valgrind' not in b:
     args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
-
-  args.extend(nanobench_flags(api, api.vars.builder_name))
 
   if upload_perf_results(b):
     now = api.time.utcnow()
@@ -306,15 +347,8 @@ def perf_steps(api):
         api.flavor.device_dirs.perf_data_dir,
         'nanobench_%s_%d.json' % (api.properties['revision'], ts))
     args.extend(['--outResultsFile', json_path])
-    args.extend(properties)
 
-    keys_blacklist = ['configuration', 'role', 'test_filter']
-    args.append('--key')
-    for k in sorted(api.vars.builder_cfg.keys()):
-      if not k in keys_blacklist:
-        args.extend([k, api.vars.builder_cfg[k]])
-
-  api.run(api.flavor.step, target, cmd=args,
+  api.run(api.flavor.step, 'nanobench', cmd=args,
           abort_on_failure=False)
 
   # Copy results to swarming out dir.
@@ -358,6 +392,8 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs',
+  ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+   'SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
   'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
   ('Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-'
