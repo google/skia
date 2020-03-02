@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "29178804_8761c89e",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T18:02:25Z",
+      "side": 1,
+      "message": "Just being pedantic, but there were a couple cases where you replaced something like \u0027foo\u0027 in extra_tokens with has(\"foo\"). None of them seemed like a big deal.",
+      "parentUuid": "a2657b86_220ad095",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 2
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4353c71_d5216c31",
         "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
         "patchSetId": 5
