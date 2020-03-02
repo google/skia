@@ -1049,8 +1049,7 @@ void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
     }
 }
 
-void SkSVGDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
-                               const SkPaint&) {
+void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     // todo
 }
 
