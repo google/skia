@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e15ab7b_b57fef8c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-02T18:38:57Z",
+      "side": 0,
+      "message": "Notice that this has an underscore as a prefix. That means there is some JS code/glue:\nhttps://github.com/google/skia/blob/master/modules/canvaskit/interface.js#L801\n\nPlease also remove that and add an entry under Removed in modules/canvaskit/CHANGELOG.md",
+      "revId": "5a109c7c9b287695cdb6b1ddc49a401de023b3f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
