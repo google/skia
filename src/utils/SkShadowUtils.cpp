@@ -381,7 +381,7 @@ private:
 static void* kNamespace;
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class ShadowInvalidator : public SkPathRef::GenIDChangeListener {
+class ShadowInvalidator : public SkIDChangeListener {
 public:
     ShadowInvalidator(const SkResourceCache::Key& key) {
         fKey.reset(new uint8_t[key.size()]);
@@ -398,7 +398,7 @@ private:
         return false;
     }
 
-    void onChange() override {
+    void changed() override {
         SkResourceCache::Find(this->getKey(), ShadowInvalidator::FindVisitor, nullptr);
     }
 

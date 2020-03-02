@@ -42,17 +42,15 @@ struct TessInfo {
 };
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
+class UniqueKeyInvalidator : public SkIDChangeListener {
 public:
-    PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
+    UniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID) {}
 
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
 
-    void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
-    }
+    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
 };
 
 bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
@@ -286,7 +284,8 @@ private:
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
-        fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
+        fShape.addGenIDChangeListener(
+                sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 

@@ -71,6 +71,8 @@ public:
 #endif
 
 private:
+    void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
+
     class ScopedGenerator;
 
     // Note that this->imageInfo() is not necessarily the info from the generator. It may be
@@ -87,10 +89,10 @@ private:
     mutable sk_sp<SkImage>      fOnMakeColorTypeAndSpaceResult;
 
 #if SK_SUPPORT_GPU
-    // When the SkImage_Lazy goes away, we will iterate over all the unique keys we've used and
-    // send messages to the GrContexts to say the unique keys are no longer valid. The GrContexts
-    // can then release the resources, conntected with the those unique keys, from their caches.
-    mutable SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
+    // When the SkImage_Lazy goes away, we will iterate over all the listeners to inform them
+    // of the unique ID's demise. This is used to remove cached textures from GrContext.
+    mutable SkTDArray<SkIDChangeListener*> fUniqueIDListeners;
+    mutable SkMutex fUniqueIDListenersMutex;
 #endif
 
     typedef SkImage_Base INHERITED;

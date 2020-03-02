@@ -28,7 +28,7 @@ public:
     GrCCPathCache(uint32_t contextUniqueID);
     ~GrCCPathCache();
 
-    class Key : public SkPathRef::GenIDChangeListener {
+    class Key : public SkIDChangeListener {
     public:
         static sk_sp<Key> Make(uint32_t pathCacheUniqueID, int dataCountU32,
                                const void* data = nullptr);
@@ -50,7 +50,7 @@ public:
         }
 
         // Called when our corresponding path is modified or deleted. Not threadsafe.
-        void onChange() override;
+        void changed() override;
 
         // TODO(b/30449950): use sized delete once P0722R3 is available
         static void operator delete(void* p);
@@ -248,7 +248,7 @@ private:
             : fCacheKey(std::move(cacheKey)), fMaskTransform(maskTransform) {
     }
 
-    bool hasBeenEvicted() const { return fCacheKey->shouldUnregisterFromPath(); }
+    bool hasBeenEvicted() const { return fCacheKey->shouldDeregister(); }
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.

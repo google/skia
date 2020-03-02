@@ -4347,13 +4347,12 @@ static void test_dump(skiatest::Reporter* reporter) {
 
 namespace {
 
-class ChangeListener : public SkPathRef::GenIDChangeListener {
+class ChangeListener : public SkIDChangeListener {
 public:
     ChangeListener(bool *changed) : fChanged(changed) { *fChanged = false; }
     ~ChangeListener() override {}
-    void onChange() override {
-        *fChanged = true;
-    }
+    void changed() override { *fChanged = true; }
+
 private:
     bool* fChanged;
 };

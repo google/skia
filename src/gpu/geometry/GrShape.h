@@ -474,7 +474,7 @@ public:
      * a path is no longer in-use. If the shape started out as something other than a path, this
      * does nothing.
      */
-    void addGenIDChangeListener(sk_sp<SkPathRef::GenIDChangeListener>) const;
+    void addGenIDChangeListener(sk_sp<SkIDChangeListener>) const;
 
     /**
      * Helpers that are only exposed for unit tests, to determine if the shape is a path, and get
