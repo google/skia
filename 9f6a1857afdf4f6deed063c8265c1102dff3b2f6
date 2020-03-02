@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2bb3889b_e77c9c53",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T17:55:54Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "3fabe2b0_c2bee38e",
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4898c14c_479632da",
         "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
         "patchSetId": 5
@@ -33,6 +51,24 @@
       "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a71814da_c98b748f",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T17:55:54Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "4898c14c_479632da",
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "e2506284_458e0b21",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T17:55:54Z",
+      "side": 0,
+      "message": "I removed it because nothing was using it.  Added it back so that nothing unexpected happens if someone adds a sharded bot before this file gets cleaned up.",
+      "parentUuid": "86d68359_e701ecb5",
+      "range": {
+        "startLine": 371,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 0
+      },
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b29080c_6c76681c",
         "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
         "patchSetId": 5
@@ -79,6 +139,30 @@
       "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5606b8da_f6b11ee4",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-02T17:55:54Z",
+      "side": 0,
+      "message": "Yes, these were unused.  Added back and will perform a cleanup pass.",
+      "parentUuid": "6b29080c_6c76681c",
+      "range": {
+        "startLine": 809,
+        "startChar": 0,
+        "endLine": 812,
+        "endChar": 38
+      },
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
