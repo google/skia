@@ -285,8 +285,6 @@ void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, const SkVertic
                                       int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     this->append<SkRecords::DrawVertices>(paint,
                                           sk_ref_sp(const_cast<SkVertices*>(vertices)),
-                                          this->copy(bones, boneCount),
-                                          boneCount,
                                           bmode);
 }
 

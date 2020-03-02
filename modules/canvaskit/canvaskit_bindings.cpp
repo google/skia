@@ -83,11 +83,6 @@
 #include "include/pathops/SkPathOps.h"
 #endif
 
-// Aliases for less typing
-using BoneIndices = SkVertices::BoneIndices;
-using BoneWeights = SkVertices::BoneWeights;
-using Bone        = SkVertices::Bone;
-
 #ifndef SK_NO_FONTS
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
 #endif
@@ -1547,11 +1542,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkVertices>("SkVertices")
         .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
-        .function("_applyBones", optional_override([](SkVertices& self, uintptr_t /* Bone* */ bptr, int boneCount)->sk_sp<SkVertices> {
-            // See comment above for uintptr_t explanation
-            const Bone* bones = reinterpret_cast<const Bone*>(bptr);
-            return self.applyBones(bones, boneCount);
-        }))
         .function("bounds", &SkVertices::bounds)
         .function("mode", &SkVertices::mode)
         .function("uniqueID", &SkVertices::uniqueID)
@@ -1568,14 +1558,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
     // Not intended to be called directly by clients
     class_<SkVertices::Builder>("_SkVerticesBuilder")
         .constructor<SkVertices::VertexMode, int, int, uint32_t>()
-        .function("boneIndices", optional_override([](SkVertices::Builder& self)->uintptr_t /* BoneIndices* */{
-            // Emscripten won't let us return bare pointers, but we can return ints just fine.
-            return reinterpret_cast<uintptr_t>(self.boneIndices());
-        }))
-        .function("boneWeights", optional_override([](SkVertices::Builder& self)->uintptr_t /* BoneWeights* */{
-            // Emscripten won't let us return bare pointers, but we can return ints just fine.
-            return reinterpret_cast<uintptr_t>(self.boneWeights());
-        }))
         .function("colors", optional_override([](SkVertices::Builder& self)->uintptr_t /* SkColor* */{
             // Emscripten won't let us return bare pointers, but we can return ints just fine.
             return reinterpret_cast<uintptr_t>(self.colors());

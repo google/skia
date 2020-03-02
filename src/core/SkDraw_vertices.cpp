@@ -226,11 +226,9 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
 
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint textures[],
-                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
-                          const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
+                          const SkColor colors[], SkBlendMode bmode,
                           const uint16_t indices[], int indexCount,
-                          const SkPaint& paint, const SkVertices::Bone bones[],
-                          int boneCount) const {
+                          const SkPaint& paint) const {
     SkASSERT(0 == vertexCount || vertices);
 
     // abort early if there is nothing to draw
@@ -274,48 +272,6 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                                  sizeof(SkShader_Blend) +
                                  (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
     SkSTArenaAlloc<kOuterSize> outerAlloc;
-
-    // deform vertices using the skeleton if it is passed in
-    if (bones && boneCount) {
-        // allocate space for the deformed vertices
-        SkPoint* deformed = outerAlloc.makeArray<SkPoint>(vertexCount);
-
-        // deform the vertices
-        if (boneIndices && boneWeights) {
-            for (int i = 0; i < vertexCount; i ++) {
-                const SkVertices::BoneIndices& indices = boneIndices[i];
-                const SkVertices::BoneWeights& weights = boneWeights[i];
-
-                // apply the world transform
-                SkPoint worldPoint = bones[0].mapPoint(vertices[i]);
-
-                // apply bone deformations
-                deformed[i] = SkPoint::Make(0.0f, 0.0f);
-                for (uint32_t j = 0; j < 4; j ++) {
-                    // get the attachment data
-                    uint32_t index = indices[j];
-                    float weight = weights[j];
-
-                    // skip the bone if there is no weight
-                    if (weight == 0.0f) {
-                        continue;
-                    }
-                    SkASSERT(index != 0);
-
-                    // deformed += M * v * w
-                    deformed[i] += bones[index].mapPoint(worldPoint) * weight;
-                }
-            }
-        } else {
-            // no bones, so only apply world transform
-            SkMatrix worldTransform = SkMatrix::I();
-            worldTransform.setAffine(bones[0].values);
-            worldTransform.mapPoints(deformed, vertices, vertexCount);
-        }
-
-        // change the vertices to point to deformed
-        vertices = deformed;
-    }
 
     /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
         and how to prep our "uniforms" before each triangle in the tricolorshader.

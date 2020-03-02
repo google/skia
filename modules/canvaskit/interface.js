@@ -792,19 +792,6 @@ CanvasKit.onRuntimeInitialized = function() {
     return null;
   };
 
-  // bones should be a 3d array.
-  // Each bone is a 3x2 transformation matrix in column major order:
-  // | scaleX   skewX transX |
-  // |  skewY  scaleY transY |
-  // and bones is an array of those matrices.
-  // Returns a copy of this (SkVertices) with the bones applied.
-  CanvasKit.SkVertices.prototype.applyBones = function(bones) {
-    var bPtr = copy3dArray(bones, CanvasKit.HEAPF32);
-    var vert = this._applyBones(bPtr, bones.length);
-    CanvasKit._free(bPtr);
-    return vert;
-  }
-
   CanvasKit.SkImage.prototype.encodeToData = function() {
     if (!arguments.length) {
       return this._encodeToData();
@@ -1252,7 +1239,7 @@ CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, 
 }
 
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
-                                    boneIndices, boneWeights, indices, isVolatile) {
+                                    indices, isVolatile) {
   // Default isVolitile to true if not set
   isVolatile = isVolatile === undefined ? true : isVolatile;
   var idxCount = (indices && indices.length) || 0;
@@ -1265,11 +1252,8 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
   if (colors && colors.length) {
     flags |= (1 << 1);
   }
-  if (boneIndices && boneIndices.length) {
-    flags |= (1 << 2);
-  }
   if (!isVolatile) {
-    flags |= (1 << 3);
+    flags |= (1 << 2);
   }
 
   var builder = new CanvasKit._SkVerticesBuilder(mode,  positions.length, idxCount, flags);
@@ -1280,12 +1264,6 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
   }
   if (builder.colors()) {
     copy1dArray(colors,             CanvasKit.HEAPU32, builder.colors());
-  }
-  if (builder.boneIndices()) {
-    copy2dArray(boneIndices,        CanvasKit.HEAP32, builder.boneIndices());
-  }
-  if (builder.boneWeights()) {
-    copy2dArray(boneWeights,        CanvasKit.HEAPF32, builder.boneWeights());
   }
   if (builder.indices()) {
     copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());

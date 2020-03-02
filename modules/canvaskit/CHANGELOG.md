@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - SkMatrix.invert now returns null when the matrix is not invertible. Previously it would return an
    identity matrix. Callers must determine what behavior would be appropriate in this situation.
  - In Canvas2D compatibility layer, the underlying SkFont will have setSubpixel(true).
+- Bones are removed from Vertices builder
 
 ### Fixed
  - Support for .otf fonts (.woff and .woff2 still not supported).

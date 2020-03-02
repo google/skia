@@ -28,8 +28,6 @@ namespace GrDrawVerticesOp {
     std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                    GrPaint&&,
                                    sk_sp<SkVertices>,
-                                   const SkVertices::Bone bones[],
-                                   int boneCount,
                                    const SkMatrix& viewMatrix,
                                    GrAAType,
                                    sk_sp<GrColorSpaceXform>,

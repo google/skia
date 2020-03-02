@@ -64,10 +64,9 @@ public:
                              SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
-                         const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
+                         const SkColor colors[], SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
-                         const SkPaint& paint, const SkVertices::Bone bones[], int boneCount) const;
+                         const SkPaint& paint) const;
     void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                     SkBlendMode, const SkPaint&);
 
