@@ -2467,6 +2467,11 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
         return false;
     }
 
+    // The other paint effects need to be applied before the image filter, but the sprite draw
+    // applies the filter explicitly first.
+    if (paint.getAlphaf() < 1.f || paint.getColorFilter() || paint.getMaskFilter()) {
+        return false;
+    }
     // Currently we can only use the filterSprite code if we are clipped to the bitmap's bounds.
     // Once we can filter and the filter will return a result larger than itself, we should be
     // able to remove this constraint.
