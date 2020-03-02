@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62739fc1_2a4d6538",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-02T14:29:22Z",
+      "side": 1,
+      "message": "With this simplification, we\u0027re now always initializing the GrTextureAdjuster even if draw_texture_producer decides to use draw_texture internally. In all likelihood this won\u0027t make a difference in performance, but if we see alerts, we can look here.",
+      "range": {
+        "startLine": 425,
+        "startChar": 8,
+        "endLine": 428,
+        "endChar": 40
+      },
+      "revId": "4b7fefd119122a5cf53a759d7dc20371964bf266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
