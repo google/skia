@@ -2341,21 +2341,21 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = getFontCollection();
+        auto text = "ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kJustify);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(36);
+        text_style.setFontFamilies({});
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
-        builder.addText("Something");
+        builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
-        paragraph->layout(0);
+        paragraph->layout(width() / 2);
         paragraph->paint(canvas, 0, 0);
     }
 

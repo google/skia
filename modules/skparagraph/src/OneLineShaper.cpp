@@ -396,7 +396,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
     std::vector<sk_sp<SkTypeface>> typefaces = fParagraph->fFontCollection->findTypefaces(textStyle.getFontFamilies(), textStyle.getFontStyle());
 
     for (const auto& typeface : typefaces) {
-        if (!visitor(typeface)) {
+        if (visitor(typeface) == Resolved::Everything) {
             // Resolved everything
             return;
         }
@@ -420,20 +420,19 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                     return;
                 }
 
-                if (!visitor(typeface)) {
-                    // Resolved everything
+                auto resolved = visitor(typeface);
+                if (resolved == Resolved::Everything) {
+                    // Resolved everything, no need to try another font
                     return;
                 }
 
-                // Check if anything was resolved and stop it it was not
-                auto last = fUnresolvedBlocks.back();
-                if (!(unresolvedRange == last.fText)) {
-                    // Resolved something, no need to repeat
+                if (resolved == Resolved::Something) {
+                    // Resolved something, no need to try another codepoint
                     break;
                 }
 
                 if (ch == unresolvedText.end()) {
-                    // Not a single codepoint could be resolved but we can switch to another block
+                    // Not a single codepoint could be resolved but we finished the block
                     break;
                 }
 
@@ -572,8 +571,9 @@ bool OneLineShaper::shape() {
 
                 // Walk through all the currently unresolved blocks
                 // (ignoring those that appear later)
-                auto count = fUnresolvedBlocks.size();
-                while (count-- > 0) {
+                auto resolvedCount = fResolvedBlocks.size();
+                auto unresolvedCount = fUnresolvedBlocks.size();
+                while (unresolvedCount-- > 0) {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
@@ -594,8 +594,13 @@ bool OneLineShaper::shape() {
                     this->dropUnresolved();
                 }
 
-                // Continue until we resolved all the code points
-                return !fUnresolvedBlocks.empty();
+                if (fUnresolvedBlocks.empty()) {
+                    return Resolved::Everything;
+                } else if (resolvedCount < fResolvedBlocks.size()) {
+                    return Resolved::Something;
+                } else {
+                    return Resolved::Nothing;
+                }
             });
 
             this->finish(block.fRange, fHeight, advanceX);
