@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -1421,34 +1420,8 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		extraProps[k] = v
 	}
 	iid := b.internalHardwareLabel(parts)
-	iidStr := ""
 	if iid != nil {
-		iidStr = strconv.Itoa(*iid)
-	}
-	if recipe == "test" {
-		partsJson, err := json.Marshal(parts)
-		if err != nil {
-			glog.Fatal(err)
-		}
-		dmFlagsScript := filepath.Join(CheckoutRoot(), "infra", "bots", "recipe_modules", "vars", "resources", "dm_flags.py")
-		out, err := exec.Command(
-			"python", dmFlagsScript,
-			"--bot", name,
-			"--parts", string(partsJson),
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--issue", specs.PLACEHOLDER_ISSUE,
-			"--patchset", specs.PLACEHOLDER_PATCHSET,
-			"--patch_storage", specs.PLACEHOLDER_PATCH_STORAGE,
-			"--buildbucket_build_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-			"--swarming_bot_id", "${SWARMING_BOT_ID}",
-			"--swarming_task_id", "${SWARMING_TASK_ID}",
-			"--internal_hardware_label", iidStr,
-		).CombinedOutput()
-		if err != nil {
-			glog.Fatal(err)
-		}
-		extraProps["dm_flags"] = strings.TrimSpace(string(out))
+		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
