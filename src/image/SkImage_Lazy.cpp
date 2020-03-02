@@ -18,7 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
-#include "src/core/SkIDChangeListener.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpuResourcePriv.h"
@@ -132,17 +131,6 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
     fUniqueID = validator->fUniqueID;
 }
 
-SkImage_Lazy::~SkImage_Lazy() {
-#if SK_SUPPORT_GPU
-    // We don't need the mutex. No other thread should have this image while it's being destroyed.
-    for (int i = 0; i < fUniqueIDListeners.count(); ++i) {
-        if (!fUniqueIDListeners[i]->shouldDeregister()) {
-            fUniqueIDListeners[i]->changed();
-        }
-        fUniqueIDListeners[i]->unref();
-    }
-#endif
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -566,13 +554,8 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
 
 #if SK_SUPPORT_GPU
 void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
-    // Don't bother with the expense of a mutex lock if no other thread can have this image.
-    if (this->unique()) {
-        fUniqueIDListeners.push_back(listener.release());
-    } else {
-        SkAutoMutexExclusive lock(fUniqueIDListenersMutex);
-        fUniqueIDListeners.push_back(listener.release());
-    }
+    bool singleThreaded = this->unique();
+    fUniqueIDListeners.add(std::move(listener), singleThreaded);
 }
 #endif
 

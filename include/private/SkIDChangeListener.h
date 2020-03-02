@@ -8,7 +8,9 @@
 #ifndef SkIDChangeListener_DEFINED
 #define SkIDChangeListener_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTDArray.h"
 
 #include <atomic>
 
@@ -21,9 +23,9 @@
  */
 class SkIDChangeListener : public SkRefCnt {
 public:
-    SkIDChangeListener() = default;
+    SkIDChangeListener();
 
-    virtual ~SkIDChangeListener() = default;
+    ~SkIDChangeListener() override;
 
     virtual void changed() = 0;
 
@@ -35,6 +37,36 @@ public:
 
     /** Indicates whether markShouldDeregister was called. */
     bool shouldDeregister() { return fShouldDeregister.load(std::memory_order_acquire); }
+
+    /** Manages a list of SkIDChangeListeners. */
+    class List {
+    public:
+        List();
+
+        ~List();
+
+        /**
+         * Add a new listener to the list. It must not already be deregistered. Also clears out
+         * previously deregistered listeners.
+         */
+        void add(sk_sp<SkIDChangeListener> listener, bool singleThreaded = false);
+
+        /**
+         * The number of registered listeners (including deregisterd listeners that are yet-to-be
+         * removed.
+         */
+        int count();
+
+        /** Calls changed() on all listeners that haven't been deregistered and resets the list. */
+        void changed(bool singleThreaded = false);
+
+        /** Resets without calling changed() on the listeners. */
+        void reset(bool singleThreaded = false);
+
+    private:
+        SkMutex fMutex;
+        SkTDArray<SkIDChangeListener*> fListeners;  // pointers are reffed
+    };
 
 private:
     std::atomic<bool> fShouldDeregister = false;
