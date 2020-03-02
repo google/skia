@@ -15,12 +15,12 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrRecordingContext.h"
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkIDChangeListener.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMessageBus.h"
@@ -101,22 +101,6 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID,
-                                         SkPixelRef* pixelRef) {
-    class Invalidator : public SkPixelRef::GenIDChangeListener {
-    public:
-        explicit Invalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
-                : fMsg(key, contextUniqueID) {}
-
-    private:
-        GrUniqueKeyInvalidatedMessage fMsg;
-
-        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
-    };
-
-    pixelRef->addGenIDChangeListener(new Invalidator(key, contextUniqueID));
-}
 
 sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
                                                               uint32_t contextID) {

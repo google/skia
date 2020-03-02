@@ -1091,6 +1091,7 @@ static_library("pathkit") {
     "src/core/SkEdgeBuilder.cpp",
     "src/core/SkEdgeClipper.cpp",
     "src/core/SkGeometry.cpp",
+    "src/core/SkIDChangeListener.cpp",
     "src/core/SkLineClipper.cpp",
     "src/core/SkMalloc.cpp",
     "src/core/SkMallocPixelRef.cpp",

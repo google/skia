@@ -9,7 +9,7 @@
 #define SkPathPriv_DEFINED
 
 #include "include/core/SkPath.h"
-#include "src/core/SkIDChangeListener.h"
+#include "include/private/SkIDChangeListener.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");

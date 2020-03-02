@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPixelRef.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkMipMap.h"
+#include "include/private/SkIDChangeListener.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -33,7 +33,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const Sk
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
                                            bitmap.height());
-        GrMakeKeyFromImageID(&fOriginalKey, bitmap.pixelRef()->getGenerationID(), subset);
+        GrMakeKeyFromImageID(&fKey, bitmap.pixelRef()->getGenerationID(), subset);
     }
 }
 
@@ -42,9 +42,15 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
     sk_sp<GrTextureProxy> proxy;
     GrSwizzle swizzle;
 
-    if (fOriginalKey.isValid()) {
+    auto installKey = [&](GrTextureProxy* proxy) {
+        auto listener = GrMakeUniqueKeyInvalidationListener(&fKey, proxyProvider->contextID());
+        fBitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+        proxyProvider->assignUniqueKeyToProxy(fKey, proxy);
+    };
+
+    if (fKey.isValid()) {
         auto colorType = SkColorTypeToGrColorType(fBitmap.colorType());
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(fOriginalKey, colorType);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(fKey, colorType);
         if (proxy) {
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                      this->colorType());
@@ -71,10 +77,8 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                      this->colorType());
             SkASSERT(mipMapped == GrMipMapped::kNo || proxy->mipMapped() == GrMipMapped::kYes);
-            if (fOriginalKey.isValid()) {
-                proxyProvider->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
-                GrInstallBitmapUniqueKeyInvalidator(
-                        fOriginalKey, proxyProvider->contextID(), fBitmap.pixelRef());
+            if (fKey.isValid()) {
+                installKey(proxy.get());
             }
             return GrSurfaceProxyView(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
         }
@@ -83,7 +87,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
     if (proxy) {
         SkASSERT(mipMapped == GrMipMapped::kYes);
         SkASSERT(proxy->mipMapped() == GrMipMapped::kNo);
-        SkASSERT(fOriginalKey.isValid());
+        SkASSERT(fKey.isValid());
         // We need a mipped proxy, but we found a proxy earlier that wasn't mipped. Thus we generate
         // a new mipped surface and copy the original proxy into the base layer. We will then let
         // the gpu generate the rest of the mips.
@@ -96,13 +100,11 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
             // means that all future uses of the key will access the mipmapped version. The texture
             // backing the unmipped version will remain in the resource cache until the last texture
             // proxy referencing it is deleted at which time it too will be deleted or recycled.
-            SkASSERT(proxy->getUniqueKey() == fOriginalKey);
+            SkASSERT(proxy->getUniqueKey() == fKey);
             SkASSERT(mippedView.origin() == kTopLeft_GrSurfaceOrigin);
             SkASSERT(mippedView.swizzle() == swizzle);
             proxyProvider->removeUniqueKeyFromProxy(proxy.get());
-            proxyProvider->assignUniqueKeyToProxy(fOriginalKey, mippedProxy);
-            GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, proxyProvider->contextID(),
-                                                fBitmap.pixelRef());
+            installKey(mippedProxy);
             return mippedView;
         }
         // We failed to make a mipped proxy with the base copied into it. This could have

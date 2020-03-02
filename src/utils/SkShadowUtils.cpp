@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include "include/utils/SkShadowUtils.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkMaskFilter.h"
@@ -12,13 +14,12 @@
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkIDChangeListener.h"
 #include "include/utils/SkRandom.h"
-#include "include/utils/SkShadowUtils.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkEffectPriv.h"
-#include "src/core/SkIDChangeListener.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"

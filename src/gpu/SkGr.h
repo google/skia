@@ -197,11 +197,6 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitm
  */
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds);
 
-/** Call this after installing a GrUniqueKey on texture. It will cause the texture's key to be
-    removed should the bitmap's contents change or be destroyed. */
-void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextID,
-                                         SkPixelRef* pixelRef);
-
 /**
  * Makes a SkIDChangeListener from a GrUniqueKey. The key will be invalidated in the resource
  * cache if the ID becomes invalid. This also modifies the key so that it will cause the listener

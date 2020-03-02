@@ -8,9 +8,9 @@
 #ifndef GrCCPathCache_DEFINED
 #define GrCCPathCache_DEFINED
 
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkExchange.h"
-#include "src/core/SkIDChangeListener.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"

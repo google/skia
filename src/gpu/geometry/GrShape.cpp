@@ -7,7 +7,7 @@
 
 #include "src/gpu/geometry/GrShape.h"
 
-#include "src/core/SkIDChangeListener.h"
+#include "include/private/SkIDChangeListener.h"
 
 #include <utility>
 
