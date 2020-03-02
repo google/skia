@@ -2297,9 +2297,12 @@ namespace skvm {
             SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
         });
 
+        llvm::TargetOptions options;
+        options.AllowFPOpFusion = llvm::FPOpFusion::Fast;
         fEE = llvm::EngineBuilder(std::move(mod))
                     .setEngineKind(llvm::EngineKind::JIT)
                     .setMCPU(llvm::sys::getHostCPUName())
+                    .setTargetOptions(options)
                     .create();
         if (fEE) {
             fJITEntry = (void*)fEE->getFunctionAddress(debug_name);
