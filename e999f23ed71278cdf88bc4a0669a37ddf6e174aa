@@ -81,6 +81,30 @@
       "revId": "e999f23ed71278cdf88bc4a0669a37ddf6e174aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35cd7348_798d33bc",
+        "filename": "src/core/SkVerticesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-02T18:46:53Z",
+      "side": 1,
+      "message": "Now used in SkVertices.cpp deserialization",
+      "parentUuid": "76d92529_640e5296",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 64
+      },
+      "revId": "e999f23ed71278cdf88bc4a0669a37ddf6e174aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
