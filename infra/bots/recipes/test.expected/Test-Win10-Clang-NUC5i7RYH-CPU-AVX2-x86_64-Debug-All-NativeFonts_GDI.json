@@ -3,13 +3,13 @@
     "cmd": [
       "vpython",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -18,15 +18,15 @@
     "cmd": [
       "vpython",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get lottie-samples VERSION",
+    "name": "Get skp VERSION",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@VERSION@42@@@",
       "@@@STEP_LOG_END@VERSION@@@"
@@ -36,29 +36,101 @@
     "cmd": [
       "vpython",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/LOTTIE_VERSION"
+      "[START_DIR]\\tmp\\SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write LOTTIE_VERSION",
+    "name": "write SKP_VERSION",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@LOTTIE_VERSION@42@@@",
-      "@@@STEP_LOG_END@LOTTIE_VERSION@@@"
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
     ]
   },
   {
     "cmd": [
       "vpython",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skimage VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get svg VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]\\tmp\\SVG_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/test"
+      "[START_DIR]\\test"
     ],
     "infra_step": true,
     "name": "rmtree test"
@@ -67,13 +139,13 @@
     "cmd": [
       "vpython",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/test"
+      "[START_DIR]\\test"
     ],
     "infra_step": true,
     "name": "makedirs test"
@@ -84,11 +156,11 @@
       "-u",
       "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = sys.argv[1]\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[2], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
       "https://example.com/hashes.txt",
-      "[START_DIR]/tmp/uninteresting_hashes.txt"
+      "[START_DIR]\\tmp\\uninteresting_hashes.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -154,18 +226,18 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
-      "catchsegv",
-      "[START_DIR]/build/dm",
+      "powershell",
+      "-ExecutionPolicy",
+      "Unrestricted",
+      "-File",
+      "RECIPE_MODULE[skia::flavor]\\resources\\win_run_and_check_log.ps1",
+      "[START_DIR]\\build\\dm",
       "--nameByHash",
       "--properties",
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie",
+      "Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI",
       "buildbucket_build_id",
       "123454321",
       "task_id",
@@ -180,19 +252,17 @@
       "compiler",
       "Clang",
       "configuration",
-      "Release",
+      "Debug",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
       "AVX2",
       "extra_config",
-      "Lottie",
+      "NativeFonts_GDI",
       "model",
-      "GCE",
+      "NUC5i7RYH",
       "os",
-      "Debian9",
-      "renderer",
-      "skottie",
+      "Win10",
       "style",
       "default",
       "--randomProcessorTest",
@@ -200,38 +270,87 @@
       "--config",
       "8888",
       "--src",
-      "lottie",
+      "tests",
+      "gm",
       "--blacklist",
       "_",
       "image",
       "gen_platf",
+      "pal8os2v2.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "pal8os2v2-16.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rgba32abf.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rgb24prof.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rgb24lprof.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "8bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "4bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "32bpp-pixeldata-cropped.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "24bpp-pixeldata-cropped.bmp",
+      "_",
+      "gm",
+      "_",
+      "composeshader_bitmap",
+      "_",
+      "image",
+      "gen_platf",
+      "testimgari.jpg",
+      "_",
+      "image",
+      "gen_platf",
+      "rle8-height-negative.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "rle4-height-negative.bmp",
+      "_",
+      "image",
+      "gen_platf",
       "error",
-      "--nonativeFonts",
+      "--gdi",
       "--verbose",
       "--resourcePath",
-      "[START_DIR]/skia/resources",
+      "[START_DIR]\\skia\\resources",
       "--skps",
-      "[START_DIR]/skp",
+      "[START_DIR]\\skp",
       "--images",
-      "[START_DIR]/skimage/dm",
+      "[START_DIR]\\skimage\\dm",
       "--colorImages",
-      "[START_DIR]/skimage/colorspace",
+      "[START_DIR]\\skimage\\colorspace",
       "--svgs",
-      "[START_DIR]/svg",
-      "--lotties",
-      "[START_DIR]/skia/resources/skottie",
-      "[START_DIR]/lottie-samples",
+      "[START_DIR]\\svg",
       "--uninterestingHashesFile",
-      "[START_DIR]/tmp/uninteresting_hashes.txt",
+      "[START_DIR]\\tmp\\uninteresting_hashes.txt",
       "--writePath",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
-    "name": "symbolized dm"
+    "name": "dm"
   },
   {
     "name": "$result"
