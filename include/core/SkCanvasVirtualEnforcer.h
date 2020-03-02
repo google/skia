@@ -39,8 +39,12 @@ protected:
                      const SkPaint& paint) override = 0;
     void onDrawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                       const SkPaint& paint) override = 0;
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
     void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) override = 0;
+#else
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override = 0;
+#endif
 
     void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
                      const SkPaint* paint) override = 0;
