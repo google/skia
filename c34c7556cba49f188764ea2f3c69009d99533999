@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c4ccef4_82c75527",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-02T19:14:32Z",
+      "side": 1,
+      "message": "v0.13.0 has already shipped. Add a new ### Removed section up here and move line 35 up here.",
+      "revId": "c34c7556cba49f188764ea2f3c69009d99533999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
