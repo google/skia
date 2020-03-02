@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "159edac0_7689a214",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-02T18:35:19Z",
+      "side": 1,
+      "message": "Builder is always transient, right? So this can just go away (and the remaining flags can be re-numbered to avoid the gap)?",
+      "revId": "e999f23ed71278cdf88bc4a0669a37ddf6e174aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8430335c_b1e8289d",
         "filename": "src/core/SkVerticesPriv.h",
         "patchSetId": 2
