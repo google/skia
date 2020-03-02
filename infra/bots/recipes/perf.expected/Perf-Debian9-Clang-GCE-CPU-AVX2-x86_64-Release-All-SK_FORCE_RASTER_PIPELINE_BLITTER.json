@@ -178,17 +178,20 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
+      "catchsegv",
       "[START_DIR]/build/nanobench",
       "--pre_log",
-      "--images",
-      "--gpuStatsDump",
-      "true",
       "--scales",
       "1.0",
       "1.1",
-      "--nocpu",
+      "--nogpu",
       "--config",
-      "commandbuffer",
+      "8888",
+      "nonrendering",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
@@ -215,15 +218,15 @@
       "compiler",
       "Clang",
       "cpu_or_gpu",
-      "GPU",
+      "CPU",
       "cpu_or_gpu_value",
-      "IntelIris5100",
+      "AVX2",
       "extra_config",
-      "CommandBuffer",
+      "SK_FORCE_RASTER_PIPELINE_BLITTER",
       "model",
-      "MacMini7.1",
+      "GCE",
       "os",
-      "Mac10.13",
+      "Debian9",
       "--properties",
       "gitHash",
       "abc123",
@@ -242,11 +245,12 @@
       "--outResultsFile",
       "[START_DIR]/[SWARM_OUT_DIR]/nanobench_abc123_1337000001.json"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "nanobench"
+    "name": "symbolized nanobench"
   },
   {
     "cmd": [
