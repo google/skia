@@ -349,7 +349,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
                                                       nullptr);
 
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), *viewMatrix,
-                                       std::move(vertices), nullptr, 0, &primitiveType);
+                                       std::move(vertices), &primitiveType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1407,7 +1407,6 @@ static bool init_vertices_paint(GrContext* context, const GrColorInfo& colorInfo
 
 void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCount,
                                     const SkPoint vertices[],
-                                    const SkVertices::Bone bones[], int boneCount,
                                     SkBlendMode bmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
@@ -1466,13 +1465,10 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        std::move(grPaint),
                                        this->localToDevice(),
                                        builder.detach(),
-                                       bones,
-                                       boneCount,
                                        &primitiveType);
 }
 
-void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
-                               int boneCount, SkBlendMode mode, const SkPaint& paint) {
+void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
 
@@ -1483,7 +1479,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bon
     if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                                bones, boneCount, mode, vertices->indices(), vertices->indexCount(),
+                                mode, vertices->indices(), vertices->indexCount(),
                                 paint);
         return;
     }
@@ -1492,8 +1488,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bon
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
-                                       sk_ref_sp(const_cast<SkVertices*>(vertices)),
-                                       bones, boneCount);
+                                       sk_ref_sp(const_cast<SkVertices*>(vertices)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

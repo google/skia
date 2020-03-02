@@ -87,8 +87,7 @@ public:
     void drawSprite(const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
-                      const SkPaint&) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
@@ -229,8 +228,7 @@ private:
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
-                           const SkVertices::Bone bones[], int boneCount, SkBlendMode,
-                           const uint16_t indices[], int indexCount, const SkPaint&);
+                           SkBlendMode, const uint16_t indices[], int indexCount, const SkPaint&);
 
     static std::unique_ptr<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                           SkBudgeted,
