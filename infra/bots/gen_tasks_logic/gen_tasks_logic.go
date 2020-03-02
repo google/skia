@@ -594,8 +594,8 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			d["os"] = "Windows-10"
 		}
 		if parts["model"] == "iPhone6" {
-			// Not ready to upgrade iPhone6 yet.
-			d["os"] = "iOS-11.4.1"
+			// This is the latest iOS that supports iPhone6.
+			d["os"] = "iOS-12.4.5"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -1124,6 +1124,8 @@ func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
 			// Other patch versions can be added to the same case.
 			case "11.4.1":
 				asset = "ios-dev-image-11.4"
+			case "12.4.5":
+				asset = "ios-dev-image-12.4"
 			case "13.3.1":
 				asset = "ios-dev-image-13.3"
 			default:
