@@ -9,12 +9,10 @@ package gen_tasks_logic
 */
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -1432,37 +1430,9 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		iidStr = strconv.Itoa(*iid)
 	}
 	if recipe == "test" {
-		partsJson, err := json.Marshal(parts)
-		if err != nil {
-			glog.Fatal(err)
-		}
-		dmFlagsScript := filepath.Join(CheckoutRoot(), "infra", "bots", "recipe_modules", "vars", "resources", "dm_flags.py")
-		out, err := exec.Command(
-			"python", dmFlagsScript,
-			"--bot", name,
-			"--parts", string(partsJson),
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--issue", specs.PLACEHOLDER_ISSUE,
-			"--patchset", specs.PLACEHOLDER_PATCHSET,
-			"--patch_storage", specs.PLACEHOLDER_PATCH_STORAGE,
-			"--buildbucket_build_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-			"--swarming_bot_id", "${SWARMING_BOT_ID}",
-			"--swarming_task_id", "${SWARMING_TASK_ID}",
-			"--internal_hardware_label", iidStr,
-		).CombinedOutput()
-		if err != nil {
-			glog.Fatal(err)
-		}
-		var res struct {
-			DmFlags []string          `json:"dm_flags"`
-			DmProps map[string]string `json:"dm_properties"`
-		}
-		if err := json.NewDecoder(bytes.NewBuffer(out)).Decode(&res); err != nil {
-			glog.Fatal(err)
-		}
-		extraProps["dm_flags"] = marshalJson(res.DmFlags)
-		extraProps["dm_properties"] = marshalJson(res.DmProps)
+		flags, props := dmFlags(name, parts, b.doUpload(name), iidStr)
+		extraProps["dm_flags"] = marshalJson(flags)
+		extraProps["dm_properties"] = marshalJson(props)
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
