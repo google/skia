@@ -163,7 +163,7 @@ private:
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->proxy()->backendFormat(),
-                                  flushState->view()->origin(),
+                                  flushState->outputView()->origin(),
                                   &pipeline,
                                   geomProc,
                                   nullptr,

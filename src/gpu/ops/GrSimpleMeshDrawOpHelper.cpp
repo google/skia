@@ -136,7 +136,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 const GrUserStencilSettings* stencilSettings) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->view(),
+                          flushState->outputView(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           std::move(processorSet),
@@ -147,7 +147,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
 const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flushState) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->view(),
+                          flushState->outputView(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           this->detachProcessorSet(),
