@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fabe2b0_c2bee38e",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 0,
+      "message": "nit: comment dropped",
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4898c14c_479632da",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 0,
+      "message": "nit: comment dropped",
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d68359_e701ecb5",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 0,
+      "message": "Was this intentionally removed? If so, mention in the commit message. Maybe also file a bug to either implement it or remove it from the task names.",
+      "range": {
+        "startLine": 371,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 0
+      },
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b29080c_6c76681c",
+        "filename": "infra/bots/recipe_modules/vars/resources/dm_flags.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 0,
+      "message": "intentionally removed?",
+      "range": {
+        "startLine": 809,
+        "startChar": 0,
+        "endLine": 812,
+        "endChar": 38
+      },
+      "revId": "9f6a1857afdf4f6deed063c8265c1102dff3b2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

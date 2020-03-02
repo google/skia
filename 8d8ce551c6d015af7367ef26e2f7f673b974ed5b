@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7529262_77ee622f",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 1,
+      "message": "(Not something to fix in this CL.)\n\nFWIW, it makes me uneasy to just to string matching against the task name -- it seems like it would be easy to have an unintended match. I\u0027d rather see e.g. model \u003d\u003d \"Pixel\" rather than has(\"Pixel\"), so that we have to explicitly change something if we want it to apply to Pixel2, etc. I\u0027d even prefer strings.Contains(gpu, \"Intel\") over has(\"Intel\").\n\nI almost think it would be better to list all task names where an exception applies, so that we can re-evaluate if we add a new task, but that\u0027s probably unmaintainable.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 2
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4353c71_d5216c31",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 1,
+      "message": "Undo replace # with //\n\n(I see two instances, but I didn\u0027t look carefully.)",
+      "range": {
+        "startLine": 158,
+        "startChar": 56,
+        "endLine": 158,
+        "endChar": 58
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14b3272e_bad381da",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 1,
+      "message": "nit: unwrap URLs",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 61
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07f0932f_53ff44a8",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 1,
+      "message": "(Not something to fix in this CL.)\n\nThis file could use some cleanup... this is already in an \u0027if parts[\"cpu_or_gpu\"] \u003d\u003d \"GPU\"\u0027, so we don\u0027t need to check again.\n\nIt might even be better to split into mini-functions based on the configs, e.g. bonusConfigsFlags, androidFlags, nativeFontsFlags, etc.",
+      "range": {
+        "startLine": 344,
+        "startChar": 5,
+        "endLine": 344,
+        "endChar": 15
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fc61ea7_41799097",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T16:42:49Z",
+      "side": 1,
+      "message": "(Not something to fix in this CL.)\n\nIWBN to change the logic to not add the arg in the first place. It makes it harder to understand if I see the arg being added but it\u0027s not actually in the result. Also, seems like \"svg\" could be an arg for something other than --src, which I assume is what\u0027s intended here.",
+      "range": {
+        "startLine": 468,
+        "startChar": 0,
+        "endLine": 470,
+        "endChar": 2
+      },
+      "revId": "8d8ce551c6d015af7367ef26e2f7f673b974ed5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
