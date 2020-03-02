@@ -136,7 +136,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 const GrUserStencilSettings* stencilSettings) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->view(),
+                          flushState->outputView(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           std::move(processorSet),
@@ -147,7 +147,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
 const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flushState) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->view(),
+                          flushState->outputView(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           this->detachProcessorSet(),
@@ -194,6 +194,25 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                           primitiveType);
     SkASSERT(tmp->primProc().numTextureSamplers() <= 0);
     return tmp;
+}
+
+GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
+                                            const GrCaps* caps,
+                                            SkArenaAlloc* arena,
+                                            const GrSurfaceProxyView* outputView,
+                                            GrAppliedClip&& appliedClip,
+                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            GrGeometryProcessor* gp,
+                                            GrPrimitiveType primType) {
+    return CreateProgramInfo(caps,
+                             arena,
+                             outputView,
+                             std::move(appliedClip),
+                             dstProxyView,
+                             gp,
+                             this->detachProcessorSet(),
+                             primType,
+                             this->pipelineFlags());
 }
 
 #ifdef SK_DEBUG
