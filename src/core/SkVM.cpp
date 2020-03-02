@@ -1901,16 +1901,8 @@ namespace skvm {
         auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
-        const char* mcpu = "x86-64";
-        int K = 4;
-        if (true && SkCpu::Supports(SkCpu::HSW)) {
-            mcpu = "haswell";
-            K    = 8;
-        }
-        if (true && SkCpu::Supports(SkCpu::SKX)) {
-            mcpu = "skylake-avx512";
-            K    = 16;
-        }
+        const int K = (true && SkCpu::Supports(SkCpu::SKX)) ? 16 :
+                      (true && SkCpu::Supports(SkCpu::HSW)) ?  8 : 4;
 
         llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
                    *i32 = llvm::Type::getInt32Ty(ctx);
@@ -2298,7 +2290,7 @@ namespace skvm {
 
         fEE = llvm::EngineBuilder(std::move(mod))
                     .setEngineKind(llvm::EngineKind::JIT)
-                    .setMCPU(mcpu)
+                    .setMCPU(llvm::sys::getHostCPUName())
                     .create();
         if (fEE) {
             fJITEntry = (void*)fEE->getFunctionAddress(debug_name);
