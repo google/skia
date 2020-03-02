@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88411159_68465171",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T19:41:02Z",
+      "side": 1,
+      "message": "I didn\u0027t bother trying to move the listener from the old key to the new one. Maybe the SkImage_Lazy version could be rewritten like this.",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 36
+      },
+      "revId": "8dd98d11d392176970b11e711e9287eaf8424477",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
