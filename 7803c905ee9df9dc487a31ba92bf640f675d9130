@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5df85d7_b344229e",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-02T18:47:49Z",
+      "side": 1,
+      "message": "is this actually a think in d3d? External is only a concept in vulkan as a special android extension and I don\u0027t think will be running d3d on android any time soon",
+      "range": {
+        "startLine": 693,
+        "startChar": 0,
+        "endLine": 706,
+        "endChar": 7
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be15fd82_f4aa01bc",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-02T18:47:49Z",
+      "side": 1,
+      "message": "can we just assert it is a format here? I would expect isFormatRenderable to fail if it wasn\u0027t",
+      "range": {
+        "startLine": 778,
+        "startChar": 3,
+        "endLine": 780,
+        "endChar": 5
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d016913c_91174a60",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-02T18:47:49Z",
+      "side": 1,
+      "message": "nit 100",
+      "range": {
+        "startLine": 896,
+        "startChar": 0,
+        "endLine": 896,
+        "endChar": 102
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9606696_45e07b3e",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-02T18:47:49Z",
+      "side": 1,
+      "message": "100",
+      "range": {
+        "startLine": 1049,
+        "startChar": 100,
+        "endLine": 1049,
+        "endChar": 101
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
