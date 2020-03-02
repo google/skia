@@ -322,7 +322,7 @@ void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVert
                                         int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawVertices(vertices, bones, boneCount, bmode, paint);
+        iter->drawVertices(vertices, bmode, paint);
     }
 }
 
