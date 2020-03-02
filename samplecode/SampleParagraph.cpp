@@ -2341,28 +2341,39 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = getFontCollection();
+        auto text = "ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن";
+        //auto text = "ى،😗😃😄😍بب";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kJustify);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(36);
+        text_style.setFontFamilies({SkString("Noto Color Emoji")});
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
-        builder.addText("Something");
+        builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
-        paragraph->layout(0);
+        paragraph->layout(width()); // 1041
+        auto res1 = paragraph->getGlyphPositionAtCoordinate(10, 10);
+        auto res2 = paragraph->getWordBoundary(res1.position);
+        auto res3 = paragraph->getRectsForRange(
+                res2.start, res2.end,
+                RectHeightStyle::kTight, RectWidthStyle::kTight);
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        if (!res3.empty()) {
+            canvas->drawRect(res3[0].rect, paint);
+        }
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
-//
+// D/skia    ( 6723): layout('ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن', 301.000000): 42.610001 632.659973
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)

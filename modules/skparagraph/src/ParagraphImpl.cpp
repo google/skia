@@ -725,7 +725,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         &line != &fLines.back())
                     {
                         // TODO: this is just a patch. Make it right later (when it's clear what and how)
-                        clip.fLeft = 0;
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = line.width();
                         clip.fRight = line.width();
                     } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kRtl &&
                         !run->leftToRight())
@@ -875,9 +876,10 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         line.iterateThroughVisualRuns(true,
                 [this, &line, dx, &result]
                 (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+                bool lookingForHit = true;
                 *runWidthInLine = line.iterateThroughSingleRunByStyles(
                 run, runOffsetInLine, textRange, StyleType::kNone,
-                [this, line, dx, &result]
+                [this, line, dx, &result, &lookingForHit]
                 (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
 
                     auto findCodepointByTextIndex = [this](ClusterIndex clusterIndex8) {
@@ -894,12 +896,12 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                         // All the other runs are placed right of this one
                         auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos));
                         result = { SkToS32(codepointIndex), kDownstream };
+                        lookingForHit = false;
                         return false;
                     }
 
                     if (dx >= context.clip.fRight + offsetX) {
-                        // We have to keep looking but just in case keep the last one as the closes
-                        // so far
+                        // We have to keep looking ; just in case keep the last one as the closest
                         auto codepointIndex = findCodepointByTextIndex(context.run->globalClusterIndex(context.pos + context.size));
                         result = { SkToS32(codepointIndex), kUpstream };
                         return true;
@@ -909,9 +911,9 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     // Find the glyph position in the run that is the closest left of our point
                     // TODO: binary search
                     size_t found = context.pos;
-                    for (size_t i = context.pos; i < context.pos + context.size; ++i) {
+                    for (size_t index = context.pos; index < context.pos + context.size; ++index) {
                         // TODO: this rounding is done to match Flutter tests. Must be removed..
-                        auto index = context.run->leftToRight() ? i : context.size - i;
+                        //auto index = context.run->leftToRight() ? i : context.pos + context.size - i;
                         auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
                         if ((context.run->leftToRight() ? end > dx : dx > end)) {
                             break;
@@ -919,14 +921,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                         found = index;
                     }
 
-                    if (!context.run->leftToRight()) {
-                        --found;
-                    }
-
                     auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                     auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
                     auto clusterIndex8 = context.run->globalClusterIndex(found);
                     auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+                    if (!context.run->leftToRight()) {
+                        std::swap(clusterIndex8, clusterEnd8);
+                    }
                     TextRange clusterText (clusterIndex8, clusterEnd8);
 
                     // Find the grapheme positions in codepoints that contains the point
@@ -959,10 +960,11 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                         result = { SkToS32(codepointIndex + 1), kUpstream };
                     }
                     // No need to continue
+                    lookingForHit = false;
                     return false;
 
                 });
-                return true;
+                return lookingForHit;
             });
         break;
     }
