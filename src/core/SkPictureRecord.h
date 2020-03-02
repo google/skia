@@ -196,8 +196,12 @@ protected:
                             const SkPaint*) override;
 
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
     void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) override;
+#else
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
+#endif
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;

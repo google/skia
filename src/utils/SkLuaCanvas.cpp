@@ -290,8 +290,15 @@ void SkLuaCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     this->INHERITED::onDrawDrawable(drawable, matrix);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
 void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, const SkVertices::Bone[], int,
                                        SkBlendMode, const SkPaint& paint) {
     AUTO_LUA("drawVertices");
     lua.pushPaint(paint, "paint");
 }
+#else
+void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint& paint) {
+    AUTO_LUA("drawVertices");
+    lua.pushPaint(paint, "paint");
+}
+#endif

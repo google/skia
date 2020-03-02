@@ -67,8 +67,12 @@ protected:
                             const SkPaint*) override {}
     void onDrawBitmapLattice(const SkBitmap&, const Lattice&, const SkRect&,
                              const SkPaint*) override {}
-    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
-                              const SkPaint&) override {}
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
+    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
+                              SkBlendMode, const SkPaint&) override {}
+#else
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+#endif
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override {}

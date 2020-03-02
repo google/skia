@@ -2583,14 +2583,17 @@ protected:
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
 
-    // TODO: Remove old signature
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint) {
         this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
     }
     virtual void onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                       int boneCount, SkBlendMode mode, const SkPaint& paint);
-
+#else
+    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                      const SkPaint& paint);
+#endif
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);

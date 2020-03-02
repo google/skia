@@ -131,6 +131,7 @@ void SkOverdrawCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint 
     fList[0]->onDrawPoints(mode, count, points, this->overdrawPaint(paint));
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
 void SkOverdrawCanvas::onDrawVerticesObject(const SkVertices* vertices,
                                             const SkVertices::Bone bones[], int boneCount,
                                             SkBlendMode blendMode, const SkPaint& paint) {
@@ -140,6 +141,14 @@ void SkOverdrawCanvas::onDrawVerticesObject(const SkVertices* vertices,
                                    blendMode,
                                    this->overdrawPaint(paint));
 }
+#else
+void SkOverdrawCanvas::onDrawVerticesObject(const SkVertices* vertices,
+                                            SkBlendMode blendMode, const SkPaint& paint) {
+    fList[0]->onDrawVerticesObject(vertices,
+                                   blendMode,
+                                   this->overdrawPaint(paint));
+}
+#endif
 
 void SkOverdrawCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
                                    const SkRect texs[], const SkColor colors[], int count,
