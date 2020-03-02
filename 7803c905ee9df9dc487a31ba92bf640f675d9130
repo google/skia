@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "564641c0_b3ca9d90",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-02T19:49:16Z",
+      "side": 1,
+      "message": "Looks like the concept of an external texture is sort of captured by DXGISurface (at least as an interop object), but I don\u0027t see a way to create a Direct3D texture from one. I\u0027ll pull it out for now.",
+      "parentUuid": "c5df85d7_b344229e",
+      "range": {
+        "startLine": 693,
+        "startChar": 0,
+        "endLine": 706,
+        "endChar": 7
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "be15fd82_f4aa01bc",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4c71250_fea9c3d4",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-02T19:49:16Z",
+      "side": 1,
+      "message": "Re-arranged a bit to avoid calling asDxgiFormat twice.",
+      "parentUuid": "be15fd82_f4aa01bc",
+      "range": {
+        "startLine": 778,
+        "startChar": 3,
+        "endLine": 780,
+        "endChar": 5
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c02c4231_856a7e40",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-02T19:49:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d016913c_91174a60",
+      "range": {
+        "startLine": 896,
+        "startChar": 0,
+        "endLine": 896,
+        "endChar": 102
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9606696_45e07b3e",
         "filename": "src/gpu/d3d/GrD3DCaps.cpp",
         "patchSetId": 5
@@ -91,6 +163,30 @@
       "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a966f7_bb4be215",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-02T19:49:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9606696_45e07b3e",
+      "range": {
+        "startLine": 1049,
+        "startChar": 100,
+        "endLine": 1049,
+        "endChar": 101
+      },
+      "revId": "7803c905ee9df9dc487a31ba92bf640f675d9130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
