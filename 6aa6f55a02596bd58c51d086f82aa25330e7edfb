@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75741321_b0d28983",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T19:22:36Z",
+      "side": 1,
+      "message": "nit: IWBN for the sampleCount logic to look the same in dm_flags.go (int) and nano_flags.go (string).",
+      "range": {
+        "startLine": 62,
+        "startChar": 2,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1413758e_e6d6485d",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T19:22:36Z",
+      "side": 1,
+      "message": "nit: apostrophe",
+      "range": {
+        "startLine": 77,
+        "startChar": 11,
+        "endLine": 77,
+        "endChar": 18
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cb3fa88_1db65842",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T19:22:36Z",
+      "side": 1,
+      "message": "nit: apostrophe",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 19
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcc86274_6f0c7936",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T19:22:36Z",
+      "side": 1,
+      "message": "nit: apostrophe",
+      "range": {
+        "startLine": 162,
+        "startChar": 16,
+        "endLine": 162,
+        "endChar": 21
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a84d49_54e2db3c",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-02T19:22:36Z",
+      "side": 1,
+      "message": "nit: apostrophe",
+      "range": {
+        "startLine": 188,
+        "startChar": 30,
+        "endLine": 188,
+        "endChar": 36
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
