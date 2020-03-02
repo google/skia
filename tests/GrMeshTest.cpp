@@ -441,7 +441,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
     GrProgramInfo programInfo(fState->proxy()->numSamples(),
                               fState->proxy()->numStencilSamples(),
                               fState->proxy()->backendFormat(),
-                              fState->view()->origin(),
+                              fState->outputView()->origin(),
                               pipeline,
                               mtp,
                               nullptr, nullptr, 0, primitiveType);

@@ -144,7 +144,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
-                              flushState->view()->origin(),
+                              flushState->outputView()->origin(),
                               &pipeline,
                               this,
                               fixedDynamicState,
