@@ -106,7 +106,7 @@ protected:
     GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
         return this->createProgramInfo(&flushState->caps(),
                                        flushState->allocator(),
-                                       flushState->outputView(),
+                                       flushState->view(),
                                        flushState->detachAppliedClip(),
                                        flushState->dstProxyView());
     }

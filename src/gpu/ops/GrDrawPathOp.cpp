@@ -101,7 +101,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
     GrProgramInfo programInfo(proxy->numSamples(),
                               proxy->numStencilSamples(),
                               proxy->backendFormat(),
-                              flushState->outputView()->origin(),
+                              flushState->view()->origin(),
                               pipeline,
                               pathProc.get(),
                               fixedDynamicState,
