@@ -106,6 +106,9 @@ def test_steps(api):
       args[i] = api.vars.swarming_bot_id
     elif arg == '${SWARMING_TASK_ID}':
       args[i] = api.vars.swarming_task_id
+    elif arg == '':
+      # Fix quoting issues on some platforms.
+      args[i] = '""'
 
   # Paths to required resources.
   args.extend([
@@ -171,7 +174,8 @@ def GenTests(api):
                      buildbucket_build_id='123454321',
                      dm_flags=('["dm","--dummy","--flags",'
                                '"--swarming-bot-id","${SWARMING_BOT_ID}",'
-                               '"--swarming-task-id","${SWARMING_TASK_ID}"]'),
+                               '"--swarming-task-id","${SWARMING_TASK_ID}",'
+                               '"--empty-prop",""]'),
                      revision='abc123',
                      path_config='kitchen',
                      gold_hashes_url='https://example.com/hashes.txt',

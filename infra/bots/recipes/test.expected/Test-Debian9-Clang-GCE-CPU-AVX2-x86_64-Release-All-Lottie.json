@@ -166,6 +166,8 @@
       "skia-bot-123",
       "--swarming-task-id",
       "123456",
+      "--empty-prop",
+      "\"\"",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
