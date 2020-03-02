@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8430335c_b1e8289d",
+        "filename": "src/core/SkVerticesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-02T18:20:35Z",
+      "side": 1,
+      "message": "are these two used anywhere?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 64
+      },
+      "revId": "e999f23ed71278cdf88bc4a0669a37ddf6e174aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
