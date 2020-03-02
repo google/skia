@@ -26,7 +26,7 @@ private:
 
     const SkBitmap     fBitmap;
     const SkBackingFit fFit;
-    GrUniqueKey        fOriginalKey;
+    GrUniqueKey        fKey;
 
     typedef GrTextureMaker INHERITED;
 };
