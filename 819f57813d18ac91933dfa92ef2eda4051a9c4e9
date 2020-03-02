@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d9ec024_91d14f48",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-02T16:48:54Z",
+      "side": 0,
+      "message": "I *think* this is okay, but it\u0027s not totally obvious. If we got the proxy from the cache, then we should have created the listener the first time? And in other cases, we attach the listener, even if we don\u0027t (yet) satisfy the mip request? Can bitmap maker fail to satisfy mips?",
+      "revId": "819f57813d18ac91933dfa92ef2eda4051a9c4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
