@@ -8,6 +8,7 @@
 #ifndef SkImage_Lazy_DEFINED
 #define SkImage_Lazy_DEFINED
 
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkMutex.h"
 #include "src/image/SkImage_Base.h"
 
@@ -16,7 +17,6 @@
 #endif
 
 class SharedGenerator;
-class SkIDChangeListener;
 
 class SkImage_Lazy : public SkImage_Base {
 public:
@@ -34,7 +34,6 @@ public:
     };
 
     SkImage_Lazy(Validator* validator);
-    ~SkImage_Lazy() override;
 
     SkIRect onGetSubset() const override {
         return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, this->width(), this->height());
@@ -92,8 +91,7 @@ private:
 #if SK_SUPPORT_GPU
     // When the SkImage_Lazy goes away, we will iterate over all the listeners to inform them
     // of the unique ID's demise. This is used to remove cached textures from GrContext.
-    mutable SkTDArray<SkIDChangeListener*> fUniqueIDListeners;
-    mutable SkMutex                        fUniqueIDListenersMutex;
+    mutable SkIDChangeListener::List fUniqueIDListeners;
 #endif
 
     typedef SkImage_Base INHERITED;
