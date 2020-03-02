@@ -31,7 +31,7 @@ INFRA_FAILURE_ERROR_MSG = (
     '\n\n'
     'Your run failed due to unknown infrastructure failures.\n'
     'Please contact rmistry@ or the trooper from '
-    'http://skia-tree-status.appspot.com/trooper\n'
+    'http://tree-status.skia.org/trooper\n'
     'Sorry for the inconvenience!\n'
 )
 MISSING_APPROVAL_ERROR_MSG = (
