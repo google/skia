@@ -31,9 +31,59 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
+#if 0
+GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                 SkArenaAlloc* arena,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&& appliedClip,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrProcessorSet&& processorSet,
+                                 GrPipeline::InputFlags pipelineFlags,
+                                 const GrUserStencilSettings* stencilSettings) {
+
+    GrPipeline::InitArgs initArgs;
+
+    initArgs.fInputFlags = pipelineFlags;
+    initArgs.fUserStencil = stencilSettings;
+    initArgs.fCaps = caps;
+    initArgs.fDstProxyView = dstProxyView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
+                                                   std::move(processorSet),
+                                                   std::move(appliedClip));
+
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                      dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
+                                      dstView->origin(),
+                                      pipeline,
+
+                                      geomProc,
+                                      fixedDynamicState,
+                                      nullptr, 0,
+                                      GrPrimitiveType::kTriangles, false);
+}
+#endif
+
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline) {
     SkASSERT(this->opsRenderPass());
+
+#if 0
+    GrPipeline::InitArgs pipelineArgs;
+    pipelineArgs.fInputFlags = pipelineFlags;
+    pipelineArgs.fDstProxyView = this->dstProxyView();
+    pipelineArgs.fCaps = &this->caps();
+    pipelineArgs.fUserStencil = stencilSettings;
+    pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
+    auto pipeline2 = this->allocator()->make<GrPipeline>(pipelineArgs,
+                                                        std::move(processorSet),
+                                                        this->detachAppliedClip());
+#else
+    GrPipeline* pipeline2 = nullptr;
+#endif
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
@@ -43,16 +93,27 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             ++fCurrUpload;
         }
 
+#if 0
+        GrProgramInfo* programInfo2 = createProgramInfo(&this->caps(),
+                                                        this->allocator(),
+                                                        this->view(),
+                                                        this->detachAppliedClip(),
+                                                        this->dstProxyView(),
+                                                        std::move(processorSet),
+                                                        pipelineFlags,
+                                                        stencilSettings);
+#endif
+
         GrProgramInfo programInfo(this->proxy()->numSamples(),
                                   this->proxy()->numStencilSamples(),
                                   this->proxy()->backendFormat(),
                                   this->view()->origin(),
-                                  pipeline,
+                                  pipeline2,
                                   fCurrDraw->fGeometryProcessor,
                                   fCurrDraw->fFixedDynamicState,
                                   fCurrDraw->fDynamicStateArrays,
                                   fCurrDraw->fMeshCnt,
-                                  fCurrDraw->fPrimitiveType);
+                                  fCurrDraw->fPrimitiveType, 0, false);
 
         this->opsRenderPass()->bindPipeline(programInfo, chainBounds);
         this->opsRenderPass()->drawMeshes(programInfo, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt);
@@ -139,6 +200,16 @@ void GrOpFlushState::recordDraw(
     SkASSERT(fOpArgs);
     SkDEBUGCODE(fOpArgs->validate());
     bool firstDraw = fDraws.begin() == fDraws.end();
+
+#if 0
+    if (fDraws.tail() != fDraws.end()) {
+        auto prior = fDraws.tail();
+        if (prior->fOp == fOpArgs->op()) {
+            int foo = 0;
+        }
+    }
+#endif
+
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
