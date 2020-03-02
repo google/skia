@@ -157,6 +157,14 @@ public:
                                             const GrUserStencilSettings*
                                                                 = &GrUserStencilSettings::kUnused);
 
+    GrProgramInfo* createProgramInfo(const GrCaps*,
+                                     SkArenaAlloc*,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&&,
+                                     const GrXferProcessor::DstProxyView&,
+                                     GrGeometryProcessor*,
+                                     GrPrimitiveType);
+
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
     }
