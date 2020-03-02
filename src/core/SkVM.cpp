@@ -1929,6 +1929,7 @@ namespace skvm {
         }
 
         llvm::BasicBlock *enter = llvm::BasicBlock::Create(ctx, "enter", fn),
+                         *hoist = llvm::BasicBlock::Create(ctx, "hoist", fn),
                          *testK = llvm::BasicBlock::Create(ctx, "testK", fn),
                          *loopK = llvm::BasicBlock::Create(ctx, "loopK", fn),
                          *test1 = llvm::BasicBlock::Create(ctx, "test1", fn),
@@ -2157,25 +2158,49 @@ namespace skvm {
             return true;
         };
 
-        // We can't jump to the first basic block or this would be testK directly.
         {
             IRBuilder b(enter);
+            b.CreateBr(hoist);
+        }
+
+        {
+            IRBuilder b(hoist);
+
+            // Hoisted instructions will need args (think, uniforms), so set that up now.
+            // These phi nodes are degenerate... they'll always be the passed-in args from enter.
+            // Later on when we start looping the phi nodes will start looking useful.
+            llvm::Argument* arg = fn->arg_begin();
+            (void)arg++;  // Skip n... it'd be a bug to use n in a hoisted instruction.
+            for (size_t i = 0; i < fStrides.size(); i++) {
+                args.push_back(b.CreatePHI(arg->getType(), 1));
+                args.back()->addIncoming(arg++, enter);
+            }
+
+            for (size_t i = 0; i < instructions.size(); i++) {
+                if (instructions[i].can_hoist) {
+                    if (!emit(i, false, &b)) {
+                        return;
+                    }
+                }
+            }
+
             b.CreateBr(testK);
         }
+
 
         // testK:  if (N >= K) goto loopK; else goto test1;
         {
             IRBuilder b(testK);
 
-            // Set up phi nodes for `n` and each pointer argument from enter; later we'll add loopK.
+            // Set up phi nodes for `n` and each pointer argument from hoist; later we'll add loopK.
             llvm::Argument* arg = fn->arg_begin();
 
             n = b.CreatePHI(arg->getType(), 2);
-            n->addIncoming(arg++, enter);
+            n->addIncoming(arg++, hoist);
 
             for (size_t i = 0; i < fStrides.size(); i++) {
-                args.push_back(b.CreatePHI(arg->getType(), 2));
-                args.back()->addIncoming(arg++, enter);
+                args[i] = b.CreatePHI(arg->getType(), 2);
+                args[i]->addIncoming(arg++, hoist);
             }
 
             b.CreateCondBr(b.CreateICmpSGE(n, b.getInt32(K)), loopK, test1);
@@ -2185,8 +2210,10 @@ namespace skvm {
         {
             IRBuilder b(loopK);
             for (size_t i = 0; i < instructions.size(); i++) {
-                if (!emit(i, false, &b)) {
-                    return;
+                if (!instructions[i].can_hoist) {
+                    if (!emit(i, false, &b)) {
+                        return;
+                    }
                 }
             }
 
@@ -2202,6 +2229,8 @@ namespace skvm {
             }
             b.CreateBr(testK);
         }
+
+        // TODO: hoist1
 
         // test1:  if (N >= 1) goto loop1; else goto leave;
         {
