@@ -22,6 +22,30 @@
       "revId": "0099262372d5775621ad53f3e5ee60e469533c9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a50bff03_56b9b701",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-02T18:37:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "79e4cc3e_b7157fe8",
+      "range": {
+        "startLine": 429,
+        "startChar": 1,
+        "endLine": 459,
+        "endChar": 0
+      },
+      "revId": "0099262372d5775621ad53f3e5ee60e469533c9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
