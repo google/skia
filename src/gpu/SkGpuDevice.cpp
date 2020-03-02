@@ -1014,10 +1014,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
 
     SkPaint tmpUnfiltered(paint);
-    if (tmpUnfiltered.getMaskFilter()) {
-        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
-    }
-
+    tmpUnfiltered.setMaskFilter(nullptr);
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());

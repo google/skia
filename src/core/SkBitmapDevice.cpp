@@ -563,10 +563,6 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
 
     // todo: can we unify with similar adjustment in SkGpuDevice?
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-    if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(
-                paint->getMaskFilter()->makeWithMatrix(this->localToDevice()));
-    }
 
     // hack to test coverage
     SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
@@ -575,10 +571,9 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fDst = fBitmap.pixmap();
         draw.fMatrix = &SkMatrix::I();
         draw.fRC = &fRCStack.rc();
-        SkPaint paint(origPaint);
-        paint.setShader(src->fBitmap.makeShader());
+        paint.writable()->setShader(src->fBitmap.makeShader());
         draw.drawBitmap(*src->fCoverage.get(),
-                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, paint);
+                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
     } else {
         this->drawSprite(src->fBitmap, x, y, *paint);
     }
@@ -649,10 +644,8 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     }
 
     if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(
-                paint->getMaskFilter()->makeWithMatrix(this->localToDevice()));
+        paint.writable()->setMaskFilter(nullptr);
     }
-
     if (!clipImage) {
         SkBitmap resultBM;
         if (src->getROPixels(&resultBM)) {
