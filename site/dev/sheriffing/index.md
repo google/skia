@@ -31,7 +31,7 @@ Below is a brief summary of what the sheriff does for each task:
 * Understand the [testing infrastructure](https://skia.org/dev/testing/automated_testing).
 * Start watching the [status page](https://status.skia.org) for bot breakages.
 * Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
-* Close and open the [tree](http://skia-tree-status.appspot.com).
+* Close and open the [tree](http://tree-status.skia.org).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
 * File or follow up with [BreakingTheBuildbots bugs](https://bugs.chromium.org/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
 * Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
@@ -80,7 +80,7 @@ In general, sheriffs should have a strong bias towards actions that keep the tre
 View current and upcoming sheriffs
 ----------------------------------
 
-The list of sheriffs is specified in the [skia-tree-status web app](https://skia-tree-status.appspot.com/sheriff). The current sheriff is highlighted in green.
+The list of sheriffs is specified in the [tree-status web app](https://tree-status.skia.org/sheriff). The current sheriff is highlighted in green.
 The banner on the top of the [status page](https://status.skia.org) also displays the current sheriff.
 
 
@@ -105,7 +105,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 <a name="how_close_tree"></a>
 ### How to close or re-open the tree
 
-1. Go to [skia-tree-status.appspot.com](https://skia-tree-status.appspot.com).
+1. Go to [tree-status.skia.org](https://tree-status.skia.org).
 2. Change the status.
  *  To close the tree, include the word "closed" in the status.
  * To open the tree, include the word "open" in the status.

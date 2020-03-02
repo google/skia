@@ -15,7 +15,7 @@ The Skia Directory
 
 *   BuildBot Consoles
     -   [Commit Status](https://status.skia.org/)
-    -   [Tree Status](https://skia-tree-status.appspot.com/) (requires login)
+    -   [Tree Status](https://tree-status.skia.org/) (requires login)
     -   [BuildBot Console](https://build.chromium.org/p/client.skia/console)
     -   [FYI BuildBot
         Console](https://build.chromium.org/p/client.skia.fyi/console)

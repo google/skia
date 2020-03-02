@@ -42,7 +42,7 @@ Also, whenever a wrangler figures out how to accomplish a wrangly task (e.g. run
 View current and upcoming wranglers
 ----------------------------------
 
-The list of wranglers is specified in the [skia-tree-status web app](http://skia-tree-status.appspot.com/gpu-sheriff). The current wrangler is highlighted in green.
+The list of wranglers is specified in the [tree-status web app](http://tree-status.skia.org/wrangler). The current wrangler is highlighted in green.
 The banner on the top of the [status page](https://status.skia.org) also displays the current wrangler.
 
 
