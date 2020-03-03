@@ -16,6 +16,24 @@
       "revId": "fb3736fbc075f5475eb9c15c6dccb13e46c857ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54dc2fc8_a7313d38",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-03T21:58:22Z",
+      "side": 1,
+      "message": "ohh! I didn\u0027t realize that.\n\nI fixed it. I used the new fancy if with initializer. I think I used it exactly for what it is designed for. I can\u0027t decide if I like it or hate it. If the latter it\u0027s because of the wrap.",
+      "parentUuid": "a0876c2d_cde39ad4",
+      "revId": "fb3736fbc075f5475eb9c15c6dccb13e46c857ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
