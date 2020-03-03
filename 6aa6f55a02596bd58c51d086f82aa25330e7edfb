@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ad6160f8_75a29bfe",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-03T11:18:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75741321_b0d28983",
+      "range": {
+        "startLine": 62,
+        "startChar": 2,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1413758e_e6d6485d",
         "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c180d34_df83e471",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-03T11:18:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1413758e_e6d6485d",
+      "range": {
+        "startLine": 77,
+        "startChar": 11,
+        "endLine": 77,
+        "endChar": 18
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "3d7d7caa_5e04326a",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-03T11:18:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cb3fa88_1db65842",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 19
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcc86274_6f0c7936",
         "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "094461f4_91de9762",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-03T11:18:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcc86274_6f0c7936",
+      "range": {
+        "startLine": 162,
+        "startChar": 16,
+        "endLine": 162,
+        "endChar": 21
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2a84d49_54e2db3c",
         "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
         "patchSetId": 1
@@ -114,6 +210,30 @@
       "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8874045d_328b0bf6",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-03T11:18:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2a84d49_54e2db3c",
+      "range": {
+        "startLine": 188,
+        "startChar": 30,
+        "endLine": 188,
+        "endChar": 36
+      },
+      "revId": "6aa6f55a02596bd58c51d086f82aa25330e7edfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
