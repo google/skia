@@ -507,7 +507,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipMapped mipMapped) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipMapped, SkBudgeted) const {
     return nullptr;
 }
 

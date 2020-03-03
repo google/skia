@@ -25,15 +25,14 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
 
     GrUniqueKey baseKey, mipMappedKey;
-    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
-    if (baseKey.isValid()) {
+    if (fUniqueID != 0) {
+        GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
+        SkASSERT(baseKey.isValid());
         static const GrUniqueKey::Domain kMipMappedDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey::Builder builder(&mipMappedKey, baseKey, kMipMappedDomain, 0);
-    }
-    sk_sp<GrTextureProxy> cachedCopy;
-    if (mipMappedKey.isValid()) {
-        cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey, this->colorType());
-        if (cachedCopy) {
+        SkASSERT(mipMappedKey.isValid());
+        if (auto cachedCopy =
+                proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey, this->colorType()))  {
             return {std::move(cachedCopy), fOriginal.origin(), fOriginal.swizzle()};
         }
     }

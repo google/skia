@@ -1046,12 +1046,19 @@ public:
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrContext.
 
+        If an unbudgeted request is made and this image already has an associated texture
+        (because it is texture-backed or because it was used with GrContext and a cached texture was
+        created) an unbudgeted and uncached copy will be made. This guarantees that the returned
+        image controls the lifetime of the texture and that the texture doesn't count against
+        the GrContext's budget.
+
+
         @param context        GPU context
         @param dstColorSpace  range of colors of matching SkSurface on GPU
         @param mipMapped      whether created SkImage texture must allocate mip map levels
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, GrMipMapped = GrMipMapped::kNo) const;
+    sk_sp<SkImage> makeTextureImage(GrContext* context, GrMipMapped = GrMipMapped::kNo, SkBudgeted = SkBudgeted::kYes) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,

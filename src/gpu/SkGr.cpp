@@ -134,7 +134,8 @@ sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
 GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                   GrSurfaceProxy* baseProxy,
                                                   GrSurfaceOrigin origin,
-                                                  GrColorType srcColorType) {
+                                                  GrColorType srcColorType,
+                                                  SkBudgeted budgeted) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
@@ -142,7 +143,7 @@ GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
     }
     GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx, baseProxy, origin, srcColorType,
                                                    GrMipMapped::kYes, SkBackingFit::kExact,
-                                                   SkBudgeted::kYes);
+                                                   budgeted);
     SkASSERT(!view.proxy() || view.asTextureProxy());
     return view;
 }

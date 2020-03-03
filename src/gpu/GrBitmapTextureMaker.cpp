@@ -26,9 +26,14 @@ static GrImageInfo get_image_info(GrRecordingContext* context, const SkBitmap& b
     return {ct, bitmap.alphaType(), bitmap.refColorSpace(), bitmap.dimensions()};
 }
 
-GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                                           Cached cached, SkBackingFit fit)
-        : INHERITED(context, get_image_info(context, bitmap)), fBitmap(bitmap), fFit(fit) {
+GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context,
+                                           const SkBitmap& bitmap,
+                                           Cached cached,
+                                           SkBackingFit fit)
+        : INHERITED(context, get_image_info(context, bitmap))
+        , fBitmap(bitmap)
+        , fFit(fit)
+        , fBudgeted(cached == Cached::kNo_Unbudgeted ? SkBudgeted::kNo  : SkBudgeted::kYes) {
     if (!bitmap.isVolatile() && cached == Cached::kYes) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
@@ -69,9 +74,9 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
                 return {};
             }
             copy8888.setImmutable();
-            proxy = proxyProvider->createProxyFromBitmap(copy8888, mipMapped, fFit);
+            proxy = proxyProvider->createProxyFromBitmap(copy8888, mipMapped, fFit, fBudgeted);
         } else {
-            proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped, fFit);
+            proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped, fFit, fBudgeted);
         }
         if (proxy) {
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
