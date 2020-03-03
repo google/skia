@@ -962,6 +962,7 @@ void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemor
 
 void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
+    SkASSERT(!paint.getMaskFilter());
 
     // Check if the source device is really a bitmapdevice (because that's what we returned
     // from createDevice (likely due to an imagefilter)
@@ -1708,6 +1709,7 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
         return;
     }
     SkASSERT(!srcImg->isTextureBacked());
+    SkASSERT(!paint.getMaskFilter());
 
     //TODO: clipImage support
 
