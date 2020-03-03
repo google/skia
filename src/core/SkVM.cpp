@@ -1894,10 +1894,19 @@ namespace skvm {
         }
     }
 
+    struct Program::LLVMState {
+    #if defined(SKVM_LLVM)
+        std::shared_ptr<llvm::LLVMContext>     ctx;
+        std::unique_ptr<llvm::ExecutionEngine> ee;
+    #endif
+    };
+
 #if defined(SKVM_LLVM)
     void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
                             const char* debug_name) {
-        thread_local static llvm::LLVMContext& ctx = *(new llvm::LLVMContext);
+        thread_local static auto tls_ctx = std::make_shared<llvm::LLVMContext>();
+        llvm::LLVMContext& ctx = *tls_ctx;
+
         auto mod = std::make_unique<llvm::Module>("", ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
@@ -2299,13 +2308,16 @@ namespace skvm {
 
         llvm::TargetOptions options;
         options.AllowFPOpFusion = llvm::FPOpFusion::Fast;
-        fEE = llvm::EngineBuilder(std::move(mod))
-                    .setEngineKind(llvm::EngineKind::JIT)
-                    .setMCPU(llvm::sys::getHostCPUName())
-                    .setTargetOptions(options)
-                    .create();
-        if (fEE) {
-            fJITEntry = (void*)fEE->getFunctionAddress(debug_name);
+
+        if (llvm::ExecutionEngine* ee = llvm::EngineBuilder(std::move(mod))
+                                            .setEngineKind(llvm::EngineKind::JIT)
+                                            .setMCPU(llvm::sys::getHostCPUName())
+                                            .setTargetOptions(options)
+                                            .create()) {
+            fLLVMState = std::make_unique<LLVMState>();
+            fLLVMState->ctx = tls_ctx;
+            fLLVMState->ee.reset(ee);
+            fJITEntry = (void*)fLLVMState->ee->getFunctionAddress(debug_name);
         }
     }
 #endif
@@ -2316,7 +2328,7 @@ namespace skvm {
 
     void Program::dropJIT() {
     #if defined(SKVM_LLVM)
-        delete fEE;
+        fLLVMState.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fDylib) {
             dlclose(fDylib);
@@ -2330,7 +2342,6 @@ namespace skvm {
         fJITEntry = nullptr;
         fJITSize  = 0;
         fDylib    = nullptr;
-        fEE       = nullptr;
     }
 
     Program::~Program() { this->dropJIT(); }
@@ -2341,10 +2352,10 @@ namespace skvm {
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
 
-        std::swap(fJITEntry, other.fJITEntry);
-        std::swap(fJITSize , other.fJITSize);
-        std::swap(fDylib   , other.fDylib);
-        std::swap(fEE      , other.fEE);
+        std::swap(fJITEntry , other.fJITEntry);
+        std::swap(fJITSize  , other.fJITSize);
+        std::swap(fDylib    , other.fDylib);
+        std::swap(fLLVMState, other.fLLVMState);
     }
 
     Program& Program::operator=(Program&& other) {
@@ -2353,10 +2364,10 @@ namespace skvm {
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
 
-        std::swap(fJITEntry, other.fJITEntry);
-        std::swap(fJITSize , other.fJITSize);
-        std::swap(fDylib   , other.fDylib);
-        std::swap(fEE      , other.fEE);
+        std::swap(fJITEntry , other.fJITEntry);
+        std::swap(fJITSize  , other.fJITSize);
+        std::swap(fDylib    , other.fDylib);
+        std::swap(fLLVMState, other.fLLVMState);
         return *this;
     }
 
