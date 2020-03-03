@@ -201,7 +201,10 @@ DEF_GM(return new SaveLayerWithBackdropGM();)
 DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
     if (canvas->getGrContext()) {
-        image = image->makeTextureImage(canvas->getGrContext());
+        sk_sp<SkImage> gpuImage = image->makeTextureImage(canvas->getGrContext());
+        if (gpuImage) {
+            image = std::move(gpuImage);
+        }
     }
 
     SkISize kernelSize = SkISize::Make(3, 3);
