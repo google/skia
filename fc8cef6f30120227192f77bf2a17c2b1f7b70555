@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c021695_587fc601",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-03T22:21:53Z",
+      "side": 1,
+      "message": "Huh.  This isn\u0027t where we dither in today in the CPU backend... it happens at the very end of resolve, on that \"A.3 or B.2\" value after blending and coverage, based on the bit-depth of the destination, just before we clamp, repack the values into the destination format, and write to memory.\n\nObviously that\u0027s a tough time to dither on the GPU.  I do kind of like your spot... the more weird stuff we move to the shading pipeline the better, in case we want to make them user-programable and/or remove them from SkPaint.\n\nHow do you know how much to dither?  Is it controlled by the bit-depth of the destination, the bit-depth of the source, something else?",
+      "range": {
+        "startLine": 38,
+        "startChar": 80,
+        "endLine": 38,
+        "endChar": 89
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09490ccf_a38e399a",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-03T22:21:53Z",
+      "side": 1,
+      "message": "Is it worth explaining somewhere that the paint r,g,b provide hue for alpha-only inputs?",
+      "range": {
+        "startLine": 44,
+        "startChar": 41,
+        "endLine": 44,
+        "endChar": 54
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
