@@ -401,18 +401,11 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
     enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
 
-    auto satisfiesMipMapRequest = [&](const GrSurfaceProxyView& view) {
-        SkASSERT(view);
-        return mipMapped == GrMipMapped::kNo ||
-               view.asTextureProxy()->mipMapped() == GrMipMapped::kYes;
-    };
-
     GrUniqueKey key;
     GrMakeKeyFromImageID(&key, this->uniqueID(), SkIRect::MakeSize(this->dimensions()));
 
     const GrCaps* caps = ctx->priv().caps();
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    GrSurfaceProxyView view;
 
     auto installKey = [&](const GrSurfaceProxyView& view) {
         SkASSERT(view && view.asTextureProxy());
@@ -432,30 +425,43 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);
             GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
-            view = GrSurfaceProxyView(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
-            if (satisfiesMipMapRequest(view)) {
+            GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
+            if (mipMapped == GrMipMapped::kNo ||
+                view.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
+                return view;
+            } else {
+                // We need a mipped proxy, but we found a cached proxy that wasn't mipped. Thus we
+                // generate a new mipped surface and copy the original proxy into the base layer. We
+                // will then let the gpu generate the rest of the mips.
+                GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(
+                        ctx, view.proxy(), kTopLeft_GrSurfaceOrigin, ct);
+                if (mippedView) {
+                    proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
+                    installKey(mippedView);
+                    return mippedView;
+                }
+                // We failed to make a mipped proxy with the base copied into it. This could have
+                // been from failure to make the proxy or failure to do the copy. Thus we will fall
+                // back to just using the non mipped proxy; See skbug.com/7094.
                 return view;
             }
         }
     }
 
     // 2. Ask the generator to natively create one
-    if (!view) {
-        ScopedGenerator generator(fSharedGenerator);
-        view = generator->generateTexture(ctx, this->imageInfo(), fOrigin, mipMapped);
-        if (view) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
-                                     kLockTexturePathCount);
-            installKey(view);
-            if (satisfiesMipMapRequest(view)) {
-                return view;
-            }
-        }
+    {
+       ScopedGenerator generator(fSharedGenerator);
+       if (auto view = generator->generateTexture(ctx, this->imageInfo(), fOrigin, mipMapped)) {
+           SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
+                                    kLockTexturePathCount);
+           installKey(view);
+           return view;
+       }
     }
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we fall through here and have the CPU generate the mip maps for us.
-    if (!view && mipMapped == GrMipMapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
+    if (mipMapped == GrMipMapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
         SkColorType colorType = this->colorType();
 
         ScopedGenerator generator(fSharedGenerator);
@@ -470,9 +476,9 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
         // TODO: Update to create the mipped surface in the YUV generator and draw the base
         // layer directly into the mipped surface.
-        view = provider.refAsTextureProxyView(ctx, this->imageInfo().dimensions(),
-                                              SkColorTypeToGrColorType(colorType),
-                                              generatorColorSpace, thisColorSpace);
+        auto view = provider.refAsTextureProxyView(ctx, this->imageInfo().dimensions(),
+                                                   SkColorTypeToGrColorType(colorType),
+                                                   generatorColorSpace, thisColorSpace);
         if (view) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
@@ -482,44 +488,19 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     }
 
     // 4. Ask the generator to return RGB(A) data, which the GPU can convert
-    SkBitmap bitmap;
-    if (!view && this->getROPixels(&bitmap, chint)) {
+    if (SkBitmap bitmap; this->getROPixels(&bitmap, chint)) {
         GrBitmapTextureMaker bitmapMaker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo);
-        view = bitmapMaker.view(mipMapped);
+        auto view = bitmapMaker.view(mipMapped);
         if (view) {
             installKey(view);
-            if (satisfiesMipMapRequest(view)) {
-                SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
-                                         kLockTexturePathCount);
-                return view;
-            }
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
+                                     kLockTexturePathCount);
+            return view;
         }
     }
 
-    if (!view) {
-        SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
-                                 kLockTexturePathCount);
-        return {};
-    }
-
-    // We need a mipped proxy, but we either found a proxy earlier that wasn't mipped, generated
-    // a native non mipped proxy, or generated a non-mipped yuv proxy. Thus we generate a new
-    // mipped surface and copy the original proxy into the base layer. We will then let the gpu
-    // generate the rest of the mips.
-    SkASSERT(mipMapped == GrMipMapped::kYes);
-    SkASSERT(view.asTextureProxy()->mipMapped() == GrMipMapped::kNo);
-    GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-    GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(
-            ctx, view.proxy(), kTopLeft_GrSurfaceOrigin, srcColorType);
-    if (mippedView) {
-        proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
-        installKey(mippedView);
-        return mippedView;
-    }
-    // We failed to make a mipped proxy with the base copied into it. This could have
-    // been from failure to make the proxy or failure to do the copy. Thus we will fall
-    // back to just using the non mipped proxy; See skbug.com/7094.
-    return view;
+    SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath, kLockTexturePathCount);
+    return {};
 }
 
 GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const {
