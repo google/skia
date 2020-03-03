@@ -231,7 +231,7 @@ void GrDawnUniformHandler::updateUniformVisibility(UniformHandle u, uint32_t vis
     fUniforms[u.toIndex()].fVisibility |= visibility;
 }
 
-GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrSurfaceProxy*,
+GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrBackendFormat&,
                                                                      GrSamplerState,
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,

@@ -254,19 +254,16 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrSurfaceProxy* texture,
-                                                                   GrSamplerState state,
-                                                                   const GrSwizzle& swizzle,
-                                                                   const char* name,
-                                                                   const GrShaderCaps* shaderCaps) {
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
+        const GrBackendFormat& backendFormat, GrSamplerState state, const GrSwizzle& swizzle,
+        const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
-    SkASSERT(texture->asTextureProxy());
 
     SkString mangleName;
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
-    GrTextureType type = texture->backendFormat().textureType();
+    GrTextureType type = backendFormat.textureType();
 
     UniformInfo& info = fSamplers.push_back();
     info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));
@@ -279,7 +276,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrSurfa
     info.fUBOffset = 0;
 
     // Check if we are dealing with an external texture and store the needed information if so.
-    auto ycbcrInfo = texture->backendFormat().getVkYcbcrConversionInfo();
+    auto ycbcrInfo = backendFormat.getVkYcbcrConversionInfo();
     if (ycbcrInfo && ycbcrInfo->isValid()) {
         GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
         info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(

@@ -115,11 +115,19 @@ void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
 
 void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                                    const GrSurfaceProxy* const primProcTextures[]) {
+#ifdef SK_DEBUG
+    SkASSERT((primProc.numTextureSamplers() > 0) == SkToBool(primProcTextures));
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        SkASSERT(primProcTextures[i]->backendFormat() ==
+                 primProc.textureSampler(i).backendFormat());
+    }
+#endif
+
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         return;
     }
-    SkASSERT((primProc.numTextureSamplers() > 0) == SkToBool(primProcTextures));
+
     // Don't assert on fTextureBindingStatus. onBindTextures() just turns into a no-op when there
     // aren't any textures, and it's hard to tell from the GrPipeline whether there are any. For
     // many clients it is easier to just always call this method.
@@ -127,6 +135,7 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const G
         fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
         return;
     }
+
     SkDEBUGCODE(fTextureBindingStatus = DynamicStateStatus::kConfigured);
 }
 
