@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0876c2d_cde39ad4",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-03T19:23:54Z",
+      "side": 1,
+      "message": "I think you need a scope here because ScopedGenerator uses SkMutex, which isn\u0027t re-entrant (other code later on also uses the ScopedGenerator). I suspect your tryjobs are going to hang.",
+      "revId": "fb3736fbc075f5475eb9c15c6dccb13e46c857ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
