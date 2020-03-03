@@ -269,6 +269,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_vulkan_debug_layers'] = 'true'
     if 'MoltenVK' in extra_tokens:
       args['skia_moltenvk_path'] = '"%s"' % moltenvk
+  if 'Direct3D' in extra_tokens:
+    args['skia_use_direct3d'] = 'true'
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
   if 'OpenCL' in extra_tokens:
