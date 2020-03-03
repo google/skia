@@ -414,33 +414,11 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     GrSurfaceProxyView view;
 
-    auto installKey = [&](const GrSurfaceProxyView& view,
-                          const GrSurfaceProxyView& previouslyKeyedView = {}) {
+    auto installKey = [&](const GrSurfaceProxyView& view) {
         SkASSERT(view && view.asTextureProxy());
         if (key.isValid()) {
-            if (!previouslyKeyedView) {
-                // We will add an invalidator to the image so that if the path goes away we will
-                // delete or recycle the mask texture.
-                auto listener = GrMakeUniqueKeyInvalidationListener(&key, ctx->priv().contextID());
-                this->addUniqueIDListener(std::move(listener));
-            } else {
-                auto previousProxy = previouslyKeyedView.asTextureProxy();
-                SkASSERT(previousProxy->getUniqueKey() == key);
-                SkASSERT(view.asTextureProxy()->mipMapped() == GrMipMapped::kYes &&
-                         previousProxy->mipMapped()         == GrMipMapped::kNo);
-                // If we had an previousProxy with a valid key, that means there already is a proxy
-                // in the cache which matches the key, but it does not have mip levels and we
-                // require them. Thus we must remove the unique key from that proxy.
-                SkASSERT(previousProxy->getUniqueKey() == key);
-                // We should have already put a listener invalidator on previousProxy's key. We
-                // *may* have already put the listener on our local key. That depends on whether
-                // previousProxy was created in this call or a previous call.
-                SkASSERT(previousProxy->getUniqueKey().getCustomData());
-                if (!key.getCustomData()) {
-                    key.setCustomData(sk_ref_sp(previousProxy->getUniqueKey().getCustomData()));
-                }
-                proxyProvider->removeUniqueKeyFromProxy(previousProxy);
-            }
+            auto listener = GrMakeUniqueKeyInvalidationListener(&key, ctx->priv().contextID());
+            this->addUniqueIDListener(std::move(listener));
             proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
         }
     };
@@ -534,7 +512,8 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(
             ctx, view.proxy(), kTopLeft_GrSurfaceOrigin, srcColorType);
     if (mippedView) {
-        installKey(mippedView, view);
+        proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
+        installKey(mippedView);
         return mippedView;
     }
     // We failed to make a mipped proxy with the base copied into it. This could have
