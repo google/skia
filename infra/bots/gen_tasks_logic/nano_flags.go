@@ -27,15 +27,10 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 	}
 
 	if has("GPU") {
-		args = append(args, "--images")
 		args = append(args, "--gpuStatsDump", "true")
 	}
 
 	args = append(args, "--scales", "1.0", "1.1")
-
-	if has("iOS") {
-		args = append(args, "--skps", "ignore_skps")
-	}
 
 	configs := []string{}
 	if parts["cpu_or_gpu"] == "CPU" {

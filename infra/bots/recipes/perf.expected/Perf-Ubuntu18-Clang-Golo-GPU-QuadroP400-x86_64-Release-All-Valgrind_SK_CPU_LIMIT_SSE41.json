@@ -163,9 +163,7 @@
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
-      "[START_DIR]/skp",
-      "--images",
-      "[START_DIR]/skimage/nanobench"
+      "[START_DIR]/skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
