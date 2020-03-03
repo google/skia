@@ -12,6 +12,7 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
+#include <atomic>
 #include <vector>      // std::vector
 
 class SkWStream;
@@ -667,12 +668,14 @@ namespace skvm {
                  bool try_hoisting,
                  Assembler*) const;
 
+        void waitForLLVM() const;
+
         std::vector<Instruction> fInstructions;
         int                      fRegs = 0;
         int                      fLoop = 0;
         std::vector<int>         fStrides;
 
-        void*  fJITEntry = nullptr;
+        std::atomic<void*> fJITEntry{nullptr};
         size_t fJITSize  = 0;
         void*  fDylib    = nullptr;
 

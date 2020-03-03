@@ -17,6 +17,7 @@
 #include "src/core/SkVM.h"
 
 #if defined(SKVM_LLVM)
+    #include <future>
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
@@ -1618,7 +1619,7 @@ namespace skvm {
     }
 
     void Program::eval(int n, void* args[]) const {
-        if (const void* b = fJITEntry) {
+        if (const void* b = fJITEntry.load()) {
             void** a = args;
             switch (fStrides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
@@ -1898,6 +1899,7 @@ namespace skvm {
     #if defined(SKVM_LLVM)
         std::unique_ptr<llvm::LLVMContext>     ctx;
         std::unique_ptr<llvm::ExecutionEngine> ee;
+        std::future<void>                      compiling;
     #endif
     };
 
@@ -2316,29 +2318,45 @@ namespace skvm {
             fLLVMState = std::make_unique<LLVMState>();
             fLLVMState->ctx = std::move(ctx);
             fLLVMState->ee.reset(ee);
-            fJITEntry = (void*)fLLVMState->ee->getFunctionAddress(debug_name);
+
+            std::string fn_name(debug_name);
+            fLLVMState->compiling = std::async(std::launch::async, [&,fn_name] {
+                fJITEntry.store((void*)fLLVMState->ee->getFunctionAddress(fn_name.c_str()));
+            });
         }
     }
 #endif
 
+    void Program::waitForLLVM() const {
+    #if defined(SKVM_LLVM)
+        if (fLLVMState) {
+            SkASSERT(fLLVMState->compiling.valid());
+            fLLVMState->compiling.wait();
+        }
+    #endif
+    }
+
     bool Program::hasJIT() const {
-        return fJITEntry != nullptr;
+        this->waitForLLVM();
+        return fJITEntry.load() != nullptr;
     }
 
     void Program::dropJIT() {
+        this->waitForLLVM();
+
     #if defined(SKVM_LLVM)
         fLLVMState.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fDylib) {
             dlclose(fDylib);
-        } else if (fJITEntry) {
-            munmap(fJITEntry, fJITSize);
+        } else if (auto entry = fJITEntry.load()) {
+            munmap(entry, fJITSize);
         }
     #else
         SkASSERT(!this->hasJIT());
     #endif
 
-        fJITEntry = nullptr;
+        fJITEntry.store(nullptr);
         fJITSize  = 0;
         fDylib    = nullptr;
     }
@@ -2346,24 +2364,31 @@ namespace skvm {
     Program::~Program() { this->dropJIT(); }
 
     Program::Program(Program&& other) {
+        other.waitForLLVM();
+
         fInstructions    = std::move(other.fInstructions);
         fRegs            = other.fRegs;
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
 
-        std::swap(fJITEntry , other.fJITEntry);
+        fJITEntry.store(other.fJITEntry.exchange(nullptr));
         std::swap(fJITSize  , other.fJITSize);
         std::swap(fDylib    , other.fDylib);
         std::swap(fLLVMState, other.fLLVMState);
     }
 
     Program& Program::operator=(Program&& other) {
+        this->waitForLLVM();
+        other.waitForLLVM();
+
         fInstructions    = std::move(other.fInstructions);
         fRegs            = other.fRegs;
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
 
-        std::swap(fJITEntry , other.fJITEntry);
+        auto entry = other.fJITEntry.exchange(nullptr);
+        other.fJITEntry.store(fJITEntry.exchange(entry));
+
         std::swap(fJITSize  , other.fJITSize);
         std::swap(fDylib    , other.fDylib);
         std::swap(fLLVMState, other.fLLVMState);
@@ -3130,17 +3155,18 @@ namespace skvm {
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
         fJITSize = ((a.size() + page - 1) / page) * page;  // mprotect works at page granularity.
-        fJITEntry = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        void* entry = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        fJITEntry.store(entry);
 
         // Assemble the program for real.
-        a = Assembler{fJITEntry};
+        a = Assembler{entry};
         SkAssertResult(this->jit(instructions, try_hoisting, &a));
         SkASSERT(a.size() <= fJITSize);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(fJITEntry, fJITSize, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)fJITEntry,
-                                (char*)fJITEntry + fJITSize);
+        mprotect(entry, fJITSize, PROT_READ|PROT_EXEC);
+        __builtin___clear_cache((char*)entry,
+                                (char*)entry + fJITSize);
 
         // For profiling and debugging, it's helpful to have this code loaded
         // dynamically rather than just jumping info fJITEntry.
@@ -3148,7 +3174,7 @@ namespace skvm {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
             int fd = mkstemp(path.writable_str());
-            ::write(fd, fJITEntry, a.size());
+            ::write(fd, entry, a.size());
             close(fd);
 
             this->dropJIT();  // (unmap and null out fJITEntry.)
@@ -3162,7 +3188,7 @@ namespace skvm {
 
             // Load that dynamic library and look up skvm_jit().
             fDylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            fJITEntry = dlsym(fDylib, "skvm_jit");
+            fJITEntry.store(dlsym(fDylib, "skvm_jit"));
         }
     }
 #endif
