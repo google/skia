@@ -24,7 +24,7 @@ using List = SkIDChangeListener::List;
 List::List() = default;
 
 List::~List() {
-    // We don't need the mutex. No other thread should have this list while it's being
+    // We don't need the lock. No other thread should have this list while it's being
     // destroyed.
     for (int i = 0; i < fListeners.count(); ++i) {
         if (!fListeners[i]->shouldDeregister()) {
@@ -34,61 +34,41 @@ List::~List() {
     }
 }
 
-void List::add(sk_sp<SkIDChangeListener> listener, bool singleThreaded) {
+void List::add(sk_sp<SkIDChangeListener> listener) {
     if (!listener) {
         return;
     }
     SkASSERT(!listener->shouldDeregister());
 
-    auto add = [&] {
-        // Clean out any stale listeners before we append the new one.
-        for (int i = 0; i < fListeners.count(); ++i) {
-            if (fListeners[i]->shouldDeregister()) {
-                fListeners[i]->unref();
-                fListeners.removeShuffle(i--);  // No need to preserve the order after i.
-            }
+    SkAutoSpinlock lock(fSpinlock);
+    // Clean out any stale listeners before we append the new one.
+    for (int i = 0; i < fListeners.count(); ++i) {
+        if (fListeners[i]->shouldDeregister()) {
+            fListeners[i]->unref();
+            fListeners.removeShuffle(i--);  // No need to preserve the order after i.
         }
-        *fListeners.append() = listener.release();
-    };
-
-    if (singleThreaded) {
-        add();
-    } else {
-        SkAutoMutexExclusive lock(fMutex);
-        add();
     }
+    *fListeners.append() = listener.release();
 }
 
 int List::count() {
-    SkAutoMutexExclusive lock(fMutex);
+    SkAutoSpinlock lock(fSpinlock);
     return fListeners.count();
 }
 
-void List::changed(bool singleThreaded) {
-    auto visit = [this]() {
-        for (SkIDChangeListener* listener : fListeners) {
-            if (!listener->shouldDeregister()) {
-                listener->changed();
-            }
-            // Listeners get at most one shot, so whether these triggered or not, blow them away.
-            listener->unref();
+void List::changed() {
+    SkAutoSpinlock lock(fSpinlock);
+    for (SkIDChangeListener* listener : fListeners) {
+        if (!listener->shouldDeregister()) {
+            listener->changed();
         }
-        fListeners.reset();
-    };
-
-    if (singleThreaded) {
-        visit();
-    } else {
-        SkAutoMutexExclusive lock(fMutex);
-        visit();
+        // Listeners get at most one shot, so whether these triggered or not, blow them away.
+        listener->unref();
     }
+    fListeners.reset();
 }
 
-void List::reset(bool singleThreaded) {
-    if (singleThreaded) {
-        fListeners.unrefAll();
-    } else {
-        SkAutoMutexExclusive lock(fMutex);
-        fListeners.unrefAll();
-    }
+void List::reset() {
+    SkAutoSpinlock lock(fSpinlock);
+    fListeners.unrefAll();
 }

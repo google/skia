@@ -479,17 +479,13 @@ void SkPathRef::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) {
     if (this == gEmpty) {
         return;
     }
-    bool singleThreaded = this->unique();
-    fGenIDChangeListeners.add(std::move(listener), singleThreaded);
+    fGenIDChangeListeners.add(std::move(listener));
 }
 
 int SkPathRef::genIDChangeListenerCount() { return fGenIDChangeListeners.count(); }
 
 // we need to be called *before* the genID gets changed or zerod
-void SkPathRef::callGenIDChangeListeners() {
-    bool singleThreaded = this->unique();
-    fGenIDChangeListeners.changed(singleThreaded);
-}
+void SkPathRef::callGenIDChangeListeners() { fGenIDChangeListeners.changed(); }
 
 SkRRect SkPathRef::getRRect() const {
     const SkRect& bounds = this->getBounds();
