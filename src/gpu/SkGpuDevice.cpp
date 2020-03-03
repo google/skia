@@ -986,6 +986,8 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
 
 void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint,
                               SkImage* clipImage, const SkMatrix& clipMatrix) {
+    SkASSERT(!paint.getMaskFilter());
+
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
@@ -1014,10 +1016,6 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
 
     SkPaint tmpUnfiltered(paint);
-    if (tmpUnfiltered.getMaskFilter()) {
-        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
-    }
-
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());
@@ -1265,6 +1263,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
 void SkGpuDevice::drawDevice(SkBaseDevice* device,
                              int left, int top, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
+    SkASSERT(!paint.getMaskFilter());
 
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
