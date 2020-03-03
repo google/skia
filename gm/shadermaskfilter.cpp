@@ -192,59 +192,6 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     canvas->restore();
 }
 
-static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
-    const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
-    auto      surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surf->getCanvas()->drawCircle(n * 0.5f, n * 0.5f, radius, paint);
-    return surf->makeImageSnapshot();
-}
-
-DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 450, 675) {
-    auto layerImage = GetResourceAsImage("images/mandrill_128.png");
-    auto maskImage = make_circle_image(canvas, 50, 1);
-    SkRect r = SkRect::MakeWH(102, 102);
-
-    SkPaint overlayPaint;
-    overlayPaint.setStyle(SkPaint::kStroke_Style);
-
-    // test that the maskfilter sees these changes to the ctm
-    canvas->translate(10, 10);
-    canvas->scale(2, 2);
-
-    sk_sp<SkMaskFilter> mfs[] = {
-        SkShaderMaskFilter::Make(maskImage->makeShader()),
-        SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3.5f),
-        nullptr,
-    };
-    mfs[2] = SkMaskFilter::MakeCompose(mfs[1], mfs[0]);
-
-    // Important that we test with and without an imagefilter attached to the layer,
-    // as cpu and gpu backends treat these differently (w/ or w/o a SkSpecialImage)
-    const sk_sp<SkImageFilter> imfs[] = {nullptr, SkImageFilters::Blur(3.5f, 3.5f, nullptr)};
-
-    for (auto& mf : mfs) {
-        SkPaint layerPaint;
-        layerPaint.setMaskFilter(mf);
-        canvas->save();
-        for (auto& imf : imfs) {
-            layerPaint.setImageFilter(imf);
-
-            canvas->saveLayer(&r, &layerPaint);
-            canvas->drawImage(layerImage, 0, 0, nullptr);
-            canvas->restore();
-
-            // now draw the (approximage) expected bounds of the mask
-            canvas->drawRect(r.makeOutset(1, 1), overlayPaint);
-
-            canvas->translate(r.width() + 10, 0);
-        }
-        canvas->restore();
-        canvas->translate(0, r.height() + 10);
-    }
-}
-
 static void draw_mask(SkCanvas* canvas) {
     SkPaint p;
     p.setAntiAlias(true);
@@ -291,47 +238,30 @@ DEF_SIMPLE_GM(shadermaskfilter_localmatrix, canvas, 1500, 1000) {
           SkMatrix::Concat(SkMatrix::MakeScale(2, 2), SkMatrix::MakeTrans(10, 10)) },
     };
 
-    using DrawerT = void(*)(SkCanvas*, const SkRect&, const SkPaint&);
-    static const DrawerT gDrawers[] = {
-        [](SkCanvas* canvas, const SkRect& dest, const SkPaint& mask) {
-            canvas->drawRect(dest, mask);
-        },
-        [](SkCanvas* canvas, const SkRect& dest, const SkPaint& mask) {
-            canvas->saveLayer(&dest, &mask);
-            SkPaint p = mask;
-            p.setMaskFilter(nullptr);
-            canvas->drawPaint(p);
-            canvas->restore();
-        },
-    };
-
     SkPaint paint, rectPaint;
     paint.setColor(0xff00ff00);
     rectPaint.setStyle(SkPaint::kStroke_Style);
     rectPaint.setColor(0xffff0000);
 
     for (const auto& sm : gShaderMakers) {
-        for (const auto& drawer : gDrawers) {
-            {
-                SkAutoCanvasRestore acr(canvas, true);
-                for (const auto& cfg : gConfigs) {
-                    paint.setMaskFilter(SkShaderMaskFilter::Make(sm(canvas, cfg.fShaderMatrix))
-                                        ->makeWithMatrix(cfg.fMaskMatrix));
-                    auto dest = SkRect::MakeWH(kSize, kSize);
-                    SkMatrix::Concat(cfg.fMaskMatrix, cfg.fShaderMatrix).mapRect(&dest);
+        {
+            SkAutoCanvasRestore acr(canvas, true);
+            for (const auto& cfg : gConfigs) {
+                paint.setMaskFilter(SkShaderMaskFilter::Make(sm(canvas, cfg.fShaderMatrix))
+                                    ->makeWithMatrix(cfg.fMaskMatrix));
+                auto dest = SkRect::MakeWH(kSize, kSize);
+                SkMatrix::Concat(cfg.fMaskMatrix, cfg.fShaderMatrix).mapRect(&dest);
 
-                    {
-                        SkAutoCanvasRestore acr(canvas, true);
-                        canvas->concat(cfg.fCanvasMatrix);
-                        drawer(canvas, dest, paint);
-                        canvas->drawRect(dest, rectPaint);
-                    }
-
-                    canvas->translate(kSize * 2.5f, 0);
+                {
+                    SkAutoCanvasRestore acr(canvas, true);
+                    canvas->concat(cfg.fCanvasMatrix);
+                    canvas->drawRect(dest, paint);
+                    canvas->drawRect(dest, rectPaint);
                 }
-            }
-            canvas->translate(0, kSize * 2.5f);
-        }
 
+                canvas->translate(kSize * 2.5f, 0);
+            }
+        }
+        canvas->translate(0, kSize * 2.5f);
     }
 }

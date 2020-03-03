@@ -306,7 +306,9 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
     SkRect clipBounds = SkRect::MakeWH(100, 100);
 
     // On the main canvas, save a 100x100 layer three times, applying clip mask, mask filter, or
-    // both, translating across the GM for each configuration.
+    // both, translating across the GM for each configuration. Since the mask filter is provided
+    // on the layer restore paint, it must be ignored by the restore since coverage is not well
+    // defined.
     canvas->clear(SK_ColorGRAY);
 
     canvas->translate(25.f, 0.f);
@@ -322,7 +324,7 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
 
     canvas->translate(125.f, 0.f);
 
-    // Mask filter only
+    // Mask filter only (should be ignored, producing a white square)
     maskPaint.setMaskFilter(maskFilter);
     rec.fClipMask = nullptr;
     rec.fPaint = &maskPaint;
@@ -332,7 +334,7 @@ DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
 
     canvas->translate(125.f, 0.f);
 
-    // Both
+    // Both (mask filter is ignored, but clip mask should not, so should look like first draw)
     rec.fClipMask = clipMaskImage.get();
     canvas->saveLayer(rec);
     canvas->clear(SK_ColorWHITE);

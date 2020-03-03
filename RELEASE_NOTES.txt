@@ -45,6 +45,11 @@ Milestone 82
 
   * SkSurface::ReplaceBackendTexture takes ContentChangeMode as a parameter,
     which allow callers to specify whether retain a copy of the current content.
+    
+  * Enforce the existing documentation in SkCanvas::saveLayer that it ignores 
+    any mask filter on the restore SkPaint. The 'coverage' of a layer is 
+    ill-defined, and masking should be handled by pre-clipping or using the
+    auxiliary clip mask image of the SaveLayerRec.
 
 * * *
 

@@ -1083,8 +1083,13 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     const SkRect* bounds = rec.fBounds;
-    const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
+
+    SkTCopyOnFirstWrite<SkPaint> paint(rec.fPaint);
+    // saveLayer ignores mask filters, so force it to null
+    if (paint.get() && paint->getMaskFilter()) {
+        paint.writable()->setMaskFilter(nullptr);
+    }
 
     // If we have a backdrop filter, then we must apply it to the entire layer (clip-bounds)
     // regardless of any hint-rect from the caller. skbug.com/8783
@@ -1092,8 +1097,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         bounds = nullptr;
     }
 
-    SkLazyPaint lazyP;
-    SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
+    SkImageFilter* imageFilter = paint.get() ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
     MCRec* modifiedRec = nullptr;
 
@@ -1124,10 +1128,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             SkASSERT(modifiedCTM.isScaleTranslate() || as_IFB(imageFilter)->canHandleComplexCTM());
             modifiedRec = fMCRec;
             this->internalSetMatrix(modifiedCTM);
-            SkPaint* p = lazyP.set(*paint);
-            p->setImageFilter(std::move(modifiedFilter));
-            imageFilter = p->getImageFilter();
-            paint = p;
+            imageFilter = modifiedFilter.get();
+            paint.writable()->setImageFilter(std::move(modifiedFilter));
         }
         // Else the filter didn't change, so modifiedCTM == stashedMatrix and there's nothing
         // left to do since the stack already has that as the CTM.
