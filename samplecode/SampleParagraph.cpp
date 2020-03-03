@@ -2420,12 +2420,24 @@ protected:
         auto paragraph = builder.Build();
         paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
-        for (size_t i = 0; i < 402; ++i) {
-            //auto res1 = paragraph->getGlyphPositionAtCoordinate(fPoint.fX, fPoint.fY);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        size_t num = 0;
+        for (auto& line : impl->lines()) {
+            auto res1 = paragraph->getGlyphPositionAtCoordinate(line.width() + line.spacesWidth() / 2, line.offset().fY + 10);
             //auto res2 = paragraph->getWordBoundary(res1.position);
-            auto res3 = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto res3 = paragraph->getRectsForRange(res1.position, res1.position + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
             if (res3.empty()) {
-                SkDebugf("empty: %f %d %d\n", width(), i, i + 1);
+                SkDebugf("empty: %f %d %d\n", width(), res1.position, res1.position + 1);
+            } else {
+                SkPaint paint;
+                paint.setColor(SK_ColorLTGRAY);
+                for (auto& r : res3) {
+                    if (SkScalarNearlyZero(r.rect.fLeft) && SkScalarNearlyZero(r.rect.fTop)) {
+                        SkDebugf("0, 0: %f %d %d\n", width(), res1.position, res1.position + 1);
+                    }
+                    canvas->drawRect(r.rect, paint);
+                }
             }
         }
 /*

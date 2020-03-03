@@ -558,6 +558,16 @@ void ParagraphImpl::markGraphemes16() {
         auto startPos = endPos;
         endPos = breaker.next();
 
+        if (fText[startPos] == ' ' && endPos > startPos + 1) {
+            // Separate space from the grapheme
+            codepoints.end = codepoints.start + 1;
+            fCodePoints[codepoints.start].fGrapheme = fGraphemes16.size();
+            fGraphemes16.emplace_back(codepoints, TextRange(startPos, startPos + 1));
+            codepoints.start = codepoints.end;
+            ++startPos;
+            // Proceed with the rest
+        }
+
         // Collect all the codepoints that belong to the grapheme
         while (codepoints.end < fCodePoints.size() && fCodePoints[codepoints.end].fTextIndex < endPos) {
             ++codepoints.end;
@@ -621,8 +631,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     TextRange text(fText.size(), fText.size());
 
     if (start < fCodePoints.size()) {
-        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
-        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
+        auto codepoint = fCodePoints[start];
+        auto startGrapheme = fGraphemes16[codepoint.fGrapheme];
+        auto lastGrapheme = codepoint.fGrapheme == fGraphemes16.size() - 1;
         if (start > startGrapheme.fCodepointRange.start) {
             if (end == startGrapheme.fCodepointRange.end &&
                 start == startGrapheme.fCodepointRange.end - 1) {
@@ -641,7 +652,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
     if (end < fCodePoints.size()) {
         auto codepoint = fCodePoints[end];
-        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
+        auto endGrapheme = fGraphemes16[codepoint.fGrapheme];
         if (text.start == endGrapheme.fTextRange.start &&
             end + codepoint.fIndex == fCodePoints.size()) {
             text.end = endGrapheme.fTextRange.end;
