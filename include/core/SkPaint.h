@@ -32,6 +32,79 @@ class SkShader;
     SkPaint collects effects and filters that describe single-pass and multiple-pass
     algorithms that alter the drawing geometry, color, and transparency. For instance,
     SkPaint does not directly implement dashing or blur, but contains the objects that do so.
+    The effects are applied in the following order:
+
+    tl;dr
+      Shading:  color -> (image|shader) -> [primitive blend] -> color filter -> dithering
+      Geometry: draw shape -> path effect -> style -> anti-aliasing -> mask filter
+      Resolve:  image filter -> final blend
+
+    Shading (computing the src color):
+    1. Start with the SkPaint's color, converted to premultiplied alpha.
+    2. Evaluate the paint's SkShader and modulate with the result of #1.
+       - SkCanvas::draw calls that take an SkImage or SkBitmap overwrite the paint's shader with an
+         implicitly created image shader, e.g. drawImage, drawImageRect, or drawAtlas.
+    3. Combine the result of #2 with the per-primitive color using the primitive blend mode. This
+       only applies to SkCanvas APIs that provide a per-primitive function, such as drawVertices
+       or drawAtlas. This step does nothing for other regular draw functions.
+       - This step combines colors using the secondary blend mode provided as an argument to the
+         special draw functions, not the blend mode stored on the SkPaint.
+       - The primitive color is considered the dst, result of #2 is the src.
+    4. If not null, the output of #3 is processed by the paint's SkColorFilter.
+    5. If enabled, the output of #4 will be dithered.
+
+    Geometry (effectively parallel to shading):
+    1. The specific SkCanvas draw function and parameters define an initial path.
+    2. The paint's SkPathEffect processes the geometry to modify the path (e.g. dashed lines).
+    3. The paint's style and stroke parameters (width, miter, etc.) implicitly modify #2 to make a
+       new path that, when simply filled, displays the requested style.
+    4. The result of #3 and the SkPaint's anti-alias setting determine the base coverage per pixel.
+    5. The SkMaskFilter on the paint further transforms this coverage mask.
+
+    Resolve (combining shading and geometry):
+    A. If the paint has an SkImageFilter:
+       1. The color and coverage outputs are resolved together into a transparent, temporary buffer
+          using src-over blending.
+          - This means that coverage is essentially multiplied with the RGBA color channels.
+       2. The image from #1 is processed by the filter to produce a new color+alpha image.
+       3. The filtered image from #2 is blended with the prior destination pixel colors, using the
+          SkPaint's SkBlendMode. The filtered image is the src, the prior color is the dst.
+    B. If there is no SkImageFilter:
+       1. The color output is blended with the prior destination pixel colors using the paint's
+          blend mode.
+       2. The output of #1 is interpolated with the prior destination pixel color based on the
+          coverage output.
+          - This step is not possible in A because coverage was folded into alpha.
+
+    Either the result of A.3 or B.2 is saved to the destination.
+
+    NOTE: This was not always the effect order applied; Skia is migrating to a more self-consistent
+    and linear pipeline. If SK_ENABLE_LEGACY_EFFECT_ORDER is defined, the shading stages are
+    processed in the old order (this should be considered deprecated behavior, and the build
+    flag will be removed after a transition period):
+
+    tl;dr:
+
+        Shading: (opaque(color)|rgb(image)|shader) -> [primitive blend] -> alpha -> [alpha image]
+                    -> color filter -> dither
+        Geometry and Resolve stages are unchanged.
+
+    Shading (DEPRECATED):
+    1. Start with one of the following, in increasing priority:
+       a. The SkPaint's color, made opaque.
+       b. The result of the paint's SkShader.
+       c. The implicit image shader from drawImage, etc., if the SkImage is not an alpha-only type.
+    2. Combine result of #1 with the per-primitive color using the primitive blend mode. As above,
+       this only has an effect for the special draw functions like drawVertices or drawAtlas.
+       - The primitive color is the dst, the result of #1 is the src.
+       - Importantly, the paint's alpha is not part of this blending.
+    3. Modulate the result of #2 with the paint's alpha.
+    4. If drawImage, etc. used an alpha-only type, module the result of #2 with the per-pixel alpha
+       from the auxiliary image.
+       - Unlike with color images, this means the alpha-only image can be combined with an SkShader.
+    5. Process result of #4 with the paint's SkColorFilter.
+    6. If enabled, dither the result of #5.
+
 */
 class SK_API SkPaint {
 public:
