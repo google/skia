@@ -232,6 +232,7 @@ private:
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
     SkTHashSet<size_t> fGraphemes;
+    SkTHashMap<size_t, size_t> fTextToClusters;
     size_t fUnresolvedGlyphs;
 
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)

@@ -254,6 +254,9 @@ void ParagraphImpl::buildClusterTable() {
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
+            for (auto i = run.fTextRange.start; i < run.fTextRange.end; ++i) {
+                fTextToClusters[i + run.fClusterStart] = fClusters.size();
+            }
             auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
                                                    run.advance().fY);
             cluster.setBreakType(Cluster::SoftLineBreak);
@@ -267,6 +270,9 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar width,
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
+                for (auto i = charStart; i < charEnd; ++i) {
+                    fTextToClusters[i] = fClusters.size();
+                }
                 SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
@@ -619,35 +625,19 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
     // Snap text edges to the code points/grapheme edges
     TextRange text(fText.size(), fText.size());
-
+    // Adjust codepoints to cluster edges
     if (start < fCodePoints.size()) {
-        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
-        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
-        if (start > startGrapheme.fCodepointRange.start) {
-            if (end == startGrapheme.fCodepointRange.end &&
-                start == startGrapheme.fCodepointRange.end - 1) {
-                // This is a fix to make test GetRectsForRangeIncludeCombiningCharacter work
-                // Must be removed...
-                text.start = startGrapheme.fTextRange.start;
-            } else {
-                text.start  = lastGrapheme && end >= fCodePoints.size()
-                        ? fCodePoints.back().fTextIndex
-                        : startGrapheme.fTextRange.end;
-            }
-        } else {
-            text.start = startGrapheme.fTextRange.start;
-        }
+        auto startCodepoint = fCodePoints[start];
+        auto startCluster = fClusters[fTextToClusters[startCodepoint.fTextIndex]];
+        //text.start = startCluster.fTextRange.start;
+        text.start = startCodepoint.fTextIndex;
     }
 
     if (end < fCodePoints.size()) {
-        auto codepoint = fCodePoints[end];
-        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
-        if (text.start == endGrapheme.fTextRange.start &&
-            end + codepoint.fIndex == fCodePoints.size()) {
-            text.end = endGrapheme.fTextRange.end;
-        } else {
-            text.end  = endGrapheme.fTextRange.start;
-        }
+        auto endCodepoint = fCodePoints[end];
+        auto endCluster = fClusters[fTextToClusters[endCodepoint.fTextIndex]];
+        //text.end = endCluster.fTextRange.start;
+        text.end = endCodepoint.fTextIndex;
     }
 
     auto firstBoxOnTheLine = results.size();
@@ -815,6 +805,16 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             r.rect.fBottom = littleRound(r.rect.fBottom);
         }
     }
+/*
+    SkDebugf("getRectsForRange(%d, %d)\n", start, end);
+    for (auto& r : results) {
+        r.rect.fLeft = littleRound(r.rect.fLeft);
+        r.rect.fRight = littleRound(r.rect.fRight);
+        r.rect.fTop = littleRound(r.rect.fTop);
+        r.rect.fBottom = littleRound(r.rect.fBottom);
+        SkDebugf("[%f:%f * %f:%f]\n", r.rect.fLeft, r.rect.fRight, r.rect.fTop, r.rect.fBottom);
+    }
+*/
     return results;
 }
 
