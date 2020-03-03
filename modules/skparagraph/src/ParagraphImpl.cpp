@@ -254,6 +254,9 @@ void ParagraphImpl::buildClusterTable() {
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
+            for (auto i = run.fTextRange.start; i < run.fTextRange.end; ++i) {
+                fTextToClusters[i + run.fClusterStart] = fClusters.size();
+            }
             auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
                                                    run.advance().fY);
             cluster.setBreakType(Cluster::SoftLineBreak);
@@ -267,6 +270,9 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar width,
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
+                for (auto i = charStart; i < charEnd; ++i) {
+                    fTextToClusters[i] = fClusters.size();
+                }
                 SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
@@ -558,6 +564,16 @@ void ParagraphImpl::markGraphemes16() {
         auto startPos = endPos;
         endPos = breaker.next();
 
+        if (fText[startPos] == ' ' && endPos > startPos + 1) {
+            // Separate space from the grapheme
+            codepoints.end = codepoints.start + 1;
+            fCodePoints[codepoints.start].fGrapheme = fGraphemes16.size();
+            fGraphemes16.emplace_back(codepoints, TextRange(startPos, startPos + 1));
+            codepoints.start = codepoints.end;
+            ++startPos;
+            // Proceed with the rest
+        }
+
         // Collect all the codepoints that belong to the grapheme
         while (codepoints.end < fCodePoints.size() && fCodePoints[codepoints.end].fTextIndex < endPos) {
             ++codepoints.end;
@@ -620,35 +636,28 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // Snap text edges to the code points/grapheme edges
     TextRange text(fText.size(), fText.size());
 
+    if (end <= fCodePoints.size()) {
+        auto endCodepoint = fCodePoints[end - 1];
+        auto endCluster = fClusters[fTextToClusters[endCodepoint.fTextIndex]];
+        text.end = endCluster.fTextRange.end;
+
+        auto endGrapheme = fGraphemes16[endCodepoint.fGrapheme];
+        if (text.end < endGrapheme.fTextRange.end) {
+            text.end = endGrapheme.fTextRange.end;
+        }
+    }
+
     if (start < fCodePoints.size()) {
-        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
-        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
-        if (start > startGrapheme.fCodepointRange.start) {
-            if (end == startGrapheme.fCodepointRange.end &&
-                start == startGrapheme.fCodepointRange.end - 1) {
-                // This is a fix to make test GetRectsForRangeIncludeCombiningCharacter work
-                // Must be removed...
-                text.start = startGrapheme.fTextRange.start;
-            } else {
-                text.start  = lastGrapheme && end >= fCodePoints.size()
-                        ? fCodePoints.back().fTextIndex
-                        : startGrapheme.fTextRange.end;
-            }
-        } else {
+        auto startCodepoint = fCodePoints[start];
+        auto startCluster = fClusters[fTextToClusters[startCodepoint.fTextIndex]];
+        text.start = startCluster.fTextRange.start;
+
+        auto startGrapheme = fGraphemes16[startCodepoint.fGrapheme];
+        if (text.start > startGrapheme.fTextRange.start) {
             text.start = startGrapheme.fTextRange.start;
         }
     }
 
-    if (end < fCodePoints.size()) {
-        auto codepoint = fCodePoints[end];
-        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
-        if (text.start == endGrapheme.fTextRange.start &&
-            end + codepoint.fIndex == fCodePoints.size()) {
-            text.end = endGrapheme.fTextRange.end;
-        } else {
-            text.end  = endGrapheme.fTextRange.start;
-        }
-    }
 
     auto firstBoxOnTheLine = results.size();
     const Run* lastRun = nullptr;

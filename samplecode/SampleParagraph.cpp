@@ -2418,26 +2418,27 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(820);
+
+        //auto res1 = paragraph->getGlyphPositionAtCoordinate(line.width() + line.spacesWidth() / 2, line.offset().fY + 10);
+        //auto res2 = paragraph->getWordBoundary(res1.position);
+        auto res1 = paragraph->getRectsForRange(369, 370, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto res2 = paragraph->getRectsForRange(370, 371, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto res3 = paragraph->getRectsForRange(371, 372, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+        auto draw = [&](std::vector<TextBox> res, SkColor color) {
+            SkPaint paint;
+            paint.setColor(color);
+            for (auto& r : res) {
+                canvas->drawRect(r.rect, paint);
+            }
+        };
+
+        draw(res1, SK_ColorRED);
+        draw(res2, SK_ColorGREEN);
+        draw(res3, SK_ColorBLUE);
+
         paragraph->paint(canvas, 0, 0);
-        for (size_t i = 0; i < 402; ++i) {
-            //auto res1 = paragraph->getGlyphPositionAtCoordinate(fPoint.fX, fPoint.fY);
-            //auto res2 = paragraph->getWordBoundary(res1.position);
-            auto res3 = paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
-            if (res3.empty()) {
-                SkDebugf("empty: %f %d %d\n", width(), i, i + 1);
-            }
-        }
-/*
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
-        for (auto& r : res3) {
-            if (SkScalarNearlyZero(r.rect.fLeft) && SkScalarNearlyZero(r.rect.fTop)) {
-                SkDebugf("0, 0: %f %d %d\n", width(), res2.start, res2.end);
-            }
-            canvas->drawRect(r.rect, paint);
-        }
-*/
     }
 
 private:
