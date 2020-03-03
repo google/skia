@@ -31,6 +31,19 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/cache/work/flutter"
+    ],
+    "infra_step": true,
+    "name": "rmtree flutter"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
