@@ -7,6 +7,8 @@
 
 # Generate Android.bp for Skia from GN configuration.
 
+from __future__ import print_function
+
 import os
 import pprint
 import string
@@ -442,13 +444,13 @@ def disallow_platforms(config, desired):
         s += ' || '
         if i % 2 == 1:
           s += '\\\n    '
-    print >>f, s
-    print >>f, '    #error "Only SK_BUILD_FOR_%s should be defined!"' % desired
-    print >>f, '#endif'
+    print(s, file=f)
+    print('    #error "Only SK_BUILD_FOR_%s should be defined!"' % desired, file=f)
+    print('#endif', file=f)
 
 def append_to_file(config, s):
   with open(config, 'a') as f:
-    print >>f, s
+    print(s, file=f)
 
 android_config = 'android/include/config/SkUserConfig.h'
 gn_to_bp_utils.WriteUserConfig(android_config, android_defines)
@@ -483,7 +485,7 @@ def bpfmt(indent, lst, sort=True):
 
 # OK!  We have everything to fill in Android.bp...
 with open('Android.bp', 'w') as Android_bp:
-  print >>Android_bp, bp.substitute({
+  print(bp.substitute({
     'export_includes': bpfmt(8, export_includes),
     'local_includes':  bpfmt(8, local_includes),
     'srcs':            bpfmt(8, srcs),
@@ -512,4 +514,4 @@ with open('Android.bp', 'w') as Android_bp:
     'linux_srcs':    bpfmt(10, linux_srcs),
     'mac_srcs':      bpfmt(10, mac_srcs),
     'win_srcs':      bpfmt(10, win_srcs),
-  })
+  }), file=Android_bp)
