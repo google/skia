@@ -617,37 +617,14 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    // Snap text edges to the code points/grapheme edges
+    // Get the text that will be adjusted to cluster edges
     TextRange text(fText.size(), fText.size());
-
     if (start < fCodePoints.size()) {
-        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
-        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
-        if (start > startGrapheme.fCodepointRange.start) {
-            if (end == startGrapheme.fCodepointRange.end &&
-                start == startGrapheme.fCodepointRange.end - 1) {
-                // This is a fix to make test GetRectsForRangeIncludeCombiningCharacter work
-                // Must be removed...
-                text.start = startGrapheme.fTextRange.start;
-            } else {
-                text.start  = lastGrapheme && end >= fCodePoints.size()
-                        ? fCodePoints.back().fTextIndex
-                        : startGrapheme.fTextRange.end;
-            }
-        } else {
-            text.start = startGrapheme.fTextRange.start;
-        }
+        text.start = fCodePoints[start].fTextIndex;
     }
 
     if (end < fCodePoints.size()) {
-        auto codepoint = fCodePoints[end];
-        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
-        if (text.start == endGrapheme.fTextRange.start &&
-            end + codepoint.fIndex == fCodePoints.size()) {
-            text.end = endGrapheme.fTextRange.end;
-        } else {
-            text.end  = endGrapheme.fTextRange.start;
-        }
+        text.end = fCodePoints[end].fTextIndex;
     }
 
     auto firstBoxOnTheLine = results.size();
@@ -815,6 +792,16 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             r.rect.fBottom = littleRound(r.rect.fBottom);
         }
     }
+/*
+    SkDebugf("getRectsForRange(%d, %d)\n", start, end);
+    for (auto& r : results) {
+        r.rect.fLeft = littleRound(r.rect.fLeft);
+        r.rect.fRight = littleRound(r.rect.fRight);
+        r.rect.fTop = littleRound(r.rect.fTop);
+        r.rect.fBottom = littleRound(r.rect.fBottom);
+        SkDebugf("[%f:%f * %f:%f]\n", r.rect.fLeft, r.rect.fRight, r.rect.fTop, r.rect.fBottom);
+    }
+*/
     return results;
 }
 
