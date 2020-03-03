@@ -19,7 +19,9 @@
 #include <limits>
 #include <vector>
 
-static void test_font(skiatest::Reporter* reporter) {
+DEFINE_bool(verboseFontMgr, false, "FontMgr will be very verbose.");
+
+DEF_TEST(FontMgr_Font, reporter) {
     SkFont font(nullptr, 24);
 
     //REPORTER_ASSERT(reporter, SkTypeface::GetDefaultTypeface() == font.getTypeface());
@@ -55,7 +57,7 @@ static void test_font(skiatest::Reporter* reporter) {
  *  (e.g. sans -> Arial) then we want to at least get the same typeface back
  *  if we request the alias name multiple times.
  */
-static void test_alias_names(skiatest::Reporter* reporter) {
+DEF_TEST(FontMgr_AliasNames, reporter) {
     const char* inNames[] = {
         "sans", "sans-serif", "serif", "monospace", "times", "helvetica"
     };
@@ -78,7 +80,7 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
+DEF_TEST(FontMgr_Iter, reporter) {
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     int count = fm->countFamilies();
 
@@ -90,7 +92,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
         sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         REPORTER_ASSERT(reporter, fnset->count() == set->count());
 
-        if (verbose) {
+        if (FLAGS_verboseFontMgr) {
             SkDebugf("[%2d] %s\n", i, fname.c_str());
         }
 
@@ -103,7 +105,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
             sk_sp<SkTypeface> face(set->createTypeface(j));
 //            REPORTER_ASSERT(reporter, face.get());
 
-            if (verbose) {
+            if (FLAGS_verboseFontMgr) {
                 SkDebugf("\t[%d] %s [%3d %d %d]\n", j, sname.c_str(),
                          fs.weight(), fs.width(), fs.slant());
             }
@@ -111,13 +113,13 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
-static void test_match(skiatest::Reporter* reporter) {
+DEF_TEST(FontMgr_Match, reporter) {
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     sk_sp<SkFontStyleSet> styleSet(fm->matchFamily(nullptr));
     REPORTER_ASSERT(reporter, styleSet);
 }
 
-static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
+DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
     static const SkFontStyle invalidFontStyle(101, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
 
     class TestTypeface : public SkTypeface {
@@ -731,12 +733,13 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     }
 }
 
-DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
-
-DEF_TEST(FontMgr, reporter) {
-    test_match(reporter);
-    test_matchStyleCSS3(reporter);
-    test_fontiter(reporter, FLAGS_verboseFontMgr);
-    test_alias_names(reporter);
-    test_font(reporter);
+DEF_TEST(FontMgr_MatchCharacter, reporter) {
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    // 0xD800 <= codepoint <= 0xDFFF || 0x10FFFF < codepoint are invalid
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x0));
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xD800));
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xDFFF));
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x110000));
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x1FFFFF));
+    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, -1));
 }

@@ -3057,6 +3057,11 @@ protected:
         SkUniqueCFRef<CFStringRef> string(CFStringCreateWithBytes(
                 kCFAllocatorDefault, reinterpret_cast<const UInt8 *>(&character), sizeof(character),
                 encoding, false));
+        // If 0xD800 <= codepoint <= 0xDFFF || 0x10FFFF < codepoint 'string' may be nullptr.
+        // No font should be covering such codepoints (even the magic fallback font).
+        if (!string) {
+            return nullptr;
+        }
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
         SkUniqueCFRef<CTFontRef> fallbackFont(
                 CTFontCreateForString(familyFont.get(), string.get(), range));
