@@ -69,12 +69,13 @@ def perf_steps(api):
         args.extend([k, v])
 
   # Paths to required resources.
-  args.extend([
-      '-i',       api.flavor.device_dirs.resource_dir,
-      '--skps',   api.flavor.device_dirs.skp_dir,
-      '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.images_dir, 'nanobench'),
-  ])
+  args.extend(['-i', api.flavor.device_dirs.resource_dir])
+  if 'iOS' not in b:
+    args.extend(['--skps', api.flavor.device_dirs.skp_dir]),
+  if 'GPU' not in b:
+    args.extend(['--images', api.flavor.device_path_join(
+        api.flavor.device_dirs.images_dir, 'nanobench')])
+
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU' and 'Android' in b:
     assert api.flavor.device_dirs.texttraces_dir
     args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
