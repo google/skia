@@ -66,26 +66,39 @@ public:
     };
     class Builder {
     public:
+        // Builder with optional colors/texs, but no per-vertex-data
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
+        // Builder with per-vertex-data, but no colors/texs
+        Builder(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
+                bool isVolatile);
+
         bool isValid() const { return fVertices != nullptr; }
+        bool isVolatile() const;
 
         // if the builder is invalid, these will return 0
         int vertexCount() const;
-        int indexCount() const;
-        bool isVolatile() const;
         SkPoint* positions();
+
+        int indexCount() const;
+        uint16_t* indices();        // returns null if there are no indices
+
+        int perVertexDataCount() const;
+        float* perVertexData();
+
+        // null unless no per-vertex-data and flags were set in constructor
         SkPoint* texCoords();       // returns null if there are no texCoords
         SkColor* colors();          // returns null if there are no colors
-        uint16_t* indices();        // returns null if there are no indices
 
         // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        Builder(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
+                bool isVolatile, const Sizes&);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        void init(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
+                  bool isVolatile, const Sizes&);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -104,12 +117,12 @@ public:
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
-    int vertexCount() const { return fVertexCnt; }
+    int vertexCount() const { return fVertexCount; }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
 
-    int indexCount() const { return fIndexCnt; }
+    int indexCount() const { return fIndexCount; }
     const uint16_t* indices() const { return fIndices; }
 
     bool isVolatile() const { return fIsVolatile; }
@@ -144,14 +157,19 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
-    SkPoint*     fPositions;
-    SkPoint*     fTexs;
-    SkColor*     fColors;
-    uint16_t*    fIndices;
+    SkPoint*    fPositions;
+    uint16_t*   fIndices;
+
+    // If fPerVertexDataCount > 0 this is set
+    float*      fPerVertexData;    // [fPerVertexDataCount * fVertexCount]
+    // else these may be set
+    SkPoint*    fTexs;
+    SkColor*    fColors;
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
-    int     fVertexCnt;
-    int     fIndexCnt;
+    int     fVertexCount;
+    int     fIndexCount;
+    int     fPerVertexDataCount;
 
     bool fIsVolatile;
 
