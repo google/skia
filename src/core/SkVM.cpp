@@ -1896,7 +1896,7 @@ namespace skvm {
 
     struct Program::LLVMState {
     #if defined(SKVM_LLVM)
-        std::shared_ptr<llvm::LLVMContext>     ctx;
+        std::unique_ptr<llvm::LLVMContext>     ctx;
         std::unique_ptr<llvm::ExecutionEngine> ee;
     #endif
     };
@@ -1904,24 +1904,23 @@ namespace skvm {
 #if defined(SKVM_LLVM)
     void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
                             const char* debug_name) {
-        thread_local static auto tls_ctx = std::make_shared<llvm::LLVMContext>();
-        llvm::LLVMContext& ctx = *tls_ctx;
+        auto ctx = std::make_unique<llvm::LLVMContext>();
 
-        auto mod = std::make_unique<llvm::Module>("", ctx);
+        auto mod = std::make_unique<llvm::Module>("", *ctx);
         // All the scary bare pointers from here on are owned by ctx or mod, I think.
 
         // Everything I've tested runs faster at K=8 (using ymm) than K=16 (zmm) on SKX machines.
         const int K = (true && SkCpu::Supports(SkCpu::HSW)) ? 8 : 4;
 
-        llvm::Type *ptr = llvm::Type::getInt8Ty(ctx)->getPointerTo(),
-                   *i32 = llvm::Type::getInt32Ty(ctx);
+        llvm::Type *ptr = llvm::Type::getInt8Ty(*ctx)->getPointerTo(),
+                   *i32 = llvm::Type::getInt32Ty(*ctx);
 
         std::vector<llvm::Type*> arg_types = { i32 };
         for (size_t i = 0; i < fStrides.size(); i++) {
             arg_types.push_back(ptr);
         }
 
-        llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx),
+        llvm::FunctionType* fn_type = llvm::FunctionType::get(llvm::Type::getVoidTy(*ctx),
                                                               arg_types, /*vararg?=*/false);
         llvm::Function* fn
             = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, *mod);
@@ -1929,14 +1928,14 @@ namespace skvm {
             fn->addParamAttr(i+1, llvm::Attribute::NoAlias);
         }
 
-        llvm::BasicBlock *enter  = llvm::BasicBlock::Create(ctx, "enter" , fn),
-                         *hoistK = llvm::BasicBlock::Create(ctx, "hoistK", fn),
-                         *testK  = llvm::BasicBlock::Create(ctx, "testK" , fn),
-                         *loopK  = llvm::BasicBlock::Create(ctx, "loopK" , fn),
-                         *hoist1 = llvm::BasicBlock::Create(ctx, "hoist1", fn),
-                         *test1  = llvm::BasicBlock::Create(ctx, "test1" , fn),
-                         *loop1  = llvm::BasicBlock::Create(ctx, "loop1" , fn),
-                         *leave  = llvm::BasicBlock::Create(ctx, "leave" , fn);
+        llvm::BasicBlock *enter  = llvm::BasicBlock::Create(*ctx, "enter" , fn),
+                         *hoistK = llvm::BasicBlock::Create(*ctx, "hoistK", fn),
+                         *testK  = llvm::BasicBlock::Create(*ctx, "testK" , fn),
+                         *loopK  = llvm::BasicBlock::Create(*ctx, "loopK" , fn),
+                         *hoist1 = llvm::BasicBlock::Create(*ctx, "hoist1", fn),
+                         *test1  = llvm::BasicBlock::Create(*ctx, "test1" , fn),
+                         *loop1  = llvm::BasicBlock::Create(*ctx, "loop1" , fn),
+                         *leave  = llvm::BasicBlock::Create(*ctx, "leave" , fn);
 
         using IRBuilder = llvm::IRBuilder<>;
 
@@ -1947,12 +1946,12 @@ namespace skvm {
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
             auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = instructions[i];
 
-            llvm::Type *i1    = llvm::Type::getInt1Ty (ctx),
-                       *i8    = llvm::Type::getInt8Ty (ctx),
+            llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
+                       *i8    = llvm::Type::getInt8Ty (*ctx),
                        *i8x4  = llvm::VectorType::get(i8, 4),
-                       *i16   = llvm::Type::getInt16Ty(ctx),
+                       *i16   = llvm::Type::getInt16Ty(*ctx),
                        *i16x2 = llvm::VectorType::get(i16, 2),
-                       *f32   = llvm::Type::getFloatTy(ctx),
+                       *f32   = llvm::Type::getFloatTy(*ctx),
                        *I1    = scalar ? i1    : llvm::VectorType::get(i1 , K  ),
                        *I8    = scalar ? i8    : llvm::VectorType::get(i8 , K  ),
                        *I8x4  = scalar ? i8x4  : llvm::VectorType::get(i8 , K*4),
@@ -2315,7 +2314,7 @@ namespace skvm {
                                             .setTargetOptions(options)
                                             .create()) {
             fLLVMState = std::make_unique<LLVMState>();
-            fLLVMState->ctx = tls_ctx;
+            fLLVMState->ctx = std::move(ctx);
             fLLVMState->ee.reset(ee);
             fJITEntry = (void*)fLLVMState->ee->getFunctionAddress(debug_name);
         }
