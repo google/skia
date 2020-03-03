@@ -564,7 +564,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Win2019":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-11.4.1",
+			"iOS":        "iOS-13.3.1",
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
@@ -580,6 +580,10 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
+		}
+		if parts["model"] == "iPhone6" {
+			// This is the latest iOS that supports iPhone6.
+			d["os"] = "iOS-12.4.5"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -939,6 +943,31 @@ func usesDocker(t *specs.TaskSpec, name string) {
 	}
 }
 
+var iosRegex = regexp.MustCompile(`os:iOS-(.*)`)
+
+func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
+	for _, dim := range t.Dimensions {
+		if m := iosRegex.FindStringSubmatch(dim); len(m) >= 2 {
+			var asset string
+			switch m[1] {
+			// Other patch versions can be added to the same case.
+			case "11.4.1":
+				asset = "ios-dev-image-11.4"
+			case "12.4.5":
+				asset = "ios-dev-image-12.4"
+			case "13.3.1":
+				asset = "ios-dev-image-13.3"
+			default:
+				glog.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", name, m[1])
+			}
+			t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset(asset))
+			break
+		} else if strings.Contains(dim, "iOS") {
+			glog.Fatalf("Must specify iOS version for %s to obtain correct dev image; os dimension is missing version: %s", name, dim)
+		}
+	}
+}
+
 // timeout sets the timeout(s) for this task.
 func timeout(task *specs.TaskSpec, timeout time.Duration) {
 	task.ExecutionTimeout = timeout
@@ -1264,6 +1293,7 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		// skia:6737
 		timeout(task, 6*time.Hour)
 	}
+	b.maybeAddIosDevImage(name, task)
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
@@ -1343,6 +1373,7 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	if strings.Contains(name, "Android") && strings.Contains(name, "CPU") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
 	}
+	b.maybeAddIosDevImage(name, task)
 
 	iid := b.internalHardwareLabel(parts)
 	if iid != nil {
