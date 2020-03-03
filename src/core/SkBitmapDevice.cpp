@@ -559,13 +559,10 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
     SkASSERT(!origPaint.getImageFilter());
+    SkASSERT(!origPaint.getMaskFilter());
 
     // todo: can we unify with similar adjustment in SkGpuDevice?
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-    if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(
-                paint->getMaskFilter()->makeWithMatrix(this->localToDevice()));
-    }
 
     // hack to test coverage
     SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
@@ -574,10 +571,9 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fDst = fBitmap.pixmap();
         draw.fMatrix = &SkMatrix::I();
         draw.fRC = &fRCStack.rc();
-        SkPaint paint(origPaint);
-        paint.setShader(src->fBitmap.makeShader());
+        paint.writable()->setShader(src->fBitmap.makeShader());
         draw.drawBitmap(*src->fCoverage.get(),
-                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, paint);
+                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
     } else {
         this->drawSprite(src->fBitmap, x, y, *paint);
     }
@@ -623,6 +619,7 @@ private:
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint,
                                  SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!src->isTextureBacked());
+    SkASSERT(!origPaint.getMaskFilter());
 
     sk_sp<SkSpecialImage> filteredImage;
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
@@ -645,11 +642,6 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
         paint.writable()->setImageFilter(nullptr);
         x += offset.x();
         y += offset.y();
-    }
-
-    if (paint->getMaskFilter()) {
-        paint.writable()->setMaskFilter(
-                paint->getMaskFilter()->makeWithMatrix(this->localToDevice()));
     }
 
     if (!clipImage) {
