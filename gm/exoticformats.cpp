@@ -158,20 +158,19 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
 }
 
 //-------------------------------------------------------------------------------------------------
-typedef uint32_t DWORD;
 
 // Values for the DDS_PIXELFORMAT 'dwFlags' field
 constexpr unsigned int kDDPF_FOURCC      = 0x4;
 
 struct DDS_PIXELFORMAT {
-    DWORD dwSize;
-    DWORD dwFlags;
-    DWORD dwFourCC;
-    DWORD dwRGBBitCount;
-    DWORD dwRBitMask;
-    DWORD dwGBitMask;
-    DWORD dwBBitMask;
-    DWORD dwABitMask;
+    uint32_t dwSize;
+    uint32_t dwFlags;
+    uint32_t dwFourCC;
+    uint32_t dwRGBBitCount;
+    uint32_t dwRBitMask;
+    uint32_t dwGBitMask;
+    uint32_t dwBBitMask;
+    uint32_t dwABitMask;
 };
 
 // Values for the DDS_HEADER 'dwFlags' field
@@ -187,20 +186,20 @@ constexpr unsigned int kDDSD_DEPTH       = 0x800000;
 constexpr unsigned int kDDSD_REQUIRED = kDDSD_CAPS | kDDSD_HEIGHT | kDDSD_WIDTH | kDDSD_PIXELFORMAT;
 
 typedef struct {
-    DWORD           dwSize;
-    DWORD           dwFlags;
-    DWORD           dwHeight;
-    DWORD           dwWidth;
-    DWORD           dwPitchOrLinearSize;
-    DWORD           dwDepth;
-    DWORD           dwMipMapCount;
-    DWORD           dwReserved1[11];
+    uint32_t        dwSize;
+    uint32_t        dwFlags;
+    uint32_t        dwHeight;
+    uint32_t        dwWidth;
+    uint32_t        dwPitchOrLinearSize;
+    uint32_t        dwDepth;
+    uint32_t        dwMipMapCount;
+    uint32_t        dwReserved1[11];
     DDS_PIXELFORMAT ddspf;
-    DWORD           dwCaps;
-    DWORD           dwCaps2;
-    DWORD           dwCaps3;
-    DWORD           dwCaps4;
-    DWORD           dwReserved2;
+    uint32_t        dwCaps;
+    uint32_t        dwCaps2;
+    uint32_t        dwCaps3;
+    uint32_t        dwCaps4;
+    uint32_t        dwReserved2;
 } DDS_HEADER;
 
 // This DDS loader is barely sufficient to load the specific files this GM requires. Use

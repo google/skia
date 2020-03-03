@@ -488,6 +488,7 @@ public:
     SkScalar fRasterDpi;
 };
 
+#if 0
 class XPSSink : public Sink {
 public:
     XPSSink();
@@ -496,7 +497,7 @@ public:
     const char* fileExtension() const override { return "xps"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
-
+#endif
 class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType, sk_sp<SkColorSpace> = nullptr);

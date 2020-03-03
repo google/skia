@@ -54,7 +54,7 @@
     #include "src/utils/win/SkAutoCoInitialize.h"
     #include "src/utils/win/SkHRESULT.h"
     #include "src/utils/win/SkTScopedComPtr.h"
-    #include <XpsObjectModel.h>
+//    #include <XpsObjectModel.h>
 #endif
 
 #if defined(SK_ENABLE_SKOTTIE)
@@ -1821,17 +1821,20 @@ Result PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
+#if 0
 XPSSink::XPSSink() {}
 
 #ifdef SK_BUILD_FOR_WIN
 static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
+    return nullptr;
+#if 0
     IXpsOMObjectFactory* factory;
     HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
                          nullptr,
                          CLSCTX_INPROC_SERVER,
                          IID_PPV_ARGS(&factory)));
     return SkTScopedComPtr<IXpsOMObjectFactory>(factory);
+#endif
 }
 
 Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
@@ -1845,6 +1848,7 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
     }
     auto doc = SkXPS::MakeDocument(dst, factory.get());
     if (!doc) {
+    if (!doc) {
         return Result::Fatal("SkXPS::MakeDocument() returned nullptr");
     }
     return draw_skdocument(src, doc.get(), dst);
@@ -1854,7 +1858,7 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
     return Result::Fatal("XPS not supported on this platform.");
 }
 #endif
-
+#endif
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 SKPSink::SKPSink() {}
