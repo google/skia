@@ -915,12 +915,12 @@ GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct,
 GrBackendFormat GrD3DCaps::getBackendFormatFromCompressionType(
     SkImage::CompressionType compressionType) const {
     switch (compressionType) {
-    case SkImage::CompressionType::kNone:
-        return {};
     case SkImage::CompressionType::kBC1_RGBA8_UNORM:
         if (this->isFormatTexturable(DXGI_FORMAT_BC1_UNORM)) {
             return GrBackendFormat::MakeDxgi(DXGI_FORMAT_BC1_UNORM);
         }
+        return {};
+    default:
         return {};
     }
 
