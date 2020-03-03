@@ -21,6 +21,7 @@
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
     #include <llvm/IR/Verifier.h>
+    #include <llvm/Support/CommandLine.h>
     #include <llvm/Support/TargetSelect.h>
 #endif
 
@@ -2287,9 +2288,7 @@ namespace skvm {
             b.CreateRetVoid();
         }
 
-        SkASSERT(false == llvm::verifyModule(*mod, &llvm::outs()));
-
-        if (true) {
+        if (false) {
             SkString path = SkStringPrintf("/tmp/%s.bc", debug_name);
             std::error_code err;
             llvm::raw_fd_ostream os(path.c_str(), err);
@@ -2303,16 +2302,24 @@ namespace skvm {
         once([]{
             SkAssertResult(false == llvm::InitializeNativeTarget());
             SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
+
+            const char* argv[] = { "", "-optimize-regalloc=true" };
+            llvm::cl::ParseCommandLineOptions(2, argv);
         });
+
 
         llvm::TargetOptions options;
         options.AllowFPOpFusion = llvm::FPOpFusion::Fast;
 
-        if (llvm::ExecutionEngine* ee = llvm::EngineBuilder(std::move(mod))
-                                            .setEngineKind(llvm::EngineKind::JIT)
-                                            .setMCPU(llvm::sys::getHostCPUName())
-                                            .setTargetOptions(options)
-                                            .create()) {
+        llvm::EngineBuilder eb(std::move(mod));
+        eb.setEngineKind(llvm::EngineKind::JIT)
+          .setMCPU(llvm::sys::getHostCPUName())
+          .setOptLevel(llvm::CodeGenOpt::None)
+          .setTargetOptions(options);
+
+        llvm::TargetMachine* tm = eb.selectTarget();
+
+        if (llvm::ExecutionEngine* ee = eb.create(tm)) {
             fLLVMState = std::make_unique<LLVMState>();
             fLLVMState->ctx = std::move(ctx);
             fLLVMState->ee.reset(ee);
