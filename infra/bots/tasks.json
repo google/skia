@@ -23540,6 +23540,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23559,7 +23564,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23605,6 +23610,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23624,7 +23634,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23670,6 +23680,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-12.4",
+          "path": "ios-dev-image-12.4",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23689,7 +23704,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "os:iOS-11.4.1",
+        "os:iOS-12.4.5",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23735,6 +23750,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-12.4",
+          "path": "ios-dev-image-12.4",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23754,7 +23774,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "os:iOS-11.4.1",
+        "os:iOS-12.4.5",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23800,6 +23820,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23819,7 +23844,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23865,6 +23890,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23884,7 +23914,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23930,6 +23960,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -23949,7 +23984,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47155,6 +47190,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47174,7 +47214,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47220,6 +47260,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47239,7 +47284,7 @@
       ],
       "dimensions": [
         "device_type:iPad6,3",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47285,6 +47330,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-12.4",
+          "path": "ios-dev-image-12.4",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47304,7 +47354,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "os:iOS-11.4.1",
+        "os:iOS-12.4.5",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47350,6 +47400,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-12.4",
+          "path": "ios-dev-image-12.4",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47369,7 +47424,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "os:iOS-11.4.1",
+        "os:iOS-12.4.5",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47415,6 +47470,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-12.4",
+          "path": "ios-dev-image-12.4",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47434,7 +47494,7 @@
       ],
       "dimensions": [
         "device_type:iPhone7,2",
-        "os:iOS-11.4.1",
+        "os:iOS-12.4.5",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47480,6 +47540,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47499,7 +47564,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47545,6 +47610,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47564,7 +47634,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47610,6 +47680,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47629,7 +47704,7 @@
       ],
       "dimensions": [
         "device_type:iPhone9,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47675,6 +47750,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47694,7 +47774,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47740,6 +47820,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47759,7 +47844,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -47805,6 +47890,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/ios-dev-image-13.3",
+          "path": "ios-dev-image-13.3",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -47824,7 +47914,7 @@
       ],
       "dimensions": [
         "device_type:iPhone10,1",
-        "os:iOS-11.4.1",
+        "os:iOS-13.3.1",
         "pool:Skia"
       ],
       "env_prefixes": {
