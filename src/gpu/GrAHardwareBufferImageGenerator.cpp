@@ -196,13 +196,12 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(GrRecordin
     }
     SkASSERT(texProxyView.asTextureProxy());
 
-    if (0 == origin.fX && 0 == origin.fY &&
-        info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
-        // If the caller wants the full texture we're done. The caller will handle making a copy for
-        // mip maps if that is required.
+    if (origin.isZero() && info.dimensions() == this->getInfo().dimensions() &&
+        mipMapped == GrMipMapped::kNo) {
+        // If the caller wants the full non-MIP mapped texture we're done.
         return texProxyView;
     }
-    // Otherwise, make a copy for the requested subset.
+    // Otherwise, make a copy for the requested subset and/or MIP maps.
     SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
