@@ -92,10 +92,14 @@ private:
     // This needs to match the same type in GrCoverageCountingPathRenderer.h
     using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpsTaskPaths>>;
 
+    // When programs are stored in 'fProgramData' their memory is actually allocated in
+    // 'fArenas.fRecordTimeAllocator'. In that case that arena must be freed before
+    // 'fPendingPaths' which relies on uniquely holding the atlas proxies used by the
+    // GrCCClipPaths.
+    PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     // These are ordered such that the destructor cleans op tasks up first (which may refer back
     // to the arena and memory pool in their destructors).
     GrRecordingContext::OwnedArenas fArenas;
-    PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
     SkTArray<GrRecordingContext::ProgramData> fProgramData;
