@@ -521,6 +521,10 @@ void DrawVerticesOp::createMesh(Target* target,
 }
 
 void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (!fMesh) {
+        return;
+    }
+
     SkASSERT(fProgramInfo);
 
     flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
