@@ -152,6 +152,12 @@ const char* SkDOM::getAttrValue(const Node* node, const Attr* attr) const {
     return attr->fValue;
 }
 
+void SkDOM::setAttrValue(const Node* node, Attr* attr, const char* value) {
+    SkASSERT(node);
+    SkASSERT(attr);
+    attr->fValue = value;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 SkDOM::AttrIter::AttrIter(const SkDOM&, const SkDOM::Node* node) {

@@ -54,6 +54,7 @@ public:
     const Attr* getNextAttr(const Node*, const Attr*) const;
     const char* getAttrName(const Node*, const Attr*) const;
     const char* getAttrValue(const Node*, const Attr*) const;
+    void setAttrValue(const Node*, Attr*, const char*);
 
     // helpers for walking children
     int countChildren(const Node* node, const char elem[] = nullptr) const;
