@@ -35,12 +35,24 @@ void GrProgramInfo::validate(bool flushTime) const {
         SkASSERT(fPrimProc->numTextureSamplers());
     } else if (this->hasFixedPrimProcTextures()) {
         SkASSERT(fPrimProc->numTextureSamplers());
-    } else {
-        SkASSERT(!fPrimProc->numTextureSamplers());
+    // TODO: We will soon remove dynamic state from GrProgramInfo. But while migrating to the new
+    // bind/draw API on GrOpsRenderPass, some code will not set the dynamic state because it calls
+    // bindTextures() diectly. Once dynamic state is moved out of GrProgramInfo, we can restore this
+    // assert.
+    // } else {
+    //     SkASSERT(!fPrimProc->numTextureSamplers());
     }
 
-    SkASSERT(!fPipeline->isScissorTestEnabled() || this->hasFixedScissor() ||
-             this->hasDynamicScissors());
+    if (!fPipeline->isScissorTestEnabled()) {
+         SkASSERT(!this->hasFixedScissor() && !this->hasDynamicScissors());
+    }
+
+    // TODO: We will soon remove dynamic state from GrProgramInfo. But while migrating to the new
+    // bind/draw API on GrOpsRenderPass, some code will not set the dynamic state because it calls
+    // setScissorRect() diectly. Once dynamic state is moved out of GrProgramInfo, we can restore
+    // this assert.
+    // SkASSERT((fPipeline->isScissorTestEnabled()) ==
+    //          (this->hasFixedScissor() || this->hasDynamicScissors()));
 
     if (this->hasDynamicPrimProcTextures()) {
         // Check that, for a given sampler, the properties of the dynamic textures remain

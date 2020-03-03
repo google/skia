@@ -31,26 +31,21 @@ public:
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     int tessellationPatchVertexCount() const { return fTessellationPatchVertexCount; }
 
-    void issueDraw(GrOpFlushState* state, const GrPipeline* pipeline,
-                   const GrPipeline::FixedDynamicState* fixedDynamicState,
-                   sk_sp<const GrBuffer> vertexBuffer, int vertexCount, int baseVertex,
-                   const SkRect& bounds) {
-        GrMesh mesh;
-        mesh.setNonIndexedNonInstanced(vertexCount);
-        mesh.setVertexData(std::move(vertexBuffer), baseVertex);
-        this->issueDraw(state, pipeline, fixedDynamicState, mesh, bounds);
-    }
+    // Blah.
+    class ProgramInfo : public GrProgramInfo {
+    public:
+        ProgramInfo(const GrSurfaceProxyView* view, const GrPipeline* pipeline,
+                    const GrPathShader* shader)
+            : ProgramInfo(view->asRenderTargetProxy(), view->origin(), pipeline, shader) {
+        }
 
-    void issueDraw(GrOpFlushState* state, const GrPipeline* pipeline,
-                   const GrPipeline::FixedDynamicState* fixedDynamicState, const GrMesh& mesh,
-                   const SkRect& bounds) {
-        GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->outputView()->origin(),
-                                  pipeline, this, fixedDynamicState, nullptr, 0,
-                                  fPrimitiveType, fTessellationPatchVertexCount);
-        state->opsRenderPass()->bindPipeline(programInfo, bounds);
-        state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
-    }
+        ProgramInfo(const GrRenderTargetProxy* proxy, GrSurfaceOrigin origin,
+                    const GrPipeline* pipeline, const GrPathShader* shader)
+            : GrProgramInfo(proxy->numSamples(), proxy->numStencilSamples(), proxy->backendFormat(),
+                            origin, pipeline, shader, nullptr, nullptr, 0, shader->primitiveType(),
+                            shader->tessellationPatchVertexCount()) {
+        }
+    };
 
 private:
     const SkMatrix fViewMatrix;

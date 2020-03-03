@@ -52,7 +52,8 @@ public:
 
     // Updates the internal pipeline state for drawing with the provided GrProgramInfo.
     // Enters an internal "bad" state if the pipeline could not be set.
-    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
+    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds,
+                      const SkIRect* optionalScissorRect = nullptr);
 
     // The scissor rect is always dynamic state and therefore not stored on GrPipeline. If scissor
     // test is enabled on the current pipeline, then the client must call setScissorRect() before
@@ -69,7 +70,9 @@ public:
     //
     // If the current program does not use textures, this is a no-op.
     void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                      const GrSurfaceProxy* const primProcTextures[]);
+                      const GrSurfaceProxy* const primProcTextures[] = nullptr);
+    void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
+                      const GrSurfaceProxy& singlePrimProcTexture);
 
     void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);

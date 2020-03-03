@@ -165,12 +165,10 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     initArgs.fOutputSwizzle = state->drawOpArgs().outputSwizzle();
 
     GrAppliedClip clip = state->detachAppliedClip();
-    GrPipeline::FixedDynamicState fixedDynamicState;
+    const SkIRect* scissor = nullptr;
     if (clip.scissorState().enabled()) {
-        fixedDynamicState.fScissorRect = clip.scissorState().rect();
+        scissor = &clip.scissorState().rect();
     }
-    GrSurfaceProxy* atlasSurfaceProxy = fAtlasProxy.get();
-    fixedDynamicState.fPrimitiveProcessorTextures = &atlasSurfaceProxy;
 
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
@@ -181,11 +179,12 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
 
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                               state->proxy()->backendFormat(), state->outputView()->origin(),
-                              &pipeline, &shader, &fixedDynamicState, nullptr, 0,
+                              &pipeline, &shader, 0, nullptr, 0,
                               GrPrimitiveType::kTriangleStrip);
 
-    GrMesh mesh;
-    mesh.setInstanced(fInstanceBuffer, fInstanceCount, fBaseInstance, 4);
-    state->opsRenderPass()->bindPipeline(programInfo, this->bounds());
-    state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
+    GrOpsRenderPass* renderPass = state->opsRenderPass();
+    renderPass->bindPipeline(programInfo, this->bounds(), scissor);
+    renderPass->bindTextures(shader, pipeline, *fAtlasProxy);
+    renderPass->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
+    renderPass->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
 }

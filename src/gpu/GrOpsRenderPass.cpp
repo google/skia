@@ -42,7 +42,8 @@ void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
     this->onExecuteDrawable(std::move(drawable));
 }
 
-void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds,
+                                   const SkIRect* optionalScissorRect) {
 #ifdef SK_DEBUG
     if (programInfo.primProc().hasInstanceAttributes()) {
          SkASSERT(this->gpu()->caps()->instanceAttribSupport());
@@ -101,6 +102,11 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
     fXferBarrierType = programInfo.pipeline().xferBarrierType(fRenderTarget->asTexture(),
                                                               *this->gpu()->caps());
+
+    if (optionalScissorRect) {
+        SkASSERT(programInfo.pipeline().isScissorTestEnabled());
+        this->setScissorRect(*optionalScissorRect);
+    }
 }
 
 void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
@@ -137,6 +143,13 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const G
     }
 
     SkDEBUGCODE(fTextureBindingStatus = DynamicStateStatus::kConfigured);
+}
+
+void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                                   const GrSurfaceProxy& singlePrimProcTexture) {
+    SkASSERT(primProc.numTextureSamplers() == 1);
+    const GrSurfaceProxy* ptr = &singlePrimProcTexture;
+    this->bindTextures(primProc, pipeline, &ptr);
 }
 
 void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrMesh meshes[],
