@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import print_function
+
 import os
 import glob
 import re
@@ -72,7 +74,7 @@ for config in configs:
 # We need something to work with. Typically, this will fail if no GN folders
 # have IDE files
 if len(allProjects) == 0:
-    print "ERROR: At least one GN directory must have been built with --ide=vs"
+    print("ERROR: At least one GN directory must have been built with --ide=vs")
     sys.exit()
 
 # Create a new solution. We arbitrarily use the first config as the GUID source
