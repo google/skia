@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "994f2c36_f9bd34dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-03T16:42:45Z",
+      "side": 1,
+      "message": "should go right before Change-Id: in the last block.",
+      "range": {
+        "startLine": 7,
+        "startChar": 28,
+        "endLine": 7,
+        "endChar": 44
+      },
+      "revId": "482c3dfb1c3efe56a53efa3a808a772467fb4c94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01f3d6af_9581d66d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-03T16:42:45Z",
+      "side": 1,
+      "message": "There should be a blank line between the subject and the body. Otherwise \u0027git log --oneline\u0027 will output something like\n\nSelection in justification: Bugs: skia: 9969 Make sure getGlyphPositionAtCoordinate works in RTL\n\n(all as one line, since --oneline keeps outputting until the first blank line.",
+      "revId": "482c3dfb1c3efe56a53efa3a808a772467fb4c94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
