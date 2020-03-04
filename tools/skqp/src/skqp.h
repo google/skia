@@ -64,9 +64,10 @@ public:
         Initialize Skia and the SkQP.  Should be executed only once.
 
         @param assetManager - provides assets for the models.  Does not take ownership.
+        @param renderTests - file containing list of render tests.
         @param reportDirectory - where to write out report.
     */
-    void init(SkQPAssetManager* assetManager, const char* reportDirectory);
+    void init(SkQPAssetManager* assetManager, const char* renderTests, const char* reportDirectory);
 
     struct RenderOutcome {
         // All three values will be 0 if the test passes.
