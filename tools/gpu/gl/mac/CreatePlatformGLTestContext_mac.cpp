@@ -45,6 +45,7 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         kCGLPFADoubleBuffer,
+        kCGLPFAAllowOfflineRenderers,  // Enables e-GPU.
         (CGLPixelFormatAttribute)0
     };
     CGLPixelFormatObj pixFormat;
@@ -57,6 +58,13 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         return;
     }
 
+    GLint numScreens = 0;
+    CGLDescribePixelFormat(pixFormat, 0, kCGLPFAVirtualScreenCount, &numScreens);
+    for (GLint screen = 0; screen < numScreens; screen++) {
+        GLint rendererId = 0;
+        CGLDescribePixelFormat(pixFormat, screen, kCGLPFARendererID, &rendererId);
+        SkDebugf("screen %d renderer %x", screen, rendererId);
+    }
     CGLCreateContext(pixFormat, shareContext ? shareContext->fContext : nullptr, &fContext);
     CGLReleasePixelFormat(pixFormat);
 
