@@ -301,7 +301,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
+    if (!characterization.usesGLFBO0() && rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
         return false;
     }
 
