@@ -12,6 +12,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPaint.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
@@ -112,7 +113,11 @@ public:
     const char* name() const override { return "FillRectOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        return fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            return fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -212,15 +217,45 @@ private:
                           fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
     }
 
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+        const VertexSpec vertexSpec = this->vertexSpec();
+
+        GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
+        SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
+
+        return fHelper.createProgramInfoWithStencil(caps, arena, outputView, std::move(appliedClip),
+                                                    dstProxyView, gp, vertexSpec.primitiveType());
+    }
+
+    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
+        return this->createProgramInfo(&flushState->caps(),
+                                       flushState->allocator(),
+                                       flushState->outputView(),
+                                       flushState->detachAppliedClip(),
+                                       flushState->dstProxyView());
+    }
+
     void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView*,
-                           GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override {
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkASSERT(!fPrePreparedVertices);
 
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
 
         const VertexSpec vertexSpec = this->vertexSpec();
 
@@ -256,9 +291,6 @@ private:
         // local coords.
         SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
-        GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(target->allocator(), vertexSpec);
-        SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
-
         sk_sp<const GrBuffer> vertexBuffer;
         int vertexOffsetInBuffer = 0;
 
@@ -290,17 +322,23 @@ private:
         }
 
         // Configure the mesh for the vertex data
-        GrMesh* mesh = target->allocMeshes(1);
-        GrQuadPerEdgeAA::ConfigureMesh(target->caps(), mesh, vertexSpec, 0, fQuads.count(),
+        fMesh = target->allocMeshes(1);
+        GrQuadPerEdgeAA::ConfigureMesh(target->caps(), fMesh, vertexSpec, 0, fQuads.count(),
                                        totalNumVertices, std::move(vertexBuffer),
                                        std::move(indexBuffer), vertexOffsetInBuffer);
-        target->recordDraw(gp, mesh, 1, vertexSpec.primitiveType());
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        if (!fMesh) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(flushState);
+        }
+
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -412,7 +450,9 @@ private:
     GrQuadBuffer<ColorAndAA> fQuads;
     char* fPrePreparedVertices = nullptr;
 
-    ColorType fColorType;
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
+    ColorType      fColorType;
 
     typedef GrMeshDrawOp INHERITED;
 };
