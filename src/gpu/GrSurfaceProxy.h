@@ -10,12 +10,12 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrGpuResource.h"
-#include "include/gpu/GrSurface.h"
-#include "include/gpu/GrTexture.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/GrTexture.h"
 
 class GrCaps;
 class GrContext_Base;

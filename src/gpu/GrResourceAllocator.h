@@ -8,8 +8,8 @@
 #ifndef GrResourceAllocator_DEFINED
 #define GrResourceAllocator_DEFINED
 
-#include "include/gpu/GrSurface.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
 #include "src/core/SkArenaAlloc.h"

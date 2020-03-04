@@ -8,10 +8,10 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrGpuResource.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"

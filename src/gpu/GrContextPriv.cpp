@@ -8,7 +8,6 @@
 #include "src/gpu/GrContextPriv.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -18,6 +17,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"

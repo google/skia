@@ -7,9 +7,9 @@
 
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
