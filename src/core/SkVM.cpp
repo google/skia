@@ -2316,13 +2316,9 @@ namespace skvm {
             SkAssertResult(false == llvm::InitializeNativeTargetAsmPrinter());
         });
 
-        llvm::TargetOptions options;
-        options.AllowFPOpFusion = llvm::FPOpFusion::Fast;
-
         if (llvm::ExecutionEngine* ee = llvm::EngineBuilder(std::move(mod))
                                             .setEngineKind(llvm::EngineKind::JIT)
                                             .setMCPU(llvm::sys::getHostCPUName())
-                                            .setTargetOptions(options)
                                             .create()) {
             fImpl->llvm_ctx = std::move(ctx);
             fImpl->llvm_ee.reset(ee);
