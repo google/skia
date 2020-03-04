@@ -24,6 +24,8 @@
     #include <llvm/Support/TargetSelect.h>
 #endif
 
+#define SKVM_CONSISTENT 1
+
 bool gSkVMJITViaDylib{false};
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
@@ -687,12 +689,16 @@ namespace skvm {
     }
 
     F32 Builder::mad(F32 x, F32 y, F32 z) {
+    #if SKVM_CONSISTENT
+        return this->add(this->mul(x,y), z);
+    #else
         float X,Y,Z;
         if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X*Y+Z); }
         if (this->isImm(y.id, 1.0f)) { return this->add(x,z); }  // x*1+z == x+z
         if (this->isImm(x.id, 1.0f)) { return this->add(y,z); }  // 1*y+z == y+z
         if (this->isImm(z.id, 0.0f)) { return this->mul(x,y); }  // x*y+0 == x*y
         return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    #endif
     }
 
     F32 Builder::sqrt(F32 x) {
@@ -861,9 +867,13 @@ namespace skvm {
         return {this->push(Op::trunc, x.id)};
     }
     I32 Builder::round(F32 x) {
+    #if SKVM_CONSISTENT
+        return this->trunc(this->add(x, this->splat(0.5f)));
+    #else
         float X;
         if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
         return {this->push(Op::round, x.id)};
+    #endif
     }
 
     F32 Builder::from_unorm(int bits, I32 x) {
@@ -2315,7 +2325,9 @@ namespace skvm {
         });
 
         llvm::TargetOptions options;
+    #if !SKVM_CONSISTENT
         options.AllowFPOpFusion = llvm::FPOpFusion::Fast;
+    #endif
 
         if (llvm::ExecutionEngine* ee = llvm::EngineBuilder(std::move(mod))
                                             .setEngineKind(llvm::EngineKind::JIT)
