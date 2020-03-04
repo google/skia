@@ -138,9 +138,19 @@ public:
      *  at least has the mip levels allocated and the base layer filled in. If this is not possible,
      *  the generator is allowed to return a non mipped proxy, but this will have some additional
      *  overhead in later allocating mips and copying of the base layer.
+     *
+     *  TexGenPolicy determines whether or not a new texture must be created (and its budget status)
+     *  or whether this may (but is not required to) return a pre-existing texture that is retained
+     *  by the generator (kCheapest).
      */
+    enum class TexGenPolicy {
+        kCheapest,
+        kForceNew_Unbudgeted,
+        kForceNew_Budgeted,
+    };
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                       const SkIPoint& origin, GrMipMapped);
+                                       const SkIPoint& origin, GrMipMapped,
+                                       TexGenPolicy = TexGenPolicy::kCheapest);
 
 #endif
 
@@ -175,14 +185,9 @@ protected:
     virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
                                   void*[4] /*planes*/) { return false; }
 #if SK_SUPPORT_GPU
-    enum class TexGenType {
-        kNone,           //image generator does not implement onGenerateTexture
-        kCheap,          //onGenerateTexture is implemented and it is fast (does not render offscreen)
-        kExpensive,      //onGenerateTexture is implemented and it is relatively slow
-    };
-
+    // returns nullptr
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                                 const SkIPoint&, GrMipMapped);  // returns nullptr
+                                                 const SkIPoint&, GrMipMapped, TexGenPolicy);
 #endif
 
 private:
