@@ -31,7 +31,7 @@ class GrGLTextureParameters;
 #endif
 
 #ifdef SK_DIRECT3D
-enum DXGI_FORMAT;
+#include <dxgiformat.h>
 #endif
 
 #if GR_TEST_UTILS

@@ -70,22 +70,23 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     D3D12_FEATURE_DATA_FEATURE_LEVELS flDesc = {};
     flDesc.NumFeatureLevels = _countof(featureLevels);
     flDesc.pFeatureLevelsRequested = featureLevels;
-    HRESULT hr = device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &flDesc, sizeof(flDesc));
+    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &flDesc,
+                                                          sizeof(flDesc));
     SkASSERT(SUCCEEDED(hr));
     // This had better be true
     SkASSERT(flDesc.MaxSupportedFeatureLevel >= D3D_FEATURE_LEVEL_11_0);
 
     DXGI_ADAPTER_DESC adapterDesc;
-    hr = adapter->GetDesc(&adapterDesc);
+    SkDEBUGCODE(hr =) adapter->GetDesc(&adapterDesc);
     SkASSERT(SUCCEEDED(hr));
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS optionsDesc;
-    hr = device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &optionsDesc,
+    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &optionsDesc,
                                      sizeof(optionsDesc));
     SkASSERT(SUCCEEDED(hr));
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
-    hr = device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &optionsDesc,
+    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &optionsDesc,
                                      sizeof(options2Desc));
     SkASSERT(SUCCEEDED(hr));
 
@@ -638,8 +639,8 @@ static bool multisample_count_supported(ID3D12Device* device, DXGI_FORMAT format
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msqLevels;
     msqLevels.Format = format;
     msqLevels.SampleCount = sampleCount;
-    HRESULT hr = device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msqLevels,
-                                             sizeof(msqLevels));
+    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+                                                          &msqLevels, sizeof(msqLevels));
     SkASSERT(SUCCEEDED(hr));
 
     return msqLevels.NumQualityLevels > 0;
@@ -679,8 +680,9 @@ void GrD3DCaps::FormatInfo::init(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Dev
                                  DXGI_FORMAT format) {
     D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupportDesc;
     formatSupportDesc.Format = format;
-    HRESULT hr = device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &formatSupportDesc,
-                                             sizeof(formatSupportDesc));
+    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
+                                                          &formatSupportDesc,
+                                                          sizeof(formatSupportDesc));
     SkASSERT(SUCCEEDED(hr));
 
     InitFormatFlags(formatSupportDesc, &fFlags);
@@ -915,13 +917,13 @@ GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct,
 GrBackendFormat GrD3DCaps::getBackendFormatFromCompressionType(
     SkImage::CompressionType compressionType) const {
     switch (compressionType) {
-    case SkImage::CompressionType::kNone:
-        return {};
-    case SkImage::CompressionType::kBC1_RGBA8_UNORM:
-        if (this->isFormatTexturable(DXGI_FORMAT_BC1_UNORM)) {
-            return GrBackendFormat::MakeDxgi(DXGI_FORMAT_BC1_UNORM);
-        }
-        return {};
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+            if (this->isFormatTexturable(DXGI_FORMAT_BC1_UNORM)) {
+                return GrBackendFormat::MakeDxgi(DXGI_FORMAT_BC1_UNORM);
+            }
+            return {};
+        default:
+            return {};
     }
 
     SkUNREACHABLE;

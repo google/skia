@@ -19,8 +19,7 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
         : INHERITED(context)
         , fDevice(backendContext.fDevice)
-        , fQueue(backendContext.fQueue)
-        , fProtectedContext(backendContext.fProtectedContext) {
+        , fQueue(backendContext.fQueue) {
     fCaps.reset(new GrD3DCaps(contextOptions,
                               backendContext.fAdapter.Get(),
                               backendContext.fDevice.Get()));
