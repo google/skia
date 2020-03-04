@@ -141,6 +141,30 @@
       "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7accb58_0011454c",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-04T14:52:45Z",
+      "side": 1,
+      "message": "That is fair, and eventually I want to land on a system where all color-related effects are explicitly composed by the user. Having the paint color be the input color to the shader moves in that direction, but it feels a little weird to then have all of our built-in shaders ignore the input color.",
+      "parentUuid": "30c68d91_f52e9058",
+      "range": {
+        "startLine": 44,
+        "startChar": 41,
+        "endLine": 44,
+        "endChar": 54
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
