@@ -189,6 +189,30 @@
       "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a3e2101_6c381aee",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-04T19:48:36Z",
+      "side": 1,
+      "message": "True, but I don\u0027t think it\u0027s a good idea to jump immediately to that land. It would necessitate use changing the signature of a shader function to be main(x, y) -\u003e color, instead of main(x, y, color) -\u003e color. Maybe that\u0027s a good direction to go, and force composition to be explicitly represented in shader subclasses, and it would differentiate them from a color filter, which is main(color) -\u003e color, or an image filter (main(x, y, colors[]) -\u003e color).\n\nWhat do others think? Is this end goal of removing a constant color a good target? If so, do we go directly to it now, or go partway where we say the color is the input to the shader, with some combining rule (rgba mul, alpha mul, ignore, etc.)?",
+      "parentUuid": "bfed81fd_30fa2471",
+      "range": {
+        "startLine": 44,
+        "startChar": 41,
+        "endLine": 44,
+        "endChar": 54
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
