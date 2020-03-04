@@ -15,8 +15,10 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
+#include <atomic>
 
 #if defined(SKVM_LLVM)
+    #include <future>
     #include <llvm/Bitcode/BitcodeWriter.h>
     #include <llvm/ExecutionEngine/ExecutionEngine.h>
     #include <llvm/IR/IRBuilder.h>
@@ -51,13 +53,14 @@ namespace skvm {
         int                      loop = 0;
         std::vector<int>         strides;
 
-        void*  jit_entry = nullptr;
-        size_t jit_size  = 0;
-        void*  dylib     = nullptr;
+        std::atomic<void*> jit_entry{nullptr};   // TODO: minimal std::memory_orders
+        size_t jit_size = 0;
+        void*  dylib    = nullptr;
 
     #if defined(SKVM_LLVM)
         std::unique_ptr<llvm::LLVMContext>     llvm_ctx;
         std::unique_ptr<llvm::ExecutionEngine> llvm_ee;
+        std::future<void>                      llvm_compiling;
     #endif
     };
 
@@ -1638,7 +1641,21 @@ namespace skvm {
     }
 
     void Program::eval(int n, void* args[]) const {
-        if (const void* b = fImpl->jit_entry) {
+    #define SKVM_JIT_STATS 0
+    #if SKVM_JIT_STATS
+        static std::atomic<int> calls{0}, jits{0};
+        if (0 == calls++) {
+            atexit([]{
+                SkDebugf("%d of %d calls to eval() went through JIT.\n", jits.load(), calls.load());
+            });
+        }
+    #endif
+        // This may fail either simply because we can't JIT, or when using LLVM,
+        // because the work represented by fImpl->llvm_compiling hasn't finished yet.
+        if (const void* b = fImpl->jit_entry.load()) {
+    #if SKVM_JIT_STATS
+            jits++;
+    #endif
             void** a = args;
             switch (fImpl->strides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
@@ -1652,6 +1669,7 @@ namespace skvm {
             }
         }
 
+        // So we'll sometimes use the interpreter here even if later calls will use the JIT.
         this->interpret(n, args);
     }
 
@@ -2322,30 +2340,54 @@ namespace skvm {
                                             .create()) {
             fImpl->llvm_ctx = std::move(ctx);
             fImpl->llvm_ee.reset(ee);
-            fImpl->jit_entry = (void*)fImpl->llvm_ee->getFunctionAddress(debug_name);
+
+            // We have to be careful here about what we close over and how, in case fImpl moves.
+            // fImpl itself may change, but its pointee fields won't, so close over them by value.
+            // Also, debug_name will almost certainly leave scope, so copy it.
+            fImpl->llvm_compiling = std::async(std::launch::async, [dst  = &fImpl->jit_entry,
+                                                                    ee   =  fImpl->llvm_ee.get(),
+                                                                    name = std::string(debug_name)]{
+                // std::atomic<void*>*    dst;
+                // llvm::ExecutionEngine* ee;
+                // std::string            name;
+                dst->store( (void*)ee->getFunctionAddress(name.c_str()) );
+            });
         }
     }
 #endif
 
+    void Program::waitForLLVM() const {
+    #if defined(SKVM_LLVM)
+        if (fImpl->llvm_compiling.valid()) {
+            fImpl->llvm_compiling.wait();
+        }
+    #endif
+    }
+
     bool Program::hasJIT() const {
-        return fImpl->jit_entry != nullptr;
+        // Program::hasJIT() is really just a debugging / test aid,
+        // so we don't mind adding a sync point here to wait for compilation.
+        this->waitForLLVM();
+
+        return fImpl->jit_entry.load() != nullptr;
     }
 
     void Program::dropJIT() {
     #if defined(SKVM_LLVM)
+        this->waitForLLVM();
         fImpl->llvm_ee .reset(nullptr);
         fImpl->llvm_ctx.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fImpl->dylib) {
             dlclose(fImpl->dylib);
-        } else if (fImpl->jit_entry) {
-            munmap(fImpl->jit_entry, fImpl->jit_size);
+        } else if (auto jit_entry = fImpl->jit_entry.load()) {
+            munmap(jit_entry, fImpl->jit_size);
         }
     #else
         SkASSERT(!this->hasJIT());
     #endif
 
-        fImpl->jit_entry = nullptr;
+        fImpl->jit_entry.store(nullptr);
         fImpl->jit_size  = 0;
         fImpl->dylib     = nullptr;
     }
@@ -3132,18 +3174,20 @@ namespace skvm {
 
         // mprotect works at page granularity.
         fImpl->jit_size = ((a.size() + page - 1) / page) * page;
-        fImpl->jit_entry
-            = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+
+        void* jit_entry
+             = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        fImpl->jit_entry.store(jit_entry);
 
         // Assemble the program for real.
-        a = Assembler{fImpl->jit_entry};
+        a = Assembler{jit_entry};
         SkAssertResult(this->jit(instructions, try_hoisting, &a));
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(fImpl->jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)fImpl->jit_entry,
-                                (char*)fImpl->jit_entry + fImpl->jit_size);
+        mprotect(jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
+        __builtin___clear_cache((char*)jit_entry,
+                                (char*)jit_entry + fImpl->jit_size);
 
         // For profiling and debugging, it's helpful to have this code loaded
         // dynamically rather than just jumping info fImpl->jit_entry.
@@ -3151,7 +3195,7 @@ namespace skvm {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
             int fd = mkstemp(path.writable_str());
-            ::write(fd, fImpl->jit_entry, a.size());
+            ::write(fd, jit_entry, a.size());
             close(fd);
 
             this->dropJIT();  // (unmap and null out fImpl->jit_entry.)
@@ -3165,7 +3209,7 @@ namespace skvm {
 
             // Load that dynamic library and look up skvm_jit().
             fImpl->dylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            fImpl->jit_entry = dlsym(fImpl->dylib, "skvm_jit");
+            fImpl->jit_entry.store(dlsym(fImpl->dylib, "skvm_jit"));
         }
     }
 #endif
