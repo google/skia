@@ -11,7 +11,6 @@
 
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
@@ -22,6 +21,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"

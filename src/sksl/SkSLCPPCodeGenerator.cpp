@@ -1292,7 +1292,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writef(kFragmentProcessorHeader, fullName);
     this->writef("#include \"%s.h\"\n\n", fullName);
     this->writeSection(CPP_SECTION);
-    this->writef("#include \"include/gpu/GrTexture.h\"\n"
+    this->writef("#include \"src/gpu/GrTexture.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLProgramBuilder.h\"\n"

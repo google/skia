@@ -19,11 +19,11 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrTexture.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

@@ -11,8 +11,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrGpuResource.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GrGpuResource.h"
 
 class GrRenderTarget;
 class GrSurfacePriv;
@@ -42,7 +42,7 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
-    SK_API void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
+    void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
         this->onSetRelease(releaseHelper);
         fReleaseHelper = std::move(releaseHelper);
     }
@@ -51,7 +51,7 @@ public:
     // TODO: Remove Chrome's need to call this on a GrTexture
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
-    SK_API void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
         sk_sp<GrRefCntedCallback> helper(new GrRefCntedCallback(proc, ctx));
         this->setRelease(std::move(helper));
     }

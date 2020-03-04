@@ -8,7 +8,7 @@
 #ifndef GrGpuResourcePriv_DEFINED
 #define GrGpuResourcePriv_DEFINED
 
-#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrGpuResource.h"
 
 /**
  * This class allows code internal to Skia privileged access to manage the cache keys and budget

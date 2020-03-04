@@ -8,7 +8,6 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "src/core/SkOpts.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -18,6 +17,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTracing.h"
 
 #ifdef DUMP_ATLAS_DATA

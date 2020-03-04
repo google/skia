@@ -10,9 +10,9 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrTexture.h"
 #include "src/image/SkImage_Gpu.h"
 
 using namespace sk_gpu_test;

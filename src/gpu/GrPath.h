@@ -10,7 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrStyle.h"
 
