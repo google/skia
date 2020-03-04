@@ -45,6 +45,22 @@ bool gSkVMJITViaDylib{false};
 
 namespace skvm {
 
+    struct Program::Impl {
+        std::vector<Instruction> instructions;
+        int                      regs = 0;
+        int                      loop = 0;
+        std::vector<int>         strides;
+
+        void*  jit_entry = nullptr;
+        size_t jit_size  = 0;
+        void*  dylib     = nullptr;
+
+    #if defined(SKVM_LLVM)
+        std::unique_ptr<llvm::LLVMContext>     llvm_ctx;
+        std::unique_ptr<llvm::ExecutionEngine> llvm_ee;
+    #endif
+    };
+
     // Debugging tools, mostly for printing various data structures out to a stream.
 
     namespace {
@@ -245,16 +261,16 @@ namespace skvm {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        o->writeDecAsText(fRegs);
+        o->writeDecAsText(fImpl->regs);
         o->writeText(" registers, ");
-        o->writeDecAsText(fInstructions.size());
+        o->writeDecAsText(fImpl->instructions.size());
         o->writeText(" instructions:\n");
-        for (int i = 0; i < (int)fInstructions.size(); i++) {
-            if (i == fLoop) { write(o, "loop:\n"); }
+        for (int i = 0; i < (int)fImpl->instructions.size(); i++) {
+            if (i == fImpl->loop) { write(o, "loop:\n"); }
             o->writeDecAsText(i);
             o->writeText("\t");
-            if (i >= fLoop) { write(o, "    "); }
-            const Program::Instruction& inst = fInstructions[i];
+            if (i >= fImpl->loop) { write(o, "    "); }
+            const Program::Instruction& inst = fImpl->instructions[i];
             Op   op = inst.op;
             Reg   d = inst.d,
                   x = inst.x,
@@ -1618,9 +1634,9 @@ namespace skvm {
     }
 
     void Program::eval(int n, void* args[]) const {
-        if (const void* b = fJITEntry) {
+        if (const void* b = fImpl->jit_entry) {
             void** a = args;
-            switch (fStrides.size()) {
+            switch (fImpl->strides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
                 case 1: return ((void(*)(int,void*                  ))b)(n,a[0]               );
                 case 2: return ((void(*)(int,void*,void*            ))b)(n,a[0],a[1]          );
@@ -1660,11 +1676,11 @@ namespace skvm {
 
         Slot* regs = few_regs;
 
-        if (fRegs > (int)SK_ARRAY_COUNT(few_regs)) {
+        if (fImpl->regs > (int)SK_ARRAY_COUNT(few_regs)) {
             // Annoyingly we can't trust that malloc() or new will work with Slot because
             // the skvx::Vec types may have alignment greater than what they provide.
             // We'll overallocate one extra register so we can align manually.
-            many_regs.reset(new char[ sizeof(Slot) * (fRegs + 1) ]);
+            many_regs.reset(new char[ sizeof(Slot) * (fImpl->regs + 1) ]);
 
             uintptr_t addr = (uintptr_t)many_regs.get();
             addr += alignof(Slot) -
@@ -1675,28 +1691,28 @@ namespace skvm {
 
 
         auto r = [&](Reg id) -> Slot& {
-            SkASSERT(0 <= id && id < fRegs);
+            SkASSERT(0 <= id && id < fImpl->regs);
             return regs[id];
         };
         auto arg = [&](int ix) {
-            SkASSERT(0 <= ix && ix < (int)fStrides.size());
+            SkASSERT(0 <= ix && ix < (int)fImpl->strides.size());
             return args[ix];
         };
 
         // Step each argument pointer ahead by its stride a number of times.
         auto step_args = [&](int times) {
-            for (int i = 0; i < (int)fStrides.size(); i++) {
-                args[i] = (void*)( (char*)args[i] + times * fStrides[i] );
+            for (int i = 0; i < (int)fImpl->strides.size(); i++) {
+                args[i] = (void*)( (char*)args[i] + times * fImpl->strides[i] );
             }
         };
 
         int start = 0,
             stride;
-        for ( ; n > 0; start = fLoop, n -= stride, step_args(stride)) {
+        for ( ; n > 0; start = fImpl->loop, n -= stride, step_args(stride)) {
             stride = n >= K ? K : 1;
 
-            for (int i = start; i < (int)fInstructions.size(); i++) {
-                Instruction inst = fInstructions[i];
+            for (int i = start; i < (int)fImpl->instructions.size(); i++) {
+                Instruction inst = fImpl->instructions[i];
 
                 // d = op(x,y/imm,z/imm)
                 Reg   d = inst.d,
@@ -1894,13 +1910,6 @@ namespace skvm {
         }
     }
 
-    struct Program::LLVMState {
-    #if defined(SKVM_LLVM)
-        std::unique_ptr<llvm::LLVMContext>     ctx;
-        std::unique_ptr<llvm::ExecutionEngine> ee;
-    #endif
-    };
-
 #if defined(SKVM_LLVM)
     void Program::setupLLVM(const std::vector<OptimizedInstruction>& instructions,
                             const char* debug_name) {
@@ -1916,7 +1925,7 @@ namespace skvm {
                    *i32 = llvm::Type::getInt32Ty(*ctx);
 
         std::vector<llvm::Type*> arg_types = { i32 };
-        for (size_t i = 0; i < fStrides.size(); i++) {
+        for (size_t i = 0; i < fImpl->strides.size(); i++) {
             arg_types.push_back(ptr);
         }
 
@@ -1924,7 +1933,7 @@ namespace skvm {
                                                               arg_types, /*vararg?=*/false);
         llvm::Function* fn
             = llvm::Function::Create(fn_type, llvm::GlobalValue::ExternalLinkage, debug_name, *mod);
-        for (size_t i = 0; i < fStrides.size(); i++) {
+        for (size_t i = 0; i < fImpl->strides.size(); i++) {
             fn->addParamAttr(i+1, llvm::Attribute::NoAlias);
         }
 
@@ -2175,7 +2184,7 @@ namespace skvm {
             // Later on when we start looping the phi nodes will start looking useful.
             llvm::Argument* arg = fn->arg_begin();
             (void)arg++;  // Leave n as nullptr... it'd be a bug to use n in a hoisted instruction.
-            for (size_t i = 0; i < fStrides.size(); i++) {
+            for (size_t i = 0; i < fImpl->strides.size(); i++) {
                 args.push_back(b.CreatePHI(arg->getType(), 1));
                 args.back()->addIncoming(arg++, enter);
             }
@@ -2200,7 +2209,7 @@ namespace skvm {
             n = b.CreatePHI(arg->getType(), 2);
             n->addIncoming(arg++, hoistK);
 
-            for (size_t i = 0; i < fStrides.size(); i++) {
+            for (size_t i = 0; i < fImpl->strides.size(); i++) {
                 args[i] = b.CreatePHI(arg->getType(), 2);
                 args[i]->addIncoming(arg++, hoistK);
             }
@@ -2222,9 +2231,9 @@ namespace skvm {
             n->addIncoming(n_next, loopK);
 
             // Each arg ptr += K
-            for (size_t i = 0; i < fStrides.size(); i++) {
+            for (size_t i = 0; i < fImpl->strides.size(); i++) {
                 llvm::Value* arg_next
-                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], K*fStrides[i]);
+                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], K*fImpl->strides[i]);
                 args[i]->addIncoming(arg_next, loopK);
             }
             b.CreateBr(testK);
@@ -2250,7 +2259,7 @@ namespace skvm {
             n_new->addIncoming(n, hoist1);
             n = n_new;
 
-            for (size_t i = 0; i < fStrides.size(); i++) {
+            for (size_t i = 0; i < fImpl->strides.size(); i++) {
                 llvm::PHINode* arg_new = b.CreatePHI(args[i]->getType(), 2);
                 arg_new->addIncoming(args[i], hoist1);
                 args[i] = arg_new;
@@ -2273,9 +2282,9 @@ namespace skvm {
             n->addIncoming(n_next, loop1);
 
             // Each arg ptr += K
-            for (size_t i = 0; i < fStrides.size(); i++) {
+            for (size_t i = 0; i < fImpl->strides.size(); i++) {
                 llvm::Value* arg_next
-                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], fStrides[i]);
+                    = b.CreateConstInBoundsGEP1_32(nullptr, args[i], fImpl->strides[i]);
                 args[i]->addIncoming(arg_next, loop1);
             }
             b.CreateBr(test1);
@@ -2313,67 +2322,55 @@ namespace skvm {
                                             .setMCPU(llvm::sys::getHostCPUName())
                                             .setTargetOptions(options)
                                             .create()) {
-            fLLVMState = std::make_unique<LLVMState>();
-            fLLVMState->ctx = std::move(ctx);
-            fLLVMState->ee.reset(ee);
-            fJITEntry = (void*)fLLVMState->ee->getFunctionAddress(debug_name);
+            fImpl->llvm_ctx = std::move(ctx);
+            fImpl->llvm_ee.reset(ee);
+            fImpl->jit_entry = (void*)fImpl->llvm_ee->getFunctionAddress(debug_name);
         }
     }
 #endif
 
     bool Program::hasJIT() const {
-        return fJITEntry != nullptr;
+        return fImpl->jit_entry != nullptr;
     }
 
     void Program::dropJIT() {
     #if defined(SKVM_LLVM)
-        fLLVMState.reset(nullptr);
+        fImpl->llvm_ee .reset(nullptr);
+        fImpl->llvm_ctx.reset(nullptr);
     #elif defined(SKVM_JIT)
-        if (fDylib) {
-            dlclose(fDylib);
-        } else if (fJITEntry) {
-            munmap(fJITEntry, fJITSize);
+        if (fImpl->dylib) {
+            dlclose(fImpl->dylib);
+        } else if (fImpl->jit_entry) {
+            munmap(fImpl->jit_entry, fImpl->jit_size);
         }
     #else
         SkASSERT(!this->hasJIT());
     #endif
 
-        fJITEntry = nullptr;
-        fJITSize  = 0;
-        fDylib    = nullptr;
+        fImpl->jit_entry = nullptr;
+        fImpl->jit_size  = 0;
+        fImpl->dylib     = nullptr;
     }
 
-    Program::~Program() { this->dropJIT(); }
+    Program::Program() : fImpl(std::make_unique<Impl>()) {}
 
-    Program::Program(Program&& other) {
-        fInstructions    = std::move(other.fInstructions);
-        fRegs            = other.fRegs;
-        fLoop            = other.fLoop;
-        fStrides         = std::move(other.fStrides);
-
-        std::swap(fJITEntry , other.fJITEntry);
-        std::swap(fJITSize  , other.fJITSize);
-        std::swap(fDylib    , other.fDylib);
-        std::swap(fLLVMState, other.fLLVMState);
+    Program::~Program() {
+        // Moved-from Programs may have fImpl == nullptr.
+        if (fImpl) {
+            this->dropJIT();
+        }
     }
+
+    Program::Program(Program&& other) : fImpl(std::move(other.fImpl)) {}
 
     Program& Program::operator=(Program&& other) {
-        fInstructions    = std::move(other.fInstructions);
-        fRegs            = other.fRegs;
-        fLoop            = other.fLoop;
-        fStrides         = std::move(other.fStrides);
-
-        std::swap(fJITEntry , other.fJITEntry);
-        std::swap(fJITSize  , other.fJITSize);
-        std::swap(fDylib    , other.fDylib);
-        std::swap(fLLVMState, other.fLLVMState);
+        fImpl = std::move(other.fImpl);
         return *this;
     }
 
-    Program::Program() {}
-
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
-                     const std::vector<int>& strides) : fStrides(strides) {
+                     const std::vector<int>& strides) : Program() {
+        fImpl->strides = strides;
         this->setupInterpreter(interpreter);
     }
 
@@ -2387,6 +2384,12 @@ namespace skvm {
         this->setupJIT(jit, debug_name);
     #endif
     }
+
+    std::vector<Program::Instruction> Program::instructions() const { return fImpl->instructions; }
+    int  Program::nargs() const { return (int)fImpl->strides.size(); }
+    int  Program::nregs() const { return fImpl->regs; }
+    int  Program::loop () const { return fImpl->loop; }
+    bool Program::empty() const { return fImpl->instructions.empty(); }
 
     // Translate OptimizedInstructions to Program::Instructions used by the interpreter.
     void Program::setupInterpreter(const std::vector<OptimizedInstruction>& instructions) {
@@ -2403,7 +2406,7 @@ namespace skvm {
         // (The JIT may choose a more complex policy to reduce register pressure.)
         auto hoisted = [&](Val id) { return instructions[id].can_hoist; };
 
-        fRegs = 0;
+        fImpl->regs = 0;
         std::vector<Reg> avail;
 
         // Assign this value to a register, recycling them where we can.
@@ -2429,7 +2432,7 @@ namespace skvm {
             if (inst.death != id) {
                 // Allocate a register if we have to, preferring to reuse anything available.
                 if (avail.empty()) {
-                    reg[id] = fRegs++;
+                    reg[id] = fImpl->regs++;
                 } else {
                     reg[id] = avail.back();
                     avail.pop_back();
@@ -2448,9 +2451,9 @@ namespace skvm {
         // Translate OptimizedInstructions to Program::Instructions by mapping values to
         // registers.  This will be two passes, first hoisted instructions, then inside the loop.
 
-        // The loop begins at the fLoop'th Instruction.
-        fLoop = 0;
-        fInstructions.reserve(instructions.size());
+        // The loop begins at the fImpl->loop'th Instruction.
+        fImpl->loop = 0;
+        fImpl->instructions.reserve(instructions.size());
 
         // Add a dummy mapping for the N/A sentinel Val to any arbitrary register
         // so lookups don't have to know which arguments are used by which Ops.
@@ -2469,14 +2472,14 @@ namespace skvm {
             };
             if (inst.y == NA) { pinst.immy = inst.immy; }
             if (inst.z == NA) { pinst.immz = inst.immz; }
-            fInstructions.push_back(pinst);
+            fImpl->instructions.push_back(pinst);
         };
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const OptimizedInstruction& inst = instructions[id];
             if (hoisted(id)) {
                 push_instruction(id, inst);
-                fLoop++;
+                fImpl->loop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
@@ -2560,7 +2563,7 @@ namespace skvm {
         uint32_t avail = 0xffff00ff;
     #endif
 
-        if (SK_ARRAY_COUNT(arg) < fStrides.size()) {
+        if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
             return false;
         }
 
@@ -3044,9 +3047,9 @@ namespace skvm {
                     return false;
                 }
             }
-            for (int i = 0; i < (int)fStrides.size(); i++) {
-                if (fStrides[i]) {
-                    add(arg[i], K*fStrides[i]);
+            for (int i = 0; i < (int)fImpl->strides.size(); i++) {
+                if (fImpl->strides[i]) {
+                    add(arg[i], K*fImpl->strides[i]);
                 }
             }
             sub(N, K);
@@ -3062,9 +3065,9 @@ namespace skvm {
                     return false;
                 }
             }
-            for (int i = 0; i < (int)fStrides.size(); i++) {
-                if (fStrides[i]) {
-                    add(arg[i], 1*fStrides[i]);
+            for (int i = 0; i < (int)fImpl->strides.size(); i++) {
+                if (fImpl->strides[i]) {
+                    add(arg[i], 1*fImpl->strides[i]);
                 }
             }
             sub(N, 1);
@@ -3129,29 +3132,32 @@ namespace skvm {
 
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
-        fJITSize = ((a.size() + page - 1) / page) * page;  // mprotect works at page granularity.
-        fJITEntry = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+
+        // mprotect works at page granularity.
+        fImpl->jit_size = ((a.size() + page - 1) / page) * page;
+        fImpl->jit_entry
+            = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
 
         // Assemble the program for real.
-        a = Assembler{fJITEntry};
+        a = Assembler{fImpl->jit_entry};
         SkAssertResult(this->jit(instructions, try_hoisting, &a));
-        SkASSERT(a.size() <= fJITSize);
+        SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(fJITEntry, fJITSize, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)fJITEntry,
-                                (char*)fJITEntry + fJITSize);
+        mprotect(fImpl->jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
+        __builtin___clear_cache((char*)fImpl->jit_entry,
+                                (char*)fImpl->jit_entry + fImpl->jit_size);
 
         // For profiling and debugging, it's helpful to have this code loaded
-        // dynamically rather than just jumping info fJITEntry.
+        // dynamically rather than just jumping info fImpl->jit_entry.
         if (gSkVMJITViaDylib) {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
             int fd = mkstemp(path.writable_str());
-            ::write(fd, fJITEntry, a.size());
+            ::write(fd, fImpl->jit_entry, a.size());
             close(fd);
 
-            this->dropJIT();  // (unmap and null out fJITEntry.)
+            this->dropJIT();  // (unmap and null out fImpl->jit_entry.)
 
             // Convert it in-place to a dynamic library with a single symbol "skvm_jit":
             SkString cmd = SkStringPrintf(
@@ -3161,8 +3167,8 @@ namespace skvm {
             system(cmd.c_str());
 
             // Load that dynamic library and look up skvm_jit().
-            fDylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            fJITEntry = dlsym(fDylib, "skvm_jit");
+            fImpl->dylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
+            fImpl->jit_entry = dlsym(fImpl->dylib, "skvm_jit");
         }
     }
 #endif
