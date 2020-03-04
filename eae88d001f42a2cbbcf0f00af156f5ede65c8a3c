@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21e2ce6e_0d0a542d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-04T16:37:49Z",
+      "side": 1,
+      "message": "Add summary line.",
+      "revId": "eae88d001f42a2cbbcf0f00af156f5ede65c8a3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b53a122_c333bac4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-04T16:37:49Z",
+      "side": 1,
+      "message": "Needs to go just above the Change-Id line in the last block.",
+      "revId": "eae88d001f42a2cbbcf0f00af156f5ede65c8a3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99fa437f_b9079125",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-04T16:37:49Z",
+      "side": 1,
+      "message": "no space",
+      "range": {
+        "startLine": 7,
+        "startChar": 11,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "eae88d001f42a2cbbcf0f00af156f5ede65c8a3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
