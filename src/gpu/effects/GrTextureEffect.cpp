@@ -668,6 +668,7 @@ GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         , fSubset(src.fSubset)
         , fClamp(src.fClamp)
         , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]} {
+    std::copy_n(src.fBorder, 4, fBorder);
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fCoordTransform);
 }
