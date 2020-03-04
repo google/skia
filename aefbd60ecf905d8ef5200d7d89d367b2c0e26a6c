@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40ccfab8_5763f96b",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-04T19:29:58Z",
+      "side": 1,
+      "message": "v0.13.0 is already shipped. Make a new header. Note that there was a typo in the previous changelog - it should be SkPathEffect.Foo, not PathEffect.Foo\n\nOf note, we should probably get rid of the Sk names everywhere too - the names aren\u0027t really needed.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 42
+      },
+      "revId": "aefbd60ecf905d8ef5200d7d89d367b2c0e26a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f33cc9c4_d74332c4",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-04T19:29:58Z",
+      "side": 1,
+      "message": "This likely will not work. CanvasKit.SkPathEffect only exists after the library has been instantiated.  This needs to happen in CanvasKit.onRuntimeInitialized",
+      "range": {
+        "startLine": 1115,
+        "startChar": 0,
+        "endLine": 1115,
+        "endChar": 31
+      },
+      "revId": "aefbd60ecf905d8ef5200d7d89d367b2c0e26a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
