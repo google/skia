@@ -631,8 +631,10 @@ namespace skvm {
 
         Program();
         ~Program();
+
         Program(Program&&);
         Program& operator=(Program&&);
+
         Program(const Program&) = delete;
         Program& operator=(const Program&) = delete;
 
@@ -640,16 +642,17 @@ namespace skvm {
 
         template <typename... T>
         void eval(int n, T*... arg) const {
-            SkASSERT(sizeof...(arg) == fStrides.size());
+            SkASSERT(sizeof...(arg) == this->nargs());
             // This nullptr isn't important except that it makes args[] non-empty if you pass none.
             void* args[] = { (void*)arg..., nullptr };
             this->eval(n, args);
         }
 
-        std::vector<Instruction> instructions() const { return fInstructions; }
-        int nregs() const { return fRegs; }
-        int loop() const { return fLoop; }
-        bool empty() const { return fInstructions.empty(); }
+        std::vector<Instruction> instructions() const;
+        int  nargs() const;
+        int  nregs() const;
+        int  loop () const;
+        bool empty() const;
 
         bool hasJIT() const;  // Has this Program been JITted?
         void dropJIT();       // If hasJIT(), drop it, forcing interpreter fallback.
@@ -667,17 +670,8 @@ namespace skvm {
                  bool try_hoisting,
                  Assembler*) const;
 
-        std::vector<Instruction> fInstructions;
-        int                      fRegs = 0;
-        int                      fLoop = 0;
-        std::vector<int>         fStrides;
-
-        void*  fJITEntry = nullptr;
-        size_t fJITSize  = 0;
-        void*  fDylib    = nullptr;
-
-        struct LLVMState;
-        std::unique_ptr<LLVMState> fLLVMState;
+        struct Impl;
+        std::unique_ptr<Impl> fImpl;
     };
 
     // TODO: control flow
