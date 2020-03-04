@@ -96,7 +96,8 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
 GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(GrRecordingContext* context,
                                                                      const SkImageInfo& info,
                                                                      const SkIPoint& origin,
-                                                                     GrMipMapped mipMapped) {
+                                                                     GrMipMapped mipMapped,
+                                                                     TexGenPolicy texGenPolicy) {
     SkASSERT(context);
 
     if (context->backend() != fBackendTexture.backend()) {
@@ -210,7 +211,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(GrRecording
         return {};
     }
 
-    if (origin.isZero() && info.dimensions() == fBackendTexture.dimensions() &&
+    if (texGenPolicy == TexGenPolicy::kCheapest && origin.isZero() &&
+        info.dimensions() == fBackendTexture.dimensions() &&
         (mipMapped == GrMipMapped::kNo || proxy->mipMapped() == GrMipMapped::kYes)) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);

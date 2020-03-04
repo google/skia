@@ -67,7 +67,7 @@ public:
         *bitmap.getAddr8(width - 1, 0) = 0;
         bitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(context, bitmap);
+        GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
         auto view = maker.view(GrMipMapped::kNo);
         if (!view) {
             return {};

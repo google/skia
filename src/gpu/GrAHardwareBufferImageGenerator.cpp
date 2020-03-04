@@ -189,25 +189,28 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(GrRecordingContext* context,
                                                                       const SkImageInfo& info,
                                                                       const SkIPoint& origin,
-                                                                      GrMipMapped mipMapped) {
+                                                                      GrMipMapped mipMapped,
+                                                                      TexGenPolicy texGenPolicy) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
         return {};
     }
     SkASSERT(texProxyView.asTextureProxy());
 
-    if (origin.isZero() && info.dimensions() == this->getInfo().dimensions() &&
-        mipMapped == GrMipMapped::kNo) {
+    if (texGenPolicy == TexGenPolicy::kCheapest && origin.isZero() &&
+        info.dimensions() == this->getInfo().dimensions() && mipMapped == GrMipMapped::kNo) {
         // If the caller wants the full non-MIP mapped texture we're done.
         return texProxyView;
     }
     // Otherwise, make a copy for the requested subset and/or MIP maps.
     SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
+    SkBudgeted budgeted =
+            texGenPolicy == TexGenPolicy::kForceNew_Unbudgeted ? SkBudgeted::kNo : SkBudgeted::kYes;
+
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
     return GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(), grColorType,
-                                mipMapped, subset, SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+                                mipMapped, subset, SkBackingFit::kExact, budgeted);
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
