@@ -1107,7 +1107,6 @@ static_library("pathkit") {
     "src/core/SkRRect.cpp",
     "src/core/SkRect.cpp",
     "src/core/SkSemaphore.cpp",
-    "src/core/SkSpinlock.cpp",
     "src/core/SkStream.cpp",
     "src/core/SkString.cpp",
     "src/core/SkStringUtils.cpp",
