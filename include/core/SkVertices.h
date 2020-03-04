@@ -18,6 +18,8 @@
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
 class SK_API SkVertices : public SkNVRefCnt<SkVertices> {
+    struct Desc;
+    struct Sizes;
 public:
     // DEPRECATED -- remove when we've updated canvas virtuals to not mention bones
     struct Bone { float values[6]; };
@@ -57,8 +59,6 @@ public:
                         isVolatile);
     }
 
-    struct Sizes;
-
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
@@ -83,9 +83,9 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        Builder(const Desc&);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        void init(const Desc&);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -104,12 +104,12 @@ public:
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
-    int vertexCount() const { return fVertexCnt; }
+    int vertexCount() const { return fVertexCount; }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
 
-    int indexCount() const { return fIndexCnt; }
+    int indexCount() const { return fIndexCount; }
     const uint16_t* indices() const { return fIndices; }
 
     bool isVolatile() const { return fIsVolatile; }
@@ -139,6 +139,8 @@ private:
     static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
                                    size_t* arraySize);
 
+    Sizes getSizes() const;
+
     // we store this first, to pair with the refcnt in our base-class, so we don't have an
     // unnecessary pad between it and the (possibly 8-byte aligned) ptrs.
     uint32_t fUniqueID;
@@ -150,8 +152,8 @@ private:
     uint16_t*    fIndices;
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
-    int     fVertexCnt;
-    int     fIndexCnt;
+    int     fVertexCount;
+    int     fIndexCount;
 
     bool fIsVolatile;
 
