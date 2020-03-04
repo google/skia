@@ -369,12 +369,19 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc
 
     // Release old command pool and create a new one
     fCmdPool->unref(this);
-    fResourceProvider.checkCommandBuffers();
     fCmdPool = fResourceProvider.findOrCreateCommandPool();
     if (fCmdPool) {
         fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
+        SkASSERT(fCurrentCmdBuffer);
         fCurrentCmdBuffer->begin(this);
+    } else {
+        fCurrentCmdBuffer = nullptr;
     }
+    // We must wait to call checkCommandBuffers until after we get a new command buffer. The
+    // checkCommandBuffers may trigger a releaseProc which may cause us to insert a barrier for a
+    // released GrVkImage. That barrier needs to be put into a new command buffer and not the old
+    // one that was just submitted.
+    fResourceProvider.checkCommandBuffers();
     return didSubmit;
 }
 
@@ -2091,7 +2098,13 @@ void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
                                     VkPipelineStageFlags dstStageMask,
                                     bool byRegion,
                                     VkImageMemoryBarrier* barrier) const {
-    SkASSERT(fCurrentCmdBuffer);
+    // If we are in the middle of destroying or abandoning the GrContext we may hit a release proc
+    // that triggers the destruction of a GrVkImage. This could cause us to try and transfer the
+    // VkImage back to the original queue. In this state we don't submit anymore work and we may not
+    // have a current command buffer. Thus we won't do the queue transfer.
+    if (!fCurrentCmdBuffer) {
+        return;
+    }
     SkASSERT(resource);
     fCurrentCmdBuffer->pipelineBarrier(this,
                                        resource,
