@@ -44,26 +44,23 @@ void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkTCopyOnFirstWrite<SkMatrix>
-SkShaderBase::totalLocalMatrix(const SkMatrix* preLocalMatrix,
-                               const SkMatrix* postLocalMatrix) const {
-    SkTCopyOnFirstWrite<SkMatrix> m(fLocalMatrix);
-
+SkMatrix SkShaderBase::totalLocalMatrix(const SkMatrix* preLocalMatrix,
+                                        const SkMatrix* postLocalMatrix) const {
+    SkMatrix m = fLocalMatrix;
     if (preLocalMatrix) {
-        m.writable()->preConcat(*preLocalMatrix);
+        m.preConcat(*preLocalMatrix);
     }
-
     if (postLocalMatrix) {
-        m.writable()->postConcat(*postLocalMatrix);
+        m.postConcat(*postLocalMatrix);
     }
-
     return m;
 }
 
 bool SkShaderBase::computeTotalInverse(const SkMatrix& ctm,
                                        const SkMatrix* outerLocalMatrix,
                                        SkMatrix* totalInverse) const {
-    return SkMatrix::Concat(ctm, *this->totalLocalMatrix(outerLocalMatrix)).invert(totalInverse);
+    return SkMatrix::Concat(ctm,
+                            this->totalLocalMatrix(outerLocalMatrix, nullptr)).invert(totalInverse);
 }
 
 bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {

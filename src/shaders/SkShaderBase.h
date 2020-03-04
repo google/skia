@@ -179,8 +179,8 @@ public:
     //
     //   M = postLocalMatrix x shaderLocalMatrix x preLocalMatrix
     //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* preLocalMatrix,
-                                                   const SkMatrix* postLocalMatrix = nullptr) const;
+    SkMatrix totalLocalMatrix(const SkMatrix* preLocalMatrix,
+                              const SkMatrix* postLocalMatrix) const;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;

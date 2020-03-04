@@ -197,7 +197,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
     SkMatrix lmInverse;
-    if (!lm->invert(&lmInverse)) {
+    if (!lm.invert(&lmInverse)) {
         return nullptr;
     }
 
@@ -210,7 +210,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            fImage->width(), fImage->height(), args.fFilterQuality, *args.fViewMatrix, *lm,
+            fImage->width(), fImage->height(), args.fFilterQuality, *args.fViewMatrix, lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrMipMapped mipMapped = GrMipMapped::kNo;
     if (textureFilterMode == GrSamplerState::Filter::kMipMap) {

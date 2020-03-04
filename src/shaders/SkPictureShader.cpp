@@ -188,13 +188,13 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 // Returns a cached image shader, which wraps a single picture tile at the given
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
-                                                 SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
+                                                 SkMatrix* localMatrix,
                                                  SkColorType dstColorType,
                                                  SkColorSpace* dstColorSpace,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
-    const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
+    const SkMatrix m = SkMatrix::Concat(viewMatrix, *localMatrix);
 
     // Use a rotation-invariant scale
     SkPoint scale;
@@ -264,14 +264,14 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     }
 
     if (tileScale.width() != 1 || tileScale.height() != 1) {
-        localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
+        localMatrix->preScale(1 / tileScale.width(), 1 / tileScale.height());
     }
 
     return tileShader;
 }
 
 bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
-    auto lm = this->totalLocalMatrix(rec.fLocalM);
+    auto lm = this->totalLocalMatrix(rec.fLocalM, nullptr);
 
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
@@ -282,7 +282,7 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     }
 
     SkStageRec localRec = rec;
-    localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
+    localRec.fLocalM = &lm;
 
     return as_SB(bitmapShader)->appendStages(localRec);
 }
@@ -292,7 +292,7 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
-    auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
+    auto lm = this->totalLocalMatrix(rec.fLocalMatrix, nullptr);
     sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorType,
                                                          rec.fDstColorSpace);
     if (!bitmapShader) {
@@ -300,7 +300,7 @@ const {
     }
 
     ContextRec localRec = rec;
-    localRec.fLocalMatrix = lm->isIdentity() ? nullptr : lm.get();
+    localRec.fLocalMatrix = &lm;
 
     PictureShaderContext* ctx =
         alloc->make<PictureShaderContext>(*this, localRec, std::move(bitmapShader), alloc);
@@ -358,7 +358,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
     GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorInfo);
-    newArgs.fPreLocalMatrix = lm.get();
+    newArgs.fPreLocalMatrix = &lm;
 
     return as_SB(bitmapShader)->asFragmentProcessor(newArgs);
 }

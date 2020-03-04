@@ -48,7 +48,7 @@ private:
 
     SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, const SkMatrix*, const SkRect*);
 
-    sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
+    sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkMatrix* localMatrix,
                                     SkColorType dstColorType, SkColorSpace* dstColorSpace,
                                     const int maxTextureSize = 0) const;
 
