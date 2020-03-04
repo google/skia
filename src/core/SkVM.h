@@ -90,6 +90,8 @@ namespace skvm {
                   vpsubw, vpmullw,
                   vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
+                  vfmsub132ps, vfmsub213ps, vfmsub231ps,
+                  vfnmadd132ps, vfnmadd213ps, vfnmadd231ps,
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
 
@@ -299,7 +301,7 @@ namespace skvm {
         M(div_f32)                            \
         M(min_f32)                            \
         M(max_f32)                            \
-        M(fma_f32)                            \
+        M(fma_f32) M(fms_f32) M(fnma_f32)     \
         M(sqrt_f32)                           \
                    M(shl_i32) M(shl_i16x2)    \
                    M(shr_i32) M(shr_i16x2)    \

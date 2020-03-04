@@ -196,6 +196,9 @@ namespace skvm {
                 case Op::min_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+                case Op::fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+                case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+
 
                 case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}); break;
 
@@ -311,6 +314,8 @@ namespace skvm {
                 case Op::min_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::max_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::fma_f32: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
+                case Op::fms_f32: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
+                case Op::fnma_f32: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
 
                 case Op::sqrt_f32: write(o, R{d}, "=", op, R{x}); break;
 
@@ -690,6 +695,14 @@ namespace skvm {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
+        if (fma_supported()) {
+            if (fProgram[x.id].op == Op::mul_f32) {
+                return {this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
+            }
+            if (fProgram[y.id].op == Op::mul_f32) {
+                return {this->push(Op::fnma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
+            }
+        }
         return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
@@ -1139,6 +1152,14 @@ namespace skvm {
     void Assembler::vfmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x98, dst,x,y); }
     void Assembler::vfmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
     void Assembler::vfmadd231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xb8, dst,x,y); }
+
+    void Assembler::vfmsub132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x9a, dst,x,y); }
+    void Assembler::vfmsub213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xaa, dst,x,y); }
+    void Assembler::vfmsub231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xba, dst,x,y); }
+
+    void Assembler::vfnmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x9c, dst,x,y); }
+    void Assembler::vfnmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xac, dst,x,y); }
+    void Assembler::vfnmadd231ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xbc, dst,x,y); }
 
     void Assembler::vpackusdw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
     void Assembler::vpackuswb(Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
@@ -1878,6 +1899,20 @@ namespace skvm {
                         }
                     } break;
 
+                    CASE(Op::fms_f32): {
+                        // TODO: vectorized skvx calls
+                        for (int i = 0; i < K; i++) {
+                            r(d).f32[i] = std::fma(r(x).f32[i], r(y).f32[i], -r(z).f32[i]);
+                        }
+                    } break;
+
+                    CASE(Op::fnma_f32): {
+                        // TODO: vectorized skvx calls
+                        for (int i = 0; i < K; i++) {
+                            r(d).f32[i] = std::fma(-r(x).f32[i], r(y).f32[i], r(z).f32[i]);
+                        }
+                    } break;
+
                     CASE(Op::sqrt_f32): r(d).f32 = sqrt(r(x).f32); break;
 
                     CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
@@ -2118,6 +2153,11 @@ namespace skvm {
                 case Op::gte_f32: vals[i] = S(I32, b->CreateFCmpOGE(F(vals[x]), F(vals[y]))); break;
 
                 case Op::fma_f32:
+                    vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fma, {F32},
+                                                   {F(vals[x]), F(vals[y]), F(vals[z])}));
+                    break;
+                // TODO(herb): fix the subtract
+                case Op::fms_f32:
                     vals[i] = I(b->CreateIntrinsic(llvm::Intrinsic::fma, {F32},
                                                    {F(vals[x]), F(vals[y]), F(vals[z])}));
                     break;
@@ -2883,6 +2923,24 @@ namespace skvm {
                     else                        {                SkASSERT(dst() == tmp());
                                                                  a->vmovdqa    (dst(),r[x]);
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
+                                                                 break;
+
+                case Op::fms_f32:
+                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmsub132ps(r[x], r[z], r[y]); }
+                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfmsub213ps(r[y], r[x], r[z]); }
+                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfmsub231ps(r[z], r[x], r[y]); }
+                    else                        {                SkASSERT(dst() == tmp());
+                                                                 a->vmovdqa    (dst(),r[x]);
+                                                                 a->vfmsub132ps(dst(),r[z], r[y]); }
+                                                                 break;
+
+                case Op::fnma_f32:
+                    if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfnmadd132ps(r[x],r[z], r[y]); }
+                    else if (avail & (1<<r[y])) { set_dst(r[y]); a->vfnmadd213ps(r[y],r[x], r[z]); }
+                    else if (avail & (1<<r[z])) { set_dst(r[z]); a->vfnmadd231ps(r[z],r[x], r[y]); }
+                    else                        {                SkASSERT(dst() == tmp());
+                                                                 a->vmovdqa    (dst(),r[x]);
+                                                                 a->vfnmadd132ps(dst(),r[z],r[y]); }
                                                                  break;
 
                 case Op::sqrt_f32: a->vsqrtps(dst(), r[x]); break;
