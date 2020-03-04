@@ -54,6 +54,9 @@ public:
     const Attr* getNextAttr(const Node*, const Attr*) const;
     const char* getAttrName(const Node*, const Attr*) const;
     const char* getAttrValue(const Node*, const Attr*) const;
+    // Note, the value string is not copied or managed by the DOM.
+    // its lifetime must be managed by the caller.
+    void setAttrValue(const Node*, Attr*, const char*);
 
     // helpers for walking children
     int countChildren(const Node* node, const char elem[] = nullptr) const;
