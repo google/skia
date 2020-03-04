@@ -7,11 +7,11 @@
 
 #include "src/gpu/effects/GrTextureDomain.h"
 
-#include "include/gpu/GrTexture.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"

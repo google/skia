@@ -13,8 +13,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrSurface.h"
 
 class GrTexturePriv;
 

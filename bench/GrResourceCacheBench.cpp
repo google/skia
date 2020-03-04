@@ -9,9 +9,9 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrGpuResource.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrResourceCache.h"
 

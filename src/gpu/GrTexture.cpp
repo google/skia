@@ -8,7 +8,6 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrResourceKey.h"
 #include "src/core/SkMipMap.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 
 void GrTexture::markMipMapsDirty() {

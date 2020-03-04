@@ -8,8 +8,8 @@
 #ifndef GrGpuBuffer_DEFINED
 #define GrGpuBuffer_DEFINED
 
-#include "include/gpu/GrGpuResource.h"
 #include "src/gpu/GrBuffer.h"
+#include "src/gpu/GrGpuResource.h"
 
 class GrGpu;
 
