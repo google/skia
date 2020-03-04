@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1edeb295_ab0489f3",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T14:40:12Z",
+      "side": 1,
+      "message": "Yeah, though only dithered draws of course.\n\nI\u0027ll see about moving dither up to where you do it for consistency.",
+      "parentUuid": "5e658d44_954a2102",
+      "range": {
+        "startLine": 38,
+        "startChar": 80,
+        "endLine": 38,
+        "endChar": 89
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09490ccf_a38e399a",
         "filename": "include/core/SkPaint.h",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "On my way home last night, I realized I\u0027d phrased this wrong. What it ought to be is that the paint\u0027s constant color is the input to any SkShader (explicit or implicit image shader). Runtime effects could do with it whatever they wanted. We would have a well-defined policy that all of our built-in shaders would use.\n\nThe existing behavior is roughly, multiply by input\u0027s alpha for color shaders. It\u0027s a little trickier for alpha-only inputs. Alpha-only input is a weird construct we have only because of the implicit image shaders, and I am hoping to get away from that in this new system. Part of what makes it weird is that, AFAIK, a regular SkShader isn\u0027t alpha-only; we can only detect that when we\u0027ve got an SkImage with its color type. With an alpha-only image right now, we actually don\u0027t have it override the paint color/explicit shader but use those to provide the hue.\n\nIf we change our default SkShader policy to be \"multiply the constant color with the result of the shader\", we can still provide hue to alpha-only images if we treat them as actually providing (1,1,1,alpha). It still lets you scale the transparency of a shader by using (1,1,1,alpha) for the constant color. It also provides the new ability to tint the shader/image with a color (without using an SkColorFilter).\n\nAnother extension to this ordering is to treat the implicit image shader as a source for the primitive color, a la drawVertices, so that it can be combined separately from whatever SkShader is on the paint.",
       "parentUuid": "09490ccf_a38e399a",
+      "range": {
+        "startLine": 44,
+        "startChar": 41,
+        "endLine": 44,
+        "endChar": 54
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30c68d91_f52e9058",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T14:40:12Z",
+      "side": 1,
+      "message": "I\u0027m thinking, if we do want to change anything like this, let\u0027s only do it by deleting features?  As long as the user can produce these effects using a compound shader, there\u0027s no need for us to legislate where the colorization or alpha fold (or perhaps dither) happen statically in the pipeline.",
+      "parentUuid": "0949fc27_32a0735e",
       "range": {
         "startLine": 44,
         "startChar": 41,
