@@ -278,7 +278,8 @@ void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShade
 class SkImageStageUpdater : public SkStageUpdater {
 public:
     SkImageStageUpdater(const SkImageShader* shader, bool usePersp)
-        : fShader(shader), fUsePersp(usePersp)
+        : fShader(shader)
+        , fUsePersp(usePersp || as_SB(shader)->getLocalMatrix().hasPerspective())
     {}
 
     const SkImageShader* fShader;
@@ -308,7 +309,17 @@ public:
             if (fUsePersp) {
                 matrix.get9(fMatrixStorage);
             } else {
-               SkAssertResult(matrix.asAffine(fMatrixStorage));
+                // if we get here, matrix should be affine. If it isn't, then defensively we
+                // won't draw (by returning false), but we should work to never let this
+                // happen (i.e. better preflight by the caller to know ahead of time that we
+                // may encounter perspective, either in the CTM, or in the localM).
+                //
+                // See https://bugs.chromium.org/p/skia/issues/detail?id=10004
+                //
+                if (!matrix.asAffine(fMatrixStorage)) {
+                    SkASSERT(false);
+                    return false;
+                }
             }
             return true;
         }
