@@ -22,6 +22,30 @@
       "revId": "66c0b71d855f91456a03804bc5de0a8cc8b1f375",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bc8b733_fd0ec53a",
+        "filename": "src/xml/SkDOM.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10628
+      },
+      "writtenOn": "2020-03-04T10:55:36Z",
+      "side": 1,
+      "message": "Done, thank you!",
+      "parentUuid": "cc353616_6112e0d8",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 21
+      },
+      "revId": "66c0b71d855f91456a03804bc5de0a8cc8b1f375",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
