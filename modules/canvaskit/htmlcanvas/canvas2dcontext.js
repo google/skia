@@ -1048,7 +1048,7 @@ function CanvasRenderingContext2D(skcanvas) {
     paint.setStrokeWidth(this._strokeWidth);
 
     if (this._lineDashList.length) {
-      var dashedEffect = CanvasKit.MakeSkDashPathEffect(this._lineDashList, this._lineDashOffset);
+      var dashedEffect = CanvasKit.SkPathEffect.MakeDash(this._lineDashList, this._lineDashOffset);
       paint.setPathEffect(dashedEffect);
     }
 

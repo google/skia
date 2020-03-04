@@ -148,7 +148,7 @@
       // Some animations see performance improvements by marking their
       // paths as volatile.
       path.setIsVolatile(true);
-      const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
+      const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], i/5);
       i++;
 
       paint.setPathEffect(dpe);
@@ -882,7 +882,7 @@
     vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, texs, colors);
 
-    let shader = CanvasKit.MakeLinearGradientShader([0, 0], [250, 0],
+    let shader = CanvasKit.SkShader.MakeLinearGradient([0, 0], [250, 0],
             colors, null, CanvasKit.TileMode.Clamp);
     paint.setShader(shader);
 
@@ -975,7 +975,7 @@
     let transform = [2, 0, 0,
                      0, 2, 0,
                      0, 0, 1]
-    let shader = CanvasKit.MakeRadialGradientShader([150,150], 130, colors,
+    let shader = CanvasKit.SkShader.MakeRadialGradient([150,150], 130, colors,
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);

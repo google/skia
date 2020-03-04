@@ -6,13 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+ - `MakeSkDashPathEffect` will be renamed soon. Calls can be replaced with
+   `SkPathEffect.MakeDash`.
+ - `MakeLinearGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeLinearGradient`.
+ - `MakeRadialGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeRadialGradient`.
+ - `MakeTwoPointConicalGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeTwoPointConicalGradient`.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
  - `MakeSkCornerPathEffect` will be renamed soon. Calls can be replaced with
-   `PathEffect.MakeCorner`.
+   `SkPathEffect.MakeCorner`.
  - `MakeSkDiscretePathEffect` will be renamed soon. Calls can be replaced with
-   `PathEffect.MakeDiscrete`.
+   `SkPathEffect.MakeDiscrete`.
 
 ### Added
  - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing

@@ -1063,6 +1063,94 @@ CanvasKit.onRuntimeInitialized = function() {
     }.bind(this));
   }
 
+  CanvasKit.SkPathEffect.MakeDash = function(intervals, phase) {
+    if (!phase) {
+      phase = 0;
+    }
+    if (!intervals.length || intervals.length % 2 === 1) {
+      throw 'Intervals array must have even length';
+    }
+    var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
+    var dpe = CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
+    CanvasKit._free(ptr);
+    return dpe;
+  }
+
+  CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    flags = flags || 0;
+
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
+                                                    colors.length, mode, flags, localMatrix);
+    } else {
+      var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
+                                                    colors.length, mode, flags);
+    }
+
+    CanvasKit._free(colorPtr);
+    CanvasKit._free(posPtr);
+    return lgs;
+  }
+
+  CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    flags = flags || 0;
+
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
+                                                    colors.length, mode, flags, localMatrix);
+    } else {
+      var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
+                                                    colors.length, mode, flags);
+    }
+
+    CanvasKit._free(colorPtr);
+    CanvasKit._free(posPtr);
+    return rgs;
+  }
+
+  CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
+                                                         colors, pos, mode, localMatrix, flags) {
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    flags = flags || 0;
+
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+                          start, startRadius, end, endRadius,
+                          colorPtr, posPtr, colors.length, mode, flags, localMatrix);
+    } else {
+      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+                          start, startRadius, end, endRadius,
+                          colorPtr, posPtr, colors.length, mode, flags);
+    }
+
+    CanvasKit._free(colorPtr);
+    CanvasKit._free(posPtr);
+    return rgs;
+  }
+
+  // temporary support for deprecated names.
+  CanvasKit.MakeSkDashPathEffect = CanvasKit.SkPathEffect.prototype.MakeDash;
+  CanvasKit.MakeLinearGradientShader = CanvasKit.SkShader.prototype.MakeLinearGradient;
+  CanvasKit.MakeRadialGradientShader = CanvasKit.SkShader.prototype.MakeRadialGradient;
+  CanvasKit.MakeTwoPointConicalGradientShader = CanvasKit.SkShader.prototype.MakeTwoPointConicalGradient;
+
   // Run through the JS files that are added at compile time.
   if (CanvasKit._extraInitializations) {
     CanvasKit._extraInitializations.forEach(function(init) {
@@ -1112,19 +1200,6 @@ CanvasKit.MakePathFromCmds = function(cmds) {
   return path;
 }
 
-CanvasKit.MakeSkDashPathEffect = function(intervals, phase) {
-  if (!phase) {
-    phase = 0;
-  }
-  if (!intervals.length || intervals.length % 2 === 1) {
-    throw 'Intervals array must have even length';
-  }
-  var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
-  var dpe = CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
-  CanvasKit._free(ptr);
-  return dpe;
-}
-
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
   data = new Uint8Array(data);
@@ -1167,75 +1242,6 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
-}
-
-CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
-  var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
-  flags = flags || 0;
-
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrix);
-  } else {
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                  colors.length, mode, flags);
-  }
-
-  CanvasKit._free(colorPtr);
-  CanvasKit._free(posPtr);
-  return lgs;
-}
-
-CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
-  var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
-  flags = flags || 0;
-
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrix);
-  } else {
-    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                  colors.length, mode, flags);
-  }
-
-  CanvasKit._free(colorPtr);
-  CanvasKit._free(posPtr);
-  return rgs;
-}
-
-CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
-                                                       colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
-  var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
-  flags = flags || 0;
-
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
-                        start, startRadius, end, endRadius,
-                        colorPtr, posPtr, colors.length, mode, flags, localMatrix);
-  } else {
-    var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
-                        start, startRadius, end, endRadius,
-                        colorPtr, posPtr, colors.length, mode, flags);
-  }
-
-  CanvasKit._free(colorPtr);
-  CanvasKit._free(posPtr);
-  return rgs;
 }
 
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,

@@ -344,6 +344,10 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkPathEffect: {
+		MakeDash: function() {},
+	},
+
 	SkParticleEffect: {
 		// public API (from C++ bindings)
 		draw: function() {},
@@ -458,6 +462,9 @@ var CanvasKit = {
 		Color: function() {},
 		Empty: function() {},
 		Lerp: function() {},
+		MakeTwoPointConicalGradient: function() {},
+		MakeLinearGradient: function() {},
+		MakeRadialGradient: function() {},
 
 		_Blend: function() {},
 		_Lerp: function() {},
