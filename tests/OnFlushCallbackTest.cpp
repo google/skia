@@ -16,6 +16,7 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -68,7 +69,11 @@ public:
     const char* name() const override { return "NonAARectOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
@@ -92,27 +97,67 @@ protected:
     SkRect      fRect;
 
 private:
-    void onPrepareDraws(Target* target) override {
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
         using namespace GrDefaultGeoProcFactory;
 
-        // The vertex attrib order is always pos, color, local coords.
-        static const int kColorOffset = sizeof(SkPoint);
-        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-
         GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(
-                                              target->allocator(),
-                                              target->caps().shaderCaps(),
+                                              arena,
+                                              caps->shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
                                                             : LocalCoords::kUnused_Type,
                                               SkMatrix::I());
         if (!gp) {
-            SkDebugf("Couldn't create GrGeometryProcessor for GrAtlasedOp\n");
-            return;
+            SkDebugf("Couldn't create GrGeometryProcessor\n");
+            return nullptr;
         }
 
-        size_t vertexStride = gp->vertexStride();
+        return fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+                                         dstProxyView, gp, GrPrimitiveType::kTriangles);
+    }
+
+    GrProgramInfo* createProgramInfo(Target* target) {
+        return this->createProgramInfo(&target->caps(),
+                                       target->allocator(),
+                                       target->outputView(),
+                                       target->detachAppliedClip(),
+                                       target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onPrepareDraws(Target* target) override {
+
+        // The vertex attrib order is always pos, color, local coords.
+        static const int kColorOffset = sizeof(SkPoint);
+        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
+
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return;
+            }
+        }
+
+        size_t vertexStride =  fProgramInfo->primProc().vertexStride();
 
         sk_sp<const GrBuffer> indexBuffer;
         int firstIndex;
@@ -158,20 +203,23 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh();
-        mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
-
-        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangles);
+        fMesh = target->allocMesh();
+        fMesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
+        fMesh->setVertexData(vertexBuffer, firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipeline(flushState);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
-    Helper fHelper;
+    Helper         fHelper;
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
