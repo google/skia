@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkCpu.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
 #include "tests/Test.h"
@@ -161,23 +162,34 @@ DEF_TEST(SkVM, r) {
         dump(b, &buf);
     }
 
-    sk_sp<SkData> blob = buf.detachAsData();
-    {
+    // Our checked in dump expectations assume we have FMA support.
+    const bool fma_supported =
+    #if defined(SK_CPU_X86)
+        SkCpu::Supports(SkCpu::HSW);
+    #elif defined(SK_CPU_ARM64)
+        true;
+    #else
+        false;
+    #endif
+    if (fma_supported) {
+        sk_sp<SkData> blob = buf.detachAsData();
+        {
 
-        sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
-        REPORTER_ASSERT(r, expected, "Couldn't load SkVMTest.expected.");
-        if (expected) {
-            if (blob->size() != expected->size()
-                    || 0 != memcmp(blob->data(), expected->data(), blob->size())) {
+            sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
+            REPORTER_ASSERT(r, expected, "Couldn't load SkVMTest.expected.");
+            if (expected) {
+                if (blob->size() != expected->size()
+                        || 0 != memcmp(blob->data(), expected->data(), blob->size())) {
 
-                ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
-                       expected->size(), expected->data(),
-                       blob->size(), blob->data());
-            }
+                    ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
+                           expected->size(), expected->data(),
+                           blob->size(), blob->data());
+                }
 
-            SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
-            if (out.isValid()) {
-                out.write(blob->data(), blob->size());
+                SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
+                if (out.isValid()) {
+                    out.write(blob->data(), blob->size());
+                }
             }
         }
     }
