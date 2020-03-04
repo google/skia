@@ -16,6 +16,24 @@
       "revId": "8ba5e0410e82e108d99fc6d5f77084fe315f16bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e01e29fd_53adc90e",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2020-03-04T21:37:46Z",
+      "side": 1,
+      "message": "Thanks for looking into this Tyler.",
+      "parentUuid": "bc51586f_8267be9a",
+      "revId": "8ba5e0410e82e108d99fc6d5f77084fe315f16bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
