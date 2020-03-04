@@ -448,15 +448,14 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+        GrImageTextureMaker maker(fContext.get(), image, GrImageCachePolicy::kCached_Budgeted);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
                               &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode);
         return;
     }
     if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes,
-                                   SkBackingFit::kExact);
+        GrBitmapTextureMaker maker(fContext.get(), bm, GrImageCachePolicy::kCached_Budgeted);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
                               &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode);

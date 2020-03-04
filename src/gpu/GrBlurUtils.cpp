@@ -151,8 +151,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
         }
         bm.setImmutable();
 
-        GrBitmapTextureMaker maker(context, bm, GrBitmapTextureMaker::Cached::kNo,
-                                   SkBackingFit::kApprox);
+        GrBitmapTextureMaker maker(context, bm, SkBackingFit::kApprox);
         filteredMaskView = maker.view(GrMipMapped::kNo);
         if (!filteredMaskView.proxy()) {
             return false;

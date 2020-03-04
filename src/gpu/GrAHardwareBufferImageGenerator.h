@@ -43,7 +43,7 @@ protected:
     bool onIsValid(GrContext*) const override;
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
-                                         GrMipMapped) override;
+                                         GrMipMapped, bool forceCopy) override;
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,

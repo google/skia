@@ -280,7 +280,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         bitmap.installPixels(ii, rgbaData, ii.minRowBytes(),
                              [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
         bitmap.setImmutable();
-        GrBitmapTextureMaker maker(context, bitmap);
+        GrBitmapTextureMaker maker(context, bitmap, GrImageCachePolicy::kUncached_Budgeted);
         auto view = maker.view(GrMipMapped::kNo);
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
@@ -303,7 +303,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         bitmap.installPixels(ii, alphaData, ii.minRowBytes(),
                              [](void* addr, void* context) { delete[] (uint8_t*)addr; }, nullptr);
         bitmap.setImmutable();
-        GrBitmapTextureMaker maker(context, bitmap);
+        GrBitmapTextureMaker maker(context, bitmap, GrImageCachePolicy::kUncached_Budgeted);
         auto view = maker.view(GrMipMapped::kNo);
         if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
@@ -330,7 +330,7 @@ GrSurfaceProxyView make_input_texture(GrRecordingContext* context, int width, in
     bitmap.installPixels(ii, data, ii.minRowBytes(),
                          [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
     bitmap.setImmutable();
-    GrBitmapTextureMaker maker(context, bitmap);
+    GrBitmapTextureMaker maker(context, bitmap, GrImageCachePolicy::kUncached_Budgeted);
     return maker.view(GrMipMapped::kNo);
 }
 

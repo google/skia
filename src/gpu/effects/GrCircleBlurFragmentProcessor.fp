@@ -256,7 +256,7 @@ uniform half4 circleData;
 
         bm.setImmutable();
 
-        GrBitmapTextureMaker maker(context, bm);
+        GrBitmapTextureMaker maker(context, bm, GrImageCachePolicy::kUncached_Budgeted);
         auto blurView = maker.view(GrMipMapped::kNo);
         if (!blurView) {
             return {};

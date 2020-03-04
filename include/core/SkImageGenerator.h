@@ -138,9 +138,12 @@ public:
      *  at least has the mip levels allocated and the base layer filled in. If this is not possible,
      *  the generator is allowed to return a non mipped proxy, but this will have some additional
      *  overhead in later allocating mips and copying of the base layer.
+     *
+     *  If forceCopy is true and this succeeds then the texture should be newly created from the
+     *  caller and not refer to a pre-existing texture internal to the generator.
      */
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                       const SkIPoint& origin, GrMipMapped);
+                                       const SkIPoint& origin, GrMipMapped, bool forceCopy);
 
 #endif
 
@@ -175,14 +178,9 @@ protected:
     virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
                                   void*[4] /*planes*/) { return false; }
 #if SK_SUPPORT_GPU
-    enum class TexGenType {
-        kNone,           //image generator does not implement onGenerateTexture
-        kCheap,          //onGenerateTexture is implemented and it is fast (does not render offscreen)
-        kExpensive,      //onGenerateTexture is implemented and it is relatively slow
-    };
-
+    // returns nullptr
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                                 const SkIPoint&, GrMipMapped);  // returns nullptr
+                                                 const SkIPoint&, GrMipMapped, bool forceCopy);
 #endif
 
 private:
