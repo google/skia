@@ -72,7 +72,7 @@ describe('CanvasKit\'s Canvas Behavior', function() {
 
             const textFont = new CanvasKit.SkFont(null, 30);
 
-            const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], 1);
+            const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], 1);
 
             paint.setPathEffect(dpe);
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
