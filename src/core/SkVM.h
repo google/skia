@@ -670,6 +670,8 @@ namespace skvm {
                  bool try_hoisting,
                  Assembler*) const;
 
+        void waitForLLVM() const;
+
         struct Impl;
         std::unique_ptr<Impl> fImpl;
     };
