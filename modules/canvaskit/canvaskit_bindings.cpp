@@ -1053,23 +1053,23 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
         }))
-        // Experimental 4x4 matrix functions
-        .function("experimental_saveCamera", optional_override([](SkCanvas& self,
+        // 4x4 matrix functions
+        .function("saveCamera", optional_override([](SkCanvas& self,
             const SimpleM44& projection, const SimpleM44& camera) {
             self.experimental_saveCamera(toSkM44(projection), toSkM44(camera));
         }))
-        .function("experimental_concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
+        .function("concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
             self.concat44(toSkM44(m));
         }))
-        .function("experimental_getLocalToDevice", optional_override([](const SkCanvas& self)->SimpleM44 {
+        .function("getLocalToDevice", optional_override([](const SkCanvas& self)->SimpleM44 {
             SkM44 m = self.getLocalToDevice();
             return toSimpleM44(m);
         }))
-        .function("experimental_getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
+        .function("getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
             SkM44 m = self.experimental_getLocalToWorld();
             return toSimpleM44(m);
         }))
-        .function("experimental_getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
+        .function("getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
             SkM44 m = self.experimental_getLocalToCamera();
             return toSimpleM44(m);
         }));
