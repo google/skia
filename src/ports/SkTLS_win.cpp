@@ -11,7 +11,7 @@
 #include "src/core/SkLeanWindows.h"
 #include "src/core/SkTLS.h"
 
-static bool gOnce = false;
+static volatile bool gOnce = false;
 static DWORD gTlsIndex;
 
 void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
