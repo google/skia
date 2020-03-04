@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "be478686_2b064e6d",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-04T22:41:59Z",
+      "side": 1,
+      "message": "Yes, this should be sufficient.\n\nHowever, I still like the crazy defensive change below as well. I see you\u0027re suggesting an assert: I\u0027m fine with that addition.",
+      "parentUuid": "203e45f7_cc11cd05",
+      "range": {
+        "startLine": 282,
+        "startChar": 29,
+        "endLine": 282,
+        "endChar": 80
+      },
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "900adbdf_5ebcc90c",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "649a4ef5_b003e0df",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-04T22:41:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "900adbdf_5ebcc90c",
+      "range": {
+        "startLine": 312,
+        "startChar": 75,
+        "endLine": 312,
+        "endChar": 86
+      },
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "212f1a73_89647fa7",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 2
@@ -62,6 +110,24 @@
       "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06eec99b_ed6a3a0f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-04T22:41:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "212f1a73_89647fa7",
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
