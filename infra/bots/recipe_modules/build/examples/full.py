@@ -75,6 +75,7 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Debug-ANGLE',
   'Build-Win-Clang-x86_64-Debug-OpenCL',
+  'Build-Win-Clang-x86_64-Release-Direct3D',
   'Build-Win-Clang-x86_64-Release-Shared',
   "Build-Win-Clang-x86_64-Release-Dawn",
   'Build-Win-Clang-x86_64-Release-Vulkan',

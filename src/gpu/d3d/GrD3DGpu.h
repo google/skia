@@ -170,8 +170,6 @@ private:
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
 
-    GrProtected fProtectedContext;
-
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
     typedef GrGpu INHERITED;
