@@ -250,7 +250,6 @@ namespace skvm {
                 case Op::floor:  write(o, V{id}, "=", op, V{x}); break;
                 case Op::to_f32: write(o, V{id}, "=", op, V{x}); break;
                 case Op::trunc:  write(o, V{id}, "=", op, V{x}); break;
-                case Op::round:  write(o, V{id}, "=", op, V{x}); break;
             }
 
             write(o, "\n");
@@ -368,7 +367,6 @@ namespace skvm {
                 case Op::floor:  write(o, R{d}, "=", op,  R{x}); break;
                 case Op::to_f32: write(o, R{d}, "=", op, R{x}); break;
                 case Op::trunc:  write(o, R{d}, "=", op,  R{x}); break;
-                case Op::round:  write(o, R{d}, "=", op,  R{x}); break;
             }
             write(o, "\n");
         }
@@ -860,19 +858,13 @@ namespace skvm {
         if (this->allImm(x.id,&X)) { return this->splat((int)X); }
         return {this->push(Op::trunc, x.id)};
     }
-    I32 Builder::round(F32 x) {
-        float X;
-        if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
-        return {this->push(Op::round, x.id)};
-    }
-
     F32 Builder::from_unorm(int bits, I32 x) {
-        float limit = (1<<bits)-1.0f;
-        return mul(to_f32(x), splat(1/limit));
+        F32 limit = splat(1 / ((1<<bits)-1.0f));
+        return mul(to_f32(x), limit);
     }
     I32 Builder::to_unorm(int bits, F32 x) {
-        float limit = (1<<bits)-1.0f;
-        return round(mul(x, splat(limit)));
+        F32 limit = splat((1<<bits)-1.0f);
+        return trunc(mad(x, limit, splat(0.5f)));
     }
 
     Color Builder::unpack_1010102(I32 rgba) {
@@ -1903,7 +1895,6 @@ namespace skvm {
                     CASE(Op::floor):  r(d).f32 = skvx::floor(r(x).f32); break;
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
                     CASE(Op::trunc):  r(d).i32 = skvx::cast<int>  (r(x).f32); break;
-                    CASE(Op::round):  r(d).i32 = skvx::cast<int>  (r(x).f32 + 0.5f); break;
                 #undef CASE
                 }
             }
@@ -2107,12 +2098,6 @@ namespace skvm {
 
                 case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
                 case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
-
-                case Op::round:
-                    // TODO: cvtps2dq, lround, etc. ?
-                    vals[i] = b->CreateFPToSI(b->CreateFAdd(F(vals[x]),
-                                                            llvm::ConstantFP::get(F32, 0.5)), I32);
-                    break;
 
                 case Op::add_i16x2: vals[i] = I(b->CreateAdd(x2(vals[x]), x2(vals[y]))); break;
                 case Op::sub_i16x2: vals[i] = I(b->CreateSub(x2(vals[x]), x2(vals[y]))); break;
@@ -2881,7 +2866,6 @@ namespace skvm {
                 case Op::floor : a->vroundps  (dst(), r[x], Assembler::FLOOR); break;
                 case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
-                case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
                 case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(immy)->label);
                                 break;
@@ -2990,7 +2974,6 @@ namespace skvm {
 
                 case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r[x]); break;
-                case Op::round:  a->fcvtns4s(dst(), r[x]); break;
 
                 case Op::bytes:
                     if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(immy)->reg); }
