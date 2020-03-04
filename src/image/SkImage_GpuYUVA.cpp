@@ -291,7 +291,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
         // Turn the pixmap into a GrTextureProxy
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
-        GrBitmapTextureMaker bitmapMaker(context, bmp);
+        GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
         GrSurfaceProxyView view;
         tempViews[i] = bitmapMaker.view(mipMapped);

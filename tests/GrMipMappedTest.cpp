@@ -153,7 +153,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
             GrSurfaceProxyView genView =
-                    imageGen->generateTexture(context, imageInfo, origin, requestMipMapped);
+                    imageGen->generateTexture(context, imageInfo, origin, requestMipMapped,
+                                              SkImageGenerator::TexGenPolicy::kCheapest);
             GrSurfaceProxy* genProxy = genView.proxy();
 
             REPORTER_ASSERT(reporter, genProxy);

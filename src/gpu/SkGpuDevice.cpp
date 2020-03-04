@@ -1163,7 +1163,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
             return;
         }
     }
-    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrBitmapTextureMaker::Cached::kYes);
+    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrImageTexGenPolicy::kDraw);
     this->drawTextureProducer(&maker, src, dst, constraint, this->localToDevice(), paint);
 }
 
@@ -1304,10 +1304,10 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes);
+            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }
@@ -1317,7 +1317,7 @@ void SkGpuDevice::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     auto iter = std::make_unique<SkLatticeIter>(bitmap.width(), bitmap.height(), center, dst);
-    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrBitmapTextureMaker::Cached::kYes);
+    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrImageTexGenPolicy::kDraw);
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
@@ -1363,10 +1363,10 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes);
+            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }
@@ -1377,7 +1377,7 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                     const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
-    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrBitmapTextureMaker::Cached::kYes);
+    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrImageTexGenPolicy::kDraw);
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
