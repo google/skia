@@ -10,22 +10,27 @@
 
 #include "include/core/SkBitmap.h"
 #include "src/gpu/GrTextureMaker.h"
+#include "src/gpu/SkGr.h"
 
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
     subset of the pixelref specified by the bitmap. */
 class GrBitmapTextureMaker final : public GrTextureMaker {
 public:
-    enum class Cached { kNo, kYes };
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, GrImageTexGenPolicy);
 
-    GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                         Cached cached = Cached::kNo, SkBackingFit = SkBackingFit::kExact);
+    // Always uncached-budgeted. It doesn't make sense to have kApprox cached textures. Moreover,we
+    // create kApprox textures intermediate buffers and those ought to be budgeted.
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, SkBackingFit);
 
 private:
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, GrImageTexGenPolicy, SkBackingFit);
+
     GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
 
     const SkBitmap     fBitmap;
     const SkBackingFit fFit;
+    const SkBudgeted   fBudgeted;
     GrUniqueKey        fKey;
 
     typedef GrTextureMaker INHERITED;

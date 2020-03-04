@@ -546,6 +546,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // two images [in WebGL 2.0].
         fMipMapSupport = fNPOTTextureTileSupport;
     }
+    fMipMapSupport = false;
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
 
