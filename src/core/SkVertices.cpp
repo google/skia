@@ -120,8 +120,8 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
     fVertices->fTexs = sizes.fTSize ? (SkPoint*)ptr : nullptr;              ptr += sizes.fTSize;
     fVertices->fColors = sizes.fCSize ? (SkColor*)ptr : nullptr;            ptr += sizes.fCSize;
     fVertices->fIndices = sizes.fISize ? (uint16_t*)ptr : nullptr;
-    fVertices->fVertexCnt = vertexCount;
-    fVertices->fIndexCnt = indexCount;
+    fVertices->fVertexCount = vertexCount;
+    fVertices->fIndexCount = indexCount;
     fVertices->fIsVolatile = isVolatile;
     fVertices->fMode = mode;
 
@@ -133,22 +133,22 @@ sk_sp<SkVertices> SkVertices::Builder::detach() {
         fVertices->fBounds.setBounds(fVertices->fPositions, fVertices->fVertexCnt);
         if (fVertices->fMode == kTriangleFan_VertexMode) {
             if (fIntermediateFanIndices.get()) {
-                SkASSERT(fVertices->fIndexCnt);
+                SkASSERT(fVertices->fIndexCount);
                 auto tempIndices = this->indices();
-                for (int t = 0; t < fVertices->fIndexCnt - 2; ++t) {
+                for (int t = 0; t < fVertices->fIndexCount - 2; ++t) {
                     fVertices->fIndices[3 * t + 0] = tempIndices[0];
                     fVertices->fIndices[3 * t + 1] = tempIndices[t + 1];
                     fVertices->fIndices[3 * t + 2] = tempIndices[t + 2];
                 }
                 fVertices->fIndexCnt = 3 * (fVertices->fIndexCnt - 2);
             } else {
-                SkASSERT(!fVertices->fIndexCnt);
-                for (int t = 0; t < fVertices->fVertexCnt - 2; ++t) {
+                SkASSERT(!fVertices->fIndexCount);
+                for (int t = 0; t < fVertices->fVertexCount - 2; ++t) {
                     fVertices->fIndices[3 * t + 0] = 0;
                     fVertices->fIndices[3 * t + 1] = SkToU16(t + 1);
                     fVertices->fIndices[3 * t + 2] = SkToU16(t + 2);
                 }
-                fVertices->fIndexCnt = 3 * (fVertices->fVertexCnt - 2);
+                fVertices->fIndexCnt = 3 * (fVertices->fVertexCount - 2);
             }
             fVertices->fMode = kTriangles_VertexMode;
         }
@@ -222,8 +222,8 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
 
 size_t SkVertices::approximateSize() const {
     Sizes sizes(fMode,
-                fVertexCnt,
-                fIndexCnt,
+                fVertexCount,
+                fIndexCount,
                 this->hasTexCoords(),
                 this->hasColors());
     SkASSERT(sizes.isValid());
@@ -270,8 +270,8 @@ sk_sp<SkData> SkVertices::encode() const {
     packed |= kCurrent_Version << kVersion_Shift;
 
     Sizes sizes(fMode,
-                fVertexCnt,
-                fIndexCnt,
+                fVertexCount,
+                fIndexCount,
                 this->hasTexCoords(),
                 this->hasColors());
     SkASSERT(sizes.isValid());
@@ -283,8 +283,8 @@ sk_sp<SkData> SkVertices::encode() const {
     SkWriter32 writer(data->writable_data(), data->size());
 
     writer.write32(packed);
-    writer.write32(fVertexCnt);
-    writer.write32(fIndexCnt);
+    writer.write32(fVertexCount);
+    writer.write32(fIndexCount);
     writer.write(fPositions, sizes.fVSize);
     writer.write(fTexs, sizes.fTSize);
     writer.write(fColors, sizes.fCSize);
