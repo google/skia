@@ -212,6 +212,8 @@ namespace SK_OPTS_NS {
                     CASE(Op::bit_xor_imm): SkUNREACHABLE; break;
 
                     CASE(Op::fma_f32): r(d).f32 = fma(r(x).f32, r(y).f32, r(z).f32); break;
+                    CASE(Op::fms_f32): r(d).f32 = fma(r(x).f32, r(y).f32, -r(z).f32); break;
+                    CASE(Op::fnma_f32): r(d).f32 = fma(-r(x).f32, r(y).f32, r(z).f32); break;
 
                     CASE(Op::sqrt_f32): r(d).f32 = sqrt(r(x).f32); break;
 
