@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "203e45f7_cc11cd05",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T22:22:48Z",
+      "side": 1,
+      "message": "Was this check not enough to fix the bug / moot the changes below?",
+      "range": {
+        "startLine": 282,
+        "startChar": 29,
+        "endLine": 282,
+        "endChar": 80
+      },
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "900adbdf_5ebcc90c",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T22:22:48Z",
+      "side": 1,
+      "message": "spelling?",
+      "range": {
+        "startLine": 312,
+        "startChar": 75,
+        "endLine": 312,
+        "endChar": 86
+      },
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "212f1a73_89647fa7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T22:22:48Z",
+      "side": 1,
+      "message": "SkASSERT(false);\nreturn false;\n\n?",
+      "revId": "353347019dc546dea75142942c7262fb3b7ea7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
