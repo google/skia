@@ -189,14 +189,15 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(GrRecordingContext* context,
                                                                       const SkImageInfo& info,
                                                                       const SkIPoint& origin,
-                                                                      GrMipMapped mipMapped) {
+                                                                      GrMipMapped mipMapped,
+                                                                      bool forceCopy) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
         return {};
     }
     SkASSERT(texProxyView.asTextureProxy());
 
-    if (origin.isZero() && info.dimensions() == this->getInfo().dimensions() &&
+    if (!forceCopy && origin.isZero() && info.dimensions() == this->getInfo().dimensions() &&
         mipMapped == GrMipMapped::kNo) {
         // If the caller wants the full non-MIP mapped texture we're done.
         return texProxyView;

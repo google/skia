@@ -406,7 +406,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         copySrcBitmap.installPixels(write);
         copySrcBitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(context, copySrcBitmap);
+        GrBitmapTextureMaker maker(context, copySrcBitmap, GrImageCachePolicy::kUncached_Budgeted);
         auto copySrc = maker.view(GrMipMapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());

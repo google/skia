@@ -98,7 +98,7 @@ protected:
         GrSurfaceProxyView views[3];
 
         for (int i = 0; i < 3; ++i) {
-            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageCachePolicy::kCached_Budgeted);
             views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
@@ -214,7 +214,7 @@ protected:
         GrSurfaceProxyView views[2];
 
         for (int i = 0; i < 2; ++i) {
-            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageCachePolicy::kCached_Budgeted);
             views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
@@ -310,7 +310,7 @@ protected:
         GrSurfaceProxyView views[3];
 
         for (int i = 0; i < 3; ++i) {
-            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageCachePolicy::kCached_Budgeted);
             views[i] = maker.view(GrMipMapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";

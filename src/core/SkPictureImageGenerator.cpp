@@ -25,7 +25,7 @@ protected:
 
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
-                                         GrMipMapped) override;
+                                         GrMipMapped, bool forceCopy) override;
 #endif
 
 private:
@@ -96,7 +96,8 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,
                                                               const SkIPoint& origin,
-                                                              GrMipMapped mipMapped) {
+                                                              GrMipMapped mipMapped,
+                                                              bool /*forceCopy*/) {
     SkASSERT(ctx);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);

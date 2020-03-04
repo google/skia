@@ -40,7 +40,7 @@ protected:
     bool onIsValid(GrContext*) const override { return true; }
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
-                                         GrMipMapped mipMapped) override;
+                                         GrMipMapped mipMapped, bool forceCopy) override;
 
 private:
     GrBackendTextureImageGenerator(const SkImageInfo& info, GrTexture*, GrSurfaceOrigin,

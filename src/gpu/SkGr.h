@@ -164,6 +164,15 @@ static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
 // Texture management
 
 /**
+ * Legal combinations of budgeting and caching status for textures made from images (and bitmaps).
+ */
+enum class GrImageCachePolicy {
+    kCached_Budgeted,
+    kUncached_Unbudgeted,
+    kUncached_Budgeted
+};
+
+/**
  * Returns a view that wraps a texture representing the bitmap. The texture is inserted into the
  * cache (unless the bitmap is marked volatile and can be retrieved again via this function.
  * A MIP mapped texture may be returned even when GrMipMapped is kNo. The function will succeed
@@ -177,14 +186,14 @@ GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, G
 GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                   GrSurfaceProxy* baseProxy,
                                                   GrSurfaceOrigin origin,
-                                                  GrColorType srcColorType);
+                                                  GrColorType srcColorType,
+                                                  SkBudgeted = SkBudgeted::kYes);
 
 /*
  * Create a texture proxy from the provided bitmap and add it to the texture cache
  * using the key also extracted from 'bitmp'.
  */
-GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitmap& bitmap,
-                                               SkBackingFit fit = SkBackingFit::kExact);
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitmap& bitmap);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
