@@ -277,10 +277,10 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
         dict.insertName("S", tag_name_from_type(node->fType));
     }
     if (!node->fAlt.isEmpty()) {
-        dict.insertName("Alt", node->fAlt);
+        dict.insertString("Alt", node->fAlt);
     }
     if (!node->fLang.isEmpty()) {
-        dict.insertName("Lang", node->fLang);
+        dict.insertString("Lang", node->fLang);
     }
     dict.insertRef("P", parent);
     dict.insertObject("K", std::move(kids));
