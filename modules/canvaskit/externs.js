@@ -507,16 +507,9 @@ var CanvasKit = {
 		mode: function() {},
 		uniqueID: function() {},
 		vertexCount: function() {},
-
-		// private API
-		/** @return {CanvasKit.SkVertices} */
-		_applyBones: function() {},
 	},
 
 	_SkVerticesBuilder: {
-		// public API (from C++ bindings)
-		boneIndices: function() {},
-		boneWeights: function() {},
 		colors: function() {},
 		detach: function() {},
 		indices: function() {},
@@ -840,9 +833,6 @@ CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.requestAnimationFrame = function() {};
 CanvasKit.SkSurface.prototype.drawOnce = function() {};
 CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function() {};
-
-/** @return {CanvasKit.SkVertices} */
-CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
 CanvasKit.SkImage.prototype.makeShader = function() {};
