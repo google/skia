@@ -319,7 +319,9 @@ func GenTasks(cfg *Config) {
 		relpathTargetDir: relpathTargetDir,
 	}
 	for _, name := range jobs {
-		builder.process(name)
+		jb := newJobBuilder(builder, name)
+		jb.process()
+		jb.finish()
 	}
 	builder.MustFinish()
 }
@@ -387,17 +389,305 @@ func props(p map[string]string) string {
 	return marshalJson(d)
 }
 
+// jobBuilder provides helpers for creating a job.
+type jobBuilder struct {
+	*builder
+	parts
+	Name string
+	Spec *specs.JobSpec
+}
+
+// newJobBuilder returns a jobBuilder for the given job name.
+func newJobBuilder(b *builder, name string) *jobBuilder {
+	p, err := b.jobNameSchema.ParseJobName(name)
+	if err != nil {
+		glog.Fatal(err)
+	}
+	return &jobBuilder{
+		builder: b,
+		parts:   p,
+		Name:    name,
+		Spec:    &specs.JobSpec{},
+	}
+}
+
+type parts map[string]string
+
+// equal returns true if the given part of this job's name equals any of the
+// given values. If no values are provided, equal returns true if the given
+// part has a non-empty value.
+func (p parts) equal(part string, eq ...string) bool {
+	v := p[part]
+	if len(eq) == 0 {
+		return v != ""
+	}
+	for _, e := range eq {
+		if v == e {
+			return true
+		}
+	}
+	return false
+}
+
+// role returns true if the role for this job equals any of the given
+// regular expressions. If no regular expressions are provided, role returns
+// true if this task has a non-empty role.
+func (p parts) role(eq ...string) bool {
+	return p.equal("role", eq...)
+}
+
+// os returns true if the OS for this job equals any of the given regular
+// expressions. If no regular expressions are provided, os returns true if this
+// task has a non-empty os.
+func (p parts) os(eq ...string) bool {
+	return p.equal("os", eq...)
+}
+
+// compiler returns true if the compiler for this job equals any of the
+// given regular expressions. If no regular expressions are provided, compiler
+// returns true if this task has a non-empty compiler.
+func (p parts) compiler(eq ...string) bool {
+	return p.equal("compiler", eq...)
+}
+
+// model returns true if the model for this job equals any of the given
+// regular expressions. If no regular expressions are provided, model returns
+// true if this task has a non-empty model.
+func (p parts) model(eq ...string) bool {
+	return p.equal("model", eq...)
+}
+
+// cpu returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
+// task equals any of the given regular expressions. If no regular expressions
+// are provided, cpu returns true if this task runs on CPU.
+func (p parts) cpu(eq ...string) bool {
+	if p["cpu_or_gpu"] == "CPU" {
+		if len(eq) == 0 {
+			return true
+		}
+		return p.equal("cpu_or_gpu_value", eq...)
+	}
+	return false
+}
+
+// gpu returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
+// equals any of the given regular expressions. If no regular expressions are
+// provided, gpu returns true if this task runs on GPU.
+func (p parts) gpu(eq ...string) bool {
+	if p["cpu_or_gpu"] == "GPU" {
+		if len(eq) == 0 {
+			return true
+		}
+		return p.equal("cpu_or_gpu_value", eq...)
+	}
+	return false
+}
+
+// arch returns true if the architecture for this job equals any of the
+// given regular expressions. If no regular expressions are provided, arch
+// returns true if this task has a non-empty architecture.
+func (p parts) arch(eq ...string) bool {
+	return p.equal("arch", eq...) || p.equal("target_arch", eq...)
+}
+
+// extraConfig returns true if any of the extra_configs for this job equals
+// any of the given regular expressions. If the extra_config starts with "SK_",
+// it is considered to be a single config. If no regular expressions are
+// provided, extraConfig returns true if this task has a non-empty extra_config.
+func (p parts) extraConfig(eq ...string) bool {
+	ec := p["extra_config"]
+	var cfgs []string
+	if strings.HasPrefix(ec, "SK_") {
+		cfgs = []string{ec}
+	} else {
+		cfgs = strings.Split(ec, "_")
+	}
+	if len(eq) == 0 {
+		return len(cfgs) > 0
+	}
+	for _, c := range cfgs {
+		for _, e := range eq {
+			if c == e {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// matchPart returns true if the given part of this job's name matches any of
+// the given regular expressions. If no regular expressions are provided,
+// matchPart returns true if the given part has a non-empty value.
+func (p parts) matchPart(part string, re ...string) bool {
+	v := p[part]
+	if len(re) == 0 {
+		return v != ""
+	}
+	for _, r := range re {
+		if regexp.MustCompile(r).MatchString(v) {
+			return true
+		}
+	}
+	return false
+}
+
+// matchRole returns true if the role for this job matches any of the given
+// regular expressions. If no regular expressions are provided, role returns
+// true if this task has a non-empty role.
+func (p parts) matchRole(re ...string) bool {
+	return p.matchPart("role", re...)
+}
+
+// matchOs returns true if the OS for this job matches any of the given regular
+// expressions. If no regular expressions are provided, os returns true if this
+// task has a non-empty os.
+func (p parts) matchOs(re ...string) bool {
+	return p.matchPart("os", re...)
+}
+
+// matchCompiler returns true if the compiler for this job matches any of the
+// given regular expressions. If no regular expressions are provided, compiler
+// returns true if this task has a non-empty compiler.
+func (p parts) matchCompiler(re ...string) bool {
+	return p.matchPart("compiler", re...)
+}
+
+// matchModel returns true if the model for this job matches any of the given
+// regular expressions. If no regular expressions are provided, model returns
+// true if this task has a non-empty model.
+func (p parts) matchModel(re ...string) bool {
+	return p.matchPart("model", re...)
+}
+
+// matchCpu returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
+// task matches any of the given regular expressions. If no regular expressions
+// are provided, cpu returns true if this task runs on CPU.
+func (p parts) matchCpu(re ...string) bool {
+	if p["cpu_or_gpu"] == "CPU" {
+		if len(re) == 0 {
+			return true
+		}
+		return p.matchPart("cpu_or_gpu_value", re...)
+	}
+	return false
+}
+
+// matchGpu returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
+// matches any of the given regular expressions. If no regular expressions are
+// provided, gpu returns true if this task runs on GPU.
+func (p parts) matchGpu(re ...string) bool {
+	if p["cpu_or_gpu"] == "GPU" {
+		if len(re) == 0 {
+			return true
+		}
+		return p.matchPart("cpu_or_gpu_value", re...)
+	}
+	return false
+}
+
+// matchArch returns true if the architecture for this job matches any of the
+// given regular expressions. If no regular expressions are provided, arch
+// returns true if this task has a non-empty architecture.
+func (p parts) matchArch(re ...string) bool {
+	return p.matchPart("arch", re...) || p.matchPart("target_arch", re...)
+}
+
+// matchExtraConfig returns true if any of the extra_configs for this job matches
+// any of the given regular expressions. If the extra_config starts with "SK_",
+// it is considered to be a single config. If no regular expressions are
+// provided, matchExtraConfig returns true if this task has a non-empty extra_config.
+func (p parts) matchExtraConfig(re ...string) bool {
+	ec := p["extra_config"]
+	var cfgs []string
+	if strings.HasPrefix(ec, "SK_") {
+		cfgs = []string{ec}
+	} else {
+		cfgs = strings.Split(ec, "_")
+	}
+	if len(re) == 0 {
+		return len(cfgs) > 0
+	}
+	compiled := make([]*regexp.Regexp, 0, len(re))
+	for _, r := range re {
+		compiled = append(compiled, regexp.MustCompile(r))
+	}
+	for _, c := range cfgs {
+		for _, r := range compiled {
+			if r.MatchString(c) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// debug returns true if this task runs in debug mode.
+func (p parts) debug() bool {
+	return p["configuration"] == "Debug"
+}
+
+// isLinux returns true if the task runs on Linux.
+func (p parts) isLinux() bool {
+	return p.matchOs("Debian", "Ubuntu")
+}
+
+// taskBuilder is a helper for creating a task.
+type taskBuilder struct {
+	*jobBuilder
+	parts
+	Name string
+	Spec *specs.TaskSpec
+}
+
+// newTaskBuilder returns a taskBuilder instance.
+func newTaskBuilder(b *jobBuilder, name string) *taskBuilder {
+	parts, err := b.jobNameSchema.ParseJobName(name)
+	if err != nil {
+		glog.Fatal(err)
+	}
+	return &taskBuilder{
+		jobBuilder: b,
+		parts:      parts,
+		Name:       name,
+		Spec:       &specs.TaskSpec{},
+	}
+}
+
+// Create a taskBuilder and run the given function for it.
+func (b *jobBuilder) addTask(name string, fn func(*taskBuilder)) {
+	tb := newTaskBuilder(b, name)
+	fn(tb)
+	b.MustAddTask(tb.Name, tb.Spec)
+	// Add the task to the Job's dependency set, removing any which are
+	// accounted for by the new task's dependencies.
+	b.Spec.TaskSpecs = append(b.Spec.TaskSpecs, tb.Name)
+	newSpecs := make([]string, 0, len(b.Spec.TaskSpecs))
+	for _, t := range b.Spec.TaskSpecs {
+		found := false
+		for _, dep := range tb.Spec.Dependencies {
+			if t == dep {
+				found = true
+				break
+			}
+		}
+		if !found {
+			newSpecs = append(newSpecs, t)
+		}
+	}
+	b.Spec.TaskSpecs = newSpecs
+}
+
 // kitchenTask returns a specs.TaskSpec instance which uses Kitchen to run a
 // recipe.
-func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []string, extraProps map[string]string, outputDir string) *specs.TaskSpec {
+func (b *taskBuilder) kitchenTask(recipe, isolate, serviceAccount string, dimensions []string, extraProps map[string]string, outputDir string) {
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
-	if strings.Contains(name, "Win") && !strings.Contains(name, "LenovoYogaC630") {
+	if b.matchOs("Win") && !b.model("LenovoYogaC630") {
 		cipd = append(cipd, CIPD_PKG_CPYTHON)
-	} else if strings.Contains(name, "Mac10.15") && strings.Contains(name, "VMware7.1") {
+	} else if b.os("Mac10.15") && b.model("VMware7.1") {
 		cipd = append(cipd, CIPD_PKG_CPYTHON)
 	}
 	properties := map[string]string{
-		"buildername":   name,
+		"buildername":   b.Name,
 		"swarm_out_dir": outputDir,
 	}
 	for k, v := range extraProps {
@@ -408,7 +698,7 @@ func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dime
 		outputs = []string{outputDir}
 	}
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
-	task := &specs.TaskSpec{
+	b.Spec = &specs.TaskSpec{
 		Caches: []*specs.Cache{
 			&specs.Cache{
 				Name: "vpython",
@@ -427,24 +717,23 @@ func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dime
 			"log_location": b.logdogAnnotationUrl(),
 		},
 		Isolate:        b.relpath(isolate),
-		MaxAttempts:    attempts(name),
+		MaxAttempts:    b.attempts(),
 		Outputs:        outputs,
 		ServiceAccount: serviceAccount,
 	}
-	timeout(task, time.Hour)
-	return task
+	b.timeout(time.Hour)
 }
 
 // internalHardwareLabel returns the internal ID for the bot, if any.
-func (b *builder) internalHardwareLabel(parts map[string]string) *int {
+func (b *taskBuilder) internalHardwareLabel() *int {
 	if b.cfg.InternalHardwareLabel != nil {
-		return b.cfg.InternalHardwareLabel(parts)
+		return b.cfg.InternalHardwareLabel(b.parts)
 	}
 	return nil
 }
 
 // linuxGceDimensions are the Swarming bot dimensions for Linux GCE instances.
-func (b *builder) linuxGceDimensions(machineType string) []string {
+func (b *taskBuilder) linuxGceDimensions(machineType string) []string {
 	return []string{
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
@@ -458,7 +747,7 @@ func (b *builder) linuxGceDimensions(machineType string) []string {
 
 // dockerGceDimensions are the Swarming bot dimensions for Linux GCE instances
 // which have Docker installed.
-func (b *builder) dockerGceDimensions() []string {
+func (b *taskBuilder) dockerGceDimensions() []string {
 	// There's limited parallelism for WASM builds, so we can get away with the medium
 	// instance instead of the beefy large instance.
 	// Docker being installed is the most important part.
@@ -467,11 +756,11 @@ func (b *builder) dockerGceDimensions() []string {
 
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
-func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if parts["role"] == "Test" || parts["role"] == "Perf" {
-		task_os := parts["os"]
+func (b *jobBuilder) deriveCompileTaskName() string {
+	if b.parts["role"] == "Test" || b.parts["role"] == "Perf" {
+		task_os := b.parts["os"]
 		ec := []string{}
-		if val := parts["extra_config"]; val != "" {
+		if val := b.parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
 			ignore := []string{
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
@@ -500,7 +789,7 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
-		} else if parts["compiler"] == "GCC" {
+		} else if b.parts["compiler"] == "GCC" {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append(ec, "Docker")
@@ -512,15 +801,15 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 		jobNameMap := map[string]string{
 			"role":          "Build",
 			"os":            task_os,
-			"compiler":      parts["compiler"],
-			"target_arch":   parts["arch"],
-			"configuration": parts["configuration"],
+			"compiler":      b.parts["compiler"],
+			"target_arch":   b.parts["arch"],
+			"configuration": b.parts["configuration"],
 		}
-		if strings.Contains(jobName, "PathKit") {
+		if strings.Contains(b.Name, "PathKit") {
 			ec = []string{"PathKit"}
 		}
-		if strings.Contains(jobName, "CanvasKit") || strings.Contains(jobName, "SkottieWASM") {
-			if parts["cpu_or_gpu"] == "CPU" {
+		if strings.Contains(b.Name, "CanvasKit") || strings.Contains(b.Name, "SkottieWASM") {
+			if b.parts["cpu_or_gpu"] == "CPU" {
 				ec = []string{"CanvasKit_CPU"}
 			} else {
 				ec = []string{"CanvasKit"}
@@ -535,33 +824,33 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			glog.Fatal(err)
 		}
 		return name
-	} else if parts["role"] == "BuildStats" {
-		return strings.Replace(jobName, "BuildStats", "Build", 1)
+	} else if b.parts["role"] == "BuildStats" {
+		return strings.Replace(b.Name, "BuildStats", "Build", 1)
 	} else {
-		return jobName
+		return b.Name
 	}
 }
 
 // swarmDimensions generates swarming bot dimensions for the given task.
-func (b *builder) swarmDimensions(parts map[string]string) []string {
+func (b *taskBuilder) swarmDimensions() []string {
 	if b.cfg.SwarmDimensions != nil {
-		dims := b.cfg.SwarmDimensions(parts)
+		dims := b.cfg.SwarmDimensions(b.parts)
 		if dims != nil {
 			return dims
 		}
 	}
-	return b.defaultSwarmDimensions(parts)
+	return b.defaultSwarmDimensions()
 }
 
 // defaultSwarmDimensions generates default swarming bot dimensions for the given task.
-func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
+func (b *taskBuilder) defaultSwarmDimensions() []string {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
-	if strings.Contains(parts["extra_config"], "Docker") && (parts["role"] == "Build" || (parts["cpu_or_gpu"] == "CPU" && parts["model"] == "GCE")) {
+	if b.extraConfig("Docker") && (b.role("Build") || (b.cpu() && b.model("GCE"))) {
 		return b.dockerGceDimensions()
 	}
-	if os, ok := parts["os"]; ok {
+	if os, ok := b.parts["os"]; ok {
 		d["os"], ok = map[string]string{
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
@@ -581,27 +870,27 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Win10" && parts["model"] == "Golo" {
+		if os == "Win10" && b.parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 v1709.
 			d["os"] = "Windows-10-16299"
 		}
-		if os == "Mac10.14" && parts["model"] == "VMware7.1" {
+		if os == "Mac10.14" && b.parts["model"] == "VMware7.1" {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
 		}
-		if parts["model"] == "LenovoYogaC630" {
+		if b.parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
 		}
-		if parts["model"] == "iPhone6" {
+		if b.parts["model"] == "iPhone6" {
 			// This is the latest iOS that supports iPhone6.
 			d["os"] = "iOS-12.4.5"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
-	if parts["role"] == "Test" || parts["role"] == "Perf" {
-		if strings.Contains(parts["os"], "Android") {
+	if b.role("Test", "Perf") {
+		if b.os("Android") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
 			deviceInfo, ok := map[string][]string{
@@ -621,30 +910,30 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
 				"Pixel4":          {"flame", "QD1A.190821.011.C4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
-			}[parts["model"]]
+			}[b.parts["model"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
+				glog.Fatalf("Entry %q not found in Android mapping.", b.parts["model"])
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
-		} else if strings.Contains(parts["os"], "iOS") {
+		} else if b.os("iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
 				"iPadPro":   "iPad6,3",
-			}[parts["model"]]
+			}[b.parts["model"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in iOS mapping.", parts["model"])
+				glog.Fatalf("Entry %q not found in iOS mapping.", b.parts["model"])
 			}
 			d["device_type"] = device
 			// Temporarily use this dimension to ensure we only use the new libimobiledevice, since the
 			// old version won't work with current recipes.
 			d["libimobiledevice"] = "1582155448"
-		} else if strings.Contains(parts["extra_config"], "SKQP") && parts["cpu_or_gpu_value"] == "Emulator" {
-			if parts["model"] != "NUC7i5BNK" || d["os"] != DEFAULT_OS_DEBIAN {
-				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])
+		} else if b.extraConfig("SKQP") && b.cpu("Emulator") {
+			if !b.model("NUC7i5BNK") || d["os"] != DEFAULT_OS_DEBIAN {
+				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", b.parts["os"], b.parts["model"])
 			}
 			d["cpu"] = "x86-64-i5-7260U"
 			d["os"] = DEFAULT_OS_DEBIAN
@@ -654,7 +943,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// So, we run on bare metal machines in the Skolo (that should also have KVM).
 			d["kvm"] = "1"
 			d["docker_installed"] = "true"
-		} else if parts["cpu_or_gpu"] == "CPU" || strings.Contains(parts["extra_config"], "SwiftShader") {
+		} else if b.cpu() || b.extraConfig("SwiftShader") {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
 					"Golo":      "x86-64-E5-2670",
@@ -675,27 +964,27 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"SwiftShader": {
 					"GCE": "x86-64-Haswell_GCE",
 				},
-			}[parts["cpu_or_gpu_value"]]
+			}[b.parts["cpu_or_gpu_value"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
+				glog.Fatalf("Entry %q not found in CPU mapping.", b.parts["cpu_or_gpu_value"])
 			}
-			cpu, ok := modelMapping[parts["model"]]
+			cpu, ok := modelMapping[b.parts["model"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in %q model mapping.", parts["model"], parts["cpu_or_gpu_value"])
+				glog.Fatalf("Entry %q not found in %q model mapping.", b.parts["model"], b.parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = cpu
-			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
+			if b.model("GCE") && b.os(DEFAULT_OS_DEBIAN) {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
-			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
+			if b.model("GCE") && d["cpu"] == "x86-64-Haswell_GCE" {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
 			}
 		} else {
-			if strings.Contains(parts["extra_config"], "CanvasKit") {
+			if b.extraConfig("CanvasKit") {
 				// GPU is defined for the WebGL version of CanvasKit, but
 				// it can still run on a GCE instance.
 				return b.dockerGceDimensions()
-			} else if strings.Contains(parts["os"], "Win") {
+			} else if b.matchOs("Win") {
 				gpu, ok := map[string]string{
 					// At some point this might use the device ID, but for now it's like Chromebooks.
 					"Adreno630":     "Adreno630",
@@ -709,12 +998,12 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-25.21.14.1678",
-				}[parts["cpu_or_gpu_value"]]
+				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
+			} else if b.isLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
 					"IntelBayTrail": "8086:0f31",
@@ -722,28 +1011,28 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
 					"QuadroP400":    "10de:1cb3-430.14",
-				}[parts["cpu_or_gpu_value"]]
+				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-			} else if strings.Contains(parts["os"], "Mac") {
+			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"IntelHD6000":   "8086:1626",
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
 					"RadeonHD8870M": "1002:6821-4.0.20-3.2.8",
-				}[parts["cpu_or_gpu_value"]]
+				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in Mac GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
 				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
-				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
+				if b.gpu("IntelIris5100") {
 					// Run all tasks on Golo machines for now.
 					d["cpu"] = "x86-64-i7-4578U"
 				}
-			} else if strings.Contains(parts["os"], "ChromeOS") {
+			} else if b.os("ChromeOS") {
 				version, ok := map[string]string{
 					"MaliT604":           "10575.22.0",
 					"MaliT764":           "10575.22.0",
@@ -751,23 +1040,23 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					"PowerVRGX6250":      "10575.22.0",
 					"TegraK1":            "10575.22.0",
 					"IntelHDGraphics615": "10575.22.0",
-				}[parts["cpu_or_gpu_value"]]
+				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
-				d["gpu"] = parts["cpu_or_gpu_value"]
+				d["gpu"] = b.parts["cpu_or_gpu_value"]
 				d["release_version"] = version
 			} else {
-				glog.Fatalf("Unknown GPU mapping for OS %q.", parts["os"])
+				glog.Fatalf("Unknown GPU mapping for OS %q.", b.parts["os"])
 			}
 		}
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
-			if strings.Contains(parts["extra_config"], "PathKit") || strings.Contains(parts["extra_config"], "CanvasKit") || strings.Contains(parts["extra_config"], "CMake") {
+			if b.extraConfig("PathKit", "CanvasKit", "CMake") {
 				return b.dockerGceDimensions()
 			}
-			if parts["role"] == "BuildStats" {
+			if b.role("BuildStats") {
 				// Doesn't require a lot of resources, but some steps require docker
 				return b.dockerGceDimensions()
 			}
@@ -803,239 +1092,241 @@ func (b *builder) relpath(f string) string {
 }
 
 // bundleRecipes generates the task to bundle and isolate the recipes.
-func (b *builder) bundleRecipes() string {
-	pkgs := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	pkgs = append(pkgs, specs.CIPD_PKGS_PYTHON...)
-	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
-		CipdPackages: pkgs,
-		Command: []string{
-			"/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
-		},
-		Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
-		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
-		},
-		Idempotent: true,
-		Isolate:    b.relpath("recipes.isolate"),
+func (b *jobBuilder) bundleRecipes() {
+	b.addTask(BUNDLE_RECIPES_NAME, func(b *taskBuilder) {
+		pkgs := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		pkgs = append(pkgs, specs.CIPD_PKGS_PYTHON...)
+		b.Spec = &specs.TaskSpec{
+			CipdPackages: pkgs,
+			Command: []string{
+				"/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
+			},
+			Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
+			EnvPrefixes: map[string][]string{
+				"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			},
+			Idempotent: true,
+			Isolate:    b.relpath("recipes.isolate"),
+		}
 	})
-	return BUNDLE_RECIPES_NAME
 }
 
 // buildTaskDrivers generates the task to compile the task driver code to run on
 // all platforms.
-func (b *builder) buildTaskDrivers() string {
-	b.MustAddTask(BUILD_TASK_DRIVERS_NAME, &specs.TaskSpec{
-		Caches:       CACHES_GO,
-		CipdPackages: append(specs.CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
-		Command: []string{
-			"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
-		},
-		Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Idempotent: true,
-		Isolate:    "task_drivers.isolate",
+func (b *jobBuilder) buildTaskDrivers() {
+	b.addTask(BUILD_TASK_DRIVERS_NAME, func(b *taskBuilder) {
+		b.Spec = &specs.TaskSpec{
+			Caches:       CACHES_GO,
+			CipdPackages: append(specs.CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
+			Command: []string{
+				"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
+			},
+			Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Idempotent: true,
+			Isolate:    "task_drivers.isolate",
+		}
 	})
-	return BUILD_TASK_DRIVERS_NAME
 }
 
 // updateGoDeps generates the task to update Go dependencies.
-func (b *builder) updateGoDeps(name string) string {
-	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+func (b *jobBuilder) updateGoDeps() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
-	machineType := MACHINE_TYPE_MEDIUM
-	t := &specs.TaskSpec{
-		Caches:       CACHES_GO,
-		CipdPackages: cipd,
-		Command: []string{
-			"./update_go_deps",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", name,
-			"--workdir", ".",
-			"--gerrit_project", "skia",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-			"--alsologtostderr",
-		},
-		Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
-		Dimensions:   b.linuxGceDimensions(machineType),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Isolate:        "empty.isolate",
-		ServiceAccount: b.cfg.ServiceAccountRecreateSKPs,
-	}
-	b.MustAddTask(name, t)
-	return name
+		machineType := MACHINE_TYPE_MEDIUM
+		b.Spec = &specs.TaskSpec{
+			Caches:       CACHES_GO,
+			CipdPackages: cipd,
+			Command: []string{
+				"./update_go_deps",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--gerrit_project", "skia",
+				"--gerrit_url", "https://skia-review.googlesource.com",
+				"--repo", specs.PLACEHOLDER_REPO,
+				"--revision", specs.PLACEHOLDER_REVISION,
+				"--patch_issue", specs.PLACEHOLDER_ISSUE,
+				"--patch_set", specs.PLACEHOLDER_PATCHSET,
+				"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+				"--alsologtostderr",
+			},
+			Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
+			Dimensions:   b.linuxGceDimensions(machineType),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Isolate:        "empty.isolate",
+			ServiceAccount: b.cfg.ServiceAccountRecreateSKPs,
+		}
+	})
 }
 
 // createDockerImage creates the specified docker image.
-func (b *builder) createDockerImage(name, imageName, imageDir string) string {
-	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+func (b *jobBuilder) createDockerImage(imageName, imageDir string) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
-	t := &specs.TaskSpec{
-		Caches:       append(CACHES_GO, CACHES_DOCKER...),
-		CipdPackages: cipd,
-		Command: []string{
-			"./build_push_docker_image",
-			"--image_name", fmt.Sprintf("gcr.io/skia-public/%s", imageName),
-			"--dockerfile_dir", imageDir,
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", name,
-			"--workdir", ".",
-			"--gerrit_project", "skia",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-			"--swarm_out_dir", specs.PLACEHOLDER_ISOLATED_OUTDIR,
-			"--alsologtostderr",
-		},
-		Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
-		Dimensions:   b.dockerGceDimensions(),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Isolate:        "empty.isolate",
-		ServiceAccount: b.cfg.ServiceAccountCompile,
-	}
-	b.MustAddTask(name, t)
-	return name
+		b.Spec = &specs.TaskSpec{
+			Caches:       append(CACHES_GO, CACHES_DOCKER...),
+			CipdPackages: cipd,
+			Command: []string{
+				"./build_push_docker_image",
+				"--image_name", fmt.Sprintf("gcr.io/skia-public/%s", imageName),
+				"--dockerfile_dir", imageDir,
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--gerrit_project", "skia",
+				"--gerrit_url", "https://skia-review.googlesource.com",
+				"--repo", specs.PLACEHOLDER_REPO,
+				"--revision", specs.PLACEHOLDER_REVISION,
+				"--patch_issue", specs.PLACEHOLDER_ISSUE,
+				"--patch_set", specs.PLACEHOLDER_PATCHSET,
+				"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+				"--swarm_out_dir", specs.PLACEHOLDER_ISOLATED_OUTDIR,
+				"--alsologtostderr",
+			},
+			Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
+			Dimensions:   b.dockerGceDimensions(),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Isolate:        "empty.isolate",
+			ServiceAccount: b.cfg.ServiceAccountCompile,
+		}
+	})
 }
 
 // createPushAppsFromSkiaDockerImage creates and pushes docker images of some apps
 // (eg: fiddler, debugger, api) using the skia-release docker image.
-func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
-	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
-	t := &specs.TaskSpec{
-		Caches:       append(CACHES_GO, CACHES_DOCKER...),
-		CipdPackages: cipd,
-		Command: []string{
-			"./push_apps_from_skia_image",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", name,
-			"--workdir", ".",
-			"--gerrit_project", "buildbot",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-			"--alsologtostderr",
-		},
-		Dependencies: []string{
-			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", path.Join("docker", "skia-release")),
-		},
-		Dimensions: b.dockerGceDimensions(),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Isolate:        "empty.isolate",
-		ServiceAccount: b.cfg.ServiceAccountCompile,
-	}
-	b.MustAddTask(name, t)
-	return name
+		b.Spec = &specs.TaskSpec{
+			Caches:       append(CACHES_GO, CACHES_DOCKER...),
+			CipdPackages: cipd,
+			Command: []string{
+				"./push_apps_from_skia_image",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--gerrit_project", "buildbot",
+				"--gerrit_url", "https://skia-review.googlesource.com",
+				"--repo", specs.PLACEHOLDER_REPO,
+				"--revision", specs.PLACEHOLDER_REVISION,
+				"--patch_issue", specs.PLACEHOLDER_ISSUE,
+				"--patch_set", specs.PLACEHOLDER_PATCHSET,
+				"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+				"--alsologtostderr",
+			},
+			Dependencies: []string{
+				BUILD_TASK_DRIVERS_NAME,
+				"Housekeeper-PerCommit-CreateDockerImage_Skia_Release",
+			},
+			Dimensions: b.dockerGceDimensions(),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Isolate:        "empty.isolate",
+			ServiceAccount: b.cfg.ServiceAccountCompile,
+		}
+	})
 }
 
 // createPushAppsFromWASMDockerImage creates and pushes docker images of some apps
 // (eg: jsfiddle, skottie, particles) using the skia-wasm-release docker image.
-func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
-	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
-	t := &specs.TaskSpec{
-		Caches:       append(CACHES_GO, CACHES_DOCKER...),
-		CipdPackages: cipd,
-		Command: []string{
-			"./push_apps_from_wasm_image",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", name,
-			"--workdir", ".",
-			"--gerrit_project", "buildbot",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-			"--alsologtostderr",
-		},
-		Dependencies: []string{
-			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", path.Join("docker", "skia-wasm-release")),
-		},
-		Dimensions: b.dockerGceDimensions(),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Isolate:        "empty.isolate",
-		ServiceAccount: b.cfg.ServiceAccountCompile,
-	}
-	b.MustAddTask(name, t)
-	return name
+		b.Spec = &specs.TaskSpec{
+			Caches:       append(CACHES_GO, CACHES_DOCKER...),
+			CipdPackages: cipd,
+			Command: []string{
+				"./push_apps_from_wasm_image",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--gerrit_project", "buildbot",
+				"--gerrit_url", "https://skia-review.googlesource.com",
+				"--repo", specs.PLACEHOLDER_REPO,
+				"--revision", specs.PLACEHOLDER_REVISION,
+				"--patch_issue", specs.PLACEHOLDER_ISSUE,
+				"--patch_set", specs.PLACEHOLDER_PATCHSET,
+				"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+				"--alsologtostderr",
+			},
+			Dependencies: []string{
+				BUILD_TASK_DRIVERS_NAME,
+				"Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release",
+			},
+			Dimensions: b.dockerGceDimensions(),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Isolate:        "empty.isolate",
+			ServiceAccount: b.cfg.ServiceAccountCompile,
+		}
+	})
 }
 
 // createPushAppsFromSkiaWASMDockerImages creates and pushes docker images of some apps
 // (eg: debugger-assets) using the skia-release and skia-wasm-release
 // docker images.
-func (b *builder) createPushAppsFromSkiaWASMDockerImages(name string) string {
-	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
-	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+func (b *jobBuilder) createPushAppsFromSkiaWASMDockerImages() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+		cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
-	t := &specs.TaskSpec{
-		Caches:       append(CACHES_GO, CACHES_DOCKER...),
-		CipdPackages: cipd,
-		Command: []string{
-			"./push_apps_from_skia_wasm_images",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", name,
-			"--workdir", ".",
-			"--gerrit_project", "buildbot",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-			"--alsologtostderr",
-		},
-		Dependencies: []string{
-			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", path.Join("docker", "skia-release")),
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", path.Join("docker", "skia-wasm-release")),
-		},
-		Dimensions: b.dockerGceDimensions(),
-		EnvPrefixes: map[string][]string{
-			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
-		},
-		Isolate:        "empty.isolate",
-		ServiceAccount: b.cfg.ServiceAccountCompile,
-	}
-	b.MustAddTask(name, t)
-	return name
+		b.Spec = &specs.TaskSpec{
+			Caches:       append(CACHES_GO, CACHES_DOCKER...),
+			CipdPackages: cipd,
+			Command: []string{
+				"./push_apps_from_skia_wasm_images",
+				"--project_id", "skia-swarming-bots",
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--workdir", ".",
+				"--gerrit_project", "buildbot",
+				"--gerrit_url", "https://skia-review.googlesource.com",
+				"--repo", specs.PLACEHOLDER_REPO,
+				"--revision", specs.PLACEHOLDER_REVISION,
+				"--patch_issue", specs.PLACEHOLDER_ISSUE,
+				"--patch_set", specs.PLACEHOLDER_PATCHSET,
+				"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+				"--alsologtostderr",
+			},
+			Dependencies: []string{
+				BUILD_TASK_DRIVERS_NAME,
+				"Housekeeper-PerCommit-CreateDockerImage_Skia_Release",
+				"Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release",
+			},
+			Dimensions: b.dockerGceDimensions(),
+			EnvPrefixes: map[string][]string{
+				"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+			},
+			Isolate:        "empty.isolate",
+			ServiceAccount: b.cfg.ServiceAccountCompile,
+		}
+	})
 }
 
 // isolateAssetConfig represents a task which copies a CIPD package into
@@ -1046,16 +1337,18 @@ type isolateAssetCfg struct {
 }
 
 // isolateCIPDAsset generates a task to isolate the given CIPD asset.
-func (b *builder) isolateCIPDAsset(name string) string {
-	asset := ISOLATE_ASSET_MAPPING[name]
-	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{
-			b.MustGetCipdPackageFromAsset(asset.cipdPkg),
-		},
-		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
-		Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
-		Idempotent: true,
-		Isolate:    b.relpath("empty.isolate"),
+func (b *jobBuilder) isolateCIPDAsset(name string) string {
+	b.addTask(name, func(b *taskBuilder) {
+		asset := ISOLATE_ASSET_MAPPING[name]
+		b.Spec = &specs.TaskSpec{
+			CipdPackages: []*specs.CipdPackage{
+				b.MustGetCipdPackageFromAsset(asset.cipdPkg),
+			},
+			Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
+			Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
+			Idempotent: true,
+			Isolate:    b.relpath("empty.isolate"),
+		}
 	})
 	return name
 }
@@ -1082,42 +1375,42 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 }
 
 // usesCCache adds attributes to tasks which use ccache.
-func (b *builder) usesCCache(t *specs.TaskSpec, name string) {
-	t.Caches = append(t.Caches, CACHES_CCACHE...)
+func (b *taskBuilder) usesCCache() {
+	b.Spec.Caches = append(b.Spec.Caches, CACHES_CCACHE...)
 }
 
 // usesGit adds attributes to tasks which use git.
-func (b *builder) usesGit(t *specs.TaskSpec, name string) {
-	t.Caches = append(t.Caches, CACHES_GIT...)
-	if !strings.Contains(name, "NoDEPS") {
-		t.Caches = append(t.Caches, CACHES_WORKDIR...)
+func (b *taskBuilder) usesGit() {
+	b.Spec.Caches = append(b.Spec.Caches, CACHES_GIT...)
+	if !b.extraConfig("NoDEPS") {
+		b.Spec.Caches = append(b.Spec.Caches, CACHES_WORKDIR...)
 	}
-	t.CipdPackages = append(t.CipdPackages, specs.CIPD_PKGS_GIT...)
+	b.Spec.CipdPackages = append(b.Spec.CipdPackages, specs.CIPD_PKGS_GIT...)
 }
 
 // usesGo adds attributes to tasks which use go. Recipes should use
 // "with api.context(env=api.infra.go_env)".
-func (b *builder) usesGo(t *specs.TaskSpec, name string) {
-	t.Caches = append(t.Caches, CACHES_GO...)
+func (b *taskBuilder) usesGo() {
+	b.Spec.Caches = append(b.Spec.Caches, CACHES_GO...)
 	pkg := b.MustGetCipdPackageFromAsset("go")
-	if strings.Contains(name, "Win") {
+	if b.matchOs("Win") {
 		pkg = b.MustGetCipdPackageFromAsset("go_win")
 		pkg.Path = "go"
 	}
-	t.CipdPackages = append(t.CipdPackages, pkg)
+	b.Spec.CipdPackages = append(b.Spec.CipdPackages, pkg)
 }
 
 // usesDocker adds attributes to tasks which use docker.
-func usesDocker(t *specs.TaskSpec, name string) {
-	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") || strings.Contains(name, "Docker") {
-		t.Caches = append(t.Caches, CACHES_DOCKER...)
+func (b *taskBuilder) usesDocker() {
+	if b.extraConfig("Docker", "LottieWeb", "SKQP") || b.compiler("EMCC", "CMake") {
+		b.Spec.Caches = append(b.Spec.Caches, CACHES_DOCKER...)
 	}
 }
 
 var iosRegex = regexp.MustCompile(`os:iOS-(.*)`)
 
-func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
-	for _, dim := range t.Dimensions {
+func (b *taskBuilder) maybeAddIosDevImage() {
+	for _, dim := range b.Spec.Dimensions {
 		if m := iosRegex.FindStringSubmatch(dim); len(m) >= 2 {
 			var asset string
 			switch m[1] {
@@ -1129,34 +1422,32 @@ func (b *builder) maybeAddIosDevImage(name string, t *specs.TaskSpec) {
 			case "13.3.1":
 				asset = "ios-dev-image-13.3"
 			default:
-				glog.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", name, m[1])
+				glog.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", b.Name, m[1])
 			}
-			t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset(asset))
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset(asset))
 			break
 		} else if strings.Contains(dim, "iOS") {
-			glog.Fatalf("Must specify iOS version for %s to obtain correct dev image; os dimension is missing version: %s", name, dim)
+			glog.Fatalf("Must specify iOS version for %s to obtain correct dev image; os dimension is missing version: %s", b.Name, dim)
 		}
 	}
 }
 
 // timeout sets the timeout(s) for this task.
-func timeout(task *specs.TaskSpec, timeout time.Duration) {
-	task.ExecutionTimeout = timeout
-	task.IoTimeout = timeout // With kitchen, step logs don't count toward IoTimeout.
+func (b *taskBuilder) timeout(timeout time.Duration) {
+	b.Spec.ExecutionTimeout = timeout
+	b.Spec.IoTimeout = timeout // With kitchen, step logs don't count toward IoTimeout.
 }
 
 // attempts returns the desired MaxAttempts for this task.
-func attempts(name string) int {
-	if strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework") {
+func (b *taskBuilder) attempts() int {
+	if b.extraConfig("Framework") && b.extraConfig("Android", "G3") {
 		// Both bots can be long running. No need to retry them.
 		return 1
 	}
-	if !(strings.HasPrefix(name, "Build-") || strings.HasPrefix(name, "Upload-")) {
-		for _, extraConfig := range []string{"ASAN", "MSAN", "TSAN", "Valgrind"} {
-			if strings.Contains(name, extraConfig) {
-				// Sanitizers often find non-deterministic issues that retries would hide.
-				return 1
-			}
+	if !b.role("Build", "Upload") {
+		if b.extraConfig("ASAN", "MSAN", "TSAN", "Valgrind") {
+			// Sanitizers often find non-deterministic issues that retries would hide.
+			return 1
 		}
 	}
 	// Retry by default to hide random bot/hardware failures.
@@ -1165,226 +1456,223 @@ func attempts(name string) int {
 
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) compile(name string, parts map[string]string) string {
-	recipe := "compile"
-	isolate := "compile.isolate"
-	var props map[string]string
-	needSync := false
-	if strings.Contains(name, "NoDEPS") ||
-		strings.Contains(name, "CMake") ||
-		strings.Contains(name, "CommandBuffer") ||
-		strings.Contains(name, "Flutter") ||
-		strings.Contains(name, "SKQP") {
-		recipe = "sync_and_compile"
-		isolate = "swarm_recipe.isolate"
-		props = EXTRA_PROPS
-		needSync = true
-	}
-	task := b.kitchenTask(name, recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), props, OUTPUT_BUILD)
-	if needSync {
-		b.usesGit(task, name)
-	} else {
-		task.Idempotent = true
-	}
-	usesDocker(task, name)
+func (b *jobBuilder) compile(name string) {
+	b.addTask(name, func(b *taskBuilder) {
+		recipe := "compile"
+		isolate := "compile.isolate"
+		var props map[string]string
+		needSync := false
+		if strings.Contains(name, "NoDEPS") ||
+			strings.Contains(name, "CMake") ||
+			strings.Contains(name, "CommandBuffer") ||
+			strings.Contains(name, "Flutter") ||
+			strings.Contains(name, "SKQP") {
+			recipe = "sync_and_compile"
+			isolate = "swarm_recipe.isolate"
+			props = EXTRA_PROPS
+			needSync = true
+		}
+		b.kitchenTask(recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(), props, OUTPUT_BUILD)
+		if needSync {
+			b.usesGit()
+		} else {
+			b.Spec.Idempotent = true
+		}
+		b.usesDocker()
 
-	// Android bots require a toolchain.
-	if strings.Contains(name, "Android") {
-		if strings.Contains(name, "Mac") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
+		// Android bots require a toolchain.
+		if strings.Contains(name, "Android") {
+			if strings.Contains(name, "Mac") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
+			} else if strings.Contains(name, "Win") {
+				pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
+				pkg.Path = "n"
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, pkg)
+			} else if !strings.Contains(name, "SKQP") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
+			}
+		} else if strings.Contains(name, "Chromebook") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
+			if b.parts["target_arch"] == "x86_64" {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_x86_64_gles"))
+			} else if b.parts["target_arch"] == "arm" {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
+			}
+		} else if strings.Contains(name, "Debian") {
+			if strings.Contains(name, "Clang") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
+			}
+			if strings.Contains(name, "SwiftShader") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_linux"))
+			}
+			if strings.Contains(name, "OpenCL") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages,
+					b.MustGetCipdPackageFromAsset("opencl_headers"),
+					b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
+				)
+			}
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
+			b.usesCCache()
 		} else if strings.Contains(name, "Win") {
-			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
-			pkg.Path = "n"
-			task.CipdPackages = append(task.CipdPackages, pkg)
-		} else if !strings.Contains(name, "SKQP") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
+			b.Spec.Dependencies = append(b.Spec.Dependencies, b.isolateCIPDAsset(ISOLATE_WIN_TOOLCHAIN_NAME))
+			if strings.Contains(name, "Clang") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("clang_win"))
+			}
+			if strings.Contains(name, "OpenCL") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages,
+					b.MustGetCipdPackageFromAsset("opencl_headers"),
+				)
+			}
+		} else if strings.Contains(name, "Mac") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, CIPD_PKGS_XCODE...)
+			b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
+				Name: "xcode",
+				Path: "cache/Xcode.app",
+			})
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_mac"))
+			b.usesCCache()
+			if strings.Contains(name, "CommandBuffer") {
+				b.timeout(2 * time.Hour)
+			}
+			if strings.Contains(name, "MoltenVK") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+			}
+			if strings.Contains(name, "iOS") {
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("provisioning_profile_ios"))
+			}
 		}
-	} else if strings.Contains(name, "Chromebook") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-		if parts["target_arch"] == "x86_64" {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_x86_64_gles"))
-		} else if parts["target_arch"] == "arm" {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
-		}
-	} else if strings.Contains(name, "Debian") {
-		if strings.Contains(name, "Clang") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-		}
-		if strings.Contains(name, "SwiftShader") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_linux"))
-		}
-		if strings.Contains(name, "OpenCL") {
-			task.CipdPackages = append(task.CipdPackages,
-				b.MustGetCipdPackageFromAsset("opencl_headers"),
-				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
-			)
-		}
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
-		b.usesCCache(task, name)
-	} else if strings.Contains(name, "Win") {
-		task.Dependencies = append(task.Dependencies, b.isolateCIPDAsset(ISOLATE_WIN_TOOLCHAIN_NAME))
-		if strings.Contains(name, "Clang") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_win"))
-		}
-		if strings.Contains(name, "OpenCL") {
-			task.CipdPackages = append(task.CipdPackages,
-				b.MustGetCipdPackageFromAsset("opencl_headers"),
-			)
-		}
-	} else if strings.Contains(name, "Mac") {
-		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_XCODE...)
-		task.Caches = append(task.Caches, &specs.Cache{
-			Name: "xcode",
-			Path: "cache/Xcode.app",
-		})
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_mac"))
-		b.usesCCache(task, name)
-		if strings.Contains(name, "CommandBuffer") {
-			timeout(task, 2*time.Hour)
-		}
-		if strings.Contains(name, "MoltenVK") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
-		}
-		if strings.Contains(name, "iOS") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("provisioning_profile_ios"))
-		}
-	}
-
-	// Add the task.
-	b.MustAddTask(name, task)
+	})
 
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
 	if !In(name, b.jobs) {
 		glog.Fatalf("Job %q is missing from the jobs list!", name)
 	}
-
-	return name
 }
 
 // recreateSKPs generates a RecreateSKPs task. Returns the name of the last
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
-func (b *builder) recreateSKPs(name string) string {
-	dims := []string{
-		"pool:SkiaCT",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
-	}
-	task := b.kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", b.cfg.ServiceAccountRecreateSKPs, dims, EXTRA_PROPS, OUTPUT_NONE)
-	b.usesGit(task, name)
-	b.usesGo(task, name)
-	timeout(task, 4*time.Hour)
-	b.MustAddTask(name, task)
-	return name
+func (b *jobBuilder) recreateSKPs() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		dims := []string{
+			"pool:SkiaCT",
+			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+		}
+		b.kitchenTask("recreate_skps", "swarm_recipe.isolate", b.cfg.ServiceAccountRecreateSKPs, dims, EXTRA_PROPS, OUTPUT_NONE)
+		b.usesGit()
+		b.usesGo()
+		b.timeout(4 * time.Hour)
+	})
 }
 
 // checkGeneratedFiles verifies that no generated SKSL files have been edited
 // by hand.
-func (b *builder) checkGeneratedFiles(name string) string {
-	task := b.kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
-	b.usesGit(task, name)
-	b.usesGo(task, name)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
-	b.usesCCache(task, name)
-	b.MustAddTask(name, task)
-	return name
+func (b *jobBuilder) checkGeneratedFiles() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.kitchenTask("check_generated_files", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
+		b.usesGit()
+		b.usesGo()
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
+		b.usesCCache()
+	})
 }
 
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) housekeeper(name string) string {
-	task := b.kitchenTask(name, "housekeeper", "swarm_recipe.isolate", b.cfg.ServiceAccountHousekeeper, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
-	b.usesGit(task, name)
-	b.MustAddTask(name, task)
-	return name
+func (b *jobBuilder) housekeeper() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.kitchenTask("housekeeper", "swarm_recipe.isolate", b.cfg.ServiceAccountHousekeeper, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+		b.usesGit()
+	})
 }
 
 // androidFrameworkCompile generates an Android Framework Compile task. Returns
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
-func (b *builder) androidFrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", "skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
-	timeout(task, 2*time.Hour)
-	b.usesGit(task, name)
-	b.MustAddTask(name, task)
-	return name
+func (b *jobBuilder) androidFrameworkCompile() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.kitchenTask("android_compile", "compile_android_framework.isolate", "skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+		b.timeout(2 * time.Hour)
+		b.usesGit()
+	})
 }
 
 // g3FrameworkCompile generates a G3 Framework Compile task. Returns
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
-func (b *builder) g3FrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
-	timeout(task, 3*time.Hour)
-	b.usesGit(task, name)
-	b.MustAddTask(name, task)
-	return name
+func (b *jobBuilder) g3FrameworkCompile() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.kitchenTask("g3_compile", "compile_g3_framework.isolate", "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+		b.timeout(3 * time.Hour)
+		b.usesGit()
+	})
 }
 
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) infra(name string) string {
-	dims := b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-	if strings.Contains(name, "Win") {
-		dims = []string{
-			// Specify CPU to avoid running builds on bots with a more unique CPU.
-			"cpu:x86-64-Haswell_GCE",
-			"gpu:none",
-			fmt.Sprintf("machine_type:%s", MACHINE_TYPE_MEDIUM), // We don't have any small Windows instances.
-			fmt.Sprintf("os:%s", DEFAULT_OS_WIN),
-			fmt.Sprintf("pool:%s", b.cfg.Pool),
+func (b *jobBuilder) infra() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		dims := b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		if strings.Contains(b.Name, "Win") {
+			dims = []string{
+				// Specify CPU to avoid running builds on bots with a more unique CPU.
+				"cpu:x86-64-Haswell_GCE",
+				"gpu:none",
+				fmt.Sprintf("machine_type:%s", MACHINE_TYPE_MEDIUM), // We don't have any small Windows instances.
+				fmt.Sprintf("os:%s", DEFAULT_OS_WIN),
+				fmt.Sprintf("pool:%s", b.cfg.Pool),
+			}
 		}
-	}
-	extraProps := map[string]string{
-		"repository": specs.PLACEHOLDER_REPO,
-	}
-	task := b.kitchenTask(name, "infra", "infra_tests.isolate", b.cfg.ServiceAccountCompile, dims, extraProps, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
-	task.Idempotent = true
-	// Repos which call into Skia's gen_tasks.go should define their own
-	// infra_tests.isolate and therefore should not use relpath().
-	task.Isolate = "infra_tests.isolate"
-	b.usesGit(task, name) // We don't run bot_update, but Go needs a git repo.
-	b.usesGo(task, name)
-	b.MustAddTask(name, task)
-	return name
+		extraProps := map[string]string{
+			"repository": specs.PLACEHOLDER_REPO,
+		}
+		b.kitchenTask("infra", "infra_tests.isolate", b.cfg.ServiceAccountCompile, dims, extraProps, OUTPUT_NONE)
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
+		b.Spec.Idempotent = true
+		// Repos which call into Skia's gen_tasks.go should define their own
+		// infra_tests.isolate and therefore should not use relpath().
+		b.Spec.Isolate = "infra_tests.isolate"
+		b.usesGit() // We don't run bot_update, but Go needs a git repo.
+		b.usesGo()
+	})
 }
 
 // buildstats generates a builtstats task, which compiles code and generates
 // statistics about the build.
-func (b *builder) buildstats(name string, parts map[string]string, compileTaskName string) string {
-	task := b.kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
-	task.Dependencies = append(task.Dependencies, compileTaskName)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
-	b.usesGit(task, name)
-	b.MustAddTask(name, task)
+func (b *jobBuilder) buildstats(compileTaskName string) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.kitchenTask("compute_buildstats", "swarm_recipe.isolate", "", b.swarmDimensions(), EXTRA_PROPS, OUTPUT_PERF)
+		b.Spec.Dependencies = append(b.Spec.Dependencies, compileTaskName)
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
+		b.usesGit()
 
-	// Upload release results (for tracking in perf)
-	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
-	if strings.Contains(name, "Release") && !In(name, BUILD_STATS_NO_UPLOAD) {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
-		extraProps := map[string]string{
-			"gs_bucket": b.cfg.GsBucketNano,
+		// Upload release results (for tracking in perf)
+		// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
+		if strings.Contains(b.Name, "Release") && !In(b.Name, BUILD_STATS_NO_UPLOAD) {
+			uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
+			depName := b.Name
+			b.addTask(uploadName, func(b *taskBuilder) {
+				extraProps := map[string]string{
+					"gs_bucket": b.cfg.GsBucketNano,
+				}
+				for k, v := range EXTRA_PROPS {
+					extraProps[k] = v
+				}
+				b.kitchenTask("upload_buildstats_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
+				b.Spec.Dependencies = append(b.Spec.Dependencies, depName)
+			})
 		}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
-		uploadTask := b.kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
-		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
-		b.MustAddTask(uploadName, uploadTask)
-		return uploadName
-	}
-
-	return name
+	})
 }
 
 // doUpload indicates whether the given Job should upload its results.
-func (b *builder) doUpload(name string) bool {
+func (b *jobBuilder) doUpload() bool {
 	for _, s := range b.cfg.NoUpload {
-		m, err := regexp.MatchString(s, name)
+		m, err := regexp.MatchString(s, b.Name)
 		if err != nil {
 			glog.Fatal(err)
 		}
@@ -1397,339 +1685,348 @@ func (b *builder) doUpload(name string) bool {
 
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) test(name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	isolate := "test_skia_bundled.isolate"
-	recipe := "test"
-	if strings.Contains(name, "SKQP") {
-		isolate = "skqp.isolate"
-		recipe = "skqp_test"
-		if strings.Contains(name, "Emulator") {
-			recipe = "test_skqp_emulator"
+func (b *jobBuilder) test(compileTaskName string, pkgs []*specs.CipdPackage) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		isolate := "test_skia_bundled.isolate"
+		recipe := "test"
+		if b.extraConfig("SKQP") {
+			isolate = "skqp.isolate"
+			recipe = "skqp_test"
+			if b.cpu("Emulator") {
+				recipe = "test_skqp_emulator"
+			}
+		} else if b.extraConfig("OpenCL") {
+			// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
+			// running hs_bench or kx, it will be easier to fit into the current job name schema.
+			recipe = "compute_test"
+		} else if b.extraConfig("PathKit") {
+			isolate = "pathkit.isolate"
+			recipe = "test_pathkit"
+		} else if b.extraConfig("CanvasKit") {
+			isolate = "canvaskit.isolate"
+			recipe = "test_canvaskit"
+		} else if b.extraConfig("LottieWeb") {
+			isolate = "lottie_web.isolate"
+			recipe = "test_lottie_web"
 		}
-	} else if strings.Contains(name, "OpenCL") {
-		// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
-		// running hs_bench or kx, it will be easier to fit into the current job name schema.
-		recipe = "compute_test"
-	} else if strings.Contains(name, "PathKit") {
-		isolate = "pathkit.isolate"
-		recipe = "test_pathkit"
-	} else if strings.Contains(name, "CanvasKit") {
-		isolate = "canvaskit.isolate"
-		recipe = "test_canvaskit"
-	} else if strings.Contains(name, "LottieWeb") {
-		isolate = "lottie_web.isolate"
-		recipe = "test_lottie_web"
-	}
-	extraProps := map[string]string{
-		"gold_hashes_url": b.cfg.GoldHashesURL,
-	}
-	for k, v := range EXTRA_PROPS {
-		extraProps[k] = v
-	}
-	iid := b.internalHardwareLabel(parts)
-	iidStr := ""
-	if iid != nil {
-		iidStr = strconv.Itoa(*iid)
-	}
-	if recipe == "test" {
-		flags, props := dmFlags(name, parts, b.doUpload(name), iidStr)
-		extraProps["dm_flags"] = marshalJson(flags)
-		extraProps["dm_properties"] = marshalJson(props)
-	}
-	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
-	task.CipdPackages = append(task.CipdPackages, pkgs...)
-	if strings.Contains(name, "Lottie") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
-	}
-	if !strings.Contains(name, "LottieWeb") {
-		// Test.+LottieWeb doesn't require anything in Skia to be compiled.
-		task.Dependencies = append(task.Dependencies, compileTaskName)
-	}
-
-	if strings.Contains(name, "Android_ASAN") {
-		task.Dependencies = append(task.Dependencies, b.isolateCIPDAsset(ISOLATE_NDK_LINUX_NAME))
-	}
-	if strings.Contains(name, "SKQP") {
-		if !strings.Contains(name, "Emulator") {
-			task.Dependencies = append(task.Dependencies, b.isolateCIPDAsset(ISOLATE_GCLOUD_LINUX_NAME))
-		}
-	}
-	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
-		task.Dependencies = append(task.Dependencies, deps...)
-	}
-	task.Expiration = 20 * time.Hour
-
-	timeout(task, 4*time.Hour)
-	if strings.Contains(parts["extra_config"], "Valgrind") {
-		timeout(task, 9*time.Hour)
-		task.Expiration = 48 * time.Hour
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
-		// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-		// to ensure there are always bots free for CQ tasks.
-		task.Dimensions = append(task.Dimensions, "valgrind:1")
-	} else if strings.Contains(parts["extra_config"], "MSAN") {
-		timeout(task, 9*time.Hour)
-	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
-		// skia:6737
-		timeout(task, 6*time.Hour)
-	}
-	b.maybeAddIosDevImage(name, task)
-	b.MustAddTask(name, task)
-
-	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
-	// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
-	if b.doUpload(name) {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
 		extraProps := map[string]string{
-			"gs_bucket": b.cfg.GsBucketGm,
+			"gold_hashes_url": b.cfg.GoldHashesURL,
 		}
 		for k, v := range EXTRA_PROPS {
 			extraProps[k] = v
 		}
-		uploadTask := b.kitchenTask(name, "upload_dm_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadGM, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
-		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
-		b.MustAddTask(uploadName, uploadTask)
-		return uploadName
-	}
+		iid := b.internalHardwareLabel()
+		iidStr := ""
+		if iid != nil {
+			iidStr = strconv.Itoa(*iid)
+		}
+		if recipe == "test" {
+			flags, props := b.dmFlags(iidStr)
+			extraProps["dm_flags"] = marshalJson(flags)
+			extraProps["dm_properties"] = marshalJson(props)
+		}
+		b.kitchenTask(recipe, isolate, "", b.swarmDimensions(), extraProps, OUTPUT_TEST)
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, pkgs...)
+		if b.matchExtraConfig("Lottie") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+		}
+		if !b.extraConfig("LottieWeb") {
+			// Test.+LottieWeb doesn't require anything in Skia to be compiled.
+			b.Spec.Dependencies = append(b.Spec.Dependencies, compileTaskName)
+		}
 
-	return name
+		if b.os("Android") && b.extraConfig("ASAN") {
+			b.Spec.Dependencies = append(b.Spec.Dependencies, b.isolateCIPDAsset(ISOLATE_NDK_LINUX_NAME))
+		}
+		if b.extraConfig("SKQP") {
+			if !b.cpu("Emulator") {
+				b.Spec.Dependencies = append(b.Spec.Dependencies, b.isolateCIPDAsset(ISOLATE_GCLOUD_LINUX_NAME))
+			}
+		}
+		if deps := getIsolatedCIPDDeps(b.parts); len(deps) > 0 {
+			b.Spec.Dependencies = append(b.Spec.Dependencies, deps...)
+		}
+		b.Spec.Expiration = 20 * time.Hour
+
+		b.timeout(4 * time.Hour)
+		if b.extraConfig("Valgrind") {
+			b.timeout(9 * time.Hour)
+			b.Spec.Expiration = 48 * time.Hour
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+			// to ensure there are always bots free for CQ tasks.
+			b.Spec.Dimensions = append(b.Spec.Dimensions, "valgrind:1")
+		} else if b.extraConfig("MSAN") {
+			b.timeout(9 * time.Hour)
+		} else if b.arch("x86") && b.debug() {
+			// skia:6737
+			b.timeout(6 * time.Hour)
+		}
+		b.maybeAddIosDevImage()
+
+		// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
+		// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
+		if b.doUpload() {
+			uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
+			depName := b.Name
+			b.addTask(uploadName, func(b *taskBuilder) {
+				extraProps := map[string]string{
+					"gs_bucket": b.cfg.GsBucketGm,
+				}
+				for k, v := range EXTRA_PROPS {
+					extraProps[k] = v
+				}
+				b.kitchenTask("upload_dm_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadGM, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
+				b.Spec.Dependencies = append(b.Spec.Dependencies, depName)
+			})
+		}
+	})
 }
 
 // perf generates a Perf task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) perf(name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	recipe := "perf"
-	isolate := b.relpath("perf_skia_bundled.isolate")
-	if strings.Contains(parts["extra_config"], "Skpbench") {
-		recipe = "skpbench"
-		isolate = b.relpath("skpbench_skia_bundled.isolate")
-	} else if strings.Contains(name, "PathKit") {
-		isolate = "pathkit.isolate"
-		recipe = "perf_pathkit"
-	} else if strings.Contains(name, "CanvasKit") {
-		isolate = "canvaskit.isolate"
-		recipe = "perf_canvaskit"
-	} else if strings.Contains(name, "SkottieTracing") {
-		recipe = "perf_skottietrace"
-	} else if strings.Contains(name, "SkottieWASM") {
-		recipe = "perf_skottiewasm_lottieweb"
-		isolate = "skottie_wasm.isolate"
-	} else if strings.Contains(name, "LottieWeb") {
-		recipe = "perf_skottiewasm_lottieweb"
-		isolate = "lottie_web.isolate"
-	}
-	doUpload := strings.Contains(name, "Release") && b.doUpload(name)
-	extraProps := map[string]string{}
-	for k, v := range EXTRA_PROPS {
-		extraProps[k] = v
-	}
-	if recipe == "perf" {
-		flags, props := nanobenchFlags(name, parts, doUpload)
-		extraProps["nanobench_flags"] = marshalJson(flags)
-		extraProps["nanobench_properties"] = marshalJson(props)
-	}
-	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_PERF)
-	task.CipdPackages = append(task.CipdPackages, pkgs...)
-	if !strings.Contains(name, "LottieWeb") {
-		// Perf.+LottieWeb doesn't require anything in Skia to be compiled.
-		task.Dependencies = append(task.Dependencies, compileTaskName)
-	}
-	task.Expiration = 20 * time.Hour
-	timeout(task, 4*time.Hour)
-	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
-		task.Dependencies = append(task.Dependencies, deps...)
-	}
+func (b *jobBuilder) perf(compileTaskName string, pkgs []*specs.CipdPackage) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		recipe := "perf"
+		isolate := b.relpath("perf_skia_bundled.isolate")
+		if strings.Contains(b.parts["extra_config"], "Skpbench") {
+			recipe = "skpbench"
+			isolate = b.relpath("skpbench_skia_bundled.isolate")
+		} else if strings.Contains(b.Name, "PathKit") {
+			isolate = "pathkit.isolate"
+			recipe = "perf_pathkit"
+		} else if strings.Contains(b.Name, "CanvasKit") {
+			isolate = "canvaskit.isolate"
+			recipe = "perf_canvaskit"
+		} else if strings.Contains(b.Name, "SkottieTracing") {
+			recipe = "perf_skottietrace"
+		} else if strings.Contains(b.Name, "SkottieWASM") {
+			recipe = "perf_skottiewasm_lottieweb"
+			isolate = "skottie_wasm.isolate"
+		} else if strings.Contains(b.Name, "LottieWeb") {
+			recipe = "perf_skottiewasm_lottieweb"
+			isolate = "lottie_web.isolate"
+		}
+		doUpload := strings.Contains(b.Name, "Release") && b.doUpload()
+		extraProps := map[string]string{}
+		for k, v := range EXTRA_PROPS {
+			extraProps[k] = v
+		}
+		if recipe == "perf" {
+			flags, props := nanobenchFlags(b.Name, b.parts, doUpload)
+			extraProps["nanobench_flags"] = marshalJson(flags)
+			extraProps["nanobench_properties"] = marshalJson(props)
+		}
+		b.kitchenTask(recipe, isolate, "", b.swarmDimensions(), extraProps, OUTPUT_PERF)
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, pkgs...)
+		if !strings.Contains(b.Name, "LottieWeb") {
+			// Perf.+LottieWeb doesn't require anything in Skia to be compiled.
+			b.Spec.Dependencies = append(b.Spec.Dependencies, compileTaskName)
+		}
+		b.Spec.Expiration = 20 * time.Hour
+		b.timeout(4 * time.Hour)
+		if deps := getIsolatedCIPDDeps(b.parts); len(deps) > 0 {
+			b.Spec.Dependencies = append(b.Spec.Dependencies, deps...)
+		}
 
-	if strings.Contains(parts["extra_config"], "Valgrind") {
-		timeout(task, 9*time.Hour)
-		task.Expiration = 48 * time.Hour
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
-		// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-		// to ensure there are always bots free for CQ tasks.
-		task.Dimensions = append(task.Dimensions, "valgrind:1")
-	} else if strings.Contains(parts["extra_config"], "MSAN") {
-		timeout(task, 9*time.Hour)
-	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
-		// skia:6737
-		timeout(task, 6*time.Hour)
-	} else if strings.Contains(parts["extra_config"], "SkottieWASM") || strings.Contains(parts["extra_config"], "LottieWeb") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("node"))
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
-	} else if strings.Contains(parts["extra_config"], "Skottie") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
-	}
+		if strings.Contains(b.parts["extra_config"], "Valgrind") {
+			b.timeout(9 * time.Hour)
+			b.Spec.Expiration = 48 * time.Hour
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+			// to ensure there are always bots free for CQ tasks.
+			b.Spec.Dimensions = append(b.Spec.Dimensions, "valgrind:1")
+		} else if strings.Contains(b.parts["extra_config"], "MSAN") {
+			b.timeout(9 * time.Hour)
+		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
+			// skia:6737
+			b.timeout(6 * time.Hour)
+		} else if strings.Contains(b.parts["extra_config"], "SkottieWASM") || strings.Contains(b.parts["extra_config"], "LottieWeb") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("node"))
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+		} else if strings.Contains(b.parts["extra_config"], "Skottie") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+		}
 
-	if strings.Contains(name, "Android") && strings.Contains(name, "CPU") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
-	}
-	b.maybeAddIosDevImage(name, task)
+		if strings.Contains(b.Name, "Android") && strings.Contains(b.Name, "CPU") {
+			b.Spec.CipdPackages = append(b.Spec.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
+		}
+		b.maybeAddIosDevImage()
 
-	iid := b.internalHardwareLabel(parts)
-	if iid != nil {
-		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
-	}
-	b.MustAddTask(name, task)
+		iid := b.internalHardwareLabel()
+		if iid != nil {
+			b.Spec.Command = append(b.Spec.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
+		}
 
-	// Upload results if necessary.
-	if doUpload {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
+		// Upload results if necessary.
+		if doUpload {
+			uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
+			depName := b.Name
+			b.addTask(uploadName, func(b *taskBuilder) {
+				extraProps := map[string]string{
+					"gs_bucket": b.cfg.GsBucketNano,
+				}
+				for k, v := range EXTRA_PROPS {
+					extraProps[k] = v
+				}
+				b.kitchenTask("upload_nano_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+				b.Spec.CipdPackages = append(b.Spec.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
+				b.Spec.Dependencies = append(b.Spec.Dependencies, depName)
+			})
+		}
+	})
+}
+
+// presubmit generates a task which runs the presubmit for this repo.
+func (b *jobBuilder) presubmit() {
+	b.addTask(b.Name, func(b *taskBuilder) {
 		extraProps := map[string]string{
-			"gs_bucket": b.cfg.GsBucketNano,
+			"category":         "cq",
+			"patch_gerrit_url": "https://skia-review.googlesource.com",
+			"patch_project":    "skia",
+			"patch_ref":        specs.PLACEHOLDER_PATCH_REF,
+			"reason":           "CQ",
+			"repo_name":        "skia",
 		}
 		for k, v := range EXTRA_PROPS {
 			extraProps[k] = v
 		}
-		uploadTask := b.kitchenTask(name, "upload_nano_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
-		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
-		b.MustAddTask(uploadName, uploadTask)
-		return uploadName
-	}
-	return name
-}
-
-// presubmit generates a task which runs the presubmit for this repo.
-func (b *builder) presubmit(name string) string {
-	extraProps := map[string]string{
-		"category":         "cq",
-		"patch_gerrit_url": "https://skia-review.googlesource.com",
-		"patch_project":    "skia",
-		"patch_ref":        specs.PLACEHOLDER_PATCH_REF,
-		"reason":           "CQ",
-		"repo_name":        "skia",
-	}
-	for k, v := range EXTRA_PROPS {
-		extraProps[k] = v
-	}
-	// Use MACHINE_TYPE_LARGE because it seems to save time versus MEDIUM and we want presubmit to be
-	// fast.
-	task := b.kitchenTask(name, "run_presubmit", "run_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
-	b.usesGit(task, name)
-	task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
-		Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
-		Path:    "recipe_bundle",
-		Version: "git_revision:a8bcedad6768e206c4d2bd1718caa849f29cd42d",
+		// Use MACHINE_TYPE_LARGE because it seems to save time versus MEDIUM and we want presubmit to be
+		// fast.
+		b.kitchenTask("run_presubmit", "run_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
+		b.usesGit()
+		b.Spec.CipdPackages = append(b.Spec.CipdPackages, &specs.CipdPackage{
+			Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
+			Path:    "recipe_bundle",
+			Version: "git_revision:a8bcedad6768e206c4d2bd1718caa849f29cd42d",
+		})
+		b.Spec.Dependencies = []string{} // No bundled recipes for this one.
 	})
-	task.Dependencies = []string{} // No bundled recipes for this one.
-	b.MustAddTask(name, task)
-	return name
 }
 
 // process generates tasks and jobs for the given job name.
-func (b *builder) process(name string) {
-	var priority float64 // Leave as default for most jobs.
-	deps := []string{}
-
+func (b *jobBuilder) process() {
 	// Bundle Recipes.
-	if name == BUNDLE_RECIPES_NAME {
-		deps = append(deps, b.bundleRecipes())
+	if b.Name == BUNDLE_RECIPES_NAME {
+		b.bundleRecipes()
+		return
 	}
-	if name == BUILD_TASK_DRIVERS_NAME {
-		deps = append(deps, b.buildTaskDrivers())
+	if b.Name == BUILD_TASK_DRIVERS_NAME {
+		b.buildTaskDrivers()
+		return
 	}
 
 	// Isolate CIPD assets.
-	if _, ok := ISOLATE_ASSET_MAPPING[name]; ok {
-		deps = append(deps, b.isolateCIPDAsset(name))
-	}
-
-	parts, err := b.jobNameSchema.ParseJobName(name)
-	if err != nil {
-		glog.Fatal(err)
+	if _, ok := ISOLATE_ASSET_MAPPING[b.Name]; ok {
+		b.isolateCIPDAsset(b.Name)
+		return
 	}
 
 	// RecreateSKPs.
-	if strings.Contains(name, "RecreateSKPs") {
-		deps = append(deps, b.recreateSKPs(name))
+	if strings.Contains(b.Name, "RecreateSKPs") {
+		b.recreateSKPs()
+		return
 	}
 
 	// Update Go Dependencies.
-	if strings.Contains(name, "UpdateGoDeps") {
-		// Update Go deps bot.
-		deps = append(deps, b.updateGoDeps(name))
+	if strings.Contains(b.Name, "UpdateGoDeps") {
+		b.updateGoDeps()
+		return
 	}
 
 	// Create docker image.
-	if strings.Contains(name, "CreateDockerImage") {
-		if strings.Contains(parts["extra_config"], "Skia_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-release", path.Join("docker", "skia-release")))
-		} else if strings.Contains(parts["extra_config"], "Skia_WASM_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-wasm-release", path.Join("docker", "skia-wasm-release")))
+	if b.extraConfig("CreateDockerImage") {
+		if b.extraConfig("WASM") {
+			b.createDockerImage("skia-wasm-release", path.Join("docker", "skia-wasm-release"))
+			return
+		} else {
+			b.createDockerImage("skia-release", path.Join("docker", "skia-release"))
+			return
 		}
 	}
 
 	// Push apps from docker image.
-	if strings.Contains(name, "PushAppsFromSkiaDockerImage") {
-		deps = append(deps, b.createPushAppsFromSkiaDockerImage(name))
-	} else if strings.Contains(name, "PushAppsFromWASMDockerImage") {
-		deps = append(deps, b.createPushAppsFromWASMDockerImage(name))
-	} else if strings.Contains(name, "PushAppsFromSkiaWASMDockerImages") {
-		deps = append(deps, b.createPushAppsFromSkiaWASMDockerImages(name))
+	if b.extraConfig("PushAppsFromSkiaDockerImage") {
+		b.createPushAppsFromSkiaDockerImage()
+		return
+	} else if b.extraConfig("PushAppsFromWASMDockerImage") {
+		b.createPushAppsFromWASMDockerImage()
+		return
+	} else if b.extraConfig("PushAppsFromSkiaWASMDockerImages") {
+		b.createPushAppsFromSkiaWASMDockerImages()
+		return
 	}
 
 	// Infra tests.
-	if strings.Contains(name, "Housekeeper-PerCommit-InfraTests") {
-		deps = append(deps, b.infra(name))
-	}
-
-	// Compile bots.
-	if parts["role"] == "Build" {
-		if parts["extra_config"] == "Android_Framework" {
-			// Android Framework compile tasks use a different recipe.
-			deps = append(deps, b.androidFrameworkCompile(name))
-		} else if parts["extra_config"] == "G3_Framework" {
-			// G3 compile tasks use a different recipe.
-			deps = append(deps, b.g3FrameworkCompile(name))
-		} else {
-			deps = append(deps, b.compile(name, parts))
-		}
-	}
-
-	// Most remaining bots need a compile task.
-	compileTaskName := b.deriveCompileTaskName(name, parts)
-	compileTaskParts, err := b.jobNameSchema.ParseJobName(compileTaskName)
-	if err != nil {
-		glog.Fatal(err)
-	}
-
-	// These bots do not need a compile task.
-	if parts["role"] != "Build" &&
-		name != "Housekeeper-PerCommit-BundleRecipes" &&
-		!strings.Contains(name, "Housekeeper-PerCommit-InfraTests") &&
-		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
-		name != "Housekeeper-Nightly-UpdateGoDeps" &&
-		name != "Housekeeper-OnDemand-Presubmit" &&
-		name != "Housekeeper-PerCommit" &&
-		name != BUILD_TASK_DRIVERS_NAME &&
-		!strings.Contains(name, "CreateDockerImage") &&
-		!strings.Contains(name, "PushAppsFrom") &&
-		!strings.Contains(name, "Android_Framework") &&
-		!strings.Contains(name, "G3_Framework") &&
-		!strings.Contains(name, "RecreateSKPs") &&
-		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") &&
-		!strings.Contains(name, "SkottieWASM") &&
-		!strings.Contains(name, "LottieWeb") {
-		b.compile(compileTaskName, compileTaskParts)
+	if b.extraConfig("InfraTests") {
+		b.infra()
+		return
 	}
 
 	// Housekeepers.
-	if name == "Housekeeper-PerCommit" {
-		deps = append(deps, b.housekeeper(name))
+	if b.Name == "Housekeeper-PerCommit" {
+		b.housekeeper()
+		return
 	}
-	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
-		deps = append(deps, b.checkGeneratedFiles(name))
+	if b.Name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
+		b.checkGeneratedFiles()
+		return
 	}
-	if name == "Housekeeper-OnDemand-Presubmit" {
-		priority = 1
-		deps = append(deps, b.presubmit(name))
+	if b.Name == "Housekeeper-OnDemand-Presubmit" {
+		b.Spec.Priority = 1
+		b.presubmit()
+		return
 	}
 
-	// Common assets needed by the remaining bots.
+	// Compile bots.
+	if b.role("Build") {
+		if b.extraConfig("Android") && b.extraConfig("Framework") {
+			// Android Framework compile tasks use a different recipe.
+			b.androidFrameworkCompile()
+			return
+		} else if b.extraConfig("G3") && b.extraConfig("Framework") {
+			// G3 compile tasks use a different recipe.
+			b.g3FrameworkCompile()
+			return
+		} else {
+			b.compile(b.Name)
+			return
+		}
+	}
 
+	// Most remaining tasks need a compile task.
+	compileTaskName := b.deriveCompileTaskName()
+
+	// These bots do not need a compile task.
+	if !b.role("Build") &&
+		b.Name != "Housekeeper-PerCommit-BundleRecipes" &&
+		!strings.Contains(b.Name, "Housekeeper-PerCommit-InfraTests") &&
+		b.Name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		b.Name != "Housekeeper-Nightly-UpdateGoDeps" &&
+		b.Name != "Housekeeper-OnDemand-Presubmit" &&
+		b.Name != "Housekeeper-PerCommit" &&
+		b.Name != BUILD_TASK_DRIVERS_NAME &&
+		!strings.Contains(b.Name, "CreateDockerImage") &&
+		!strings.Contains(b.Name, "PushAppsFrom") &&
+		!strings.Contains(b.Name, "Android_Framework") &&
+		!strings.Contains(b.Name, "G3_Framework") &&
+		!strings.Contains(b.Name, "RecreateSKPs") &&
+		!strings.Contains(b.Name, "Housekeeper-PerCommit-Isolate") &&
+		!strings.Contains(b.Name, "SkottieWASM") &&
+		!strings.Contains(b.Name, "LottieWeb") {
+		b.compile(compileTaskName)
+	}
+
+	// BuildStats bots. This computes things like binary size.
+	if b.role("BuildStats") {
+		b.buildstats(compileTaskName)
+		return
+	}
+
+	// Common assets needed the Test and Perf tasks.
 	pkgs := []*specs.CipdPackage{}
-
-	if deps := getIsolatedCIPDDeps(parts); len(deps) == 0 {
+	if cipd := getIsolatedCIPDDeps(b.parts); len(cipd) == 0 {
 		// for desktop machines
 		pkgs = []*specs.CipdPackage{
 			b.MustGetCipdPackageFromAsset("skimage"),
@@ -1738,70 +2035,65 @@ func (b *builder) process(name string) {
 		}
 	}
 
-	if strings.Contains(name, "Ubuntu") || strings.Contains(name, "Debian") {
-		if strings.Contains(name, "SAN") {
+	if b.isLinux() {
+		if b.matchExtraConfig("SAN") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		}
-		if strings.Contains(name, "Vulkan") {
+		if b.extraConfig("Vulkan") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
-		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
+		if b.matchGpu("Intel") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("mesa_intel_driver_linux"))
 		}
-		if strings.Contains(name, "OpenCL") {
+		if b.extraConfig("OpenCL") {
 			pkgs = append(pkgs,
 				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
 				b.MustGetCipdPackageFromAsset("opencl_intel_neo_linux"),
 			)
 		}
 	}
-	if strings.Contains(name, "ProcDump") {
+	if b.extraConfig("ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))
 	}
-	if strings.Contains(name, "CanvasKit") || (parts["role"] == "Test" && strings.Contains(name, "LottieWeb")) || strings.Contains(name, "PathKit") {
+	if b.extraConfig("CanvasKit", "PathKit") || (b.role("Test") && b.extraConfig("LottieWeb")) {
 		// Docker-based tests that don't need the standard CIPD assets
 		pkgs = []*specs.CipdPackage{}
 	}
 
-	// Test bots.
-	if parts["role"] == "Test" {
-		deps = append(deps, b.test(name, parts, compileTaskName, pkgs))
-	}
-
-	// Perf bots.
-	if parts["role"] == "Perf" {
-		deps = append(deps, b.perf(name, parts, compileTaskName, pkgs))
-	}
-
 	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
-	if strings.Contains(name, "Valgrind") {
+	if b.extraConfig("Valgrind") {
 		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
 		// same score as other tasks with a blamelist of 1 commit, when we have insufficient bot
 		// capacity to run more frequently.
-		priority = 0.085
+		b.Spec.Priority = 0.085
 	}
 
-	// BuildStats bots. This computes things like binary size.
-	if parts["role"] == "BuildStats" {
-		deps = append(deps, b.buildstats(name, parts, compileTaskName))
+	// Test bots.
+	if b.role("Test") {
+		b.test(compileTaskName, pkgs)
+		return
 	}
 
+	// Perf bots.
+	if b.role("Perf") {
+		b.perf(compileTaskName, pkgs)
+		return
+	}
+}
+
+func (b *jobBuilder) finish() {
 	// Add the Job spec.
-	j := &specs.JobSpec{
-		Priority:  priority,
-		TaskSpecs: deps,
-		Trigger:   specs.TRIGGER_ANY_BRANCH,
+	b.Spec.Trigger = specs.TRIGGER_ANY_BRANCH
+	if strings.Contains(b.Name, "-Nightly-") {
+		b.Spec.Trigger = specs.TRIGGER_NIGHTLY
+	} else if strings.Contains(b.Name, "-Weekly-") {
+		b.Spec.Trigger = specs.TRIGGER_WEEKLY
+	} else if strings.Contains(b.Name, "Flutter") || strings.Contains(b.Name, "CommandBuffer") {
+		b.Spec.Trigger = specs.TRIGGER_MASTER_ONLY
+	} else if strings.Contains(b.Name, "-OnDemand-") || strings.Contains(b.Name, "Android_Framework") || strings.Contains(b.Name, "G3_Framework") {
+		b.Spec.Trigger = specs.TRIGGER_ON_DEMAND
 	}
-	if strings.Contains(name, "-Nightly-") {
-		j.Trigger = specs.TRIGGER_NIGHTLY
-	} else if strings.Contains(name, "-Weekly-") {
-		j.Trigger = specs.TRIGGER_WEEKLY
-	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "CommandBuffer") {
-		j.Trigger = specs.TRIGGER_MASTER_ONLY
-	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework") {
-		j.Trigger = specs.TRIGGER_ON_DEMAND
-	}
-	b.MustAddJob(name, j)
+	b.MustAddJob(b.Name, b.Spec)
 }
 
 // TODO(borenet): The below really belongs in its own file, probably next to the
