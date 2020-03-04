@@ -309,7 +309,7 @@ namespace skvm {
         M(mul_f32_imm)                        \
         M(min_f32_imm)                        \
         M(max_f32_imm)                        \
-        M(floor) M(trunc) M(round) M(to_f32)  \
+        M(floor) M(trunc)          M(to_f32)  \
         M( eq_f32) M( eq_i32) M( eq_i16x2)    \
         M(neq_f32) M(neq_i32) M(neq_i16x2)    \
         M( gt_f32) M( gt_i32) M( gt_i16x2)    \
@@ -465,7 +465,6 @@ namespace skvm {
 
         F32 floor(F32);
         I32 trunc(F32 x);
-        I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
 
         // int math, comparisons, etc.
@@ -543,7 +542,7 @@ namespace skvm {
 
         // Common idioms used in several places, worth centralizing for consistency.
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
-        I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
+        I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> trunc(mad(x, 255, 0.5))
 
         Color unpack_1010102(I32 rgba);
         Color unpack_8888   (I32 rgba);

@@ -13,33 +13,28 @@
 // nesting calls to Builder routines.
 
 SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
-    auto byte_to_f32 = [&](skvm::I32 byte) {
-        skvm::F32 _1_255 = splat(1/255.0f);
-        return mul(_1_255, to_f32(byte));
-    };
-
     auto load = [&](Fmt fmt, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
         skvm::Arg ptr;
         switch (fmt) {
             case Fmt::A8: {
                 ptr = varying<uint8_t>();
                 *r = *g = *b = splat(0.0f);
-                *a = byte_to_f32(load8(ptr));
+                *a = from_unorm(8, load8(ptr));
             } break;
 
             case Fmt::G8: {
                 ptr = varying<uint8_t>();
-                *r = *g = *b = byte_to_f32(load8(ptr));
+                *r = *g = *b = from_unorm(8, load8(ptr));
                 *a = splat(1.0f);
             } break;
 
             case Fmt::RGBA_8888: {
                 ptr = varying<int>();
                 skvm::I32 rgba = load32(ptr);
-                *r = byte_to_f32(extract(rgba,  0, splat(0xff)));
-                *g = byte_to_f32(extract(rgba,  8, splat(0xff)));
-                *b = byte_to_f32(extract(rgba, 16, splat(0xff)));
-                *a = byte_to_f32(extract(rgba, 24, splat(0xff)));
+                *r = from_unorm(8, extract(rgba,  0, splat(0xff)));
+                *g = from_unorm(8, extract(rgba,  8, splat(0xff)));
+                *b = from_unorm(8, extract(rgba, 16, splat(0xff)));
+                *a = from_unorm(8, extract(rgba, 24, splat(0xff)));
             } break;
         }
         return ptr;
@@ -57,28 +52,25 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
     b = mad(db, invA, b);
     a = mad(da, invA, a);
 
-    auto f32_to_byte = [&](skvm::F32 f32) {
-        return round(mul(f32, splat(255.0f)));
-    };
     switch (dstFmt) {
         case Fmt::A8: {
-            store8(dst, f32_to_byte(a));
+            store8(dst, to_unorm(8, a));
         } break;
 
         case Fmt::G8: {
             skvm::F32 _2126 = splat(0.2126f),
                       _7152 = splat(0.7152f),
                       _0722 = splat(0.0722f);
-            store8(dst, f32_to_byte(mad(r, _2126,
+            store8(dst, to_unorm(8, mad(r, _2126,
                                     mad(g, _7152,
                                     mul(b, _0722)))));
         } break;
 
         case Fmt::RGBA_8888: {
-            skvm::I32 R = f32_to_byte(r),
-                      G = f32_to_byte(g),
-                      B = f32_to_byte(b),
-                      A = f32_to_byte(a);
+            skvm::I32 R = to_unorm(8, r),
+                      G = to_unorm(8, g),
+                      B = to_unorm(8, b),
+                      A = to_unorm(8, a);
 
             R = pack(R, G, 8);
             B = pack(B, A, 8);
