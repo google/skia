@@ -1643,10 +1643,17 @@ namespace skvm {
     void Program::eval(int n, void* args[]) const {
     #define SKVM_JIT_STATS 0
     #if SKVM_JIT_STATS
-        static std::atomic<int> calls{0}, jits{0};
+        static std::atomic<int64_t>  calls{0}, jits{0},
+                                    pixels{0}, fast{0};
+        pixels += n;
         if (0 == calls++) {
             atexit([]{
-                SkDebugf("%d of %d calls to eval() went through JIT.\n", jits.load(), calls.load());
+                int64_t num = jits .load(),
+                        den = calls.load();
+                SkDebugf("%.3g%% of %lld eval() calls went through JIT.\n", (100.0 * num)/den, den);
+                num = fast  .load();
+                den = pixels.load();
+                SkDebugf("%.3g%% of %lld pixels went through JIT.\n", (100.0 * num)/den, den);
             });
         }
     #endif
@@ -1655,6 +1662,7 @@ namespace skvm {
         if (const void* b = fImpl->jit_entry.load()) {
     #if SKVM_JIT_STATS
             jits++;
+            fast += n;
     #endif
             void** a = args;
             switch (fImpl->strides.size()) {
