@@ -9,7 +9,7 @@
 #define SkIDChangeListener_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTDArray.h"
 
 #include <atomic>
@@ -49,7 +49,7 @@ public:
          * Add a new listener to the list. It must not already be deregistered. Also clears out
          * previously deregistered listeners.
          */
-        void add(sk_sp<SkIDChangeListener> listener);
+        void add(sk_sp<SkIDChangeListener> listener, bool singleThreaded = false);
 
         /**
          * The number of registered listeners (including deregisterd listeners that are yet-to-be
@@ -58,13 +58,13 @@ public:
         int count();
 
         /** Calls changed() on all listeners that haven't been deregistered and resets the list. */
-        void changed();
+        void changed(bool singleThreaded = false);
 
         /** Resets without calling changed() on the listeners. */
-        void reset();
+        void reset(bool singleThreaded = false);
 
     private:
-        SkSpinlock fSpinlock;
+        SkMutex fMutex;
         SkTDArray<SkIDChangeListener*> fListeners;  // pointers are reffed
     };
 
