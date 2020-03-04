@@ -633,6 +633,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
+				"iPhone11":  "iPhone12,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 			if !ok {
