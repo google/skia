@@ -71,6 +71,10 @@ private:
 
     // Add to the set of unique program infos required by this DDL
     void recordProgramInfo(const GrProgramInfo* programInfo) final {
+        if (!programInfo) {
+            return;
+        }
+
         const GrCaps* caps = this->caps();
 
         if (this->backend() == GrBackendApi::kVulkan ||
