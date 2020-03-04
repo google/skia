@@ -717,25 +717,25 @@ const curves = {
 
       // want "world" to be in our big coordinates (e.g. area), so apply this inverse
       // as part of our "camera".
-      canvas.experimental_saveCamera(
+      canvas.saveCamera(
         CanvasKit.SkM44.multiply(viewport, perspective),
         CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
     }
 
     function setClickToWorld(canvas, matrix) {
-      const l2d = canvas.experimental_getLocalToDevice();
+      const l2d = canvas.getLocalToDevice();
       worldToClick = CanvasKit.SkM44.multiply(mustInvert(matrix), l2d);
       clickToWorld = mustInvert(worldToClick);
     }
 
     function drawCubeFace(canvas, m, color) {
       const trans = new CanvasKit.SkM44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
-      canvas.experimental_concat44(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
-      const znormal = front(canvas.experimental_getLocalToDevice());
+      canvas.concat44(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
+      const znormal = front(canvas.getLocalToDevice());
       if (znormal < 0) {
         return; // skip faces facing backwards
       }
-      const ltw = canvas.experimental_getLocalToWorld();
+      const ltw = canvas.getLocalToWorld();
       // shader expects the 4x4 matrices in column major order.
       const uniforms = [...CanvasKit.SkM44.transpose(ltw), ...mustInvert(ltw), ...lightWorldPos];
       const paint = new CanvasKit.SkPaint();
@@ -747,9 +747,7 @@ const curves = {
     }
 
     function drawFrame(canvas) {
-      // TODO if not GPU backend, print an error to the console and return.
-      // this demo only works in GL.
-      const clickM = canvas.experimental_getLocalToDevice();
+      const clickM = canvas.getLocalToDevice();
       canvas.save();
       canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
       // pass surface dimensions as viewport size.
