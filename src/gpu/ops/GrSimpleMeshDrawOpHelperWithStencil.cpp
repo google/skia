@@ -54,6 +54,26 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
            fStencilSettings == that.fStencilSettings;
 }
 
+GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil(
+                                            const GrCaps* caps,
+                                            SkArenaAlloc* arena,
+                                            const GrSurfaceProxyView* outputView,
+                                            GrAppliedClip&& appliedClip,
+                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            GrGeometryProcessor* gp,
+                                            GrPrimitiveType primType) {
+    return CreateProgramInfo(caps,
+                             arena,
+                             outputView,
+                             std::move(appliedClip),
+                             dstProxyView,
+                             gp,
+                             this->detachProcessorSet(),
+                             primType,
+                             this->pipelineFlags(),
+                             this->stencilSettings());
+}
+
 #ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
     SkString result = INHERITED::dumpInfo();
