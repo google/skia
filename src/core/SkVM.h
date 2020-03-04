@@ -299,7 +299,7 @@ namespace skvm {
         M(div_f32)                            \
         M(min_f32)                            \
         M(max_f32)                            \
-        M(mad_f32)                            \
+        M(fma_f32)                            \
         M(sqrt_f32)                           \
                    M(shl_i32) M(shl_i16x2)    \
                    M(shr_i32) M(shr_i16x2)    \
@@ -433,7 +433,7 @@ namespace skvm {
         F32 div(F32 x, F32 y);
         F32 min(F32 x, F32 y);
         F32 max(F32 x, F32 y);
-        F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
+        F32 mad(F32 x, F32 y, F32 z) { return this->add(this->mul(x,y), z); }
         F32 sqrt(F32 x);
 
         F32 negate(F32 x) {
