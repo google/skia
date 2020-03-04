@@ -57,6 +57,7 @@ public:
                         isVolatile);
     }
 
+    struct Desc;
     struct Sizes;
 
     enum BuilderFlags {
@@ -83,9 +84,11 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        Builder(const Desc&);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
+        void init(const Desc&);
+
+        Sizes getSizes() const;
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -104,12 +107,12 @@ public:
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
-    int vertexCount() const { return fVertexCnt; }
+    int vertexCount() const { return fVertexCount; }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
 
-    int indexCount() const { return fIndexCnt; }
+    int indexCount() const { return fIndexCount; }
     const uint16_t* indices() const { return fIndices; }
 
     bool isVolatile() const { return fIsVolatile; }
@@ -150,8 +153,8 @@ private:
     uint16_t*    fIndices;
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
-    int     fVertexCnt;
-    int     fIndexCnt;
+    int     fVertexCount;
+    int     fIndexCount;
 
     bool fIsVolatile;
 
