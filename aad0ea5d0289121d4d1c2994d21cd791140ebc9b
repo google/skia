@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6635c487_67b0a6e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-04T17:13:16Z",
+      "side": 1,
+      "message": "need a blank line after the summary",
+      "revId": "aad0ea5d0289121d4d1c2994d21cd791140ebc9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8800d5f_0c36ada9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-04T17:13:16Z",
+      "side": 1,
+      "message": "Should just be\n\nBug: skia:9957 and go on the line right before the Change-Id (in the same text block).",
+      "revId": "aad0ea5d0289121d4d1c2994d21cd791140ebc9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
