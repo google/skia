@@ -213,6 +213,30 @@
       "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f7fb51f_fccb8e96",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-04T22:03:19Z",
+      "side": 1,
+      "message": "Yeah, those are the signatures I think they should platonically have, shader (x,y)-\u003ecolor, and color filter color-\u003ecolor.\n\nI don\u0027t mind explaining the way things work now, which is that paint color is an input to the shader, but if we\u0027re going to make any non-documentation changes to the pipeline, I think we should strive to remove color filters, paint colors, and the dither bit all from paint, replacing them all with composite shaders.",
+      "parentUuid": "2a3e2101_6c381aee",
+      "range": {
+        "startLine": 44,
+        "startChar": 41,
+        "endLine": 44,
+        "endChar": 54
+      },
+      "revId": "fc8cef6f30120227192f77bf2a17c2b1f7b70555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
