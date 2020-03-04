@@ -206,7 +206,7 @@ Samples
     function drawFrame() {
       const path = starPath(CanvasKit, X, Y);
       CanvasKit.setCurrentContext(context);
-      const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
+      const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], i/5);
       i++;
 
       paint.setPathEffect(dpe);

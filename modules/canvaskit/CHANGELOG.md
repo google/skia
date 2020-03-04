@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `PathEffect.MakeCorner`.
  - `MakeSkDiscretePathEffect` will be renamed soon. Calls can be replaced with
    `PathEffect.MakeDiscrete`.
+ - `MakeSkDashPathEffect` will be renamed soon. Calls can be replaced with
+   `PathEffect.MakeDash`.
+ - `MakeLinearGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeLinearGradient`.
+ - `MakeRadialGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeRadialGradient`.
+ - `MakeTwoPointConicalGradientShader` will be renamed soon. Calls can be replaced with
+   `SkShader.MakeTwoPointConicalGradient`.
 
 ### Added
  - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing

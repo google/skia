@@ -1112,7 +1112,7 @@ CanvasKit.MakePathFromCmds = function(cmds) {
   return path;
 }
 
-CanvasKit.MakeSkDashPathEffect = function(intervals, phase) {
+CanvasKit.SkPathEffect.MakeDash = function(intervals, phase) {
   if (!phase) {
     phase = 0;
   }
@@ -1169,7 +1169,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
-CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {
+CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
   var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
@@ -1190,8 +1190,10 @@ CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, loc
   CanvasKit._free(posPtr);
   return lgs;
 }
+// Temporary support for deprecated name.
+CanvasKit.MakeLinearGradientShader = CanvasKit.SkShader.MakeLinearGradient;
 
-CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
+CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
   var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
@@ -1212,8 +1214,10 @@ CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode,
   CanvasKit._free(posPtr);
   return rgs;
 }
+// Temporary support for deprecated name.
+CanvasKit.MakeRadialGradientShader = CanvasKit.SkShader.MakeRadialGradient;
 
-CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
+CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                        colors, pos, mode, localMatrix, flags) {
   var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
@@ -1237,6 +1241,8 @@ CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, 
   CanvasKit._free(posPtr);
   return rgs;
 }
+// Temporary support for deprecated name
+CanvasKit.MakeTwoPointConicalGradientShader = CanvasKit.SkShader.MakeTwoPointConicalGradient
 
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     indices, isVolatile) {
