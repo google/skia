@@ -18,6 +18,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkExchange.h"
@@ -29,7 +30,6 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
-#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/gl/GrGLDefines.h"
 

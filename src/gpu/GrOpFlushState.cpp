@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrOpFlushState.h"
 
+#include "include/gpu/GrTexture.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
@@ -14,7 +15,6 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrTexture.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

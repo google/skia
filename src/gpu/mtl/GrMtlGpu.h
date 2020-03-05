@@ -9,10 +9,10 @@
 #define GrMtlGpu_DEFINED
 
 #include <list>
+#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrTexture.h"
 
 #include "src/gpu/mtl/GrMtlCaps.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"

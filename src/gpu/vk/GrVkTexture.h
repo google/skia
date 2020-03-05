@@ -8,10 +8,10 @@
 #ifndef GrVkTexture_DEFINED
 #define GrVkTexture_DEFINED
 
+#include "include/gpu/GrTexture.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrTexture.h"
 #include "src/gpu/vk/GrVkImage.h"
 
 class GrVkDescriptorSet;

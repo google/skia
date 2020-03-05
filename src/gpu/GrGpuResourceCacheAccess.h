@@ -8,7 +8,7 @@
 #ifndef GrGpuResourceCacheAccess_DEFINED
 #define GrGpuResourceCacheAccess_DEFINED
 
-#include "src/gpu/GrGpuResource.h"
+#include "include/gpu/GrGpuResource.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 
 namespace skiatest {
