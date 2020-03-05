@@ -224,12 +224,14 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
-void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
-                          const SkPoint vertices[], const SkPoint textures[],
-                          const SkColor colors[], SkBlendMode bmode,
-                          const uint16_t indices[], int indexCount,
+void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                           const SkPaint& paint) const {
-    SkASSERT(0 == vertexCount || vertices);
+    const int vertexCount = vertices->vertexCount();
+    const int indexCount = vertices->indexCount();
+    const SkPoint* positions = vertices->positions();
+    const uint16_t* indices = vertices->indices();
+    const SkPoint* textures = vertices->texCoords();
+    const SkColor* colors = vertices->colors();
 
     // abort early if there is nothing to draw
     if (vertexCount < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
@@ -288,14 +290,14 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
 
     if (usePerspective) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fMatrix->mapHomogeneousPoints(dev3, vertices, vertexCount);
+        fMatrix->mapHomogeneousPoints(dev3, positions, vertexCount);
         // similar to the bounds check for 2d points (below)
         if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {
         devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fMatrix->mapPoints(devVerts, vertices, vertexCount);
+        fMatrix->mapPoints(devVerts, positions, vertexCount);
 
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
@@ -306,7 +308,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     }
 
     VertState       state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(vmode);
+    VertState::Proc vertProc = state.chooseProc(vertices->mode());
 
     // Draw hairlines to show the skeleton
     if (!(colors || textures)) {
@@ -389,7 +391,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     if (!textures) {    // only tricolor shader
         auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
         while (vertProc(&state)) {
-            if (!triShader->update(ctmInv, vertices, dstColors, state.f0, state.f1, state.f2)) {
+            if (!triShader->update(ctmInv, positions, dstColors, state.f0, state.f1, state.f2)) {
                 continue;
             }
 
@@ -415,13 +417,13 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
 
         auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &outerAlloc);
         while (vertProc(&state)) {
-            if (triShader && !triShader->update(ctmInv, vertices, dstColors,
+            if (triShader && !triShader->update(ctmInv, positions, dstColors,
                                                 state.f0, state.f1, state.f2)) {
                 continue;
             }
 
             SkMatrix localM;
-            if (!texture_to_matrix(state, vertices, textures, &localM) ||
+            if (!texture_to_matrix(state, positions, textures, &localM) ||
                 !updater->update(*fMatrix, &localM)) {
                 continue;
             }
@@ -435,7 +437,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     } else {
         // must rebuild pipeline for each triangle, to pass in the computed ctm
         while (vertProc(&state)) {
-            if (triShader && !triShader->update(ctmInv, vertices, dstColors,
+            if (triShader && !triShader->update(ctmInv, positions, dstColors,
                                                 state.f0, state.f1, state.f2)) {
                 continue;
             }
@@ -446,7 +448,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
             SkMatrix tmpCtm;
             if (textures) {
                 SkMatrix localM;
-                if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                if (!texture_to_matrix(state, positions, textures, &localM)) {
                     continue;
                 }
                 tmpCtm = SkMatrix::Concat(*fMatrix, localM);
