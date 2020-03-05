@@ -2240,12 +2240,6 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
-    // DO NOT CALL -- staging for removal from Android
-    void drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone[], int,
-                      SkBlendMode mode, const SkPaint& paint) {
-        this->drawVertices(vertices, mode, paint);
-    }
-
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
 
