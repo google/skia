@@ -37,6 +37,40 @@
 
 const int kMaxRenderPipelineEntries = 1024;
 
+namespace {
+
+class Fence {
+public:
+    Fence(const wgpu::Device& device, const wgpu::Buffer& buffer)
+      : fDevice(device), fBuffer(buffer), fCalled(false) {
+        fBuffer.MapReadAsync(callback, this);
+    }
+
+    bool wait() {
+        while (!fCalled) {
+            fDevice.Tick();
+        }
+        return true;
+    }
+
+    ~Fence() {
+    }
+
+    static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
+                         void* userData) {
+        Fence* fence = static_cast<Fence*>(userData);
+        fence->fCalled = true;
+    }
+    wgpu::Buffer buffer() { return fBuffer; }
+
+private:
+    wgpu::Device            fDevice;
+    wgpu::Buffer            fBuffer;
+    bool                    fCalled;
+};
+
+}
+
 static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
     switch (filter) {
         case GrSamplerState::Filter::kNearest:
@@ -441,6 +475,14 @@ void GrDawnGpu::flush() {
 bool GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                               const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     this->flush();
+    for (const auto& cb : fFinishCallbacks) {
+        cb.fCallback(cb.fContext);
+        this->deleteFence(cb.fFence);
+    }
+    fFinishCallbacks.clear();
+    if (info.fFinishedProc) {
+        info.fFinishedProc(info.fFinishedContext);
+    }
     return true;
 }
 
@@ -546,17 +588,26 @@ void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
-    SkASSERT(!"unimplemented");
-    return GrFence();
+    wgpu::Buffer buffer;
+    if (fFenceBuffers.empty()) {
+        wgpu::BufferDescriptor desc;
+        desc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
+        desc.size = 1;
+        buffer = fDevice.CreateBuffer(&desc);
+    } else {
+        buffer = fFenceBuffers.back();
+        fFenceBuffers.pop_back();
+    }
+    return reinterpret_cast<GrFence>(new Fence(fDevice, buffer));
 }
 
 bool GrDawnGpu::waitFence(GrFence fence, uint64_t timeout) {
-    SkASSERT(!"unimplemented");
-    return false;
+    // FIXME: need autorelease pool here for Mac?
+    return reinterpret_cast<Fence*>(fence)->wait();
 }
 
 void GrDawnGpu::deleteFence(GrFence fence) const {
-    SkASSERT(!"unimplemented");
+    delete reinterpret_cast<Fence*>(fence);
 }
 
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
@@ -581,7 +632,13 @@ void GrDawnGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrDawnGpu::checkFinishProcs() {
-    SkASSERT(!"unimplemented");
+    // Bail after the first unfinished sync since we expect they signal in the order inserted.
+    while (!fFinishCallbacks.empty() && this->waitFence(fFinishCallbacks.front().fFence,
+                                                       /* timeout = */ 0)) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteFence(fFinishCallbacks.front().fFence);
+        fFinishCallbacks.pop_front();
+    }
 }
 
 std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
