@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0dceb1e_a39a1389",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-05T13:21:46Z",
+      "side": 0,
+      "message": "This avoids all matrix copies in the absence of pre/post LMs, and just passes back a pointer to the original fLocalMatrix, right?\n\nPossibly not warranted, but it does make a difference IIUC (return a matrix vs. return a matrix ptr in the common case).",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "93d75eff08b069a87e78a25156f249ab95bc7c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
