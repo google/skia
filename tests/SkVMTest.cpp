@@ -722,6 +722,50 @@ DEF_TEST(SkVM_mad, r) {
     });
 }
 
+DEF_TEST(SkVM_fms, r) {
+    // Create a pattern that can be peepholed into an Op::fms_f32.
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.varying<int>();
+
+        skvm::F32 x = b.to_f32(b.load32(arg)),
+                  v = b.sub(b.mul(x, b.splat(2.0f)),
+                            b.splat(1.0f));
+        b.store32(arg, b.trunc(v));
+    }
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        int buf[] = {0,1,2,3,4,5,6,7,8,9,10};
+        program.eval((int)SK_ARRAY_COUNT(buf), &buf);
+
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] = 2*i-1);
+        }
+    });
+}
+
+DEF_TEST(SkVM_fnma, r) {
+    // Create a pattern that can be peepholed into an Op::fnma_f32.
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.varying<int>();
+
+        skvm::F32 x = b.to_f32(b.load32(arg)),
+                  v = b.sub(b.splat(1.0f),
+                            b.mul(x, b.splat(2.0f)));
+        b.store32(arg, b.trunc(v));
+    }
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        int buf[] = {0,1,2,3,4,5,6,7,8,9,10};
+        program.eval((int)SK_ARRAY_COUNT(buf), &buf);
+
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] = 1-2*i);
+        }
+    });
+}
+
 DEF_TEST(SkVM_madder, r) {
     skvm::Builder b;
     {
@@ -1469,6 +1513,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.fdiv4s(A::v4, A::v3, A::v1);
         a.fmin4s(A::v4, A::v3, A::v1);
         a.fmax4s(A::v4, A::v3, A::v1);
+        a.fneg4s(A::v4, A::v3);
 
         a.fmla4s(A::v4, A::v3, A::v1);
         a.fmls4s(A::v4, A::v3, A::v1);
@@ -1500,6 +1545,7 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0xfc,0x21,0x6e,
         0x64,0xf4,0xa1,0x4e,
         0x64,0xf4,0x21,0x4e,
+        0x64,0xf8,0xa0,0x6e,
 
         0x64,0xcc,0x21,0x4e,
         0x64,0xcc,0xa1,0x4e,
