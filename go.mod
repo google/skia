@@ -14,16 +14,15 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/luci/gtreap v0.0.0-20161228054646-35df89791e8f // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.5.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	go.chromium.org/gae v0.0.0-20190826183307-50a499513efa // indirect
-	go.chromium.org/luci v0.0.0-20200304031504-394923153cce // indirect
-	go.skia.org/infra v0.0.0-20200303171800-bc9b69cde77b
+	go.chromium.org/luci v0.0.0-20200305023749-850cd1777619 // indirect
+	go.skia.org/infra v0.0.0-20200304212802-e79935bf89ea
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200304024140-c4206d458c3f // indirect
+	golang.org/x/tools v0.0.0-20200304193943-95d2e580d8eb // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.20.0
-	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
+	google.golang.org/genproto v0.0.0-20200304201815-d429ff31ee6c // indirect
 )
