@@ -13,6 +13,7 @@
 #include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkUtils_opts.h"
+#include "src/opts/SkVM_opts.h"
 
 namespace SkOpts {
     void Init_hsw() {
@@ -34,5 +35,7 @@ namespace SkOpts {
         just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
         start_pipeline_lowp = SK_OPTS_NS::lowp::start_pipeline;
     #undef M
+
+        interpret_skvm = SK_OPTS_NS::interpret_skvm;
     }
 }
