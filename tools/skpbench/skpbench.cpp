@@ -208,7 +208,7 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
     tiles->createDDLsInParallel();
 
     if (!FLAGS_ddlRecordTime) {
-        tiles->drawAllTiles(context);
+        tiles->precompileAndDrawAllTiles(context);
         flush_with_sync(context, gpuSync);
     }
 
