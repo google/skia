@@ -186,6 +186,9 @@ bool sk_mkdir(const char* path) {
     retval = _mkdir(path);
 #else
     retval = mkdir(path, 0777);
+    if (retval) {
+      perror("mkdir() failed with error: ");
+    }
 #endif
     return 0 == retval;
 }
