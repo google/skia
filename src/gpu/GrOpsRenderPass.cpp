@@ -113,8 +113,9 @@ void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
     SkDEBUGCODE(fScissorStatus = DynamicStateStatus::kConfigured);
 }
 
-void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                                   const GrSurfaceProxy* const primProcTextures[]) {
+void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
+                                   const GrSurfaceProxy* const primProcTextures[],
+                                   const GrPipeline& pipeline) {
 #ifdef SK_DEBUG
     SkASSERT((primProc.numTextureSamplers() > 0) == SkToBool(primProcTextures));
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
@@ -131,7 +132,7 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc, const G
     // Don't assert on fTextureBindingStatus. onBindTextures() just turns into a no-op when there
     // aren't any textures, and it's hard to tell from the GrPipeline whether there are any. For
     // many clients it is easier to just always call this method.
-    if (!this->onBindTextures(primProc, pipeline, primProcTextures)) {
+    if (!this->onBindTextures(primProc, primProcTextures, pipeline)) {
         fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
         return;
     }
@@ -147,15 +148,15 @@ void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrMesh 
     if (!programInfo.hasDynamicPrimProcTextures()) {
         auto primProcTextures = (programInfo.hasFixedPrimProcTextures()) ?
                 programInfo.fixedPrimProcTextures() : nullptr;
-        this->bindTextures(programInfo.primProc(), programInfo.pipeline(), primProcTextures);
+        this->bindTextures(programInfo.primProc(), primProcTextures, programInfo.pipeline());
     }
     for (int i = 0; i < meshCount; ++i) {
         if (programInfo.hasDynamicScissors()) {
             this->setScissorRect(programInfo.dynamicScissor(i));
         }
         if (programInfo.hasDynamicPrimProcTextures()) {
-            this->bindTextures(programInfo.primProc(), programInfo.pipeline(),
-                               programInfo.dynamicPrimProcTextures(i));
+            this->bindTextures(programInfo.primProc(), programInfo.dynamicPrimProcTextures(i),
+                               programInfo.pipeline());
         }
         meshes[i].draw(this);
     }

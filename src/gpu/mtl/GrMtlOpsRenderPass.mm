@@ -114,8 +114,8 @@ void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 }
 
 bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                        const GrPipeline& pipeline,
-                                        const GrSurfaceProxy* const primProcTextures[]) {
+                                        const GrSurfaceProxy* const primProcTextures[],
+                                        const GrPipeline& pipeline) {
     SkASSERT(fActivePipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
     fActivePipelineState->setTextures(primProc, pipeline, primProcTextures);
