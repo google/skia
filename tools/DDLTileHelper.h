@@ -42,6 +42,10 @@ public:
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
+        // Just draw the re-inflated SKP directly into a tile w/o going through a DDL first
+        // This is used for determining the overhead of using DDLs.
+        void drawSKPDirectly(GrContext*);
+
         // Replay the recorded DDL into the tile surface - creating 'fImage'.
         void draw(GrContext*);
 
@@ -84,7 +88,9 @@ public:
 
     void createDDLsInParallel();
 
+    void foo(GrContext*);
     void drawAllTiles(GrContext*);
+    void drawAllTilesDirectly(GrContext*);
 
     void composeAllTiles();
 

@@ -205,16 +205,20 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
 
     clock::time_point start = *startStopTime;
 
-    tiles->createDDLsInParallel();
-
-    if (!FLAGS_ddlRecordTime) {
-        tiles->drawAllTiles(context);
-        flush_with_sync(context, gpuSync);
-    }
+#if 0
+    SkASSERT(!FLAGS_ddlRecordTime);
+    tiles->foo(context);
+    //tiles->createDDLsInParallel();
+    //tiles->drawAllTiles(context);
+    flush_with_sync(context, gpuSync);
+    tiles->resetAllTiles();
+#else
+    SkASSERT(!FLAGS_ddlRecordTime);
+    tiles->drawAllTilesDirectly(context);
+    flush_with_sync(context, gpuSync);
+#endif
 
     *startStopTime = clock::now();
-
-    tiles->resetAllTiles();
 
     if (sample) {
         sample->fDuration += *startStopTime - start;
@@ -261,6 +265,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
         Sample& sample = samples->back();
 
         do {
+            tiles.resetAllTiles();
             ddl_sample(context, &tiles, gpuSync, &sample, &startStopTime);
         } while (sample.fDuration < sampleDuration);
 
@@ -271,6 +276,8 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
         // The user wants to see the final result
         tiles.composeAllTiles();
     }
+
+    tiles.resetAllTiles();
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
