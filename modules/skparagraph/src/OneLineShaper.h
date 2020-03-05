@@ -113,6 +113,25 @@ private:
     std::shared_ptr<Run> fCurrentRun;
     std::queue<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
+
+    // Keeping all resolved typefaces
+    struct FontKey {
+
+        FontKey() {}
+
+        FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale)
+            : fUnicode(unicode), fFontStyle(fontStyle), fLocale(locale) { }
+        SkUnichar fUnicode;
+        SkFontStyle fFontStyle;
+        SkString fLocale;
+
+        bool operator==(const FontKey& other) const;
+
+        struct Hasher {
+            size_t operator()(const FontKey& key) const;
+        };
+    };
+    SkTHashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
 };
 
 }
