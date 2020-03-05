@@ -617,14 +617,18 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    // Get the text that will be adjusted to cluster edges
+    // Adjust the text to grapheme edges
     TextRange text(fText.size(), fText.size());
     if (start < fCodePoints.size()) {
-        text.start = fCodePoints[start].fTextIndex;
+        auto codepoint = fCodePoints[start];
+        auto grapheme = fGraphemes16[codepoint.fGrapheme];
+        text.start = grapheme.fTextRange.start;
     }
 
     if (end < fCodePoints.size()) {
-        text.end = fCodePoints[end].fTextIndex;
+        auto codepoint = fCodePoints[end];
+        auto grapheme = fGraphemes16[codepoint.fGrapheme];
+        text.end = grapheme.fTextRange.start;
     }
 
     auto firstBoxOnTheLine = results.size();
