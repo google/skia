@@ -87,70 +87,6 @@ enum class ExpectMatch {
     kFlaky
 };
 
-#if DEBUG_SHOW_TEST_NAME
-static void showPathData(const SkPath& path) {
-    SkPath::RawIter iter(path);
-    uint8_t verb;
-    SkPoint pts[4];
-    SkPoint firstPt = {0, 0}, lastPt = {0, 0};
-    bool firstPtSet = false;
-    bool lastPtSet = true;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                if (firstPtSet && lastPtSet && firstPt != lastPt) {
-                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
-                            firstPt.fX, firstPt.fY);
-                    lastPtSet = false;
-                }
-                firstPt = pts[0];
-                firstPtSet = true;
-                continue;
-            case SkPath::kLine_Verb:
-                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", pts[0].fX, pts[0].fY,
-                        pts[1].fX, pts[1].fY);
-                lastPt = pts[1];
-                lastPtSet = true;
-                break;
-            case SkPath::kQuad_Verb:
-                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
-                        pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
-                lastPt = pts[2];
-                lastPtSet = true;
-                break;
-            case SkPath::kConic_Verb:
-                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},  //weight=%1.9g\n",
-                        pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
-                        iter.conicWeight());
-                lastPt = pts[2];
-                lastPtSet = true;
-                break;
-            case SkPath::kCubic_Verb:
-                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
-                        pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY,
-                        pts[3].fX, pts[3].fY);
-                lastPt = pts[3];
-                lastPtSet = true;
-                break;
-            case SkPath::kClose_Verb:
-                if (firstPtSet && lastPtSet && firstPt != lastPt) {
-                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
-                            firstPt.fX, firstPt.fY);
-                }
-                firstPtSet = lastPtSet = false;
-                break;
-            default:
-                SkDEBUGFAIL("bad verb");
-                return;
-        }
-    }
-    if (firstPtSet && lastPtSet && firstPt != lastPt) {
-        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", lastPt.fX, lastPt.fY,
-                firstPt.fX, firstPt.fY);
-    }
-}
-#endif
-
 void showOp(const SkPathOp op) {
     switch (op) {
         case kDifference_SkPathOp:
@@ -171,35 +107,6 @@ void showOp(const SkPathOp op) {
         default:
             SkASSERT(0);
     }
-}
-
-#if DEBUG_SHOW_TEST_NAME
-static char hexorator(int x) {
-    if (x < 10) {
-        return x + '0';
-    }
-    x -= 10;
-    SkASSERT(x < 26);
-    return x + 'A';
-}
-#endif
-
-void ShowTestName(PathOpsThreadState* state, int a, int b, int c, int d) {
-#if DEBUG_SHOW_TEST_NAME
-    state->fSerialNo[0] = hexorator(state->fA);
-    state->fSerialNo[1] = hexorator(state->fB);
-    state->fSerialNo[2] = hexorator(state->fC);
-    state->fSerialNo[3] = hexorator(state->fD);
-    state->fSerialNo[4] = hexorator(a);
-    state->fSerialNo[5] = hexorator(b);
-    state->fSerialNo[6] = hexorator(c);
-    state->fSerialNo[7] = hexorator(d);
-    state->fSerialNo[8] = '\0';
-    SkDebugf("%s\n", state->fSerialNo);
-    if (strcmp(state->fSerialNo, state->fKey) == 0) {
-        SkDebugf("%s\n", state->fPathStr.c_str());
-    }
-#endif
 }
 
 const int bitWidth = 64;
@@ -559,9 +466,6 @@ static bool check_for_duplicate_names(const char* testName) {
 
 static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
         ExpectSuccess expectSuccess, SkipAssert skipAssert, ExpectMatch expectMatch) {
-#if 0 && DEBUG_SHOW_TEST_NAME
-    showPathData(path);
-#endif
     if (PathOpsDebug::gJson) {
         if (check_for_duplicate_names(filename)) {
             return true;
@@ -631,21 +535,9 @@ bool testSimplifyFail(skiatest::Reporter* reporter, const SkPath& path, const ch
             ExpectSuccess::kNo, SkipAssert::kYes, ExpectMatch::kNo);
 }
 
-#if DEBUG_SHOW_TEST_NAME
-static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
-    SkDebugf("\n");
-    showPathData(a);
-    showOp(shapeOp);
-    showPathData(b);
-}
-#endif
-
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
         SkipAssert skipAssert, ExpectMatch expectMatch) {
-#if 0 && DEBUG_SHOW_TEST_NAME
-    showName(a, b, shapeOp);
-#endif
     if (PathOpsDebug::gJson) {
         if (check_for_duplicate_names(testName)) {
             return true;
@@ -734,9 +626,6 @@ bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
 
 bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
-#if DEBUG_SHOW_TEST_NAME
-    showName(a, b, shapeOp);
-#endif
     SkPath orig;
     orig.lineTo(54, 43);
     SkPath out = orig;
@@ -800,9 +689,6 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
         while (index > 0 && tests[index].fun != firstTest) {
             --index;
         }
-#if DEBUG_SHOW_TEST_NAME
-        SkDebugf("\n<div id=\"%s\">\n", tests[index].str);
-#endif
         (*tests[index].fun)(reporter, tests[index].str);
         if (tests[index].fun == stopTest) {
             return;
@@ -816,9 +702,6 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
             foundSkip = true;
         }
         if (foundSkip && tests[index].fun != firstTest) {
-    #if DEBUG_SHOW_TEST_NAME
-            SkDebugf("\n<div id=\"%s\">\n", tests[index].str);
-    #endif
              (*tests[index].fun)(reporter, tests[index].str);
         }
         if (tests[index].fun == stopTest || index == last) {
@@ -826,29 +709,4 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
         }
         index += reverse ? -1 : 1;
     } while (true);
-#if DEBUG_SHOW_TEST_NAME
-    SkDebugf(
-            "\n"
-            "</div>\n"
-            "\n"
-            "<script type=\"text/javascript\">\n"
-            "\n"
-            "var testDivs = [\n"
-    );
-    index = reverse ? count - 1 : 0;
-    last = reverse ? 0 : count - 1;
-    foundSkip = !skipTest;
-    do {
-        if (tests[index].fun == skipTest) {
-            foundSkip = true;
-        }
-        if (foundSkip && tests[index].fun != firstTest) {
-            SkDebugf("    %s,\n", tests[index].str);
-        }
-        if (tests[index].fun == stopTest || index == last) {
-            break;
-        }
-        index += reverse ? -1 : 1;
-    } while (true);
-#endif
 }

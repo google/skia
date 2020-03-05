@@ -9492,9 +9492,6 @@ static bool runSubTestsFirst = true;
 static bool runReverse = false;
 
 DEF_TEST(PathOpsOp, reporter) {
-#if DEBUG_SHOW_TEST_NAME
-    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
-#endif
     if (runSubTests && runSubTestsFirst) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
     }
@@ -12531,9 +12528,6 @@ static struct TestDesc failTests[] = {
 static const size_t failTestCount = SK_ARRAY_COUNT(failTests);
 
 DEF_TEST(PathOpsFailOp, reporter) {
-#if DEBUG_SHOW_TEST_NAME
-    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
-#endif
     RunTestSet(reporter, failTests, failTestCount, nullptr, nullptr, nullptr, false);
 }
 

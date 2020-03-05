@@ -32,9 +32,6 @@ static void add_point(SkString* str, SkScalar x, SkScalar y) {
 static std::atomic<int> gLoopsTestNo{0};
 
 static void testOpLoopsMain(PathOpsThreadState* data) {
-#if DEBUG_SHOW_TEST_NAME
-    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
-#endif
     SkASSERT(data);
     PathOpsThreadState& state = *data;
     SkString pathStr;
