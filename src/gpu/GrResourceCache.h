@@ -9,6 +9,7 @@
 #define GrResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GrGpuResource.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -16,7 +17,6 @@
 #include "src/core/SkTDPQueue.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/core/SkTMultiMap.h"
-#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 

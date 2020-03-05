@@ -13,8 +13,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrSurface.h"
 
 class GrTexturePriv;
 
@@ -29,7 +29,7 @@ public:
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
      * changed externally to Skia.
      */
-    virtual void textureParamsModified() = 0;
+    SK_API virtual void textureParamsModified() = 0;
 
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending

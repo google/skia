@@ -19,7 +19,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "src/gpu/GrSurface.h"
+#include "include/gpu/GrSurface.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 
 #ifdef SK_METAL
