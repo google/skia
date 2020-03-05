@@ -22,6 +22,30 @@
       "revId": "464e264114366246b148c2173e994a1d249e6be3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47976843_0b7ebd01",
+        "filename": "tests/VerticesTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-05T18:01:17Z",
+      "side": 1,
+      "message": "Doh! Good catch.",
+      "parentUuid": "19854ce2_775df889",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 13
+      },
+      "revId": "464e264114366246b148c2173e994a1d249e6be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
