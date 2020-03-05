@@ -22,6 +22,30 @@
       "revId": "93d75eff08b069a87e78a25156f249ab95bc7c95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7aefa67_b488483c",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-05T13:28:37Z",
+      "side": 0,
+      "message": "If the first version was written just returning by value, would we be motivated to change to the copyonwrite (complication)? What test might justify it?",
+      "parentUuid": "b0dceb1e_a39a1389",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "93d75eff08b069a87e78a25156f249ab95bc7c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
