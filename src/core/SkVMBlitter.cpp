@@ -386,14 +386,13 @@ namespace {
             if (src_in_gamut) {
                 // An in-gamut src blended with an in-gamut dst should stay in gamut.
                 // Being in-gamut implies all channels are in [0,1], so no need to clamp.
-                assert_true(eq(src.r,
-                               clamp(src.r, splat(0.0f), bit_cast(splat(0x3f80'0001)))), src.r);
-                assert_true(eq(src.g,
-                               clamp(src.g, splat(0.0f), bit_cast(splat(0x3f80'0001)))), src.g);
-                assert_true(eq(src.b,
-                               clamp(src.b, splat(0.0f), bit_cast(splat(0x3f80'0001)))), src.b);
-                assert_true(eq(src.a,
-                               clamp(src.a, splat(0.0f), bit_cast(splat(0x3f80'0001)))), src.a);
+                // We allow one ulp error above 1.0f, and about that much (~1.2e7) below 0.
+                skvm::F32 lo = bit_cast(splat(0xb400'0000)),
+                          hi = bit_cast(splat(0x3f80'0001));
+                assert_true(eq(src.r, clamp(src.r, lo, hi)), src.r);
+                assert_true(eq(src.g, clamp(src.g, lo, hi)), src.g);
+                assert_true(eq(src.b, clamp(src.b, lo, hi)), src.b);
+                assert_true(eq(src.a, clamp(src.a, lo, hi)), src.a);
             } else if (SkColorTypeIsNormalized(params.colorType)) {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));

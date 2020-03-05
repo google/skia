@@ -198,6 +198,7 @@ namespace skvm {
         // d = op(n)
         using DOpN = void(V d, V n);
         DOpN not16b,    // d = ~n
+             fneg4s,    // d = -n
              scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
              fcvtns4s,  // round float -> int
