@@ -63,7 +63,9 @@ static DEFINE_bool(ddl, false, "record the skp into DDLs before rendering");
 static DEFINE_int(ddlNumAdditionalThreads, 0,
                     "number of DDL recording threads in addition to main one");
 static DEFINE_int(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
-static DEFINE_bool(ddlRecordTime, false, "report just the cpu time spent recording DDLs");
+
+static DEFINE_bool(comparableDDL, false, "render in a way that is comparable to 'comparableSKP'");
+static DEFINE_bool(comparableSKP, false, "report in a way that is comparable to 'comparableDDL'");
 
 static DEFINE_int(duration, 5000, "number of milliseconds to run the benchmark");
 static DEFINE_int(sampleMs, 50, "minimum duration of a sample");
@@ -205,16 +207,19 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
 
     clock::time_point start = *startStopTime;
 
-    tiles->createDDLsInParallel();
+    if (FLAGS_comparableDDL) {
+        SkASSERT(!FLAGS_comparableSKP);
 
-    if (!FLAGS_ddlRecordTime) {
+        tiles->interleaveDDLCreationAndDraw(context);
+    } else if (FLAGS_comparableSKP) {
+        tiles->drawAllTilesDirectly(context);
+    } else {
+        tiles->createDDLsInParallel();
         tiles->precompileAndDrawAllTiles(context);
-        flush_with_sync(context, gpuSync);
     }
+    flush_with_sync(context, gpuSync);
 
     *startStopTime = clock::now();
-
-    tiles->resetAllTiles();
 
     if (sample) {
         sample->fDuration += *startStopTime - start;
@@ -261,6 +266,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
         Sample& sample = samples->back();
 
         do {
+            tiles.resetAllTiles();
             ddl_sample(context, &tiles, gpuSync, &sample, &startStopTime);
         } while (sample.fDuration < sampleDuration);
 
@@ -271,6 +277,8 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
         // The user wants to see the final result
         tiles.composeAllTiles();
     }
+
+    tiles.resetAllTiles();
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
