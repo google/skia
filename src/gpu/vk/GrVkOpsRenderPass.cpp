@@ -544,8 +544,8 @@ void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 }
 
 bool GrVkOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                       const GrPipeline& pipeline,
-                                       const GrSurfaceProxy* const primProcTextures[]) {
+                                       const GrSurfaceProxy* const primProcTextures[],
+                                       const GrPipeline& pipeline) {
     SkASSERT(fCurrentPipelineState);
     return fCurrentPipelineState->setAndBindTextures(fGpu, primProc, pipeline, primProcTextures,
                                                      this->currentCommandBuffer());
