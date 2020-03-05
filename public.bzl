@@ -306,7 +306,6 @@ PORTS_SRCS_UNIX = struct(
         "src/ports/SkFontMgr_fontconfig_factory.cpp",
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
-        "src/ports/SkTLS_none.cpp",
     ],
 )
 
@@ -338,7 +337,6 @@ PORTS_SRCS_ANDROID = struct(
         "src/ports/SkFontMgr_empty_factory.cpp",
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
-        "src/ports/SkTLS_none.cpp",
     ],
 )
 
@@ -374,7 +372,6 @@ PORTS_SRCS_IOS = struct(
         "src/ports/SkFontMgr_empty_factory.cpp",
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
-        "src/ports/SkTLS_none.cpp",
     ],
 )
 
@@ -416,7 +413,6 @@ PORTS_SRCS_WASM = struct(
         "src/ports/SkFontMgr_fontconfig_factory.cpp",
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
-        "src/ports/SkTLS_none.cpp",
     ],
 )
 
