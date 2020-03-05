@@ -13,6 +13,7 @@
 #include "src/core/SkXfermodePriv.h"
 
 struct SkBitmapProcState;
+namespace skvm { struct InterpreterInstruction; }
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -77,6 +78,9 @@ namespace SkOpts {
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
 
+    extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
+                                  int nregs, int loop, const int strides[], int nargs,
+                                  int n, void* args[]);
 }
 
 #endif//SkOpts_DEFINED
