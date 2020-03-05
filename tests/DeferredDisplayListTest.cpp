@@ -649,11 +649,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest, reporter, ct
     static constexpr bool kNotTextureable = false;
     const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
 
+    // Rows are characterizations and columns are surfaces
     static const bool kExpectedCompatibility[4][4] = {
-        { true,  false, false, false },
-        { false, true,  false, true  },
-        { false, false, true,  false },
-        { false, false, false, true  }
+                    //  FBO0 & MSAA, FBO0 & not-MSAA, not-FBO0 & MSAA, not-FBO0 & not-MSAA
+/* FBO0 & MSAA     */ { true,        false,           false,           false },
+/* FBO0 & not-MSAA */ { false,       true,            false,           true  },
+/* not-FBO0 & MSAA */ { false,       false,           true,            false },
+/* not-FBO0 & not- */ { false,       false,           false,           true  }
     };
 
     SkSurfaceCharacterization characterizations[4];
@@ -682,11 +684,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest, reporter, ct
         }
     }
 
-    for (int y = 0; y < 4; ++y) {
-        for (int x = 0; x < 4; ++x) {
+    for (int c = 0; c < 4; ++c) {
+        for (int s = 0; s < 4; ++s) {
             REPORTER_ASSERT(reporter,
-                            kExpectedCompatibility[y][x] ==
-                                                 surfaces[x]->isCompatible(characterizations[y]));
+                            kExpectedCompatibility[c][s] ==
+                                                 surfaces[s]->isCompatible(characterizations[c]));
         }
     }
 }
