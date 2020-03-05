@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19854ce2_775df889",
+        "filename": "tests/VerticesTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-05T17:55:08Z",
+      "side": 1,
+      "message": "This is only checking vertexCount floats, need to loop over perVertexDataCount() entries, and check all of them. Might be easier by hoisting this out into a separate loop\n\n(i \u003d 0; i \u003c v0-\u003evertexCount() * v0-\u003eperVertexDataCount(); i++) { ... }",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 13
+      },
+      "revId": "464e264114366246b148c2173e994a1d249e6be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
