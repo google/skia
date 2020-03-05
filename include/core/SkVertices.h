@@ -59,6 +59,13 @@ public:
                         isVolatile);
     }
 
+    // Construct a vertices object from the specified patch. The tolerance specifies how closely
+    // to subdivide the cubics when creating the triangle mesh: smaller values mean more precise.
+    // tolerance < 0 means use some built-in default tolerance.
+    static sk_sp<SkVertices> MakePatch(const SkPoint cubics[12], int perVertexDataCount,
+                                       const float perVertexData[], const SkPaint&,
+                                       SkScalar tolerance = -1);
+
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
