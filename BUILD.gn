@@ -947,7 +947,6 @@ component("skia") {
       "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
       "src/ports/SkOSLibrary_win.cpp",
-      "src/ports/SkTLS_win.cpp",
     ]
     libs += [
       "FontSub.lib",
@@ -960,7 +959,6 @@ component("skia") {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
-      "src/ports/SkTLS_pthread.cpp",
     ]
     libs += [ "dl" ]
   }

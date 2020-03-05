@@ -511,28 +511,6 @@ void SkPathOpsDebug::WindingPrintf(int wind) {
 #endif //  defined SK_DEBUG || !FORCE_RELEASE
 
 
-#if DEBUG_SHOW_TEST_NAME
-void* SkPathOpsDebug::CreateNameStr() { return new char[DEBUG_FILENAME_STRING_LENGTH]; }
-
-void SkPathOpsDebug::DeleteNameStr(void* v) { delete[] reinterpret_cast<char*>(v); }
-
-void SkPathOpsDebug::BumpTestName(char* test) {
-    char* num = test + strlen(test);
-    while (num[-1] >= '0' && num[-1] <= '9') {
-        --num;
-    }
-    if (num[0] == '\0') {
-        return;
-    }
-    int dec = atoi(num);
-    if (dec == 0) {
-        return;
-    }
-    ++dec;
-    SK_SNPRINTF(num, DEBUG_FILENAME_STRING_LENGTH - (num - test), "%d", dec);
-}
-#endif
-
 static void show_function_header(const char* functionName) {
     SkDebugf("\nstatic void %s(skiatest::Reporter* reporter, const char* filename) {\n", functionName);
     if (strcmp("skphealth_com76", functionName) == 0) {
