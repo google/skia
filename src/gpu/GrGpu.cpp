@@ -745,6 +745,21 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Total number of partial compilation successes %d\n",
                  fNumPartialCompilationSuccesses);
     out->appendf("Total number of compilation successes %d\n", fNumCompilationSuccesses);
+
+    // enable this block to output CSV-style stats for program pre-compilation
+#if 0
+    SkASSERT(fNumInlineCompilationFailures == 0);
+    SkASSERT(fNumPreCompilationFailures == 0);
+    SkASSERT(fNumCompilationFailures == 0);
+    SkASSERT(fNumPartialCompilationSuccesses == 0);
+
+    SkDebugf("%d, %d, %d, %d, %d\n",
+             fInlineProgramCacheStats[(int) Stats::ProgramCacheResult::kHit],
+             fInlineProgramCacheStats[(int) Stats::ProgramCacheResult::kMiss],
+             fPreProgramCacheStats[(int) Stats::ProgramCacheResult::kHit],
+             fPreProgramCacheStats[(int) Stats::ProgramCacheResult::kMiss],
+             fNumCompilationSuccesses);
+#endif
 }
 
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
