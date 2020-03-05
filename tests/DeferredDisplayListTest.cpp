@@ -621,6 +621,77 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
     }
 }
 
+#ifdef SK_GL
+
+// Test out the surface compatibility checks regarding FBO0-ness. This test constructs
+// two parallel arrays of characterizations and surfaces in the order:
+//    FBO0 w/ MSAA, FBO0 w/o MSAA, not-FBO0 w/ MSAA, not-FBO0 w/o MSAA
+// and then tries all sixteen combinations to check the expected compatibility.
+// Note: this is a GL-only test
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    const GrCaps* caps = context->priv().caps();
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
+    const size_t resourceCacheLimit = context->getResourceCacheLimit();
+
+    GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
+
+    int availableSamples = caps->getRenderTargetSampleCount(4, format);
+    if (availableSamples <= 1) {
+        // This context doesn't support MSAA for RGBA8
+        return;
+    }
+
+    SkImageInfo ii = SkImageInfo::Make({ 128, 128 }, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    static constexpr int kStencilBits = 8;
+    static constexpr bool kNotMipMapped = false;
+    static constexpr bool kNotTextureable = false;
+    const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
+
+    static const bool kExpectedCompatibility[4][4] = {
+        { true,  false, false, false },
+        { false, true,  false, true  },
+        { false, false, true,  false },
+        { false, false, false, true  }
+    };
+
+    SkSurfaceCharacterization characterizations[4];
+    sk_sp<SkSurface> surfaces[4];
+
+    int index = 0;
+    for (bool isFBO0 : { true, false }) {
+        for (int numSamples : { availableSamples, 1 }) {
+            characterizations[index] = proxy->createCharacterization(resourceCacheLimit,
+                                                                     ii, format, numSamples,
+                                                                     kTopLeft_GrSurfaceOrigin,
+                                                                     surfaceProps, kNotMipMapped,
+                                                                     isFBO0, kNotTextureable);
+            SkASSERT(characterizations[index].sampleCount() == numSamples);
+            SkASSERT(characterizations[index].usesGLFBO0() == isFBO0);
+
+            GrGLFramebufferInfo fboInfo{ isFBO0 ? 0 : (GrGLuint) 1, GR_GL_RGBA8 };
+            GrBackendRenderTarget backendRT(128, 128, numSamples, kStencilBits, fboInfo);
+            SkAssertResult(backendRT.isValid());
+
+            surfaces[index] = SkSurface::MakeFromBackendRenderTarget(context, backendRT,
+                                                                     kTopLeft_GrSurfaceOrigin,
+                                                                     kRGBA_8888_SkColorType,
+                                                                     nullptr, &surfaceProps);
+            ++index;
+        }
+    }
+
+    for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 4; ++x) {
+            REPORTER_ASSERT(reporter,
+                            kExpectedCompatibility[y][x] ==
+                                                 surfaces[x]->isCompatible(characterizations[y]));
+        }
+    }
+}
+#endif
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
