@@ -33,7 +33,6 @@
 
 <h2> CanvasKit expands the functionality of a stock HTML canvas</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
-<canvas id=vertex2 width=300 height=300></canvas>
 <canvas id=gradient1 width=300 height=300></canvas>
 <canvas id=patheffect width=300 height=300></canvas>
 <canvas id=paths width=200 height=200></canvas>
@@ -55,7 +54,6 @@
   var robotoData = null;
   var notoserifData = null;
 
-  var bonesImageData = null;
   var mandrillData = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
   CanvasKitInit({
@@ -76,7 +74,6 @@
     CanvasAPI8(CanvasKit);
 
     VertexAPI1(CanvasKit);
-    VertexAPI2(CanvasKit, bonesImageData);
 
     GradiantAPI1(CanvasKit);
 
@@ -87,13 +84,6 @@
     SurfaceAPI1(CanvasKit);
 
     AtlasAPI1(CanvasKit, mandrillData);
-  });
-
-  fetch(cdn + 'bones.jpg').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      bonesImageData = buffer;
-      VertexAPI2(CanvasKit, bonesImageData);
-    });
   });
 
   fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
@@ -892,70 +882,6 @@
     shader.delete();
     paint.delete();
     surface.delete();
-  }
-
-  // bonesImageData is passed in as raw, encoded bytes.
-  function VertexAPI2(CanvasKit, bonesImageData) {
-    if (!CanvasKit || !bonesImageData) {
-      return;
-    }
-    const surface = CanvasKit.MakeCanvasSurface('vertex2');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    let paint = new CanvasKit.SkPaint();
-    let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
-
-    let shader = bonesImage.makeShader(CanvasKit.TileMode.Clamp,
-                                       CanvasKit.TileMode.Clamp);
-
-    // comment this out to see just the triangles move.
-    paint.setShader(shader);
-
-    // points is the destination location on the canvas  We want the output
-    // to be a 280x280 box (to start).
-    let points   = [[ 0, 0 ],  [ 280, 0 ], [ 280, 280 ], [ 0, 280 ]];
-    // texs is the coordinates of the source in the texture
-    // (provided by the image shader). The image is 334x226 px big.
-    let texs     = [[ 0, 0 ],  [ 334, 0 ], [ 334, 226 ], [ 0, 226 ]];
-    let boneidxs = [[1,0,0,0], [2,0,0,0],  [3,0,0,0],    [2,3,0,0]];
-    let bonewts  = [[1,0,0,0], [1,0,0,0],  [1,0,0,0],    [.5,.5,0,0]];
-    let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
-                                            points, texs, null, boneidxs, bonewts);
-
-    function drawFrame(canvas) {
-      let now = Date.now();
-      let bones = [
-        [[1,0, // world bone (move 10px down and to the right to center)
-          0,1,
-          10,10]],
-        [[1,0, // identity bone (bone for vertices that are static)
-          0,1,
-          0,0]],
-        [[1,0, // ossilate in x bone
-          0,1,
-          10*Math.sin(now/500),0]],
-        [[1,0, // ossilate in y bone
-          0,1,
-          0,30*Math.cos(now/500)]],
-      ];
-      let tVerts = vertices.applyBones(bones);
-      canvas.clear(CanvasKit.TRANSPARENT);
-      canvas.drawVertices(tVerts, CanvasKit.BlendMode.Src, paint);
-
-      tVerts.delete();
-      surface.requestAnimationFrame(drawFrame);
-    }
-    surface.requestAnimationFrame(drawFrame);
-    //tVerts.delete();
-    //vertices.delete();
-
-    // bonesImage && bonesImage.delete();
-    //shader && shader.delete();
-    //paint.delete();
-    //surface.delete();
-
   }
 
   function GradiantAPI1(CanvasKit) {
