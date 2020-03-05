@@ -8,7 +8,6 @@
 #include "include/core/SkTypes.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrTexture.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include "include/core/SkCanvas.h"

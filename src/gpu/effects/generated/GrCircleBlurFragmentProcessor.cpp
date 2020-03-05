@@ -254,7 +254,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
             circle, textureRadius, solidRadius, std::move(profile)));
 }
-#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"

@@ -8,7 +8,7 @@
 #ifndef GrMtlTexture_DEFINED
 #define GrMtlTexture_DEFINED
 
-#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexture.h"
 
 #import <Metal/Metal.h>
 

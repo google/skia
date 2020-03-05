@@ -9,13 +9,13 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 
 #include "include/core/SkSurface.h"

@@ -18,9 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/generated/GrMagnifierEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"

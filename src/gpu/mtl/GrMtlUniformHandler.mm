@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/mtl/GrMtlUniformHandler.h"

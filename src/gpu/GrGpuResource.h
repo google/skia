@@ -85,7 +85,7 @@ private:
 /**
  * Base class for objects that can be kept in the GrResourceCache.
  */
-class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
+class GrGpuResource : public GrIORef<GrGpuResource> {
 public:
     /**
      * Tests whether a object has been abandoned or released. All objects will

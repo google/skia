@@ -7,9 +7,9 @@
 
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkMutex.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
