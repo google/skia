@@ -2198,12 +2198,16 @@ namespace skvm {
     Program::Program(const std::vector<OptimizedInstruction>& interpreter,
                      const std::vector<OptimizedInstruction>& jit,
                      const std::vector<int>& strides,
-                     const char* debug_name) : Program(interpreter, strides) {
+                     const char* debug_name) : Program() {
+        fImpl->strides = strides;
     #if 1 && defined(SKVM_LLVM)
         this->setupLLVM(interpreter, debug_name);
     #elif 1 && defined(SKVM_JIT)
         this->setupJIT(jit, debug_name);
     #endif
+
+        // Might as well do this after setupLLVM() to get a little more time to compile.
+        this->setupInterpreter(interpreter);
     }
 
     std::vector<InterpreterInstruction> Program::instructions() const { return fImpl->instructions; }
