@@ -199,9 +199,6 @@ public:
         reassemble contour pieces into new path
     */
 void SkPathWriter::assemble() {
-#if DEBUG_SHOW_TEST_NAME
-    SkDebugf("</div>\n");
-#endif
     if (!this->someAssemblyRequired()) {
         return;
     }
