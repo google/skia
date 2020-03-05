@@ -46,6 +46,30 @@
       "revId": "93d75eff08b069a87e78a25156f249ab95bc7c95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbd3e903_a4a41b27",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-05T13:51:19Z",
+      "side": 0,
+      "message": "I think initially we were always dealing with pointers to localM \u0026 preLM and (at least some) clients were implementing the lazy-compose logic at call sites.\n\nThen we added postLM and it became too unwieldy - hence this helper to clean up clients: https://skia-review.googlesource.com/c/skia/+/119330/\n\nI don\u0027t have numbers to back this COW, it\u0027s mostly risk adversity to raster-time matrix copies (unneeded in the vast majority of cases).",
+      "parentUuid": "f7aefa67_b488483c",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "93d75eff08b069a87e78a25156f249ab95bc7c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
