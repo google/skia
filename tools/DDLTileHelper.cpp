@@ -84,6 +84,15 @@ void DDLTileHelper::TileData::createDDL() {
     fDisplayList = recorder.detach();
 }
 
+void DDLTileHelper::TileData::precompile(GrContext* context) {
+    SkASSERT(fDisplayList);
+
+    SkDeferredDisplayList::ProgramIterator iter(context, fDisplayList.get());
+    for (; !iter.done(); iter.next()) {
+        iter.compile();
+    }
+}
+
 void DDLTileHelper::TileData::draw(GrContext* context) {
     SkASSERT(fDisplayList && !fImage);
 
@@ -168,10 +177,7 @@ void DDLTileHelper::createDDLsInParallel() {
 static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
 
     // TODO: schedule program compilation as their own tasks
-    SkDeferredDisplayList::ProgramIterator iter(context, tile->ddl());
-    for (; !iter.done(); iter.next()) {
-        iter.compile();
-    }
+    tile->precompile(context);
 
     tile->draw(context);
 
@@ -204,8 +210,9 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
     }
 }
 
-void DDLTileHelper::drawAllTiles(GrContext* context) {
+void DDLTileHelper::precompileAndDrawAllTiles(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
+        fTiles[i].precompile(context);
         fTiles[i].draw(context);
     }
 }

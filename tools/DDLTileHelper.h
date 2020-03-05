@@ -42,6 +42,9 @@ public:
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
+        // Precompile all the programs required to draw this tile's DDL
+        void precompile(GrContext*);
+
         // Replay the recorded DDL into the tile surface - creating 'fImage'.
         void draw(GrContext*);
 
@@ -84,7 +87,7 @@ public:
 
     void createDDLsInParallel();
 
-    void drawAllTiles(GrContext*);
+    void precompileAndDrawAllTiles(GrContext*);
 
     void composeAllTiles();
 
