@@ -115,7 +115,7 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     jassert(env, gAAssetManager,);
 
     std::lock_guard<std::mutex> lock(gMutex);
-    gSkQP.init(&gAndroidAssetManager, reportDirectory.c_str());
+    gSkQP.init(&gAndroidAssetManager, nullptr, reportDirectory.c_str());
 
     auto backends = gSkQP.getSupportedBackends();
     jassert(env, backends.size() > 0,);
