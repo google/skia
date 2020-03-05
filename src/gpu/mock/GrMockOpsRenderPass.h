@@ -36,8 +36,8 @@ public:
 private:
     bool onBindPipeline(const GrProgramInfo&, const SkRect&) override { return true; }
     void onSetScissorRect(const SkIRect&) override {}
-    bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                        const GrSurfaceProxy* const primProcTextures[]) override { return true; }
+    bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+                        const GrPipeline&) override { return true; }
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                        const GrBuffer* vertexBuffer, GrPrimitiveRestart) override {}
     void onDraw(int, int) override { this->dummyDraw(); }

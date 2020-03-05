@@ -36,13 +36,13 @@ void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 }
 
 bool GrGLOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                       const GrPipeline& pipeline,
-                                       const GrSurfaceProxy* const primProcTextures[]) {
+                                       const GrSurfaceProxy* const primProcTextures[],
+                                       const GrPipeline& pipeline) {
     GrGLProgram* program = fGpu->currentProgram();
     if (!program) {
         return false;
     }
-    program->bindTextures(primProc, pipeline, primProcTextures);
+    program->bindTextures(primProc, primProcTextures, pipeline);
     return true;
 }
 

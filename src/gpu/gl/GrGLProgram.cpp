@@ -100,8 +100,9 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
 }
 
-void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                               const GrSurfaceProxy* const primProcTextures[]) {
+void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
+                               const GrSurfaceProxy* const primProcTextures[],
+                               const GrPipeline& pipeline) {
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());
         auto* overrideTexture = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());

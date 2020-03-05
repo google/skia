@@ -122,8 +122,8 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
         this->gpu()->flushScissorRect(programInfo.fixedScissor(), renderTarget->width(),
                                       renderTarget->height(), programInfo.origin());
     }
-    this->gpu()->currentProgram()->bindTextures(
-            programInfo.primProc(), programInfo.pipeline(), nullptr);
+    this->gpu()->currentProgram()->bindTextures(programInfo.primProc(), nullptr,
+                                                programInfo.pipeline());
 
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 

@@ -122,8 +122,8 @@ public:
     /**
      * Binds all primitive processor and fragment processor textures.
      */
-    void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                      const GrSurfaceProxy* const primProcTextures[]);
+    void bindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+                      const GrPipeline&);
 
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }

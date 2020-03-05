@@ -60,16 +60,17 @@ public:
     // pipeline.
     void setScissorRect(const SkIRect&);
 
-    // Texture bindings are dynamic state and therefore not set during bindPipeline(). If the
-    // current program uses textures, then the client must call bindTextures() before drawing.
-    // The primitive processor textures may also be updated between draws by calling bindTextures()
-    // again with a different array for primProcTextures. (On subsequent calls, if the backend is
-    // capable of updating the primitive processor textures independently, then it will
-    // automatically skip binding textures from GrPipeline.)
+    // Binds textures for the primitive processor and any FP on the GrPipeline. Texture bindings are
+    // dynamic state and therefore not set during bindPipeline(). If the current program uses
+    // textures, then the client must call bindTextures() before drawing. The primitive processor
+    // textures may also be updated between draws by calling bindTextures() again with a different
+    // array for primProcTextures. (On subsequent calls, if the backend is capable of updating the
+    // primitive processor textures independently, then it will automatically skip re-binding
+    // FP textures from GrPipeline.)
     //
     // If the current program does not use textures, this is a no-op.
-    void bindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                      const GrSurfaceProxy* const primProcTextures[]);
+    void bindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+                      const GrPipeline&);
 
     void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
@@ -136,8 +137,9 @@ private:
     // overridden by backend-specific derived class to perform the rendering command.
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
     virtual void onSetScissorRect(const SkIRect&) = 0;
-    virtual bool onBindTextures(const GrPrimitiveProcessor&, const GrPipeline&,
-                                const GrSurfaceProxy* const primProcTextures[]) = 0;
+    virtual bool onBindTextures(const GrPrimitiveProcessor&,
+                                const GrSurfaceProxy* const primProcTextures[],
+                                const GrPipeline&) = 0;
     virtual void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                                const GrBuffer* vertexBuffer, GrPrimitiveRestart) = 0;
     virtual void onDraw(int vertexCount, int baseVertex) = 0;

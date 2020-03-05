@@ -54,8 +54,8 @@ private:
 
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect& scissor) override;
-    bool onBindTextures(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                        const GrSurfaceProxy* const primProcTextures[]) override;
+    bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+                        const GrPipeline& pipeline) override;
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                        const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
     void onDraw(int vertexCount, int baseVertex) override;
