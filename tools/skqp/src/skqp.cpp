@@ -45,7 +45,7 @@
 
 static constexpr char kRenderTestCSVReport[] = "out.csv";
 static constexpr char kRenderTestReportPath[] = "report.html";
-static constexpr char kRenderTestsPath[] = "skqp/rendertests.txt";
+static constexpr char kDefaultRenderTestsPath[] = "skqp/rendertests.txt";
 static constexpr char kUnitTestReportPath[] = "unit_tests.txt";
 static constexpr char kUnitTestsPath[]   = "skqp/unittests.txt";
 
@@ -89,8 +89,11 @@ static void get_unit_tests(SkQPAssetManager* mgr, std::vector<SkQP::UnitTest>* u
 }
 
 static void get_render_tests(SkQPAssetManager* mgr,
+                             const char *renderTestsIn,
                              std::vector<SkQP::GMFactory>* gmlist,
                              std::unordered_map<std::string, int64_t>* gmThresholds) {
+    // Runs all render tests if the |renderTests| file can't be found or is empty.
+    const char *renderTests = renderTestsIn ? renderTestsIn : kDefaultRenderTestsPath;
     auto insert = [gmThresholds](const char* s, size_t l) {
         SkASSERT(l > 1) ;
         if (l > 0 && s[l - 1] == '\n') {  // strip line endings.
@@ -117,7 +120,7 @@ static void get_render_tests(SkQPAssetManager* mgr,
         }
         gmThresholds->insert({std::move(key), value});  // (*gmThresholds)[s] = value;
     };
-    if (sk_sp<SkData> dat = mgr->open(kRenderTestsPath)) {
+    if (sk_sp<SkData> dat = mgr->open(renderTests)) {
         readlines(dat->data(), dat->size(), insert);
     }
     using GmAndName = std::pair<SkQP::GMFactory, std::string>;
@@ -246,7 +249,7 @@ SkQP::SkQP() {}
 
 SkQP::~SkQP() {}
 
-void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
+void SkQP::init(SkQPAssetManager* am, const char* renderTests, const char* reportDirectory) {
     SkASSERT_RELEASE(!fAssetManager);
     SkASSERT_RELEASE(am);
     fAssetManager = am;
@@ -255,9 +258,7 @@ void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
-    /* If the file "skqp/rendertests.txt" does not exist or is empty, run all
-       render tests.  Otherwise only run tests mentioned in that file.  */
-    get_render_tests(fAssetManager, &fGMs, &fGMThresholds);
+    get_render_tests(fAssetManager, renderTests, &fGMs, &fGMThresholds);
     /* If the file "skqp/unittests.txt" does not exist or is empty, run all gpu
        unit tests.  Otherwise only run tests mentioned in that file.  */
     get_unit_tests(fAssetManager, &fUnitTests);

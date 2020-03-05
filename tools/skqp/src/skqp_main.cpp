@@ -30,6 +30,12 @@ public:
 private:
     std::string fPrefix;
 };
+
+struct Args {
+  char *assetDir;
+  char *renderTests;
+  char *outputDir;
+};
 }
 
 static constexpr char kSkipUsage[] =
@@ -73,25 +79,34 @@ static bool should_skip(const char* const* rules, size_t count, const char* name
     return !anyExclude;
 }
 
-int main(int argc, char** argv) {
-    if (argc < 3) {
-        std::cerr << "Usage:\n  " << argv[0]
-                  << " ASSET_DIRECTORY_PATH SKQP_REPORT_PATH [TEST_MATCH_RULES]\n"
-                  << kSkipUsage << '\n';
-        return 1;
-    }
-    SetResourcePath((std::string(argv[1]) + "/resources").c_str());
-    if (!sk_mkdir(argv[2])) {
-        std::cerr << "sk_mkdir(" << argv[2] << ") failed.\n";
+static void parse_args(int argc, char *argv[], Args *args) {
+  if (argc < 4) {
+      std::cerr << "Usage:\n  " << argv[0]
+                << " ASSET_DIR RENDER_TESTS OUTPUT_DIR [TEST_MATCH_RULES]\n"
+                << kSkipUsage << '\n';
+      exit(1);
+  }
+  args->assetDir = argv[1];
+  args->renderTests = argv[2];
+  args->outputDir = argv[3];
+}
+
+int main(int argc, char *argv[]) {
+    Args args;
+    parse_args(argc, argv, &args);
+
+    SetResourcePath(std::string(args.assetDir + std::string("/resources")).c_str());
+    if (!sk_mkdir(args.outputDir)) {
+        std::cerr << "sk_mkdir(" << args.outputDir << ") failed.\n";
         return 2;
     }
-    StdAssetManager mgr(argv[1]);
+    StdAssetManager mgr(args.assetDir);
     SkQP skqp;
-    skqp.init(&mgr, argv[2]);
+    skqp.init(&mgr, args.renderTests, args.outputDir);
     int ret = 0;
 
-    const char* const* matchRules = &argv[3];
-    size_t matchRulesCount = (size_t)(argc - 3);
+    const char* const* matchRules = &argv[4];
+    size_t matchRulesCount = (size_t)(argc - 4);
 
     // Rendering Tests
     std::ostream& out = std::cout;
