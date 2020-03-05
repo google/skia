@@ -21,7 +21,13 @@ static bool equal(const SkVertices* v0, const SkVertices* v1) {
     if (v0->indexCount() != v1->indexCount()) {
         return false;
     }
+    if (v0->perVertexDataCount() != v1->perVertexDataCount()) {
+        return false;
+    }
 
+    if (!!v0->perVertexData() != !!v1->perVertexData()) {
+        return false;
+    }
     if (!!v0->texCoords() != !!v1->texCoords()) {
         return false;
     }
@@ -44,6 +50,12 @@ static bool equal(const SkVertices* v0, const SkVertices* v1) {
             }
         }
     }
+    int totalVertexDataCount = v0->vertexCount() * v0->perVertexDataCount();
+    for (int i = 0; i < totalVertexDataCount; ++i) {
+        if (v0->perVertexData()[i] != v1->perVertexData()[i]) {
+            return false;
+        }
+    }
     for (int i = 0; i < v0->indexCount(); ++i) {
         if (v0->indices()[i] != v1->indices()[i]) {
             return false;
@@ -52,10 +64,21 @@ static bool equal(const SkVertices* v0, const SkVertices* v1) {
     return true;
 }
 
+static void self_test(sk_sp<SkVertices> v0, skiatest::Reporter* reporter) {
+    sk_sp<SkData> data = v0->encode();
+    sk_sp<SkVertices> v1 = SkVertices::Decode(data->data(), data->size());
+
+    REPORTER_ASSERT(reporter, v0->uniqueID() != 0);
+    REPORTER_ASSERT(reporter, v1->uniqueID() != 0);
+    REPORTER_ASSERT(reporter, v0->uniqueID() != v1->uniqueID());
+    REPORTER_ASSERT(reporter, equal(v0.get(), v1.get()));
+}
+
 DEF_TEST(Vertices, reporter) {
     int vCount = 5;
     int iCount = 9; // odd value exercises padding logic in encode()
 
+    // color-tex tests
     const uint32_t texFlags[] = { 0, SkVertices::kHasTexCoords_BuilderFlag };
     const uint32_t colFlags[] = { 0, SkVertices::kHasColors_BuilderFlag };
     for (auto texF : texFlags) {
@@ -63,6 +86,8 @@ DEF_TEST(Vertices, reporter) {
             uint32_t flags = texF | colF;
 
             SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount, flags);
+            REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
+            REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
 
             for (int i = 0; i < vCount; ++i) {
                 float x = (float)i;
@@ -77,16 +102,27 @@ DEF_TEST(Vertices, reporter) {
             for (int i = 0; i < builder.indexCount(); ++i) {
                 builder.indices()[i] = i % vCount;
             }
-
-            sk_sp<SkVertices> v0 = builder.detach();
-            sk_sp<SkData> data = v0->encode();
-            sk_sp<SkVertices> v1 = SkVertices::Decode(data->data(), data->size());
-
-            REPORTER_ASSERT(reporter, v0->uniqueID() != 0);
-            REPORTER_ASSERT(reporter, v1->uniqueID() != 0);
-            REPORTER_ASSERT(reporter, v0->uniqueID() != v1->uniqueID());
-            REPORTER_ASSERT(reporter, equal(v0.get(), v1.get()));
+            self_test(builder.detach(), reporter);
         }
+    }
+    // per-vertex-data tests
+    for (int perVertexDataCount : {0, 1, 2, 3, 4, 7, 32}) {
+        SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount,
+                                    perVertexDataCount, false);
+        REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
+        REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
+        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == perVertexDataCount);
+
+        for (int i = 0; i < builder.vertexCount(); ++i) {
+            builder.positions()[i].set((float)i, 1);
+            for (int j = 0; j < builder.perVertexDataCount(); ++j) {
+                builder.perVertexData()[i * perVertexDataCount + j] = (float)j;
+            }
+        }
+        for (int i = 0; i < builder.indexCount(); ++i) {
+            builder.indices()[i] = i % vCount;
+        }
+        self_test(builder.detach(), reporter);
     }
     {
         // This has the maximum number of vertices to be rewritten as indexed triangles without
@@ -118,6 +154,25 @@ DEF_TEST(Vertices, reporter) {
         SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 2,
                                     SkVertices::kHasColors_BuilderFlag);
         REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+
+    // validity tests for per-vertex-data
+
+    {   // negative count is bad
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, -1, true);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+    {   // zero-per-vertex-data should be ok
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, 0, true);
+        REPORTER_ASSERT(reporter, builder.isValid());
+        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 0);
+        REPORTER_ASSERT(reporter, builder.perVertexData() == nullptr);
+    }
+    {   // "normal" number of per-vertex-data
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, 4, true);
+        REPORTER_ASSERT(reporter, builder.isValid());
+        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 4);
+        REPORTER_ASSERT(reporter, builder.perVertexData() != nullptr);
     }
 }
 
