@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4fe2c72b_8bc1600a",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-05T17:03:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "387527f7_99674322",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 37
+      },
+      "revId": "efee75add74c77c37aa16924d127875f14c2e7d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fca6530b_2ed81be5",
         "filename": "src/core/SkVertices.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "efee75add74c77c37aa16924d127875f14c2e7d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a66f22db_9ed915ce",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-05T17:03:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fca6530b_2ed81be5",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 71
+      },
+      "revId": "efee75add74c77c37aa16924d127875f14c2e7d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
