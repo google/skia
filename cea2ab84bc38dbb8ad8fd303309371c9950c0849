@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2853ed98_0d2faa06",
+        "filename": "src/gpu/GrOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-05T18:51:35Z",
+      "side": 1,
+      "message": "Technically no, because the GrPipeline can also have FPs with textures. I added a comment to the header file and uploaded https://skia-review.googlesource.com/c/skia/+/275313 to help make this more clear.",
+      "parentUuid": "dc340d6f_07919b8c",
+      "range": {
+        "startLine": 148,
+        "startChar": 22,
+        "endLine": 148,
+        "endChar": 34
+      },
+      "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ff1144fd_2e475a36",
         "filename": "src/gpu/GrProgramInfo.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe68eea3_26b17381",
+        "filename": "src/gpu/GrProgramInfo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-05T18:51:35Z",
+      "side": 1,
+      "message": "That\u0027s correct. Dynamic state never affects the shaders or pipelines.",
+      "parentUuid": "ff1144fd_2e475a36",
+      "range": {
+        "startLine": 38,
+        "startChar": 33,
+        "endLine": 38,
+        "endChar": 65
+      },
+      "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a7da7f0e_4deb3f41",
+        "filename": "src/gpu/GrProgramInfo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-05T18:51:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7183f28_3c3f776d",
+      "range": {
+        "startLine": 40,
+        "startChar": 22,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3555a221_ce018786",
         "filename": "src/gpu/GrProgramInfo.cpp",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "37375b9e_2e1780e7",
+        "filename": "src/gpu/GrProgramInfo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-05T18:51:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3555a221_ce018786",
+      "range": {
+        "startLine": 49,
+        "startChar": 24,
+        "endLine": 49,
+        "endChar": 31
+      },
+      "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55eb4e51_32bd89bb",
         "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
         "patchSetId": 4
@@ -105,6 +201,24 @@
       "writtenOn": "2020-03-04T14:04:18Z",
       "side": 1,
       "message": "So, somewhat tangentially, how does this interact with DDLs? Having the ProgramInfos on the stack mean they can\u0027t be surfaced on a DDL and precompiled.",
+      "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a777b65c_678a3b5f",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-05T18:51:35Z",
+      "side": 1,
+      "message": "I\u0027ve been a little unclear on how this code and DDLs will interact myself. It\u0027s not default enabled yet, and will definitely need some guidance re: DDL. I believe it shouldn\u0027t be hard to lift these ProgramInfos though.",
+      "parentUuid": "55eb4e51_32bd89bb",
       "revId": "cea2ab84bc38dbb8ad8fd303309371c9950c0849",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
