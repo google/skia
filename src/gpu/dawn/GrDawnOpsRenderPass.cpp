@@ -159,9 +159,9 @@ void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect&) {
 }
 
 bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                         const GrPipeline& pipeline,
-                                         const GrSurfaceProxy* const textures[]) {
-    auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, textures);
+                                         const GrSurfaceProxy* const primProcTextures[],
+                                         const GrPipeline& pipeline) {
+    auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, primProcTextures);
     fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
     return true;
 }
