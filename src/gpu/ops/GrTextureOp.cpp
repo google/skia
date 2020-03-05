@@ -9,7 +9,6 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/gpu/GrTexture.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
@@ -27,6 +26,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"

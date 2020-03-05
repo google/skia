@@ -9,7 +9,7 @@
 #define GrSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrGpuResource.h"
 
 /**
  * Represents a semaphore-like GPU synchronization object. This is a slightly odd fit for

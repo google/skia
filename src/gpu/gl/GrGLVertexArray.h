@@ -8,10 +8,10 @@
 #ifndef GrGLVertexArray_DEFINED
 #define GrGLVertexArray_DEFINED
 
-#include "include/gpu/GrGpuResource.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
 class GrBuffer;

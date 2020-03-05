@@ -9,7 +9,6 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/gpu/GrTexture.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -28,6 +27,7 @@
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"

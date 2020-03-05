@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ccpr/GrCCClipPath.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"

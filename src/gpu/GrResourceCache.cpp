@@ -8,7 +8,6 @@
 #include "src/gpu/GrResourceCache.h"
 #include <atomic>
 #include "include/gpu/GrContext.h"
-#include "include/gpu/GrTexture.h"
 #include "include/private/GrSingleOwner.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
@@ -21,6 +20,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxyCacheAccess.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"

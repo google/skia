@@ -7,8 +7,8 @@
 
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"

@@ -10,9 +10,9 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTexture.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/vk/GrVkImageLayout.h"
 #include "src/gpu/vk/GrVkResource.h"
 
