@@ -224,23 +224,16 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
-void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-                          const SkPaint& paint) const {
+void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
+                                 const SkPaint& paint, const SkMatrix& ctmInv) const {
+    SkASSERT(vertices->perVertexDataCount() == 0);
+
     const int vertexCount = vertices->vertexCount();
     const int indexCount = vertices->indexCount();
     const SkPoint* positions = vertices->positions();
-    const uint16_t* indices = vertices->indices();
     const SkPoint* textures = vertices->texCoords();
+    const uint16_t* indices = vertices->indices();
     const SkColor* colors = vertices->colors();
-
-    // abort early if there is nothing to draw
-    if (vertexCount < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
-        return;
-    }
-    SkMatrix ctmInv;
-    if (!fMatrix->invert(&ctmInv)) {
-        return;
-    }
 
     // make textures and shader mutually consistent
     SkShader* shader = paint.getShader();
@@ -462,5 +455,31 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                 handle_devVerts(blitter);
             }
         }
+    }
+}
+
+void SkDraw::draw_vdata_vertices(const SkVertices* vertices, const SkPaint& paint,
+                                 const SkMatrix& ctmInv) const {
+}
+
+void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
+                          const SkPaint& paint) const {
+    const int vertexCount = vertices->vertexCount();
+    const int indexCount = vertices->indexCount();
+    const int perVertexDataCount = vertices->perVertexDataCount();
+
+    // abort early if there is nothing to draw
+    if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
+        return;
+    }
+    SkMatrix ctmInv;
+    if (!fMatrix->invert(&ctmInv)) {
+        return;
+    }
+
+    if (perVertexDataCount == 0) {
+        this->draw_fixed_vertices(vertices, bmode, paint, ctmInv);
+    } else {
+        this->draw_vdata_vertices(vertices, paint, ctmInv);
     }
 }

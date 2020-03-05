@@ -2227,6 +2227,9 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_drawVertices
     */
     void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const SkVertices* vertices, const SkPaint& paint) {
+        this->drawVertices(vertices, SkBlendMode::kModulate, paint);
+    }
 
     /** Draws SkVertices vertices, a triangle mesh, using clip and SkMatrix.
         If vertices texs and vertices colors are defined in vertices, and SkPaint paint
@@ -2239,6 +2242,9 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_drawVertices_2
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const sk_sp<SkVertices>& vertices, const SkPaint& paint) {
+        this->drawVertices(vertices, SkBlendMode::kModulate, paint);
+    }
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
