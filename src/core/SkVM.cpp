@@ -699,9 +699,7 @@ namespace skvm {
             if (fProgram[x.id].op == Op::mul_f32) {
                 return {this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
             }
-
-            // TODO: why does this lead to negative colors?
-            if (false && fProgram[y.id].op == Op::mul_f32) {
+            if (fProgram[y.id].op == Op::mul_f32) {
                 return {this->push(Op::fnma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
             }
         }
@@ -1509,12 +1507,12 @@ namespace skvm {
     void Assembler::fdiv4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11111'1, n, d); }
     void Assembler::fmin4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11110'1, n, d); }
     void Assembler::fmax4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11110'1, n, d); }
+    void Assembler::fneg4s(V d, V n)      { this->op(0b0'1'1'01110'1'0'10000'01111'10,  n, d); }
 
     void Assembler::fcmeq4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b1110'0'1, n, d); }
     void Assembler::fcmgt4s(V d, V n, V m) { this->op(0b0'1'1'01110'1'0'1, m, 0b1110'0'1, n, d); }
     void Assembler::fcmge4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b1110'0'1, n, d); }
 
-    // TODO: add x*y - z
     void Assembler::fmla4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11001'1, n, d); }
     void Assembler::fmls4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11001'1, n, d); }
 
@@ -2772,12 +2770,28 @@ namespace skvm {
                 case Op::min_f32: a->fmin4s(dst(), r[x], r[y]); break;
                 case Op::max_f32: a->fmax4s(dst(), r[x], r[y]); break;
 
-                // TODO: add fms_f32 and fnma_f32
-                case Op::fma_f32: // fmla4s is z += x*y
+                case Op::fma_f32: // fmla.4s is z += x*y
                     if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
                     else {                                  a->orr16b(tmp(),  r[z],  r[z]);
                                                             a->fmla4s(tmp(),  r[x],  r[y]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
+                                                            break;
+
+                case Op::fnma_f32:  // fmls.4s is z -= x*y
+                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmls4s( r[z],  r[x],  r[y]);   }
+                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
+                                                            a->fmls4s(tmp(),  r[x],  r[y]);
+                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
+                                                            break;
+
+                case Op::fms_f32:
+                    // first dst() = xy - z as if fnma_f32
+                    if (avail & (1<<r[z])) { set_dst(r[z]); a->fmls4s( r[z],  r[x],  r[y]);   }
+                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
+                                                            a->fmls4s(tmp(),  r[x],  r[y]);
+                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
+                    // then dst() = -dst()  (i.e. z - xy)
+                                                            a->fneg4s(dst(), dst());
                                                             break;
 
                 // These _imm instructions are all x86/JIT only.
