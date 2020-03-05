@@ -617,14 +617,25 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    // Get the text that will be adjusted to cluster edges
+    // Adjust the text to grapheme edges
+    // Apparently, text editor CAN move inside graphemes but CANNOT select a part of it.
+    // I don't know why - the solution I have here returns an empty box for every query that
+    // does not contain an end of a grapheme.
+    // Once a cursor is inside a complex grapheme I can press backspace and cause trouble.
+    // To avoid any problems, I will not allow any selection of a part of a grapheme.
+    // One flutter test fails because of it but the editing experience is correct
+    // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
     if (start < fCodePoints.size()) {
-        text.start = fCodePoints[start].fTextIndex;
+        auto codepoint = fCodePoints[start];
+        auto grapheme = fGraphemes16[codepoint.fGrapheme];
+        text.start = grapheme.fTextRange.start;
     }
 
     if (end < fCodePoints.size()) {
-        text.end = fCodePoints[end].fTextIndex;
+        auto codepoint = fCodePoints[end];
+        auto grapheme = fGraphemes16[codepoint.fGrapheme];
+        text.end = grapheme.fTextRange.start;
     }
 
     auto firstBoxOnTheLine = results.size();
@@ -962,6 +973,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
             });
         break;
     }
+    //SkDebugf("getGlyphPositionAtCoordinate(%f, %f): %d %s\n", dx, dy, result.position,
+    //   result.affinity == Affinity::kUpstream ? "up" : "down");
     return result;
 }
 
@@ -1012,7 +1025,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         break;
       }
     }
-
+    //SkDebugf("getWordBoundary(%d): %d - %d\n", offset, start, end);
     return { SkToU32(start), SkToU32(end) };
 }
 
