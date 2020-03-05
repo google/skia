@@ -235,14 +235,8 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrDawnProgramDataManager::uploadUniformBuffers(GrDawnGpu* gpu,
-                                                    GrDawnRingBuffer::Slice slice) const {
-    auto copyEncoder = gpu->getCopyEncoder();
-    if (slice.fBuffer && fUniformsDirty) {
-        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fUniformBufferSize);
-        memcpy(stagingBuffer->fData, fUniformData.get(), fUniformBufferSize);
-        stagingBuffer->fBuffer.Unmap();
-        copyEncoder.CopyBufferToBuffer(
-            stagingBuffer->fBuffer, 0, slice.fBuffer, slice.fOffset, fUniformBufferSize);
+void GrDawnProgramDataManager::uploadUniformBuffers(void* dest) const {
+    if (fUniformsDirty) {
+        memcpy(dest, fUniformData.get(), fUniformBufferSize);
     }
 }
