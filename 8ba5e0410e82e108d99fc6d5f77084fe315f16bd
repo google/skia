@@ -34,6 +34,24 @@
       "revId": "8ba5e0410e82e108d99fc6d5f77084fe315f16bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "963b5a61_5b58f980",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-03-05T15:40:18Z",
+      "side": 1,
+      "message": "@John I uploaded a new patchset with the JNI change, just to keep things consolidated in one CL.",
+      "parentUuid": "e01e29fd_53adc90e",
+      "revId": "8ba5e0410e82e108d99fc6d5f77084fe315f16bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
