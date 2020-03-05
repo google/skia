@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f20d601_9d0eaaf1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-05T16:42:36Z",
+      "side": 1,
+      "message": "s/ /\\n\\n\n\n(Replace this space with two newlines so that the following text becomes the body of the commit message.)",
+      "range": {
+        "startLine": 7,
+        "startChar": 45,
+        "endLine": 7,
+        "endChar": 46
+      },
+      "revId": "23bcbe6e0d9d80422de16d2860174dd08ee366c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f03e2a23_f7ed2f0d",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-05T16:42:36Z",
+      "side": 1,
+      "message": "Need to comment out?",
+      "revId": "23bcbe6e0d9d80422de16d2860174dd08ee366c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
