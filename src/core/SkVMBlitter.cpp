@@ -39,7 +39,6 @@ namespace {
         SkBlendMode         blendMode;
         Coverage            coverage;
         SkFilterQuality     quality;
-        bool                dither;
         SkMatrix            ctm;
 
         Params withCoverage(Coverage c) const {
@@ -56,9 +55,8 @@ namespace {
         uint8_t  colorType,
                  alphaType,
                  blendMode,
-                 coverage,
-                 dither;
-        uint8_t padding[3] = {0,0,0};
+                 coverage;
+        uint32_t padding{0};
         // Params::quality and Params::ctm are only passed to shader->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
@@ -69,8 +67,7 @@ namespace {
                 && this->colorType  == that.colorType
                 && this->alphaType  == that.alphaType
                 && this->blendMode  == that.blendMode
-                && this->coverage   == that.coverage
-                && this->dither     == that.dither;
+                && this->coverage   == that.coverage;
         }
 
         Key withCoverage(Coverage c) const {
@@ -82,12 +79,11 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Dither%d-CS%llx-Shader%llx",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
-                              key.dither,
                               key.colorSpace,
                               key.shader);
     }
@@ -168,7 +164,6 @@ namespace {
                 SkToU8(params.alphaType),
                 SkToU8(params.blendMode),
                 SkToU8(params.coverage),
-                SkToU8(params.dither),
             };
         }
 
@@ -324,64 +319,6 @@ namespace {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
 
-            float dither_rate = 0.0f;
-            switch (params.colorType) {
-                case kARGB_4444_SkColorType:    dither_rate =   1/15.0f; break;
-                case   kRGB_565_SkColorType:    dither_rate =   1/63.0f; break;
-                case    kGray_8_SkColorType:
-                case  kRGB_888x_SkColorType:
-                case kRGBA_8888_SkColorType:
-                case kBGRA_8888_SkColorType:    dither_rate =  1/255.0f; break;
-                case kRGB_101010x_SkColorType:
-                case kRGBA_1010102_SkColorType:
-                case kBGR_101010x_SkColorType:
-                case kBGRA_1010102_SkColorType: dither_rate = 1/1023.0f; break;
-
-                case kUnknown_SkColorType:
-                case kAlpha_8_SkColorType:
-                case kRGBA_F16_SkColorType:
-                case kRGBA_F16Norm_SkColorType:
-                case kRGBA_F32_SkColorType:
-                case kR8G8_unorm_SkColorType:
-                case kA16_float_SkColorType:
-                case kA16_unorm_SkColorType:
-                case kR16G16_float_SkColorType:
-                case kR16G16_unorm_SkColorType:
-                case kR16G16B16A16_unorm_SkColorType: dither_rate = 0.0f; break;
-            }
-            if (params.dither && dither_rate > 0) {
-                // See SkRasterPipeline dither stage.
-
-                // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
-                skvm::I32 X = dx,
-                          Y = bit_xor(dx,dy);
-
-                // If X's low bits are abc and Y's def, M is fcebda,
-                // 6 bits producing all values [0,63] shuffled over an 8x8 grid.
-                skvm::I32 M = bit_or(shl(bit_and(Y, splat(1)), 5),
-                              bit_or(shl(bit_and(X, splat(1)), 4),
-                              bit_or(shl(bit_and(Y, splat(2)), 2),
-                              bit_or(shl(bit_and(X, splat(2)), 1),
-                              bit_or(shr(bit_and(Y, splat(4)), 1),
-                                     shr(bit_and(X, splat(4)), 2))))));
-
-                // Scale to [0,1) by /64, then to (-0.5,0.5) using 63/128 (~0.492) as 0.5-ε,
-                // and finally scale all that by the dither_rate.  We keep dither strength
-                // strictly within ±0.5 to not change exact values like 0 or 1.
-                float scale = dither_rate * (  2/128.0f),
-                      bias  = dither_rate * (-63/128.0f);
-                skvm::F32 dither = mad(to_f32(M), splat(scale), splat(bias));
-
-                src.r = add(src.r, dither);
-                src.g = add(src.g, dither);
-                src.b = add(src.b, dither);
-
-                // TODO: this is consistent with the old code but doesn't make sense for unpremul.
-                src.r = clamp(src.r, splat(0.0f), src.a);
-                src.g = clamp(src.g, splat(0.0f), src.a);
-                src.b = clamp(src.b, splat(0.0f), src.a);
-            }
-
             // Clamp to fit destination color format if needed.
             if (src_in_gamut) {
                 // An in-gamut src blended with an in-gamut dst should stay in gamut.
@@ -447,6 +384,66 @@ namespace {
         const char* getTypeName() const override { return "NoopColorFilter"; }
     };
 
+    struct DitherShader : public SkShaderBase {
+        DitherShader(sk_sp<SkShader> shader, float rate)
+            : fShader(std::move(shader)), fRate(rate) {}
+
+        sk_sp<SkShader> fShader;
+        float           fRate;
+
+        // Only created here temporarily... never serialized.
+        Factory      getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return "DitherShader"; }
+
+        bool isOpaque() const override { return fShader->isOpaque(); }
+
+        bool onProgram(skvm::Builder* p,
+                       const SkMatrix& ctm, const SkMatrix* localM,
+                       SkFilterQuality quality, SkColorSpace* dstCS,
+                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                       skvm::F32 x, skvm::F32 y,
+                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
+            // Run our wrapped shader.
+            if (!as_SB(fShader)->program(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y,
+                                         r,g,b,a)) {
+                return false;
+            }
+            // See SkRasterPipeline dither stage.
+            // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
+            skvm::I32 X =               p->trunc(p->sub(x, p->splat(0.5f))),
+                      Y = p->bit_xor(X, p->trunc(p->sub(y, p->splat(0.5f))));
+
+            // If X's low bits are abc and Y's def, M is fcebda,
+            // 6 bits producing all values [0,63] shuffled over an 8x8 grid.
+            skvm::I32 M = p->bit_or(p->shl(p->bit_and(Y, p->splat(1)), 5),
+                          p->bit_or(p->shl(p->bit_and(X, p->splat(1)), 4),
+                          p->bit_or(p->shl(p->bit_and(Y, p->splat(2)), 2),
+                          p->bit_or(p->shl(p->bit_and(X, p->splat(2)), 1),
+                          p->bit_or(p->shr(p->bit_and(Y, p->splat(4)), 1),
+                                    p->shr(p->bit_and(X, p->splat(4)), 2))))));
+
+            // Scale to [0,1) by /64, then to (-0.5,0.5) using 63/128 (~0.492) as 0.5-ε,
+            // and finally scale all that by fRate.  We keep dither strength strictly
+            // within ±0.5 to not change exact values like 0 or 1.
+
+            // fRate could be a uniform, but since it's based on the destination SkColorType,
+            // we can bake it in without hurting the cache hit rate.
+            float scale = fRate * (  2/128.0f),
+                  bias  = fRate * (-63/128.0f);
+            skvm::F32 dither = p->mad(p->to_f32(M), p->splat(scale), p->splat(bias));
+
+            *r = p->add(*r, dither);
+            *g = p->add(*g, dither);
+            *b = p->add(*b, dither);
+
+            // TODO: this is consistent with the old code but doesn't make sense for unpremul.
+            *r = p->clamp(*r, p->splat(0.0f), *a);
+            *g = p->clamp(*g, p->splat(0.0f), *a);
+            *b = p->clamp(*b, p->splat(0.0f), *a);
+            return true;
+        }
+    };
+
     static Params effective_params(const SkPixmap& device,
                                    const SkPaint& paint,
                                    const SkMatrix& ctm) {
@@ -464,14 +461,45 @@ namespace {
                                                      sk_make_sp<NoopColorFilter>());
         }
 
+        // Add dither to the end of the shader pipeline if requested and needed.
+        if (paint.isDither() && !as_SB(shader)->isConstant()) {
+            float dither_rate = 0.0f;
+            switch (device.colorType()) {
+                case kARGB_4444_SkColorType:    dither_rate =   1/15.0f; break;
+                case   kRGB_565_SkColorType:    dither_rate =   1/63.0f; break;
+                case    kGray_8_SkColorType:
+                case  kRGB_888x_SkColorType:
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType:    dither_rate =  1/255.0f; break;
+                case kRGB_101010x_SkColorType:
+                case kRGBA_1010102_SkColorType:
+                case kBGR_101010x_SkColorType:
+                case kBGRA_1010102_SkColorType: dither_rate = 1/1023.0f; break;
+
+                case kUnknown_SkColorType:
+                case kAlpha_8_SkColorType:
+                case kRGBA_F16_SkColorType:
+                case kRGBA_F16Norm_SkColorType:
+                case kRGBA_F32_SkColorType:
+                case kR8G8_unorm_SkColorType:
+                case kA16_float_SkColorType:
+                case kA16_unorm_SkColorType:
+                case kR16G16_float_SkColorType:
+                case kR16G16_unorm_SkColorType:
+                case kR16G16B16A16_unorm_SkColorType: dither_rate = 0.0f; break;
+            }
+
+            if (dither_rate > 0) {
+                shader = sk_make_sp<DitherShader>(std::move(shader), dither_rate);
+            }
+        }
+
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
         SkBlendMode blendMode = paint.getBlendMode();
         if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
             blendMode =  SkBlendMode::kSrc;
         }
-
-        bool dither = paint.isDither() && !as_SB(shader)->isConstant();
 
         // In general all the information we use to make decisions here need to
         // be reflected in Params and Key to make program caching sound, and it
@@ -492,7 +520,6 @@ namespace {
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paint.getFilterQuality(),
-            dither,
             ctm,
         };
     }
