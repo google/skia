@@ -62,11 +62,7 @@ public:
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              SkGlyphRunListPainter* glyphPainter) const;
-    void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
-                         const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], SkBlendMode bmode,
-                         const uint16_t indices[], int ptCount,
-                         const SkPaint& paint) const;
+    void    drawVertices(const SkVertices*, SkBlendMode bmode, const SkPaint&) const;
     void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                     SkBlendMode, const SkPaint&);
 
