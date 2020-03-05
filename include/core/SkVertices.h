@@ -67,17 +67,25 @@ public:
     class Builder {
     public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
+        Builder(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
+                bool isVolatile);
 
         bool isValid() const { return fVertices != nullptr; }
 
         // if the builder is invalid, these will return 0
         int vertexCount() const;
         int indexCount() const;
+        int perVertexDataCount() const;
         bool isVolatile() const;
         SkPoint* positions();
+        uint16_t* indices();        // returns null if there are no indices
+
+        // if we have texCoords or colors, this will always be null
+        float* perVertexData();     // return null if there is no perVertexData
+
+        // If we have per-vertex-data, these will always be null
         SkPoint* texCoords();       // returns null if there are no texCoords
         SkColor* colors();          // returns null if there are no colors
-        uint16_t* indices();        // returns null if there are no indices
 
         // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
@@ -146,14 +154,16 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
-    SkPoint*     fPositions;
-    SkPoint*     fTexs;
-    SkColor*     fColors;
-    uint16_t*    fIndices;
+    SkPoint*     fPositions;        // [vertexCount]
+    uint16_t*    fIndices;          // [indexCount] or null
+    float*       fPerVertexData;    // [perVertexDataCount * vertexCount] or null
+    SkPoint*     fTexs;             // [vertexCount] or null
+    SkColor*     fColors;           // [vertexCount] or null
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCount;
     int     fIndexCount;
+    int     fPerVertexDataCount;
 
     bool fIsVolatile;
 
