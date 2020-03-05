@@ -699,7 +699,9 @@ namespace skvm {
             if (fProgram[x.id].op == Op::mul_f32) {
                 return {this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
             }
-            if (fProgram[y.id].op == Op::mul_f32) {
+
+            // TODO: why does this lead to negative colors?
+            if (false && fProgram[y.id].op == Op::mul_f32) {
                 return {this->push(Op::fnma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
             }
         }
