@@ -302,7 +302,13 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
     }
 
     if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
-        return false;
+        // FBO0-ness effects how MSAA and window rectangles work. If the characterization was
+        // tagged as FBO0 it would never have been allowed to use window rectangles. If MSAA
+        // was also never used then a DDL recorded with this characterization should be replayable
+        // on a non-FBO0 surface.
+        if (!characterization.usesGLFBO0() || characterization.sampleCount() > 1) {
+            return false;
+        }
     }
 
     SkColorType rtcColorType = GrColorTypeToSkColorType(rtc->colorInfo().colorType());
