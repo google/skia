@@ -28,7 +28,7 @@
 #include <cstring>           // memcpy()
 #include <initializer_list>  // std::initializer_list
 
-#if defined(__SSE__)
+#if defined(__SSE__) || defined(__AVX2__)
     #include <immintrin.h>
 #elif defined(__ARM_NEON)
     #include <arm_neon.h>
@@ -416,6 +416,20 @@ static inline Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>& x) {
 #endif
 }
 
+// fma() delivers a fused mul-add, even if that's really expensive.  Call it when you know it's not.
+static inline Vec<1,float> fma(const Vec<1,float>& x,
+                               const Vec<1,float>& y,
+                               const Vec<1,float>& z) {
+    return std::fma(x.val, y.val, z.val);
+}
+template <int N>
+static inline Vec<N,float> fma(const Vec<N,float>& x,
+                               const Vec<N,float>& y,
+                               const Vec<N,float>& z) {
+    return join(fma(x.lo, y.lo, z.lo),
+                fma(x.hi, y.hi, z.hi));
+}
+
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
 template <int N>
 static inline Vec<N,uint8_t> div255(const Vec<N,uint16_t>& x) {
@@ -518,6 +532,33 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
             return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
                                                    bit_pun<float32x4_t>(t),
                                                    bit_pun<float32x4_t>(e)));
+        }
+    #endif
+
+    #if defined(__AVX2__)
+        static inline Vec<4,float> fma(const Vec<4,float>& x,
+                                       const Vec<4,float>& y,
+                                       const Vec<4,float>& z) {
+            return bit_pun<Vec<4,float>>(_mm_fmadd_ps(bit_pun<__m128>(x),
+                                                      bit_pun<__m128>(y),
+                                                      bit_pun<__m128>(z)));
+        }
+
+        static inline Vec<8,float> fma(const Vec<8,float>& x,
+                                       const Vec<8,float>& y,
+                                       const Vec<8,float>& z) {
+            return bit_pun<Vec<8,float>>(_mm256_fmadd_ps(bit_pun<__m256>(x),
+                                                         bit_pun<__m256>(y),
+                                                         bit_pun<__m256>(z)));
+        }
+    #elif defined(__aarch64__)
+        static inline Vec<4,float> fma(const Vec<4,float>& x,
+                                       const Vec<4,float>& y,
+                                       const Vec<4,float>& z) {
+            // These instructions tend to work like z += xy, so the order here is z,x,y.
+            return bit_pun<Vec<4,float>>(vfmaq_f32(bit_pun<float32x4_t>(z),
+                                                   bit_pun<float32x4_t>(x),
+                                                   bit_pun<float32x4_t>(y)));
         }
     #endif
 

@@ -611,15 +611,16 @@ namespace skvm {
 
     using Reg = int;
 
+    // d = op(x, y/imm, z/imm)
+    struct InterpreterInstruction {
+        Op  op;
+        Reg d,x;
+        union { Reg y; int immy; };
+        union { Reg z; int immz; };
+    };
+
     class Program {
     public:
-        struct Instruction {   // d = op(x, y/imm, z/imm)
-            Op  op;
-            Reg d,x;
-            union { Reg y; int immy; };
-            union { Reg z; int immz; };
-        };
-
         Program(const std::vector<OptimizedInstruction>& interpreter,
                 const std::vector<int>& strides);
 
@@ -647,7 +648,7 @@ namespace skvm {
             this->eval(n, args);
         }
 
-        std::vector<Instruction> instructions() const;
+        std::vector<InterpreterInstruction> instructions() const;
         int  nargs() const;
         int  nregs() const;
         int  loop () const;
@@ -662,8 +663,6 @@ namespace skvm {
         void setupInterpreter(const std::vector<OptimizedInstruction>&);
         void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
         void setupLLVM       (const std::vector<OptimizedInstruction>&, const char* debug_name);
-
-        void interpret(int n, void* args[]) const;
 
         bool jit(const std::vector<OptimizedInstruction>&,
                  bool try_hoisting,
