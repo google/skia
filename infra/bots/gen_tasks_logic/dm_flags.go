@@ -909,6 +909,9 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
 	}
+	if has("Mac") && has("RadeonRX560") {
+		match = append(match, "~^TransferPixelsFromTextureTest$", "~^TransferPixelsToTextureTest$")
+	}
 
 	if has("ANGLE") {
 		// skia:7835
