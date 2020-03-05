@@ -413,15 +413,27 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             auto unresolvedRange = fUnresolvedBlocks.front().fText;
             auto unresolvedText = fParagraph->text(unresolvedRange);
             const char* ch = unresolvedText.begin();
-            // TODO: Make in a global cache for all fallback fonts
-            std::unordered_set<SkUnichar> tried;
+            // We have the global cache for all already found typefaces for SkUnichar
+            // but we still need to keep track of all SkUnichars used in this unresolved block
+            SkTHashSet<SkUnichar> alreadyTried;
             SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
             while (true) {
-                auto typeface = fParagraph->fFontCollection->defaultFallback(
-                        unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
-                if (typeface == nullptr) {
-                    return;
+                sk_sp<SkTypeface> typeface;
+
+                // First try to find in in a cache
+                FontKey fontKey(unicode, textStyle.getFontStyle(), textStyle.getLocale());
+                auto found = fFallbackFonts.find(fontKey);
+                if (found != nullptr) {
+                    typeface = *found;
+                } else {
+                    typeface = fParagraph->fFontCollection->defaultFallback(
+                            unicode, textStyle.getFontStyle(), textStyle.getLocale());
+
+                    if (typeface == nullptr) {
+                        return;
+                    }
+                    fFallbackFonts.set(fontKey, typeface);
                 }
 
                 auto resolved = visitor(typeface);
@@ -443,8 +455,9 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                 // We can stop here or we can switch to another DIFFERENT codepoint
                 while (ch != unresolvedText.end()) {
                     unicode = utf8_next(&ch, unresolvedText.end());
-                    if (tried.find(unicode) == tried.end()) {
-                        tried.emplace(unicode);
+                    auto found = alreadyTried.find(unicode);
+                    if (found == nullptr) {
+                        alreadyTried.add(unicode);
                         break;
                     }
                 }
@@ -650,5 +663,17 @@ TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
 
     return { textRange.start, textRange.end };
 }
+
+bool OneLineShaper::FontKey::operator==(const OneLineShaper::FontKey& other) const {
+    return fUnicode == other.fUnicode && fFontStyle == other.fFontStyle && fLocale == other.fLocale;
+}
+
+size_t OneLineShaper::FontKey::Hasher::operator()(const OneLineShaper::FontKey& key) const {
+
+    return SkGoodHash()(key.fUnicode) ^
+           SkGoodHash()(key.fFontStyle) ^
+           SkGoodHash()(key.fLocale.c_str());
+}
+
 }
 }
