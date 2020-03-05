@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "387527f7_99674322",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-05T16:23:08Z",
+      "side": 1,
+      "message": "Need to include fDSize here.",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 37
+      },
+      "revId": "efee75add74c77c37aa16924d127875f14c2e7d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fca6530b_2ed81be5",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-05T16:23:08Z",
+      "side": 1,
+      "message": "Just noticed this comment is outdated. (I assume BI and BW refer to bone indices and weights, plus it doesn\u0027t account for PVD).",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 71
+      },
+      "revId": "efee75add74c77c37aa16924d127875f14c2e7d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
