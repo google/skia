@@ -11120,8 +11120,5 @@ static const size_t testCount = SK_ARRAY_COUNT(tests);
 static bool runReverse = false;
 
 DEF_TEST(PathOpsBattle, reporter) {
-#if DEBUG_SHOW_TEST_NAME
-    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
-#endif
     RunTestSet(reporter, tests, testCount, firstTest, nullptr, stopTest, runReverse);
 }

@@ -12,7 +12,6 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
-#include "src/core/SkTLS.h"
 #include "src/ports/SkOSLibrary.h"
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 
@@ -193,10 +192,9 @@ private:
     EGLContext fContext = EGL_NO_CONTEXT;
 
     static TLSCurrentObjects* Get() {
-        return (TLSCurrentObjects*) SkTLS::Get(TLSCreate, TLSDelete);
+        static thread_local TLSCurrentObjects objects;
+        return &objects;
     }
-    static void* TLSCreate() { return new TLSCurrentObjects(); }
-    static void TLSDelete(void* objs) { delete (TLSCurrentObjects*)objs; }
 };
 
 std::function<void()> context_restorer() {
