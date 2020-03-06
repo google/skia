@@ -78,8 +78,6 @@ __argparse.add_argument('--ddlNumAdditionalThreads',
   help="number of DDL recording threads in addition to main one")
 __argparse.add_argument('--ddlTilingWidthHeight',
   type=int, default=0, help="number of tiles along one edge when in DDL mode")
-__argparse.add_argument('--ddlRecordTime',
-  action='store_true', help="report just the cpu time spent recording DDLs")
 __argparse.add_argument('--gpuThreads',
   type=int, default=-1,
   help="Create this many extra threads to assist with GPU work, including"
@@ -151,8 +149,6 @@ class SKPBench:
                  str(FLAGS.ddlNumAdditionalThreads)])
   if FLAGS.ddlTilingWidthHeight:
     ARGV.extend(['--ddlTilingWidthHeight', str(FLAGS.ddlTilingWidthHeight)])
-  if FLAGS.ddlRecordTime:
-    ARGV.extend(['--ddlRecordTime', 'true'])
 
   if FLAGS.adb:
     if FLAGS.device_serial is None:
