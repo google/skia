@@ -54,10 +54,12 @@ static SkAlpha ScaleAlpha(SkAlpha alpha, float opacity) {
    return SkToU8(sk_float_round2int(alpha * opacity));
 }
 
-static SkMatrix ComputeDiffInverse(const SkMatrix& base, const SkMatrix& ctm) {
+static sk_sp<SkShader> LocalShader(const sk_sp<SkShader> shader,
+                                   const SkMatrix& base,
+                                   const SkMatrix& ctm) {
     // Mask filters / shaders are declared to operate under a specific transform, but due to the
     // deferral mechanism, other transformations might have been pushed to the state.
-    // We want to undo these transforms:
+    // We want to undo these transforms (T):
     //
     //   baseCTM x T = ctm
     //
@@ -67,34 +69,49 @@ static SkMatrix ComputeDiffInverse(const SkMatrix& base, const SkMatrix& ctm) {
     //
     //   =>  Inv(T) = Inv(ctm) x baseCTM
 
-    SkMatrix m;
-    if (base != ctm && ctm.invert(&m)) {
-        m.preConcat(base);
+    SkMatrix lm;
+    if (base != ctm && ctm.invert(&lm)) {
+        lm.preConcat(base);
     } else {
-        m = SkMatrix::I();
+        lm = SkMatrix::I();
     }
 
-    return m;
+    // Note: this doesn't play ball with existing shader local matrices (what we really want is
+    // SkShader::makeWithPostLocalMatrix).  Probably a good signal that the whole mechanism is
+    // contrived and should be redesigned (use SkCanvas::clipShader when available, drop shader
+    // "effects" completely, etc).
+    return shader->makeWithLocalMatrix(lm);
 }
 
 bool RenderNode::RenderContext::requiresIsolation() const {
     // Note: fShader is never applied on isolation layers.
     return ScaleAlpha(SK_AlphaOPAQUE, fOpacity) != SK_AlphaOPAQUE
         || fColorFilter
-        || fMaskFilter
+        || fMaskShader
         || fBlendMode != SkBlendMode::kSrcOver;
 }
 
-void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint) const {
+void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint,
+                                              bool is_layer_paint) const {
     paint->setAlpha(ScaleAlpha(paint->getAlpha(), fOpacity));
     paint->setColorFilter(SkColorFilters::Compose(fColorFilter, paint->refColorFilter()));
     if (fShader) {
-        paint->setShader(fShader->makeWithLocalMatrix(ComputeDiffInverse(fShaderCTM, ctm)));
-    }
-    if (fMaskFilter) {
-        paint->setMaskFilter(fMaskFilter->makeWithMatrix(ComputeDiffInverse(fMaskCTM, ctm)));
+        paint->setShader(LocalShader(fShader, fShaderCTM, ctm));
     }
     paint->setBlendMode(fBlendMode);
+
+    // Only apply the shader mask for regular paints.  Isolation layers require
+    // special handling on restore.
+    if (!is_layer_paint && fMaskShader) {
+        // TODO: GPU doesn't seem to grok null-input = input-color?
+        auto paint_shader = paint->refShader();
+        if (!paint_shader) {
+            paint_shader = SkShaders::Color(paint->getColor());
+        }
+        paint->setShader(SkShaders::Blend(SkBlendMode::kSrcIn,
+                                          LocalShader(fMaskShader, fMaskCTM, ctm),
+                                          std::move(paint_shader)));
+    }
 }
 
 RenderNode::ScopedRenderContext::ScopedRenderContext(SkCanvas* canvas, const RenderContext* ctx)
@@ -104,6 +121,12 @@ RenderNode::ScopedRenderContext::ScopedRenderContext(SkCanvas* canvas, const Ren
 
 RenderNode::ScopedRenderContext::~ScopedRenderContext() {
     if (fRestoreCount >= 0) {
+        if (fMaskShader) {
+            SkPaint mask_paint;
+            mask_paint.setBlendMode(SkBlendMode::kDstIn);
+            mask_paint.setShader(std::move(fMaskShader));
+            fCanvas->drawPaint(mask_paint);
+        }
         fCanvas->restoreToCount(fRestoreCount);
     }
 }
@@ -133,8 +156,8 @@ RenderNode::ScopedRenderContext::modulateShader(sk_sp<SkShader> sh, const SkMatr
 }
 
 RenderNode::ScopedRenderContext&&
-RenderNode::ScopedRenderContext::modulateMaskFilter(sk_sp<SkMaskFilter> mf, const SkMatrix& ctm) {
-    if (fCtx.fMaskFilter) {
+RenderNode::ScopedRenderContext::modulateMaskShader(sk_sp<SkShader> ms, const SkMatrix& ctm) {
+    if (fCtx.fMaskShader) {
         // As we compose mask filters, use the relative transform T for the inner mask:
         //
         //   maskCTM x T = ctm
@@ -142,13 +165,14 @@ RenderNode::ScopedRenderContext::modulateMaskFilter(sk_sp<SkMaskFilter> mf, cons
         //   => T = Inv(maskCTM) x ctm
         //
         SkMatrix invMaskCTM;
-        if (mf && fCtx.fMaskCTM.invert(&invMaskCTM)) {
+        if (ms && fCtx.fMaskCTM.invert(&invMaskCTM)) {
             const auto relative_transform = SkMatrix::Concat(invMaskCTM, ctm);
-            fCtx.fMaskFilter = SkMaskFilter::MakeCompose(std::move(fCtx.fMaskFilter),
-                                                         mf->makeWithMatrix(relative_transform));
+            fCtx.fMaskShader = SkShaders::Blend(SkBlendMode::kSrcIn,
+                                                std::move(fCtx.fMaskShader),
+                                                ms->makeWithLocalMatrix(relative_transform));
         }
     } else {
-        fCtx.fMaskFilter = std::move(mf);
+        fCtx.fMaskShader = std::move(ms);
         fCtx.fMaskCTM    = ctm;
     }
 
@@ -166,12 +190,17 @@ RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, const SkMatr
                                               bool isolation) {
     if (isolation && fCtx.requiresIsolation()) {
         SkPaint layer_paint;
-        fCtx.modulatePaint(ctm, &layer_paint);
+        fCtx.modulatePaint(ctm, &layer_paint, /*is_layer_paint = */true);
         fCanvas->saveLayer(bounds, &layer_paint);
+
+        // Fetch the mask shader for restore.
+        if (fCtx.fMaskShader) {
+            fMaskShader = LocalShader(fCtx.fMaskShader, fCtx.fMaskCTM, ctm);
+        }
 
         // Reset only the props applied via isolation layers.
         fCtx.fColorFilter = nullptr;
-        fCtx.fMaskFilter  = nullptr;
+        fCtx.fMaskShader  = nullptr;
         fCtx.fOpacity     = 1;
         fCtx.fBlendMode   = SkBlendMode::kSrcOver;
     }
