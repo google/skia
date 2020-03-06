@@ -17,7 +17,7 @@
 #endif
 #include "src/codec/SkIcoCodec.h"
 #include "src/codec/SkJpegCodec.h"
-#ifdef SK_HAS_PNG_LIBRARY
+#ifdef SK_CODEC_DECODES_PNG
 #include "src/codec/SkPngCodec.h"
 #endif
 #include "include/core/SkStream.h"
@@ -37,10 +37,10 @@ struct DecoderProc {
 
 static std::vector<DecoderProc>* decoders() {
     static auto* decoders = new std::vector<DecoderProc> {
-    #ifdef SK_HAS_JPEG_LIBRARY
+    #ifdef SK_CODEC_DECODES_JPEG
         { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
     #endif
-    #ifdef SK_HAS_WEBP_LIBRARY
+    #ifdef SK_CODEC_DECODES_WEBP
         { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
     #endif
     #ifdef SK_HAS_WUFFS_LIBRARY
@@ -48,7 +48,7 @@ static std::vector<DecoderProc>* decoders() {
     #elif defined(SK_USE_LIBGIFCODEC)
         { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
     #endif
-    #ifdef SK_HAS_PNG_LIBRARY
+    #ifdef SK_CODEC_DECODES_PNG
         { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
     #endif
         { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
@@ -112,7 +112,7 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
 
     // PNG is special, since we want to be able to supply an SkPngChunkReader.
     // But this code follows the same pattern as the loop.
-#ifdef SK_HAS_PNG_LIBRARY
+#ifdef SK_CODEC_DECODES_PNG
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
         return SkPngCodec::MakeFromStream(std::move(stream), outResult, chunkReader);
     } else

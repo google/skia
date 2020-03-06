@@ -673,7 +673,8 @@ def base_defines(os_conditions):
         # Experiment to diagnose image diffs in Google3
         "SK_DISABLE_LOWP_RASTER_PIPELINE",
         # JPEG is in codec_limited
-        "SK_HAS_JPEG_LIBRARY",
+        "SK_CODEC_DECODES_JPEG",
+        "SK_ENCODE_JPEG",
         # Needed for some tests in dm
         "SK_ENABLE_SKSL_INTERPRETER",
     ] + skia_select(
@@ -683,15 +684,19 @@ def base_defines(os_conditions):
             [
                 "PNG_SKIP_SETJMP_CHECK",
                 "SK_BUILD_FOR_UNIX",
+                "SK_CODEC_DECODES_PNG",
+                "SK_CODEC_DECODES_WEBP",
+                "SK_ENCODE_PNG",
+                "SK_ENCODE_WEBP",
                 "SK_R32_SHIFT=16",
-                "SK_HAS_PNG_LIBRARY",
-                "SK_HAS_WEBP_LIBRARY",
             ],
             # ANDROID
             [
                 "SK_BUILD_FOR_ANDROID",
-                "SK_HAS_PNG_LIBRARY",
-                "SK_HAS_WEBP_LIBRARY",
+                "SK_CODEC_DECODES_PNG",
+                "SK_CODEC_DECODES_WEBP",
+                "SK_ENCODE_PNG",
+                "SK_ENCODE_WEBP",
             ],
             # IOS
             [
