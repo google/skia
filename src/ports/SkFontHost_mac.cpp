@@ -1052,7 +1052,7 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
+#if !defined(SK_IGNORE_MAC_OPSZ_FORCE) && 0
     } else {
         // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
         // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
@@ -1080,7 +1080,7 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
+#if !defined(SK_IGNORE_MAC_OPSZ_FORCE) || 1
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
 #else
@@ -1103,12 +1103,41 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
 
-    // CT on (at least) 10.9 will size color glyphs down from the requested size, but not up.
+    // On (at least) 10.9 to 10.14 sbix glyphs will scale down from the requested size, but not up.
     // As a result, it is necessary to know the actual device size and request that.
+    bool hasSbix = false;
+    SkUniqueCFRef<CFArrayRef> tags(CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions));
+    if (tags) {
+        CFIndex count = CFArrayGetCount(tags.get());
+        for (CFIndex i = 0; i < count; ++i) {
+            uintptr_t fontTag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags.get(), i));
+            if (fontTag == SkSetFourByteTag('s','b','i','x')) {
+                hasSbix = true;
+                break;
+            }
+        }
+    }
+
     SkVector scale;
     SkMatrix skTransform;
-    bool invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
-                                           &scale, &skTransform, nullptr, nullptr, nullptr);
+    bool invertible;
+    if (hasSbix) {
+        invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
+                                          &scale, &skTransform, nullptr, nullptr, nullptr);
+    } else {
+        scale = { 1, fRec.fTextSize };
+
+        skTransform = SkMatrix::MakeScale(fRec.fPreScaleX, 1);
+        if (fRec.fPreSkewX) {
+            skTransform.postSkew(fRec.fPreSkewX, 0);
+        }
+        SkMatrix deviceMatrix;
+        fRec.getMatrixFrom2x2(&deviceMatrix);
+        skTransform.postConcat(deviceMatrix);
+
+        invertible = true; //TODO
+    }
+
     fTransform = MatrixToCGAffineTransform(skTransform);
     // CGAffineTransformInvert documents that if the transform is non-invertible it will return the
     // passed transform unchanged. It does so, but then also prints a message to stdout. Avoid this.
@@ -2454,7 +2483,6 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
 
     // CoreText provides no information as to whether a glyph will be color or not.
     // Fonts may mix outlines and bitmaps, so information is needed on a glyph by glyph basis.
-    // If a font contains an 'sbix' table, consider it to be a color font, and disable lcd.
     if (fHasColorGlyphs) {
         rec->fMaskFormat = SkMask::kARGB32_Format;
     }
