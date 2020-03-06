@@ -129,6 +129,30 @@
       "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38f27cc8_7004980a",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-06T20:40:57Z",
+      "side": 1,
+      "message": "So, when an Op actually has a helper, this just devolves into a call like:\n        fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),\n                                  dstProxyView, gp, vertexSpec.primitiveType());\nand then that calls CreateProgramInfo. So, CreateProgramInfo is on the GrSimpleMeshDrawOpHelper bc that is the class that really needs it. Ideally it wouldn\u0027t need to be public and all the Ops would just have a helper. In the same vein, I\u0027m trying to propagate CreateProgramInfo everywhere and hide CreatePipeline.\n\nI would argue against just folding it all into GrProgramInfo::Make since, at least at this point, we\u0027re also creating the pipeline separately.",
+      "parentUuid": "38e4ec4d_2aba0e1e",
+      "range": {
+        "startLine": 887,
+        "startChar": 0,
+        "endLine": 893,
+        "endChar": 88
+      },
+      "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
