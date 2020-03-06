@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkShaderMaskFilter.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
@@ -46,32 +45,43 @@ protected:
 
         if (fCompletion <= 0) {
             fMaskSigma  = 0;
-            fMaskFilter = nullptr;
+            fMaskShader = nullptr;
         } else {
             fMaskSigma = std::max(fFeather, 0.0f) * kBlurSizeToSigma;
 
-            // The gradient is inverted between non-blurred and blurred (latter requires dstOut).
-            const SkColor c0 = fMaskSigma > 0 ? 0xffffffff : 0x00000000,
-                          c1 = 0xffffffff - c0;
-            auto t = fCompletion * 0.01f;
+            const auto t = fCompletion * 0.01f;
 
-            const SkColor grad_colors[] = { c0, c1 };
-            const SkScalar   grad_pos[] = {  t,  t };
+            // Note: this could be simplified as a one-hard-stop gradient + local matrix
+            // (to apply rotation).  Alas, local matrices are no longer supported in SkSG.
+            SkColor c0 = 0x00000000,
+                    c1 = 0xffffffff;
+            auto sanitize_angle = [](float a) {
+                a = std::fmod(a, 360);
+                if (a < 0) {
+                    a += 360;
+                }
+                return a;
+            };
 
-            SkMatrix lm;
-            lm.setRotate(fStartAngle - 90 + t * this->wipeAlignment(),
-                         fWipeCenter.x(), fWipeCenter.y());
+            auto a0 = sanitize_angle(fStartAngle - 90 + t * this->wipeAlignment()),
+                 a1 = sanitize_angle(a0 + t * 360);
+            if (a0 > a1) {
+                std::swap(a0, a1);
+                std::swap(c0, c1);
+            }
 
-            fMaskFilter = SkShaderMaskFilter::Make(
-                            SkGradientShader::MakeSweep(fWipeCenter.x(), fWipeCenter.y(),
-                                                        grad_colors, grad_pos,
-                                                        SK_ARRAY_COUNT(grad_colors), 0, &lm));
+            const SkColor grad_colors[] = { c1, c0, c0, c1 };
+            const SkScalar   grad_pos[] = {  0,  0,  1,  1 };
+
+            fMaskShader = SkGradientShader::MakeSweep(fWipeCenter.x(), fWipeCenter.y(),
+                                                      grad_colors, grad_pos,
+                                                      SK_ARRAY_COUNT(grad_colors),
+                                                      SkTileMode::kClamp,
+                                                      a0, a1, 0, nullptr);
 
             // Edge feather requires a real blur.
             if (fMaskSigma > 0) {
-                fMaskFilter = SkMaskFilter::MakeCompose(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
-                                                                               fMaskSigma),
-                                                        std::move(fMaskFilter));
+                // TODO: this feature is disabled ATM.
             }
         }
 
@@ -84,27 +94,9 @@ protected:
             return;
         }
 
-        if (!fMaskSigma) {
-            // No mask filter, or a shader-only mask filter: we can draw the content directly.
-            const auto local_ctx = ScopedRenderContext(canvas, ctx)
-                                        .modulateMaskFilter(fMaskFilter, canvas->getTotalMatrix());
-            this->children()[0]->render(canvas, local_ctx);
-            return;
-        }
-
-        // Blurred mask filters require a separate layer.
-        SkAutoCanvasRestore acr(canvas, false);
-        canvas->saveLayer(this->bounds(), nullptr);
-
-        this->children()[0]->render(canvas, ctx);
-
-        // Outset the mask to clip-out any edge blur.
-        const auto mask_bounds = this->bounds().makeOutset(fMaskSigma * 3, fMaskSigma * 3);
-
-        SkPaint mask_paint;
-        mask_paint.setBlendMode(SkBlendMode::kDstOut);
-        mask_paint.setMaskFilter(fMaskFilter);
-        canvas->drawRect(mask_bounds, mask_paint);
+        const auto local_ctx = ScopedRenderContext(canvas, ctx)
+                                    .modulateMaskShader(fMaskShader, canvas->getTotalMatrix());
+        this->children()[0]->render(canvas, local_ctx);
     }
 
 private:
@@ -125,8 +117,8 @@ private:
             fFeather    = 0;
 
     // Cached during revalidation.
-    sk_sp<SkMaskFilter> fMaskFilter;
-    float               fMaskSigma; // edge feather/blur
+    sk_sp<SkShader> fMaskShader;
+    float           fMaskSigma; // edge feather/blur
 
     using INHERITED = sksg::CustomRenderNode;
 };
