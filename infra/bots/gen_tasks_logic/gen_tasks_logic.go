@@ -1185,18 +1185,26 @@ func (b *jobBuilder) infra() {
 		} else {
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		}
-		extraProps := map[string]string{
-			"repository": specs.PLACEHOLDER_REPO,
-		}
-		b.kitchenTask("infra", extraProps, OUTPUT_NONE)
-		b.isolate("infra_tests.isolate")
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.usesGo()
+		b.cmd(
+			"./infra-tests",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--workdir", ".",
+			"--alsologtostderr",
+		)
+		b.cipd(CIPD_PKG_CPYTHON)
 		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.dep(b.buildTaskDrivers())
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.idempotent()
+		b.attempts(2)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		// Repos which call into Skia's gen_tasks.go should define their own
 		// infra_tests.isolate and therefore should not use relpath().
 		b.Spec.Isolate = "infra_tests.isolate"
-		b.usesGo()
+		b.timeout(time.Hour)
 	})
 }
 

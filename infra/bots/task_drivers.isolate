@@ -1,10 +1,11 @@
 {
+  'includes': [
+    'infrabots.isolate',
+  ],
   'variables': {
     'files': [
-      'build_task_drivers.sh',
       '../../go.mod',
       '../../go.sum',
-      '../../../.gclient',
     ],
   },
 }
