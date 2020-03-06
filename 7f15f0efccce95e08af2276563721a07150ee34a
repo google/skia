@@ -105,6 +105,30 @@
       "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38e4ec4d_2aba0e1e",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-06T20:22:44Z",
+      "side": 1,
+      "message": "Yeah, I agree it is ugly, but why centralize it in GrSimpleMeshDrawOpHelper though? And why a factory function? Why not just add a constructor to GrProgramInfo that takes the more tidy argument list?",
+      "parentUuid": "40399991_e6d02395",
+      "range": {
+        "startLine": 887,
+        "startChar": 0,
+        "endLine": 893,
+        "endChar": 88
+      },
+      "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
