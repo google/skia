@@ -55,6 +55,7 @@ if (current_toolchain == default_toolchain) {
 }
 
 toolchain("msvc") {
+  lib_switch = ""
   lib_dir_switch = "/LIBPATH:"
 
   bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
