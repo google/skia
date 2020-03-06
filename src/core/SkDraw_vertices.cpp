@@ -224,23 +224,18 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
-void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-                          const SkPaint& paint) const {
+void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
+                                 const SkPaint& paint, const SkMatrix& ctmInv,
+                                 const SkPoint dev2[], const SkPoint3 dev3[],
+                                 SkArenaAlloc* outerAlloc) const {
+    SkASSERT(vertices->perVertexDataCount() == 0);
+
     const int vertexCount = vertices->vertexCount();
     const int indexCount = vertices->indexCount();
     const SkPoint* positions = vertices->positions();
-    const uint16_t* indices = vertices->indices();
     const SkPoint* textures = vertices->texCoords();
+    const uint16_t* indices = vertices->indices();
     const SkColor* colors = vertices->colors();
-
-    // abort early if there is nothing to draw
-    if (vertexCount < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
-        return;
-    }
-    SkMatrix ctmInv;
-    if (!fMatrix->invert(&ctmInv)) {
-        return;
-    }
 
     // make textures and shader mutually consistent
     SkShader* shader = paint.getShader();
@@ -269,12 +264,6 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         shader = nullptr;
     }
 
-    constexpr size_t kDefVertexCount = 16;
-    constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
-                                 sizeof(SkShader_Blend) +
-                                 (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
-    SkSTArenaAlloc<kOuterSize> outerAlloc;
-
     /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
         and how to prep our "uniforms" before each triangle in the tricolorshader.
 
@@ -284,28 +273,6 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         To be safe, we just make that determination here, and pass it into the tricolorshader.
      */
     const bool usePerspective = fMatrix->hasPerspective();
-
-    SkPoint* devVerts = nullptr;
-    SkPoint3* dev3 = nullptr;
-
-    if (usePerspective) {
-        dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fMatrix->mapHomogeneousPoints(dev3, positions, vertexCount);
-        // similar to the bounds check for 2d points (below)
-        if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
-            return;
-        }
-    } else {
-        devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fMatrix->mapPoints(devVerts, positions, vertexCount);
-
-        SkRect bounds;
-        // this also sets bounds to empty if we see a non-finite value
-        bounds.setBounds(devVerts, vertexCount);
-        if (bounds.isEmpty()) {
-            return;
-        }
-    }
 
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vertices->mode());
@@ -339,7 +306,7 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                 }
             } else {
                 SkPoint array[] = {
-                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
+                    dev2[state.f0], dev2[state.f1], dev2[state.f2], dev2[state.f0]
                 };
                 hairProc(array, 4, clip, blitter.get());
             }
@@ -351,11 +318,11 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     SkPMColor4f*  dstColors = nullptr;
 
     if (colors) {
-        dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), &outerAlloc);
-        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
+        dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
+        triShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
                                                       usePerspective);
         if (shader) {
-            shader = outerAlloc.make<SkShader_Blend>(bmode,
+            shader = outerAlloc->make<SkShader_Blend>(bmode,
                                                      sk_ref_sp(triShader), sk_ref_sp(shader),
                                                      nullptr);
         } else {
@@ -363,9 +330,9 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         }
     }
 
-    auto handle_devVerts = [&](SkBlitter* blitter) {
+    auto handle_dev2 = [&](SkBlitter* blitter) {
         SkPoint tmp[] = {
-            devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+            dev2[state.f0], dev2[state.f1], dev2[state.f2]
         };
         SkScan::FillTriangle(tmp, *fRC, blitter);
     };
@@ -389,7 +356,7 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     p.setShader(sk_ref_sp(shader));
 
     if (!textures) {    // only tricolor shader
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc);
         while (vertProc(&state)) {
             if (!triShader->update(ctmInv, positions, dstColors, state.f0, state.f1, state.f2)) {
                 continue;
@@ -398,15 +365,15 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
             if (dev3) {
                 handle_dev3(blitter);
             } else {
-                handle_devVerts(blitter);
+                handle_dev2(blitter);
             }
         }
         return;
     }
 
-    SkRasterPipeline pipeline(&outerAlloc);
+    SkRasterPipeline pipeline(outerAlloc);
     SkStageRec rec = {
-        &pipeline, &outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrix
+        &pipeline, outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrix
     };
     if (auto updater = as_SB(shader)->appendUpdatableStages(rec)) {
         bool isOpaque = shader->isOpaque();
@@ -415,7 +382,7 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                                 // all opaque (and the blendmode will keep them that way
         }
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &outerAlloc);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc);
         while (vertProc(&state)) {
             if (triShader && !triShader->update(ctmInv, positions, dstColors,
                                                 state.f0, state.f1, state.f2)) {
@@ -431,7 +398,7 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
             if (dev3) {
                 handle_dev3(blitter);
             } else {
-                handle_devVerts(blitter);
+                handle_dev2(blitter);
             }
         }
     } else {
@@ -459,8 +426,65 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
             if (dev3) {
                 handle_dev3(blitter);
             } else {
-                handle_devVerts(blitter);
+                handle_dev2(blitter);
             }
         }
+    }
+}
+
+void SkDraw::draw_vdata_vertices(const SkVertices* vertices, const SkPaint& paint,
+                                 const SkMatrix& ctmInv,
+                                 const SkPoint dev2[], const SkPoint3 dev3[],
+                                 SkArenaAlloc* outerAlloc) const {
+
+}
+
+void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
+                          const SkPaint& paint) const {
+    const int vertexCount = vertices->vertexCount();
+    const int indexCount = vertices->indexCount();
+    const int perVertexDataCount = vertices->perVertexDataCount();
+
+    // abort early if there is nothing to draw
+    if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
+        return;
+    }
+    SkMatrix ctmInv;
+    if (!fMatrix->invert(&ctmInv)) {
+        return;
+    }
+
+    constexpr size_t kDefVertexCount = 16;
+    constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
+                                 sizeof(SkShader_Blend) +
+                                 (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
+    SkSTArenaAlloc<kOuterSize> outerAlloc;
+
+    SkPoint*  dev2 = nullptr;
+    SkPoint3* dev3 = nullptr;
+
+    if (fMatrix->hasPerspective()) {
+        dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
+        fMatrix->mapHomogeneousPoints(dev3, vertices->positions(), vertexCount);
+        // similar to the bounds check for 2d points (below)
+        if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
+            return;
+        }
+    } else {
+        dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
+        fMatrix->mapPoints(dev2, vertices->positions(), vertexCount);
+
+        SkRect bounds;
+        // this also sets bounds to empty if we see a non-finite value
+        bounds.setBounds(dev2, vertexCount);
+        if (bounds.isEmpty()) {
+            return;
+        }
+    }
+
+    if (perVertexDataCount == 0) {
+        this->draw_fixed_vertices(vertices, bmode, paint, ctmInv, dev2, dev3, &outerAlloc);
+    } else {
+        this->draw_vdata_vertices(vertices, paint, ctmInv, dev2, dev3, &outerAlloc);
     }
 }
