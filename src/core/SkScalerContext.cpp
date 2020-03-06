@@ -781,6 +781,9 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
 
     // At this point, given GA, create s.
     switch (preMatrixScale) {
+        case kSize_PreMatrixScale:
+            s->fX = SkScalarAbs(fTextSize);
+            s->fY = SkScalarAbs(fTextSize);
         case kFull_PreMatrixScale:
             s->fX = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
             s->fY = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
