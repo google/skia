@@ -128,16 +128,15 @@ const skjson::Value& EffectBuilder::GetPropValue(const skjson::ArrayValue& jprop
     return jprop ? (*jprop)["v"] : kNull;
 }
 
-MaskFilterEffectBase::MaskFilterEffectBase(sk_sp<sksg::RenderNode> child, const SkSize& ls)
-    : fMaskNode(sksg::MaskFilter::Make(nullptr))
-    , fMaskEffectNode(sksg::MaskFilterEffect::Make(std::move(child), fMaskNode))
+MaskShaderEffectBase::MaskShaderEffectBase(sk_sp<sksg::RenderNode> child, const SkSize& ls)
+    : fMaskEffectNode(sksg::MaskShaderEffect::Make(std::move(child)))
     , fLayerSize(ls) {}
 
-void MaskFilterEffectBase::onSync() {
+void MaskShaderEffectBase::onSync() {
     const auto minfo = this->onMakeMask();
 
     fMaskEffectNode->setVisible(minfo.fVisible);
-    fMaskNode->setMaskFilter(std::move(minfo.fMask));
+    fMaskEffectNode->setShader(std::move(minfo.fMaskShader));
 }
 
 } // namespace internal
