@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e146b78e_87394afe",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-06T17:53:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04adc0b5_9ed6630e",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 270,
+        "endChar": 60
+      },
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "615225ed_ce91eafe",
         "filename": "include/core/SkVertices.h",
         "patchSetId": 7
@@ -53,6 +77,24 @@
       "writtenOn": "2020-03-06T17:44:43Z",
       "side": 1,
       "message": "I think I\u0027ve probably not been paying attention... don\u0027t we already have a per-vertex color channel?  vt-\u003ecolors()?",
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a1ecfb5_864abd64",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-06T17:53:06Z",
+      "side": 1,
+      "message": "When we have vert-data, we (by definition/decision) won\u0027t have texCoords() nor colors(). Basically I\u0027m using the same object (SkVertices) to hold *either* text/colors XOR vert-data.\n\nIn the real world, the vdata will be passed to the SkSL shader on the paint as its varyings,\nand then magic will ensure. Since that work is a ways off, I wanted to just hack in something\nso I can test the plumbing. In this case, the hack is to treat the varyings as RGBA just so\nI can see something on screen.",
+      "parentUuid": "23844622_b83ae8b6",
       "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
