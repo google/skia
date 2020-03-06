@@ -22,6 +22,40 @@
       "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "615225ed_ce91eafe",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-06T17:44:43Z",
+      "side": 1,
+      "message": "Now this is the kind of comment I can really get behind.",
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23844622_b83ae8b6",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-06T17:44:43Z",
+      "side": 1,
+      "message": "I think I\u0027ve probably not been paying attention... don\u0027t we already have a per-vertex color channel?  vt-\u003ecolors()?",
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
