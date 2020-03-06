@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8a55623_9a174946",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-06T15:12:18Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 545,
+        "startChar": 6,
+        "endLine": 545,
+        "endChar": 9
+      },
+      "revId": "cb1d4634b69ce283d6b9751be46e80f2618d26be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
