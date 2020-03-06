@@ -4,7 +4,6 @@
 
 
 from recipe_engine import recipe_api
-from recipe_engine import config_types
 
 
 class DoxygenApi(recipe_api.RecipeApi):
