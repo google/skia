@@ -266,3 +266,32 @@ DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
     canvas->translate(50, 0);
     draw_batching(canvas);
 }
+
+DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
+    SkRect r = { 10, 10, 480, 480 };
+    int vcount = 4; // just a quad
+    int icount = 0;
+    int dcount = 4; // rgba values for now
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, dcount, false);
+
+    // build the quad
+    SkPoint* pos = builder.positions();
+    pos[0] = {r.fLeft, r.fTop};
+    pos[1] = {r.fRight, r.fTop};
+    pos[2] = {r.fRight, r.fBottom};
+    pos[3] = {r.fLeft, r.fBottom};
+
+    SkV4* col = (SkV4*)builder.perVertexData();
+    // We happen to treat the 4 fields as RGBA, in coordination with a hack in the raster-impl.
+    // In the future, these fields will just be passed to whatever SkSL we provide in the paint's
+    // shader.
+    col[0] = {1, 0, 0, 1};  // red
+    col[1] = {0, 1, 0, 1};  // green
+    col[2] = {0, 0, 1, 1};  // blue
+    col[3] = {0.5, 0.5, 0.5, 1};    // gray
+
+    auto vert = builder.detach();
+    SkPaint paint;
+    // paint.setShader(sksl_shader);
+    canvas->drawVertices(vert, paint);
+}
