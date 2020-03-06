@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "968c1d9f_2b3994d0",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-03-06T18:17:38Z",
+      "side": 1,
+      "message": "nit.\n\n: fOut(out)\n, fMarkId(-1) {",
+      "revId": "da37088fb25c76c05e578dcfa7b0ff7ad43821c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
