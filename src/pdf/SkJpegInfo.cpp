@@ -9,7 +9,7 @@
 
 #include "include/private/SkTo.h"
 
-#ifndef SK_CODEC_DECODES_JPEG
+#ifndef SK_HAS_JPEG_LIBRARY
 
 namespace {
 class JpegSegment {
@@ -125,4 +125,4 @@ bool SkGetJpegInfo(const void* data, size_t len,
     }
     return true;
 }
-#endif  // SK_CODEC_DECODES_JPEG
+#endif  // SK_HAS_JPEG_LIBRARY

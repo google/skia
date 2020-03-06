@@ -86,12 +86,9 @@ echo "Compiling bitcode"
   skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_libheif=false \
-  skia_use_libjpeg_turbo_decode=true \
-  skia_use_libjpeg_turbo_encode=false \
-  skia_use_libpng_decode=true \
-  skia_use_libpng_encode=false \
-  skia_use_libwebp_decode=true \
-  skia_use_libwebp_encode=false \
+  skia_use_libjpeg_turbo=true \
+  skia_use_libpng=true \
+  skia_use_libwebp=true \
   skia_use_wuffs=true \
   skia_use_lua=false \
   skia_use_piex=false \

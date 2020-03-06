@@ -248,22 +248,19 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_spirv_validation'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
-      'is_official_build':             'true',
-      'skia_enable_fontmgr_empty':     'true',
-      'skia_enable_gpu':               'true',
+      'is_official_build':         'true',
+      'skia_enable_fontmgr_empty': 'true',
+      'skia_enable_gpu':           'true',
 
-      'skia_enable_pdf':               'false',
-      'skia_use_expat':                'false',
-      'skia_use_freetype':             'false',
-      'skia_use_harfbuzz':             'false',
-      'skia_use_libjpeg_turbo_decode': 'false',
-      'skia_use_libjpeg_turbo_encode': 'false',
-      'skia_use_libpng_decode':        'false',
-      'skia_use_libpng_encode':        'false',
-      'skia_use_libwebp_decode':       'false',
-      'skia_use_libwebp_encode':       'false',
-      'skia_use_vulkan':               'false',
-      'skia_use_zlib':                 'false',
+      'skia_enable_pdf':        'false',
+      'skia_use_expat':         'false',
+      'skia_use_freetype':      'false',
+      'skia_use_harfbuzz':      'false',
+      'skia_use_libjpeg_turbo': 'false',
+      'skia_use_libpng':        'false',
+      'skia_use_libwebp':       'false',
+      'skia_use_vulkan':        'false',
+      'skia_use_zlib':          'false',
     })
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'
