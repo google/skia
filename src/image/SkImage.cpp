@@ -28,7 +28,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrTexture.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
@@ -143,10 +142,6 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 
 #if SK_SUPPORT_GPU
 
-GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->onGetTexture();
-}
-
 bool SkImage::isTextureBacked() const { return as_IB(this)->onIsTextureBacked(); }
 
 GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
@@ -168,8 +163,6 @@ GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flus
 void SkImage::flush(GrContext* context) { as_IB(this)->onFlush(context, {}); }
 
 #else
-
-GrTexture* SkImage::getTexture() const { return nullptr; }
 
 bool SkImage::isTextureBacked() const { return false; }
 

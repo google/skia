@@ -666,6 +666,28 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+GrTexture* get_texture_from_image(GrContext* ctx, SkImage* image) {
+    GrTextureProxy* proxy = as_IB(image)->peekProxy();
+    if (proxy && proxy->isInstantiated()) {
+        return proxy->peekTexture();
+    }
+
+    auto direct = ctx->priv().asDirectContext();
+    if (!direct) {
+        // This image was created with a DDL context and cannot be instantiated.
+        return nullptr;
+    }
+
+    const GrSurfaceProxyView* view = as_IB(image)->view(direct);
+    SkASSERT(view && *view && !view->proxy()->isInstantiated());
+
+    if (!view->proxy()->instantiate(direct->priv().resourceProvider())) {
+        return nullptr;
+    }
+
+    return view->proxy()->peekTexture();
+}
+
 bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
                                             sk_sp<SkImage> image,
                                             GrBackendTexture* backendTexture,
@@ -681,7 +703,8 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
             return false;
         }
     }
-    GrTexture* texture = image->getTexture();
+    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
+    GrTexture* texture = gpuImage->getTexture();
     if (!texture) {
         // In context-loss cases, we may not have a texture.
         return false;
@@ -705,7 +728,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
             return false;
         }
 
-        texture = image->getTexture();
+        texture = gpuImage->getTexture();
         if (!texture) {
             return false;
         }

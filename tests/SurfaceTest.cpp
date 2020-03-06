@@ -510,13 +510,19 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     // be recycling a texture that is held by an existing image.
     canvas2->clear(5);
     sk_sp<SkImage> image4(surface2->makeImageSnapshot());
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image3)->getTexture());
+
+    SkImage_GpuBase* gpuImage1 = static_cast<SkImage_GpuBase*>(as_IB(image1));
+    SkImage_GpuBase* gpuImage2 = static_cast<SkImage_GpuBase*>(as_IB(image2));
+    SkImage_GpuBase* gpuImage3 = static_cast<SkImage_GpuBase*>(as_IB(image3));
+    SkImage_GpuBase* gpuImage4 = static_cast<SkImage_GpuBase*>(as_IB(image4));
+
+    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage3->getTexture());
     // The following assertion checks crbug.com/263329
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image2)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image1)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image2)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image1)->getTexture());
-    REPORTER_ASSERT(reporter, as_IB(image2)->getTexture() != as_IB(image1)->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage2->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage1->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage3->getTexture() != gpuImage2->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage3->getTexture() != gpuImage1->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage2->getTexture() != gpuImage1->getTexture());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {

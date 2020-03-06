@@ -8,7 +8,8 @@ Milestone 82
 
 <Insert new notes here- top is most recent.>
   * Removed GrGpuResource, GrSurface, and GrTexture from public api. These were not
-    meant to be public, and we now can move them into src.
+    meant to be public, and we now can move them into src. Also removed getTexture
+    function from SkImage.h
 
   * Removed Bones from SkVertices
 

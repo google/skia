@@ -11,6 +11,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_GpuBase.h"
 #include "tests/Test.h"
 
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
@@ -21,12 +22,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
     }
 
     auto isMipped = [] (SkSurface* surf) {
-        const GrTexture* texture = surf->makeImageSnapshot()->getTexture();
+        SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
+        const GrTexture* texture = image->getTexture();
         return GrMipMapped::kYes == texture->texturePriv().mipMapped();
     };
 
     auto mipsAreDirty = [] (SkSurface* surf) {
-        return surf->makeImageSnapshot()->getTexture()->texturePriv().mipMapsAreDirty();
+        SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
+        return image->getTexture()->texturePriv().mipMapsAreDirty();
     };
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);

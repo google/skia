@@ -25,6 +25,7 @@ class GrProxyProvider;
 class SkString;
 class SkTraceMemoryDump;
 class GrSingleOwner;
+class GrTexture;
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;

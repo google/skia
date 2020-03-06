@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkMutex.h"
+#include "src/gpu/GrTexture.h"
 
 class GrSemaphore;
 
