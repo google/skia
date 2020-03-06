@@ -116,6 +116,24 @@
       "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aed3669f_c58e4575",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-06T18:22:02Z",
+      "side": 1,
+      "message": "At this point, I should have this function just return, with a TODO: need SkSL to support varyings.\n\nAs a hack, I thought I\u0027d interpret 4-floats as a color, just so I could see something until\nSkSL arrives. This is completely useless to a real client (hence the don\u0027t-call-me comment\nin the Builder), but is a bit useful to my one GM, just to test the plumbing.",
+      "parentUuid": "2f4fad28_ca2454e1",
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
