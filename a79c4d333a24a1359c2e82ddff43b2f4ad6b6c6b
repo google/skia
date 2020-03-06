@@ -22,6 +22,30 @@
       "revId": "a79c4d333a24a1359c2e82ddff43b2f4ad6b6c6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80cf1b03_6e04f149",
+        "filename": "modules/canvaskit/htmlcanvas/canvas2dcontext.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-06T16:14:15Z",
+      "side": 1,
+      "message": "I agree (although I\u0027ll have to remember that the closure compiler version used by emscripten needs the old style function() {} and probably a .bind(this) for good measure)",
+      "parentUuid": "5fe512dd_3d1bf9ca",
+      "range": {
+        "startLine": 1110,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 55
+      },
+      "revId": "a79c4d333a24a1359c2e82ddff43b2f4ad6b6c6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
