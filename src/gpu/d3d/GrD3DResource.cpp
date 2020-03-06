@@ -11,8 +11,6 @@
 
 void GrD3DResource::setResourceState(const GrD3DGpu* gpu,
                                      D3D12_RESOURCE_STATES newResourceState) {
-    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newResourceState &&
-             VK_IMAGE_LAYOUT_PREINITIALIZED != newResourceState);
     SkASSERT(fStateExplicitlySet);
 /* TODO
  * Something like:
