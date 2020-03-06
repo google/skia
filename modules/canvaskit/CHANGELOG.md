@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `MakeTwoPointConicalGradientShader` will be renamed soon. Calls can be replaced with
    `SkShader.MakeTwoPointConicalGradient`.
 
+### Fixed
+ - Shadows are properly draw on fillRect and strokeRect in the canvas2d emulation layer.
+ - Shadow offsets properly ignore the CTM in the canvas2d emulation layer.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
