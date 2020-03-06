@@ -10,21 +10,21 @@
 #include "include/encode/SkWebpEncoder.h"
 #include "src/images/SkImageEncoderPriv.h"
 
-#ifndef SK_ENCODE_JPEG
+#ifndef SK_HAS_JPEG_LIBRARY
 bool SkJpegEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
 
-#ifndef SK_ENCODE_PNG
+#ifndef SK_HAS_PNG_LIBRARY
 bool SkPngEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
 
-#ifndef SK_ENCODE_WEBP
+#ifndef SK_HAS_WEBP_LIBRARY
 bool SkWebpEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 #endif
 

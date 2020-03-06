@@ -7,7 +7,7 @@
 
 #include "src/images/SkImageEncoderPriv.h"
 
-#ifdef SK_ENCODE_PNG
+#ifdef SK_HAS_PNG_LIBRARY
 
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"

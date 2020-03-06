@@ -7,9 +7,6 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
-  * Make it possible to selectively turn on/off individual encoders/decoders,
-    using skia_use_(libpng/libjpeg_turbo/libwebp)(decode/encode).
-
   * Removed GrGpuResource, GrSurface, and GrTexture from public api. These were not
     meant to be public, and we now can move them into src. Also removed getTexture
     function from SkImage.h

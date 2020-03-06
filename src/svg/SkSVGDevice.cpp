@@ -24,6 +24,7 @@
 #include "include/utils/SkBase64.h"
 #include "include/utils/SkParsePath.h"
 #include "src/codec/SkJpegCodec.h"
+#include "src/codec/SkPngCodec.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
@@ -451,13 +452,6 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
     resources->fColorFilter.printf("url(#%s)", colorfilterID.c_str());
 }
 
-namespace {
-bool is_png(const void* bytes, size_t length) {
-    constexpr uint8_t kPngSig[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-    return length >= sizeof(kPngSig) && !memcmp(bytes, kPngSig, sizeof(kPngSig));
-}
-}
-
 // Returns data uri from bytes.
 // it will use any cached data if available, otherwise will
 // encode as png.
@@ -467,28 +461,22 @@ sk_sp<SkData> AsDataUri(SkImage* image) {
         return nullptr;
     }
 
+    const char* src = (char*)imageData->data();
     const char* selectedPrefix = nullptr;
     size_t selectedPrefixLength = 0;
 
-#ifdef SK_CODEC_DECODES_JPEG
-    if (SkJpegCodec::IsJpeg(imageData->data(), imageData->size())) {
-        const static char jpgDataPrefix[] = "data:image/jpeg;base64,";
+    const static char pngDataPrefix[] = "data:image/png;base64,";
+    const static char jpgDataPrefix[] = "data:image/jpeg;base64,";
+
+    if (SkJpegCodec::IsJpeg(src, imageData->size())) {
         selectedPrefix = jpgDataPrefix;
         selectedPrefixLength = sizeof(jpgDataPrefix);
-    }
-    else
-#endif
-    {
-        if (!is_png(imageData->data(), imageData->size())) {
-#ifdef SK_ENCODE_PNG
-            imageData = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
-#else
-            return nullptr;
-#endif
-        }
-        const static char pngDataPrefix[] = "data:image/png;base64,";
-        selectedPrefix = pngDataPrefix;
-        selectedPrefixLength = sizeof(pngDataPrefix);
+    } else {
+      if (!SkPngCodec::IsPng(src, imageData->size())) {
+        imageData = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
+      }
+      selectedPrefix = pngDataPrefix;
+      selectedPrefixLength = sizeof(pngDataPrefix);
     }
 
     size_t b64Size = SkBase64::Encode(imageData->data(), imageData->size(), nullptr);
