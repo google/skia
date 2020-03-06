@@ -323,7 +323,7 @@ namespace {
             if (src_in_gamut) {
                 // An in-gamut src blended with an in-gamut dst should stay in gamut.
                 // Being in-gamut implies all channels are in [0,1], so no need to clamp.
-                // We allow one ulp error above 1.0f, and about that much (~1.2e7) below 0.
+                // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
                 skvm::F32 lo = bit_cast(splat(0xb400'0000)),
                           hi = bit_cast(splat(0x3f80'0001));
                 assert_true(eq(src.r, clamp(src.r, lo, hi)), src.r);
