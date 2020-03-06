@@ -18,10 +18,12 @@
 <canvas id=sk_onboarding width=500 height=500></canvas>
 <canvas id=sk_animated_gif width=500 height=500
         title='This is an animated gif being animated in Skottie'></canvas>
+<canvas id=sk_webfont width=500 height=500
+        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
 
 <h2> RT Shader </h2>
 <canvas id=rtshader width=300 height=300></canvas>
-<canvas id=rtshader2 width=300 height=300></canvas>
+
 
 <h2> Particles </h2>
 <canvas id=particles width=500 height=500></canvas>
@@ -31,7 +33,7 @@
 
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
-<canvas id=skp width=300 height=300></canvas>
+<canvas id=skp width=500 height=500></canvas>
 
 <h2> 3D perspective transformations </h2>
 <canvas id=camera3d width=500 height=500></canvas>
@@ -46,11 +48,13 @@
   var confettiJSON = null;
   var onboardingJSON = null;
   var multiFrameJSON = null;
+  var webfontJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
   var notoserifData = null;
 
+  var bonesImageData = null;
   var flightAnimGif = null;
   var skpData = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
@@ -69,6 +73,10 @@
     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
       'image_0.png': flightAnimGif,
     });
+    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
+      'Roboto-Regular': robotoData,
+    });
+
     ParticlesAPI1(CanvasKit);
 
     ParagraphAPI1(CanvasKit, robotoData);
@@ -128,11 +136,14 @@
   fetch(cdn + 'Roboto-Regular.ttf').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
+      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
+        'Roboto-Regular': robotoData,
+      });
       ParagraphAPI1(CanvasKit, robotoData);
     });
   });
 
-  fetch(cdn + 'red_line.skp').then((response) => response.arrayBuffer()).then((buffer) => {
+  fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer()).then((buffer) => {
     skpData = buffer;
     SkpExample(CanvasKit, skpData);
   });
@@ -387,7 +398,14 @@ const curves = {
     if (!CanvasKit) {
       return;
     }
+    const prog = `
 
+  uniform half4 gColor;
+
+  void main(float2 p, inout half4 color) {
+      color = half4(half2(p)*(1.0/255), gColor.b, 1);
+  }
+`;
     const surface = CanvasKit.MakeCanvasSurface('rtshader');
     if (!surface) {
       console.error('Could not make surface');
@@ -396,134 +414,19 @@ const curves = {
 
     const canvas = surface.getCanvas();
 
-    const effect = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
-    const shader = effect.makeShader([
-      0.5,
-      150, 150,
-      0, 1, 0, 1,
-      1, 0, 0, 1], true);
+    const effect = CanvasKit._SkRuntimeEffect.Make(prog);
+    const rot = CanvasKit.SkMatrix.rotated(90, 128, 128);
+    const shader = effect.makeShader([1, 0, 0, 1], true, rot);
+
     const paint = new CanvasKit.SkPaint();
     paint.setShader(shader);
-    canvas.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
+    canvas.drawRect(CanvasKit.LTRBRect(0, 0, 256, 256), paint);
 
     surface.flush();
     shader.delete();
     paint.delete();
     effect.delete();
   }
-
-  // RTShader2 demo
-  Promise.all([ckLoaded, loadDog, loadMandrill]).then((values) => {
-    const [CanvasKit, dogData, mandrillData] = values;
-    const dogImg = CanvasKit.MakeImageFromEncoded(dogData);
-    if (!dogImg) {
-      console.error('could not decode dog');
-      return;
-    }
-    const mandrillImg = CanvasKit.MakeImageFromEncoded(mandrillData);
-    if (!mandrillImg) {
-      console.error('could not decode mandrill');
-      return;
-    }
-    const quadrantSize = 150;
-
-    const dogShader = dogImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
-                                        CanvasKit.SkMatrix.scaled(quadrantSize/dogImg.width(),
-                                                                  quadrantSize/dogImg.height()));
-    const mandrillShader = mandrillImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
-                                                  CanvasKit.SkMatrix.scaled(
-                                                    quadrantSize/mandrillImg.width(),
-                                                    quadrantSize/mandrillImg.height()));
-
-    const surface = CanvasKit.MakeCanvasSurface('rtshader2');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-
-    const prog = `
-      in fragmentProcessor before_map;
-      in fragmentProcessor after_map;
-      in fragmentProcessor threshold_map;
-
-      uniform float cutoff;
-      uniform float slope;
-
-      float smooth_cutoff(float x) {
-          x = x * slope + (0.5 - slope * cutoff);
-          return clamp(x, 0, 1);
-      }
-
-      void main(float2 xy, inout half4 color) {
-          half4 before = sample(before_map, xy);
-          half4 after = sample(after_map, xy);
-
-          float m = smooth_cutoff(sample(threshold_map, xy).r);
-          color = mix(before, after, half(m));
-      }`;
-
-    const canvas = surface.getCanvas();
-
-    const thresholdEffect = CanvasKit.SkRuntimeEffect.Make(prog);
-    const spiralEffect = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
-
-    const draw = (x, y, shader) => {
-      const paint = new CanvasKit.SkPaint();
-      paint.setShader(shader);
-      canvas.save();
-      canvas.translate(x, y);
-      canvas.drawRect(CanvasKit.LTRBRect(0, 0, quadrantSize, quadrantSize), paint);
-      canvas.restore();
-      paint.delete();
-    };
-
-    const offscreenSurface = CanvasKit.MakeSurface(quadrantSize, quadrantSize);
-    const getBlurrySpiralShader = (rad_scale) => {
-      const oCanvas = offscreenSurface.getCanvas();
-
-      const spiralShader = spiralEffect.makeShader([
-      rad_scale,
-      quadrantSize/2, quadrantSize/2,
-      1, 1, 1, 1,
-      0, 0, 0, 1], true);
-
-      return spiralShader;
-      // TODO(kjlubick): The raster backend does not like atan or fract, so we can't
-      // draw the shader into the offscreen canvas and mess with it. When we can, that
-      // would be cool to show off.
-
-      const blur = CanvasKit.SkImageFilter.MakeBlur(0.1, 0.1, CanvasKit.TileMode.Clamp, null);
-
-      const paint = new CanvasKit.SkPaint();
-      paint.setShader(spiralShader);
-      paint.setImageFilter(blur);
-      oCanvas.drawRect(CanvasKit.LTRBRect(0, 0, quadrantSize, quadrantSize), paint);
-
-      paint.delete();
-      blur.delete();
-      spiralShader.delete();
-      return offscreenSurface.makeImageSnapshot()
-                             .makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
-
-    };
-
-    const drawFrame = () => {
-      surface.requestAnimationFrame(drawFrame);
-      const thresholdShader = getBlurrySpiralShader(Math.sin(Date.now() / 5000) / 2);
-
-      const blendShader = thresholdEffect.makeShaderWithChildren(
-        [0.5, 10],
-        true, [dogShader, mandrillShader, thresholdShader]);
-      draw(0, 0, blendShader);
-      draw(quadrantSize, 0, thresholdShader);
-      draw(0, quadrantSize, dogShader);
-      draw(quadrantSize, quadrantSize, mandrillShader);
-
-      blendShader.delete();
-    };
-
-    surface.requestAnimationFrame(drawFrame);
-  });
 
   function SkpExample(CanvasKit, skpData) {
     if (!skpData || !CanvasKit) {
@@ -540,6 +443,11 @@ const curves = {
 
     function drawFrame(canvas) {
       canvas.clear(CanvasKit.TRANSPARENT);
+      // this particular file has a path drawing at (68,582) that's 1300x1300 pixels
+      // scale it down to 600x600 and translate it to fit.
+      var scale = 500.0/1300;
+      canvas.scale(scale, scale);
+      canvas.translate(-68, -582);
       canvas.drawPicture(pic);
     }
     // Intentionally just draw frame once
