@@ -21,8 +21,6 @@ import traceback
 
 REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
-SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
-
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
     'reed@chromium.org',
@@ -245,44 +243,6 @@ def CheckChangeOnUpload(input_api, output_api):
   return results
 
 
-def _CheckTreeStatus(input_api, output_api, json_url):
-  """Check whether to allow commit.
-
-  Args:
-    input_api: input related apis.
-    output_api: output related apis.
-    json_url: url to download json style status.
-  """
-  tree_status_results = input_api.canned_checks.CheckTreeIsOpen(
-      input_api, output_api, json_url=json_url)
-  if not tree_status_results:
-    # Check for caution state only if tree is not closed.
-    connection = input_api.urllib2.urlopen(json_url)
-    status = input_api.json.loads(connection.read())
-    connection.close()
-    if ('caution' in status['message'].lower() and
-        os.isatty(sys.stdout.fileno())):
-      # Display a prompt only if we are in an interactive shell. Without this
-      # check the commit queue behaves incorrectly because it considers
-      # prompts to be failures.
-      short_text = 'Tree state is: ' + status['general_state']
-      long_text = status['message'] + '\n' + json_url
-      tree_status_results.append(
-          output_api.PresubmitPromptWarning(
-              message=short_text, long_text=long_text))
-  else:
-    # Tree status is closed. Put in message about contacting sheriff.
-    connection = input_api.urllib2.urlopen(
-        SKIA_TREE_STATUS_URL + '/current-sheriff')
-    sheriff_details = input_api.json.loads(connection.read())
-    if sheriff_details:
-      tree_status_results[0]._message += (
-          '\n\nPlease contact the current Skia sheriff (%s) if you are trying '
-          'to submit a build fix\nand do not know how to submit because the '
-          'tree is closed') % sheriff_details['username']
-  return tree_status_results
-
-
 class CodeReview(object):
   """Abstracts which codereview tool is used for the specified issue."""
 
@@ -428,96 +388,68 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   return results
 
 
-def _FooterExists(footers, key, value):
-  for k, v in footers:
-    if k == key and v == value:
-      return True
-  return False
-
-
-def PostUploadHook(cl, change, output_api):
+def PostUploadHook(gerrit, change, output_api):
   """git cl upload will call this hook after the issue is created/modified.
 
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
   * Adds 'No-Try: true' if the CL contains only docs changes.
-  * Adds 'No-Tree-Checks: true' for non master branch changes since they do not
-    need to be gated on the master branch's tree.
-  * Adds 'No-Presubmit: true' for non master branch changes since those don't
-    run the presubmit checks.
   """
+  if not change.issue:
+    return []
+
+  # Skip PostUploadHooks for all auto-commit service account bots. New
+  # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
+  # the "--use-commit-queue" flag to "git cl upload".
+  for suffix in SERVICE_ACCOUNT_SUFFIX:
+    if change.author_email.endswith(suffix):
+      return []
 
   results = []
-  atleast_one_docs_change = False
+  at_least_one_docs_change = False
   all_docs_changes = True
   for affected_file in change.AffectedFiles():
     affected_file_path = affected_file.LocalPath()
     file_path, _ = os.path.splitext(affected_file_path)
     if 'site' == file_path.split(os.path.sep)[0]:
-      atleast_one_docs_change = True
+      at_least_one_docs_change = True
     else:
       all_docs_changes = False
-    if atleast_one_docs_change and not all_docs_changes:
+    if at_least_one_docs_change and not all_docs_changes:
       break
 
-  issue = cl.issue
-  if issue:
-    # Skip PostUploadHooks for all auto-commit service account bots. New
-    # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
-    # the "--use-commit-queue" flag to "git cl upload".
-    for suffix in SERVICE_ACCOUNT_SUFFIX:
-      if cl.GetIssueOwner().endswith(suffix):
-        return results
+  footers = change.GitFootersFromDescription()
+  description_changed = False
 
-    original_description_lines, footers = cl.GetDescriptionFooters()
-    new_description_lines = list(original_description_lines)
+  # If the change includes only doc changes then add No-Try: true in the
+  # CL's description if it does not exist yet.
+  if all_docs_changes and 'true' not in footers.get('No-Try', []):
+    description_changed = True
+    change.AddDescriptionFooter('No-Try', 'true')
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'This change has only doc changes. Automatically added '
+            '\'No-Try: true\' to the CL\'s description'))
 
-    # If the change includes only doc changes then add No-Try: true in the
-    # CL's description if it does not exist yet.
-    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
-      new_description_lines.append('No-Try: true')
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'This change has only doc changes. Automatically added '
-              '\'No-Try: true\' to the CL\'s description'))
+  # If there is at least one docs change then add preview link in the CL's
+  # description if it does not already exist there.
+  docs_preview_link = DOCS_PREVIEW_URL.format(issue=change.issue)
+  if (at_least_one_docs_change
+      and docs_preview_link not in footers.get('Docs-Preview', [])):
+    # Automatically add a link to where the docs can be previewed.
+    description_changed = True
+    change.AddDescriptionFooter('Docs-Preview', docs_preview_link)
+    results.append(
+        output_api.PresubmitNotifyResult(
+            'Automatically added a link to preview the docs changes to the '
+            'CL\'s description'))
 
-    # If there is atleast one docs change then add preview link in the CL's
-    # description if it does not already exist there.
-    docs_preview_link = '%s%s' % (DOCS_PREVIEW_URL, issue)
-    docs_preview_line = 'Docs-Preview: %s' % docs_preview_link
-    if (atleast_one_docs_change and
-        not _FooterExists(footers, 'Docs-Preview', docs_preview_link)):
-      # Automatically add a link to where the docs can be previewed.
-      new_description_lines.append(docs_preview_line)
-      results.append(
-          output_api.PresubmitNotifyResult(
-              'Automatically added a link to preview the docs changes to the '
-              'CL\'s description'))
+  # If the description has changed update it.
+  if description_changed:
+    gerrit.UpdateDescription(
+        change.FullDescriptionText(), change.issue)
 
-    # If the target ref is not master then add 'No-Tree-Checks: true' and
-    # 'No-Try: true' to the CL's description if it does not already exist there.
-    target_ref = cl.GetRemoteBranch()[1]
-    if target_ref != 'refs/remotes/origin/master':
-      if not _FooterExists(footers, 'No-Tree-Checks', 'true'):
-        new_description_lines.append('No-Tree-Checks: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not need to rely on the master branch\'s '
-                'tree status. Automatically added \'No-Tree-Checks: true\' to '
-                'the CL\'s description'))
-      if not _FooterExists(footers, 'No-Presubmit', 'true'):
-        new_description_lines.append('No-Presubmit: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not run the presubmit checks.'))
-
-    # If the description has changed update it.
-    if new_description_lines != original_description_lines:
-      # Add a new line separating the new contents from the old contents.
-      new_description_lines.insert(len(original_description_lines), '')
-      cl.UpdateDescriptionFooters(new_description_lines, footers)
-
-    return results
+  return results
 
 
 def CheckChangeOnCommit(input_api, output_api):
@@ -531,9 +463,6 @@ def CheckChangeOnCommit(input_api, output_api):
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
-  results.extend(
-      _CheckTreeStatus(input_api, output_api, json_url=(
-          SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
   # Checks for the presence of 'DO NOT''SUBMIT' in CL description and in
