@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9c8ca1f0_4d751bea",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-06T18:08:27Z",
+      "side": 1,
+      "message": "Forgot to delete this when I went back to member function",
+      "parentUuid": "d6eba151_b476528b",
+      "revId": "0a6245fb915cd497ccd16e8e926f8b258f58bf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3dc585a_b59f0ab7",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "0a6245fb915cd497ccd16e8e926f8b258f58bf73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68210aee_c3226092",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-06T18:08:27Z",
+      "side": 1,
+      "message": "we need to check if we returned a view at all and that if that view is valid. But regardless moot at this point.",
+      "parentUuid": "e3dc585a_b59f0ab7",
+      "range": {
+        "startLine": 682,
+        "startChar": 21,
+        "endLine": 682,
+        "endChar": 26
+      },
+      "revId": "0a6245fb915cd497ccd16e8e926f8b258f58bf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
