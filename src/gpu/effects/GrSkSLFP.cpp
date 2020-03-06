@@ -166,15 +166,17 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntim
     if (inputs->size() != effect->inputSize()) {
         return nullptr;
     }
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().caps()->refShaderCaps(),
-                                                  std::move(effect), name, std::move(inputs),
-                                                  matrix));
+    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(
+            context->priv().caps()->refShaderCaps(), context->priv().getShaderErrorHandler(),
+            std::move(effect), name, std::move(inputs), matrix));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> effect,
-                   const char* name, sk_sp<SkData> inputs, const SkMatrix* matrix)
+GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
+                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
+                   const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fShaderCaps(std::move(shaderCaps))
+        , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
         , fInputs(std::move(inputs)) {
@@ -187,6 +189,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fShaderCaps(other.fShaderCaps)
+        , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fInputs(other.fInputs) {
@@ -207,7 +210,7 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     // Note: This is actually SkSL (again) but with inline format specifiers.
     SkSL::PipelineStageArgs args;
-    SkAssertResult(fEffect->toPipelineStage(fInputs->data(), fShaderCaps.get(), &args));
+    fEffect->toPipelineStage(fInputs->data(), fShaderCaps.get(), fShaderErrorHandler, &args);
     return new GrGLSLSkSLFP(std::move(args));
 }
 

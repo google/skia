@@ -13,6 +13,7 @@
 #include <vector>
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
 #include "include/private/GrTypesPriv.h"
 #endif
 
@@ -118,6 +119,7 @@ public:
     // This re-compiles the program from scratch, using the supplied shader caps.
     // This is necessary to get the correct values of settings.
     bool toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
+                         GrContextOptions::ShaderErrorHandler* errorHandler,
                          SkSL::PipelineStageArgs* outArgs);
 #endif
 

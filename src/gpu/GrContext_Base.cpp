@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
 static int32_t next_id() {
@@ -70,4 +71,10 @@ GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
     return fContext->refCaps();
+}
+
+GrContextOptions::ShaderErrorHandler* GrBaseContextPriv::getShaderErrorHandler() const {
+    const GrContextOptions& options(this->options());
+    return options.fShaderErrorHandler ? options.fShaderErrorHandler
+                                       : GrShaderUtils::DefaultShaderErrorHandler();
 }

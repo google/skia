@@ -29,6 +29,8 @@ public:
     GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
     GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
+    GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const;
+
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
     GrBaseContextPriv(const GrBaseContextPriv&); // unimpl

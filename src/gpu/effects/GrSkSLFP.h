@@ -9,6 +9,7 @@
 #define GrSkSLFP_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -78,8 +79,11 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> effect,
-             const char* name, sk_sp<SkData> inputs, const SkMatrix* matrix);
+    using ShaderErrorHandler = GrContextOptions::ShaderErrorHandler;
+
+    GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
+             sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs,
+             const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -90,6 +94,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     sk_sp<const GrShaderCaps> fShaderCaps;
+    ShaderErrorHandler*       fShaderErrorHandler;
 
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
