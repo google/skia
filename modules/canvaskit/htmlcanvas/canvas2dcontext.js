@@ -674,7 +674,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = this._shadowPaint(fillPaint);
     if (shadowPaint) {
       this._canvas.save();
-      this._canvas.concat(this._shadowOffsetMatrix());
+      this._applyShadowOffsetMatrix();
       this._canvas.drawPath(path, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
@@ -697,7 +697,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = this._shadowPaint(fillPaint);
     if (shadowPaint) {
       this._canvas.save();
-      this._canvas.concat(this._shadowOffsetMatrix());
+      this._applyShadowOffsetMatrix();
       this._canvas.drawTextBlob(blob, x, y, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
@@ -991,12 +991,13 @@ function CanvasRenderingContext2D(skcanvas) {
     this.transform(a, b, c, d, e, f);
   }
 
-  // Returns the matrix representing the offset of the shadows. This unapplies
-  // the effects of the scale, which should not affect the shadow offsets.
-  this._shadowOffsetMatrix = function() {
-    var sx = this._currentTransform[0];
-    var sy = this._currentTransform[4];
-    return CanvasKit.SkMatrix.translated(this._shadowOffsetX/sx, this._shadowOffsetY/sy);
+  // We need to apply the shadowOffsets on the device coordinates, so we undo
+  // the CTM, apply the offsets, then re-apply the CTM.
+  this._applyShadowOffsetMatrix = function() {
+    var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
+    this._canvas.concat(inverted);
+    this._canvas.concat(CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY));
+    this._canvas.concat(this._currentTransform);
   }
 
   // Returns the shadow paint for the current settings or null if there
@@ -1066,7 +1067,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = this._shadowPaint(strokePaint);
     if (shadowPaint) {
       this._canvas.save();
-      this._canvas.concat(this._shadowOffsetMatrix());
+      this._applyShadowOffsetMatrix();
       this._canvas.drawPath(path, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
@@ -1090,7 +1091,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = this._shadowPaint(strokePaint);
     if (shadowPaint) {
       this._canvas.save();
-      this._canvas.concat(this._shadowOffsetMatrix());
+      this._applyShadowOffsetMatrix();
       this._canvas.drawTextBlob(blob, x, y, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
