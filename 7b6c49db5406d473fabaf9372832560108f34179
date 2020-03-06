@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "821bbb9d_e9533791",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2231,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-06T16:16:36Z",
+      "side": 1,
+      "message": "Is this an obvious default in this context?  I would be inclined to keep it explicit.",
+      "range": {
+        "startLine": 2231,
+        "startChar": 37,
+        "endLine": 2231,
+        "endChar": 59
+      },
+      "revId": "7b6c49db5406d473fabaf9372832560108f34179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
