@@ -267,6 +267,18 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         realCanvas.width = CANVAS_WIDTH;
         realCanvas.height = CANVAS_HEIGHT;
 
+        if (!done) {
+            console.log('debugging canvaskit');
+            test(realCanvas);
+            test(skcanvas);
+            const png = skcanvas.toDataURL();
+            const img = document.createElement('img');
+            document.body.appendChild(img);
+            img.src = png;
+            debugger;
+            return;
+        }
+
         let promises = [];
 
         for (let canvas of [skcanvas, realCanvas]) {
@@ -607,6 +619,33 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.putImageData(biggerBox, 10, 350);
                     expect(biggerBox.width).toBe(iData.width);
                     expect(biggerBox.height).toBe(iData.height);
+                });
+            }));
+        });
+
+        it('apply shadows correctly when rotated', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('shadows_with_rotate_skbug_9947', done, (canvas) => {
+                    const ctx = canvas.getContext('2d');
+                    const angle = 240;
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                    ctx.save();
+                    ctx.translate(80, 80);
+                    ctx.rotate((angle * Math.PI) / 180);
+                    ctx.shadowOffsetX = 10;
+                    ctx.shadowOffsetY = 10;
+                    ctx.shadowColor = 'rgba(100,100,100,0.5)';
+                    ctx.shadowBlur = 1;
+                    ctx.fillStyle = 'black';
+                    ctx.strokeStyle = 'red';
+                    ctx.beginPath();
+                    ctx.rect(-20, -20, 40, 40);
+                    ctx.fill();
+                    ctx.fillRect(30, 30, 40, 40);
+                    ctx.strokeRect(30, -20, 40, 40);
+                    ctx.fillText('text', -20, -30);
+                    ctx.restore();
                 });
             }));
         });
