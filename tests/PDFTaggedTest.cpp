@@ -16,8 +16,8 @@ using PDFTag = SkPDF::StructureElementNode;
 // Test building a tagged PDF.
 // Add this to args.gn to output the PDF to a file:
 //   extra_cflags = [ "-DSK_PDF_TEST_TAGS_OUTPUT_PATH=\"/tmp/foo.pdf\"" ]
-DEF_TEST(SkPDF_tagged, r) {
-    REQUIRE_PDF_DOCUMENT(SkPDF_tagged, r);
+DEF_TEST(SkPDF_tagged_doc, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_tagged_doc, r);
 #ifdef SK_PDF_TEST_TAGS_OUTPUT_PATH
     SkFILEWStream outputStream(SK_PDF_TEST_TAGS_OUTPUT_PATH);
 #else
@@ -38,8 +38,8 @@ DEF_TEST(SkPDF_tagged, r) {
     PDFTag root;
     root.fNodeId = 1;
     root.fType = SkPDF::DocumentStructureType::kDocument;
-    root.fChildCount = 5;
-    PDFTag rootChildren[5];
+    root.fChildCount = 6;
+    PDFTag rootChildren[6];
     root.fChildren = rootChildren;
 
     // Heading.
@@ -92,6 +92,13 @@ DEF_TEST(SkPDF_tagged, r) {
     p2.fNodeId = 10;
     p2.fType = SkPDF::DocumentStructureType::kP;
     p2.fChildCount = 0;
+
+    // Image with alt text.
+    PDFTag& img = rootChildren[5];
+    img.fNodeId = 11;
+    img.fType = SkPDF::DocumentStructureType::kFigure;
+    img.fAlt = "Red box";
+    img.fChildCount = 0;
 
     metadata.fStructureElementTreeRoot = &root;
     sk_sp<SkDocument> document = SkPDF::MakeDocument(
@@ -151,6 +158,14 @@ DEF_TEST(SkPDF_tagged, r) {
     message = "and finishes on the second page.";
     canvas->translate(72, 72);
     canvas->drawString(message, 0, 0, font, paint);
+
+    // Test a tagged image with alt text.
+    SkPDF::SetNodeId(canvas, 11);
+    SkBitmap testBitmap;
+    testBitmap.allocN32Pixels(72, 72);
+    testBitmap.eraseColor(SK_ColorRED);
+    canvas->translate(72, 72);
+    canvas->drawBitmap(testBitmap, 0, 0);
 
     // This has a node ID but never shows up in the tag tree so it
     // won't be tagged.

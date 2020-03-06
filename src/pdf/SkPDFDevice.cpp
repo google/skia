@@ -64,6 +64,40 @@
     // encoding.
 #endif
 
+namespace {
+
+// If nodeId is not zero, outputs the tags to begin a marked-content sequence
+// for the given node ID, and then closes those tags when this object goes
+// out of scope.
+class ScopedOutputMarkedContentTags {
+public:
+    ScopedOutputMarkedContentTags(int nodeId, SkPDFDocument* document, SkDynamicMemoryWStream* out)
+        : fOut(out)
+        , fMarkId(-1) {
+        if (nodeId) {
+            fMarkId = document->getMarkIdForNodeId(nodeId);
+        }
+
+        if (fMarkId != -1) {
+            fOut->writeText("/P <</MCID ");
+            fOut->writeDecAsText(fMarkId);
+            fOut->writeText(" >>BDC\n");
+        }
+    }
+
+    ~ScopedOutputMarkedContentTags() {
+        if (fMarkId != -1) {
+            fOut->writeText("EMC\n");
+        }
+    }
+
+private:
+    SkDynamicMemoryWStream* fOut;
+    int fMarkId;
+};
+
+}
+
 // Utility functions
 
 static SkPath to_path(const SkRect& r) {
@@ -833,20 +867,9 @@ void SkPDFDevice::internalDrawGlyphRun(
     SkDynamicMemoryWStream* out = content.stream();
 
     out->writeText("BT\n");
-
-    int markId = -1;
-    if (fNodeId) {
-        markId = fDocument->getMarkIdForNodeId(fNodeId);
-    }
-
-    if (markId != -1) {
-        out->writeText("/P <</MCID ");
-        out->writeDecAsText(markId);
-        out->writeText(" >>BDC\n");
-    }
-    SK_AT_SCOPE_EXIT(if (markId != -1) out->writeText("EMC\n"));
-
     SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
+
+    ScopedOutputMarkedContentTags mark(fNodeId, fDocument, out);
 
     const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
 
@@ -953,6 +976,8 @@ void SkPDFDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
 }
 
 void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemoryWStream* content) {
+    ScopedOutputMarkedContentTags mark(fNodeId, fDocument, content);
+
     SkASSERT(xObject);
     SkPDFWriteResourceName(content, SkPDFResourceType::kXObject,
                            add_resource(fXObjectResources, xObject));
