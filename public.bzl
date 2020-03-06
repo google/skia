@@ -703,6 +703,7 @@ def base_defines(os_conditions):
                 "SK_BUILD_FOR_IOS",
                 "SK_BUILD_NO_OPTS",
                 "SKNX_NO_SIMD",
+                "SK_NO_COMMAND_BUFFER",  # Test tools that use thread_local.
             ],
             # WASM
             [
