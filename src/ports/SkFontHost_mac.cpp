@@ -698,6 +698,21 @@ struct OpszVariation {
     double value = 0;
 };
 
+static bool has_table(CTFontRef ctFont, SkFontTableTag tableTag) {
+    SkUniqueCFRef<CFArrayRef> tags(CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions));
+    if (!tags) {
+        return false;
+    }
+    CFIndex count = CFArrayGetCount(tags.get());
+    for (CFIndex i = 0; i < count; ++i) {
+        uintptr_t tag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags.get(), i));
+        if (tableTag == tag) {
+            return true;
+        }
+    }
+    return false;
+}
+
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkUniqueCFRef<CTFontRef> fontRef, const SkFontStyle& fs, bool isFixedPitch,
@@ -707,8 +722,10 @@ public:
         , fOpszVariation(opszVariation)
         , fHasColorGlyphs(
                 SkToBool(CTFontGetSymbolicTraits(fFontRef.get()) & kCTFontColorGlyphsTrait))
+        , fIsSbix(has_table(fFontRef.get(), SkSetFourByteTag('s','b','i','x')))
         , fStream(std::move(providedData))
         , fIsFromStream(fStream)
+
     {
         SkASSERT(fFontRef);
     }
@@ -716,6 +733,7 @@ public:
     SkUniqueCFRef<CTFontRef> fFontRef;
     const OpszVariation fOpszVariation;
     const bool fHasColorGlyphs;
+    const bool fIsSbix;
 
 protected:
     int onGetUPEM() const override;
@@ -1042,6 +1060,123 @@ static void add_notrak_attr(CFMutableDictionaryRef attr) {
     CFDictionarySetValue(attr, SkCTFontUnscaledTrackingAttribute, unscaledTrackingNumber.get());
 }
 
+static constexpr uint16_t kPlaneSize = 1 << 13;
+
+static bool cmap_equal_plane(const uint8_t* aBits,
+                             CTFontRef aFont,
+                             const uint8_t* bBits,
+                             CTFontRef bFont,
+                             uint8_t planeIndex) {
+    SkUnichar planeOrigin = (SkUnichar)planeIndex << 16; // top half of codepoint.
+    for (uint16_t i = 0; i < kPlaneSize; i++) {
+        uint8_t aMask = aBits[i];
+        uint8_t bMask = bBits[i];
+        if (aMask != bMask) {
+            return false;
+        }
+        if (!aMask) {
+            continue;
+        }
+        for (uint8_t j = 0; j < 8; j++) {
+            if (0 == (aMask & ((uint8_t)1 << j))) {
+                continue;
+            }
+            uint16_t planeOffset = (i << 3) | j;
+            SkUnichar codepoint = planeOrigin | (SkUnichar)planeOffset;
+            uint16_t utf16[2] = {planeOffset, 0};
+            size_t count = 1;
+            if (planeOrigin != 0) {
+                count = SkUTF::ToUTF16(codepoint, utf16);
+            }
+            CGGlyph aGlyphs[2] = {0, 0};
+            CGGlyph bGlyphs[2] = {0, 0};
+
+            bool aHas = CTFontGetGlyphsForCharacters(aFont, utf16, aGlyphs, count);
+            bool bHas = CTFontGetGlyphsForCharacters(bFont, utf16, bGlyphs, count);
+
+            if (aHas != bHas) {
+                return false;
+            }
+            if (aHas == false) {
+                continue;
+            }
+
+            SkASSERT(aGlyphs[1] == 0);
+            SkASSERT(bGlyphs[1] == 0);
+            if (aGlyphs[0] != bGlyphs[0]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static bool cmaps_equal(CTFontRef aFont, CTFontRef bFont) {
+    SkUniqueCFRef<CFCharacterSetRef> aSet(CTFontCopyCharacterSet(aFont));
+    SkUniqueCFRef<CFCharacterSetRef> bSet(CTFontCopyCharacterSet(bFont));
+
+    // Don't do the slow case, since we're more interested in system fonts.
+    if (!aSet && !bSet) {
+        return true;
+    }
+    if (!aSet || !bSet) {
+        return false;
+    }
+
+    if (!CFEqual(aSet.get(), bSet.get())) {
+        return false;
+    }
+
+    SkUniqueCFRef<CFDataRef> aBitmap(CFCharacterSetCreateBitmapRepresentation(nullptr, aSet.get()));
+    SkUniqueCFRef<CFDataRef> bBitmap(CFCharacterSetCreateBitmapRepresentation(nullptr, bSet.get()));
+    if (!aBitmap || !bBitmap) {
+        return false;
+    }
+    CFIndex aLength = CFDataGetLength(aBitmap.get());
+    CFIndex bLength = CFDataGetLength(bBitmap.get());
+    if (!aLength || !bLength || aLength != bLength) {
+        return false;
+    }
+    const UInt8* aBits = CFDataGetBytePtr(aBitmap.get());
+    const UInt8* bBits = CFDataGetBytePtr(bBitmap.get());
+
+    if (!cmap_equal_plane(aBits, aFont, bBits, bFont, 0)) {
+        return false;
+    }
+
+    /*
+    A CFData object that specifies the bitmap representation of the Unicode
+    character points the for the new character set. The bitmap representation could
+    contain all the Unicode character range starting from BMP to Plane 16. The
+    first 8KiB (8192 bytes) of the data represent the BMP range. The BMP range 8KiB
+    can be followed by zero to sixteen 8KiB bitmaps, each prepended with the plane
+    index byte. For example, the bitmap representing the BMP and Plane 2 has the
+    size of 16385 bytes (8KiB for BMP, 1 byte index, and a 8KiB bitmap for Plane
+    2). The plane index byte, in this case, contains the integer value two.
+    */
+
+    if (aLength <= kPlaneSize) {
+        return true;
+    }
+    int extraPlaneCount = (aLength - kPlaneSize) / (1 + kPlaneSize);
+    SkASSERT(aLength == kPlaneSize + extraPlaneCount * (1 + kPlaneSize));
+    while (extraPlaneCount-- > 0) {
+        aBits += kPlaneSize;
+        bBits += kPlaneSize;
+        uint8_t aPlaneIndex = *aBits++;
+        uint8_t bPlaneIndex = *bBits++;
+        if (aPlaneIndex != bPlaneIndex) {
+            return false;
+        }
+        SkASSERT(aPlaneIndex >= 1);
+        SkASSERT(aPlaneIndex <= 16);
+        if (!cmap_equal_plane(aBits, aFont, bBits, bFont, aPlaneIndex)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
                                                          OpszVariation opsz)
 {
@@ -1052,38 +1187,45 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
-    } else {
-        // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
-        // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
-        // On at least 10.11 the glyph ids in these fonts became non-interchangable.
-        // To keep glyph ids stable over size changes, preserve the optical size.
-        // In 10.15 this was replaced with use of variable fonts with an opsz axis.
-        // A CTFont backed by multiple fonts picked by opsz where the multiple backing fonts are
-        // variable fonts with opsz axis and non-interchangeable glyph ids would break the
-        // opsz.isSet branch above, but hopefully that never happens.
-        // See https://crbug.com/524646 .
-        CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
-        SkUniqueCFRef<CFTypeRef> opsz(CTFontCopyAttribute(baseFont, SkCTFontOpticalSizeAttribute));
-        double opsz_val;
-        if (!opsz ||
-            CFGetTypeID(opsz.get()) != CFNumberGetTypeID() ||
-            !CFNumberGetValue(static_cast<CFNumberRef>(opsz.get()),kCFNumberDoubleType,&opsz_val) ||
-            opsz_val <= 0)
-        {
-            opsz_val = CTFontGetSize(baseFont);
-        }
-        add_opsz_attr(attr.get(), opsz_val);
-#endif
     }
     add_notrak_attr(attr.get());
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
+    SkUniqueCFRef<CTFontRef> ctFont(
+            CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
+
+    if (cmaps_equal(baseFont, ctFont.get())) {
+        return ctFont;
+    }
+
+    // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
+    // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
+    // On at least 10.11 the glyph ids in these fonts became non-interchangable.
+    // To keep glyph ids stable over size changes, preserve the optical size.
+    // In 10.15 this was replaced with use of variable fonts with an opsz axis.
+    // A CTFont backed by multiple fonts picked by opsz where the multiple backing fonts are
+    // variable fonts with opsz axis and non-interchangeable glyph ids would break the
+    // opsz.isSet branch above, but hopefully that never happens.
+    // See https://crbug.com/524646 .
+#if !defined(SK_IGNORE_MAC_OPSZ_FORCE) && 0
+    CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
+    SkUniqueCFRef<CFTypeRef> baseOpsz(CTFontCopyAttribute(baseFont, SkCTFontOpticalSizeAttribute));
+    double opszVal;
+    if (!baseOpsz ||
+        CFGetTypeID(baseOpsz.get()) != CFNumberGetTypeID() ||
+        !CFNumberGetValue(static_cast<CFNumberRef>(baseOpsz.get()),kCFNumberDoubleType,&opszVal) ||
+        opszVal <= 0)
+    {
+        opszVal = CTFontGetSize(baseFont);
+    }
+    add_opsz_attr(attr.get(), opszVal);
+
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
-#else
+
+#else //use cgfont
+
     SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
@@ -1103,12 +1245,17 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
 
-    // CT on (at least) 10.9 will size color glyphs down from the requested size, but not up.
+    SkScalerContextRec::PreMatrixScale scaleType = SkScalerContextRec::kSize_PreMatrixScale;
+    // On (at least) 10.9 to 10.14 sbix glyphs will scale down from the requested size, but not up.
     // As a result, it is necessary to know the actual device size and request that.
+    if (((SkTypeface_Mac*)this->getTypeface())->fIsSbix) {
+        scaleType = SkScalerContextRec::kVertical_PreMatrixScale;
+    }
+
     SkVector scale;
     SkMatrix skTransform;
-    bool invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
-                                           &scale, &skTransform, nullptr, nullptr, nullptr);
+    bool invertible = fRec.computeMatrices(scaleType, &scale, &skTransform,nullptr,nullptr,nullptr);
+
     fTransform = MatrixToCGAffineTransform(skTransform);
     // CGAffineTransformInvert documents that if the transform is non-invertible it will return the
     // passed transform unchanged. It does so, but then also prints a message to stdout. Avoid this.
@@ -1713,8 +1860,6 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
         }
     }
 }
-
-static constexpr uint16_t kPlaneSize = 1 << 13;
 
 static void get_plane_glyph_map(const uint8_t* bits,
                                 CTFontRef ctFont,
@@ -2454,7 +2599,6 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
 
     // CoreText provides no information as to whether a glyph will be color or not.
     // Fonts may mix outlines and bitmaps, so information is needed on a glyph by glyph basis.
-    // If a font contains an 'sbix' table, consider it to be a color font, and disable lcd.
     if (fHasColorGlyphs) {
         rec->fMaskFormat = SkMask::kARGB32_Format;
     }
