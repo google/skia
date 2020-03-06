@@ -11,70 +11,67 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplerState.h"
 
+class GrClip;
 class GrColorSpaceXform;
 class GrDrawOp;
-class GrTextureProxy;
+class GrRenderTargetContext;
 struct SkRect;
 class SkMatrix;
 
-class GrTextureOp {
+class GrDeferredTextureOp {
 public:
-
     /**
      * Controls whether saturate() is called after the texture is color-converted to ensure all
      * color values are in 0..1 range.
      */
     enum class Saturate : bool { kNo = false, kYes = true };
 
-    /**
-     * Creates an op that draws a sub-quadrilateral of a texture. The passed color is modulated by
-     * the texture's color. 'deviceQuad' specifies the device-space coordinates to draw, using
-     * 'localQuad' to map into the proxy's texture space. If non-null, 'domain' represents the
-     * boundary for the strict src rect constraint. If GrAAType is kCoverage then AA is applied to
-     * the edges indicated by GrQuadAAFlags. Otherwise, GrQuadAAFlags is ignored.
-     *
-     * This is functionally very similar to GrFillRectOp::Make, except that the GrPaint has been
-     * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
-     * src over, this will return a GrFillRectOp with a paint that samples the proxy.
-     */
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                          GrSurfaceProxyView,
-                                          SkAlphaType srcAlphaType,
-                                          sk_sp<GrColorSpaceXform>,
-                                          GrSamplerState::Filter,
-                                          const SkPMColor4f&,
-                                          Saturate,
-                                          SkBlendMode,
-                                          GrAAType,
-                                          DrawQuad*,
-                                          const SkRect* domain = nullptr);
+    GrDeferredTextureOp() : fExpected(0) {}
+    ~GrDeferredTextureOp() {
+        // The deferred op should have been finalized before this is destroyed.
+        // FIXME image filters triggers this, i'm betting I'm not finalizing the op everywhere it needs to
+        SkASSERT(!fOp);
+    }
 
-    // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
-    // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
-    // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
-    static void AddTextureSetOps(GrRenderTargetContext*,
-                                 const GrClip& clip,
-                                 GrRecordingContext*,
-                                 GrRenderTargetContext::TextureSetEntry[],
-                                 int cnt,
-                                 int proxyRunCnt,
-                                 GrSamplerState::Filter,
-                                 Saturate,
-                                 SkBlendMode,
-                                 GrAAType,
-                                 SkCanvas::SrcRectConstraint,
-                                 const SkMatrix& viewMatrix,
-                                 sk_sp<GrColorSpaceXform> textureXform);
+    // Specify the clip to use for subsequent appends, and provide an optional hint as to the
+    // number of appends. May finalize prior appended draws if the new clip stack is not the same
+    // as the previous one. If the clips are the same, this does nothing.
+    bool open(GrRenderTargetContext*, const GrClip&, GrAAType, Saturate, int expectedCount = 1);
+
+    // Will use the clip that was specified in open(); open() must have been called first.
+    // May finalize already appended draws into an op if the new surface proxy view is incompatible.
+    void append(GrRenderTargetContext*,
+                GrSurfaceProxyView, SkAlphaType srcAlphaType,
+                sk_sp<GrColorSpaceXform>, GrSamplerState::Filter,
+                const SkPMColor4f&, DrawQuad*, const SkRect* domain = nullptr);
+
+    // Finalize the accumulate draws and add the op to the context. This does nothing if there
+    // are no accumulated draws.
+    void finalizeAndSubmit(GrRenderTargetContext* rtc) {
+        this->submit(rtc, true);
+    }
+
+    bool needsToSubmit() const { return !!fOp; }
 
 #if GR_TEST_UTILS
     static uint32_t ClassID();
 #endif
 
 private:
-    class BatchSizeLimiter;
+    int fExpected;
+
+    GrAppliedClip fClip;
+    SkRect        fClipBounds;
+
+    GrAAType      fAAType;
+    Saturate      fSaturate;
+
+    // Has not been finalized yet, nor added to a GrRTC
+    std::unique_ptr<GrDrawOp> fOp;
+
+    void submit(GrRenderTargetContext*, bool close);
 };
 
 #endif  // GrTextureOp_DEFINED

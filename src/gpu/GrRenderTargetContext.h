@@ -21,6 +21,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/ops/GrTextureOp.h"
 #include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
@@ -270,7 +271,7 @@ public:
      * device space.
      */
     void drawTexture(const GrClip& clip, GrSurfaceProxyView view, SkAlphaType srcAlphaType,
-                     GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
+                     GrSamplerState::Filter filter, const SkPMColor4f& color,
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform) {
@@ -279,7 +280,7 @@ public:
         DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
 
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, domain);
+                               filter, color, aa, &quad, domain);
     }
 
     /**
@@ -289,7 +290,7 @@ public:
      * provided, the strict src rect constraint is applied using 'domain'.
      */
     void drawTextureQuad(const GrClip& clip, GrSurfaceProxyView view, GrColorType srcColorType,
-                         SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
+                         SkAlphaType srcAlphaType, GrSamplerState::Filter filter,
                          const SkPMColor4f& color, const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4], GrAA aa, GrQuadAAFlags edgeAA,
                          const SkRect* domain, const SkMatrix& viewMatrix,
@@ -297,35 +298,10 @@ public:
         DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, domain);
+                               filter, color, aa, &quad, domain);
     }
 
-    /** Used with drawTextureSet */
-    struct TextureSetEntry {
-        GrSurfaceProxyView fProxyView;
-        SkAlphaType fSrcAlphaType;
-        SkRect fSrcRect;
-        SkRect fDstRect;
-        const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
-        const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
-        float fAlpha;
-        GrQuadAAFlags fAAFlags;
-    };
-    /**
-     * Draws a set of textures with a shared filter, color, view matrix, color xform, and
-     * texture color xform. The textures must all have the same GrTextureType and GrConfig.
-     *
-     * If any entries provide a non-null fDstClip array, it will be read from immediately based on
-     * fDstClipCount, so the pointer can become invalid after this returns.
-     *
-     * 'proxRunCnt' is the number of proxy changes encountered in the entry array. Technically this
-     * can be inferred from the array within this function, but the information is already known
-     * by SkGpuDevice, so no need to incur another iteration over the array.
-     */
-    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, int proxyRunCnt,
-                        GrSamplerState::Filter, SkBlendMode mode, GrAA aa,
-                        SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
-                        sk_sp<GrColorSpaceXform> texXform);
+    GrDeferredTextureOp* openTextureOps(const GrClip& clip, GrAA aa, int expectedCount);
 
     /**
      * Draw a roundrect using a paint.
@@ -608,7 +584,7 @@ private:
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrGpuTessellationPathRenderer;      // for access to addDrawOp
-    friend class GrTextureOp;                        // for access to addDrawOp
+    friend class GrDeferredTextureOp;                // for access to addClippedDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
@@ -660,7 +636,6 @@ private:
                           sk_sp<GrColorSpaceXform> textureXform,
                           GrSamplerState::Filter filter,
                           const SkPMColor4f& color,
-                          SkBlendMode blendMode,
                           GrAA aa,
                           DrawQuad* quad,
                           const SkRect* domain = nullptr);
@@ -678,11 +653,17 @@ private:
     // another op after the function is called (either before addDrawOp returns or some time later).
     void addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
+    // Like addDrawOp but allows caller to have determined the applied clip, 'clippedBounds' will
+    // be passed to setClippedBounds on the op after it's been finalized.
+    void addClippedDrawOp(GrAppliedClip&&,
+                          std::unique_ptr<GrDrawOp>,
+                          const SkRect& clippedBounds,
+                          const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrClip&, const GrOp& op,
+    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
 
     class AsyncReadResult;
@@ -700,6 +681,8 @@ private:
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
     sk_sp<GrOpsTask> fOpsTask;
+
+    GrDeferredTextureOp fDeferredTextureOp;
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpsTask;

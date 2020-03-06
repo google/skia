@@ -359,7 +359,7 @@ DrawResult SampleLocationsGM::onDraw(
     // Copy offscreen texture to canvas.
     rtc->drawTexture(GrNoClip(), offscreenRTC->readSurfaceView(),
                      offscreenRTC->colorInfo().alphaType(),
-                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrc, SK_PMColor4fWHITE,
+                     GrSamplerState::Filter::kNearest, SK_PMColor4fWHITE,
                      {0,0,200,200}, {0,0,200,200}, GrAA::kNo, GrQuadAAFlags::kNone,
                      SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                      nullptr);

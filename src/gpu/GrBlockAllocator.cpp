@@ -12,7 +12,7 @@
 #endif
 
 GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
-                                   size_t additionalPreallocBytes)
+                                   size_t additionalPreallocBytes, bool log)
         : fTail(&fHead)
         // Round up to the nearest max-aligned value, and then divide so that fBlockSizeIncrement
         // can effectively fit higher byte counts in its 16 bits of storage
@@ -21,19 +21,21 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         , fGrowthPolicy(static_cast<uint64_t>(policy))
         , fN0((policy == GrowthPolicy::kLinear || policy == GrowthPolicy::kExponential) ? 1 : 0)
         , fN1(1)
+        , fLog(log)
         // The head block always has sizeof(Block) space guaranteed because it's inline with the
         // GrBlockAllocator, but can take over the specified number of bytes immediately after it.
-        , fHead(nullptr, additionalPreallocBytes + sizeof(Block)) {
+        , fHead(nullptr, additionalPreallocBytes + sizeof(Block), log) {
     SkASSERT(fBlockIncrement >= 1);
     SkASSERT(additionalPreallocBytes <= kMaxAllocationSize);
 }
 
-GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
+GrBlockAllocator::Block::Block(Block* prev, int allocationSize, bool log)
          : fNext(nullptr)
          , fPrev(prev)
          , fSize(allocationSize)
          , fCursor(kDataStart)
-         , fMetadata(0) {
+         , fMetadata(0)
+         , fLog(log) {
     SkASSERT(allocationSize >= (int) sizeof(Block));
     SkDEBUGCODE(fSentinel = kAssignedMarker;)
 }
@@ -182,7 +184,7 @@ void GrBlockAllocator::addBlock(int minimumSize, int maxSize) {
 
     // Create new block and append to the linked list of blocks in this allocator
     void* mem = operator new(allocSize);
-    fTail->fNext = new (mem) Block(fTail, allocSize);
+    fTail->fNext = new (mem) Block(fTail, allocSize, fLog);
     fTail = fTail->fNext;
 }
 

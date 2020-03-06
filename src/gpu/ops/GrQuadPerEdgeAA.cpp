@@ -521,7 +521,7 @@ size_t VertexSpec::vertexSize() const {
 
 class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
 public:
-    using Saturate = GrTextureOp::Saturate;
+    using Saturate = GrDeferredTextureOp::Saturate;
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const VertexSpec& spec) {
         return arena->make<QuadPerEdgeAAGeometryProcessor>(spec);

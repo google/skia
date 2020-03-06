@@ -64,6 +64,12 @@ public:
     void release(void* p);
 
     /**
+     * p must have been returned by allocate(). May fail if not enough room to resize, or if
+     * sizeDelta would cause the allocation to have a negative size.
+     */
+    bool resize(void* p, int sizeDelta);
+
+    /**
      * Returns true if there are no unreleased allocations.
      */
     bool isEmpty() const {
@@ -127,6 +133,8 @@ public:
     }
 
     void* allocate(size_t size) { return fPool.allocate(size); }
+
+    bool resize(void* ptr, int sizeDelta) { return fPool.resize(ptr, sizeDelta); }
 
     void release(std::unique_ptr<GrOp> op);
 

@@ -25,6 +25,8 @@ public:
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
     GrAppliedHardClip(const GrAppliedHardClip&) = delete;
 
+    GrAppliedHardClip& operator=(GrAppliedHardClip&&) = default;
+
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     uint32_t stencilStackID() const { return fStencilStackID; }
@@ -66,6 +68,8 @@ public:
     bool operator!=(const GrAppliedHardClip& that) const { return !(*this == that); }
 
 private:
+    friend class GrAppliedClip;
+
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     uint32_t                   fStencilStackID = SkClipStack::kInvalidGenID;
@@ -80,6 +84,8 @@ public:
     GrAppliedClip(GrAppliedClip&& that) = default;
     GrAppliedClip(const GrAppliedClip&) = delete;
 
+    GrAppliedClip& operator=(GrAppliedClip&& that) = default;
+
     const GrScissorState& scissorState() const { return fHardClip.scissorState(); }
     const GrWindowRectsState& windowRectsState() const { return fHardClip.windowRectsState(); }
     uint32_t stencilStackID() const { return fHardClip.stencilStackID(); }
@@ -92,6 +98,29 @@ public:
     std::unique_ptr<const GrFragmentProcessor> detachClipCoverageFragmentProcessor(int i) {
         SkASSERT(fClipCoverageFPs[i]);
         return std::move(fClipCoverageFPs[i]);
+    }
+
+    GrAppliedClip&& clone() const {
+        GrAppliedClip cloned;
+        if (fHardClip.fScissorState.enabled()) {
+            cloned.fHardClip.fScissorState.set(fHardClip.fScissorState.rect());
+        } else {
+            cloned.fHardClip.fScissorState.setDisabled();
+        }
+
+        if (fHardClip.fWindowRectsState.enabled()) {
+            cloned.fHardClip.fWindowRectsState.set(fHardClip.fWindowRectsState.windows(), fHardClip.fWindowRectsState.mode());
+        } else {
+            cloned.fHardClip.fWindowRectsState.setDisabled();
+        }
+
+        cloned.fHardClip.fStencilStackID = fHardClip.fStencilStackID;
+
+        for (int i = 0; i < fClipCoverageFPs.count(); ++i) {
+            cloned.addCoverageFP(fClipCoverageFPs[i]->clone());
+        }
+
+        return std::move(cloned);
     }
 
     GrAppliedHardClip& hardClip() { return fHardClip; }

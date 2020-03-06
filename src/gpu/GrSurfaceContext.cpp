@@ -575,7 +575,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             return nullptr;
         }
         linearRTC->drawTexture(GrNoClip(), std::move(texView), srcAlphaType,
-                               GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
+                               GrSamplerState::Filter::kNearest,
                                SK_PMColor4fWHITE, SkRect::Make(srcRect), SkRect::MakeWH(srcW, srcH),
                                GrAA::kNo, GrQuadAAFlags::kNone, constraint, SkMatrix::I(),
                                std::move(xform));
@@ -657,7 +657,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
                                                                   : GrSamplerState::Filter::kBilerp;
             auto srcSubset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
             tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
-                               SkBlendMode::kSrc, SK_PMColor4fWHITE, srcSubset, dstRect, GrAA::kNo,
+                               SK_PMColor4fWHITE, srcSubset, dstRect, GrAA::kNo,
                                GrQuadAAFlags::kNone, constraint, SkMatrix::I(), std::move(xform));
         }
         texView = tempB->readSurfaceView();

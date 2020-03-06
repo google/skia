@@ -116,7 +116,7 @@ public:
     private:
         friend class GrBlockAllocator;
 
-        Block(Block* prev, int allocationSize);
+        Block(Block* prev, int allocationSize, bool log);
 
         // Get fCursor, but aligned to such that ptr(rval) satisfies Align.
         template <size_t Align, size_t Padding>
@@ -132,6 +132,7 @@ public:
         int             fSize;      // includes the size of the BlockHeader and requested metadata
         int             fCursor;    // (this + fCursor) points to next available allocation
         int             fMetadata;
+        bool fLog;
     };
 
     // The size of the head block is determined by 'additionalPreallocBytes'. Subsequent heap blocks
@@ -143,7 +144,7 @@ public:
     // is in-place new'ed into a larger block of memory, but it should remain set to 0 if stack
     // allocated or if the class layout does not guarantee that space is present.
     GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
-                     size_t additionalPreallocBytes = 0);
+                     size_t additionalPreallocBytes = 0, bool log = false);
 
     ~GrBlockAllocator() { this->reset(); }
 
@@ -302,7 +303,7 @@ private:
     uint64_t fGrowthPolicy   : 2;  // GrowthPolicy
     uint64_t fN0             : 23; // = 1 for linear/exp.; = 0 for fixed/fibonacci, initially
     uint64_t fN1             : 23; // = 1 initially
-
+    bool fLog;
     // Inline head block, must be at the end so that it can utilize any additional reserved space
     // from the initial allocation.
     Block fHead;
@@ -359,6 +360,8 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
 
     int start = fTail->fCursor;
     fTail->fCursor = end;
+    if (fLog)
+        SkDebugf("allocate set cursor to %d\n", end);
     return {fTail, start, offset, end};
 }
 
@@ -396,16 +399,24 @@ int GrBlockAllocator::Block::cursor() const {
 bool GrBlockAllocator::Block::resize(int start, int end, size_t newSize) {
     SkASSERT(fSentinel == kAssignedMarker);
     SkASSERT(start >= kDataStart && end <= fSize && start < end);
-
+    if (fLog)
+        SkDebugf("Block resize, start = %d, end = %d, new size = %d\n", start, end, newSize);
     if (newSize > kMaxAllocationSize) {
         // Cannot possibly satisfy the resize and could overflow subsequent math
         return false;
     }
+    if (fLog)
+        SkDebugf(" - cursor = %d, cursor == end? %d\n", fCursor, fCursor == end);
     if (fCursor == end) {
         // The last allocation can be shifted assuming newSize fits in the size of the block
         int nextCursor = start + (int) newSize;
+        if (fLog)
+            SkDebugf(" - next cursor = %d, <= size(%d)? %d\n",
+                nextCursor, fSize, nextCursor <= fSize);
         if (nextCursor <= fSize) {
             fCursor = nextCursor;
+            if (fLog)
+                SkDebugf("resize set cursor to %d\n", fCursor);
             return true;
         }
     }
@@ -421,6 +432,8 @@ bool GrBlockAllocator::Block::release(int start, int end) {
     SkASSERT(start >= kDataStart && end <= fSize && start < end);
     if (fCursor == end) {
         fCursor = start;
+        if (fLog)
+            SkDebugf("release set cursor to %d\n", start);
         return true;
     } else {
         return false;

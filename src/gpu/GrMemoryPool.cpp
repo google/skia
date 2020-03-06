@@ -30,7 +30,8 @@ std::unique_ptr<GrMemoryPool> GrMemoryPool::Make(size_t preallocSize, size_t min
 
 GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize)
         : fAllocator(GrBlockAllocator::GrowthPolicy::kFixed, minAllocSize,
-                     preallocSize - offsetof(GrMemoryPool, fAllocator) - sizeof(GrBlockAllocator)) {
+                     preallocSize - offsetof(GrMemoryPool, fAllocator) - sizeof(GrBlockAllocator),
+                     false) {
     SkDEBUGCODE(fAllocationCount = 0;)
 }
 
@@ -104,6 +105,25 @@ void GrMemoryPool::release(void* p) {
         // Update count and release storage of the allocation itself
         block->setMetadata(alive - 1);
         block->release(header->fStart, header->fEnd);
+    }
+}
+
+bool GrMemoryPool::resize(void* p, int sizeDelta) {
+    Header* header = reinterpret_cast<Header*>(reinterpret_cast<intptr_t>(p) - sizeof(Header));
+    SkASSERT(GrBlockAllocator::kAssignedMarker == header->fSentinel);
+
+    GrBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
+
+    // FIXME handle an implicit release if sizeDelta == size provided on allocate, e.g. automatically
+    // take into account the header + padding overhead and update metadata.
+
+    // FIXME make this robust to underflow if sizeDelta is too negative, such that end + sizeDelta < start
+    int newSize = header->fEnd + sizeDelta - header->fStart;
+    if (block->resize(header->fStart, header->fEnd, newSize)) {
+        header->fEnd += sizeDelta;
+        return true;
+    } else {
+        return false;
     }
 }
 

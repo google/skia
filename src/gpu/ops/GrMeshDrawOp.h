@@ -33,6 +33,15 @@ public:
                (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
     }
 
+    static bool CombinedQuadCountWillOverflow(GrAAType aaType,
+                                              bool willBeUpgradedToAA,
+                                              int combinedQuadCount) {
+        bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
+
+        return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
+                                             : GrResourceProvider::MaxNumNonAAQuads());
+    }
+
 protected:
     GrMeshDrawOp(uint32_t classID);
 
@@ -77,15 +86,6 @@ protected:
     private:
         typedef PatternHelper INHERITED;
     };
-
-    static bool CombinedQuadCountWillOverflow(GrAAType aaType,
-                                              bool willBeUpgradedToAA,
-                                              int combinedQuadCount) {
-        bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
-
-        return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
-                                             : GrResourceProvider::MaxNumNonAAQuads());
-    }
 
 private:
     void onPrePrepare(GrRecordingContext* context,

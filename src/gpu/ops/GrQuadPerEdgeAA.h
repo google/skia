@@ -26,7 +26,7 @@ class GrShaderCaps;
 struct GrVertexWriter;
 
 namespace GrQuadPerEdgeAA {
-    using Saturate = GrTextureOp::Saturate;
+    using Saturate = GrDeferredTextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Domain : bool { kNo = false, kYes = true };
