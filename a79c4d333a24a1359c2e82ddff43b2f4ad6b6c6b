@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fe512dd_3d1bf9ca",
+        "filename": "modules/canvaskit/htmlcanvas/canvas2dcontext.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-06T16:03:14Z",
+      "side": 1,
+      "message": "Doesn\u0027t have to be this CL, but looks like this sequence is repeated enough times to warrant a helper that handles shadows and invokes a generic draw function.\n\nI\u0027m guessing we can make call sites look something like\n\n  this._draw(() \u003d\u003e {this._canvas.drawTextBlob(blob, x, y, strokePaint)});\n\nwhere _draw() performs all the shadow voodoo.",
+      "range": {
+        "startLine": 1110,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 55
+      },
+      "revId": "a79c4d333a24a1359c2e82ddff43b2f4ad6b6c6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
