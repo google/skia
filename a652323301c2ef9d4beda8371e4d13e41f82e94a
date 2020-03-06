@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04adc0b5_9ed6630e",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-06T17:08:54Z",
+      "side": 1,
+      "message": "stale comment",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 270,
+        "endChar": 60
+      },
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
