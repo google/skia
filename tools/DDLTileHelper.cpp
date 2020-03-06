@@ -52,19 +52,19 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 }
 
 void DDLTileHelper::TileData::createDDL() {
-    SkASSERT(!fDisplayList && fReconstitutedPicture);
+    SkASSERT(!fDisplayList);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
 
     // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
     // Maybe set it up in the ctor?
-    SkCanvas* recordingCanvas = recorder.getCanvas();
+    SkCanvas* subCanvas = recorder.getCanvas();
 
     // Because we cheated in createTileSpecificSKP and used the wrong DDLRecorder, the GrContext's
     // stored in fReconstitutedPicture's promise images are incorrect. Patch them with the correct
     // one now.
     for (int i = 0; i < fPromiseImages.count(); ++i) {
-        GrContext* newContext = recordingCanvas->getGrContext();
+        GrContext* newContext = subCanvas->getGrContext();
 
         if (fPromiseImages[i]->isTextureBacked()) {
             SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
@@ -72,12 +72,14 @@ void DDLTileHelper::TileData::createDDL() {
         }
     }
 
-    recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-    recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
+    subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+    subCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
     // Note: in this use case we only render a picture to the deferred canvas
     // but, more generally, clients will use arbitrary draw calls.
-    recordingCanvas->drawPicture(fReconstitutedPicture);
+    if (fReconstitutedPicture) {
+        subCanvas->drawPicture(fReconstitutedPicture);
+    }
 
     fDisplayList = recorder.detach();
 }
@@ -88,23 +90,6 @@ void DDLTileHelper::TileData::precompile(GrContext* context) {
     SkDeferredDisplayList::ProgramIterator iter(context, fDisplayList.get());
     for (; !iter.done(); iter.next()) {
         iter.compile();
-    }
-}
-
-void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
-    SkASSERT(!fDisplayList && !fImage && fReconstitutedPicture);
-
-    sk_sp<SkSurface> tileSurface = SkSurface::MakeRenderTarget(context, fCharacterization,
-                                                               SkBudgeted::kYes);
-    if (tileSurface) {
-        SkCanvas* tileCanvas = tileSurface->getCanvas();
-
-        tileCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-        tileCanvas->translate(-fClip.fLeft, -fClip.fTop);
-
-        tileCanvas->drawPicture(fReconstitutedPicture);
-
-        fImage = tileSurface->makeImageSnapshot();
     }
 }
 
@@ -135,7 +120,6 @@ void DDLTileHelper::TileData::compose() {
 void DDLTileHelper::TileData::reset() {
     // TODO: when DDLs are re-renderable we don't need to do this
     fDisplayList = nullptr;
-    fImage = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,7 +164,7 @@ void DDLTileHelper::createDDLsInParallel() {
     SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
-    for (int i = 0; i < this->numTiles(); ++i) {
+    for (int i = 0; i < fTiles.count(); ++i) {
         fTiles[i].createDDL();
     }
 #endif
@@ -230,19 +214,6 @@ void DDLTileHelper::precompileAndDrawAllTiles(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].precompile(context);
         fTiles[i].draw(context);
-    }
-}
-
-void DDLTileHelper::interleaveDDLCreationAndDraw(GrContext* context) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createDDL();
-        fTiles[i].draw(context);
-    }
-}
-
-void DDLTileHelper::drawAllTilesDirectly(GrContext* context) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].drawSKPDirectly(context);
     }
 }
 
