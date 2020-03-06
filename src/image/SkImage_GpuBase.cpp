@@ -231,7 +231,7 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     return GrBackendTexture();  // invalid
 }
 
-GrTexture* SkImage_GpuBase::onGetTexture() const {
+GrTexture* SkImage_GpuBase::getTexture() const {
     GrTextureProxy* proxy = this->peekProxy();
     if (proxy && proxy->isInstantiated()) {
         return proxy->peekTexture();

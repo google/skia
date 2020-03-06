@@ -39,7 +39,7 @@ public:
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
-    GrTexture* onGetTexture() const final;
+    GrTexture* getTexture() const;
 
     bool onIsValid(GrContext*) const final;
 
