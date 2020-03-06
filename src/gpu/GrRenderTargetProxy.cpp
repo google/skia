@@ -142,6 +142,13 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    if (proxyFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0 && this->numSamples() == 1) {
+        // Ganesh never internally creates FBO0 proxies or surfaces so this must be a wrapped
+        // proxy. In this case, with no MSAA, rendering to FBO0 is strictly more limited than
+        // rendering to an arbitrary surface so we allow a non-FBO0 surface to be matched with
+        // the proxy.
+        surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
     SkASSERT(((int)proxyFlags & kGrInternalRenderTargetFlagsMask) ==
              ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
 }
