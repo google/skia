@@ -32,7 +32,6 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
-class GrTexture;
 
 struct SkYUVAIndex;
 
@@ -804,10 +803,6 @@ public:
         example: https://fiddle.skia.org/c/@Image_peekPixels
     */
     bool peekPixels(SkPixmap* pixmap) const;
-
-    /** Deprecated.
-    */
-    GrTexture* getTexture() const;
 
     /** Returns true the contents of SkImage was created on or uploaded to GPU memory,
         and is available as a GPU texture.

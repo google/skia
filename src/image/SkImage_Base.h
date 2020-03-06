@@ -69,7 +69,6 @@ public:
         return {};
     }
     virtual bool isYUVA() const { return false; }
-    virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;

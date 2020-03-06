@@ -681,7 +681,8 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
             return false;
         }
     }
-    GrTexture* texture = image->getTexture();
+    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
+    GrTexture* texture = gpuImage->getTexture();
     if (!texture) {
         // In context-loss cases, we may not have a texture.
         return false;
@@ -705,7 +706,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
             return false;
         }
 
-        texture = image->getTexture();
+        texture = gpuImage->getTexture();
         if (!texture) {
             return false;
         }
