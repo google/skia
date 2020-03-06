@@ -872,10 +872,11 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
     return new CoverageImpl();
 }
 
+
 GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
                                               SkArenaAlloc* arena,
                                               const GrSurfaceProxyView* outputView,
-                                              GrAppliedClip&& appliedClip,
+                                              GrAppliedClip&& clip,
                                               const GrXferProcessor::DstProxyView& dstProxyView) {
     GrGeometryProcessor* gp = Processor::Make(arena, fAAType, fFlags);
     SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
@@ -884,11 +885,13 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
     if (GrAAType::kMSAA == fAAType) {
         flags = GrPipeline::InputFlags::kHWAntialias;
     }
+    const GrPipeline* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
+            caps, arena, outputView, std::move(clip), dstProxyView, std::move(fProcessors), flags);
 
-    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
-                                                       std::move(appliedClip), dstProxyView,
-                                                       gp, std::move(fProcessors),
-                                                       GrPrimitiveType::kTriangles, flags);
+    GrRenderTargetProxy* rtProxy = outputView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(rtProxy->numSamples(), rtProxy->numStencilSamples(),
+                                      rtProxy->backendFormat(), outputView->origin(), pipeline, gp,
+                                      nullptr, nullptr, 0, GrPrimitiveType::kTriangles);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -900,14 +903,11 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
         fProgramInfo = this->createProgramInfo(flushState);
     }
 
-    GrMesh* mesh = flushState->allocator()->make<GrMesh>();
-    mesh->setIndexedInstanced(std::move(fIndexBuffer), fIndexCount,
-                              std::move(fInstanceBuffer), fInstanceCount,
-                              fBaseInstance, GrPrimitiveRestart::kNo);
-    mesh->setVertexData(std::move(fVertexBuffer));
-
-    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, this->bounds());
-    flushState->opsRenderPass()->drawMeshes(*fProgramInfo, mesh, 1);
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    renderPass->bindPipeline(*fProgramInfo, this->bounds(), flushState->scissorRectIfEnabled());
+    renderPass->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    renderPass->bindBuffers(fIndexBuffer.get(), fInstanceBuffer.get(), fVertexBuffer.get());
+    renderPass->drawIndexedInstanced(fIndexCount, 0, fInstanceCount, fBaseInstance, 0);
 }
 
 // Will the given corner look good if we use HW derivatives?
