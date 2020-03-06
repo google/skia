@@ -25,6 +25,9 @@ public:
 
     ~GrD3DGpu() override;
 
+    ID3D12Device* device() const { return fDevice.Get(); }
+    ID3D12CommandQueue* queue() const { return fQueue.Get(); }
+
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}

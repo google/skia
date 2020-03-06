@@ -739,6 +739,9 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DGpu.h",
   "$_src/gpu/d3d/GrD3DOpsRenderPass.cpp",
   "$_src/gpu/d3d/GrD3DOpsRenderPass.h",
+  "$_src/gpu/d3d/GrD3DResource.cpp",
+  "$_src/gpu/d3d/GrD3DResource.h",
+  "$_src/gpu/d3d/GrD3DResourceState.h",
   "$_src/gpu/d3d/GrD3DUtil.cpp",
   "$_src/gpu/d3d/GrD3DUtil.h",
 ]
