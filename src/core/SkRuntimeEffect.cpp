@@ -290,6 +290,7 @@ SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& bas
 
 #if SK_SUPPORT_GPU
 bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
+                                      GrContextOptions::ShaderErrorHandler* errorHandler,
                                       SkSL::PipelineStageArgs* outArgs) {
     SkSL::SharedCompiler compiler;
 
@@ -302,19 +303,18 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
                                                 settings);
     if (!baseProgram) {
-        SkDebugf("%s\n", compiler->errorText().c_str());
-        SkASSERT(false);
+        errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
         return false;
     }
 
-    auto specialized = std::get<0>(this->specialize(*baseProgram, inputs, compiler));
+    auto [specialized, errorText] = this->specialize(*baseProgram, inputs, compiler);
     if (!specialized) {
+        errorHandler->compileError(fSkSL.c_str(), errorText.c_str());
         return false;
     }
 
     if (!compiler->toPipelineStage(*specialized, outArgs)) {
-        SkDebugf("%s\n", compiler->errorText().c_str());
-        SkASSERT(false);
+        errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
         return false;
     }
 
