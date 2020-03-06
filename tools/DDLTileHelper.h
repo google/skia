@@ -45,6 +45,11 @@ public:
         // Precompile all the programs required to draw this tile's DDL
         void precompile(GrContext*);
 
+        // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
+        // first. This is used for determining the overhead of using DDLs (i.e., it replaces
+        // a 'createDDL' and 'draw' pair.
+        void drawSKPDirectly(GrContext*);
+
         // Replay the recorded DDL into the tile surface - creating 'fImage'.
         void draw(GrContext*);
 
@@ -88,6 +93,17 @@ public:
     void createDDLsInParallel();
 
     void precompileAndDrawAllTiles(GrContext*);
+
+    // For each tile, create its DDL and then draw it - all on a single thread. This is to allow
+    // comparison w/ just drawing the SKP directly (i.e., drawAllTilesDirectly). The
+    // DDL creations and draws are interleaved to prevent starvation of the GPU.
+    // Note: this is somewhat of a misuse/pessimistic-use of DDLs since they are supposed to
+    // be created on a separate thread.
+    void interleaveDDLCreationAndDraw(GrContext*);
+
+    // This draws all the per-tile SKPs directly into all of the tiles w/o converting them to
+    // DDLs first - all on a single thread.
+    void drawAllTilesDirectly(GrContext*);
 
     void composeAllTiles();
 
