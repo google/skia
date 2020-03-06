@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6eba151_b476528b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-06T16:59:16Z",
+      "side": 1,
+      "message": "static ? Also, is this called anywhere ?",
+      "revId": "0a6245fb915cd497ccd16e8e926f8b258f58bf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3dc585a_b59f0ab7",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-06T16:59:16Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 682,
+        "startChar": 21,
+        "endLine": 682,
+        "endChar": 26
+      },
+      "revId": "0a6245fb915cd497ccd16e8e926f8b258f58bf73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
