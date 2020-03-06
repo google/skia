@@ -107,8 +107,12 @@ public:
     };
 
     uint32_t uniqueID() const { return fUniqueID; }
-    VertexMode mode() const { return fMode; }
     const SkRect& bounds() const { return fBounds; }
+
+#ifndef SK_SUPPORT_LEGACY_VERTICES_GETTERS
+private:
+#endif
+    VertexMode mode() const { return fMode; }
 
     bool hasPerVertexData() const { return SkToBool(this->perVertexData()); }
     bool hasColors() const { return SkToBool(this->colors()); }
@@ -127,6 +131,7 @@ public:
 
     bool isVolatile() const { return fIsVolatile; }
 
+public:
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
 
@@ -142,8 +147,15 @@ public:
      */
     sk_sp<SkData> encode() const;
 
+    struct Info;
+    void getInfo(Info*) const;
+
 private:
     SkVertices() {}
+
+    friend class SkVerticesPriv;
+    friend class SkDraw;
+    friend class SkGpuDevice;
 
     // these are needed since we've manually sized our allocation (see Builder::init)
     friend class SkNVRefCnt<SkVertices>;
