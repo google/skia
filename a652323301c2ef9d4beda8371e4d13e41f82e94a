@@ -98,6 +98,24 @@
       "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4fad28_ca2454e1",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-06T18:00:32Z",
+      "side": 1,
+      "message": "\"and then magic will ensure.\"?\n\nBut uh, sounds good I guess.  We\u0027re using float r,g,b,a as a proxy for some future effect\u0027s custom payload?",
+      "parentUuid": "6a1ecfb5_864abd64",
+      "revId": "a652323301c2ef9d4beda8371e4d13e41f82e94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
