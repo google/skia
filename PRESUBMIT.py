@@ -21,8 +21,6 @@ import traceback
 
 REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
-SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
-
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
     'mtklein@chromium.org',
@@ -301,44 +299,6 @@ def CheckChangeOnUpload(input_api, output_api):
   return results
 
 
-def _CheckTreeStatus(input_api, output_api, json_url):
-  """Check whether to allow commit.
-
-  Args:
-    input_api: input related apis.
-    output_api: output related apis.
-    json_url: url to download json style status.
-  """
-  tree_status_results = input_api.canned_checks.CheckTreeIsOpen(
-      input_api, output_api, json_url=json_url)
-  if not tree_status_results:
-    # Check for caution state only if tree is not closed.
-    connection = input_api.urllib_request.urlopen(json_url)
-    status = input_api.json.loads(connection.read())
-    connection.close()
-    if ('caution' in status['message'].lower() and
-        os.isatty(sys.stdout.fileno())):
-      # Display a prompt only if we are in an interactive shell. Without this
-      # check the commit queue behaves incorrectly because it considers
-      # prompts to be failures.
-      short_text = 'Tree state is: ' + status['general_state']
-      long_text = status['message'] + '\n' + json_url
-      tree_status_results.append(
-          output_api.PresubmitPromptWarning(
-              message=short_text, long_text=long_text))
-  else:
-    # Tree status is closed. Put in message about contacting sheriff.
-    connection = input_api.urllib_request.urlopen(
-        SKIA_TREE_STATUS_URL + '/current-sheriff')
-    sheriff_details = input_api.json.loads(connection.read())
-    if sheriff_details:
-      tree_status_results[0]._message += (
-          '\n\nPlease contact the current Skia sheriff (%s) if you are trying '
-          'to submit a build fix\nand do not know how to submit because the '
-          'tree is closed') % sheriff_details['username']
-  return tree_status_results
-
-
 class CodeReview(object):
   """Abstracts which codereview tool is used for the specified issue."""
 
@@ -591,9 +551,6 @@ def CheckChangeOnCommit(input_api, output_api):
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
-  results.extend(
-      _CheckTreeStatus(input_api, output_api, json_url=(
-          SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
   # Checks for the presence of 'DO NOT''SUBMIT' in CL description and in
