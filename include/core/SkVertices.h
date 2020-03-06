@@ -67,6 +67,8 @@ public:
     class Builder {
     public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
+
+        // EXPERIMENTAL -- do not call if you care what happens
         Builder(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
                 bool isVolatile);
 
