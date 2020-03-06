@@ -14,8 +14,7 @@
 class SkMaskFilter;
 
 namespace sksg {
-class MaskFilter;
-class MaskFilterEffect;
+class MaskShaderEffect;
 } // namespace sksg
 
 namespace skottie {
@@ -97,28 +96,27 @@ private:
 };
 
 /**
- * Base class for mask-filter-related effects.
+ * Base class for mask-shader-related effects.
  */
-class MaskFilterEffectBase : public AnimatablePropertyContainer {
+class MaskShaderEffectBase : public AnimatablePropertyContainer {
 public:
-    const sk_sp<sksg::MaskFilterEffect>& node() const { return fMaskEffectNode; }
+    const sk_sp<sksg::MaskShaderEffect>& node() const { return fMaskEffectNode; }
 
 protected:
-    MaskFilterEffectBase(sk_sp<sksg::RenderNode>, const SkSize&);
+    MaskShaderEffectBase(sk_sp<sksg::RenderNode>, const SkSize&);
 
     const SkSize& layerSize() const { return  fLayerSize; }
 
     struct MaskInfo {
-        sk_sp<SkMaskFilter> fMask;
-        bool                fVisible;
+        sk_sp<SkShader> fMaskShader;
+        bool            fVisible;
     };
     virtual MaskInfo onMakeMask() const = 0;
 
 private:
     void onSync() final;
 
-    const sk_sp<sksg::MaskFilter>       fMaskNode;
-    const sk_sp<sksg::MaskFilterEffect> fMaskEffectNode;
+    const sk_sp<sksg::MaskShaderEffect> fMaskEffectNode;
     const SkSize                        fLayerSize;
 };
 
