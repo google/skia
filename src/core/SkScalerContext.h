@@ -144,6 +144,7 @@ public:
 
     /** The kind of scale which will be applied by the underlying port (pre-matrix). */
     enum PreMatrixScale {
+        kSize_PreMatrixScale,  // The underlying port can apply the y font size.
         kFull_PreMatrixScale,  // The underlying port can apply both x and y scale.
         kVertical_PreMatrixScale,  // The underlying port can only apply a y scale.
         kVerticalInteger_PreMatrixScale  // The underlying port can only apply an integer y scale.
