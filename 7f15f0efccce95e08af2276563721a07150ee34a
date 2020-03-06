@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bf88f31f_fabcbbfd",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-06T20:10:52Z",
+      "side": 1,
+      "message": "Yes, the R-value reference is only ever modified by moving clip FPs out of it. I dislike how we \"std::move\" the whole object just for the sake of being able to detach its FPs. Ideally we would pass the FPs separately from the applied clip object.",
+      "parentUuid": "9576a3f2_5aad5533",
+      "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2e8960e_961b554d",
         "filename": "src/gpu/ops/GrFillRRectOp.cpp",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2020-03-06T16:52:03Z",
       "side": 1,
       "message": "If you want a version of CreateProgramInfo that doesn\u0027t make fixed dynamic state you should probably add a CreateProgramInfoNoFDS and propagate that everywhere.",
+      "range": {
+        "startLine": 887,
+        "startChar": 0,
+        "endLine": 893,
+        "endChar": 88
+      },
+      "revId": "7f15f0efccce95e08af2276563721a07150ee34a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "567153ec_c1f7a451",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-06T20:10:52Z",
+      "side": 1,
+      "message": "So the point I am moving toward is to remove dynamic state from GrProgramInfo entirely.\n\nBut my main question is, what is the advantage of static \"Make\" functions in a helper class, as opposed to just adding a constructor with a friendlier argument list?",
+      "parentUuid": "a2e8960e_961b554d",
       "range": {
         "startLine": 887,
         "startChar": 0,
