@@ -226,6 +226,11 @@ void GrMtlGpu::checkFinishProcs() {
     }
 }
 
+std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
+    submitCommandBuffer(SyncQueue::kSkip_SyncQueue);
+    return nullptr;
+}
+
 sk_sp<GrGpuBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                             GrAccessPattern accessPattern, const void* data) {
     return GrMtlBuffer::Make(this, size, type, accessPattern, data);
