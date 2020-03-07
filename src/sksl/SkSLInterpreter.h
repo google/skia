@@ -27,12 +27,12 @@ namespace SkSL {
     using instruction = void*;
     #define LABEL(name) name:
     #ifdef TRACE
-        #define NEXT()                                                 \
-            {                                                          \
-                const uint8_t* trace_ip = ip;                          \
-                printf("%d: ", (int) (trace_ip - code));               \
-                printf("%s\n", fCode->disassemble(&trace_ip).c_str()); \
-            }                                                          \
+        #define NEXT()                                   \
+            {                                            \
+                const uint8_t* trace_ip = ip;            \
+                printf("%d: ", (int) (trace_ip - code)); \
+                disassemble(&trace_ip);                  \
+            }                                            \
             goto *labels[(int) read<ByteCode::Instruction>(&ip)]
     #else
         #define NEXT() goto *labels[(int) read<ByteCode::Instruction>(&ip)]
@@ -139,6 +139,63 @@ static T read(const uint8_t** ip) {
             fRegisters[target.fIndex].fFloat[i] = fn(fRegisters[src.fIndex].fFloat[i]); \
         }                                                                               \
         NEXT();                                                                         \
+    }
+
+#define DISASSEMBLE_0(inst, name) \
+    case ByteCode::Instruction::inst: printf(name "\n"); break;
+
+#define DISASSEMBLE_1(inst, name)                                   \
+    case ByteCode::Instruction::inst:                               \
+        printf(name " $%d\n", read<ByteCode::Register>(ip).fIndex); \
+        break;
+
+#define DISASSEMBLE_UNARY(inst, name)                             \
+    case ByteCode::Instruction::inst: {                           \
+        ByteCode::Register target = read<ByteCode::Register>(ip); \
+        ByteCode::Register src = read<ByteCode::Register>(ip);    \
+        printf(name " $%d -> $%d\n", src.fIndex, target.fIndex);  \
+        break;                                                    \
+    }
+
+#define DISASSEMBLE_VECTOR_UNARY(inst, name)                              \
+    case ByteCode::Instruction::inst: {                                   \
+        ByteCode::Register target = read<ByteCode::Register>(ip);         \
+        ByteCode::Register src = read<ByteCode::Register>(ip);            \
+        printf(name " $%d -> $%d\n", src.fIndex, target.fIndex);          \
+        break;                                                            \
+    }                                                                     \
+    case ByteCode::Instruction::inst ## N: {                              \
+        uint8_t count = read<uint8_t>(ip);                                \
+        ByteCode::Register target = read<ByteCode::Register>(ip);         \
+        ByteCode::Register src = read<ByteCode::Register>(ip);            \
+        printf(name "%d $%d -> $%d\n", count, src.fIndex, target.fIndex); \
+        break;                                                            \
+    }
+
+#define DISASSEMBLE_BINARY(inst, name)                                              \
+    case ByteCode::Instruction::inst: {                                             \
+        ByteCode::Register target = read<ByteCode::Register>(ip);                   \
+        ByteCode::Register src1 = read<ByteCode::Register>(ip);                     \
+        ByteCode::Register src2 = read<ByteCode::Register>(ip);                     \
+        printf(name " $%d, $%d -> $%d\n", src1.fIndex, src2.fIndex, target.fIndex); \
+        break;                                                                      \
+    }
+
+#define DISASSEMBLE_VECTOR_BINARY(inst, name)                                                \
+    case ByteCode::Instruction::inst: {                                                      \
+        ByteCode::Register target = read<ByteCode::Register>(ip);                            \
+        ByteCode::Register src1 = read<ByteCode::Register>(ip);                              \
+        ByteCode::Register src2 = read<ByteCode::Register>(ip);                              \
+        printf(name " $%d, $%d -> $%d\n", src1.fIndex, src2.fIndex, target.fIndex);          \
+        break;                                                                               \
+    }                                                                                        \
+    case ByteCode::Instruction::inst ## N: {                                                 \
+        uint8_t count = read<uint8_t>(ip);                                                   \
+        ByteCode::Register target = read<ByteCode::Register>(ip);                            \
+        ByteCode::Register src1 = read<ByteCode::Register>(ip);                              \
+        ByteCode::Register src2 = read<ByteCode::Register>(ip);                              \
+        printf(name "%d $%d, $%d -> $%d\n", count, src1.fIndex, src2.fIndex, target.fIndex); \
+        break;                                                                               \
     }
 
 /**
@@ -314,6 +371,264 @@ private:
         VectorI* fContinueStack;
         std::stack<StackFrame> fCallStack;
     };
+
+    // $x = register
+    // @x = memory cell
+    // &x = parameter
+    void disassemble(const uint8_t** ip) {
+        ByteCode::Instruction inst = read<ByteCode::Instruction>(ip);
+        switch (inst) {
+            DISASSEMBLE_VECTOR_BINARY(kAddF, "addF")
+            DISASSEMBLE_VECTOR_BINARY(kAddI, "addI")
+            DISASSEMBLE_BINARY(kAnd, "and")
+            DISASSEMBLE_BINARY(kCompareEQF, "compare eqF")
+            DISASSEMBLE_BINARY(kCompareEQI, "compare eqI")
+            DISASSEMBLE_BINARY(kCompareNEQF, "compare neqF")
+            DISASSEMBLE_BINARY(kCompareNEQI, "compare neqI")
+            DISASSEMBLE_BINARY(kCompareGTF, "compare gtF")
+            DISASSEMBLE_BINARY(kCompareGTS, "compare gtS")
+            DISASSEMBLE_BINARY(kCompareGTU, "compare gtU")
+            DISASSEMBLE_BINARY(kCompareGTEQF, "compare gteqF")
+            DISASSEMBLE_BINARY(kCompareGTEQS, "compare gteqS")
+            DISASSEMBLE_BINARY(kCompareGTEQU, "compare gteqU")
+            DISASSEMBLE_BINARY(kCompareLTF, "compare ltF")
+            DISASSEMBLE_BINARY(kCompareLTS, "compare ltS")
+            DISASSEMBLE_BINARY(kCompareLTU, "compare ltU")
+            DISASSEMBLE_BINARY(kCompareLTEQF, "compare lteqF")
+            DISASSEMBLE_BINARY(kCompareLTEQS, "compare lteqS")
+            DISASSEMBLE_BINARY(kCompareLTEQU, "compare lteqU")
+            DISASSEMBLE_VECTOR_BINARY(kSubtractF, "subF")
+            DISASSEMBLE_VECTOR_BINARY(kSubtractI, "subI")
+            DISASSEMBLE_VECTOR_BINARY(kDivideF, "divF")
+            DISASSEMBLE_VECTOR_BINARY(kDivideS, "divS")
+            DISASSEMBLE_VECTOR_BINARY(kDivideU, "divU")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderS, "remS")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderU, "remU")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderF, "remF")
+            DISASSEMBLE_VECTOR_BINARY(kMultiplyF, "mulF")
+            DISASSEMBLE_VECTOR_BINARY(kMultiplyI, "mulI")
+            DISASSEMBLE_BINARY(kOr, "or")
+            DISASSEMBLE_BINARY(kXor, "xor")
+            DISASSEMBLE_0(kNop, "nop")
+            case ByteCode::Instruction::kBoundsCheck: {
+                ByteCode::Register r = read<ByteCode::Register>(ip);
+                int length = read<int>(ip);
+                printf("boundsCheck 0 <= $%d < %d\n", r.fIndex, length);
+                break;
+            }
+            case ByteCode::Instruction::kBranch:
+                printf("branch %d\n", read<ByteCode::Pointer>(ip).fAddress);
+                break;
+            case ByteCode::Instruction::kBranchIfAllFalse:
+                printf("branchIfAllFalse %d\n", read<ByteCode::Pointer>(ip).fAddress);
+                break;
+            DISASSEMBLE_0(kBreak, "break")
+            case ByteCode::Instruction::kCall: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                uint8_t idx = read<uint8_t>(ip);
+                ByteCode::Register args = read<ByteCode::Register>(ip);
+                ByteCodeFunction* f = fCode->fFunctions[idx].get();
+                printf("call %s($%d...) -> $%d", f->fName.c_str(), args.fIndex, target.fIndex);
+                printf("\n");
+                break;
+            }
+            case ByteCode::Instruction::kCallExternal: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                uint8_t idx = read<uint8_t>(ip);
+                uint8_t targetCount = read<uint8_t>(ip);
+                ByteCode::Register args = read<ByteCode::Register>(ip);
+                uint8_t argCount = read<uint8_t>(ip);
+                ExternalValue* ev = fCode->fExternalValues[idx];
+                printf("callExternal %s($%d(%d)...) -> $%d(%d)", String(ev->fName).c_str(),
+                        args.fIndex, argCount, target.fIndex, targetCount);
+                printf("\n");
+                break;
+            }
+            DISASSEMBLE_0(kContinue, "continue")
+            DISASSEMBLE_UNARY(kCopy, "copy")
+            DISASSEMBLE_UNARY(kCos, "cos")
+            DISASSEMBLE_UNARY(kFloatToSigned, "FtoS")
+            DISASSEMBLE_UNARY(kFloatToUnsigned, "FtoU")
+            case ByteCode::Instruction::kImmediate: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Immediate src = read<ByteCode::Immediate>(ip);
+                printf("immediate (%d | %f) -> $%d\n", src.fInt, src.fFloat, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_UNARY(kInverse2x2, "inverse2x2")
+            DISASSEMBLE_UNARY(kInverse3x3, "inverse3x3")
+            DISASSEMBLE_UNARY(kInverse4x4, "inverse4x4")
+            DISASSEMBLE_VECTOR_UNARY(kLoad, "load")
+            case ByteCode::Instruction::kLoadDirect: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadDirect @%d -> $%d\n", src.fAddress, target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kLoadDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadDirect%d @%d -> $%d\n", count, src.fAddress, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kLoadParameter, "loadParameter")
+            case ByteCode::Instruction::kLoadParameterDirect: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadParameterDirect &%d -> $%d\n", src.fAddress, target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kLoadParameterDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadParameterDirect%d &%d -> $%d\n", count, src.fAddress, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kLoadStack, "loadStack")
+            case ByteCode::Instruction::kLoadStackDirect: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadStackDirect @%d -> $%d\n", src.fAddress, target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kLoadStackDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadStackDirect%d @%d -> $%d\n", count, src.fAddress, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_0(kLoopBegin, "loopBegin")
+            DISASSEMBLE_0(kLoopEnd, "loopEnd")
+            DISASSEMBLE_1(kLoopMask, "loopMask")
+            DISASSEMBLE_0(kLoopNext, "loopNext")
+            DISASSEMBLE_0(kMaskNegate, "maskNegate")
+            DISASSEMBLE_0(kMaskPop, "maskPop")
+            DISASSEMBLE_1(kMaskPush, "maskPush")
+            case ByteCode::Instruction::kMatrixMultiply: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register left = read<ByteCode::Register>(ip);
+                ByteCode::Register right = read<ByteCode::Register>(ip);
+                uint8_t leftColsAndRightRows = read<uint8_t>(ip);
+                uint8_t leftRows = read<uint8_t>(ip);
+                uint8_t rightColumns = read<uint8_t>(ip);
+                printf("matrixMultiply $%d, $%d, %d, %d, %d -> $%d\n", left.fIndex, right.fIndex,
+                       leftColsAndRightRows, leftRows, rightColumns, target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kMatrixToMatrix: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                uint8_t srcColumns = read<uint8_t>(ip);
+                uint8_t srcRows = read<uint8_t>(ip);
+                uint8_t dstColumns = read<uint8_t>(ip);
+                uint8_t dstRows = read<uint8_t>(ip);
+                printf("matrixToMatrix $%d, %dx%d to %dx%d -> $%d\n", src.fIndex, srcColumns,
+                       srcRows, dstColumns, dstRows, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_UNARY(kNegateF, "negateF")
+            DISASSEMBLE_UNARY(kNegateS, "negateS")
+            DISASSEMBLE_UNARY(kNot, "not")
+            case ByteCode::Instruction::kReadExternal: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                uint8_t count = read<uint8_t>(ip);
+                uint8_t index = read<uint8_t>(ip);
+                printf("readExternal %d, %d -> $%d\n", count, index, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_1(kPrint, "print")
+            DISASSEMBLE_0(kReturn, "return")
+            DISASSEMBLE_1(kReturnValue, "returnValue")
+            case ByteCode::Instruction::kScalarToMatrix: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                uint8_t columns = read<uint8_t>(ip);
+                uint8_t rows = read<uint8_t>(ip);
+                printf("scalarToMatrix $%d, %dx%d -> $%d\n", src.fIndex, columns, rows,
+                       target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kSelect: {
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Register test = read<ByteCode::Register>(ip);
+                ByteCode::Register src1 = read<ByteCode::Register>(ip);
+                ByteCode::Register src2 = read<ByteCode::Register>(ip);
+                printf("select $%d, $%d, $%d -> %d\n", test.fIndex, src1.fIndex, src2.fIndex,
+                       target.fIndex);
+                break;
+            }
+            DISASSEMBLE_BINARY(kShiftLeft, "shiftLeft")
+            DISASSEMBLE_BINARY(kShiftRightS, "shiftRightS")
+            DISASSEMBLE_BINARY(kShiftRightU, "shiftRightU")
+            DISASSEMBLE_UNARY(kSignedToFloat, "signedToFloat")
+            DISASSEMBLE_UNARY(kSin, "sin")
+            case ByteCode::Instruction::kSplat: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("splat%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_UNARY(kSqrt, "sqrt")
+            DISASSEMBLE_VECTOR_UNARY(kStore, "store")
+            case ByteCode::Instruction::kStoreDirect: {
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("store $%d -> @%d\n", src.fIndex, target.fAddress);
+                break;
+            }
+            case ByteCode::Instruction::kStoreDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("store%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kStoreParameter, "storeParameter")
+            case ByteCode::Instruction::kStoreParameterDirect: {
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeParameterDirect $%d -> &%d\n", src.fIndex, target.fAddress);
+                break;
+            }
+            case ByteCode::Instruction::kStoreParameterDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeParameterDirect%d $%d -> &%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kStoreStack, "storeStack")
+            case ByteCode::Instruction::kStoreStackDirect: {
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeStackDirect $%d -> @%d\n", src.fIndex, target.fAddress);
+                break;
+            }
+            case ByteCode::Instruction::kStoreStackDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeStackDirect%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_UNARY(kTan, "tan")
+            DISASSEMBLE_UNARY(kUnsignedToFloat, "unsignedToFloat")
+            case ByteCode::Instruction::kWriteExternal: {
+                uint8_t index = read<uint8_t>(ip);
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("writeExternal $%d, %d -> %d\n", src.fIndex, count, index);
+                break;
+            }
+            default:
+                printf("unsupported: %d\n", (int) inst);
+                SkASSERT(false);
+        }
+    }
 
     static Vector VecMod(Vector x, Vector y) {
         return Vector(x.fFloat - skvx::trunc(x.fFloat / y.fFloat) * y.fFloat);
@@ -650,14 +965,15 @@ private:
 #ifdef SKSL_THREADED_CODE
         #ifdef TRACE
             const uint8_t* trace_ip = ip;
-            printf("0: %s\n", fCode->disassemble(&trace_ip).c_str());
+            printf("0: ");
+            disassemble(&trace_ip);
         #endif
         goto *labels[(int) read<ByteCode::Instruction>(&ip)];
 #else
         for (;;) {
             #ifdef TRACE
                 const uint8_t* trace_ip = ip;
-                printf("%s\n", fCode->disassemble(&trace_ip).c_str());
+                disassemble(&trace_ip);
             #endif
             ByteCode::Instruction inst = read<ByteCode::Instruction>(&ip);
             switch (inst) {

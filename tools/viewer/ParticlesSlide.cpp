@@ -340,29 +340,6 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             };
             uniformsGui(effect->effectCode(), effect->effectUniforms());
             uniformsGui(effect->particleCode(), effect->particleUniforms());
-
-            auto showDisassembly = [](const SkSL::ByteCode* code) {
-                if (!code) {
-                    return;
-                }
-
-                SkSL::String result;
-                for (int i = 0; i < code->getFunctionCount(); ++i) {
-                    if (i != 0) {
-                        result.append("\n");
-                    }
-                    const SkSL::ByteCodeFunction* f = code->getFunction(i);
-                    result.appendf("%s\n%s", f->name().c_str(),
-                                   code->disassembleFunction(f).c_str());
-                }
-                ImGui::TextUnformatted(result.c_str());
-            };
-            if (ImGui::TreeNode("Disassembly")) {
-                showDisassembly(effect->effectCode());
-                showDisassembly(effect->particleCode());
-                ImGui::TreePop();
-            }
-
             if (remove) {
                 fRunning.removeShuffle(i);
             }

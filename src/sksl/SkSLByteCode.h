@@ -33,10 +33,14 @@ public:
      * Note that this is the actual number of parameters, not the number of parameter slots.
      */
     int getParameterCount() const { return fParameters.size(); }
+
     Parameter getParameter(int idx) const { return fParameters[idx]; }
+
     int getParameterSlotCount() const { return fParameterSlotCount; }
+
     int getReturnSlotCount() const { return fReturnSlotCount; }
-    const String& name() const { return fName; }
+
+    void disassemble() const { }
 
 private:
     ByteCodeFunction(const FunctionDeclaration* declaration)
@@ -336,8 +340,6 @@ public:
     static constexpr int kPointerMax = 65535;
     static constexpr int kRegisterMax = 65535;
 
-    int getFunctionCount() const { return fFunctions.size(); }
-    const ByteCodeFunction* getFunction(int i) const { return fFunctions[i].get(); }
     const ByteCodeFunction* getFunction(const char* name) const {
         for (const auto& f : fFunctions) {
             if (f->fName == name) {
@@ -371,13 +373,9 @@ public:
     }
     const Uniform& getUniform(int i) const { return fUniforms[i]; }
 
-    String disassembleFunction(const ByteCodeFunction*) const;
-
 private:
     ByteCode(const ByteCode&) = delete;
     ByteCode& operator=(const ByteCode&) = delete;
-
-    String disassemble(const uint8_t** ip) const;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
     std::vector<ExternalValue*> fExternalValues;
