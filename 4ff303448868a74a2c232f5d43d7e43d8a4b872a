@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "028eaa16_665d7a36",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-07T14:37:20Z",
+      "side": 1,
+      "message": "If you remove the space here like skia:10018, it\u0027ll auto link, and update the bug when it lands.",
+      "revId": "4ff303448868a74a2c232f5d43d7e43d8a4b872a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c4a1f38_45cfb45f",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-07T14:37:20Z",
+      "side": 1,
+      "message": "Typically we name file-local static functions with all lowercase with underscores, like get_dwrite_factory_mutex()",
+      "range": {
+        "startLine": 47,
+        "startChar": 22,
+        "endLine": 47,
+        "endChar": 43
+      },
+      "revId": "4ff303448868a74a2c232f5d43d7e43d8a4b872a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
