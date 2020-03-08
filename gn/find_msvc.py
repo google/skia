@@ -5,6 +5,7 @@
 
 import os
 import sys
+import subprocess
 
 '''
 Look for the first match in the format
@@ -18,6 +19,17 @@ def find_msvc():
         path = os.path.join(default_dir, release, version, 'VC')
         if os.path.isdir(path):
           return path
+
+    # Fall back to vswhere.exe to determine non-standard installation paths
+    # Fixed location, https://github.com/Microsoft/vswhere/wiki/Installing
+    vswhere = os.path.join(os.getenv('ProgramFiles(x86)'),
+              'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
+    command = (vswhere + ' -prerelease -legacy -products * -sort -utf8 '
+              '-property installationPath')
+    paths = subprocess.check_output(command).decode('utf-8').splitlines()
+    if paths:
+      return paths[0] + '\\VC'
+
   return None
 
 if __name__ == '__main__':
