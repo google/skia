@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f674311c_7d87b027",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10549
+      },
+      "writtenOn": "2020-03-08T20:25:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "028eaa16_665d7a36",
+      "revId": "4ff303448868a74a2c232f5d43d7e43d8a4b872a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c4a1f38_45cfb45f",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "4ff303448868a74a2c232f5d43d7e43d8a4b872a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b909d966_7a3594d8",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 10549
+      },
+      "writtenOn": "2020-03-08T20:25:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c4a1f38_45cfb45f",
+      "range": {
+        "startLine": 47,
+        "startChar": 22,
+        "endLine": 47,
+        "endChar": 43
+      },
+      "revId": "4ff303448868a74a2c232f5d43d7e43d8a4b872a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
