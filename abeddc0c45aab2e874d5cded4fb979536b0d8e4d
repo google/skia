@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9950a693_bd7c7bdf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-09T13:01:04Z",
+      "side": 1,
+      "message": "Silly question - the way I\u0027ve been handling this so far in SkSG is by overriding the actual paint shader at the last stage, just before drawing:\n\n   paint-\u003esetShader(SkShaders::Blend(kSrcIn, clipShader, paint-\u003erefShader())\n\nThere\u0027s some trickiness around local matrix adjustments, and I imagine saveLayer needs spacial plumbing - but wouldn\u0027t this technique work in the general case (i.e. no need for RP/Blitter to even be aware this is going on)?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 69
+      },
+      "revId": "abeddc0c45aab2e874d5cded4fb979536b0d8e4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d90145a_ae236ec1",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-09T13:01:04Z",
+      "side": 1,
+      "message": "another possible location: SkShaders",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 44
+      },
+      "revId": "abeddc0c45aab2e874d5cded4fb979536b0d8e4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
