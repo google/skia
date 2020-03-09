@@ -103,6 +103,7 @@ DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
+DRAW(ClipShader, clipShader(r.shader, r.op));
 
 DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
@@ -276,6 +277,7 @@ private:
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
+    void trackBounds(const ClipShader&)        { this->pushControl(); }
 
 
     // For all other ops, we can calculate and store the bounds directly now.

@@ -414,6 +414,22 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkClipOp op, bool doAA) {
     return offset;
 }
 
+void SkPictureRecord::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    // Overkill to store a whole paint, but we don't have an existing structure to just store
+    // shaders. If size becomes an issue in the future, we can optimize this.
+    SkPaint paint;
+    paint.setShader(cs);
+
+    // op + paint index + clipop
+    size_t size = 3 * kUInt32Size;
+    size_t initialOffset = this->addDraw(CLIP_SHADER_IN_PAINT, &size);
+    this->addPaint(paint);
+    this->addInt((int)op);
+    this->validate(initialOffset, size);
+
+    this->INHERITED::onClipShader(std::move(cs), op);
+}
+
 void SkPictureRecord::onClipRegion(const SkRegion& region, SkClipOp op) {
     this->recordClipRegion(region, op);
     this->INHERITED::onClipRegion(region, op);
