@@ -135,6 +135,9 @@ public:
     const GrSurfaceProxyView* outputView() const final { return this->drawOpArgs().outputView(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
+    const SkIRect* scissorRectIfEnabled() const {
+        return this->appliedClip() ? this->appliedClip()->scissorRectIfEnabled() : nullptr;
+    }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
         return this->drawOpArgs().dstProxyView();
