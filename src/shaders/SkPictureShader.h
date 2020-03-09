@@ -33,8 +33,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SkPicture* isAPicture(SkMatrix*, SkTileMode[2], SkRect* tile) const override;
-
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
