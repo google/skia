@@ -462,6 +462,9 @@ var CanvasKit = {
     Color: function() {},
     Empty: function() {},
     Lerp: function() {},
+    MakeLinearGradient: function() {},
+    MakeRadialGradient: function() {},
+    MakeTwoPointConicalGradient: function() {},
 
     _Blend: function() {},
     _Lerp: function() {},
