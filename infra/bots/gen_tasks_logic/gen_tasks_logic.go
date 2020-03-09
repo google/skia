@@ -1012,21 +1012,20 @@ func (b *jobBuilder) compile() string {
 		recipe := "compile"
 		isolate := "compile.isolate"
 		var props map[string]string
-		needSync := false
 		if b.extraConfig("NoDEPS", "CMake", "CommandBuffer", "Flutter", "SKQP") {
 			recipe = "sync_and_compile"
 			isolate = "swarm_recipe.isolate"
 			props = EXTRA_PROPS
-			needSync = true
+			b.usesGit()
+			if !b.extraConfig("NoDEPS") {
+				b.cache(CACHES_WORKDIR...)
+			}
+		} else {
+			b.idempotent()
 		}
 		b.kitchenTask(recipe, props, OUTPUT_BUILD)
 		b.isolate(isolate)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		if needSync {
-			b.usesGit()
-		} else {
-			b.idempotent()
-		}
 		b.swarmDimensions()
 		if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
 			b.usesDocker()
@@ -1110,6 +1109,7 @@ func (b *jobBuilder) recreateSKPs() {
 			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		)
 		b.usesGo()
+		b.cache(CACHES_WORKDIR...)
 		b.timeout(4 * time.Hour)
 	})
 }
@@ -1125,6 +1125,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 		b.asset("clang_linux")
 		b.asset("ccache_linux")
 		b.usesCCache()
+		b.cache(CACHES_WORKDIR...)
 	})
 }
 
@@ -1135,6 +1136,7 @@ func (b *jobBuilder) housekeeper() {
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.usesGit()
+		b.cache(CACHES_WORKDIR...)
 	})
 }
 
@@ -1207,6 +1209,7 @@ func (b *jobBuilder) buildstats() {
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
 		b.usesGit()
+		b.cache(CACHES_WORKDIR...)
 	})
 	// Upload release results (for tracking in perf)
 	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)

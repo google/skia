@@ -192,14 +192,7 @@ func (b *taskBuilder) usesCCache() {
 
 // usesGit adds attributes to tasks which use git.
 func (b *taskBuilder) usesGit() {
-	// TODO(borenet): Why aren't these tasks using the Git cache?
-	if !b.extraConfig("UpdateGoDeps", "BuildTaskDrivers", "CreateDockerImage", "PushAppsFromSkiaDockerImage", "PushAppsFromSkiaWASMDockerImages", "PushAppsFromWASMDockerImage") {
-		b.cache(CACHES_GIT...)
-		// TODO(borenet): Move this conditional into compile().
-		if !b.extraConfig("NoDEPS") {
-			b.cache(CACHES_WORKDIR...)
-		}
-	}
+	b.cache(CACHES_GIT...)
 	b.cipd(specs.CIPD_PKGS_GIT...)
 }
 
