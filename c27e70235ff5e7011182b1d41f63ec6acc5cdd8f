@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31e64cd9_6aa42aa2",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-09T14:56:44Z",
+      "side": 1,
+      "message": "Unless I\u0027m misunderstanding, this doesn\u0027t match the implementation.",
+      "range": {
+        "startLine": 23,
+        "startChar": 50,
+        "endLine": 24,
+        "endChar": 10
+      },
+      "revId": "c27e70235ff5e7011182b1d41f63ec6acc5cdd8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c3e6a97_6021a513",
+        "filename": "infra/bots/gen_tasks_logic/task_builder.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-09T14:56:44Z",
+      "side": 1,
+      "message": "This is much clearer. Thanks!",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 85
+      },
+      "revId": "c27e70235ff5e7011182b1d41f63ec6acc5cdd8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -131,6 +131,24 @@
     },
     {
       "key": {
+        "uuid": "0522373c_41772086",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-09T14:56:44Z",
+      "side": 1,
+      "message": "Not quite -- we have AVX512 tasks.\n\nBut ISTM we could put this alongside the SwiftShader case.",
+      "parentUuid": "264d7ef5_1c3de96c",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7cb83c6_fa70bcf3",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 4
@@ -577,6 +595,24 @@
     },
     {
       "key": {
+        "uuid": "0978a5c7_cef997af",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-09T14:56:44Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "2ceec2eb_01d4fa9d",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01efa82e_4a878794",
         "filename": "infra/bots/gen_tasks_logic/job_builder.go",
         "patchSetId": 4
@@ -776,6 +812,30 @@
       "side": 1,
       "message": "(story time) Initially I was only using regular expressions in these functions, with none for equality.  This behavior seemed more logical and it was consistent with the behavior I wanted from cpu() and gpu().  It later became obvious that we needed equality because of things like `arch(\"x86\")`, and this behavior carried over.\n\nDone.",
       "parentUuid": "b2feda37_7102ee05",
+      "range": {
+        "startLine": 108,
+        "startChar": 43,
+        "endLine": 109,
+        "endChar": 80
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53f51c75_d6c2525a",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-09T14:56:44Z",
+      "side": 1,
+      "message": "I love story time!",
+      "parentUuid": "9de15809_f0cf9e6f",
       "range": {
         "startLine": 108,
         "startChar": 43,
