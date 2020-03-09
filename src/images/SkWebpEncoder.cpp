@@ -7,7 +7,7 @@
 
 #include "src/images/SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_WEBP_LIBRARY
+#ifdef SK_ENCODE_WEBP
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkStream.h"
