@@ -97,6 +97,19 @@ var (
 			Path: "cache/ccache",
 		},
 	}
+	// The "docker" cache is used as a persistent working directory for
+	// tasks which use Docker. It is not to be confused with Docker's own
+	// cache, which stores images. We do not currently use a named Swarming
+	// cache for the latter.
+	// TODO(borenet): We should ensure that any task which uses Docker does
+	// not also use the normal "work" cache, to prevent issues like
+	// https://bugs.chromium.org/p/skia/issues/detail?id=9749.
+	CACHES_DOCKER = []*specs.Cache{
+		&specs.Cache{
+			Name: "docker",
+			Path: "cache/docker",
+		},
+	}
 
 	// TODO(borenet): This hacky and bad.
 	CIPD_PKGS_KITCHEN = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
@@ -881,6 +894,7 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
+		b.cache(CACHES_DOCKER...)
 	})
 	return taskName
 }
@@ -913,6 +927,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
+		b.cache(CACHES_DOCKER...)
 	})
 }
 
@@ -944,6 +959,7 @@ func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
+		b.cache(CACHES_DOCKER...)
 	})
 }
 
@@ -977,6 +993,7 @@ func (b *jobBuilder) createPushAppsFromSkiaWASMDockerImages() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
+		b.cache(CACHES_DOCKER...)
 	})
 }
 
@@ -1029,6 +1046,7 @@ func (b *jobBuilder) compile() string {
 		b.swarmDimensions()
 		if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
 			b.usesDocker()
+			b.cache(CACHES_DOCKER...)
 		}
 
 		// Android bots require a toolchain.
@@ -1336,7 +1354,7 @@ func (b *jobBuilder) test() {
 		b.kitchenTask(recipe, extraProps, OUTPUT_TEST)
 		b.isolate(isolate)
 		b.swarmDimensions()
-		if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
+		if b.extraConfig("CanvasKit", "Docker", "LottieWeb", "PathKit", "SKQP") {
 			b.usesDocker()
 		}
 		if compileTaskName != "" {
@@ -1440,7 +1458,7 @@ func (b *jobBuilder) perf() {
 		b.kitchenTask(recipe, extraProps, OUTPUT_PERF)
 		b.isolate(isolate)
 		b.swarmDimensions()
-		if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
+		if b.extraConfig("CanvasKit", "Docker", "PathKit") {
 			b.usesDocker()
 		}
 		if compileTaskName != "" {

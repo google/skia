@@ -211,25 +211,5 @@ func (b *taskBuilder) usesGo() {
 
 // usesDocker adds attributes to tasks which use docker.
 func (b *taskBuilder) usesDocker() {
-	// The "docker" cache is used as a persistent working directory for
-	// tasks which use Docker. It is not to be confused with Docker's own
-	// cache, which stores images. We do not currently use a named Swarming
-	// cache for the latter.
-	// TODO(borenet): We should ensure that any task which uses Docker does
-	// not also use the normal "work" cache, to prevent issues like
-	// https://bugs.chromium.org/p/skia/issues/detail?id=9749.
-	if b.role("Build") || (b.role("Housekeeper") && b.matchExtraConfig("DockerImage")) {
-		b.cache(&specs.Cache{
-			Name: "docker",
-			Path: "cache/docker",
-		})
-	}
-
-	// TODO(borenet): Why aren't these using the Docker dimension?
-	if b.extraConfig("SKQP") ||
-		b.model("Golo") ||
-		b.role("Perf", "Test") && b.cpu() && b.extraConfig("CanvasKit", "PathKit", "SkottieWASM", "LottieWeb") {
-	} else {
-		b.dimension("docker_installed:true")
-	}
+	b.dimension("docker_installed:true")
 }
