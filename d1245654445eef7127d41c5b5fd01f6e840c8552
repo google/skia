@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dced5f2_5134a789",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-09T15:37:33Z",
+      "side": 1,
+      "message": "Can you also add a test that includes a texture?  Feel free to use any of the images already loaded in. It doesn\u0027t have to be super fancy, just non-rectangular.",
+      "range": {
+        "startLine": 518,
+        "startChar": 19,
+        "endLine": 518,
+        "endChar": 32
+      },
+      "revId": "d1245654445eef7127d41c5b5fd01f6e840c8552",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b62f9400_8908660d",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-09T15:37:33Z",
+      "side": 1,
+      "message": "style: prefer const over let x4",
+      "range": {
+        "startLine": 530,
+        "startChar": 12,
+        "endLine": 530,
+        "endChar": 15
+      },
+      "revId": "d1245654445eef7127d41c5b5fd01f6e840c8552",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
