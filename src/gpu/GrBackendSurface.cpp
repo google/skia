@@ -275,6 +275,10 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
         case GrBackendApi::kMock:
             return fMock.fColorType == that.fMock.fColorType &&
                    fMock.fCompressionType == that.fMock.fCompressionType;
+#ifdef SK_DIRECT3D
+        case GrBackendApi::kDirect3D:
+            return fDxgiFormat == that.fDxgiFormat;
+#endif
         default:
             SK_ABORT("Unknown GrBackend");
     }

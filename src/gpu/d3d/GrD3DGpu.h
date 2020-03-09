@@ -176,6 +176,8 @@ private:
 
     GrD3DResourceProvider fResourceProvider;
 
+    gr_cp<ID3D12CommandList> fCurrentDirectCommandList;
+
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
     typedef GrGpu INHERITED;

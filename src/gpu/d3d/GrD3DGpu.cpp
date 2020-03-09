@@ -25,6 +25,9 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
     fCaps.reset(new GrD3DCaps(contextOptions,
                               backendContext.fAdapter.Get(),
                               backendContext.fDevice.Get()));
+
+    fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
+    SkASSERT(fCurrentDirectCommandList.Get());
 }
 
 GrD3DGpu::~GrD3DGpu() {}

@@ -1517,25 +1517,26 @@ protected:
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
-                auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
-                SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
-                canvas->drawImage(yuv, x, y);
-                y += kTileWidthHeight + kPad;
+                if (fImages[opaque][tagged]) {
+                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                    SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
+                    canvas->drawImage(yuv, x, y);
+                    y += kTileWidthHeight + kPad;
 
-                auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
-                                                              kTileWidthHeight / 2));
-                canvas->drawImage(subset, x, y);
-                y += kTileWidthHeight + kPad;
+                    auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
+                        kTileWidthHeight / 2));
+                    canvas->drawImage(subset, x, y);
+                    y += kTileWidthHeight + kPad;
 
-                auto nonTexture = yuv->makeNonTextureImage();
-                canvas->drawImage(nonTexture, x, y);
-                y += kTileWidthHeight + kPad;
+                    auto nonTexture = yuv->makeNonTextureImage();
+                    canvas->drawImage(nonTexture, x, y);
+                    y += kTileWidthHeight + kPad;
 
-                SkBitmap readBack;
-                readBack.allocPixels(yuv->imageInfo());
-                yuv->readPixels(readBack.pixmap(), 0, 0);
-                canvas->drawBitmap(readBack, x, y);
-
+                    SkBitmap readBack;
+                    readBack.allocPixels(yuv->imageInfo());
+                    yuv->readPixels(readBack.pixmap(), 0, 0);
+                    canvas->drawBitmap(readBack, x, y);
+                }
                 x += kTileWidthHeight + kPad;
             }
         }
