@@ -1712,11 +1712,6 @@ HRESULT SkXPSDevice::clipToPath(IXpsOMVisual* xpsVisual,
     return S_OK;
 }
 
-void SkXPSDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
-    //TODO: override this for XPS
-    SkDEBUGF("XPS drawSprite not yet implemented.");
-}
-
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
                                        TypefaceUse** typefaceUse) {
     SkAutoResolveDefaultTypeface typeface(font.getTypeface());
@@ -1988,11 +1983,16 @@ void SkXPSDevice::drawOval( const SkRect& o, const SkPaint& p) {
     this->drawPath(path, p, true);
 }
 
-void SkXPSDevice::drawBitmapRect(const SkBitmap& bitmap,
-                                 const SkRect* src,
-                                 const SkRect& dst,
-                                 const SkPaint& paint,
-                                 SkCanvas::SrcRectConstraint constraint) {
+void SkXPSDevice::drawImageRect(const SkImage* image,
+                                const SkRect* src,
+                                const SkRect& dst,
+                                const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
+    SkBitmap bitmap;
+    if (!as_IB(image)->getROPixels(&bitmap)) {
+        return;
+    }
+
     SkRect bitmapBounds = SkRect::Make(bitmap.bounds());
     SkRect srcBounds = src ? *src : bitmapBounds;
     SkMatrix matrix = SkMatrix::MakeRectToRect(srcBounds, dst, SkMatrix::kFill_ScaleToFit);
@@ -2005,6 +2005,7 @@ void SkXPSDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
         matrix.mapRect(&actualDst, srcBounds);
     }
+
     auto bitmapShader = SkMakeBitmapShaderForPaint(paint, bitmap, SkTileMode::kClamp,
                                                    SkTileMode::kClamp, &matrix,
                                                    kNever_SkCopyPixelsMode);
