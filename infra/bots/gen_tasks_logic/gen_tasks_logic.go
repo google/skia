@@ -854,10 +854,6 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 
 	// Add the task.
 	b.addTask(taskName, func(b *taskBuilder) {
-		// TODO(borenet): Why does this task need go?
-		b.usesGo()
-		// TODO(borenet): Why does this task need protoc?
-		b.asset("protoc")
 		b.cmd(
 			"./build_push_docker_image",
 			"--image_name", fmt.Sprintf("gcr.io/skia-public/%s", imageName),
@@ -890,10 +886,6 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 // (eg: fiddler, debugger, api) using the skia-release docker image.
 func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		// TODO(borenet): Why does this task need go?
-		b.usesGo()
-		// TODO(borenet): Why does this task need protoc?
-		b.asset("protoc")
 		b.cmd(
 			"./push_apps_from_skia_image",
 			"--project_id", "skia-swarming-bots",
@@ -923,10 +915,6 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 // (eg: jsfiddle, skottie, particles) using the skia-wasm-release docker image.
 func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		// TODO(borenet): Why does this task need go?
-		b.usesGo()
-		// TODO(borenet): Why does this task need protoc?
-		b.asset("protoc")
 		b.cmd(
 			"./push_apps_from_wasm_image",
 			"--project_id", "skia-swarming-bots",
@@ -957,10 +945,6 @@ func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 // docker images.
 func (b *jobBuilder) createPushAppsFromSkiaWASMDockerImages() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		// TODO(borenet): Why does this task need go?
-		b.usesGo()
-		// TODO(borenet): Why does this task need protoc?
-		b.asset("protoc")
 		b.cmd(
 			"./push_apps_from_skia_wasm_images",
 			"--project_id", "skia-swarming-bots",
