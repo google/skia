@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fcf4e89f_b73ca53c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-09T15:05:05Z",
+      "side": 1,
+      "message": "Only works if the blend mode can merge src-alpha and coverage (which srcover does)",
+      "parentUuid": "9950a693_bd7c7bdf",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 69
+      },
+      "revId": "abeddc0c45aab2e874d5cded4fb979536b0d8e4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8d90145a_ae236ec1",
         "filename": "src/shaders/SkShaderBase.h",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-09T13:01:04Z",
       "side": 1,
       "message": "another possible location: SkShaders",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 44
+      },
+      "revId": "abeddc0c45aab2e874d5cded4fb979536b0d8e4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf3e73d2_89584b7d",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-09T15:05:05Z",
+      "side": 1,
+      "message": "If we want to make this \"public\" later, can certainly move it there.",
+      "parentUuid": "8d90145a_ae236ec1",
       "range": {
         "startLine": 54,
         "startChar": 4,
