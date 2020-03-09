@@ -48,18 +48,7 @@ void AnimatablePropertyContainer::shrink_to_fit() {
 
 namespace  {
 
-class KeyframeAnimatorBase : public sksg::Animator {
-public:
-    bool isConstant() const {
-        SkASSERT(!fKFs.empty());
-
-        // parseKeyFrames() ensures we only keep a single frame for constant properties.
-        return fKFs.size() == 1;
-    }
-
-protected:
-    KeyframeAnimatorBase() = default;
-
+struct Keyframe {
     // We can store scalar values inline; other types are stored externally,
     // and we track them by index.
     struct Value {
@@ -75,47 +64,23 @@ protected:
         bool operator!=(const Value& other) const { return !((*this) == other); }
     };
 
-    struct LERPInfo {
-        float weight; // vrec0/vrec1 weight [0..1]
-        Value vrec0, vrec1;
+    float    t;
+    Value    v;
+    uint32_t mapping; // Encodes the value interpolation in [KFRec_n .. KFRec_n+1):
+                      //   0 -> constant
+                      //   1 -> linear
+                      //   n -> cubic: cubic_mappers[n-2]
 
-        bool isConstant() const { return vrec0 == vrec1; }
-    };
+    static constexpr uint32_t kConstantMapping  = 0;
+    static constexpr uint32_t kLinearMapping    = 1;
+    static constexpr uint32_t kCubicIndexOffset = 2;
+};
 
-    // Main entry point: |t| -> LERPInfo
-    LERPInfo getLERPInfo(float t) const {
-        SkASSERT(!fKFs.empty());
+class KeyframeBuilderBase : SkNoncopyable {
+public:
+    virtual ~KeyframeBuilderBase() = default;
 
-        if (t <= fKFs.front().t) {
-            // Constant/clamped segment.
-            return { 0, fKFs.front().v, fKFs.front().v };
-        }
-        if (t >= fKFs.back().t) {
-            // Constant/clamped segment.
-            return { 0, fKFs.back().v, fKFs.back().v };
-        }
-
-        // Cache the current segment (most queries have good locality).
-        if (!fCurrentSegment.contains(t)) {
-            fCurrentSegment = this->find_segment(t);
-        }
-        SkASSERT(fCurrentSegment.contains(t));
-
-        if (fCurrentSegment.kf0->mapping == KFRec::kConstantMapping) {
-            // Constant/hold segment.
-            return { 0, fCurrentSegment.kf0->v, fCurrentSegment.kf0->v };
-        }
-
-        return {
-            this->compute_weight(fCurrentSegment, t),
-            fCurrentSegment.kf0->v,
-            fCurrentSegment.kf1->v,
-        };
-    }
-
-    virtual bool parseValue(const AnimationBuilder&, const skjson::Value&, Value*) = 0;
-
-    bool parseKeyFrames(const AnimationBuilder& abuilder, const skjson::ArrayValue& jkfs) {
+    bool parseKeyframes(const AnimationBuilder& abuilder, const skjson::ArrayValue& jkfs) {
         // Keyframe format:
         //
         // [                        // array of
@@ -150,34 +115,7 @@ protected:
         // Note: the legacy format contains duplicates, as normal frames are contiguous:
         //       frame(n).e == frame(n+1).s
 
-        // Tracks previous cubic map parameters (for deduping).
-        SkPoint prev_c0 = { 0, 0 },
-                prev_c1 = { 0, 0 };
-
-        const auto parse_mapping = [&](const skjson::ObjectValue& jkf) {
-            if (ParseDefault(jkf["h"], false)) {
-                return KFRec::kConstantMapping;
-            }
-
-            SkPoint c0, c1;
-            if (!Parse(jkf["o"], &c0) ||
-                !Parse(jkf["i"], &c1) ||
-                SkCubicMap::IsLinear(c0, c1)) {
-                return KFRec::kLinearMapping;
-            }
-
-            // De-dupe sequential cubic mappers.
-            if (c0 != prev_c0 || c1 != prev_c1 || fCMs.empty()) {
-                fCMs.emplace_back(c0, c1);
-                prev_c0 = c0;
-                prev_c1 = c1;
-            }
-
-            SkASSERT(!fCMs.empty());
-            return SkToU32(fCMs.size()) - 1 + KFRec::kCubicIndexOffset;
-        };
-
-        const auto parse_value = [&](const skjson::ObjectValue& jkf, size_t i, Value* v) {
+        const auto parse_value = [&](const skjson::ObjectValue& jkf, size_t i, Keyframe::Value* v) {
             auto parsed = this->parseValue(abuilder, jkf["s"], v);
 
             // A missing value is only OK for the last legacy KF
@@ -206,7 +144,7 @@ protected:
                 return false;
             }
 
-            Value v;
+            Keyframe::Value v;
             if (!parse_value(*jkf, i, &v)) {
                 return false;
             }
@@ -221,11 +159,11 @@ protected:
 
                 // We can power-reduce the mapping of repeated values (implicitly constant).
                 if (v == prev_kf.v) {
-                    prev_kf.mapping = KFRec::kConstantMapping;
+                    prev_kf.mapping = Keyframe::kConstantMapping;
                 }
             }
 
-            fKFs.push_back({t, v, parse_mapping(*jkf)});
+            fKFs.push_back({t, v, this->parseMapping(*jkf)});
 
             constant_value = constant_value && (v == fKFs.front().v);
         }
@@ -249,25 +187,98 @@ protected:
         return true;
     }
 
-private:
-    // We store one KFRec for each AE/Lottie keyframe.
-    struct KFRec {
-        float    t;
-        Value    v;
-        uint32_t mapping; // Encodes the value interpolation in [KFRec_n .. KFRec_n+1):
-                          //   0 -> constant
-                          //   1 -> linear
-                          //   n -> cubic: fCMs[n-2]
+protected:
+    virtual bool parseValue(const AnimationBuilder&, const skjson::Value&, Keyframe::Value*) = 0;
 
-        static constexpr uint32_t kConstantMapping  = 0;
-        static constexpr uint32_t kLinearMapping    = 1;
-        static constexpr uint32_t kCubicIndexOffset = 2;
+    std::vector<Keyframe>   fKFs; // Keyframe records, one per AE/Lottie keyframe.
+    std::vector<SkCubicMap> fCMs; // Optional cubic mappers (Bezier interpolation).
+
+private:
+    uint32_t parseMapping(const skjson::ObjectValue& jkf) {
+        if (ParseDefault(jkf["h"], false)) {
+            return Keyframe::kConstantMapping;
+        }
+
+        SkPoint c0, c1;
+        if (!Parse(jkf["o"], &c0) ||
+            !Parse(jkf["i"], &c1) ||
+            SkCubicMap::IsLinear(c0, c1)) {
+            return Keyframe::kLinearMapping;
+        }
+
+        // De-dupe sequential cubic mappers.
+        if (c0 != prev_c0 || c1 != prev_c1 || fCMs.empty()) {
+            fCMs.emplace_back(c0, c1);
+            prev_c0 = c0;
+            prev_c1 = c1;
+        }
+
+        SkASSERT(!fCMs.empty());
+        return SkToU32(fCMs.size()) - 1 + Keyframe::kCubicIndexOffset;
+    }
+
+    // Track previous cubic map parameters (for deduping).
+    SkPoint prev_c0 = { 0, 0 },
+            prev_c1 = { 0, 0 };
+};
+
+class KeyframeAnimatorBase : public sksg::Animator {
+public:
+    bool isConstant() const {
+        SkASSERT(!fKFs.empty());
+
+        // parseKeyFrames() ensures we only keep a single frame for constant properties.
+        return fKFs.size() == 1;
+    }
+
+protected:
+    KeyframeAnimatorBase(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms)
+        : fKFs(std::move(kfs))
+        , fCMs(std::move(cms)) {}
+
+    struct LERPInfo {
+        float           weight; // vrec0/vrec1 weight [0..1]
+        Keyframe::Value vrec0, vrec1;
+
+        bool isConstant() const { return vrec0 == vrec1; }
     };
 
+    // Main entry point: |t| -> LERPInfo
+    LERPInfo getLERPInfo(float t) const {
+        SkASSERT(!fKFs.empty());
+
+        if (t <= fKFs.front().t) {
+            // Constant/clamped segment.
+            return { 0, fKFs.front().v, fKFs.front().v };
+        }
+        if (t >= fKFs.back().t) {
+            // Constant/clamped segment.
+            return { 0, fKFs.back().v, fKFs.back().v };
+        }
+
+        // Cache the current segment (most queries have good locality).
+        if (!fCurrentSegment.contains(t)) {
+            fCurrentSegment = this->find_segment(t);
+        }
+        SkASSERT(fCurrentSegment.contains(t));
+
+        if (fCurrentSegment.kf0->mapping == Keyframe::kConstantMapping) {
+            // Constant/hold segment.
+            return { 0, fCurrentSegment.kf0->v, fCurrentSegment.kf0->v };
+        }
+
+        return {
+            this->compute_weight(fCurrentSegment, t),
+            fCurrentSegment.kf0->v,
+            fCurrentSegment.kf1->v,
+        };
+    }
+
+private:
     // Two sequential KFRecs determine how the value varies within [kf0 .. kf1)
     struct KFSegment {
-        const KFRec* kf0;
-        const KFRec* kf1;
+        const Keyframe* kf0;
+        const Keyframe* kf1;
 
         bool contains(float t) const {
             SkASSERT(!!kf0 == !!kf1);
@@ -311,62 +322,74 @@ private:
         auto w = (t - seg.kf0->t) / (seg.kf1->t - seg.kf0->t);
 
         // Optional cubic mapper.
-        if (seg.kf0->mapping >= KFRec::kCubicIndexOffset) {
+        if (seg.kf0->mapping >= Keyframe::kCubicIndexOffset) {
             SkASSERT(seg.kf0->v != seg.kf1->v);
-            const auto mapper_index = SkToSizeT(seg.kf0->mapping - KFRec::kCubicIndexOffset);
+            const auto mapper_index = SkToSizeT(seg.kf0->mapping - Keyframe::kCubicIndexOffset);
             w = fCMs[mapper_index].computeYFromX(w);
         }
 
         return w;
     }
 
-    std::vector<KFRec>      fKFs; // Keyframe records, one per AE/Lottie keyframe.
-    std::vector<SkCubicMap> fCMs; // Optional cubic mappers (Bezier interpolation).
-    mutable KFSegment       fCurrentSegment = { nullptr, nullptr }; // Cached segment.
+    const std::vector<Keyframe>   fKFs; // Keyframe records, one per AE/Lottie keyframe.
+    const std::vector<SkCubicMap> fCMs; // Optional cubic mappers (Bezier interpolation).
+    mutable KFSegment             fCurrentSegment = { nullptr, nullptr }; // Cached segment.
 };
 
 // Stores generic Ts in dedicated storage, and uses indices to track in keyframes.
 template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
-    static sk_sp<KeyframeAnimator> Make(const AnimationBuilder& abuilder,
-                                        const skjson::ArrayValue* jkfs,
-                                        T* target_value) {
-        if (!jkfs || jkfs->size() < 1) {
-            return nullptr;
+    class Builder final : public KeyframeBuilderBase {
+    public:
+        sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
+                                     const skjson::ArrayValue* jkfs,
+                                     T* target_value) {
+            if (!jkfs || jkfs->size() < 1) {
+                return nullptr;
+            }
+
+            fValues.reserve(jkfs->size());
+            if (!this->parseKeyframes(abuilder, *jkfs)) {
+                return nullptr;
+            }
+            fValues.shrink_to_fit();
+
+            return sk_sp<KeyframeAnimator>(new KeyframeAnimator(std::move(fKFs),
+                                                                std::move(fCMs),
+                                                                std::move(fValues),
+                                                                target_value));
         }
 
-        sk_sp<KeyframeAnimator> animator(new KeyframeAnimator(target_value));
+    private:
+        bool parseValue(const AnimationBuilder& abuilder,
+                        const skjson::Value& jv,
+                        Keyframe::Value* v) override {
+            T val;
+            if (!ValueTraits<T>::FromJSON(jv, &abuilder, &val) ||
+                (!fValues.empty() && !ValueTraits<T>::CanLerp(val, fValues.back()))) {
+                return false;
+            }
 
-        animator->fValues.reserve(jkfs->size());
-        if (!animator->parseKeyFrames(abuilder, *jkfs)) {
-            return nullptr;
+            // TODO: full deduping?
+            if (fValues.empty() || val != fValues.back()) {
+                fValues.push_back(std::move(val));
+            }
+
+            v->idx = SkToU32(fValues.size() - 1);
+
+            return true;
         }
-        animator->fValues.shrink_to_fit();
 
-        return animator;
-    }
+        std::vector<T> fValues;
+    };
 
 private:
-    explicit KeyframeAnimator(T* target_value)
-        : fTarget(target_value) {}
-
-    bool parseValue(const AnimationBuilder& abuilder, const skjson::Value& jv, Value* v) override {
-        T val;
-        if (!ValueTraits<T>::FromJSON(jv, &abuilder, &val) ||
-            (!fValues.empty() && !ValueTraits<T>::CanLerp(val, fValues.back()))) {
-            return false;
-        }
-
-        // TODO: full deduping?
-        if (fValues.empty() || val != fValues.back()) {
-            fValues.push_back(std::move(val));
-        }
-
-        v->idx = SkToU32(fValues.size() - 1);
-
-        return true;
-    }
+    explicit KeyframeAnimator(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms,
+                              std::vector<T> vs, T* target_value)
+        : INHERITED(std::move(kfs), std::move(cms))
+        , fValues(std::move(vs))
+        , fTarget(target_value) {}
 
     void onTick(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
@@ -381,34 +404,47 @@ private:
         }
     }
 
-    std::vector<T> fValues;
-    T*             fTarget;
+    const std::vector<T> fValues;
+    T*                   fTarget;
+
+    using INHERITED = KeyframeAnimatorBase;
 };
 
 // Scalar specialization: stores scalar values (floats) inline in keyframes.
 class ScalarKeyframeAnimator final : public KeyframeAnimatorBase {
 public:
-    static sk_sp<ScalarKeyframeAnimator> Make(const AnimationBuilder& abuilder,
-                                              const skjson::ArrayValue* jkfs,
-                                              ScalarValue* target_value) {
-        if (!jkfs || jkfs->size() < 1) {
-            return nullptr;
+    class Builder final : public KeyframeBuilderBase {
+    public:
+        sk_sp<ScalarKeyframeAnimator> make(const AnimationBuilder& abuilder,
+                                           const skjson::ArrayValue* jkfs,
+                                           ScalarValue* target_value) {
+            if (!jkfs || jkfs->size() < 1) {
+                return nullptr;
+            }
+
+            if (!this->parseKeyframes(abuilder, *jkfs)) {
+                return nullptr;
+            }
+
+            return sk_sp<ScalarKeyframeAnimator>(new ScalarKeyframeAnimator(std::move(fKFs),
+                                                                            std::move(fCMs),
+                                                                            target_value));
         }
 
-        sk_sp<ScalarKeyframeAnimator> animator(new ScalarKeyframeAnimator(target_value));
-
-        return animator->parseKeyFrames(abuilder, *jkfs)
-                ? animator
-                : nullptr;
-    }
+    private:
+        bool parseValue(const AnimationBuilder&,
+                        const skjson::Value& jv,
+                        Keyframe::Value* v) override {
+            return Parse(jv, &v->flt);
+        }
+    };
 
 private:
-    explicit ScalarKeyframeAnimator(ScalarValue* target_value)
-        : fTarget(target_value) {}
-
-    bool parseValue(const AnimationBuilder&, const skjson::Value& jv, Value* v) override {
-        return Parse(jv, &v->flt);
-    }
+    explicit ScalarKeyframeAnimator(std::vector<Keyframe> kfs,
+                                    std::vector<SkCubicMap> cms,
+                                    ScalarValue* target_value)
+        : INHERITED(std::move(kfs), std::move(cms))
+        , fTarget(target_value) {}
 
     void onTick(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
@@ -418,19 +454,21 @@ private:
     }
 
     ScalarValue* fTarget;
+
+    using INHERITED = KeyframeAnimatorBase;
 };
 
 template <typename T>
 auto make_animator(const AnimationBuilder& abuilder,
                    const skjson::ArrayValue* jkfs,
                    T* target_value) {
-    return KeyframeAnimator<T>::Make(abuilder, jkfs, target_value);
+    return typename KeyframeAnimator<T>::Builder().make(abuilder, jkfs, target_value);
 }
 
 auto make_animator(const AnimationBuilder& abuilder,
                    const skjson::ArrayValue* jkfs,
                    ScalarValue* target_value) {
-    return ScalarKeyframeAnimator::Make(abuilder, jkfs, target_value);
+    return ScalarKeyframeAnimator::Builder().make(abuilder, jkfs, target_value);
 }
 
 template <typename T>
