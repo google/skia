@@ -103,14 +103,9 @@ void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* pain
     // Only apply the shader mask for regular paints.  Isolation layers require
     // special handling on restore.
     if (!is_layer_paint && fMaskShader) {
-        // TODO: GPU doesn't seem to grok null-input = input-color?
-        auto paint_shader = paint->refShader();
-        if (!paint_shader) {
-            paint_shader = SkShaders::Color(paint->getColor());
-        }
         paint->setShader(SkShaders::Blend(SkBlendMode::kSrcIn,
                                           LocalShader(fMaskShader, fMaskCTM, ctm),
-                                          std::move(paint_shader)));
+                                          paint->refShader()));
     }
 }
 
