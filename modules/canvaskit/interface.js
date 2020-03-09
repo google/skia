@@ -1146,10 +1146,10 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   // temporary support for deprecated names.
-  CanvasKit.MakeSkDashPathEffect = CanvasKit.SkPathEffect.prototype.MakeDash;
-  CanvasKit.MakeLinearGradientShader = CanvasKit.SkShader.prototype.MakeLinearGradient;
-  CanvasKit.MakeRadialGradientShader = CanvasKit.SkShader.prototype.MakeRadialGradient;
-  CanvasKit.MakeTwoPointConicalGradientShader = CanvasKit.SkShader.prototype.MakeTwoPointConicalGradient;
+  CanvasKit.MakeSkDashPathEffect = CanvasKit.SkPathEffect.MakeDash;
+  CanvasKit.MakeLinearGradientShader = CanvasKit.SkShader.MakeLinearGradient;
+  CanvasKit.MakeRadialGradientShader = CanvasKit.SkShader.MakeRadialGradient;
+  CanvasKit.MakeTwoPointConicalGradientShader = CanvasKit.SkShader.MakeTwoPointConicalGradient;
 
   // Run through the JS files that are added at compile time.
   if (CanvasKit._extraInitializations) {
