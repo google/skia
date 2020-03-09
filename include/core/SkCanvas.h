@@ -1032,6 +1032,8 @@ public:
         this->clipPath(path, SkClipOp::kIntersect, doAntiAlias);
     }
 
+    void clipShader(sk_sp<SkShader>, SkClipOp = SkClipOp::kIntersect);
+
     /** Replaces clip with the intersection or difference of clip and SkRegion deviceRgn.
         Resulting clip is aliased; pixels are fully contained by the clip.
         deviceRgn is unaffected by SkMatrix.
@@ -2644,6 +2646,7 @@ protected:
     virtual void onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle);
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle);
     virtual void onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle);
+    virtual void onClipShader(sk_sp<SkShader>, SkClipOp);
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp op);
 
     virtual void onDiscard();

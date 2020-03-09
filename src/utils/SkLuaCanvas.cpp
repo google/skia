@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkLuaCanvas.h"
-
+#include "include/core/SkShader.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkLua.h"
+#include "include/utils/SkLuaCanvas.h"
 #include "src/core/SkStringUtils.h"
 
 extern "C" {
@@ -168,6 +168,11 @@ void SkLuaCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edge
     lua.pushPath(path, "path");
     lua.pushBool(kSoft_ClipEdgeStyle == edgeStyle, "aa");
     this->INHERITED::onClipPath(path, op, edgeStyle);
+}
+
+void SkLuaCanvas::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    AUTO_LUA("clipShader");
+    this->INHERITED::onClipShader(std::move(cs), op);
 }
 
 void SkLuaCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {

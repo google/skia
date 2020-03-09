@@ -105,6 +105,7 @@ enum DrawType {
 
     DRAW_BEHIND_PAINT,
     CONCAT44,
+    CLIP_SHADER_IN_PAINT,   // just want the shader part
 
     LAST_DRAWTYPE_ENUM = CONCAT44,
 };

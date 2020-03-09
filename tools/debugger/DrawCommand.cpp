@@ -1097,6 +1097,27 @@ void ClipRRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     writer.appendBool(DEBUGCANVAS_ATTRIBUTE_ANTIALIAS, fDoAA);
 }
 
+ClipShaderCommand::ClipShaderCommand(sk_sp<SkShader> cs, SkClipOp op)
+        : INHERITED(kClipShader_OpType) {
+    fShader = cs;
+    fOp     = op;
+}
+
+void ClipShaderCommand::execute(SkCanvas* canvas) const { canvas->clipShader(fShader, fOp); }
+
+bool ClipShaderCommand::render(SkCanvas* canvas) const {
+    SkPaint paint;
+    paint.setShader(fShader);
+    canvas->drawPaint(paint);
+    return true;
+}
+
+void ClipShaderCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+    apply_flattenable(DEBUGCANVAS_ATTRIBUTE_SHADER, fShader.get(), writer, urlDataManager);
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+}
+
 ConcatCommand::ConcatCommand(const SkMatrix& matrix) : INHERITED(kConcat_OpType) {
     fMatrix = matrix;
 }
