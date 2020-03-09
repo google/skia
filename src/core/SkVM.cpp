@@ -28,6 +28,18 @@
 
 bool gSkVMJITViaDylib{false};
 
+static bool fma_supported() {
+    static const bool supported =
+    #if defined(SK_CPU_X86)
+        SkCpu::Supports(SkCpu::HSW);
+    #elif defined(SK_CPU_ARM64)
+        true;
+    #else
+        false;
+    #endif
+    return supported;
+}
+
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
 // uninitialized memory, and we'll not see the writes it makes as properly
 // initializing memory.  Instead force the interpreter, which should let
@@ -381,13 +393,53 @@ namespace skvm {
     }
 
     std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
-        // If requested, first specialize for our JIT backend.
-        auto specialize_for_jit = [&]() -> std::vector<Builder::Instruction> {
-            Builder specialized;
-            for (int i = 0; i < (int)fProgram.size(); i++) {
-                Builder::Instruction inst = fProgram[i];
+        // Use counts help us decide whether to fuse ops.
+        // This quick calculation produces a maximum... the uses could be from dead code.
+        std::vector<int> max_use_count(fProgram.size(), 0);
+        for (const Builder::Instruction& inst : fProgram) {
+            if (inst.x != NA) { max_use_count[inst.x]++; }
+            if (inst.y != NA) { max_use_count[inst.y]++; }
+            if (inst.z != NA) { max_use_count[inst.z]++; }
+        }
 
-                #if defined(SK_CPU_X86)
+        // Specialize instructions, fusing ops where profitable,
+        // and converting to _imm form when possible when targeting x86 JIT.
+        Builder specialized;
+        for (int i = 0; i < (int)fProgram.size(); i++) {
+            Builder::Instruction inst = fProgram[i];
+
+            // Convert mul/add, add/mul, mul/sub, and sub/mul to fused ops when
+            // it's certain that the fused operation consumes the multiply.
+            // TODO: if we did this later, we'd know an exact use_count and get more of these.
+            Op lhs_op, rhs_op;
+            if (fma_supported()) {
+                switch (inst.op) {
+                    default: break;
+
+                    case Op::add_f32: lhs_op = Op::fma_f32; rhs_op = Op:: fma_f32; goto fuse;
+                    case Op::sub_f32: lhs_op = Op::fms_f32; rhs_op = Op::fnma_f32; goto fuse;
+                    fuse:
+                        if (auto lhs = fProgram[inst.x];
+                                lhs.op == Op::mul_f32 && max_use_count[inst.x] == 1) {
+                            inst.op = lhs_op;
+                            inst.z  = inst.y;
+                            inst.x  = lhs.x;
+                            inst.y  = lhs.y;
+                            break;
+                        }
+                        if (auto rhs = fProgram[inst.y];
+                                rhs.op == Op::mul_f32 && max_use_count[inst.y] == 1) {
+                            inst.op = rhs_op;
+                            inst.z  = inst.x;
+                            inst.x  = rhs.x;
+                            inst.y  = rhs.y;
+                            break;
+                        }
+                }
+            }
+
+            #if defined(SK_CPU_X86)
+            if (for_jit) {
                 switch (Op imm_op; inst.op) {
                     default: break;
 
@@ -425,18 +477,18 @@ namespace skvm {
                             inst.immy = ~bits;
                         } break;
                 }
-                #endif
-                SkDEBUGCODE(Val id =) specialized.push(inst.op,
-                                                       inst.x,inst.y,inst.z,
-                                                       inst.immy,inst.immz);
-                // If we replace single instructions with multiple, this will start breaking,
-                // and we'll need a table to remap them like we have in optimize().
-                SkASSERT(id == i);
             }
-            return specialized.fProgram;
-        };
-        const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
-                                                                   : fProgram;
+            #endif
+            SkDEBUGCODE(Val id =) specialized.push(inst.op,
+                                                   inst.x,inst.y,inst.z,
+                                                   inst.immy,inst.immz);
+            // If we replace single instructions with multiple, this will start breaking,
+            // and we'll need a table to remap them like we have in optimize().
+            SkASSERT(id == i);
+        }
+
+        // From here on we'll use the specialized program exclusively.
+        const std::vector<Builder::Instruction>& program = specialized.fProgram;
 
         // Next rewrite the program order by issuing instructions as late as possible:
         //    - any side-effect-only (i.e. store) instruction in order as we see them;
@@ -647,18 +699,6 @@ namespace skvm {
         return {this->push(Op::splat, NA,NA,NA, bits)};
     }
 
-    static bool fma_supported() {
-        static const bool supported =
-     #if defined(SK_CPU_X86)
-         SkCpu::Supports(SkCpu::HSW);
-     #elif defined(SK_CPU_ARM64)
-         true;
-     #else
-         false;
-     #endif
-         return supported;
-    }
-
     // Be careful peepholing float math!  Transformations you might expect to
     // be legal can fail in the face of NaN/Inf, e.g. 0*x is not always 0.
     // Float peepholes must pass this equivalence test for all ~4B floats:
@@ -679,15 +719,6 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X+Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
         if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
-
-        if (fma_supported()) {
-            if (fProgram[x.id].op == Op::mul_f32) {
-                return {this->push(Op::fma_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
-            }
-            if (fProgram[y.id].op == Op::mul_f32) {
-                return {this->push(Op::fma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
-            }
-        }
         return {this->push(Op::add_f32, x.id, y.id)};
     }
 
@@ -695,14 +726,6 @@ namespace skvm {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
-        if (fma_supported()) {
-            if (fProgram[x.id].op == Op::mul_f32) {
-                return {this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
-            }
-            if (fProgram[y.id].op == Op::mul_f32) {
-                return {this->push(Op::fnma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
-            }
-        }
         return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
