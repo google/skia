@@ -1520,20 +1520,18 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("_MakeFromRSXform", optional_override([](uintptr_t /* char* */ sptr,
                                                               size_t strBtyes,
                                                               uintptr_t /* SkRSXform* */ xptr,
-                                                              const SkFont& font,
-                                                              SkTextEncoding encoding)->sk_sp<SkTextBlob> {
+                                                              const SkFont& font)->sk_sp<SkTextBlob> {
             // See comment above for uintptr_t explanation
             const char* str = reinterpret_cast<const char*>(sptr);
             const SkRSXform* xforms = reinterpret_cast<const SkRSXform*>(xptr);
 
-            return SkTextBlob::MakeFromRSXform(str, strBtyes, xforms, font, encoding);
+            return SkTextBlob::MakeFromRSXform(str, strBtyes, xforms, font, SkTextEncoding::kUTF8);
         }), allow_raw_pointers())
         .class_function("_MakeFromText", optional_override([](uintptr_t /* char* */ sptr,
-                                                              size_t len, const SkFont& font,
-                                                              SkTextEncoding encoding)->sk_sp<SkTextBlob> {
+                                                              size_t len, const SkFont& font)->sk_sp<SkTextBlob> {
             // See comment above for uintptr_t explanation
             const char* str = reinterpret_cast<const char*>(sptr);
-            return SkTextBlob::MakeFromText(str, len, font, encoding);
+            return SkTextBlob::MakeFromText(str, len, font, SkTextEncoding::kUTF8);
         }), allow_raw_pointers());
 
     class_<SkTypeface>("SkTypeface")
@@ -1643,9 +1641,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     enum_<SkPathFillType>("FillType")
         .value("Winding",           SkPathFillType::kWinding)
-        .value("EvenOdd",           SkPathFillType::kEvenOdd)
-        .value("InverseWinding",    SkPathFillType::kInverseWinding)
-        .value("InverseEvenOdd",    SkPathFillType::kInverseEvenOdd);
+        .value("EvenOdd",           SkPathFillType::kEvenOdd);
 
     enum_<SkFilterQuality>("FilterQuality")
         .value("None",   SkFilterQuality::kNone_SkFilterQuality)
@@ -1653,14 +1649,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Medium", SkFilterQuality::kMedium_SkFilterQuality)
         .value("High",   SkFilterQuality::kHigh_SkFilterQuality);
 
+    // Only used to control the encode function.
     enum_<SkEncodedImageFormat>("ImageFormat")
         .value("PNG",  SkEncodedImageFormat::kPNG)
         .value("JPEG", SkEncodedImageFormat::kJPEG);
 
     enum_<SkPaint::Style>("PaintStyle")
         .value("Fill",            SkPaint::Style::kFill_Style)
-        .value("Stroke",          SkPaint::Style::kStroke_Style)
-        .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
+        .value("Stroke",          SkPaint::Style::kStroke_Style);
 
 #ifdef SK_INCLUDE_PATHOPS
     enum_<SkPathOp>("PathOp")
@@ -1692,12 +1688,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Slight", SkFontHinting::kSlight)
         .value("Normal", SkFontHinting::kNormal)
         .value("Full",   SkFontHinting::kFull);
-
-    enum_<SkTextEncoding>("TextEncoding")
-        .value("UTF8",    SkTextEncoding::kUTF8)
-        .value("UTF16",   SkTextEncoding::kUTF16)
-        .value("UTF32",   SkTextEncoding::kUTF32)
-        .value("GlyphID", SkTextEncoding::kGlyphID);
 #endif
 
     enum_<SkTileMode>("TileMode")
