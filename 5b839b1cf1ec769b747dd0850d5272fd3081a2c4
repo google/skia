@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb6c3057_3236bf6f",
+        "filename": "src/core/SkVerticesPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-09T11:46:18Z",
+      "side": 1,
+      "message": "Will this be handy to expose via CanvasKit?",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 17,
+        "endChar": 23
+      },
+      "revId": "5b839b1cf1ec769b747dd0850d5272fd3081a2c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

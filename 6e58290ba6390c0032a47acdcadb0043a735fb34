@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd648436_9ec6e6f4",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-09T11:46:18Z",
+      "side": 0,
+      "message": "Please add \"removed\" section to the latest modules/canvaskit/CHANGELOG.md and mention the two public functions that you removed.",
+      "range": {
+        "startLine": 1546,
+        "startChar": 8,
+        "endLine": 1546,
+        "endChar": 44
+      },
+      "revId": "6e58290ba6390c0032a47acdcadb0043a735fb34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
