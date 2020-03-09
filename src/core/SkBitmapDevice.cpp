@@ -757,6 +757,10 @@ void SkBitmapDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     fRCStack.clipPath(this->localToDevice(), path, op, aa);
 }
 
+void SkBitmapDevice::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
+    fRCStack.clipShader(this->localToDevice(), std::move(sh), op);
+}
+
 void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;

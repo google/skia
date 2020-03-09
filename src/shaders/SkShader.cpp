@@ -234,6 +234,18 @@ bool SkShaderBase::onProgram(skvm::Builder*,
     return false;
 }
 
+// need a cheap way to invert the alpha channel of a shader (i.e. 1 - a)
+sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
+    float cm[20] = {
+        1, 0, 0, 0, 0,
+        0, 1, 0, 0, 0,
+        0, 0, 1, 0, 0,
+        0, 0, 0,-1, 1
+    };
+    return this->makeWithColorFilter(SkColorFilters::Matrix(cm));
+}
+
+
 void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
                                skvm::F32* x, skvm::F32* y, skvm::Uniforms* uniforms) {
     if (m.isIdentity()) {
