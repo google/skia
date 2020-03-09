@@ -41,10 +41,10 @@ func keyParams(parts map[string]string) []string {
 }
 
 // dmFlags generates flags to DM based on the given task properties.
-func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwareLabel string) ([]string, map[string]string) {
+func (b *taskBuilder) dmFlags(internalHardwareLabel string) ([]string, map[string]string) {
 	properties := map[string]string{
 		"gitHash":              specs.PLACEHOLDER_REVISION,
-		"builder":              bot, //specs.PLACEHOLDER_TASK_NAME,
+		"builder":              b.Name,
 		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
 		"task_id":              specs.PLACEHOLDER_TASK_ID,
 		"issue":                specs.PLACEHOLDER_ISSUE,
@@ -62,20 +62,9 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	configs := []string{}
 	blacklisted := []string{}
 
-	has := func(keyword string) bool {
-		return strings.Contains(bot, keyword)
-	}
 	hasConfig := func(cfg string) bool {
 		for _, c := range configs {
 			if c == cfg {
-				return true
-			}
-		}
-		return false
-	}
-	hasExtraConfig := func(ec string) bool {
-		for _, e := range strings.Split(parts["extra_config"], "_") {
-			if e == ec {
 				return true
 			}
 		}
@@ -138,14 +127,12 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		}
 	}
 
-	isLinux := has("Debian") || has("Ubuntu") || has("Housekeeper")
-
 	// Keys.
-	keys := keyParams(parts)
-	if has("Lottie") {
+	keys := keyParams(b.parts)
+	if b.extraConfig("Lottie") {
 		keys = append(keys, "renderer", "skottie")
 	}
-	if strings.Contains(parts["extra_config"], "DDL") {
+	if b.matchExtraConfig("DDL") {
 		// 'DDL' style means "--skpViewportSize 2048 --pr ~small"
 		keys = append(keys, "style", "DDL")
 	} else {
@@ -161,11 +148,11 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	//  - https://skia.googlesource.com/skia/+/ce06e261e68848ae21cac1052abc16bc07b961bf/tests/ProcessorTest.cpp#307
 	// Not MSAN due to:
 	//  - https://skia.googlesource.com/skia/+/0ac06e47269a40c177747310a613d213c95d1d6d/infra/bots/recipe_modules/flavor/gn_flavor.py#80
-	if !has("Android") && !has("MSAN") {
+	if !b.os("Android") && !b.extraConfig("MSAN") {
 		args = append(args, "--randomProcessorTest")
 	}
 
-	if has("Pixel3") && has("Vulkan") {
+	if b.model("Pixel3", "Pixel3a") && b.extraConfig("Vulkan") {
 		args = append(args, "--dontReduceOpsTaskSplitting")
 	}
 
@@ -174,17 +161,17 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 	// 32-bit desktop bots tend to run out of memory, because they have relatively
 	// far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
-	if has("-x86-") {
+	if b.arch("x86") {
 		threadLimit = 4
 	}
 
 	// These bots run out of memory easily.
-	if has("MotoG4") || has("Nexus7") {
+	if b.model("MotoG4", "Nexus7") {
 		threadLimit = MAIN_THREAD_ONLY
 	}
 
 	// Avoid issues with dynamically exceeding resource cache limits.
-	if has("Test") && has("DISCARDABLE") {
+	if b.matchExtraConfig("DISCARDABLE") {
 		threadLimit = MAIN_THREAD_ONLY
 	}
 
@@ -194,15 +181,15 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 	sampleCount := 0
 	glPrefix := ""
-	if has("SwiftShader") {
+	if b.extraConfig("SwiftShader") {
 		configs = append(configs, "gles", "glesdft")
 		args = append(args, "--disableDriverCorrectnessWorkarounds")
-	} else if parts["cpu_or_gpu"] == "CPU" {
+	} else if b.cpu() {
 		args = append(args, "--nogpu")
 
 		configs = append(configs, "8888")
 
-		if has("BonusConfigs") {
+		if b.extraConfig("BonusConfigs") {
 			configs = []string{
 				"g8", "565",
 				"pic-8888", "serialize-8888",
@@ -210,7 +197,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 				"p3", "ep3", "rec2020", "erec2020"}
 		}
 
-		if has("PDF") {
+		if b.extraConfig("PDF") {
 			configs = []string{"pdf"}
 			args = append(args, "--rasterize_pdf") // Works only on Mac.
 			// Take ~forever to rasterize:
@@ -219,30 +206,30 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 			blacklist("pdf gm _ longpathdash")
 		}
 
-	} else if parts["cpu_or_gpu"] == "GPU" {
+	} else if b.gpu() {
 		args = append(args, "--nocpu")
 
 		// Add in either gles or gl configs to the canonical set based on OS
 		sampleCount = 8
 		glPrefix = "gl"
-		if has("Android") || has("iOS") {
+		if b.os("Android", "iOS") {
 			sampleCount = 4
 			// We want to test the OpenGL config not the GLES config on the Shield
-			if !has("NVIDIA_Shield") {
+			if !b.model("NVIDIA_Shield") {
 				glPrefix = "gles"
 			}
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
-			if has("Pixel3a") {
+			if b.model("Pixel3a") {
 				sampleCount = 0
 			}
-		} else if has("Intel") {
+		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			sampleCount = 0
-		} else if has("ChromeOS") {
+		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}
 
-		if has("NativeFonts") {
+		if b.extraConfig("NativeFonts") {
 			configs = append(configs, glPrefix)
 		} else {
 			configs = append(configs, glPrefix, glPrefix+"dft", glPrefix+"srgb")
@@ -252,15 +239,11 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		}
 
 		// The Tegra3 doesn't support MSAA
-		if has("Tegra3") ||
+		if b.gpu("Tegra3") ||
 			// We aren't interested in fixing msaa bugs on current iOS devices.
-			has("iPad4") ||
-			has("iPadPro") ||
-			has("iPhone6") ||
-			has("iPhone7") ||
+			b.model("iPad4", "iPadPro", "iPhone6", "iPhone7") ||
 			// skia:5792
-			has("IntelHD530") ||
-			has("IntelIris540") {
+			b.gpu("IntelHD530", "IntelIris540") {
 			configs = removeContains(configs, "msaa")
 		}
 
@@ -268,7 +251,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		// GL is used by Chrome, GLES is used by ChromeOS.
 		// Also do the Ganesh threading verification test (render with and without
 		// worker threads, using only the SW path renderer, and compare the results).
-		if has("Intel") && isLinux {
+		if b.matchGpu("Intel") && b.isLinux() {
 			configs = append(configs, "gles", "glesdft", "glessrgb", "gltestthreading")
 			// skbug.com/6333, skbug.com/6419, skbug.com/6702
 			blacklist("gltestthreading gm _ lcdblendmodes")
@@ -291,12 +274,12 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		}
 
 		// CommandBuffer bot *only* runs the command_buffer config.
-		if has("CommandBuffer") {
+		if b.extraConfig("CommandBuffer") {
 			configs = []string{"commandbuffer"}
 		}
 
 		// ANGLE bot *only* runs the angle configs
-		if has("ANGLE") {
+		if b.extraConfig("ANGLE") {
 			configs = []string{"angle_d3d11_es2",
 				"angle_d3d9_es2",
 				"angle_gl_es2",
@@ -305,14 +288,14 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
 			}
-			if has("LenovoYogaC630") {
+			if b.model("LenovoYogaC630") {
 				// LenovoYogaC630 only supports D3D11, and to save time, we only test ES3
 				configs = []string{
 					"angle_d3d11_es3",
 					fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount),
 				}
 			}
-			if has("GTX") || has("Quadro") {
+			if b.matchGpu("GTX", "Quadro") {
 				// See skia:7823 and chromium:693090.
 				configs = append(configs, "angle_gl_es3")
 				if sampleCount > 0 {
@@ -320,61 +303,59 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
 				}
 			}
-			if has("NUC5i7RYH") {
+			if b.model("NUC5i7RYH") {
 				// skbug.com/7376
 				blacklist("_ test _ ProcessorCloneTest")
 			}
 		}
 
-		if has("AndroidOne") || (has("Nexus") && !has("Nexus5x")) || has("GalaxyS6") {
+		if b.model("AndroidOne", "GalaxyS6") || (b.model("Nexus5", "Nexus7")) {
 			// skbug.com/9019
 			blacklist("_ test _ ProcessorCloneTest")
 			blacklist("_ test _ Programs")
 			blacklist("_ test _ ProcessorOptimizationValidationTest")
 		}
 
-		if has("CommandBuffer") && has("MacBook10.1-") {
+		if b.extraConfig("CommandBuffer") && b.model("MacBook10.1") {
 			// skbug.com/9235
 			blacklist("_ test _ Programs")
 		}
 
 		// skbug.com/9033 - these devices run out of memory on this test
 		// when opList splitting reduction is enabled
-		if has("GPU") && (has("Nexus7") ||
-			has("NVIDIA_Shield") ||
-			has("Nexus5x") ||
-			(has("Win10") && has("GTX660") && has("Vulkan"))) {
+		if b.gpu() && (b.model("Nexus7", "NVIDIA_Shield", "Nexus5x") ||
+			(b.os("Win10") && b.gpu("GTX660") && b.extraConfig("Vulkan"))) {
 			blacklist("_", "gm", "_", "savelayer_clipmask")
 		}
 
 		// skbug.com/9123
-		if has("CommandBuffer") && has("IntelIris5100") {
+		if b.extraConfig("CommandBuffer") && b.gpu("IntelIris5100") {
 			blacklist("_", "test", "_", "AsyncReadPixels")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
-		if has("GPU") && has("Vulkan") && (has("RadeonR9M470X") || has("RadeonHD7770")) {
+		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
 			blacklist("_", "tests", "_", "VkDrawableImportTest")
 		}
-		if has("Vulkan") {
+		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
-			if has("Android") {
+			if b.os("Android") {
 				configs = append(configs, "vkmsaa4")
 			} else {
 				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
-				if !has("Intel") {
+				if !b.matchGpu("Intel") {
 					configs = append(configs, "vkmsaa8")
 				}
 			}
 		}
-		if has("Metal") {
+		if b.extraConfig("Metal") {
 			configs = []string{"mtl"}
-			if has("iOS") {
+			if b.os("iOS") {
 				configs = append(configs, "mtlmsaa4")
 			} else {
 				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
-				if !has("Intel") {
+				if !b.matchGpu("Intel") {
 					configs = append(configs, "mtlmsaa8")
 				}
 			}
@@ -382,8 +363,8 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 		// Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
 		// on the GL bots.
-		if has("QuadroP400") && !has("PreAbandonGpuContext") && !has("TSAN") && isLinux {
-			if has("Vulkan") {
+		if b.gpu("QuadroP400") && !b.extraConfig("PreAbandonGpuContext") && !b.extraConfig("TSAN") && b.isLinux() {
+			if b.extraConfig("Vulkan") {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
 				blacklist("vk1010102 image _ _")
@@ -410,47 +391,47 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 		// We also test the SkSL precompile config on Pixel2XL as a representative
 		// Android device - this feature is primarily used by Flutter.
-		if has("Pixel2XL") && !has("Vulkan") {
+		if b.model("Pixel2XL") && !b.extraConfig("Vulkan") {
 			configs = append(configs, "glestestprecompile")
 		}
 
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
-		if has("BonusConfigs") {
+		if b.extraConfig("BonusConfigs") {
 			configs = []string{"glbetex", "glbert", "glenarrow"}
 		}
 
-		if has("ChromeOS") {
+		if b.os("ChromeOS") {
 			// Just run GLES for now - maybe add gles_msaa4 in the future
 			configs = []string{"gles"}
 		}
 
 		// Test coverage counting path renderer.
-		if has("CCPR") {
+		if b.extraConfig("CCPR") {
 			configs = filter(configs, "gl", "gles")
 			args = append(args, "--pr", "ccpr", "--cc", "true", "--cachePathMasks", "false")
 		}
 
 		// Test GPU tessellation path renderer.
-		if has("GpuTess") {
+		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
 			args = append(args, "--pr", "gtess")
 		}
 
 		// Test non-nvpr on NVIDIA.
-		if has("NonNVPR") {
+		if b.extraConfig("NonNVPR") {
 			configs = []string{"gl", "glmsaa4"}
 			args = append(args, "--pr", "~nvpr")
 		}
 
 		// DDL is a GPU-only feature
-		if has("DDL1") {
+		if b.extraConfig("DDL1") {
 			// This bot generates gl and vk comparison images for the large skps
 			configs = filter(configs, "gl", "vk", "mtl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--pr", "~small")
 		}
-		if has("DDL3") {
+		if b.extraConfig("DDL3") {
 			// This bot generates the ddl-gl and ddl-vk images for the
 			// large skps and the gms
 			ddlConfigs := prefix(filter(configs, "gl", "vk", "mtl"), "ddl-")
@@ -462,7 +443,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	}
 
 	// Sharding.
-	tf := parts["test_filter"]
+	tf := b.parts["test_filter"]
 	if tf != "" && tf != "All" {
 		// Expected format: shard_XX_YY
 		split := strings.Split(tf, "_")
@@ -483,10 +464,10 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 	// Run tests, gms, and image decoding tests everywhere.
 	args = append(args, "--src", "tests", "gm", "image", "lottie", "colorImage", "svg", "skp")
-	if has("GPU") {
+	if b.gpu() {
 		// Don't run the "svgparse_*" svgs on GPU.
 		blacklist("_ svg _ svgparse_")
-	} else if bot == "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
+	} else if b.Name == "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
 		// Only run the CPU SVGs on 8888.
 		blacklist("~8888 svg _ _")
 	} else {
@@ -495,16 +476,16 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	}
 
 	// Eventually I'd like these to pass, but for now just skip 'em.
-	if has("SK_FORCE_RASTER_PIPELINE_BLITTER") {
+	if b.extraConfig("SK_FORCE_RASTER_PIPELINE_BLITTER") {
 		removeFromArgs("tests")
 	}
 
-	if has("NativeFonts") { // images won't exercise native font integration :)
+	if b.extraConfig("NativeFonts") { // images won't exercise native font integration :)
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
 	}
 
-	if has("DDL") || has("PDF") {
+	if b.matchExtraConfig("DDL", "PDF") {
 		// The DDL and PDF bots just render the large skps and the gms
 		removeFromArgs("tests")
 		removeFromArgs("image")
@@ -515,7 +496,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		removeFromArgs("skp")
 	}
 
-	if has("Lottie") {
+	if b.extraConfig("Lottie") {
 		// Only run the lotties on Lottie bots.
 		removeFromArgs("tests")
 		removeFromArgs("gm")
@@ -536,7 +517,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	blacklist("g8 image _ _")
 	blacklist("g8 colorImage _ _")
 
-	if has("Valgrind") {
+	if b.extraConfig("Valgrind") {
 		// These take 18+ hours to run.
 		blacklist("pdf gm _ fontmgr_iter")
 		blacklist("pdf _ _ PANO_20121023_214540.jpg")
@@ -548,16 +529,16 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		blacklist("_ test _ InitialTextureClear")
 	}
 
-	if has("TecnoSpark3Pro") {
+	if b.model("TecnoSpark3Pro") {
 		// skbug.com/9421
 		blacklist("_ test _ InitialTextureClear")
 	}
 
-	if has("iOS") {
+	if b.os("iOS") {
 		blacklist(glPrefix + " skp _ _")
 	}
 
-	if has("Mac") || has("iOS") {
+	if b.matchOs("Mac", "iOS") {
 		// CG fails on questionable bmps
 		blacklist("_ image gen_platf rgba32abf.bmp")
 		blacklist("_ image gen_platf rgb24prof.bmp")
@@ -598,7 +579,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	}
 
 	// WIC fails on questionable bmps
-	if has("Win") {
+	if b.matchOs("Win") {
 		blacklist("_ image gen_platf pal8os2v2.bmp")
 		blacklist("_ image gen_platf pal8os2v2-16.bmp")
 		blacklist("_ image gen_platf rgba32abf.bmp")
@@ -608,13 +589,13 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		blacklist("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
 		blacklist("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
 		blacklist("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
-		if has("x86_64") && has("CPU") {
+		if b.arch("x86_64") && b.cpu() {
 			// This GM triggers a SkSmallAllocator assert.
 			blacklist("_ gm _ composeshader_bitmap")
 		}
 	}
 
-	if has("Win") || has("Mac") {
+	if b.matchOs("Win", "Mac") {
 		// WIC and CG fail on arithmetic jpegs
 		blacklist("_ image gen_platf testimgari.jpg")
 		// More questionable bmps that fail on Mac, too. skbug.com/6984
@@ -627,7 +608,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	// avoid lots of images on Gold.
 	blacklist("_ image gen_platf error")
 
-	if has("Android") || has("iOS") {
+	if b.os("Android", "iOS") {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skia:5438
@@ -712,18 +693,18 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		blacklist("serialize-8888", "gm", "_", test)
 	}
 
-	if !has("Mac") {
+	if !b.matchOs("Mac") {
 		for _, test := range []string{"bleed_alpha_image", "bleed_alpha_image_shader"} {
 			blacklist("serialize-8888", "gm", "_", test)
 		}
 	}
 	// It looks like we skip these only for out-of-memory concerns.
-	if has("Win") || has("Android") {
+	if b.matchOs("Win", "Android") {
 		for _, test := range []string{"verylargebitmap", "verylarge_picture_image"} {
 			blacklist("serialize-8888", "gm", "_", test)
 		}
 	}
-	if has("Mac") && has("CPU") {
+	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
 		blacklist("pic-8888", "gm", "_", "encode-platform")
 		blacklist("serialize-8888", "gm", "_", "encode-platform")
@@ -768,7 +749,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	// skbug.com/4888
 	// Blacklist RAW images (and a few large PNGs) on GPU bots
 	// until we can resolve failures.
-	if has("GPU") {
+	if b.gpu() {
 		blacklist("_ image _ interlaced1.png")
 		blacklist("_ image _ interlaced2.png")
 		blacklist("_ image _ interlaced3.png")
@@ -778,7 +759,7 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	}
 
 	// Blacklist memory intensive tests on 32-bit bots.
-	if has("Win8") && has("x86-") {
+	if b.os("Win8") && b.arch("x86") {
 		blacklist("_ image f16 _")
 		blacklist("_ image _ abnormal.wbmp")
 		blacklist("_ image _ interlaced1.png")
@@ -789,12 +770,12 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		}
 	}
 
-	if has("Nexus5") && has("GPU") {
+	if b.model("Nexus5", "Nexus5x") && b.gpu() {
 		// skia:5876
 		blacklist("_", "gm", "_", "encode-platform")
 	}
 
-	if has("AndroidOne-GPU") { // skia:4697, skia:4704, skia:4694, skia:4705
+	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705
 		blacklist("_", "gm", "_", "bigblurs")
 		blacklist("_", "gm", "_", "bleed")
 		blacklist("_", "gm", "_", "bleed_alpha_bmp")
@@ -818,31 +799,31 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	}
 
 	match := []string{}
-	if has("Valgrind") { // skia:3021
+	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")
 	}
 
-	if has("Valgrind") && has("PreAbandonGpuContext") {
+	if b.extraConfig("Valgrind") && b.extraConfig("PreAbandonGpuContext") {
 		// skia:6575
 		match = append(match, "~multipicturedraw_")
 	}
 
-	if has("AndroidOne") {
+	if b.model("AndroidOne") {
 		match = append(match, "~WritePixels")                       // skia:4711
 		match = append(match, "~PremulAlphaRoundTrip_Gpu")          // skia:7501
 		match = append(match, "~ReimportImageTextureWithMipLevels") // skia:8090
 	}
 
-	if has("GalaxyS6") {
+	if b.model("GalaxyS6") {
 		match = append(match, "~SpecialImage") // skia:6338
 		match = append(match, "~skbug6653")    // skia:6653
 	}
 
-	if has("MSAN") {
+	if b.extraConfig("MSAN") {
 		match = append(match, "~Once", "~Shared") // Not sure what's up with these tests.
 	}
 
-	if has("TSAN") {
+	if b.extraConfig("TSAN") {
 		match = append(match, "~ReadWriteAlpha")      // Flaky on TSAN-covered on nvidia bots.
 		match = append(match, "~RGBA4444TextureTest", // Flakier than they are important.
 			"~RGB565TextureTest")
@@ -850,38 +831,38 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 	// By default, we test with GPU threading enabled, unless specifically
 	// disabled.
-	if has("NoGPUThreads") {
+	if b.extraConfig("NoGPUThreads") {
 		args = append(args, "--gpuThreads", "0")
 	}
 
-	if has("Vulkan") && has("Adreno530") {
+	if b.extraConfig("Vulkan") && b.gpu("Adreno530") {
 		// skia:5777
 		match = append(match, "~CopySurface")
 	}
 
-	if has("Vulkan") && has("Adreno") {
+	if b.extraConfig("Vulkan") && b.matchGpu("Adreno") {
 		// skia:7663
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
 		match = append(match, "~WritePixelsMSAA_Gpu")
 	}
 
-	if has("Vulkan") && isLinux && has("IntelIris640") {
+	if b.extraConfig("Vulkan") && b.isLinux() && b.gpu("IntelIris640") {
 		match = append(match, "~VkHeapTests") // skia:6245
 	}
 
-	if isLinux && has("IntelIris640") {
+	if b.isLinux() && b.gpu("IntelIris640") {
 		match = append(match, "~Programs") // skia:7849
 	}
 
-	if has("TecnoSpark3Pro") {
+	if b.model("TecnoSpark3Pro") {
 		match = append(match, "~Programs") // skia:9814
 	}
 
-	if has("IntelIris640") || has("IntelHD615") || has("IntelHDGraphics615") {
+	if b.gpu("IntelIris640", "IntelHD615", "IntelHDGraphics615") {
 		match = append(match, "~^SRGBReadWritePixels$") // skia:9225
 	}
 
-	if has("Vulkan") && isLinux && has("IntelHD405") {
+	if b.extraConfig("Vulkan") && b.isLinux() && b.gpu("IntelHD405") {
 		// skia:7322
 		blacklist("vk", "gm", "_", "skbug_257")
 		blacklist("vk", "gm", "_", "filltypespersp")
@@ -900,52 +881,52 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 		match = append(match, "~^WritePixelsMSAA_Gpu$")
 	}
 
-	if has("Vulkan") && has("GTX660") && has("Win") {
+	if b.extraConfig("Vulkan") && b.gpu("GTX660") && b.matchOs("Win") {
 		// skbug.com/8047
 		match = append(match, "~FloatingPointTextureTest$")
 	}
 
-	if has("Metal") && has("HD8870M") && has("Mac") {
+	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
 	}
 
-	if has("ANGLE") {
+	if b.extraConfig("ANGLE") {
 		// skia:7835
 		match = append(match, "~BlurMaskBiggerThanDest")
 	}
 
-	if has("IntelIris6100") && has("ANGLE") && has("Release") {
+	if b.gpu("IntelIris6100") && b.extraConfig("ANGLE") && !b.debug() {
 		// skia:7376
 		match = append(match, "~^ProcessorOptimizationValidationTest$")
 	}
 
-	if (has("IntelIris6100") || has("IntelHD4400")) && has("ANGLE") {
+	if b.gpu("IntelIris6100", "IntelHD4400") && b.extraConfig("ANGLE") {
 		// skia:6857
 		blacklist("angle_d3d9_es2", "gm", "_", "lighting")
 	}
 
-	if has("PowerVRGX6250") {
+	if b.gpu("PowerVRGX6250") {
 		match = append(match, "~gradients_view_perspective_nodither") //skia:6972
 	}
 
-	if has("-arm-") && has("ASAN") {
+	if b.arch("arm") && b.extraConfig("ASAN") {
 		// TODO: can we run with env allocator_may_return_null=1 instead?
 		match = append(match, "~BadImage")
 	}
 
-	if has("Mac") && has("IntelHD6000") {
+	if b.matchOs("Mac") && b.gpu("IntelHD6000") {
 		// skia:7574
 		match = append(match, "~^ProcessorCloneTest$")
 		match = append(match, "~^GrMeshTest$")
 	}
 
-	if has("Mac") && has("IntelHD615") {
+	if b.matchOs("Mac") && b.gpu("IntelHD615") {
 		// skia:7603
 		match = append(match, "~^GrMeshTest$")
 	}
 
-	if has("LenovoYogaC630") && has("ANGLE") {
+	if b.model("LenovoYogaC630") && b.extraConfig("ANGLE") {
 		// skia:9275
 		blacklist("_", "tests", "_", "Programs")
 		// skia:8976
@@ -966,22 +947,25 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 
 	// These bots run out of memory running RAW codec tests. Do not run them in
 	// parallel
-	if has("Nexus5") || has("Nexus9") {
+	// TODO(borenet): Previously this was `'Nexus5' in bot or 'Nexus9' in bot`
+	// which also matched 'Nexus5x'. I added That here to maintain the
+	// existing behavior, but we should verify that it's needed.
+	if b.model("Nexus5", "Nexus5x", "Nexus9") {
 		args = append(args, "--noRAW_threading")
 	}
 
-	if has("FSAA") {
+	if b.extraConfig("FSAA") {
 		args = append(args, "--analyticAA", "false")
 	}
-	if has("FAAA") {
+	if b.extraConfig("FAAA") {
 		args = append(args, "--forceAnalyticAA")
 	}
 
-	if !has("NativeFonts") {
+	if !b.extraConfig("NativeFonts") {
 		args = append(args, "--nonativeFonts")
 	}
 
-	if has("GDI") {
+	if b.extraConfig("GDI") {
 		args = append(args, "--gdi")
 	}
 
@@ -989,13 +973,13 @@ func dmFlags(bot string, parts map[string]string, doUpload bool, internalHardwar
 	args = append(args, "--verbose")
 
 	// See skia:2789.
-	if hasExtraConfig("AbandonGpuContext") {
+	if b.extraConfig("AbandonGpuContext") {
 		args = append(args, "--abandonGpuContext")
 	}
-	if hasExtraConfig("PreAbandonGpuContext") {
+	if b.extraConfig("PreAbandonGpuContext") {
 		args = append(args, "--preAbandonGpuContext")
 	}
-	if hasExtraConfig("ReleaseAndAbandonGpuContext") {
+	if b.extraConfig("ReleaseAndAbandonGpuContext") {
 		args = append(args, "--releaseAndAbandonGpuContext")
 	}
 	return args, properties

@@ -6,38 +6,29 @@ package gen_tasks_logic
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
 // nanobenchFlags generates flags to Nanobench based on the given task properties.
-func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]string, map[string]string) {
-	has := func(keyword string) bool {
-		return strings.Contains(bot, keyword)
-	}
-
-	// TODO(borenet): This duplicates code in recipes_modules/vars/api.py and will
-	// be removed soon.
-	isLinux := has("Ubuntu") || has("Debian") || has("Housekeeper")
-
+func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string) {
 	args := []string{
 		"nanobench",
 		"--pre_log",
 	}
 
-	if has("GPU") {
+	if b.gpu() {
 		args = append(args, "--gpuStatsDump", "true")
 	}
 
 	args = append(args, "--scales", "1.0", "1.1")
 
 	configs := []string{}
-	if parts["cpu_or_gpu"] == "CPU" {
+	if b.cpu() {
 		args = append(args, "--nogpu")
 		configs = append(configs, "8888", "nonrendering")
 
-		if has("BonusConfigs") {
+		if b.extraConfig("BonusConfigs") {
 			configs = []string{
 				"f16",
 				"srgb",
@@ -47,32 +38,32 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 			}
 		}
 
-		if has("Nexus7") {
+		if b.model("Nexus7") {
 			args = append(args, "--purgeBetweenBenches") // Debugging skia:8929
 		}
 
-	} else if parts["cpu_or_gpu"] == "GPU" {
+	} else if b.gpu() {
 		args = append(args, "--nocpu")
 
 		glPrefix := "gl"
 		sampleCount := 8
-		if has("Android") || has("iOS") {
+		if b.os("Android", "iOS") {
 			sampleCount = 4
 			// The NVIDIA_Shield has a regular OpenGL implementation. We bench that
 			// instead of ES.
-			if !has("NVIDIA_Shield") {
+			if !b.model("NVIDIA_Shield") {
 				glPrefix = "gles"
 			}
 			// iOS crashes with MSAA (skia:6399)
 			// Nexus7 (Tegra3) does not support MSAA.
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
-			if has("iOS") || has("Nexus7") || has("Pixel3a") {
+			if b.os("iOS") || b.model("Nexus7", "Pixel3a") {
 				sampleCount = 0
 			}
-		} else if has("Intel") {
+		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			sampleCount = 0
-		} else if has("ChromeOS") {
+		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}
 
@@ -83,44 +74,44 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 
 		// We want to test both the OpenGL config and the GLES config on Linux Intel:
 		// GL is used by Chrome, GLES is used by ChromeOS.
-		if has("Intel") && isLinux {
+		if b.matchGpu("Intel") && b.isLinux() {
 			configs = append(configs, "gles", "glessrgb")
 		}
 
-		if has("CommandBuffer") {
+		if b.extraConfig("CommandBuffer") {
 			configs = []string{"commandbuffer"}
 		}
 
-		if has("Vulkan") {
+		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
-			if has("Android") {
+			if b.os("Android") {
 				// skbug.com/9274
-				if !has("Pixel2XL") {
+				if !b.model("Pixel2XL") {
 					configs = append(configs, "vkmsaa4")
 				}
 			} else {
 				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
-				if !has("Intel") {
+				if !b.matchGpu("Intel") {
 					configs = append(configs, "vkmsaa8")
 				}
 			}
 		}
-		if has("Metal") {
+		if b.extraConfig("Metal") {
 			configs = []string{"mtl"}
-			if has("iOS") {
+			if b.os("iOS") {
 				configs = append(configs, "mtlmsaa4")
 			} else {
 				configs = append(configs, "mtlmsaa8")
 			}
 		}
 
-		if has("ANGLE") {
+		if b.extraConfig("ANGLE") {
 			// Test only ANGLE configs.
 			configs = []string{"angle_d3d11_es2"}
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
 			}
-			if has("QuadroP400") {
+			if b.gpu("QuadroP400") {
 				// See skia:7823 and chromium:693090.
 				configs = append(configs, "angle_gl_es2")
 				if sampleCount > 0 {
@@ -128,7 +119,7 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 				}
 			}
 		}
-		if has("ChromeOS") {
+		if b.os("ChromeOS") {
 			// Just run GLES for now - maybe add gles_msaa4 in the future
 			configs = []string{"gles"}
 		}
@@ -139,11 +130,11 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 
 	// By default, we test with GPU threading enabled, unless specifically
 	// disabled.
-	if has("NoGPUThreads") {
+	if b.extraConfig("NoGPUThreads") {
 		args = append(args, "--gpuThreads", "0")
 	}
 
-	if has("Debug") || has("ASAN") || has("Valgrind") {
+	if b.debug() || b.extraConfig("ASAN") || b.extraConfig("Valgrind") {
 		args = append(args, "--loops", "1")
 		args = append(args, "--samples", "1")
 		// Ensure that the bot framework does not think we have timed out.
@@ -151,7 +142,7 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 	}
 
 	// skia:9036
-	if has("NVIDIA_Shield") {
+	if b.model("NVIDIA_Shield") {
 		args = append(args, "--dontReduceOpsTaskSplitting")
 	}
 
@@ -159,16 +150,16 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 	verbose := false
 
 	match := []string{}
-	if has("Android") {
+	if b.os("Android") {
 		// Segfaults when run as GPU bench. Very large texture?
 		match = append(match, "~blurroundrect")
 		match = append(match, "~patch_grid") // skia:2847
 		match = append(match, "~desk_carsvg")
 	}
-	if has("Nexus5") {
+	if b.matchModel("Nexus5") {
 		match = append(match, "~keymobi_shop_mobileweb_ebay_com.skp") // skia:5178
 	}
-	if has("iOS") {
+	if b.os("iOS") {
 		match = append(match, "~blurroundrect")
 		match = append(match, "~patch_grid") // skia:2847
 		match = append(match, "~desk_carsvg")
@@ -176,15 +167,15 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 		match = append(match, "~path_hairline")
 		match = append(match, "~GLInstancedArraysBench") // skia:4714
 	}
-	if has("iOS") && has("Metal") {
+	if b.os("iOS") && b.extraConfig("Metal") {
 		// skia:9799
 		match = append(match, "~compositing_images_tile_size")
 	}
-	if has("Intel") && isLinux && !has("Vulkan") {
+	if b.matchGpu("Intel") && b.isLinux() && !b.extraConfig("Vulkan") {
 		// TODO(dogben): Track down what's causing bots to die.
 		verbose = true
 	}
-	if has("IntelHD405") && isLinux && has("Vulkan") {
+	if b.gpu("IntelHD405") && b.isLinux() && b.extraConfig("Vulkan") {
 		// skia:7322
 		match = append(match, "~desk_carsvg.skp_1")
 		match = append(match, "~desk_googlehome.skp")
@@ -211,27 +202,27 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 		match = append(match, "~top25desk_ebay.skp_1.1")
 		match = append(match, "~top25desk_ebay.skp_1.1_mpd")
 	}
-	if has("Vulkan") && has("GTX660") {
+	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
 		// skia:8523 skia:9271
 		match = append(match, "~compositing_images")
 	}
-	if has("MacBook10.1") && has("CommandBuffer") {
+	if b.model("MacBook10.1") && b.extraConfig("CommandBuffer") {
 		match = append(match, "~^desk_micrographygirlsvg.skp_1.1$")
 	}
-	if has("ASAN") && has("CPU") {
+	if b.extraConfig("ASAN") && b.cpu() {
 		// floor2int_undef benches undefined behavior, so ASAN correctly complains.
 		match = append(match, "~^floor2int_undef$")
 	}
-	if has("AcerChromebook13_CB5_311-GPU-TegraK1") {
+	if b.model("AcerChromebook13_CB5_311") && b.gpu() {
 		// skia:7551
 		match = append(match, "~^shapes_rrect_inner_rrect_50_500x500$")
 	}
-	if has("Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android") {
+	if b.model("Pixel3a") {
 		// skia:9413
 		match = append(match, "~^path_text$")
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
-	if has("Perf-Android-Clang-Pixel3-GPU-Adreno630-arm64-Release-All-Android_Vulkan") {
+	if b.model("Pixel3") && b.extraConfig("Vulkan") {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
@@ -282,15 +273,15 @@ func nanobenchFlags(bot string, parts map[string]string, doUpload bool) ([]strin
 			"role":          true,
 			"test_filter":   true,
 		}
-		keys := make([]string, 0, len(parts))
-		for k := range parts {
+		keys := make([]string, 0, len(b.parts))
+		for k := range b.parts {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
 		args = append(args, "--key")
 		for _, k := range keys {
 			if !keysBlacklist[k] {
-				args = append(args, k, parts[k])
+				args = append(args, k, b.parts[k])
 			}
 		}
 	}
