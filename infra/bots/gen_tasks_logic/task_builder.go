@@ -155,26 +155,18 @@ func (b *taskBuilder) cipd(pkgs ...*specs.CipdPackage) {
 // useIsolatedAssets returns true if this task should use assets which are
 // isolated rather than downloading directly from CIPD.
 func (b *taskBuilder) useIsolatedAssets() bool {
-	// TODO(borenet): Do we need the isolate tasks for non-RPi Skpbench?
-	if b.extraConfig("Skpbench") {
-		return true
-	}
 	// Only do this on the RPIs for now. Other, faster machines shouldn't
 	// see much benefit and we don't need the extra complexity, for now.
 	if b.os("Android", "ChromeOS", "iOS") {
 		return true
 	}
-	// TODO(borenet): Do we need the isolate tasks for Windows builds?
-	if b.matchOs("Win") && b.role("Build") {
-		return true
-	}
-
 	return false
 }
 
 // isolateAssetConfig represents a task which copies a CIPD package into
 // isolate.
 type isolateAssetCfg struct {
+	alwaysIsolate   bool
 	isolateTaskName string
 	path            string
 }
@@ -184,7 +176,7 @@ func (b *taskBuilder) asset(assets ...string) {
 	shouldIsolate := b.useIsolatedAssets()
 	pkgs := make([]*specs.CipdPackage, 0, len(assets))
 	for _, asset := range assets {
-		if _, ok := ISOLATE_ASSET_MAPPING[asset]; ok && shouldIsolate {
+		if cfg, ok := ISOLATE_ASSET_MAPPING[asset]; ok && (cfg.alwaysIsolate || shouldIsolate) {
 			b.dep(b.isolateCIPDAsset(asset))
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset(asset))

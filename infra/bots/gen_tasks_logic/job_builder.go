@@ -66,7 +66,7 @@ func (b *jobBuilder) isolateCIPDAsset(asset string) string {
 		log.Fatalf("No isolate task for asset %q", asset)
 	}
 	b.addTask(cfg.isolateTaskName, func(b *taskBuilder) {
-		b.asset(asset)
+		b.cipd(b.MustGetCipdPackageFromAsset(asset))
 		b.cmd("/bin/cp", "-rL", cfg.path, "${ISOLATED_OUTDIR}")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.idempotent()
