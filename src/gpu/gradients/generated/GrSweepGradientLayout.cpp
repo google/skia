@@ -115,7 +115,7 @@ std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::TestCreate(GrProcess
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::Make(const SkSweepGradient& grad,
                                                                  const GrFPArgs& args) {
     SkMatrix matrix;
-    if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());

@@ -452,7 +452,7 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
         SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
         auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader", fInputs, &matrix);

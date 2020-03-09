@@ -344,7 +344,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         maxTextureSize = args.fContext->priv().caps()->maxTextureSize();
     }
 
-    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix);
     SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
