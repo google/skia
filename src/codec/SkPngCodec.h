@@ -19,7 +19,7 @@ class SkStream;
 
 class SkPngCodec : public SkCodec {
 public:
-    static bool IsPng(const char*, size_t);
+    static bool IsPng(const void*, size_t);
 
     // Assume IsPng was called and returned true.
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,

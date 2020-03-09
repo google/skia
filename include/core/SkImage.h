@@ -974,7 +974,7 @@ public:
         Returns nullptr if encoding fails, or if encodedImageFormat is not supported.
 
         SkImage encoding in a format requires both building with one or more of:
-        SK_HAS_JPEG_LIBRARY, SK_HAS_PNG_LIBRARY, SK_HAS_WEBP_LIBRARY; and platform support
+        SK_ENCODE_JPEG, SK_ENCODE_PNG, SK_ENCODE_WEBP; and platform support
         for the encoded format.
 
         If SK_BUILD_FOR_MAC or SK_BUILD_FOR_IOS is defined, encodedImageFormat can
@@ -996,7 +996,7 @@ public:
 
     /** Encodes SkImage pixels, returning result as SkData. Returns existing encoded data
         if present; otherwise, SkImage is encoded with SkEncodedImageFormat::kPNG. Skia
-        must be built with SK_HAS_PNG_LIBRARY to encode SkImage.
+        must be built with SK_ENCODE_PNG to encode SkImage.
 
         Returns nullptr if existing encoded data is missing or invalid, and
         encoding fails.
@@ -1009,7 +1009,7 @@ public:
 
     /** Returns encoded SkImage pixels as SkData, if SkImage was created from supported
         encoded stream format. Platform support for formats vary and may require building
-        with one or more of: SK_HAS_JPEG_LIBRARY, SK_HAS_PNG_LIBRARY, SK_HAS_WEBP_LIBRARY.
+        with one or more of: SK_ENCODE_JPEG, SK_ENCODE_PNG, SK_ENCODE_WEBP.
 
         Returns nullptr if SkImage contents are not encoded.
 
