@@ -15169,41 +15169,6 @@
         {
           "name": "docker",
           "path": "cache/docker"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.25.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
         }
       ],
       "command": [
@@ -15264,41 +15229,6 @@
         {
           "name": "docker",
           "path": "cache/docker"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.25.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
         }
       ],
       "command": [
@@ -15722,41 +15652,6 @@
         {
           "name": "docker",
           "path": "cache/docker"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.25.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
         }
       ],
       "command": [
@@ -15812,41 +15707,6 @@
         {
           "name": "docker",
           "path": "cache/docker"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.25.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
         }
       ],
       "command": [
@@ -15903,41 +15763,6 @@
         {
           "name": "docker",
           "path": "cache/docker"
-        },
-        {
-          "name": "go_cache",
-          "path": "cache/go_cache"
-        },
-        {
-          "name": "gopath",
-          "path": "cache/gopath"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.25.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:8"
-        },
-        {
-          "name": "skia/bots/protoc",
-          "path": "protoc",
-          "version": "version:0"
         }
       ],
       "command": [
@@ -23198,6 +23023,16 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:228"
         }
       ],
       "command": [
@@ -23211,9 +23046,7 @@
       ],
       "dependencies": [
         "Build-Win-Clang-x86_64-Release-Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateMSKP",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
@@ -23268,6 +23101,16 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:27f8448ba7ae1dd64574aefa41b762c3d22a42f4"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:228"
         }
       ],
       "command": [
@@ -23281,9 +23124,7 @@
       ],
       "dependencies": [
         "Build-Win-Clang-x86_64-Release-Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateMSKP",
-        "Housekeeper-PerCommit-IsolateSKP"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:10de:1cb3-25.21.14.1678",
