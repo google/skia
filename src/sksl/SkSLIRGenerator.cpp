@@ -864,6 +864,18 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         decl = newDecl.get();
         fSymbolTable->add(decl->fName, std::move(newDecl));
     }
+    if (fKind == Program::kPipelineStage_Kind && SkStrStartsWith(fd.fName.fChars, "vtx_")) {
+        if (iter != f.end()) {
+            fErrors.error(f.fOffset, "vtx_ functions must only be declared");
+            return;
+        }
+        decl->fDefined = true;
+        std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(f.fOffset, *decl,
+                                                                          nullptr));
+        result->fSource = &f;
+        fProgramElements->push_back(std::move(result));
+        return;
+    }
     if (iter != f.end()) {
         // compile body
         SkASSERT(!fCurrentFunction);
