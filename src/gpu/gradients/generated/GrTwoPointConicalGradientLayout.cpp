@@ -264,7 +264,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
     SkMatrix matrix;
 
     // Initialize the base matrix
-    if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
 

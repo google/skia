@@ -44,7 +44,7 @@ void main() {
     std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::Make(
             const SkLinearGradient& grad, const GrFPArgs& args) {
         SkMatrix matrix;
-        if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+        if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
         matrix.postConcat(grad.getGradientMatrix());

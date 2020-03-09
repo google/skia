@@ -195,7 +195,7 @@ static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode
 
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix);
     SkMatrix lmInverse;
     if (!lm->invert(&lmInverse)) {
         return nullptr;
