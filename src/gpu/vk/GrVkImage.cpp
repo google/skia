@@ -152,7 +152,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     this->updateImageLayout(newLayout);
 }
 
-bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
+bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo* info) {
     if (0 == imageDesc.fWidth || 0 == imageDesc.fHeight) {
         return false;
     }
@@ -197,8 +197,11 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
         initialLayout                                // initialLayout
     };
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr,
-                                                        &image));
+    VkResult result;
+    GR_VK_CALL_RESULT(gpu, result, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
+    if (result != VK_SUCCESS) {
+        return false;
+    }
 
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));

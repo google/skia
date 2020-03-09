@@ -497,6 +497,40 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
 
 #endif
 
+#if defined(SK_ARM_HAS_NEON)
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
+                                   const uint32_t* xy, int count, SkPMColor* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        auto src = (const char*)s.fPixmap.addr();
+        size_t rb = s.fPixmap.rowBytes();
+
+        while (count --> 0) {
+            int y0, y1, wy,
+                x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            auto row0 = (const uint32_t*)(src + y0*rb),
+                 row1 = (const uint32_t*)(src + y1*rb);
+
+            filter_and_scale_by_alpha(wx, wy,
+                                      row0[x0], row0[x1],
+                                      row1[x0], row1[x1],
+                                      colors++,
+                                      s.fAlphaScale);
+        }
+    }
+#else
+    // It's not yet clear whether it's worthwhile specializing for SSE2/SSSE3/AVX2.
+    constexpr static void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
+                                                       const uint32_t*, int, SkPMColor*) = nullptr;
+#endif
+
 }  // namespace SK_OPTS_NS
 
 #endif

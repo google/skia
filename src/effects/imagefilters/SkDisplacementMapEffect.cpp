@@ -561,7 +561,7 @@ std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProce
     SkISize colorDimensions;
     colorDimensions.fWidth = d->fRandom->nextRangeU(0, colorProxy->width());
     colorDimensions.fHeight = d->fRandom->nextRangeU(0, colorProxy->height());
-    SkIRect dispRect = SkIRect::MakeWH(dispProxy->width(), dispProxy->height());
+    SkIRect dispRect = SkIRect::MakeSize(dispProxy->dimensions());
     return GrDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
                                          std::move(dispProxy),
                                          dispRect,
@@ -648,11 +648,11 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                           const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
-    GrTextureProxy* proxy = displacementMap.textureSampler(1).proxy();
-    GrTexture* colorTex = proxy->peekTexture();
+    GrSurfaceProxy* proxy = displacementMap.textureSampler(1).proxy();
+    SkISize texDimensions = proxy->backingStoreDimensions();
 
-    SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
-    SkScalar scaleY = displacementMap.scale().fY / colorTex->height();
+    SkScalar scaleX = displacementMap.scale().fX / texDimensions.width();
+    SkScalar scaleY = displacementMap.scale().fY / texDimensions.height();
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
                 proxy->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));

@@ -18,17 +18,6 @@ class GrVkRenderTarget;
 
 class GrVkRenderPass : public GrVkResource {
 public:
-    GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE), fClearValueCount(0) {}
-
-    // Used when importing an external render pass. In this case we have to explicitly be told the
-    // color attachment index
-    explicit GrVkRenderPass(VkRenderPass renderPass, uint32_t colorAttachmentIndex)
-            : INHERITED()
-            , fRenderPass(renderPass)
-            , fAttachmentFlags(kExternal_AttachmentFlag)
-            , fClearValueCount(0)
-            , fColorAttachmentIndex(colorAttachmentIndex) {}
-
     struct LoadStoreOps {
         VkAttachmentLoadOp  fLoadOp;
         VkAttachmentStoreOp fStoreOp;
@@ -46,16 +35,20 @@ public:
         }
     };
 
-    void initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target);
-    void init(const GrVkGpu* gpu,
-              const GrVkRenderTarget& target,
-              const LoadStoreOps& colorOp,
-              const LoadStoreOps& stencilOp);
+    static GrVkRenderPass* CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
+    static GrVkRenderPass* Create(GrVkGpu* gpu,
+                                  const GrVkRenderPass& compatibleRenderPass,
+                                  const LoadStoreOps& colorOp,
+                                  const LoadStoreOps& stencilOp);
 
-    void init(const GrVkGpu* gpu,
-              const GrVkRenderPass& compatibleRenderPass,
-              const LoadStoreOps& colorOp,
-              const LoadStoreOps& stencilOp);
+    // Used when importing an external render pass. In this case we have to explicitly be told the
+    // color attachment index
+    explicit GrVkRenderPass(VkRenderPass renderPass, uint32_t colorAttachmentIndex)
+            : INHERITED()
+            , fRenderPass(renderPass)
+            , fAttachmentFlags(kExternal_AttachmentFlag)
+            , fClearValueCount(0)
+            , fColorAttachmentIndex(colorAttachmentIndex) {}
 
     struct AttachmentsDescriptor {
         struct AttachmentDesc {
@@ -132,11 +125,14 @@ public:
 #endif
 
 private:
-    GrVkRenderPass(const GrVkRenderPass&);
+    GrVkRenderPass(VkRenderPass, AttachmentFlags, const AttachmentsDescriptor&,
+                   const VkExtent2D& granularity, uint32_t clearValueCount);
 
-    void init(const GrVkGpu* gpu,
-              const LoadStoreOps& colorOps,
-              const LoadStoreOps& stencilOps);
+    static GrVkRenderPass* Create(GrVkGpu* gpu,
+                                  AttachmentFlags,
+                                  AttachmentsDescriptor&,
+                                  const LoadStoreOps& colorOps,
+                                  const LoadStoreOps& stencilOps);
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 

@@ -11,7 +11,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read ssh_machine.json"
+    "name": "read ssh_machine.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@ssh_machine.json@{\"user_ip\": \"foo@127.0.0.1\"}@@@",
+      "@@@STEP_LOG_END@ssh_machine.json@@@"
+    ]
   },
   {
     "cmd": [
@@ -60,7 +64,8 @@
     "infra_step": true,
     "name": "read file.txt.read file.txt",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_END@file.txt@@@"
     ]
   },
   {
@@ -274,7 +279,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skp VERSION"
+    "name": "Get skp VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -328,7 +337,8 @@
     "infra_step": true,
     "name": "read C:\\Users\\chrome-bot\\botdata\\SKP_VERSION.read SKP_VERSION",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
     ]
   },
   {
@@ -447,7 +457,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skimage VERSION"
+    "name": "Get skimage VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -501,7 +515,8 @@
     "infra_step": true,
     "name": "read C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION.read SK_IMAGE_VERSION",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
     ]
   },
   {
@@ -620,7 +635,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get svg VERSION"
+    "name": "Get svg VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -674,7 +693,8 @@
     "infra_step": true,
     "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION.read SVG_VERSION",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
     ]
   },
   {

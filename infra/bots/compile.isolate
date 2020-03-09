@@ -12,6 +12,7 @@
       '../../bench',
       '../../bin/fetch-clang-format',
       '../../bin/fetch-gn',
+      '../../build/fuchsia',
       '../../build_overrides/dawn.gni',
       '../../buildtools',
       '../../dm',
@@ -43,7 +44,6 @@
       'assets/cast_toolchain/VERSION',
       'assets/clang_linux/VERSION',
       'assets/clang_win/VERSION',
-      'assets/mips64el_toolchain_linux/VERSION',
     ],
   },
 }

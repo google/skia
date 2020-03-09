@@ -13,7 +13,10 @@
 
 #include "dawn/dawn_proc.h"
 
-static void PrintDeviceError(DawnErrorType, const char* message, void*) {
+static wgpu::TextureUsage kUsage = wgpu::TextureUsage::OutputAttachment |
+                                   wgpu::TextureUsage::CopySrc;
+
+static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
     SkASSERT(false);
 }
@@ -21,7 +24,7 @@ static void PrintDeviceError(DawnErrorType, const char* message, void*) {
 namespace sk_app {
 
 DawnWindowContext::DawnWindowContext(const DisplayParams& params,
-                                     dawn::TextureFormat swapChainFormat)
+                                     wgpu::TextureFormat swapChainFormat)
     : WindowContext(params)
     , fSwapChainFormat(swapChainFormat)
     , fInstance(std::make_unique<dawn_native::Instance>()) {
@@ -37,14 +40,14 @@ void DawnWindowContext::initializeContext(int width, int height) {
         return;
     }
     fSwapChainImplementation = this->createSwapChainImplementation(-1, -1, fDisplayParams);
-    dawn::SwapChainDescriptor swapChainDesc;
+    wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
     fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, width, height);
+    fSwapChain.Configure(fSwapChainFormat, kUsage, width, height);
     fDevice.SetUncapturedErrorCallback(PrintDeviceError, 0);
 }
 
@@ -92,22 +95,21 @@ void DawnWindowContext::resize(int w, int h) {
     fWidth = w;
     fHeight = h;
     fSwapChainImplementation = this->createSwapChainImplementation(w, h, fDisplayParams);
-    dawn::SwapChainDescriptor swapChainDesc;
+    wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
     fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, fWidth,
-                         fHeight);
+    fSwapChain.Configure(fSwapChainFormat, kUsage, fWidth, fHeight);
 }
 
 void DawnWindowContext::setDisplayParams(const DisplayParams& params) {
     fDisplayParams = params;
 }
 
-dawn::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
+wgpu::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
     fInstance->DiscoverDefaultAdapters();
     DawnProcTable backendProcs = dawn_native::GetProcs();
     dawnProcSetProcs(&backendProcs);

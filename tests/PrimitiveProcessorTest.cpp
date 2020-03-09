@@ -57,6 +57,38 @@ private:
     void onPrepareDraws(Target* target) override {
         class GP : public GrGeometryProcessor {
         public:
+            static GrGeometryProcessor* Make(SkArenaAlloc* arena, int numAttribs) {
+                return arena->make<GP>(numAttribs);
+            }
+
+            const char* name() const override { return "Dummy GP"; }
+
+            GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+                class GLSLGP : public GrGLSLGeometryProcessor {
+                public:
+                    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+                        const GP& gp = args.fGP.cast<GP>();
+                        args.fVaryingHandler->emitAttributes(gp);
+                        this->writeOutputPosition(args.fVertBuilder, gpArgs,
+                                                  gp.fAttributes[0].name());
+                        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
+                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                    }
+                    void setData(const GrGLSLProgramDataManager& pdman,
+                                 const GrPrimitiveProcessor& primProc,
+                                 const CoordTransformRange&) override {}
+                };
+                return new GLSLGP();
+            }
+            void getGLSLProcessorKey(const GrShaderCaps&,
+                                     GrProcessorKeyBuilder* builder) const override {
+                builder->add32(fNumAttribs);
+            }
+
+        private:
+            friend class ::SkArenaAlloc; // for access to ctor
+
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
                 SkASSERT(numAttribs > 1);
                 fAttribNames.reset(new SkString[numAttribs]);
@@ -75,44 +107,20 @@ private:
                 }
                 this->setVertexAttributes(fAttributes.get(), numAttribs);
             }
-            const char* name() const override { return "Dummy GP"; }
 
-            GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-                class GLSLGP : public GrGLSLGeometryProcessor {
-                public:
-                    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-                        const GP& gp = args.fGP.cast<GP>();
-                        args.fVaryingHandler->emitAttributes(gp);
-                        this->writeOutputPosition(args.fVertBuilder, gpArgs,
-                                                  gp.fAttributes[0].name());
-                        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
-                    }
-                    void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc,
-                                 FPCoordTransformIter&&) override {}
-                };
-                return new GLSLGP();
-            }
-            void getGLSLProcessorKey(const GrShaderCaps&,
-                                     GrProcessorKeyBuilder* builder) const override {
-                builder->add32(fNumAttribs);
-            }
-
-        private:
             int fNumAttribs;
             std::unique_ptr<SkString[]> fAttribNames;
             std::unique_ptr<Attribute[]> fAttributes;
 
             typedef GrGeometryProcessor INHERITED;
         };
-        sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
+
+        GrGeometryProcessor* gp = GP::Make(target->allocator(), fNumAttribs);
         size_t vertexStride = gp->vertexStride();
         QuadHelper helper(target, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, std::move(gp));
+        helper.recordDraw(target, gp);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

@@ -1,0 +1,43 @@
+{
+   "MaxCount": 4000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.lifetime = 4;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "  effect.color.r = 0;",
+      "  effect.color.g = 1 - effect.age;",
+      "  effect.color.b = effect.age;",
+      "",
+      "  effect.rate = effect.age < 0.75 ? 800 : 0;",
+      "}",
+      ""
+   ],
+   "Code": [
+      "uniform float2 mouse_pos;",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 4;",
+      "  p.pos = mouse_pos;",
+      "  p.frame = effect.age / 0.75 + mix(-0.05, 0.05, rand);",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.pos = mix(p.pos, text(p.frame).xy, 0.05);",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkTextBinding",
+         "Name": "text",
+         "Text": "HELLO WORLD",
+         "FontSize": 96
+      }
+   ]
+}

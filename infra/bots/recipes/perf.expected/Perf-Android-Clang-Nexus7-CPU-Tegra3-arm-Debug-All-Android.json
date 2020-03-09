@@ -45,6 +45,208 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/text_blob_traces/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get text_blob_traces VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/TEXTTRACES_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write TEXTTRACES_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@TEXTTRACES_VERSION@42@@@",
+      "@@@STEP_LOG_END@TEXTTRACES_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/text_blob_traces"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/text_blob_traces"
+  },
+  {
+    "cmd": [],
+    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/text_blob_traces",
+      "--recursive"
+    ],
+    "infra_step": true,
+    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces.list [START_DIR]/text_blob_traces",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/text_blob_traces/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/text_blob_traces/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/text_blob_traces/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/text_blob_traces/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/text_blob_traces/.file3",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces.push [START_DIR]/text_blob_traces/.file3",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/text_blob_traces/file1",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces.push [START_DIR]/text_blob_traces/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/text_blob_traces/subdir/file2",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces/subdir/file2"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces.push [START_DIR]/text_blob_traces/subdir/file2",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/tmp/TEXTTRACES_VERSION",
+      "/sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/TEXTTRACES_VERSION /sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+  },
+  {
     "cmd": [],
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
@@ -139,7 +341,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skp VERSION"
+    "name": "Get skp VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -337,7 +543,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skimage VERSION"
+    "name": "Get skimage VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -535,7 +745,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get svg VERSION"
+    "name": "Get svg VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -874,7 +1088,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --purgeBetweenBenches --config 8888 nonrendering --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --purgeBetweenBenches --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --config 8888 nonrendering --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
@@ -884,7 +1098,7 @@
     "infra_step": true,
     "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --purgeBetweenBenches --config 8888 nonrendering --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --purgeBetweenBenches --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --config 8888 nonrendering --loops 1 --samples 1 --keepAlive true --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },

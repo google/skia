@@ -11,7 +11,7 @@
 #include "include/core/SkSurface.h"
 
 #include "tools/sk_app/WindowContext.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn_native/DawnNative.h"
 #include "dawn/dawn_wsi.h"
 
@@ -21,7 +21,7 @@ namespace sk_app {
 
 class DawnWindowContext : public WindowContext {
 public:
-    DawnWindowContext(const DisplayParams&, dawn::TextureFormat swapChainFormat);
+    DawnWindowContext(const DisplayParams&, wgpu::TextureFormat swapChainFormat);
     ~DawnWindowContext() override;
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
@@ -34,8 +34,8 @@ public:
 protected:
     bool isGpuContext() override { return true; }
     void initializeContext(int width, int height);
-    dawn::Device createDevice(dawn_native::BackendType type);
-    virtual dawn::Device onInitializeContext() = 0;
+    wgpu::Device createDevice(dawn_native::BackendType type);
+    virtual wgpu::Device onInitializeContext() = 0;
     virtual void onDestroyContext() = 0;
     virtual void onSwapBuffers() = 0;
     virtual GrSurfaceOrigin getRTOrigin() const { return kTopLeft_GrSurfaceOrigin; }
@@ -45,9 +45,9 @@ protected:
 
     sk_sp<SkSurface>              fSurface;
     DawnSwapChainImplementation   fSwapChainImplementation;
-    dawn::TextureFormat           fSwapChainFormat;
-    dawn::SwapChain               fSwapChain;
-    dawn::Device                  fDevice;
+    wgpu::TextureFormat           fSwapChainFormat;
+    wgpu::SwapChain               fSwapChain;
+    wgpu::Device                  fDevice;
     std::unique_ptr<dawn_native::Instance> fInstance;
 };
 

@@ -54,6 +54,9 @@
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
+// This is a test: static_assert with no message is a c++17 feature.
+static_assert(true);
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -616,6 +619,10 @@ void SkCanvas::onFlush() {
     }
 }
 
+SkSurface* SkCanvas::getSurface() const {
+    return fSurfaceBase;
+}
+
 SkISize SkCanvas::getBaseLayerSize() const {
     SkBaseDevice* d = this->getDevice();
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
@@ -1028,11 +1035,11 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         // Manually setting the device's CTM requires accounting for the device's origin.
         // TODO (michaelludwig) - This could be simpler if the dst device had its origin configured
-        // before filtering the backdrop device, and if SkAutoDeviceCTMRestore had a way to accept
+        // before filtering the backdrop device, and if SkAutoDeviceTransformRestore had a way to accept
         // a global CTM instead of a device CTM.
         SkMatrix dstCTM = toRoot;
         dstCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
-        SkAutoDeviceCTMRestore acr(dst, dstCTM);
+        SkAutoDeviceTransformRestore adr(dst, dstCTM);
 
         // And because devices don't have a special-image draw function that supports arbitrary
         // matrices, we are abusing the asImage() functionality here...
@@ -2434,7 +2441,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         const SkPaint& pnt = draw.paint();
         if (special) {
             SkPoint pt;
-            iter.fDevice->ctm().mapXY(x, y, &pt);
+            iter.fDevice->localToDevice().mapXY(x, y, &pt);
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -2512,7 +2519,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         const SkPaint& pnt = draw.paint();
         if (special) {
             SkPoint pt;
-            iter.fDevice->ctm().mapXY(x, y, &pt);
+            iter.fDevice->localToDevice().mapXY(x, y, &pt);
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -3003,7 +3010,7 @@ SkBaseDevice* SkCanvas::LayerIter::device() const {
 }
 
 const SkMatrix& SkCanvas::LayerIter::matrix() const {
-    return fImpl->fDevice->ctm();
+    return fImpl->fDevice->localToDevice();
 }
 
 const SkPaint& SkCanvas::LayerIter::paint() const {

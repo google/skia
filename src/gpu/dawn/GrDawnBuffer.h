@@ -9,7 +9,7 @@
 #define GrDawnBuffer_DEFINED
 
 #include "src/gpu/GrGpuBuffer.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 struct GrDawnStagingBuffer;
@@ -24,10 +24,10 @@ public:
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
 
     GrDawnGpu* getDawnGpu() const;
-    dawn::Buffer get() const { return fBuffer; }
+    wgpu::Buffer get() const { return fBuffer; }
 
 private:
-    dawn::Buffer fBuffer;
+    wgpu::Buffer fBuffer;
     GrDawnStagingBuffer* fStagingBuffer;
     typedef GrGpuBuffer INHERITED;
 };

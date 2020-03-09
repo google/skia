@@ -8,7 +8,7 @@
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "common/SwapChainUtils.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn/dawn_wsi.h"
 #include "dawn_native/DawnNative.h"
 #include "dawn_native/MetalBackend.h"
@@ -25,7 +25,7 @@ class DawnMTLWindowContext : public DawnWindowContext {
 public:
     DawnMTLWindowContext(const MacWindowInfo& info, const DisplayParams& params);
     ~DawnMTLWindowContext() override;
-    dawn::Device onInitializeContext() override;
+    wgpu::Device onInitializeContext() override;
     void onDestroyContext() override;
     DawnSwapChainImplementation createSwapChainImplementation(int width, int height,
                                                               const DisplayParams& params) override;
@@ -84,7 +84,7 @@ private:
 };
 
 DawnMTLWindowContext::DawnMTLWindowContext(const MacWindowInfo& info, const DisplayParams& params)
-    : DawnWindowContext(params, dawn::TextureFormat::BGRA8Unorm)
+    : DawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
     , fMainView(info.fMainView) {
     CGSize size = fMainView.bounds.size;
     this->initializeContext(size.width, size.height);
@@ -99,8 +99,8 @@ DawnSwapChainImplementation DawnMTLWindowContext::createSwapChainImplementation(
     return SwapChainImplMTL::Create(fMTLDevice, fLayer);
 }
 
-dawn::Device DawnMTLWindowContext::onInitializeContext() {
-    dawn::Device device = this->createDevice(dawn_native::BackendType::Metal);
+wgpu::Device DawnMTLWindowContext::onInitializeContext() {
+    wgpu::Device device = this->createDevice(dawn_native::BackendType::Metal);
     if (!device) {
         return nullptr;
     }

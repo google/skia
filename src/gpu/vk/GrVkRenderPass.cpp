@@ -42,17 +42,34 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
     attachment->finalLayout = layout;
 }
 
-void GrVkRenderPass::initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target) {
+GrVkRenderPass* GrVkRenderPass::CreateSimple(GrVkGpu* gpu, const GrVkRenderTarget& target) {
     static const GrVkRenderPass::LoadStoreOps kBasicLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
-    this->init(gpu, target, kBasicLoadStoreOps, kBasicLoadStoreOps);
+    AttachmentFlags attachmentFlags;
+    AttachmentsDescriptor attachmentsDescriptor;
+    // Get attachment information from render target. This includes which attachments the render
+    // target has (color, stencil) and the attachments format and sample count.
+    target.getAttachmentsDescriptor(&attachmentsDescriptor, &attachmentFlags);
+    return Create(gpu, attachmentFlags, attachmentsDescriptor, kBasicLoadStoreOps,
+                  kBasicLoadStoreOps);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const LoadStoreOps& colorOp,
-                          const LoadStoreOps& stencilOp) {
-    uint32_t numAttachments = fAttachmentsDescriptor.fAttachmentCount;
+GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
+                            const GrVkRenderPass& compatibleRenderPass,
+                            const LoadStoreOps& colorOp,
+                            const LoadStoreOps& stencilOp) {
+    AttachmentFlags attachmentFlags = compatibleRenderPass.fAttachmentFlags;
+    AttachmentsDescriptor attachmentsDescriptor = compatibleRenderPass.fAttachmentsDescriptor;
+    return Create(gpu, attachmentFlags, attachmentsDescriptor, colorOp, stencilOp);
+}
+
+GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
+                                       AttachmentFlags attachmentFlags,
+                                       AttachmentsDescriptor& attachmentsDescriptor,
+                                       const LoadStoreOps& colorOp,
+                                       const LoadStoreOps& stencilOp) {
+    uint32_t numAttachments = attachmentsDescriptor.fAttachmentCount;
     // Attachment descriptions to be set on the render pass
     SkTArray<VkAttachmentDescription> attachments(numAttachments);
     attachments.reset(numAttachments);
@@ -74,11 +91,13 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     subpassDesc.pInputAttachments = nullptr;
     subpassDesc.pResolveAttachments = nullptr;
 
-    if (fAttachmentFlags & kColor_AttachmentFlag) {
+    uint32_t clearValueCount = 0;
+
+    if (attachmentFlags & kColor_AttachmentFlag) {
         // set up color attachment
-        fAttachmentsDescriptor.fColor.fLoadStoreOps = colorOp;
+        attachmentsDescriptor.fColor.fLoadStoreOps = colorOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
-                                        fAttachmentsDescriptor.fColor,
+                                        attachmentsDescriptor.fColor,
                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
         // setup subpass use of attachment
         colorRef.attachment = currentAttachment++;
@@ -86,7 +105,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         subpassDesc.colorAttachmentCount = 1;
 
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == colorOp.fLoadOp) {
-            fClearValueCount = colorRef.attachment + 1;
+            clearValueCount = colorRef.attachment + 1;
         }
     } else {
         // I don't think there should ever be a time where we don't have a color attachment
@@ -97,17 +116,17 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     }
     subpassDesc.pColorAttachments = &colorRef;
 
-    if (fAttachmentFlags & kStencil_AttachmentFlag) {
+    if (attachmentFlags & kStencil_AttachmentFlag) {
         // set up stencil attachment
-        fAttachmentsDescriptor.fStencil.fLoadStoreOps = stencilOp;
+        attachmentsDescriptor.fStencil.fLoadStoreOps = stencilOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
-                                        fAttachmentsDescriptor.fStencil,
+                                        attachmentsDescriptor.fStencil,
                                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
         // setup subpass use of attachment
         stencilRef.attachment = currentAttachment++;
         stencilRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == stencilOp.fLoadOp) {
-            fClearValueCount = SkTMax(fClearValueCount, stencilRef.attachment + 1);
+            clearValueCount = SkTMax(clearValueCount, stencilRef.attachment + 1);
         }
     } else {
         stencilRef.attachment = VK_ATTACHMENT_UNUSED;
@@ -133,34 +152,34 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     createInfo.dependencyCount = 0;
     createInfo.pDependencies = nullptr;
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateRenderPass(gpu->device(),
-                                                             &createInfo,
-                                                             nullptr,
-                                                             &fRenderPass));
+    VkResult result;
+    VkRenderPass renderPass;
+    GR_VK_CALL_RESULT(gpu, result, CreateRenderPass(gpu->device(),
+                                                    &createInfo,
+                                                    nullptr,
+                                                    &renderPass));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
 
+    VkExtent2D granularity;
     // Get granularity for this render pass
     GR_VK_CALL(gpu->vkInterface(), GetRenderAreaGranularity(gpu->device(),
-                                                            fRenderPass,
-                                                            &fGranularity));
+                                                            renderPass,
+                                                            &granularity));
+
+    return new GrVkRenderPass(renderPass, attachmentFlags, attachmentsDescriptor, granularity,
+                              clearValueCount);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const GrVkRenderPass& compatibleRenderPass,
-                          const LoadStoreOps& colorOp,
-                          const LoadStoreOps& stencilOp) {
-    fAttachmentFlags = compatibleRenderPass.fAttachmentFlags;
-    fAttachmentsDescriptor = compatibleRenderPass.fAttachmentsDescriptor;
-    this->init(gpu, colorOp, stencilOp);
-}
-
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const GrVkRenderTarget& target,
-                          const LoadStoreOps& colorOp,
-                          const LoadStoreOps& stencilOp) {
-    // Get attachment information from render target. This includes which attachments the render
-    // target has (color, stencil) and the attachments format and sample count.
-    target.getAttachmentsDescriptor(&fAttachmentsDescriptor, &fAttachmentFlags);
-    this->init(gpu, colorOp, stencilOp);
+GrVkRenderPass::GrVkRenderPass(VkRenderPass renderPass, AttachmentFlags flags,
+                               const AttachmentsDescriptor& descriptor,
+                               const VkExtent2D& granularity, uint32_t clearValueCount)
+        : fRenderPass(renderPass)
+        , fAttachmentFlags(flags)
+        , fAttachmentsDescriptor(descriptor)
+        , fGranularity(granularity)
+        , fClearValueCount(clearValueCount) {
 }
 
 void GrVkRenderPass::freeGPUData(GrVkGpu* gpu) const {

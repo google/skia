@@ -191,15 +191,14 @@ protected:
             return nullptr;
         }
 
-        if (origin.fX == 0 && origin.fY == 0 &&
-            info.width() == fProxy->width() && info.height() == fProxy->height()) {
+        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fProxy->dimensions()) {
             return fProxy;
         }
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        return GrSurfaceProxy::Copy(fCtx.get(), fProxy.get(),
-                SkColorTypeToGrColorType(info.colorType()), mipMapped,
+        return GrSurfaceProxy::Copy(
+                fCtx.get(), fProxy.get(), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
                 SkBackingFit::kExact, SkBudgeted::kYes);
     }

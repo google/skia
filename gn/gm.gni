@@ -25,7 +25,6 @@ gm_sources = [
   "$_gm/arcto.cpp",
   "$_gm/arithmode.cpp",
   "$_gm/asyncrescaleandread.cpp",
-  "$_gm/atlastext.cpp",
   "$_gm/b_119394958.cpp",
   "$_gm/backdrop.cpp",
   "$_gm/backdrop_imagefilter_croprect.cpp",
@@ -144,6 +143,7 @@ gm_sources = [
   "$_gm/drrect.cpp",
   "$_gm/drrect_small_inner.cpp",
   "$_gm/dstreadshuffle.cpp",
+  "$_gm/ducky_yuv_blend.cpp",
   "$_gm/emboss.cpp",
   "$_gm/emptypath.cpp",
   "$_gm/encode.cpp",
@@ -245,7 +245,6 @@ gm_sources = [
   "$_gm/mixercolorfilter.cpp",
   "$_gm/modecolorfilters.cpp",
   "$_gm/morphology.cpp",
-  "$_gm/multipicturedraw.cpp",
   "$_gm/nested.cpp",
   "$_gm/ninepatchstretch.cpp",
   "$_gm/nonclosedpaths.cpp",
@@ -291,7 +290,6 @@ gm_sources = [
   "$_gm/rasterhandleallocator.cpp",
   "$_gm/readpixels.cpp",
   "$_gm/recordopts.cpp",
-  "$_gm/rectangletexture.cpp",
   "$_gm/rects.cpp",
   "$_gm/repeated_bitmap.cpp",
   "$_gm/resizeimagefilter.cpp",
@@ -326,6 +324,7 @@ gm_sources = [
   "$_gm/skbug_8955.cpp",
   "$_gm/skbug_9319.cpp",
   "$_gm/skinning.cpp",
+  "$_gm/skvm.cpp",
   "$_gm/smallarc.cpp",
   "$_gm/smallpaths.cpp",
   "$_gm/spritebitmap.cpp",
@@ -381,4 +380,10 @@ gm_sources = [
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
   "$_gm/yuvtorgbeffect.cpp",
+  "$_gm/yuv420_odd_dim.cpp",
+]
+
+gl_gm_sources = [
+  "$_gm/atlastext.cpp",
+  "$_gm/rectangletexture.cpp",
 ]

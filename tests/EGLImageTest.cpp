@@ -21,6 +21,8 @@
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
+#ifdef SK_GL
+
 using sk_gpu_test::GLTestContext;
 
 static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1,
@@ -185,15 +187,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         }
     }
 
-    test_read_pixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
+    TestReadPixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
 
     // We should not be able to write to a EXTERNAL texture
-    test_write_pixels(reporter, surfaceContext.get(), false, "EGLImageTest-write");
+    TestWritePixels(reporter, surfaceContext.get(), false, "EGLImageTest-write");
 
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?
-    test_copy_from_surface(reporter, context0, surfaceContext->asSurfaceProxy(),
-                           GrColorType::kRGBA_8888, pixels.get(), "EGLImageTest-copy");
+    TestCopyFromSurface(reporter, context0, surfaceContext->asSurfaceProxy(),
+                        GrColorType::kRGBA_8888, pixels.get(), "EGLImageTest-copy");
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }
+
+#endif  // SK_GL

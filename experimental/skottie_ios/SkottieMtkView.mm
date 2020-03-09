@@ -22,11 +22,6 @@
     bool fPaused;
 }
 
--(void)dealloc {
-    fAnimation = nullptr;
-    [super dealloc];
-}
-
 - (void)drawRect:(CGRect)rect {
     [super drawRect:rect];
     // TODO(halcanary): Use the rect and the InvalidationController to speed up rendering.

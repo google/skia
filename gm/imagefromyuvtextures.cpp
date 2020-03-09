@@ -58,7 +58,9 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(kBmpSize + 2 * kPad, 390);
+        // Original image, plus each color space drawn twice
+        int numBitmaps = 2 * (kLastEnum_SkYUVColorSpace + 1) + 1;
+        return SkISize::Make(kBmpSize + 2 * kPad, numBitmaps * (kBmpSize + kPad) + kPad);
     }
 
     void onOnceBeforeDraw() override {

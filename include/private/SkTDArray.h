@@ -319,8 +319,11 @@ public:
 #endif
 
     void shrinkToFit() {
-        fReserve = fCount;
-        fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
+        if (fReserve != fCount) {
+            SkASSERT(fReserve > fCount);
+            fReserve = fCount;
+            fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
+        }
     }
 
 private:

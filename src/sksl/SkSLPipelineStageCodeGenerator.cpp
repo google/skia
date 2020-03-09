@@ -215,6 +215,10 @@ static GrSLType glsltype(const Context& context, const Type& type) {
         return GrSLType::kFloat2_GrSLType;
     } else if (type == *context.fHalf2_Type) {
         return GrSLType::kHalf2_GrSLType;
+    } else if (type == *context.fFloat3_Type) {
+        return GrSLType::kFloat3_GrSLType;
+    } else if (type == *context.fHalf3_Type) {
+        return GrSLType::kHalf3_GrSLType;
     } else if (type == *context.fFloat4_Type) {
         return GrSLType::kFloat4_GrSLType;
     } else if (type == *context.fHalf4_Type) {
@@ -262,6 +266,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         fOut = oldOut;
         result.fBody = buffer.str();
+        result.fFormatArgs = std::move(*fFormatArgs);
         fFunctions->push_back(result);
     }
 }

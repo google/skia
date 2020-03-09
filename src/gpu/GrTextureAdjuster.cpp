@@ -15,29 +15,17 @@
 
 GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
                                      sk_sp<GrTextureProxy> original,
-                                     GrColorType colorType,
-                                     SkAlphaType alphaType,
-                                     uint32_t uniqueID,
-                                     SkColorSpace* cs,
-                                     bool useDecal)
-        : INHERITED(context, original->width(), original->height(),
-                    GrColorInfo(colorType, alphaType, sk_ref_sp(cs)), useDecal)
-        , fOriginal(std::move(original))
-        , fUniqueID(uniqueID) {}
-
-GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
-                                     sk_sp<GrTextureProxy> original,
                                      const GrColorInfo& colorInfo,
                                      uint32_t uniqueID,
                                      bool useDecal)
-        : INHERITED(context, original->width(), original->height(), colorInfo, useDecal)
+        : INHERITED(context, {colorInfo, original->dimensions()}, useDecal)
         , fOriginal(std::move(original))
         , fUniqueID(uniqueID) {}
 
 void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
     // Destination color space is irrelevant - we already have a texture so we're just sub-setting
     GrUniqueKey baseKey;
-    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeWH(this->width(), this->height()));
+    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
     MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
 }
 
@@ -101,8 +89,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
     bool needsCopyForMipsOnly = false;
     if (!params.isRepeated() ||
         !GrGpu::IsACopyNeededForRepeatWrapMode(this->context()->priv().caps(), proxy.get(),
-                                               proxy->width(), proxy->height(), params.filter(),
-                                               &copyParams, scaleAdjust)) {
+                                               proxy->dimensions(), params.filter(), &copyParams,
+                                               scaleAdjust)) {
         needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(this->context()->priv().caps(),
                                                            proxy.get(), params.filter(),
                                                            &copyParams);

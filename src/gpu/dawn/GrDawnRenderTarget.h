@@ -15,7 +15,7 @@ class GrDawnGpu;
 
 class GrDawnRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& size,
+    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                                  GrPixelConfig config, int sampleCnt,
                                                  const GrDawnImageInfo&);
 
@@ -27,11 +27,11 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
-    dawn::Texture texture() const { return fInfo.fTexture; }
+    wgpu::Texture texture() const { return fInfo.fTexture; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
-                       const SkISize& size,
+                       const SkISize& dimensions,
                        GrPixelConfig config,
                        int sampleCnt,
                        const GrDawnImageInfo& info);

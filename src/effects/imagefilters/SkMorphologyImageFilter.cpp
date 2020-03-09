@@ -210,20 +210,18 @@ SkIRect SkMorphologyImageFilterImpl::onFilterNodeBounds(
 class GrMorphologyEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
-                                                     MorphDirection dir,
+                                                     SkAlphaType srcAlphaType, MorphDirection dir,
                                                      int radius, MorphType type) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrMorphologyEffect(std::move(proxy), srcColorType, dir, radius, type, nullptr));
+                new GrMorphologyEffect(std::move(proxy), srcAlphaType, dir, radius, type, nullptr));
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
-                                                     MorphDirection dir,
+                                                     SkAlphaType srcAlphaType, MorphDirection dir,
                                                      int radius, MorphType type,
                                                      const float bounds[2]) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrMorphologyEffect(std::move(proxy), srcColorType, dir, radius, type, bounds));
+                new GrMorphologyEffect(std::move(proxy), srcAlphaType, dir, radius, type, bounds));
     }
 
     MorphType type() const { return fType; }
@@ -256,7 +254,7 @@ private:
 
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
 
-    GrMorphologyEffect(sk_sp<GrTextureProxy>, GrColorType srcColorType, MorphDirection, int radius,
+    GrMorphologyEffect(sk_sp<GrTextureProxy>, SkAlphaType srcAlphaType, MorphDirection, int radius,
                        MorphType, const float range[2]);
     explicit GrMorphologyEffect(const GrMorphologyEffect&);
 
@@ -395,13 +393,12 @@ void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
-                                       GrColorType srcColorType,
+                                       SkAlphaType srcAlphaType,
                                        MorphDirection direction,
                                        int radius,
                                        MorphType type,
                                        const float range[2])
-        : INHERITED(kGrMorphologyEffect_ClassID,
-                    ModulateForClampedSamplerOptFlags(srcColorType))
+        : INHERITED(kGrMorphologyEffect_ClassID, ModulateForClampedSamplerOptFlags(srcAlphaType))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fDirection(direction)
@@ -465,16 +462,16 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
     static const int kMaxRadius = 10;
     int radius = d->fRandom->nextRangeU(1, kMaxRadius);
     MorphType type = d->fRandom->nextBool() ? MorphType::kErode : MorphType::kDilate;
-
-    return GrMorphologyEffect::Make(std::move(proxy), d->textureProxyColorType(texIdx), dir, radius,
-                                    type);
+    auto alphaType = static_cast<SkAlphaType>(
+            d->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
+    return GrMorphologyEffect::Make(std::move(proxy), alphaType, dir, radius, type);
 }
 #endif
 
 static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                   const GrClip& clip,
                                   sk_sp<GrTextureProxy> proxy,
-                                  GrColorType srcColorType,
+                                  SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
                                   const SkIRect& dstRect,
                                   int radius,
@@ -482,9 +479,8 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                   const float bounds[2],
                                   MorphDirection direction) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy), srcColorType,
-                                                             direction, radius, morphType,
-                                                             bounds));
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy), srcAlphaType,
+                                                             direction, radius, morphType, bounds));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));
@@ -493,15 +489,15 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
 static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetContext,
                                             const GrClip& clip,
                                             sk_sp<GrTextureProxy> proxy,
-                                            GrColorType srcColorType,
+                                            SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
                                             const SkIRect& dstRect,
                                             int radius,
                                             MorphType morphType,
                                             MorphDirection direction) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy), srcColorType,
-                                                             direction, radius, morphType));
+    paint.addColorFragmentProcessor(
+            GrMorphologyEffect::Make(std::move(proxy), srcAlphaType, direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));
@@ -510,7 +506,7 @@ static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetC
 static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
                                   const GrClip& clip,
                                   sk_sp<GrTextureProxy> textureProxy,
-                                  GrColorType srcColorType,
+                                  SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
                                   const SkIRect& dstRect,
                                   int radius,
@@ -541,16 +537,16 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
     }
     if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(renderTargetContext, clip, std::move(textureProxy), srcColorType,
+        apply_morphology_rect(renderTargetContext, clip, std::move(textureProxy), srcAlphaType,
                               srcRect, dstRect, radius, morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(renderTargetContext, clip, textureProxy, srcColorType,
-                              lowerSrcRect, lowerDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect(renderTargetContext, clip, textureProxy, srcColorType,
-                              upperSrcRect, upperDstRect, radius, morphType, bounds, direction);
+        apply_morphology_rect(renderTargetContext, clip, textureProxy, srcAlphaType, lowerSrcRect,
+                              lowerDstRect, radius, morphType, bounds, direction);
+        apply_morphology_rect(renderTargetContext, clip, textureProxy, srcAlphaType, upperSrcRect,
+                              upperDstRect, radius, morphType, bounds, direction);
         apply_morphology_rect_no_bounds(renderTargetContext, clip, std::move(textureProxy),
-                                        srcColorType, middleSrcRect, middleDstRect, radius,
+                                        srcAlphaType, middleSrcRect, middleDstRect, radius,
                                         morphType, direction);
     }
 }
@@ -559,13 +555,13 @@ static sk_sp<SkSpecialImage> apply_morphology(
         GrRecordingContext* context, SkSpecialImage* input, const SkIRect& rect,
         MorphType morphType, SkISize radius, const SkImageFilter_Base::Context& ctx) {
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
-    GrColorType srcColorType = SkColorTypeToGrColorType(input->colorType());
+    SkAlphaType srcAlphaType = input->alphaType();
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = ctx.refColorSpace();
     GrColorType colorType = ctx.grColorType();
 
     // setup new clip
-    const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
+    const GrFixedClip clip(SkIRect::MakeSize(srcTexture->dimensions()));
 
     const SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     SkIRect srcRect = rect;
@@ -590,7 +586,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
             return nullptr;
         }
 
-        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture), srcColorType,
+        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture), srcAlphaType,
                               srcRect, dstRect, radius.fWidth, morphType, MorphDirection::kX);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
@@ -599,7 +595,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
         dstRTContext->clear(&clearRect, clearColor, GrRenderTargetContext::CanClearFullscreen::kNo);
 
         srcTexture = dstRTContext->asTextureProxyRef();
-        srcColorType = colorType;
+        srcAlphaType = dstRTContext->colorInfo().alphaType();
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
@@ -619,7 +615,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
             return nullptr;
         }
 
-        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture), srcColorType,
+        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture), srcAlphaType,
                               srcRect, dstRect, radius.fHeight, morphType, MorphDirection::kY);
 
         srcTexture = dstRTContext->asTextureProxyRef();
@@ -766,7 +762,10 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
     int width = SkScalarFloorToInt(radius.width());
     int height = SkScalarFloorToInt(radius.height());
 
-    if (width < 0 || height < 0) {
+    // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues (crbug.com/1018190)
+    constexpr int kMaxRadius = (std::numeric_limits<int>::max() - 1) / 2;
+
+    if (width < 0 || height < 0 || width > kMaxRadius || height > kMaxRadius) {
         return nullptr;
     }
 

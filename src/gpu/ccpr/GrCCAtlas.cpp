@@ -125,7 +125,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                             desc, format, GrRenderable::kYes, sampleCount, GrMipMapped::kNo,
                             SkBudgeted::kYes, GrProtected::kNo);
                 }
-                return fBackingTexture;
+                return GrSurfaceProxy::LazyCallbackResult(fBackingTexture);
             },
             fCoverageType, caps, GrSurfaceProxy::UseAllocator::kNo);
 }
@@ -226,7 +226,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
 
     // Finalize the content size of our proxy. The GPU can potentially make optimizations if it
     // knows we only intend to write out a smaller sub-rectangle of the backing texture.
-    fTextureProxy->priv().setLazySize(fDrawBounds.width(), fDrawBounds.height());
+    fTextureProxy->priv().setLazyDimensions(fDrawBounds);
 
     if (backingTexture) {
 #ifdef SK_DEBUG

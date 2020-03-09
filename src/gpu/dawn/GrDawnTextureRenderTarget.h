@@ -22,9 +22,9 @@ class GrDawnGpu;
 class GrDawnTextureRenderTarget : public GrDawnTexture, public GrDawnRenderTarget {
 public:
     GrDawnTextureRenderTarget(GrDawnGpu* gpu,
-                              const SkISize& size,
+                              const SkISize& dimensions,
                               GrPixelConfig config,
-                              const dawn::TextureView textureView,
+                              const wgpu::TextureView textureView,
                               int sampleCnt,
                               const GrDawnImageInfo& info,
                               GrMipMapsStatus mipMapsStatus);

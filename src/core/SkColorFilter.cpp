@@ -17,6 +17,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -41,6 +42,13 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecord
 
 bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
+}
+
+bool SkColorFilter::program(skvm::Builder*,
+                            SkColorSpace* dstCS,
+                            skvm::Uniforms* uniforms,
+                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    return false;
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {

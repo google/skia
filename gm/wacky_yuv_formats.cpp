@@ -43,6 +43,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/core/SkYUVMath.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
@@ -407,92 +408,24 @@ static SkBitmap make_bitmap(SkColorType colorType, const SkPath& path,
     return bm;
 }
 
-static void convert_rgba_to_yuva_601_shared(SkColor col, uint8_t yuv[4],
-                                            uint8_t off, uint8_t range) {
-    static const float Kr = 0.299f;
-    static const float Kb = 0.114f;
-    static const float Kg = 1.0f - Kr - Kb;
+static void convert_rgba_to_yuva(const float mtx[20], SkColor col, uint8_t yuv[4]) {
+    const uint8_t r = SkColorGetR(col);
+    const uint8_t g = SkColorGetG(col);
+    const uint8_t b = SkColorGetB(col);
 
-    float r = SkColorGetR(col) / 255.0f;
-    float g = SkColorGetG(col) / 255.0f;
-    float b = SkColorGetB(col) / 255.0f;
-
-    float Ey = Kr * r + Kg * g + Kb * b;
-    float Ecb = (b - Ey) / 1.402f;
-    float Ecr = (r - Ey) / 1.772;
-    SkASSERT(Ey >= 0.0f && Ey <= 1.0f);
-    SkASSERT(Ecb >= -0.5f && Ecb <= 0.5f);
-    SkASSERT(Ecr >= -0.5f && Ecr <= 0.5f);
-
-    yuv[0] = SkScalarRoundToInt( range * Ey + off );
-    yuv[1] = SkScalarRoundToInt( 224 * Ecb + 128 );
-    yuv[2] = SkScalarRoundToInt( 224 * Ecr + 128 );
+    yuv[0] = SkScalarPin(SkScalarRoundToInt(mtx[ 0]*r + mtx[ 1]*g + mtx[ 2]*b + mtx[ 4]*255), 0, 255);
+    yuv[1] = SkScalarPin(SkScalarRoundToInt(mtx[ 5]*r + mtx[ 6]*g + mtx[ 7]*b + mtx[ 9]*255), 0, 255);
+    yuv[2] = SkScalarPin(SkScalarRoundToInt(mtx[10]*r + mtx[11]*g + mtx[12]*b + mtx[14]*255), 0, 255);
     yuv[3] = SkColorGetA(col);
 }
 
-static void convert_rgba_to_yuva_jpeg(SkColor col, uint8_t yuv[4]) {
-    // full swing from 0..255
-    convert_rgba_to_yuva_601_shared(col, yuv, 0, 255);
-}
+static SkPMColor convert_yuva_to_rgba(const float mtx[20],
+                                      uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
+    uint8_t r = SkScalarPin(SkScalarRoundToInt(mtx[ 0]*y + mtx[ 1]*u + mtx[ 2]*v + mtx[ 4]*255), 0, 255);
+    uint8_t g = SkScalarPin(SkScalarRoundToInt(mtx[ 5]*y + mtx[ 6]*u + mtx[ 7]*v + mtx[ 9]*255), 0, 255);
+    uint8_t b = SkScalarPin(SkScalarRoundToInt(mtx[10]*y + mtx[11]*u + mtx[12]*v + mtx[14]*255), 0, 255);
 
-static void convert_rgba_to_yuva_601(SkColor col, uint8_t yuv[4]) {
-    // partial swing from 16..235
-    convert_rgba_to_yuva_601_shared(col, yuv, 16, 219);
-
-}
-
-static void convert_rgba_to_yuva_709(SkColor col, uint8_t yuv[4]) {
-    static const float Kr = 0.2126f;
-    static const float Kb = 0.0722f;
-    static const float Kg = 1.0f - Kr - Kb;
-
-    float r = SkColorGetR(col) / 255.0f;
-    float g = SkColorGetG(col) / 255.0f;
-    float b = SkColorGetB(col) / 255.0f;
-
-    float Ey = Kr * r + Kg * g + Kb * b;
-    float Ecb = (b - Ey) / 1.8556f;
-    float Ecr = (r - Ey) / 1.5748;
-    SkASSERT(Ey >= 0.0f && Ey <= 1.0f);
-    SkASSERT(Ecb >= -0.5f && Ecb <= 0.5f);
-    SkASSERT(Ecr >= -0.5f && Ecr <= 0.5f);
-
-    yuv[0] = SkScalarRoundToInt( 219 * Ey +  16 );
-    yuv[1] = SkScalarRoundToInt( 224 * Ecb + 128 );
-    yuv[2] = SkScalarRoundToInt( 224 * Ecr + 128 );
-
-    yuv[3] = SkColorGetA(col);
-}
-
-
-static SkPMColor convert_yuva_to_rgba_jpeg(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
-    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.0f * y                   +  1.402f    * v  - 0.703749f * 255),
-                            0, 255);
-    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.0f * y - (0.344136f * u) - (0.714136f * v) + 0.531211f * 255),
-                            0, 255);
-    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.0f * y +  1.772f    * u                    - 0.889475f * 255),
-                            0, 255);
-
-    SkPMColor c = SkPremultiplyARGBInline(a, b, g, r);
-    return c;
-}
-
-static SkPMColor convert_yuva_to_rgba_601(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
-    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.164f * y                +  1.596f * v  - 0.87075f * 255), 0, 255);
-    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.164f * y - (0.391f * u) - (0.813f * v) + 0.52925f * 255), 0, 255);
-    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.164f * y +  2.018f * u                 - 1.08175f * 255), 0, 255);
-
-    SkPMColor c = SkPremultiplyARGBInline(a, b, g, r);
-    return c;
-}
-
-static SkPMColor convert_yuva_to_rgba_709(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
-    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.164f * y                + (1.793f * v) - 0.96925f * 255), 0, 255);
-    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.164f * y - (0.213f * u) - (0.533f * v) + 0.30025f * 255), 0, 255);
-    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.164f * y + (2.112f * u)                - 1.12875f * 255), 0, 255);
-
-    SkPMColor c = SkPremultiplyARGBInline(a, b, g, r);
-    return c;
+    return SkPremultiplyARGBInline(a, b, g, r);
 }
 
 static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, PlaneData* planes) {
@@ -520,6 +453,9 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
     planes->fQuarter.allocPixels(SkImageInfo::Make(bm.width()/2, bm.height()/2,
                                  kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
 
+    float mtx[20];
+    SkColorMatrix_RGB2YUV(yuvColorSpace, mtx);
+
     SkColor4f* dst = (SkColor4f *) planes->fFull.getAddr(0, 0);
     for (int y = 0; y < bm.height(); ++y) {
         for (int x = 0; x < bm.width(); ++x) {
@@ -527,14 +463,7 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
 
             uint8_t yuva[4];
 
-            if (kJPEG_SkYUVColorSpace == yuvColorSpace) {
-                convert_rgba_to_yuva_jpeg(col, yuva);
-            } else if (kRec601_SkYUVColorSpace == yuvColorSpace) {
-                convert_rgba_to_yuva_601(col, yuva);
-            } else {
-                SkASSERT(kRec709_SkYUVColorSpace == yuvColorSpace);
-                convert_rgba_to_yuva_709(col, yuva);
-            }
+            convert_rgba_to_yuva(mtx, col, yuva);
 
             *planes->fYFull.getAddr8(x, y) = yuva[0];
             *planes->fUFull.getAddr8(x, y) = yuva[1];
@@ -894,6 +823,9 @@ protected:
             fFlattened.allocPixels(info);
             SkASSERT(kPremul_SkAlphaType == info.alphaType());
 
+            float mtx[20];
+            SkColorMatrix_YUV2RGB(fYUVColorSpace, mtx);
+
             for (int y = 0; y < info.height(); ++y) {
                 for (int x = 0; x < info.width(); ++x) {
 
@@ -921,20 +853,7 @@ protected:
                     }
 
                     // Making premul here.
-                    switch (fYUVColorSpace) {
-                        case kJPEG_SkYUVColorSpace:
-                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_jpeg(Y, U, V, A);
-                            break;
-                        case kRec601_SkYUVColorSpace:
-                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_601(Y, U, V, A);
-                            break;
-                        case kRec709_SkYUVColorSpace:
-                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_709(Y, U, V, A);
-                            break;
-                        case kIdentity_SkYUVColorSpace:
-                            *fFlattened.getAddr32(x, y) = SkPremultiplyARGBInline(A, V, U, Y);
-                            break;
-                    }
+                    *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba(mtx, Y, U, V, A);
                 }
             }
         }
@@ -999,7 +918,7 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "Identity" };
+    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "2020", "Identity" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint paint;
@@ -1483,7 +1402,6 @@ DEF_GM(return new YUVMakeColorSpaceGM();)
 
 #include "include/effects/SkColorMatrix.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkYUVMath.h"
 #include "tools/Resources.h"
 
 static void draw_into_alpha(const SkImage* img, sk_sp<SkColorFilter> cf, const SkPixmap& dst) {
@@ -1546,7 +1464,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1024, 768);
+        return SkISize::Make(1280, 768);
     }
 
     void onOnceBeforeDraw() override {
@@ -1575,7 +1493,8 @@ protected:
 
         canvas->translate(fOrig->width(), 0);
         canvas->save();
-        for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace}) {
+        for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
+                        kBT2020_SkYUVColorSpace}) {
             split_into_yuv(fOrig.get(), cs, fPM);
             auto img = SkImage::MakeFromYUVAPixmaps(canvas->getGrContext(), cs, fPM, indices,
                                                     fPM[0].info().dimensions(),

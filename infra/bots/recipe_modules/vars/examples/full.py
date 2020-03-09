@@ -77,7 +77,7 @@ def GenTests(api):
       )
   )
 
-  buildername = 'Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_Vulkan'
+  buildername = 'Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_Vulkan'
   yield (
       api.test('integer_issue') +
       api.properties(buildername=buildername,

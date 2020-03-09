@@ -169,13 +169,10 @@ public:
     virtual bool willUseGeoShader() const = 0;
 
     /**
-     * Computes a transformKey from an array of coord transforms. Will only look at the first
-     * <numCoords> transforms in the array.
-     *
-     * TODO: A better name for this function  would be "compute" instead of "get".
+     * Computes a key for the transforms owned by an FP based on the shader code that will be
+     * emitted by the primitive processor to implement them.
      */
-    uint32_t getTransformKey(const SkTArray<GrCoordTransform*, true>& coords,
-                             int numCoords) const;
+    uint32_t computeCoordTransformsKey(const GrFragmentProcessor& fp) const;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
@@ -255,30 +252,26 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, const GrSamplerState&, const GrSwizzle&,
-                   uint32_t extraSamplerKey = 0);
+    TextureSampler(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, const GrSamplerState&, const GrSwizzle&,
-               uint32_t extraSamplerKey = 0);
+    void reset(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
 
-    GrTextureType textureType() const { return fTextureType; }
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
+    GrTextureType textureType() const { return fBackendFormat.textureType(); }
 
     const GrSamplerState& samplerState() const { return fSamplerState; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
 
-    uint32_t extraSamplerKey() const { return fExtraSamplerKey; }
-
     bool isInitialized() const { return fIsInitialized; }
 
 private:
-    GrSamplerState fSamplerState;
-    GrSwizzle fSwizzle;
-    GrTextureType fTextureType = GrTextureType::k2D;
-    uint32_t fExtraSamplerKey = 0;
-    bool fIsInitialized = false;
+    GrSamplerState  fSamplerState;
+    GrBackendFormat fBackendFormat;
+    GrSwizzle       fSwizzle;
+    bool            fIsInitialized = false;
 };
 
 const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::IthTextureSampler(int i) {

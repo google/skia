@@ -64,7 +64,7 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
                 SkBits2Float(0x4344f079), SkBits2Float(0x4397e900), SkBits2Float(0x3f3504f3));
         path.close();
         // Manually setting convexity is required. Otherwise, this path will be considered concave.
-        path.setConvexity(SkPath::kConvex_Convexity);
+        path.setConvexityType(SkPathConvexityType::kConvex);
         canvas->drawPath(path, p);
 
         // skbug.com/7573
@@ -143,7 +143,7 @@ DEF_SIMPLE_GM(analytic_antialias_inverse, canvas, W, H) {
 
         SkPath path;
         path.addCircle(100, 100, 30);
-        path.setFillType(SkPath::kInverseWinding_FillType);
+        path.setFillType(SkPathFillType::kInverseWinding);
         canvas->drawPath(path, p);
         canvas->restore();
 }

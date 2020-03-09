@@ -8,6 +8,8 @@
 #ifndef SKSL_IRGENERATOR
 #define SKSL_IRGENERATOR
 
+#include <map>
+
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -143,6 +145,7 @@ private:
     std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
     // returns a statement which converts sk_Position from device to normalized coordinates
     std::unique_ptr<Statement> getNormalizeSkPositionCode();
+    void removeSampleMask(std::vector<std::unique_ptr<ProgramElement>>* out);
 
     void checkValid(const Expression& expr);
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
@@ -154,6 +157,9 @@ private:
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
     std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fSymbolTable;
+    // Symbols which have definitions in the include files. The bool tells us whether this
+    // intrinsic has been included already.
+    std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
     // holds extra temp variable declarations needed for the current function
     std::vector<std::unique_ptr<Statement>> fExtraVars;
     int fLoopLevel;

@@ -11,6 +11,7 @@
 #include "modules/particles/include/SkParticleBinding.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -99,30 +100,26 @@ SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)
         , fDrawable(nullptr)
         , fEffectCode(kDefaultEffectCode)
-        , fParticleCode(kDefaultParticleCode) {
-    this->rebuild();
-}
+        , fParticleCode(kDefaultParticleCode) {}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
-    SkString oldEffectCode = fEffectCode;
-    SkString oldParticleCode = fParticleCode;
-
     v->visit("MaxCount", fMaxCount);
-
     v->visit("Drawable", fDrawable);
-
     v->visit("EffectCode", fEffectCode);
     v->visit("Code", fParticleCode);
-
     v->visit("Bindings", fBindings);
-
-    // TODO: Or, if any change to binding metadata?
-    if (fParticleCode != oldParticleCode || fEffectCode != oldEffectCode) {
-        this->rebuild();
-    }
 }
 
-void SkParticleEffectParams::rebuild() {
+void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resourceProvider) {
+    for (auto& binding : fBindings) {
+        if (binding) {
+            binding->prepare(resourceProvider);
+        }
+    }
+    if (fDrawable) {
+        fDrawable->prepare(resourceProvider);
+    }
+
     auto buildProgram = [this](const SkSL::String& code, Program* p) {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
@@ -278,6 +275,7 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
                 value->setRandom(randomBase);
                 value->setEffect(this);
             }
+            memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
             SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
                                                 nullptr, 0,
                                                 fParticleUniforms.data(),
@@ -321,7 +319,6 @@ void SkParticleEffect::advanceTime(double now) {
     SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("effect.age") == 1);
     fEffectUniforms[0] = deltaTime;
     fParticleUniforms[0] = deltaTime;
-    memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
 
     // Is this the first update after calling start()?
     // Run 'effectSpawn' to set initial emitter properties.

@@ -17,9 +17,8 @@
 #include "src/gpu/ccpr/GrOctoBounds.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
-    GrFragmentProcessor::Iter iter(paint);
-    while (const GrFragmentProcessor* fp = iter.next()) {
-        if (!fp->coordTransforms().empty()) {
+    for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
+        if (!fp.coordTransforms().empty()) {
             return true;
         }
     }
@@ -433,10 +432,13 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
 
     GrPipeline::InitArgs initArgs;
     initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxy = flushState->drawOpArgs().dstProxy();
+    initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
     auto clip = flushState->detachAppliedClip();
-    GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
+    GrPipeline::FixedDynamicState fixedDynamicState;
+    if (clip.scissorState().enabled()) {
+        fixedDynamicState.fScissorRect = clip.scissorState().rect();
+    }
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
     int baseInstance = fBaseInstance;
@@ -445,16 +447,15 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     for (const InstanceRange& range : fInstanceRanges) {
         SkASSERT(range.fEndInstanceIdx > baseInstance);
 
-        const GrTextureProxy* atlas = range.fAtlasProxy;
-        SkASSERT(atlas->isInstantiated());
-
-        GrCCPathProcessor pathProc(
-                range.fCoverageMode, atlas->peekTexture(), atlas->textureSwizzle(), atlas->origin(),
-                fViewMatrixIfUsingLocalCoords);
-        GrTextureProxy* atlasProxy = range.fAtlasProxy;
-        fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
-        pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
-                           range.fEndInstanceIdx, this->bounds());
+        GrSurfaceProxy* atlas = range.fAtlasProxy;
+        if (atlas->isInstantiated()) {  // Instantiation can fail in exceptional circumstances.
+            GrCCPathProcessor pathProc(range.fCoverageMode, atlas->peekTexture(),
+                                       atlas->textureSwizzle(), atlas->origin(),
+                                       fViewMatrixIfUsingLocalCoords);
+            fixedDynamicState.fPrimitiveProcessorTextures = &atlas;
+            pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
+                               range.fEndInstanceIdx, this->bounds());
+        }
 
         baseInstance = range.fEndInstanceIdx;
     }

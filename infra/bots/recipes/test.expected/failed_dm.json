@@ -26,7 +26,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skp VERSION"
+    "name": "Get skp VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -58,7 +62,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skimage VERSION"
+    "name": "Get skimage VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -90,7 +98,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get svg VERSION"
+    "name": "Get svg VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -233,7 +245,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All",
+      "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
       "buildbucket_build_id",
       "123454321",
       "task_id",
@@ -248,7 +260,7 @@
       "arch",
       "x86_64",
       "compiler",
-      "GCC",
+      "Clang",
       "configuration",
       "Debug",
       "cpu_or_gpu",

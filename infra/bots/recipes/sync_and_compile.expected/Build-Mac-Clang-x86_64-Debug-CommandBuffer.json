@@ -1,6 +1,31 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git'])\nprint 'git was found at %s' % git\nif 'cipd_bin_packages' not in git:\n  print >> sys.stderr, 'Git must be obtained through CIPD.'\n  sys.exit(1)\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Assert that Git is from CIPD",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@which = 'where' if sys.platform == 'win32' else 'which'@@@",
+      "@@@STEP_LOG_LINE@python.inline@git = subprocess.check_output([which, 'git'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'git was found at %s' % git@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cipd_bin_packages' not in git:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print >> sys.stderr, 'Git must be obtained through CIPD.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -131,7 +156,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 10g8 in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_TEXT@Ensuring Xcode version 11c29 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -141,7 +166,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "10g8",
+      "11c29",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -202,7 +227,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=11c29\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

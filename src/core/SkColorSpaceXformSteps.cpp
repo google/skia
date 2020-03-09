@@ -12,14 +12,6 @@
 
 // TODO(mtklein): explain the logic of this file
 
-bool SkColorSpaceXformSteps::Required(SkColorSpace* src, SkColorSpace* dst) {
-    // Any SkAlphaType will work fine here as long as we use the same one.
-    SkAlphaType at = kPremul_SkAlphaType;
-    return 0 != SkColorSpaceXformSteps(src, at,
-                                       dst, at).flags.mask();
-    // TODO(mtklein): quicker impl. that doesn't construct an SkColorSpaceXformSteps?
-}
-
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
     // Opaque outputs are treated as the same alpha type as the source input.
@@ -45,20 +37,20 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->flags.premul          = srcAT != kOpaque_SkAlphaType && dstAT == kPremul_SkAlphaType;
 
     if (this->flags.gamut_transform) {
-        float row_major[9];  // TODO: switch src_to_dst_matrix to row-major
-        src->gamutTransformTo(dst, row_major);
+        skcms_Matrix3x3 src_to_dst;  // TODO: switch src_to_dst_matrix to row-major
+        src->gamutTransformTo(dst, &src_to_dst);
 
-        this->src_to_dst_matrix[0] = row_major[0];
-        this->src_to_dst_matrix[1] = row_major[3];
-        this->src_to_dst_matrix[2] = row_major[6];
+        this->src_to_dst_matrix[0] = src_to_dst.vals[0][0];
+        this->src_to_dst_matrix[1] = src_to_dst.vals[1][0];
+        this->src_to_dst_matrix[2] = src_to_dst.vals[2][0];
 
-        this->src_to_dst_matrix[3] = row_major[1];
-        this->src_to_dst_matrix[4] = row_major[4];
-        this->src_to_dst_matrix[5] = row_major[7];
+        this->src_to_dst_matrix[3] = src_to_dst.vals[0][1];
+        this->src_to_dst_matrix[4] = src_to_dst.vals[1][1];
+        this->src_to_dst_matrix[5] = src_to_dst.vals[2][1];
 
-        this->src_to_dst_matrix[6] = row_major[2];
-        this->src_to_dst_matrix[7] = row_major[5];
-        this->src_to_dst_matrix[8] = row_major[8];
+        this->src_to_dst_matrix[6] = src_to_dst.vals[0][2];
+        this->src_to_dst_matrix[7] = src_to_dst.vals[1][2];
+        this->src_to_dst_matrix[8] = src_to_dst.vals[2][2];
     } else {
     #ifdef SK_DEBUG
         skcms_Matrix3x3 srcM, dstM;
@@ -69,8 +61,8 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     }
 
     // Fill out all the transfer functions we'll use.
-    src->   transferFn(&this->srcTF   .g);
-    dst->invTransferFn(&this->dstTFInv.g);
+    src->   transferFn(&this->srcTF   );
+    dst->invTransferFn(&this->dstTFInv);
 
     this->srcTF_is_sRGB = src->gammaCloseToSRGB();
     this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
@@ -82,10 +74,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
          src->transferFnHash() == dst->transferFnHash())
     {
     #ifdef SK_DEBUG
-        float dstTF[7];
-        dst->transferFn(dstTF);
+        skcms_TransferFunction dstTF;
+        dst->transferFn(&dstTF);
         for (int i = 0; i < 7; i++) {
-            SkASSERT( (&srcTF.g)[i] == dstTF[i] && "Hash collision" );
+            SkASSERT( (&srcTF.g)[i] == (&dstTF.g)[i] && "Hash collision" );
         }
     #endif
         this->flags.linearize  = false;

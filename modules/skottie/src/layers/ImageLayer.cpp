@@ -15,6 +15,17 @@
 namespace skottie {
 namespace internal {
 
+namespace  {
+
+SkMatrix image_matrix(const sk_sp<SkImage>& image, const SkISize& dest_size) {
+    return image ? SkMatrix::MakeRectToRect(SkRect::Make(image->bounds()),
+                                            SkRect::Make(dest_size),
+                                            SkMatrix::kCenter_ScaleToFit)
+                 : SkMatrix::I();
+}
+
+} // namespace
+
 const AnimationBuilder::ImageAssetInfo*
 AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
     const skjson::StringValue* name = jimage["p"];
@@ -49,58 +60,75 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     }
     SkASSERT(asset_info->fAsset);
 
-    auto image = asset_info->fAsset->getFrame(0);
-    if (!image) {
-        this->log(Logger::Level::kError, nullptr, "Could not load first image asset frame.");
-        return nullptr;
-    }
-
-    auto image_node = sksg::Image::Make(image);
+    auto image_node = sksg::Image::Make(nullptr);
     image_node->setQuality(kMedium_SkFilterQuality);
 
-    if (asset_info->fAsset->isMultiFrame()) {
+    // Optional image transform (mapping the intrinsic image size to declared asset size).
+    sk_sp<sksg::Matrix<SkMatrix>> image_transform;
+
+    if (!asset_info->fAsset->isMultiFrame()) {
+        // Single-frame asset -> we can resolve the frame upfront.
+        auto frame = asset_info->fAsset->getFrame(0);
+        if (!frame) {
+            this->log(Logger::Level::kError, nullptr, "Could not load single-frame image asset.");
+            return nullptr;
+        }
+
+        if (frame->bounds().size() != asset_info->fSize) {
+            image_transform = sksg::Matrix<SkMatrix>::Make(image_matrix(frame, asset_info->fSize));
+        }
+
+        image_node->setImage(std::move(frame));
+    } else {
         class MultiFrameAnimator final : public sksg::Animator {
         public:
-            MultiFrameAnimator(sk_sp<ImageAsset> asset, sk_sp<sksg::Image> image_node,
+            MultiFrameAnimator(sk_sp<ImageAsset> asset,
+                               sk_sp<sksg::Image> image_node,
+                               sk_sp<sksg::Matrix<SkMatrix>> image_transform_node,
+                               const SkISize& asset_size,
                                float time_bias, float time_scale)
                 : fAsset(std::move(asset))
                 , fImageNode(std::move(image_node))
+                , fImageTransformNode(std::move(image_transform_node))
+                , fAssetSize(asset_size)
                 , fTimeBias(time_bias)
                 , fTimeScale(time_scale) {}
 
             void onTick(float t) override {
-                fImageNode->setImage(fAsset->getFrame((t + fTimeBias) * fTimeScale));
+                auto frame = fAsset->getFrame((t + fTimeBias) * fTimeScale);
+                fImageTransformNode->setMatrix(image_matrix(frame, fAssetSize));
+                fImageNode->setImage(std::move(frame));
             }
 
         private:
-            sk_sp<ImageAsset>     fAsset;
-            sk_sp<sksg::Image>    fImageNode;
-            float                 fTimeBias,
-                                  fTimeScale;
+            const sk_sp<ImageAsset>             fAsset;
+            const sk_sp<sksg::Image>            fImageNode;
+            const sk_sp<sksg::Matrix<SkMatrix>> fImageTransformNode;
+            const SkISize                       fAssetSize;
+            const float                         fTimeBias,
+                                                fTimeScale;
         };
 
+        // We don't know the intrinsic image size yet (plus, in the general case,
+        // the size may change from frame to frame) -> we always prepare a scaling transform.
+        image_transform = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
         fCurrentAnimatorScope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,
                                                                         image_node,
+                                                                        image_transform,
+                                                                        asset_info->fSize,
                                                                         -layer_info->fInPoint,
                                                                         1 / fFrameRate));
     }
 
-    const auto asset_size = SkISize::Make(
-            asset_info->fSize.width()  > 0 ? asset_info->fSize.width()  : image->width(),
-            asset_info->fSize.height() > 0 ? asset_info->fSize.height() : image->height());
-
     // Image layers are sized explicitly.
-    layer_info->fSize = asset_size;
+    layer_info->fSize = SkSize::Make(asset_info->fSize);
 
-    if (asset_size == image->bounds().size()) {
+    if (!image_transform) {
         // No resize needed.
-        return image_node;
+        return std::move(image_node);
     }
 
-    return sksg::TransformEffect::Make(std::move(image_node),
-        SkMatrix::MakeRectToRect(SkRect::Make(image->bounds()),
-                                 SkRect::Make(asset_size),
-                                 SkMatrix::kCenter_ScaleToFit));
+    return sksg::TransformEffect::Make(std::move(image_node), std::move(image_transform));
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,

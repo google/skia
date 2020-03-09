@@ -7,14 +7,14 @@
 
 #include "src/gpu/dawn/GrDawnUtil.h"
 
-size_t GrDawnBytesPerPixel(dawn::TextureFormat format) {
+size_t GrDawnBytesPerPixel(wgpu::TextureFormat format) {
     switch (format) {
-        case dawn::TextureFormat::RGBA8Unorm:
-        case dawn::TextureFormat::BGRA8Unorm:
+        case wgpu::TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::BGRA8Unorm:
             return 4;
-        case dawn::TextureFormat::R8Unorm:
+        case wgpu::TextureFormat::R8Unorm:
             return 1;
-        case dawn::TextureFormat::Depth24PlusStencil8:
+        case wgpu::TextureFormat::Depth24PlusStencil8:
             return 4;
         default:
             SkASSERT(false);
@@ -22,26 +22,26 @@ size_t GrDawnBytesPerPixel(dawn::TextureFormat format) {
     }
 }
 
-bool GrDawnFormatIsRenderable(dawn::TextureFormat format) {
+bool GrDawnFormatIsRenderable(wgpu::TextureFormat format) {
     // For now, all the formats above are renderable. If a non-renderable format is added
     // (see dawn/src/dawn_native/Format.cpp), an exception should be added here.
     return true;
 }
 
-bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format) {
+bool GrPixelConfigToDawnFormat(GrPixelConfig config, wgpu::TextureFormat* format) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
-            *format = dawn::TextureFormat::RGBA8Unorm;
+            *format = wgpu::TextureFormat::RGBA8Unorm;
             return true;
         case kBGRA_8888_GrPixelConfig:
-            *format = dawn::TextureFormat::BGRA8Unorm;
+            *format = wgpu::TextureFormat::BGRA8Unorm;
             return true;
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
-            *format = dawn::TextureFormat::R8Unorm;
+            *format = wgpu::TextureFormat::R8Unorm;
             return true;
         default:
             return false;
@@ -54,15 +54,15 @@ size_t GrDawnRoundRowBytes(size_t rowBytes) {
 }
 
 #if GR_TEST_UTILS
-const char* GrDawnFormatToStr(dawn::TextureFormat format) {
+const char* GrDawnFormatToStr(wgpu::TextureFormat format) {
     switch (format) {
-        case dawn::TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::RGBA8Unorm:
             return "RGBA8Unorm";
-        case dawn::TextureFormat::BGRA8Unorm:
+        case wgpu::TextureFormat::BGRA8Unorm:
             return "BGRA8Unorm";
-        case dawn::TextureFormat::R8Unorm:
+        case wgpu::TextureFormat::R8Unorm:
             return "R8Unorm";
-        case dawn::TextureFormat::Depth24PlusStencil8:
+        case wgpu::TextureFormat::Depth24PlusStencil8:
             return "Depth24PlusStencil8";
         default:
             SkASSERT(false);

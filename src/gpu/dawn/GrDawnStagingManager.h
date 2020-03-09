@@ -12,13 +12,13 @@
 #include <memory>
 #include <vector>
 
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 struct GrDawnStagingBuffer;
 
 class GrDawnStagingManager {
 public:
-    GrDawnStagingManager(dawn::Device device);
+    GrDawnStagingManager(wgpu::Device device);
    ~GrDawnStagingManager();
     GrDawnStagingBuffer* findOrCreateStagingBuffer(size_t size);
 
@@ -26,7 +26,7 @@ public:
     void mapBusyList();
 
 private:
-    dawn::Device                                       fDevice;
+    wgpu::Device                                       fDevice;
     std::vector<std::unique_ptr<GrDawnStagingBuffer>>  fBuffers;
     std::multimap<size_t, GrDawnStagingBuffer*>        fReadyPool;
     std::vector<GrDawnStagingBuffer*>                  fBusyList;
@@ -34,14 +34,14 @@ private:
 };
 
 struct GrDawnStagingBuffer {
-    GrDawnStagingBuffer(GrDawnStagingManager* manager, dawn::Buffer buffer, size_t size,
+    GrDawnStagingBuffer(GrDawnStagingManager* manager, wgpu::Buffer buffer, size_t size,
                        void* data)
         : fManager(manager), fBuffer(buffer), fSize(size), fData(data) {}
     ~GrDawnStagingBuffer() {
         fManager = nullptr;
     }
     GrDawnStagingManager*  fManager;
-    dawn::Buffer           fBuffer;
+    wgpu::Buffer           fBuffer;
     size_t                 fSize;
     void*                  fData;
 };

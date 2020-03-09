@@ -72,10 +72,10 @@ VkPipelineCache GrVkResourceProvider::pipelineCache() {
             createInfo.initialDataSize = 0;
             createInfo.pInitialData = nullptr;
         }
-        VkResult result = GR_VK_CALL(fGpu->vkInterface(),
-                                     CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
-                                                         &fPipelineCache));
-        SkASSERT(VK_SUCCESS == result);
+
+        VkResult result;
+        GR_VK_CALL_RESULT(fGpu, result, CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
+                                                            &fPipelineCache));
         if (VK_SUCCESS != result) {
             fPipelineCache = VK_NULL_HANDLE;
         }
@@ -92,15 +92,13 @@ void GrVkResourceProvider::init() {
 }
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
-                                                   const GrStencilSettings& stencil,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
-                                                   GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, stencil, shaderStageInfo,
-                                shaderStageCount, primitiveType, compatibleRenderPass,
-                                layout, this->pipelineCache());
+    return GrVkPipeline::Create(fGpu, programInfo, shaderStageInfo,
+                                shaderStageCount, compatibleRenderPass, layout,
+                                this->pipelineCache());
 }
 
 // To create framebuffers, we first need to create a simple RenderPass that is
@@ -120,9 +118,11 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
         }
     }
 
-    const GrVkRenderPass* renderPass =
-        fRenderPassArray.emplace_back(fGpu, target).getCompatibleRenderPass();
-    renderPass->ref();
+    GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, target);
+    if (!renderPass) {
+        return nullptr;
+    }
+    fRenderPassArray.emplace_back(renderPass);
 
     if (compatibleHandle) {
         *compatibleHandle = CompatibleRPHandle(fRenderPassArray.count() - 1);
@@ -135,6 +135,7 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     int index = compatibleHandle.toIndex();
     const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
+    SkASSERT(renderPass);
     renderPass->ref();
     return renderPass;
 }
@@ -160,18 +161,18 @@ const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
 }
 
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
-                                                     const GrVkRenderTarget& target,
+                                                     GrVkRenderTarget* target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
                                                      CompatibleRPHandle* compatibleHandle) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target.compatibleRenderPassHandle();
+    *pRPHandle = target->compatibleRenderPassHandle();
+    if (!pRPHandle->isValid()) {
+        return nullptr;
+    }
 
-    // This will get us the handle to (and possible create) the compatible set for the specific
-    // GrVkRenderPass we are looking for.
-    this->findCompatibleRenderPass(target, compatibleHandle);
     return this->findRenderPass(*pRPHandle, colorOps, stencilOps);
 }
 
@@ -184,13 +185,16 @@ GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
     const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu,
                                                                    colorOps,
                                                                    stencilOps);
+    if (!renderPass) {
+        return nullptr;
+    }
     renderPass->ref();
     return renderPass;
 }
 
 GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
                                                             VkDescriptorType type, uint32_t count) {
-    return new GrVkDescriptorPool(fGpu, type, count);
+    return GrVkDescriptorPool::Create(fGpu, type, count);
 }
 
 GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
@@ -227,10 +231,8 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->refPipelineState(renderTarget, programInfo,
-                                                 primitiveType, compatibleRenderPass);
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
@@ -311,6 +313,9 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
         fAvailableCommandPools.pop_back();
     } else {
         result = GrVkCommandPool::Create(fGpu);
+        if (!result) {
+            return nullptr;
+        }
     }
     SkASSERT(result->unique());
     SkDEBUGCODE(
@@ -510,19 +515,24 @@ void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
 }
 
 void GrVkResourceProvider::storePipelineCacheData() {
+    if (this->pipelineCache() == VK_NULL_HANDLE) {
+        return;
+    }
     size_t dataSize = 0;
-    VkResult result = GR_VK_CALL(fGpu->vkInterface(), GetPipelineCacheData(fGpu->device(),
-                                                                           this->pipelineCache(),
-                                                                           &dataSize, nullptr));
-    SkASSERT(result == VK_SUCCESS);
+    VkResult result;
+    GR_VK_CALL_RESULT(fGpu, result, GetPipelineCacheData(fGpu->device(), this->pipelineCache(),
+                                                         &dataSize, nullptr));
+    if (result != VK_SUCCESS) {
+        return;
+    }
 
     std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
 
-    result = GR_VK_CALL(fGpu->vkInterface(), GetPipelineCacheData(fGpu->device(),
-                                                                  this->pipelineCache(),
-                                                                  &dataSize,
-                                                                  (void*)data.get()));
-    SkASSERT(result == VK_SUCCESS);
+    GR_VK_CALL_RESULT(fGpu, result, GetPipelineCacheData(fGpu->device(), this->pipelineCache(),
+                                                         &dataSize, (void*)data.get()));
+    if (result != VK_SUCCESS) {
+        return;
+    }
 
     uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
     sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));
@@ -533,16 +543,14 @@ void GrVkResourceProvider::storePipelineCacheData() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(
-                                                                     const GrVkGpu* gpu,
-                                                                     const GrVkRenderTarget& target)
-    : fLastReturnedIndex(0) {
-    fRenderPasses.emplace_back(new GrVkRenderPass());
-    fRenderPasses[0]->initSimple(gpu, target);
+GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(GrVkRenderPass* renderPass)
+        : fLastReturnedIndex(0) {
+    renderPass->ref();
+    fRenderPasses.push_back(renderPass);
 }
 
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
-                                                             const GrVkRenderTarget& target) const {
+        const GrVkRenderTarget& target) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
@@ -550,9 +558,9 @@ bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
-                                                   const GrVkGpu* gpu,
-                                                   const GrVkRenderPass::LoadStoreOps& colorOps,
-                                                   const GrVkRenderPass::LoadStoreOps& stencilOps) {
+        GrVkGpu* gpu,
+        const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& stencilOps) {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
         if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, stencilOps)) {
@@ -560,8 +568,12 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
             return fRenderPasses[idx];
         }
     }
-    GrVkRenderPass* renderPass = fRenderPasses.emplace_back(new GrVkRenderPass());
-    renderPass->init(gpu, *this->getCompatibleRenderPass(), colorOps, stencilOps);
+    GrVkRenderPass* renderPass = GrVkRenderPass::Create(gpu, *this->getCompatibleRenderPass(),
+                                                        colorOps, stencilOps);
+    if (!renderPass) {
+        return nullptr;
+    }
+    fRenderPasses.push_back(renderPass);
     fLastReturnedIndex = fRenderPasses.count() - 1;
     return renderPass;
 }

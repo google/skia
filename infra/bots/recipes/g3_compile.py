@@ -4,12 +4,14 @@
 
 
 DEPS = [
+  'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'run',
   'vars',
 ]
 
@@ -30,9 +32,11 @@ def RunSteps(api):
          '--issue', api.vars.issue,
          '--patchset', api.vars.patchset,
          '--output_file', output_file,
+         '--builder_name', api.vars.builder_name,
         ]
   try:
-    api.step('Trigger and wait for g3 compile task', cmd=cmd)
+    with api.context(cwd=api.path['start_dir'].join('skia')):
+      api.run(api.step, 'Trigger and wait for g3 compile task', cmd=cmd)
   except api.step.StepFailure as e:
     # Add CL link if it exists in the output_file.
     task_json = api.file.read_json(

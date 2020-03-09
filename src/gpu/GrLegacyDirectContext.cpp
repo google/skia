@@ -122,6 +122,7 @@ private:
     typedef GrContext INHERITED;
 };
 
+#ifdef SK_GL
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(interface), defaultOptions);
@@ -150,6 +151,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     }
     return context;
 }
+#endif
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
     GrContextOptions defaultOptions;
@@ -222,12 +224,12 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 #endif
 
 #ifdef SK_DAWN
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
     GrContextOptions defaultOptions;
     return MakeDawn(device, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device, const GrContextOptions& options) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDawn, options));
 
     context->fGpu = GrDawnGpu::Make(device, options, context.get());

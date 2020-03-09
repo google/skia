@@ -66,7 +66,7 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
     } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
         return Layout::CType::kSkMatrix44;
     } else if (type.kind() == Type::kSampler_Kind) {
-        return Layout::CType::kGrTextureProxy;
+        return Layout::CType::kGrSurfaceProxy;
     } else if (type == *context.fFragmentProcessor_Type) {
         return Layout::CType::kGrFragmentProcessor;
     }
@@ -282,7 +282,7 @@ void HCodeGenerator::writeConstructor() {
             this->writef("            %s_index = this->numChildProcessors();",
                          FieldName(String(param->fName).c_str()).c_str());
             if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
-                this->writef("            %s->setComputeLocalCoordsInVertexShader(false);",
+                this->writef("            %s->setSampledWithExplicitCoords(true);",
                              String(param->fName).c_str());
             }
             this->writef("            this->registerChildProcessor(std::move(%s));",

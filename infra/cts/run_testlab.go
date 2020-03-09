@@ -26,6 +26,7 @@ import (
 
 	"go.skia.org/infra/go/gcs"
 	"go.skia.org/infra/go/httputils"
+	"go.skia.org/infra/go/skerr"
 
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/option"
@@ -142,14 +143,14 @@ func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
 	cmd.Stdout = &buf
 	cmd.Stderr = io.MultiWriter(os.Stdout, &errBuf)
 	if err := cmd.Run(); err != nil {
-		return nil, nil, sklog.FmtErrorf("Error running: %s\nError:%s\nStdErr:%s", CMD_AVAILABLE_DEVICES, err, errBuf)
+		return nil, nil, skerr.Wrapf(err, "Error running: %s\nStdErr:%s", CMD_AVAILABLE_DEVICES, errBuf)
 	}
 
 	// Unmarshal the result.
 	foundDevices := []*DeviceVersions{}
 	bufBytes := buf.Bytes()
 	if err := json.Unmarshal(bufBytes, &foundDevices); err != nil {
-		return nil, nil, sklog.FmtErrorf("Unmarshal of device information failed: %s \nJSON Input: %s\n", err, string(bufBytes))
+		return nil, nil, skerr.Wrapf(err, "Unmarshal of device information failed: \nJSON Input: %s\n", string(bufBytes))
 	}
 
 	// Filter the devices and copy them to device list.
@@ -261,7 +262,7 @@ func runTests(apk_path string, devices, ignoredDevices []*DeviceVersions, client
 		// Exit code 10 means triggering on Testlab succeeded, but but some of the
 		// runs on devices failed. We consider it a success for this script.
 		if exitCode != 10 {
-			return sklog.FmtErrorf("Error running: %s\nError:%s\nStdErr:%s", cmdStr, err, errBuf)
+			return skerr.Wrapf(err, "Error running: %s\nStdErr:%s", cmdStr, errBuf)
 		}
 	}
 
@@ -311,7 +312,7 @@ func splitProperties(propStr string) (map[string]string, error) {
 	for _, oneProp := range splitProps {
 		kv := strings.Split(oneProp, "=")
 		if len(kv) != 2 {
-			return nil, sklog.FmtErrorf("Inavlid porperties format. Unable to parse '%s'", propStr)
+			return nil, skerr.Fmt("Invalid properties format. Unable to parse '%s'", propStr)
 		}
 		properties[strings.TrimSpace(kv[0])] = strings.TrimSpace(kv[1])
 	}
@@ -358,11 +359,11 @@ func (d DeviceList) find(id string) *DevInfo {
 func writeDeviceList(fileName string, devList DeviceList) error {
 	jsonBytes, err := json.MarshalIndent(devList, "", "  ")
 	if err != nil {
-		return sklog.FmtErrorf("Unable to encode JSON: %s", err)
+		return skerr.Wrapf(err, "Unable to encode JSON")
 	}
 
 	if err := ioutil.WriteFile(fileName, jsonBytes, 0644); err != nil {
-		sklog.FmtErrorf("Unable to write file '%s': %s", fileName, err)
+		skerr.Wrapf(err, "Unable to write file '%s'", fileName)
 	}
 	return nil
 }
@@ -370,13 +371,13 @@ func writeDeviceList(fileName string, devList DeviceList) error {
 func readDeviceList(fileName string) (DeviceList, error) {
 	inFile, err := os.Open(fileName)
 	if err != nil {
-		return nil, sklog.FmtErrorf("Unable to open file '%s': %s", fileName, err)
+		return nil, skerr.Wrapf(err, "Unable to open file '%s'", fileName)
 	}
 	defer util.Close(inFile)
 
 	var devList DeviceList
 	if err := json.NewDecoder(inFile).Decode(&devList); err != nil {
-		return nil, sklog.FmtErrorf("Unable to decode JSON from '%s': %s", fileName, err)
+		return nil, skerr.Wrapf(err, "Unable to decode JSON from '%s'", fileName)
 	}
 	return devList, nil
 }

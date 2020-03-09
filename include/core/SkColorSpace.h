@@ -141,10 +141,9 @@ public:
     bool gammaIsLinear() const;
 
     /**
-     *  If the transfer function can be represented as coefficients to the standard
-     *  equation, returns true and sets |fn| to the proper values.
-     *
-     *  If not, returns false.
+     *  Sets |fn| to the transfer function from this color space. Returns true if the transfer
+     *  function can be represented as coefficients to the standard ICC 7-parameter equation.
+     *  Returns false otherwise (eg, PQ, HLG).
      */
     bool isNumericalTransferFn(skcms_TransferFunction* fn) const;
 
@@ -152,8 +151,6 @@ public:
      *  Returns true and sets |toXYZD50| if the color gamut can be described as a matrix.
      *  Returns false otherwise.
      */
-    bool toXYZD50(SkMatrix44* toXYZD50) const;
-
     bool toXYZD50(skcms_Matrix3x3* toXYZD50) const;
 
     /**
@@ -220,9 +217,10 @@ public:
      */
     static bool Equals(const SkColorSpace*, const SkColorSpace*);
 
-    void       transferFn(float gabcdef[7]) const;
-    void    invTransferFn(float gabcdef[7]) const;
-    void gamutTransformTo(const SkColorSpace* dst, float src_to_dst_row_major[9]) const;
+    void       transferFn(float gabcdef[7]) const;  // DEPRECATED: Remove when webview usage is gone
+    void       transferFn(skcms_TransferFunction* fn) const;
+    void    invTransferFn(skcms_TransferFunction* fn) const;
+    void gamutTransformTo(const SkColorSpace* dst, skcms_Matrix3x3* src_to_dst) const;
 
     uint32_t transferFnHash() const { return fTransferFnHash; }
     uint64_t           hash() const { return (uint64_t)fTransferFnHash << 32 | fToXYZD50Hash; }
@@ -230,19 +228,18 @@ public:
 private:
     friend class SkColorSpaceSingletonFactory;
 
-    SkColorSpace(const float transferFn[7],
-                 const skcms_Matrix3x3& toXYZ);
+    SkColorSpace(const skcms_TransferFunction& transferFn, const skcms_Matrix3x3& toXYZ);
 
     void computeLazyDstFields() const;
 
     uint32_t                            fTransferFnHash;
     uint32_t                            fToXYZD50Hash;
 
-    float                               fTransferFn[7];
-    float                               fToXYZD50_3x3[9];    // row-major
+    skcms_TransferFunction              fTransferFn;
+    skcms_Matrix3x3                     fToXYZD50;
 
-    mutable float                       fInvTransferFn[7];
-    mutable float                       fFromXYZD50_3x3[9];  // row-major
+    mutable skcms_TransferFunction      fInvTransferFn;
+    mutable skcms_Matrix3x3             fFromXYZD50;
     mutable SkOnce                      fLazyDstFieldsOnce;
 };
 

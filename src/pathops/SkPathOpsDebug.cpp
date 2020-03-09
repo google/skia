@@ -2901,10 +2901,10 @@ static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
 }
 
 static const char* gFillTypeStr[] = {
-    "kWinding_FillType",
-    "kEvenOdd_FillType",
-    "kInverseWinding_FillType",
-    "kInverseEvenOdd_FillType"
+    "kWinding",
+    "kEvenOdd",
+    "kInverseWinding",
+    "kInverseEvenOdd"
 };
 
 void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
@@ -2914,25 +2914,25 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
     int rectCount = path.isRectContours() ? path.rectContours(nullptr, nullptr) : 0;
     if (rectCount > 0) {
         SkTDArray<SkRect> rects;
-        SkTDArray<SkPath::Direction> directions;
+        SkTDArray<SkPathDirection> directions;
         rects.setCount(rectCount);
         directions.setCount(rectCount);
         path.rectContours(rects.begin(), directions.begin());
         for (int contour = 0; contour < rectCount; ++contour) {
             const SkRect& rect = rects[contour];
             SkDebugf("path.addRect(%1.9g, %1.9g, %1.9g, %1.9g, %s);\n", rect.fLeft, rect.fTop,
-                    rect.fRight, rect.fBottom, directions[contour] == SkPath::kCCW_Direction
-                    ? "SkPath::kCCW_Direction" : "SkPath::kCW_Direction");
+                    rect.fRight, rect.fBottom, directions[contour] == SkPathDirection::kCCW
+                    ? "SkPathDirection::kCCW" : "SkPathDirection::kCW");
         }
         return;
     }
 #endif
-    SkPath::FillType fillType = path.getFillType();
-    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
+    SkPathFillType fillType = path.getNewFillType();
+    SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);
     }
-    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[fillType]);
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(int)fillType]);
     iter.setPath(path);
     showPathContours(iter, name);
 }

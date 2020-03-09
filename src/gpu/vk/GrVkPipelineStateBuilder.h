@@ -10,63 +10,31 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 #include "src/gpu/vk/GrVkVaryingHandler.h"
 #include "src/sksl/SkSLCompiler.h"
 
+class GrProgramDesc;
 class GrVkGpu;
 class GrVkRenderPass;
 class SkReader32;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
-    /**
-     * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
-     * the information needed to differentiate one pipeline from another.
-     *
-     * The GrProgramDesc contains all the information need to create the actual shaders for the
-     * pipeline.
-     *
-     * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
-     * pipline. This includes stencil settings, blending information, render pass format, draw face
-     * information, and primitive type. Note that some state is set dynamically on the pipeline for
-     * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
-     * and blend constant.
-     */
-    class Desc : public GrProgramDesc {
-    public:
-        static bool Build(Desc*,
-                          GrRenderTarget*,
-                          const GrProgramInfo&,
-                          const GrStencilSettings&,
-                          GrPrimitiveType primitiveType,
-                          GrVkGpu* gpu);
-
-        size_t shaderKeyLength() const { return fShaderKeyLength; }
-
-    private:
-        size_t fShaderKeyLength;
-
-        typedef GrProgramDesc INHERITED;
-    };
-
     /** Generates a pipeline state.
-    *
-    * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
-    * as input. After successful generation, the builder result objects are available to be used.
-    * This function may modify the program key by setting the surface origin key to 0 (unspecified)
-    * if it turns out the program does not care about the surface origin.
-    * @return true if generation was successful.
-    */
+     *
+     * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
+     * as input. After successful generation, the builder result objects are available to be used.
+     * This function may modify the program key by setting the surface origin key to 0 (unspecified)
+     * if it turns out the program does not care about the surface origin.
+     * @return true if generation was successful.
+     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
                                                   const GrProgramInfo&,
-                                                  const GrStencilSettings&,
-                                                  GrPrimitiveType,
-                                                  Desc*,
+                                                  GrProgramDesc*,
                                                   VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
@@ -79,10 +47,7 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(const GrStencilSettings&,
-                                GrPrimitiveType primitiveType,
-                                VkRenderPass compatibleRenderPass,
-                                Desc*);
+    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
@@ -96,7 +61,7 @@ private:
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,
-                              Desc* desc,
+                              GrProgramDesc* desc,
                               SkSL::String* outSPIRV,
                               SkSL::Program::Inputs* outInputs);
 

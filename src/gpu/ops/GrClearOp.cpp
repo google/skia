@@ -18,7 +18,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const GrFixedClip& clip,
                                            const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy) {
-    const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
+    const SkIRect rect = SkIRect::MakeSize(dstProxy->dimensions());
     if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
         return nullptr;
     }
@@ -43,7 +43,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfac
         : INHERITED(ClassID())
         , fClip(clip)
         , fColor(color) {
-    const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
+    const SkIRect rtRect = SkIRect::MakeSize(proxy->dimensions());
     if (fClip.scissorEnabled()) {
         // Don't let scissors extend outside the RT. This may improve op combining.
         if (!fClip.intersect(rtRect)) {

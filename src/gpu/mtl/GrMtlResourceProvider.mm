@@ -39,9 +39,8 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
-        const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primitiveType);
+        const GrProgramInfo& programInfo) {
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,16 +134,15 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
-        const GrProgramInfo& programInfo,
-        GrPrimitiveType primType) {
+        const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
 
-    // TODO: unify GL, VK and Mtl
-    // Get GrMtlProgramDesc
-    GrMtlPipelineStateBuilder::Desc desc;
-    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, primType, fGpu)) {
+    const GrMtlCaps& caps = fGpu->mtlCaps();
+
+    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
+    if (!desc.isValid()) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
     }
@@ -262,6 +260,10 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
+#ifdef SK_BUILD_FOR_MAC
+    // Mac requires 4-byte alignment for didModifyRange:
+    size = GrSizeAlignUp(size, 4);
+#endif
     id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
     if (buffer) {
         return buffer;

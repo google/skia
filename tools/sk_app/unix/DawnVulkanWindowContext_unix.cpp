@@ -25,7 +25,7 @@ class DawnVulkanWindowContext_xlib : public DawnWindowContext {
 public:
     DawnVulkanWindowContext_xlib(const XlibWindowInfo&, const DisplayParams&);
     ~DawnVulkanWindowContext_xlib() override {}
-    dawn::Device onInitializeContext() override;
+    wgpu::Device onInitializeContext() override;
     void onDestroyContext() override {}
     DawnSwapChainImplementation createSwapChainImplementation(
             int width, int height, const DisplayParams& params) override;
@@ -41,7 +41,7 @@ private:
 
 DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo& winInfo,
                                                            const DisplayParams& params)
-        : INHERITED(params, dawn::TextureFormat::BGRA8Unorm)
+        : INHERITED(params, wgpu::TextureFormat::BGRA8Unorm)
         , fDisplay(winInfo.fDisplay)
         , fWindow(winInfo.fWindow) {
     XWindow root;
@@ -57,8 +57,8 @@ DawnSwapChainImplementation DawnVulkanWindowContext_xlib::createSwapChainImpleme
     return dawn_native::vulkan::CreateNativeSwapChainImpl(fDevice.Get(), fVkSurface);
 }
 
-dawn::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
-    dawn::Device device = this->createDevice(dawn_native::BackendType::Vulkan);
+wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
+    wgpu::Device device = this->createDevice(dawn_native::BackendType::Vulkan);
     if (!device) {
         return nullptr;
     }

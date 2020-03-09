@@ -149,6 +149,9 @@ defines      = {str(d) for d in js['targets']['//:libskqp_app']['defines']}
 defines.update(["SK_ENABLE_DUMP_GPU", "SK_BUILD_FOR_SKQP"])
 cflags_cc.update(['-Wno-extra-semi-stmt'])
 
+# Android does not want -Weverything set, it blocks toolchain updates.
+assert '-Weverything' not in cflags
+
 gn_to_bp_utils.GrabDependentValues(js, '//:libskqp_app', 'sources', srcs, None)
 gn_to_bp_utils.GrabDependentValues(js, '//:libskqp_app', 'include_dirs',
                                    local_includes, 'freetype')

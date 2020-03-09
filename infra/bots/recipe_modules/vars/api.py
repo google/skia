@@ -17,6 +17,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
   def setup(self):
     """Prepare the variables."""
+    # Hack start_dir to remove the "k" directory which is added by Kitchen.
+    # Otherwise, we can't get to the CIPD packages, caches, and isolates which
+    # were put into the task workdir.
+    if self.m.path.c.base_paths['start_dir'][-1] == 'k':  # pragma: nocover
+      self.m.path.c.base_paths['start_dir'] = (
+          self.m.path.c.base_paths['start_dir'][:-1])
+
     # Setup
     self.builder_name = self.m.properties['buildername']
 
@@ -41,8 +48,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
     self.role = self.builder_cfg['role']
-    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
-                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
+    if self.role == self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
       self.configuration = CONFIG_RELEASE
     else:
       self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)
@@ -81,7 +87,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
   @property
   def is_linux(self):
-    return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
+    return (
+        'Ubuntu' in self.builder_name
+     or 'Debian' in self.builder_name
+     or 'Housekeeper' in self.builder_name
+    )
 
   @property
   def swarming_bot_id(self):

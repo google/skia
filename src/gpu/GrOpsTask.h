@@ -35,10 +35,10 @@ class GrRenderTargetProxy;
 
 class GrOpsTask : public GrRenderTask {
 private:
-    using DstProxy = GrXferProcessor::DstProxy;
+    using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
-    GrOpsTask(sk_sp<GrOpMemoryPool>, sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
+    GrOpsTask(sk_sp<GrOpMemoryPool>, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -58,14 +58,20 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
-    void addSampledTexture(GrTextureProxy* proxy) {
+    void addSampledTexture(GrSurfaceProxy* proxy) {
+        // This function takes a GrSurfaceProxy because all subsequent uses of the proxy do not
+        // require the specifics of GrTextureProxy, so this avoids a number of unnecessary virtual
+        // asTextureProxy() calls. However, sampling the proxy implicitly requires that the proxy
+        // be a texture. Eventually, when proxies are a unified type with flags, this can just
+        // assert that capability.
+        SkASSERT(proxy->asTextureProxy());
         fSampledProxies.push_back(proxy);
     }
 
     void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
                const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrTextureProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
@@ -81,30 +87,35 @@ public:
     }
 
     void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
-                   GrAppliedClip&& clip, const DstProxy& dstProxy,
+                   GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrTextureProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
             this->addSampledTexture(p);
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
-        if (dstProxy.proxy()) {
-            this->addSampledTexture(dstProxy.proxy());
-            addDependency(dstProxy.proxy(), GrMipMapped::kNo);
+        if (dstProxyView.proxy()) {
+            this->addSampledTexture(dstProxyView.proxy());
+            addDependency(dstProxyView.proxy(), GrMipMapped::kNo);
         }
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
-                       &dstProxy, caps);
+                       &dstProxyView, caps);
     }
 
     void discard();
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
+
+#if GR_TEST_UTILS
+    int numOpChains() const { return fOpChains.count(); }
+    const GrOp* getChain(int index) const { return fOpChains[index].head(); }
+#endif
 
 private:
     bool isNoOp() const {
@@ -164,7 +175,8 @@ private:
     public:
         OpChain(const OpChain&) = delete;
         OpChain& operator=(const OpChain&) = delete;
-        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*);
+        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
+                const DstProxyView*);
 
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
@@ -176,7 +188,7 @@ private:
         GrOp* head() const { return fList.head(); }
 
         GrAppliedClip* appliedClip() const { return fAppliedClip; }
-        const DstProxy& dstProxy() const { return fDstProxy; }
+        const DstProxyView& dstProxyView() const { return fDstProxyView; }
         const SkRect& bounds() const { return fBounds; }
 
         // Deletes all the ops in the chain via the pool.
@@ -191,7 +203,7 @@ private:
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
         std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, GrProcessorSet::Analysis,
-                                       const DstProxy*, const GrAppliedClip*, const GrCaps&,
+                                       const DstProxyView*, const GrAppliedClip*, const GrCaps&,
                                        GrOpMemoryPool*, GrAuditTrail*);
 
         void setSkipExecuteFlag() { fSkipExecute = true; }
@@ -225,13 +237,13 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxy&, const GrAppliedClip*,
+        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxyView&, const GrAppliedClip*,
                        const SkRect& bounds, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
-        DstProxy fDstProxy;
+        DstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
 
@@ -247,8 +259,8 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*,
-                  const GrCaps& caps);
+    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
+                  const DstProxyView*, const GrCaps& caps);
 
     void forwardCombine(const GrCaps&);
 
@@ -290,7 +302,7 @@ private:
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
-    SkTArray<GrTextureProxy*, true> fSampledProxies;
+    SkTArray<GrSurfaceProxy*, true> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();

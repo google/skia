@@ -216,4 +216,154 @@ describe('CanvasKit\'s Path Behavior', function() {
             reportSurface(surface, 'arcto_path', done);
         }));
     });
+
+    it('can draw a path using relative functions', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            // This is taken from example.html
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(1.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const path = new CanvasKit.SkPath();
+            path.rMoveTo(20, 5)
+                .rLineTo(10, 15)  // 30, 20
+                .rLineTo(10, -5);  // 40, 10
+            path.rLineTo(10, 10);  // 50, 20
+            path.rLineTo(10, -20); // 60, 0
+            path.rLineTo(-40, 5);  // 20, 5
+
+            path.moveTo(20, 80)
+                .rCubicTo(70, -70, 140, 70, 170, -70); // 90, 10, 160, 150, 190, 10
+
+            path.moveTo(36, 148)
+                .rQuadTo(30, 40, 84, -12) // 66, 188, 120, 136
+                .lineTo(36, 148);
+
+            path.moveTo(150, 180)
+                .rArcTo(24, 24, 45, true, false, -68, -24); // 82, 156
+            path.lineTo(160, 160);
+
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'path_relative', done);
+        }));
+    });
+
+    it('can measure a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+
+            const path = new CanvasKit.SkPath();
+            path.moveTo(10, 10)
+                .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
+
+            path.moveTo(80, 0)
+                .lineTo(80, 10)
+                .lineTo(100, 5)
+                .lineTo(80, 0);
+
+            const meas = new CanvasKit.SkPathMeasure(path, false, 1);
+            expect(meas.getLength()).toBeCloseTo(50.0, 3);
+            const pt = meas.getPosTan(28.7); // arbitrary point
+            expect(pt[0]).toBeCloseTo(27.22, 3); // x
+            expect(pt[1]).toBeCloseTo(32.96, 3); // y
+            expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+            expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+            const subpath = meas.getSegment(20, 40, true); // make sure this doesn't crash
+
+            expect(meas.nextContour()).toBeTruthy();
+            expect(meas.getLength()).toBeCloseTo(51.231, 3);
+
+            expect(meas.nextContour()).toBeFalsy();
+
+            path.delete();
+            done();
+        }));
+    });
+
+    it('can measure the contours of a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+
+            const path = new CanvasKit.SkPath();
+            path.moveTo(10, 10)
+                .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
+
+            path.moveTo(80, 0)
+                .lineTo(80, 10)
+                .lineTo(100, 5)
+                .lineTo(80, 0);
+
+            const meas = new CanvasKit.SkContourMeasureIter(path, false, 1);
+            let cont = meas.next();
+            expect(cont).toBeTruthy();
+
+            expect(cont.length()).toBeCloseTo(50.0, 3);
+            const pt = cont.getPosTan(28.7); // arbitrary point
+            expect(pt[0]).toBeCloseTo(27.22, 3); // x
+            expect(pt[1]).toBeCloseTo(32.96, 3); // y
+            expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+            expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+            const subpath = cont.getSegment(20, 40, true); // make sure this doesn't crash
+
+            cont.delete();
+            cont = meas.next();
+            expect(cont).toBeTruthy()
+            expect(cont.length()).toBeCloseTo(51.231, 3);
+
+            cont.delete();
+            expect(meas.next()).toBeFalsy();
+
+            meas.delete();
+            path.delete();
+            done();
+        }));
+    });
+
+    it('can draw a polygon', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            // This is taken from example.html
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(1.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const points = [[5, 5], [30, 20], [55, 5], [55, 50], [30, 30], [5, 50]];
+
+            const mPoints = CanvasKit.Malloc(Float32Array, 6 * 2);
+            mPoints.set([105, 105, 130, 120, 155, 105, 155, 150, 130, 130, 105, 150]);
+
+            const path = new CanvasKit.SkPath();
+            path.addPoly(points, true)
+                .moveTo(100, 0)
+                .addPoly(mPoints, true);
+
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'drawpoly_path', done);
+        }));
+    });
 });

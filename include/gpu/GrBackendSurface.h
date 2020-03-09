@@ -23,7 +23,7 @@ class GrVkImageLayout;
 class GrGLTextureParameters;
 
 #ifdef SK_DAWN
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #endif
 
 #ifdef SK_METAL
@@ -72,7 +72,7 @@ public:
     static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
 
 #ifdef SK_DAWN
-    static GrBackendFormat MakeDawn(dawn::TextureFormat format) {
+    static GrBackendFormat MakeDawn(wgpu::TextureFormat format) {
         return GrBackendFormat(format);
     }
 #endif
@@ -109,10 +109,10 @@ public:
 
 #ifdef SK_DAWN
     /**
-     * If the backend API is Dawn this gets the format as a dawn::TextureFormat and returns true.
+     * If the backend API is Dawn this gets the format as a wgpu::TextureFormat and returns true.
      * Otherwise, returns false.
      */
-    bool asDawnFormat(dawn::TextureFormat*) const;
+    bool asDawnFormat(wgpu::TextureFormat*) const;
 #endif
 
 #ifdef SK_METAL
@@ -147,7 +147,7 @@ private:
     GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&);
 
 #ifdef SK_DAWN
-    GrBackendFormat(dawn::TextureFormat format);
+    GrBackendFormat(wgpu::TextureFormat format);
 #endif
 
 #ifdef SK_METAL
@@ -166,7 +166,7 @@ private:
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
         }                fVk;
 #ifdef SK_DAWN
-        dawn::TextureFormat fDawnFormat;
+        wgpu::TextureFormat fDawnFormat;
 #endif
 
 #ifdef SK_METAL

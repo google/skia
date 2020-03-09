@@ -61,12 +61,18 @@ module.exports = function(config) {
     cfg.browsers = ['ChromeHeadlessNoSandbox'],
     cfg.customLaunchers = {
         ChromeHeadlessNoSandbox: {
-            base: 'ChromeHeadless',
-            flags: [
+          base: 'ChromeHeadless',
+          flags: [
             // Without this flag, we see an error:
             // Failed to move to new namespace: PID namespaces supported, Network namespace supported, but failed: errno = Operation not permitted
-                '--no-sandbox'
-            ],
+            '--no-sandbox',
+            // may help tests be less flaky
+            // https://peter.sh/experiments/chromium-command-line-switches/#browser-test
+            '--browser-test',
+            // This can also help avoid crashes/timeouts:
+            // https://github.com/GoogleChrome/puppeteer/issues/1834
+            '--disable-dev-shm-usage',
+          ],
         },
     };
   }

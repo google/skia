@@ -41,10 +41,10 @@ enum TFKind { Bad_TF, sRGBish_TF, PQish_TF, HLGish_TF, HLGinvish_TF };
 static inline TFKind classify_transfer_fn(const skcms_TransferFunction& tf) {
     if (tf.g < 0 && (int)tf.g == tf.g) {
         // TODO: sanity checks for PQ/HLG like we do for sRGBish.
-        switch (-(int)tf.g) {
-            case PQish_TF:     return PQish_TF;
-            case HLGish_TF:    return HLGish_TF;
-            case HLGinvish_TF: return HLGinvish_TF;
+        switch ((int)tf.g) {
+            case -PQish_TF:     return PQish_TF;
+            case -HLGish_TF:    return HLGish_TF;
+            case -HLGinvish_TF: return HLGinvish_TF;
         }
         return Bad_TF;
     }

@@ -8,13 +8,17 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 #include "src/gpu/vk/GrVkUtil.h"
@@ -388,8 +392,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         this->applyDriverCorrectnessWorkarounds(properties);
     }
 
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
+    this->finishInitialization(contextOptions);
 }
 
 void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
@@ -442,6 +445,20 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
+    // The GTX660 bot experiences crashes and incorrect rendering with MSAA CCPR. Block this path
+    // renderer on non-mixed-sampled NVIDIA.
+    // NOTE: We may lose mixed samples support later if the context options suppress dual source
+    // blending, but that shouldn't be an issue because MSAA CCPR seems to work fine (even without
+    // mixed samples) on later NVIDIA hardware where mixed samples would be supported.
+    if ((kNvidia_VkVendor == properties.vendorID) && !fMixedSamplesSupport) {
+        fDriverBlacklistMSAACCPR = true;
+    }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // MSAA CCPR is slow on Android. http://skbug.com/9676
+    fDriverBlacklistMSAACCPR = true;
+#endif
+
     if (kARM_VkVendor == properties.vendorID) {
         fInstanceAttribSupport = false;
         fAvoidWritePixelsFastPath = true; // bugs.skia.org/8064
@@ -459,29 +476,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
-}
 
-int get_max_sample_count(VkSampleCountFlags flags) {
-    SkASSERT(flags & VK_SAMPLE_COUNT_1_BIT);
-    if (!(flags & VK_SAMPLE_COUNT_2_BIT)) {
-        return 0;
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // The sample mask round rect op draws nothing on Adreno for the srcmode gm.
+        // http://skbug.com/8921
+        fShaderCaps->fCanOnlyUseSampleMaskWithStencil = true;
     }
-    if (!(flags & VK_SAMPLE_COUNT_4_BIT)) {
-        return 2;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_8_BIT)) {
-        return 4;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_16_BIT)) {
-        return 8;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_32_BIT)) {
-        return 16;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_64_BIT)) {
-        return 32;
-    }
-    return 64;
 }
 
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
@@ -496,6 +496,19 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     // we ever find that need.
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
+
+    if (properties.limits.standardSampleLocations) {
+        fSampleLocationsSupport = true;
+    }
+
+    if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
+        // We "disable" multisample by colocating all samples at pixel center.
+        fMultisampleDisableSupport = true;
+    }
+
+    if (extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1)) {
+        fMixedSamplesSupport = true;
+    }
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
@@ -563,7 +576,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     // to be true with Vulkan as well.
     shaderCaps->fPreferFlatInterpolation = kQualcomm_VkVendor != properties.vendorID;
 
-    // GrShaderCaps
+    shaderCaps->fSampleMaskSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
 
@@ -1187,12 +1200,8 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
     if (flags & VK_SAMPLE_COUNT_16_BIT) {
         fColorSampleCounts.push_back(16);
     }
-    if (flags & VK_SAMPLE_COUNT_32_BIT) {
-        fColorSampleCounts.push_back(32);
-    }
-    if (flags & VK_SAMPLE_COUNT_64_BIT) {
-        fColorSampleCounts.push_back(64);
-    }
+    // Standard sample locations are not defined for more than 16 samples, and we don't need more
+    // than 16. Omit 32 and 64.
 }
 
 void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
@@ -1597,6 +1606,11 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
+        case GrColorType::kRGB_888:
+        case GrColorType::kR_8:
+        case GrColorType::kR_16:
+        case GrColorType::kR_F16:
+        case GrColorType::kGray_F16:
             break;
     }
 
@@ -1715,6 +1729,76 @@ int GrVkCaps::getFragmentUniformBinding() const {
 
 int GrVkCaps::getFragmentUniformSet() const {
     return GrVkUniformHandler::kUniformBufferDescSet;
+}
+
+void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
+                                  const GrSamplerState& samplerState,
+                                  const GrBackendFormat& format) const {
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    if (!ycbcrInfo) {
+        return;
+    }
+
+    GrVkSampler::Key key = GrVkSampler::GenerateKey(samplerState, *ycbcrInfo);
+
+    size_t numInts = (sizeof(key) + 3) / 4;
+
+    uint32_t* tmp = b->add32n(numInts);
+
+    tmp[numInts - 1] = 0;
+    memcpy(tmp, &key, sizeof(key));
+}
+
+/**
+ * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
+ * the information needed to differentiate one pipeline from another.
+ *
+ * The GrProgramDesc contains all the information need to create the actual shaders for the
+ * pipeline.
+ *
+ * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
+ * pipline. This includes stencil settings, blending information, render pass format, draw face
+ * information, and primitive type. Note that some state is set dynamically on the pipeline for
+ * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
+ * and blend constant.
+ */
+GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
+        SkASSERT(!desc.isValid());
+        return desc;
+    }
+
+    GrProcessorKeyBuilder b(&desc.key());
+
+    // This will become part of the sheared off key used to persistently cache
+    // the SPIRV code. It needs to be added right after the base key so that,
+    // when the base-key is sheared off, the shearing code can include it in the
+    // reduced key (c.f. the +4s in the SkData::MakeWithCopy calls in
+    // GrVkPipelineStateBuilder.cpp).
+    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
+
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+    // TODO: support failure in getSimpleRenderPass
+    SkASSERT(vkRT->getSimpleRenderPass());
+    vkRT->getSimpleRenderPass()->genKey(&b);
+
+    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
+    stencil.genKey(&b);
+
+    programInfo.pipeline().genKey(&b, *this);
+    b.add32(programInfo.numRasterSamples());
+
+    // Vulkan requires the full primitive type as part of its key
+    b.add32((uint32_t)programInfo.primitiveType());
+
+    if (this->mixedSamplesSupport()) {
+        // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)
+        // raster sample count if it will.
+        b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
+    }
+
+    return desc;
 }
 
 #if GR_TEST_UTILS

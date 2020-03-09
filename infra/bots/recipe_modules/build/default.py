@@ -6,18 +6,6 @@
 from . import util
 
 
-# XCode build is listed in parentheses after the version at
-# https://developer.apple.com/news/releases/, or on Wikipedia here:
-# https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
-# Use lowercase letters.
-# When updating XCODE_BUILD_VERSION, you will also need to update
-# XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '10g8'
-# Wikipedia lists the Clang version here:
-# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
-XCODE_CLANG_VERSION = '10.0.1'
-
-
 def build_command_buffer(api, chrome_dir, skia_dir, out):
   api.run(api.python, 'build command_buffer',
       script=skia_dir.join('tools', 'build_command_buffer.py'),
@@ -93,6 +81,11 @@ def compile_fn(api, checkout_root, out_dir):
   env = {}
 
   if os == 'Mac':
+    # XCode build is listed in parentheses after the version at
+    # https://developer.apple.com/news/releases/, or on Wikipedia here:
+    # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+    # Use lowercase letters.
+    XCODE_BUILD_VERSION = '11c29'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.slave_dir.join(
@@ -127,6 +120,11 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
+  if 'CheckGeneratedFiles' in extra_tokens:
+    compiler = 'Clang'
+    args['skia_compile_processors'] = 'true'
+    args['skia_generate_workarounds'] = 'true'
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'
@@ -140,28 +138,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   elif compiler == 'Clang':
     cc, cxx = 'clang', 'clang++'
-  elif compiler == 'GCC':
-    if target_arch in ['mips64el', 'loongson3a']:
-      mips64el_toolchain_linux = str(api.vars.slave_dir.join(
-          'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
-      env['LD_LIBRARY_PATH'] = (
-          mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
-      extra_ldflags.append('-L' + mips64el_toolchain_linux +
-                           '/mips64el-linux-gnuabi64/lib')
-      extra_cflags.extend([
-          ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
-           api.run.asset_version('mips64el_toolchain_linux', skia_dir))
-      ])
-      args.update({
-        'skia_use_system_freetype2': 'false',
-        'skia_use_fontconfig':       'false',
-        'skia_enable_gpu':           'false',
-        'werror':                    'false',
-      })
-    else:
-      cc, cxx = 'gcc', 'g++'
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
@@ -242,8 +218,6 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_vulkan':        'false',
       'skia_use_zlib':          'false',
     })
-  if 'NoGPU' in extra_tokens:
-    args['skia_enable_gpu'] = 'false'
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
@@ -274,9 +248,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
-  if 'CheckGeneratedFiles' in extra_tokens:
-    args['skia_compile_processors'] = 'true'
-    args['skia_generate_workarounds'] = 'true'
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
@@ -345,13 +316,18 @@ def copy_build_products(api, src, dst):
         util.DEFAULT_BUILD_PRODUCTS)
 
   if os == 'Mac' and any('SAN' in t for t in extra_tokens):
-    # Hardcoding this path because it should only change when we upgrade to a
-    # new Xcode.
-    lib_dir = api.vars.cache_dir.join(
-        'Xcode.app', 'Contents', 'Developer', 'Toolchains',
-        'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang', XCODE_CLANG_VERSION,
-        'lib', 'darwin')
-    dylibs = api.file.glob_paths('find xSAN dylibs', lib_dir,
+    # The XSAN dylibs are in
+    # Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
+    # /clang/11.0.0/lib/darwin, where 11.0.0 could change in future versions.
+    xcode_clang_ver_dirs = api.file.listdir(
+        'find XCode Clang version',
+        api.vars.cache_dir.join(
+            'Xcode.app', 'Contents', 'Developer', 'Toolchains',
+            'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang'),
+        test_data=['11.0.0'])
+    assert len(xcode_clang_ver_dirs) == 1
+    dylib_dir = xcode_clang_ver_dirs[0].join('lib', 'darwin')
+    dylibs = api.file.glob_paths('find xSAN dylibs', dylib_dir,
                                  'libclang_rt.*san_osx_dynamic.dylib',
                                  test_data=[
                                      'libclang_rt.asan_osx_dynamic.dylib',

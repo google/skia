@@ -11,42 +11,18 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkOpts.h"
-#include "src/gpu/GrColor.h"
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
+class GrCaps;
 class GrProgramInfo;
+class GrRenderTarget;
 class GrShaderCaps;
 
-/** This class describes a program to generate. It also serves as a program cache key */
+/** This class is used to generate a generic program cache key. The Dawn, Metal and Vulkan
+ *  backends derive backend-specific versions which add additional information.
+ */
 class GrProgramDesc {
 public:
-    // Creates an uninitialized key that must be populated by GrGpu::buildProgramDesc()
-    GrProgramDesc() {}
-
-    /**
-     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
-     * on the filled in GrProgramDesc.
-     *
-     * @param desc          The built and finalized descriptor
-     * @param renderTarget  The target of the draw
-     * @param programInfo   Program information need to build the key
-     * @param primitiveType Controls whether the shader will output a point size.
-     * @param gpu           Pointer to the GrGpu object the program will be used with.
-     **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
-                      GrPrimitiveType, GrGpu*);
-
-    // This is strictly an OpenGL call since the other backends have additional data in their
-    // keys
-    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
-        if (!SkTFitsIn<int>(keyLength)) {
-            return false;
-        }
-        desc->fKey.reset(SkToInt(keyLength));
-        memcpy(desc->fKey.begin(), keyData, keyLength);
-        return true;
-    }
+    bool isValid() const { return !fKey.empty(); }
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
@@ -87,23 +63,57 @@ public:
         return !(*this == other);
     }
 
-    // TODO: remove this use of the header
-    bool hasPointSize() const { return this->header().fHasPointSize; }
+    uint32_t initialKeyLength() const { return this->header().fInitialKeyLength; }
 
 protected:
+    friend class GrDawnCaps;
+    friend class GrGLCaps;
+    friend class GrMockCaps;
+    friend class GrMtlCaps;
+    friend class GrVkCaps;
+
+    friend class GrGLGpu; // for ProgramCache to access BuildFromData
+
+    // Creates an uninitialized key that must be populated by Build
+    GrProgramDesc() {}
+
+    /**
+     * Builds a program descriptor.
+     *
+     * @param desc          The built descriptor
+     * @param renderTarget  The target of the draw
+     * @param programInfo   Program information need to build the key
+     * @param caps          the caps
+     **/
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+
+    // This is strictly an OpenGL call since the other backends have additional data in their
+    // keys
+    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
+        if (!SkTFitsIn<int>(keyLength)) {
+            return false;
+        }
+        desc->fKey.reset(SkToInt(keyLength));
+        memcpy(desc->fKey.begin(), keyData, keyLength);
+        return true;
+    }
+
+    // TODO: this should be removed and converted to just data added to the key
     struct KeyHeader {
         // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint8_t fSurfaceOriginKey : 2;
-        uint8_t fProcessorFeatures : 1;
-        bool fSnapVerticesToPixelCenters : 1;
-        bool fHasPointSize : 1;
-        uint8_t fPad : 3;
+        uint32_t fSurfaceOriginKey : 2;
+        uint32_t fProcessorFeatures : 1;
+        uint32_t fSnapVerticesToPixelCenters : 1;
+        uint32_t fHasPointSize : 1;
+        // This is the key size (in bytes) after core key construction. It doesn't include any
+        // portions added by the platform-specific backends.
+        uint32_t fInitialKeyLength : 27;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 8);
 
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
@@ -121,7 +131,6 @@ protected:
     enum KeyOffsets {
         kHeaderOffset = 0,
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
-        // Part 4.
         // This is the offset into the backenend specific part of the key, which includes
         // per-processor keys.
         kProcessorKeysOffset = kHeaderOffset + kHeaderSize,
@@ -135,7 +144,6 @@ protected:
     };
 
     SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
-    const SkSTArray<kPreAllocSize, uint8_t, true>& key() const { return fKey; }
 
 private:
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;

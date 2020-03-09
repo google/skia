@@ -76,19 +76,6 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     SkASSERT(!fAssigned);  // We shouldn't be adding any intervals after (or during) assignment
 
     if (proxy->canSkipResourceAllocator()) {
-        // If the proxy is still not instantiated at this point but will need stencil, it will
-        // attach its own stencil buffer upon onFlush instantiation.
-        if (proxy->isInstantiated()) {
-            auto rt = proxy->asRenderTargetProxy();
-            int minStencilSampleCount = rt ? rt->numStencilSamples() : 0;
-            if (minStencilSampleCount) {
-                if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
-                        fResourceProvider, proxy->peekSurface(), minStencilSampleCount)) {
-                    SkDebugf("WARNING: failed to attach stencil buffer. "
-                             "Rendering may be incorrect.\n");
-                }
-            }
-        }
         return;
     }
 
@@ -265,19 +252,11 @@ void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
 
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
-sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy,
-                                                     int minStencilSampleCount) {
-
+sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
     if (proxy->asTextureProxy() && proxy->asTextureProxy()->getUniqueKey().isValid()) {
         // First try to reattach to a cached version if the proxy is uniquely keyed
-        sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(
-                                                        proxy->asTextureProxy()->getUniqueKey());
-        if (surface) {
-            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(),
-                                                           minStencilSampleCount)) {
-                return nullptr;
-            }
-
+        if (sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(
+                proxy->asTextureProxy()->getUniqueKey())) {
             return surface;
         }
     }
@@ -297,11 +276,6 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
             // This gets the job done but isn't quite correct. It would be better to try to
             // match budgeted proxies w/ budgeted surfaces and unbudgeted w/ unbudgeted.
             surface->resourcePriv().makeBudgeted();
-        }
-
-        if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(),
-                                                       minStencilSampleCount)) {
-            return nullptr;
         }
         SkASSERT(!surface->getUniqueKey().isValid());
         return surface;
@@ -405,16 +379,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
         this->expire(cur->start());
 
-        int minStencilSampleCount = (cur->proxy()->asRenderTargetProxy())
-                ? cur->proxy()->asRenderTargetProxy()->numStencilSamples()
-                : 0;
-
         if (cur->proxy()->isInstantiated()) {
-            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
-                        fResourceProvider, cur->proxy()->peekSurface(), minStencilSampleCount)) {
-                *outError = AssignError::kFailedProxyInstantiation;
-            }
-
             fActiveIntvls.insertByIncreasingEnd(cur);
 
             if (fResourceProvider->overBudget()) {
@@ -432,8 +397,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
             }
-        } else if (sk_sp<GrSurface> surface =
-                           this->findSurfaceFor(cur->proxy(), minStencilSampleCount)) {
+        } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy())) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
             GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
 

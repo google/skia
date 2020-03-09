@@ -171,11 +171,16 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                         GrRenderable::kYes);
 
+    static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+            format, desc, GrRenderable::kYes, 1, kOrigin, GrMipMapped::kNo,
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
+
+    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format,
+                                                                    GrColorType::kRGBA_8888);
+
     int result[result_width()];
     int validResult[result_width()];
 
@@ -205,9 +210,9 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(sk_ref_sp(context->priv().opMemoryPool()),
-                                            sk_ref_sp(proxy->asRenderTargetProxy()),
-                                            context->priv().auditTrail());
+                GrOpsTask opsTask(context->priv().refOpMemoryPool(),
+                                  GrSurfaceProxyView(proxy, kOrigin, outSwizzle),
+                                  context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
                 std::fill_n(validResult, result_width(), -1);

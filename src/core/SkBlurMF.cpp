@@ -370,7 +370,7 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) 
         SkPath path;
         path.addRect(rects[0]);
         path.addRect(rects[1]);
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         canvas.drawPath(path, paint);
     }
     return true;
@@ -901,9 +901,8 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
-        paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(srcProxy),
-                                                                       srcColorType,
-                                                                       SkMatrix::I()));
+        paint.addCoverageFragmentProcessor(
+                GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I()));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

@@ -11,6 +11,7 @@
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"
@@ -25,8 +26,7 @@ public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
     GrMtlPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
-                                                            const GrProgramInfo&,
-                                                            GrPrimitiveType);
+                                                            const GrProgramInfo&);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
     GrMtlDepthStencil* findOrCreateCompatibleDepthStencilState(const GrStencilSettings&,
@@ -52,8 +52,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&,
-                                             GrPrimitiveType);
+        GrMtlPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&);
 
     private:
         struct Entry;
@@ -64,9 +63,9 @@ private:
             }
         };
 
-        SkLRUCache<const GrMtlPipelineStateBuilder::Desc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<const GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrMtlGpu*                    fGpu;
+        GrMtlGpu*                   fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         int                         fTotalRequests;

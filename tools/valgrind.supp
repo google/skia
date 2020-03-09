@@ -282,9 +282,9 @@
     fun:_ZN12_GLOBAL__N_120ConvolveHorizontallyILb0EEEvPKhRK21SkConvolutionFilter1DPh
     fun:_Z14BGRAConvolve2DPKhibRK21SkConvolutionFilter1DS3_iPhRK18SkConvolutionProcsb
 }
-#Something odd happening in with SkRasterPipeline in GrConvertPixels. Seems bogus after
-#investigation. MSAN/ASAN have no complaints. Complaining about conditional jump or use
-#of var that is "uninitialized" but it definitely is.
+#Something odd is happening in SkRasterPipeline when called by GrConvertPixels and GrClearImage.
+#It seems bogus after investigation. MSAN/ASAN have no complaints. It's complaining about
+#conditional jump or use of var that is "uninitialized" but it definitely is.
 {
    grconvertpixels_rasterpipeline
    Memcheck:Cond
@@ -299,5 +299,21 @@
    ...
    fun:_ZNK16SkRasterPipeline3runEmmmm
    fun:_Z15GrConvertPixelsRK11GrImageInfoPvmS1_PKvmb
+   ...
+}
+{
+   grclearimage_rasterpipeline
+   Memcheck:Cond
+   ...
+   fun:_ZNK16SkRasterPipeline3runEmmmm
+   fun:_Z12GrClearImageRK11GrImageInfoPvm8SkRGBA4fIL11SkAlphaType3EE
+   ...
+}
+{
+   grclearimage_rasterpipeline
+   Memcheck:Value8
+   ...
+   fun:_ZNK16SkRasterPipeline3runEmmmm
+   fun:_Z12GrClearImageRK11GrImageInfoPvm8SkRGBA4fIL11SkAlphaType3EE
    ...
 }

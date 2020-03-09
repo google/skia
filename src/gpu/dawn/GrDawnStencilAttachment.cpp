@@ -17,8 +17,8 @@ GrDawnStencilAttachment::GrDawnStencilAttachment(GrDawnGpu* gpu,
                                                  int height,
                                                  int bits,
                                                  int samples,
-                                                 dawn::Texture texture,
-                                                 dawn::TextureView view)
+                                                 wgpu::Texture texture,
+                                                 wgpu::TextureView view)
     : INHERITED(gpu, width, height, bits, samples)
     , fTexture(texture)
     , fView(view) {
@@ -29,17 +29,17 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
                                                          int width,
                                                          int height,
                                                          int sampleCnt) {
-    dawn::TextureDescriptor desc;
-    desc.usage = dawn::TextureUsage::OutputAttachment;
+    wgpu::TextureDescriptor desc;
+    desc.usage = wgpu::TextureUsage::OutputAttachment;
     desc.size.width = width;
     desc.size.height = height;
     desc.size.depth = 1;
-    desc.format = dawn::TextureFormat::Depth24PlusStencil8;
-    dawn::Texture texture = gpu->device().CreateTexture(&desc);
+    desc.format = wgpu::TextureFormat::Depth24PlusStencil8;
+    wgpu::Texture texture = gpu->device().CreateTexture(&desc);
     if (!texture) {
         return nullptr;
     }
-    dawn::TextureView view = texture.CreateView();
+    wgpu::TextureView view = texture.CreateView();
     if (!view) {
         return nullptr;
     }

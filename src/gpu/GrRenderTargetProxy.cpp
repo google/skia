@@ -27,7 +27,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          SkBackingFit fit,
                                          SkBudgeted budgeted,
                                          GrProtected isProtected,
@@ -36,8 +35,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
         : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
-        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
-        , fOutputSwizzle(outputSwizzle) {}
+        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {}
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
@@ -46,7 +44,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          SkBackingFit fit,
                                          SkBudgeted budgeted,
                                          GrProtected isProtected,
@@ -56,20 +53,17 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
         : INHERITED(std::move(callback), format, desc, GrRenderable::kYes, origin, textureSwizzle,
                     fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
-        , fOutputSwizzle(outputSwizzle) {}
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          UseAllocator useAllocator,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact, useAllocator)
         , fSampleCnt(fTarget->asRenderTarget()->numSamples())
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
-        , fOutputSwizzle(outputSwizzle) {
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     // The kRequiresManualMSAAResolve flag better not be set if we are not multisampled or if
     // MSAA resolve should happen automatically.
     //
@@ -89,8 +83,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes,
-                               GrMipMapped::kNo, nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipMapped::kNo,
+                               nullptr)) {
         return false;
     }
 
@@ -109,8 +103,8 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
 }
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(
-            resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes, GrMipMapped::kNo);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
+                                                       GrRenderable::kYes, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -127,7 +121,7 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) co
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   colorSamplesPerPixel, GrMipMapped::kNo, !this->priv().isExact());
 }
 

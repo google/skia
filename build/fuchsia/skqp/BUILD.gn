@@ -1,0 +1,134 @@
+# Copyright 2019 Google LLC. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+assert(is_fuchsia)
+
+import("//build/fuchsia/sdk.gni")
+
+pkg_dir = target_gen_dir
+pkg_name = "skqp_pkg"
+
+fuchsia_package(pkg_name) {
+  testonly = true
+  name = pkg_name
+  version = 0
+  deps = [
+    "//:skqp",
+    "//build/fuchsia",
+  ]
+  pkg_manifest = "${pkg_dir}/${target_name}.manifest"
+}
+
+fuchsia_repo("skqp_repo") {
+  testonly = true
+  deps = [
+    ":append_assets_to_manifest",
+    ":base_manifest",
+    ":skqp_pkg",
+  ]
+
+  # Put repo directory in out dir (not gen dir).
+  repo = "$target_out_dir/skqp_repo"
+  archives = [ "$root_out_dir/far/skqp_pkg.far" ]
+}
+
+#
+# Base manifest entries (w/o assets) for SKQP.
+#
+# TODO(rosasco): Convert this group() to generated_file() when a
+#                sufficiently modern version of gn rolls in.
+group("base_manifest") {
+  base_pkg_manifest = "${pkg_dir}/base_${pkg_name}.manifest"
+
+  skqp_exec = rebase_path("${root_out_dir}/skqp")
+  skqp_path = rebase_path("${target_gen_dir}")
+
+  sdk_dist_path = rebase_path("${fuchsia_sdk_path}/arch/${target_cpu}/dist")
+  sdk_sysroot_dist_path =
+      rebase_path("${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/dist/lib")
+
+  skqp_component_manifest = rebase_path("//build/fuchsia/skqp/skqp.cmx")
+
+  if (target_cpu == "x64" || target_cpu == "x86_64") {
+    clang_path =
+        rebase_path("${fuchsia_toolchain_path}/lib/x86_64-unknown-fuchsia/c++")
+  } else if (target_cpu == "arm64") {
+    clang_path =
+        rebase_path("${fuchsia_toolchain_path}/lib/aarch64-unknown-fuchsia/c++")
+  } else {
+    assert(false, "Unknown target cpu for Fuchsia target.")
+  }
+
+  manifest_entries = [
+    # Binary
+    "bin/skqp=${skqp_exec}",
+
+    # Meta Data
+    "meta/package=${skqp_path}/meta/package",
+    "meta/skqp.cmx=${skqp_component_manifest}",
+
+    # Shared Libs (clang c++)
+    "lib/libc++.so.2=${clang_path}/libc++.so.2",
+    "lib/libc++abi.so.1=${clang_path}/libc++abi.so.1",
+    "lib/libunwind.so.1=${clang_path}/libunwind.so.1",
+
+    # Shared Libs (sdk dist)
+    "lib/libvulkan.so=${sdk_dist_path}/libvulkan.so",
+    "lib/libasync-default.so=${sdk_dist_path}/libasync-default.so",
+    "lib/libfdio.so=${sdk_dist_path}/libfdio.so",
+    "lib/libtrace-engine.so=${sdk_dist_path}/libtrace-engine.so",
+
+    # Loader
+    "lib/ld.so.1=${sdk_sysroot_dist_path}/ld.so.1",
+
+    # Vulkan ICD / Validation / Loader
+    "lib/libvulkan.so=${sdk_dist_path}/libvulkan.so",
+  ]
+
+  # TODO(rosasco): Add 2 lines when generated_file() switch is implemented
+  #                and remove the 'write_file' below.
+  # contents = manifest_entries
+  # outputs = [ base_pkg_manifest ]
+
+  write_file(base_pkg_manifest, manifest_entries)
+}
+
+#
+# Asset manifest entries for SKQP.
+#
+action("append_assets_to_manifest") {
+  script = "append_assets_to_manifest"
+
+  base_pkg_manifest = "${pkg_dir}/base_${pkg_name}.manifest"
+  pkg_manifest = "${pkg_dir}/${pkg_name}.manifest"
+  assets_path = "//platform_tools/android/apps/skqp/src/main/assets"
+
+  inputs = [
+    assets_path,
+  ]
+
+  outputs = [
+    pkg_manifest,
+  ]
+
+  manifest_deps = "$target_out_dir/skqp_manifest.d"
+
+  args = [
+    "--root_dir",
+    rebase_path(assets_path),
+    "--base_manifest",
+    rebase_path(base_pkg_manifest),
+    "--manifest",
+    rebase_path(pkg_manifest),
+    "--deps",
+    rebase_path(manifest_deps),
+    "--root_build_dir",
+    rebase_path(root_out_dir),
+  ]
+
+  deps = [
+    ":base_manifest",
+  ]
+  depfile = manifest_deps
+}

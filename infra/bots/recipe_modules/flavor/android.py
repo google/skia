@@ -26,16 +26,17 @@ class AndroidFlavor(default.DefaultFlavor):
     # Data should go in android_data_dir, which may be preserved across runs.
     android_data_dir = '/sdcard/revenge_of_the_skiabot/'
     self.device_dirs = default.DeviceDirs(
-        bin_dir       = '/data/local/tmp/',
-        dm_dir        = android_data_dir + 'dm_out',
-        perf_data_dir = android_data_dir + 'perf',
-        resource_dir  = android_data_dir + 'resources',
-        images_dir    = android_data_dir + 'images',
-        lotties_dir   = android_data_dir + 'lotties',
-        skp_dir       = android_data_dir + 'skps',
-        svg_dir       = android_data_dir + 'svgs',
-        mskp_dir      = android_data_dir + 'mskp',
-        tmp_dir       = android_data_dir)
+        bin_dir        = '/data/local/tmp/',
+        dm_dir         = android_data_dir + 'dm_out',
+        perf_data_dir  = android_data_dir + 'perf',
+        resource_dir   = android_data_dir + 'resources',
+        images_dir     = android_data_dir + 'images',
+        lotties_dir    = android_data_dir + 'lotties',
+        skp_dir        = android_data_dir + 'skps',
+        svg_dir        = android_data_dir + 'svgs',
+        mskp_dir       = android_data_dir + 'mskp',
+        tmp_dir        = android_data_dir,
+        texttraces_dir = android_data_dir + 'text_blob_traces')
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
@@ -130,8 +131,8 @@ class AndroidFlavor(default.DefaultFlavor):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
       if device == 'AndroidOne':
         self._set_governor(i, 'hotplug')
-      elif device == 'Pixel3a':
-        # Pixel3a has userspace powersave performance schedutil.
+      elif device in ['Pixel3a', 'Pixel4']:
+        # Pixel3a/4 have userspace powersave performance schedutil.
         # performance seems like a reasonable choice.
         self._set_governor(i, 'performance')
       else:

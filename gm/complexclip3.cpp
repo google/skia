@@ -96,10 +96,10 @@ protected:
                         bool doInvB = SkToBool(invB);
                         canvas->save();
                         // set clip
-                        firstClip->setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
-                                               SkPath::kEvenOdd_FillType);
-                        secondClip->setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
-                                                SkPath::kEvenOdd_FillType);
+                        firstClip->setFillType(doInvA ? SkPathFillType::kInverseEvenOdd :
+                                               SkPathFillType::kEvenOdd);
+                        secondClip->setFillType(doInvB ? SkPathFillType::kInverseEvenOdd :
+                                                SkPathFillType::kEvenOdd);
                         canvas->clipPath(*firstClip, doAAA);
                         canvas->clipPath(*secondClip, gOps[op].fOp, doAAB);
 

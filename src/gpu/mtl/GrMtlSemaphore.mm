@@ -5,57 +5,38 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlSemaphore.h"
+
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-sk_sp<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu, bool isOwned) {
+std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
         uint64_t value = 1; // seems like a reasonable starting point
-        return sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, event, value, isOwned));
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(event, value));
     } else {
         return nullptr;
     }
 }
 
-sk_sp<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMtlGpu* gpu,
-                                                  GrMTLHandle event,
-                                                  uint64_t value,
-                                                  GrWrapOwnership ownership) {
+std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMTLHandle event,
+                                                            uint64_t value) {
     // The GrMtlSemaphore will have strong ownership at this point.
     // The GrMTLHandle will subsequently only have weak ownership.
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
-        auto sema = sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, mtlEvent, value,
-                                                             kBorrow_GrWrapOwnership != ownership));
-        return sema;
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(mtlEvent, value));
     } else {
         return nullptr;
     }
 }
 
-GrMtlSemaphore::GrMtlSemaphore(GrMtlGpu* gpu, id<MTLEvent> event, uint64_t value, bool isOwned)
-        : INHERITED(gpu), fEvent(event), fValue(value) {
-    isOwned ? this->registerWithCache(SkBudgeted::kNo)
-            : this->registerWithCacheWrapped(GrWrapCacheable::kNo);
-}
-
-void GrMtlSemaphore::onRelease() {
-    if (@available(macOS 10.14, iOS 12.0, *)) {
-        fEvent = nil;
-    }
-    INHERITED::onRelease();
-}
-
-void GrMtlSemaphore::onAbandon() {
-    if (@available(macOS 10.14, iOS 12.0, *)) {
-        fEvent = nil;
-    }
-    INHERITED::onAbandon();
+GrMtlSemaphore::GrMtlSemaphore(id<MTLEvent> event, uint64_t value)
+        : fEvent(event), fValue(value) {
 }
 
 GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {

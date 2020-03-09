@@ -72,8 +72,8 @@ public:
 #endif
 
 #ifdef SK_DAWN
-    static sk_sp<GrContext> MakeDawn(const dawn::Device& device, const GrContextOptions& options);
-    static sk_sp<GrContext> MakeDawn(const dawn::Device& device);
+    static sk_sp<GrContext> MakeDawn(const wgpu::Device& device, const GrContextOptions& options);
+    static sk_sp<GrContext> MakeDawn(const wgpu::Device& device);
 #endif
 
     static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
@@ -365,7 +365,8 @@ public:
     void storeVkPipelineCacheData();
 
     // Returns the gpu memory size of the the texture that backs the passed in SkImage. Returns 0 if
-    // the SkImage is not texture backed.
+    // the SkImage is not texture backed. For external format textures this will also return 0 as we
+    // cannot determine the correct size.
     static size_t ComputeImageSize(sk_sp<SkImage> image, GrMipMapped, bool useNextPow2 = false);
 
     /*

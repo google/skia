@@ -171,11 +171,13 @@ public:
                                              GrGLenum* externalType) const;
 
     /**
-     * Gets the external format, type, and bytes per pixel to use when uploading zeros via
-     * glTexSubImage...() to clear the texture at creation.
+     * Gets the external format, type, and bytes per pixel to use when uploading solid color data
+     * via glTexSubImage...() to clear the texture at creation.
      */
-    void getTexSubImageZeroFormatTypeAndBpp(GrGLFormat format, GrGLenum* externalFormat,
-                                            GrGLenum* externalType, size_t* bpp) const;
+    void getTexSubImageDefaultFormatTypeAndColorType(GrGLFormat format,
+                                                     GrGLenum* externalFormat,
+                                                     GrGLenum* externalType,
+                                                     GrColorType* colorType) const;
 
     void getReadPixelsFormat(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                              GrColorType memoryColorType, GrGLenum* externalFormat,
@@ -423,6 +425,8 @@ public:
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
+
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 
@@ -449,6 +453,7 @@ private:
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
         bool fDontDisableTexStorageOnAndroid = false;
+        bool fDisallowDirectRG8ReadPixels = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -651,11 +656,13 @@ private:
         GrGLenum fInternalFormatForRenderbuffer = 0;
 
         // Default values to use along with fInternalFormatForTexImageOrStorage for function
-        // glTexImage2D when not input providing data (passing nullptr). Not defined for compressed
-        // formats. Also used to upload zeros to initially clear a texture.
+        // glTexImage2D when not input providing data (passing nullptr) or when clearing it by
+        // uploading a block of solid color data. Not defined for compressed formats.
         GrGLenum fDefaultExternalFormat = 0;
         GrGLenum fDefaultExternalType = 0;
-
+        // When the above two values are used to initialize a texture by uploading cleared data to
+        // it the data should be of this color type.
+        GrColorType fDefaultColorType = GrColorType::kUnknown;
         // This value is only valid for regular formats. Compressed formats will be 0.
         GrGLenum fBytesPerPixel = 0;
 

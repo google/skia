@@ -19,12 +19,11 @@ class GrMtlGpu;
 
 class GrMtlSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrMtlSemaphore> Make(GrMtlGpu* gpu, bool isOwned);
+    static std::unique_ptr<GrMtlSemaphore> Make(GrMtlGpu* gpu);
 
-    static sk_sp<GrMtlSemaphore> MakeWrapped(GrMtlGpu* gpu,
-                                             GrMTLHandle event,
-                                             uint64_t value,
-                                             GrWrapOwnership ownership);
+    static std::unique_ptr<GrMtlSemaphore> MakeWrapped(GrMTLHandle event, uint64_t value);
+
+    ~GrMtlSemaphore() override {}
 
     id<MTLEvent> event() const API_AVAILABLE(macos(10.14), ios(12.0)) { return fEvent; }
     uint64_t value() const { return fValue; }
@@ -32,11 +31,9 @@ public:
     GrBackendSemaphore backendSemaphore() const override;
 
 private:
-    GrMtlSemaphore(GrMtlGpu* gpu, id<MTLEvent> event,
-                   uint64_t value, bool isOwned) API_AVAILABLE(macos(10.14), ios(12.0));
+    GrMtlSemaphore(id<MTLEvent> event, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
 
-    void onRelease() override;
-    void onAbandon() override;
+    void setIsOwned() override {}
 
     id<MTLEvent> fEvent API_AVAILABLE(macos(10.14), ios(12.0));
     uint64_t     fValue;

@@ -1,3 +1,7 @@
+if (is_fuchsia) {
+  import("//build/fuchsia/sdk.gni")
+}
+
 declare_args() {
   host_ar = ar
   host_cc = cc
@@ -23,6 +27,13 @@ declare_args() {
       target_cc = "$ncli/tools/llvm-4.0.0/bin/clang"
       target_cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
     }
+  } else if (is_fuchsia && using_fuchsia_sdk) {
+    target_ar = rebase_path("$fuchsia_toolchain_path/bin/llvm-ar")
+    target_cc = rebase_path("$fuchsia_toolchain_path/bin/clang")
+    target_cxx = rebase_path("$fuchsia_toolchain_path/bin/clang++")
+    cflags = "--sysroot=" +
+             rebase_path("$fuchsia_toolchain_path/$target_cpu/sysroot")
+    link = rebase_path("$fuchsia_toolchain_path/bin/ld.lld")
   } else {
     target_ar = ar
     target_cc = cc
@@ -268,11 +279,19 @@ template("gcc_like_toolchain") {
       description = "assemble {{source}}"
     }
 
+    if (is_mac || is_ios) {
+      not_needed([ "ar" ])  # We use libtool instead.
+    }
+
     tool("alink") {
-      rspfile = "{{output}}.rsp"
-      rspfile_content = "{{inputs}}"
-      ar_py = rebase_path("../ar.py")
-      command = "python $ar_py $ar {{output}} $rspfile"
+      if (is_mac || is_ios) {
+        command = "libtool -static -o {{output}} -no_warning_for_no_symbols {{inputs}}"
+      } else {
+        rspfile = "{{output}}.rsp"
+        rspfile_content = "{{inputs}}"
+        command = "$ar rcs {{output}} @$rspfile"
+      }
+
       outputs = [
         "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
       ]
@@ -303,7 +322,7 @@ template("gcc_like_toolchain") {
       # LLD doesn't need these flags, but accepts and ignores them.
       _start_group = "-Wl,--start-group"
       _end_group = "-Wl,--end-group"
-      if (is_mac || is_ios) {
+      if (is_mac || is_ios || is_fuchsia) {
         _start_group = ""
         _end_group = ""
       }
@@ -330,7 +349,7 @@ template("gcc_like_toolchain") {
       # LLD doesn't need these flags, but accepts and ignores them.
       _start_group = "-Wl,--start-group"
       _end_group = "-Wl,--end-group"
-      if (is_mac || is_ios) {
+      if (is_mac || is_ios || is_fuchsia) {
         _start_group = ""
         _end_group = ""
       }

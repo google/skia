@@ -35,25 +35,11 @@ enum Mode {
 
 class GP : public GrGeometryProcessor {
 public:
-    GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
-            : INHERITED(kVertexColorSpaceBenchGP_ClassID)
-            , fMode(mode)
-            , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        switch (fMode) {
-            case kBaseline_Mode:
-            case kShader_Mode:
-                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-            case kFloat_Mode:
-                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-            case kHalf_Mode:
-                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-        }
-        this->setVertexAttributes(&fInPosition, 2);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, Mode mode,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform) {
+        return arena->make<GP>(mode, std::move(colorSpaceXform));
     }
+
     const char* name() const override { return "VertexColorXformGP"; }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
@@ -93,7 +79,7 @@ public:
             }
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
-                         FPCoordTransformIter&&) override {
+                         const CoordTransformRange&) override {
                 const GP& gp = primProc.cast<GP>();
                 fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());
             }
@@ -109,6 +95,28 @@ public:
     }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
+            : INHERITED(kVertexColorSpaceBenchGP_ClassID)
+            , fMode(mode)
+            , fColorSpaceXform(std::move(colorSpaceXform)) {
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        switch (fMode) {
+            case kBaseline_Mode:
+            case kShader_Mode:
+                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+            case kFloat_Mode:
+                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+            case kHalf_Mode:
+                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+        }
+        this->setVertexAttributes(&fInPosition, 2);
+    }
+
     Mode fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
@@ -160,7 +168,7 @@ private:
     friend class ::GrOpMemoryPool;
 
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
+        GrGeometryProcessor* gp = GP::Make(target->allocator(), fMode, fColorSpaceXform);
 
         size_t vertexStride = gp->vertexStride();
         const int kVertexCount = 1024;
@@ -223,7 +231,7 @@ private:
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(kVertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(gp, mesh);
+        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangleStrip);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

@@ -132,8 +132,8 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return nullptr;
     }
-    return GrSurfaceProxy::Copy(ctx, baseProxy, srcColorType, GrMipMapped::kYes,
-                                SkBackingFit::kExact, SkBudgeted::kYes);
+    return GrSurfaceProxy::Copy(ctx, baseProxy, GrMipMapped::kYes, SkBackingFit::kExact,
+                                SkBudgeted::kYes);
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
@@ -299,6 +299,7 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
 #ifndef SK_IGNORE_GPU_DITHER
 static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
     switch (dstColorType) {
+        case GrColorType::kUnknown:
         case GrColorType::kGray_8:
         case GrColorType::kRGBA_8888:
         case GrColorType::kRGB_888x:
@@ -307,12 +308,6 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
         case GrColorType::kRG_1616:
         case GrColorType::kRGBA_16161616:
         case GrColorType::kRG_F16:
-            return 0;
-        case GrColorType::kBGR_565:
-            return 1;
-        case GrColorType::kABGR_4444:
-            return 2;
-        case GrColorType::kUnknown:
         case GrColorType::kRGBA_8888_SRGB:
         case GrColorType::kRGBA_1010102:
         case GrColorType::kAlpha_F16:
@@ -324,7 +319,16 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
         case GrColorType::kAlpha_16:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
-            return -1;
+        case GrColorType::kRGB_888:
+        case GrColorType::kR_8:
+        case GrColorType::kR_16:
+        case GrColorType::kR_F16:
+        case GrColorType::kGray_F16:
+            return 0;
+        case GrColorType::kBGR_565:
+            return 1;
+        case GrColorType::kABGR_4444:
+            return 2;
     }
     SkUNREACHABLE;
 }

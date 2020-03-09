@@ -8,6 +8,7 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMesh.h"
@@ -27,6 +28,11 @@ public:
     /** Abstract interface that represents a destination for a GrMeshDrawOp. */
     class Target;
 
+    static bool CanUpgradeAAOnMerge(GrAAType aa1, GrAAType aa2) {
+        return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
+               (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
+    }
+
 protected:
     GrMeshDrawOp(uint32_t classID);
 
@@ -36,11 +42,11 @@ protected:
     public:
         PatternHelper(Target*, GrPrimitiveType, size_t vertexStride,
                       sk_sp<const GrBuffer> indexBuffer, int verticesPerRepetition,
-                      int indicesPerRepetition, int repeatCount);
+                      int indicesPerRepetition, int repeatCount, int maxRepetitions);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>,
+        void recordDraw(Target*, const GrGeometryProcessor*) const;
+        void recordDraw(Target*, const GrGeometryProcessor*,
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
@@ -48,17 +54,18 @@ protected:
     protected:
         PatternHelper() = default;
         void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
-                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
+                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount,
+                  int maxRepetitions);
 
     private:
         void* fVertices = nullptr;
         GrMesh* fMesh = nullptr;
+        GrPrimitiveType fPrimitiveType;
     };
 
-    static const int kVerticesPerQuad = 4;
-    static const int kIndicesPerQuad = 6;
-
-    /** A specialization of InstanceHelper for quad rendering. */
+    /** A specialization of InstanceHelper for quad rendering.
+     *  It only draws non-antialiased indexed quads.
+     */
     class QuadHelper : private PatternHelper {
     public:
         QuadHelper() = delete;
@@ -71,12 +78,29 @@ protected:
         typedef PatternHelper INHERITED;
     };
 
+    static bool CombinedQuadCountWillOverflow(GrAAType aaType,
+                                              bool willBeUpgradedToAA,
+                                              int combinedQuadCount) {
+        bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
+
+        return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
+                                             : GrResourceProvider::MaxNumNonAAQuads());
+    }
+
 private:
-    void onPrePrepare(GrRecordingContext* context) final { this->onPrePrepareDraws(context); }
+    void onPrePrepare(GrRecordingContext* context,
+                      const GrSurfaceProxyView* dstView,
+                      GrAppliedClip* clip,
+                      const GrXferProcessor::DstProxyView& dstProxyView) final {
+        this->onPrePrepareDraws(context, dstView, clip, dstProxyView);
+    }
     void onPrepare(GrOpFlushState* state) final;
 
     // Only the GrTextureOp currently overrides this virtual
-    virtual void onPrePrepareDraws(GrRecordingContext*) {}
+    virtual void onPrePrepareDraws(GrRecordingContext*,
+                                   const GrSurfaceProxyView*,
+                                   GrAppliedClip*,
+                                   const GrXferProcessor::DstProxyView&) {}
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
@@ -88,17 +112,19 @@ public:
 
     /** Adds a draw of a mesh. */
     virtual void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
-            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) = 0;
+            const GrGeometryProcessor*, const GrMesh[], int meshCnt,
+            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
+            GrPrimitiveType) = 0;
 
     /**
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
+    void recordDraw(const GrGeometryProcessor* gp, const GrMesh meshes[], int meshCnt,
+                    GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
+        this->recordDraw(gp, meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
     }
 
     /**
@@ -146,18 +172,27 @@ public:
 
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
-    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
-                                                            int numPrimitiveProcessorTextures,
-                                                            bool allocScissors);
+    static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
+                                                                   int numMeshes,
+                                                                   int numPrimitiveProcTextures,
+                                                                   bool allocScissors);
 
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
+    static GrPipeline::FixedDynamicState* MakeFixedDynamicState(SkArenaAlloc*,
+                                                                const GrAppliedClip* clip,
+                                                                int numPrimitiveProcessorTextures);
+
+
+    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures) {
+        return MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+                                     numPrimitiveProcessorTextures);
+    }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
-    virtual const GrAppliedClip* appliedClip() = 0;
+    virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
-    virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
+    virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
 
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
@@ -168,13 +203,12 @@ public:
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the
     // case for atlases.
-    virtual SkTArray<GrTextureProxy*, true>* sampledProxyArray() = 0;
+    virtual SkTArray<GrSurfaceProxy*, true>* sampledProxyArray() = 0;
 
     virtual const GrCaps& caps() const = 0;
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
-private:
     virtual SkArenaAlloc* allocator() = 0;
 };
 

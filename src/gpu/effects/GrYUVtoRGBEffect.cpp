@@ -8,32 +8,12 @@
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include "include/gpu/GrTexture.h"
+#include "src/core/SkYUVMath.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
-
-static const float kJPEGConversionMatrix[16] = {
-    1.0f,  0.0f,       1.402f,    -0.703749f,
-    1.0f, -0.344136f, -0.714136f,  0.531211f,
-    1.0f,  1.772f,     0.0f,      -0.889475f,
-    0.0f,  0.0f,       0.0f,       1.0
-};
-
-static const float kRec601ConversionMatrix[16] = {
-    1.164f,  0.0f,    1.596f, -0.87075f,
-    1.164f, -0.391f, -0.813f,  0.52925f,
-    1.164f,  2.018f,  0.0f,   -1.08175f,
-    0.0f,    0.0f,    0.0f,    1.0
-};
-
-static const float kRec709ConversionMatrix[16] = {
-    1.164f,  0.0f,    1.793f, -0.96925f,
-    1.164f, -0.213f, -0.533f,  0.30025f,
-    1.164f,  2.112f,  0.0f,   -1.12875f,
-    0.0f,    0.0f,    0.0f,    1.0f
-};
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
@@ -44,19 +24,32 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
     int numPlanes;
     SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
-    const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->isize();
+    const SkISize YDimensions = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->dimensions();
 
-    GrSamplerState::Filter minimizeFilterMode = GrSamplerState::Filter::kMipMap == filterMode ?
-                                                GrSamplerState::Filter::kMipMap :
-                                                GrSamplerState::Filter::kBilerp;
+    // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
+    // do_fancy_upsampling option. However, skbug.com/9693.
+    GrSamplerState::Filter subsampledPlaneFilterMode = GrSamplerState::Filter::kMipMap == filterMode
+                                                               ? GrSamplerState::Filter::kMipMap
+                                                               : GrSamplerState::Filter::kBilerp;
 
     GrSamplerState::Filter filterModes[4];
     SkSize scales[4];
     for (int i = 0; i < numPlanes; ++i) {
-        SkISize size = proxies[i]->isize();
-        scales[i] = SkSize::Make(SkIntToScalar(size.width()) / SkIntToScalar(YSize.width()),
-                                 SkIntToScalar(size.height()) / SkIntToScalar(YSize.height()));
-        filterModes[i] = (size == YSize) ? filterMode : minimizeFilterMode;
+        SkISize dimensions = proxies[i]->dimensions();
+        // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
+        // the image size divided by the subsampling factor (2). Our API for creating YUVA doesn't
+        // capture the intended subsampling (and we should fix that). This fixes up 2x subsampling
+        // for images with odd widths/heights (e.g. JPEG 420 or 422).
+        scales[i] = {dimensions.width()  / SkIntToScalar(YDimensions.width()),
+                     dimensions.height() / SkIntToScalar(YDimensions.height())};
+        if ((YDimensions.width() & 0b1) && dimensions.width() == YDimensions.width() / 2 + 1) {
+            scales[i].fWidth = 0.5f;
+        }
+        if ((YDimensions.height() & 0b1) && dimensions.height() == YDimensions.height() / 2 + 1) {
+            scales[i].fHeight = 0.5f;
+        }
+        // It seems the assumption here is the plane dimensions are smaller than the Y plane.
+        filterModes[i] = (dimensions == YDimensions) ? filterMode : subsampledPlaneFilterMode;
     }
 
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
@@ -121,6 +114,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 SkASSERT(fColorSpaceMatrixVar.isValid());
                 fragBuilder->codeAppendf(
                     "yuvOne *= %s;", args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar));
+                fragBuilder->codeAppend("yuvOne.xyz = clamp(yuvOne.xyz, 0, 1);");
             }
 
             if (_outer.yuvaIndex(3).fIndex >= 0) {
@@ -141,21 +135,18 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                        const GrFragmentProcessor& _proc) override {
             const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
 
-            switch (_outer.yuvColorSpace()) {
-                case kJPEG_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kJPEGConversionMatrix);
-                    break;
-                case kRec601_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kRec601ConversionMatrix);
-                    break;
-                case kRec709_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kRec709ConversionMatrix);
-                    break;
-                case kIdentity_SkYUVColorSpace:
-                    break;
+            if (_outer.yuvColorSpace() != kIdentity_SkYUVColorSpace) {
+                SkASSERT(fColorSpaceMatrixVar.isValid());
+                float yuvM[20];
+                SkColorMatrix_YUV2RGB(_outer.yuvColorSpace(), yuvM);
+                // Need to drop the fourth column to go to 4x4
+                float mtx[16] = {
+                    yuvM[ 0], yuvM[ 1], yuvM[ 2], yuvM[ 4],
+                    yuvM[ 5], yuvM[ 6], yuvM[ 7], yuvM[ 9],
+                    yuvM[10], yuvM[11], yuvM[12], yuvM[14],
+                    yuvM[15], yuvM[16], yuvM[17], yuvM[19],
+                };
+                pdman.setMatrix4f(fColorSpaceMatrixVar, mtx);
             }
 
             int numSamplers = _outer.numTextureSamplers();

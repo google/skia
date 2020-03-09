@@ -21,7 +21,11 @@ class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
+class GrProcessorKeyBuilder;
+class GrProgramDesc;
+class GrProgramInfo;
 class GrRenderTargetProxy;
+class GrSamplerState;
 class GrSurface;
 class SkJSONWriter;
 
@@ -330,6 +334,8 @@ public:
     // Many drivers have issues with color clears.
     bool performColorClearsAsDraws() const { return fPerformColorClearsAsDraws; }
 
+    bool avoidLargeIndexBufferDraws() const { return fAvoidLargeIndexBufferDraws; }
+
     /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
     /// clears. The minimal repro steps are not precisely known but drawing a rect with a stencil
     /// op instead of using glClear seems to resolve the issue.
@@ -430,6 +436,17 @@ public:
         return result;
     }
 
+    /**
+     * Adds fields to the key to represent the sampler that will be created for the passed
+     * in parameters. Currently this extra keying is only needed when building a vulkan pipeline
+     * with immutable samplers.
+     */
+    virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
+                                    const GrSamplerState&,
+                                    const GrBackendFormat&) const {}
+
+    virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
+
 #ifdef SK_DEBUG
     // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
     // should be used to verify that the pixel config from user-level code (the genericConfig)
@@ -447,10 +464,10 @@ public:
 #endif
 
 protected:
-    /** Subclasses must call this at the end of their constructors in order to apply caps
-        overrides requested by the client. Note that overrides will only reduce the caps never
-        expand them. */
-    void applyOptionsOverrides(const GrContextOptions& options);
+    // Subclasses must call this at the end of their init method in order to do final processing on
+    // the caps (including overrides requested by the client).
+    // NOTE: this method will only reduce the caps, never expand them.
+    void finishInitialization(const GrContextOptions& options);
 
     sk_sp<GrShaderCaps> fShaderCaps;
 
@@ -476,6 +493,7 @@ protected:
     bool fClampToBorderSupport                       : 1;
     bool fPerformPartialClearsAsDraws                : 1;
     bool fPerformColorClearsAsDraws                  : 1;
+    bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
     bool fTransferBufferSupport                      : 1;
@@ -521,6 +539,8 @@ protected:
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 
 private:
+    void applyOptionsOverrides(const GrContextOptions& options);
+
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;

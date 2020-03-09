@@ -15,14 +15,14 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class GrDDLContext : public GrContext {
+class GrDDLContext final : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {
         fThreadSafeProxy = std::move(proxy);
     }
 
-    ~GrDDLContext() override { }
+    ~GrDDLContext() override {}
 
     void abandonContext() override {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
@@ -39,7 +39,7 @@ public:
         INHERITED::freeGpuResources();
     }
 
-protected:
+private:
     // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
     // GrRecordingContext!
     GrContext* asDirectContext() override { return nullptr; }
@@ -66,7 +66,6 @@ protected:
         return nullptr;
     }
 
-private:
     typedef GrContext INHERITED;
 };
 

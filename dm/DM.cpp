@@ -998,9 +998,6 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
-    VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
-    VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
-
     VIA("ddl",       ViaDDL, 1, 3,         wrapped);
     VIA("ddl2",      ViaDDL, 2, 3,         wrapped);
 
@@ -1237,7 +1234,7 @@ struct Task {
         };
 
         skcms_TransferFunction tf;
-        cs->transferFn(&tf.g);
+        cs->transferFn(&tf);
         switch (classify_transfer_fn(tf)) {
             case sRGBish_TF:
                 if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {

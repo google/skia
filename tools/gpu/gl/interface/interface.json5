@@ -318,7 +318,7 @@
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_CHROMIUM_framebuffer_multisample"},
               {/*    else if      */  "ext": "GL_ANGLE_framebuffer_blit"}],
-    // WebGL 2.0 might have support for blitFramebuffer and related functions.
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "BlitFramebuffer",

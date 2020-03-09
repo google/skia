@@ -15,6 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrNativeRect.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLContext.h"
@@ -122,7 +123,7 @@ public:
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -155,16 +156,17 @@ public:
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
+            const GrBackendSemaphore& semaphore,
+            GrResourceProvider::SemaphoreWrapType wrapType,
+            GrWrapOwnership ownership) override;
+    void insertSemaphore(GrSemaphore* semaphore) override;
+    void waitSemaphore(GrSemaphore* semaphore) override;
 
     void checkFinishProcs() override;
 
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+    std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void deleteSync(GrGLsync) const;
 
@@ -177,10 +179,12 @@ private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData*,
+                                            int numMipLevels,
+                                            GrProtected) override;
 
     void onResetContext(uint32_t resetBits) override;
 
@@ -225,13 +229,13 @@ private:
     // returned. On failure, zero is returned.
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
-    GrGLuint createTexture2D(const SkISize& size,
+    GrGLuint createTexture2D(const SkISize& dimensions,
                              GrGLFormat format,
                              GrRenderable,
                              GrGLTextureParameters::SamplerOverriddenState* initialState,
                              int mipLevelCount);
 
-    GrGLuint createCompressedTexture2D(const SkISize& size, GrGLFormat format,
+    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat format,
                                        SkImage::CompressionType compression,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
                                        const void* data);
@@ -271,10 +275,7 @@ private:
     void setTextureUnit(int unitIdx);
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
-    // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
-    // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
-    // state entries in each array.
-    bool flushGLState(GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType);
+    bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
 
     void flushProgram(sk_sp<GrGLProgram>);
 
@@ -291,7 +292,7 @@ private:
 
     void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
-    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo&, const GrPrepareForExternalIORequests&) override;
 
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
@@ -312,7 +313,7 @@ private:
 
         void abandon();
         void reset();
-        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType);
+        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&);
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:
@@ -378,7 +379,7 @@ private:
     // to populate a new texture. Returns false if we failed to create and upload the texture.
     bool uploadCompressedTexData(GrGLFormat,
                                  SkImage::CompressionType,
-                                 const SkISize& size,
+                                 const SkISize& dimensions,
                                  GrGLenum target,
                                  const void* data);
 

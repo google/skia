@@ -166,6 +166,9 @@ public:
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
 private:
+    friend class CompositionBuilder;
+    friend class LayerBuilder;
+
     struct AttachLayerContext;
     struct AttachShapeContext;
     struct ImageAssetInfo;
@@ -176,10 +179,6 @@ private:
                      const skjson::ArrayValue* jchars);
 
     void dispatchMarkers(const skjson::ArrayValue*) const;
-
-    sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&) const;
-    sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*,
-                                        AttachLayerContext*) const;
 
     sk_sp<sksg::RenderNode> attachBlendMode(const skjson::ObjectValue&,
                                             sk_sp<sksg::RenderNode>) const;
@@ -251,47 +250,6 @@ private:
     mutable SkTHashMap<SkString, ImageAssetInfo> fImageAssetCache;
 
     using INHERITED = SkNoncopyable;
-};
-
-struct AnimationBuilder::AttachLayerContext {
-    explicit AttachLayerContext(const skjson::ArrayValue&);
-    ~AttachLayerContext();
-
-    struct TransformRec {
-        sk_sp<sksg::Transform> fTransformNode;
-        AnimatorScope          fTransformScope;
-    };
-
-    const skjson::ArrayValue&     fLayerList;
-    SkTHashMap<int, TransformRec> fLayerTransformMap;
-    sk_sp<sksg::RenderNode>       fCurrentMatte;
-    sk_sp<sksg::Transform>        fCameraTransform;
-
-    size_t                        fMotionBlurSamples = 1;
-    float                         fMotionBlurAngle   = 0,
-                                  fMotionBlurPhase   = 0;
-
-    enum class TransformType { kLayer, kCamera };
-
-    TransformRec attachLayerTransform(const skjson::ObjectValue& jlayer,
-                                      const AnimationBuilder* abuilder,
-                                      TransformType type = TransformType::kLayer);
-
-    bool hasMotionBlur(const skjson::ObjectValue& jlayer) const;
-
-private:
-    sk_sp<sksg::Transform> attachParentLayerTransform(const skjson::ObjectValue& jlayer,
-                                                      const AnimationBuilder* abuilder,
-                                                      int layer_index);
-
-    sk_sp<sksg::Transform> attachTransformNode(const skjson::ObjectValue& jlayer,
-                                               const AnimationBuilder* abuilder,
-                                               sk_sp<sksg::Transform> parent_transform,
-                                               TransformType type) const;
-
-    TransformRec* attachLayerTransformImpl(const skjson::ObjectValue& jlayer,
-                                           const AnimationBuilder* abuilder,
-                                           TransformType type, int layer_index);
 };
 
 } // namespace internal

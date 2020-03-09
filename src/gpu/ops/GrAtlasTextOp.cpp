@@ -106,7 +106,7 @@ void GrAtlasTextOp::init() {
     }
 
     SkRect bounds;
-    geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX, geo.fY,
+    geo.fBlob->computeSubRunBounds(&bounds, *geo.fSubRunPtr, geo.fViewMatrix, geo.fX, geo.fY,
                                    fNeedsGlyphTransform);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
@@ -122,12 +122,11 @@ SkString GrAtlasTextOp::dumpInfo() const {
     SkString str;
 
     for (int i = 0; i < fGeoCount; ++i) {
-        str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f Runs: %d\n",
+        str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f\n",
                     i,
                     fGeoData[i].fColor.toBytes_RGBA(),
                     fGeoData[i].fX,
-                    fGeoData[i].fY,
-                    fGeoData[i].fBlob->runCountLimit());
+                    fGeoData[i].fY);
     }
 
     str += fProcessors.dumpProcessors();
@@ -315,12 +314,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor(*target->caps().shaderCaps(),
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
+                                                              *target->caps().shaderCaps(),
                                                               proxies, numActiveProxies);
     } else {
         GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
-        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
             *target->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
             samplerState, maskFormat, localMatrix, vmPerspective);
     }
@@ -332,7 +332,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     void* vertices = target->makeVertexSpace(vertexStride, glyphCount * kVerticesPerGlyph,
                                              &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
-    flushInfo.fIndexBuffer = resourceProvider->refQuadIndexBuffer();
+    flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
     if (!vertices || !flushInfo.fVertexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
@@ -340,16 +340,15 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     char* currVertex = reinterpret_cast<char*>(vertices);
 
-    SkExclusiveStrikePtr autoGlyphCache;
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
+                resourceProvider, blob, args.fSubRunPtr, args.fViewMatrix, args.fX, args.fY,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
-                atlasManager, &autoGlyphCache);
+                atlasManager);
         bool done = false;
         while (!done) {
             GrTextBlob::VertexRegenerator::Result result;
@@ -405,12 +404,16 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
 
     auto atlasManager = target->atlasManager();
 
-    GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
+    GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveProxies;
     const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
     SkASSERT(proxies);
+    // Something has gone terribly wrong, bail
+    if (!proxies || 0 == numActiveProxies) {
+        return;
+    }
     if (gp->numTextureSamplers() != (int) numActiveProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
@@ -440,8 +443,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerGlyph, kVerticesPerGlyph,
                               flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-    target->recordDraw(
-            flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
+    target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState,
+                       nullptr, GrPrimitiveType::kTriangles);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
@@ -525,9 +528,10 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrTextContext::ComputeCanonicalColor)
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& caps,
-                                                           const sk_sp<GrTextureProxy>* proxies,
-                                                           unsigned int numActiveProxies) const {
+GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
+                                                     const GrShaderCaps& caps,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     unsigned int numActiveProxies) const {
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -551,7 +555,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& c
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                    GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
@@ -563,11 +567,11 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& c
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif

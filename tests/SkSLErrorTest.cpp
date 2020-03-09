@@ -378,7 +378,7 @@ DEF_TEST(SkSLUnreachable, r) {
 DEF_TEST(SkSLNoReturn, r) {
     test_failure(r,
                  "int foo() { if (2 > 5) return 3; }",
-                 "error: 1: function can exit without returning a value\n1 error\n");
+                 "error: 1: function 'foo' can exit without returning a value\n1 error\n");
 }
 
 DEF_TEST(SkSLBreakOutsideLoop, r) {

@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - `SkContourMeasureIter` and `SkContourMeasure` as an alternative to `SkPathMeasure`.
+ - CanvasKit image decode cache helpers: getDecodeCacheLimitBytes(), setDecodeCacheLimitBytes(),
+   and getDecodeCacheUsedBytes().
+
+### Changed
+ - The returned values from `SkParagraph.getRectsForRange` now have direction with value
+   `CanvasKit.TextDirection`.
+
+### Fixed
+ - `MakeImage` properly in the externs file and can work with `CanvasKit.Malloc`.
+
+## [0.9.0] - 2019-11-18
+### Added
+ - Experimental `CanvasKit.Malloc`, which can be used to create a
+   TypedArray backed by the C++ WASM memory. This can save a copy in some cases
+   (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
+ - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
+ - Blur, ColorFilter, Compose, MatrixTransform SkImageFilters. Can be used with `SkPaint.setImageFilter`.
+ - `SkCanvas.saveLayer` now takes 3 or 4 params to include up to bounds, paint, SkImageFilter, flags.
+ - `SkPath.rArcTo`, `SkPath.rConicTo`, `SkPath.rCubicTo`, `SkPath.rLineTo`, `SkPath.rMoveTo`,
+   `SkPath.rQuadTo`. Like their non-relative siblings, these are chainable.
+ - Add `width()`, `height()`, `reset()`, `getFrameCount()` to SkAnimatedImage.
+ - `SkCanvas.drawImageNine`, `SkCanvas.drawPoints` and related `PointMode` enum.
+ - `SkPath.addPoly`
+ - `SkPathMeasure.getSegment`
+ - More information on SkParagraph API, eg. `getLongestLine()`, `getWordBoundary`, and others.
+
+### Deprecated
+ - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
+
+### Changed
+ - Use newer version of Freetype2 (Tracking Skia's DEPS now).
+ - Use newer versions of libpng and zlib (Tracking Skia's DEPS now).
+
+### Fixed
+ - null dereference when sometimes falling back to CPU.
+ - Actually ask WebGL for a stencil buffer.
+ - Can opt out of Paragraph API with no_paragraph passed into compile.sh or when using primitive_shaper.
+
+## [0.8.0] - 2019-10-21
+
+### Added
  - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
  - `CanvasKit.SkFontMgr.FromData` which takes several ArrayBuffers of font data, parses
    them, reading the metadata (e.g. family names) and stores them into a SkFontMgr.

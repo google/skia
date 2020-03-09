@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     SkPath dest, path;
-    path.addOval({20, 20, 200, 120}, SkPath::kCW_Direction, 1);
+    path.addOval({20, 20, 200, 120}, SkPathDirection::kCW, 1);
     for (int i = 0; i < 6; i++) {
         SkMatrix matrix;
         matrix.reset();

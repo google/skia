@@ -58,6 +58,7 @@ describe('Skottie behavior', function() {
                 canvas.clear(CanvasKit.WHITE);
                 animation.render(canvas, bounds);
                 surface.flush();
+                animation.delete();
 
                 reportSurface(surface, 'skottie_animgif', done);
             })();

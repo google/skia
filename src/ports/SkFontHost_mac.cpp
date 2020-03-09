@@ -386,13 +386,12 @@ static SmoothBehavior smooth_behavior() {
                 CGBitmapContextCreate(&smoothBitmap, 16, 16, 8, 16*4,
                                       colorspace.get(), BITMAP_INFO_RGB));
 
-        SkUniqueCFRef<CGDataProviderRef> data(
-                CGDataProviderCreateWithData(nullptr, kSpiderSymbol_ttf,
-                                             SK_ARRAY_COUNT(kSpiderSymbol_ttf), nullptr));
-        SkUniqueCFRef<CGFontRef> cgFont(CGFontCreateWithDataProvider(data.get()));
-        SkASSERT(cgFont);
-        SkUniqueCFRef<CTFontRef> ctFont(
-                CTFontCreateWithGraphicsFont(cgFont.get(), 16, nullptr, nullptr));
+        SkUniqueCFRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(
+                kCFAllocatorDefault, kSpiderSymbol_ttf, SK_ARRAY_COUNT(kSpiderSymbol_ttf),
+                kCFAllocatorNull));
+        SkUniqueCFRef<CTFontDescriptorRef> desc(
+                CTFontManagerCreateFontDescriptorFromData(data.get()));
+        SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc.get(), 16, nullptr));
         SkASSERT(ctFont);
 
         CGContextSetShouldSmoothFonts(noSmoothContext.get(), false);
@@ -695,14 +694,20 @@ static SkFontStyle fontstyle_from_descriptor(CTFontDescriptorRef desc, bool from
                              : SkFontStyle::kUpright_Slant);
 }
 
+struct OpszVariation {
+    bool isSet = false;
+    double value = 0;
+};
+
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkUniqueCFRef<CTFontRef> fontRef, SkUniqueCFRef<CFTypeRef> resourceRef,
-                   const SkFontStyle& fs, bool isFixedPitch,
+                   const SkFontStyle& fs, bool isFixedPitch, OpszVariation opszVariation,
                    std::unique_ptr<SkStreamAsset> providedData)
         : SkTypeface(fs, isFixedPitch)
         , fFontRef(std::move(fontRef))
         , fOriginatingCFTypeRef(std::move(resourceRef))
+        , fOpszVariation(opszVariation)
         , fHasColorGlyphs(
                 SkToBool(CTFontGetSymbolicTraits(fFontRef.get()) & kCTFontColorGlyphsTrait))
         , fStream(std::move(providedData))
@@ -713,6 +718,7 @@ public:
 
     SkUniqueCFRef<CTFontRef> fFontRef;
     SkUniqueCFRef<CFTypeRef> fOriginatingCFTypeRef;
+    const OpszVariation fOpszVariation;
     const bool fHasColorGlyphs;
 
 protected:
@@ -764,6 +770,7 @@ static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
 /** Creates a typeface, searching the cache if isLocalStream is false. */
 static sk_sp<SkTypeface> create_from_CTFontRef(SkUniqueCFRef<CTFontRef> font,
                                                SkUniqueCFRef<CFTypeRef> resource,
+                                               OpszVariation opszVariation,
                                                std::unique_ptr<SkStreamAsset> providedData) {
     SkASSERT(font);
     const bool isFromStream(providedData);
@@ -782,7 +789,8 @@ static sk_sp<SkTypeface> create_from_CTFontRef(SkUniqueCFRef<CTFontRef> font,
     bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
 
     sk_sp<SkTypeface> face(new SkTypeface_Mac(std::move(font), std::move(resource),
-                                              style, isFixedPitch, std::move(providedData)));
+                                              style, isFixedPitch, opszVariation,
+                                              std::move(providedData)));
     if (!isFromStream) {
         SkTypefaceCache::Add(face);
     }
@@ -796,7 +804,7 @@ static sk_sp<SkTypeface> create_from_desc(CTFontDescriptorRef desc) {
         return nullptr;
     }
 
-    return create_from_CTFontRef(std::move(ctFont), nullptr, nullptr);
+    return create_from_CTFontRef(std::move(ctFont), nullptr, OpszVariation(), nullptr);
 }
 
 static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
@@ -875,13 +883,14 @@ static sk_sp<SkTypeface> create_from_desc_and_style(CTFontDescriptorRef desc,
     }
 
     if (expected_traits != traits) {
-        SkUniqueCFRef<CTFontRef> ctNewFont(CTFontCreateCopyWithSymbolicTraits(ctFont.get(), 0,                                       nullptr, expected_traits, expected_traits));
+        SkUniqueCFRef<CTFontRef> ctNewFont(CTFontCreateCopyWithSymbolicTraits(
+                    ctFont.get(), 0, nullptr, expected_traits, expected_traits));
         if (ctNewFont) {
             ctFont = std::move(ctNewFont);
         }
     }
 
-    return create_from_CTFontRef(std::move(ctFont), nullptr, nullptr);
+    return create_from_CTFontRef(std::move(ctFont), nullptr, OpszVariation(), nullptr);
 }
 
 /** Creates a typeface from a name, searching the cache. */
@@ -905,6 +914,7 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef font, CFTypeRef resource) {
     }
     return create_from_CTFontRef(SkUniqueCFRef<CTFontRef>(font),
                                  SkUniqueCFRef<CFTypeRef>(resource),
+                                 OpszVariation(),
                                  nullptr).release();
 }
 
@@ -992,26 +1002,53 @@ private:
     typedef SkScalerContext INHERITED;
 };
 
+// In macOS 10.12 and later any variation on the CGFont which has default axis value will be
+// dropped when creating the CTFont. Unfortunately, in macOS 10.15 the priority of setting
+// the optical size (and opsz variation) is
+// 1. the value of kCTFontOpticalSizeAttribute in the CTFontDescriptor (undocumented)
+// 2. the opsz axis default value if kCTFontOpticalSizeAttribute is 'none' (undocumented)
+// 3. the opsz variation on the nascent CTFont from the CGFont (was dropped if default)
+// 4. the opsz variation in kCTFontVariationAttribute in CTFontDescriptor (crashes 10.10)
+// 5. the size requested (can fudge in SkTypeface but not SkScalerContext)
+// The first one which is found will be used to set the opsz variation (after clamping).
+static SkUniqueCFRef<CTFontDescriptorRef> create_opsz_descriptor(double opsz) {
+    SkUniqueCFRef<CFMutableDictionaryRef> attr(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+                                      &kCFTypeDictionaryKeyCallBacks,
+                                      &kCFTypeDictionaryValueCallBacks));
+    SkUniqueCFRef<CFNumberRef> opszValueNumber(
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &opsz));
+    // Avoid using kCTFontOpticalSizeAttribute directly
+    CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
+    CFDictionarySetValue(attr.get(), SkCTFontOpticalSizeAttribute, opszValueNumber.get());
+    return SkUniqueCFRef<CTFontDescriptorRef>(CTFontDescriptorCreateWithAttributes(attr.get()));
+}
+
 // CTFontCreateCopyWithAttributes or CTFontCreateCopyWithSymbolicTraits cannot be used on 10.10
 // and later, as they will return different underlying fonts depending on the size requested.
 // It is not possible to use descriptors with CTFontCreateWithFontDescriptor, since that does not
 // work with non-system fonts. As a result, create the strike specific CTFonts from the underlying
 // CGFont.
 static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
-                                                         const CGAffineTransform* transform)
+                                                         OpszVariation opsz)
 {
     SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
 
-    // The last parameter (CTFontDescriptorRef attributes) *must* be nullptr.
-    // If non-nullptr then with fonts with variation axes, the copy will fail in
+    // The last parameter (CTFontDescriptorRef attributes) *must* not set variations.
+    // If it sets variations then with fonts with variation axes the copy will fail in
     // CGFontVariationFromDictCallback when it assumes kCGFontVariationAxisName is CFNumberRef
     // which it quite obviously is not.
 
     // Because we cannot setup the CTFont descriptor to match, the same restriction applies here
     // as other uses of CTFontCreateWithGraphicsFont which is that such CTFonts should not escape
     // the scaler context, since they aren't 'normal'.
+
+    SkUniqueCFRef<CTFontDescriptorRef> desc;
+    if (opsz.isSet) {
+        desc = create_opsz_descriptor(opsz.value);
+    }
     return SkUniqueCFRef<CTFontRef>(
-            CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, transform, nullptr));
+            CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
 }
 
 SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
@@ -1044,7 +1081,8 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     // The transform contains everything except the requested text size.
     // Some properties, like 'trak', are based on the text size (before applying the matrix).
     CGFloat textSize = ScalarToCG(scale.y());
-    fCTFont = ctfont_create_exact_copy(ctFont, textSize, nullptr);
+    fCTFont = ctfont_create_exact_copy(ctFont, textSize,
+                                       ((SkTypeface_Mac*)this->getTypeface())->fOpszVariation);
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont.get(), nullptr));
 }
 
@@ -1246,8 +1284,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fWidth = SkToU16(skIBounds.width());
     glyph->fHeight = SkToU16(skIBounds.height());
 }
-
-#include "include/private/SkColorData.h"
 
 static constexpr uint8_t sk_pow2_table(size_t i) {
     return SkToU8(((i * i + 128) / 255));
@@ -1580,25 +1616,6 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Returns nullptr on failure
-// Call must still manage its ownership of provider
-static sk_sp<SkTypeface> create_from_dataProvider(SkUniqueCFRef<CGDataProviderRef> provider,
-                                                  std::unique_ptr<SkStreamAsset> providedData,
-                                                  int ttcIndex) {
-    if (ttcIndex != 0) {
-        return nullptr;
-    }
-    SkUniqueCFRef<CGFontRef> cg(CGFontCreateWithDataProvider(provider.get()));
-    if (!cg) {
-        return nullptr;
-    }
-    SkUniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg.get(), 0, nullptr, nullptr));
-    if (!ct) {
-        return nullptr;
-    }
-    return create_from_CTFontRef(std::move(ct), nullptr, std::move(providedData));
-}
-
 // Web fonts added to the CTFont registry do not return their character set.
 // Iterate through the font in this case. The existing caller caches the result,
 // so the performance impact isn't too bad.
@@ -1720,7 +1737,8 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
 
 void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
     SkUniqueCFRef<CTFontRef> ctFont =
-            ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
+            ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()),
+                                     fOpszVariation);
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
     populate_glyph_to_unicode(ctFont.get(), glyphCount, dstArray);
 }
@@ -1728,7 +1746,8 @@ void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
 
     SkUniqueCFRef<CTFontRef> ctFont =
-            ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
+            ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()),
+                                     fOpszVariation);
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
 
@@ -2077,7 +2096,7 @@ std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
 static SkUniqueCFRef<CFDictionaryRef> ct_variation_from_cg_variation(CFDictionaryRef cgVariations,
                                                                      CFArrayRef ctAxes) {
 
-    SkUniqueCFRef<CFMutableDictionaryRef> ctVariations(
+    SkUniqueCFRef<CFMutableDictionaryRef> ctVariation(
             CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
@@ -2107,9 +2126,9 @@ static SkUniqueCFRef<CFDictionaryRef> ct_variation_from_cg_variation(CFDictionar
             return nullptr;
         }
 
-        CFDictionaryAddValue(ctVariations.get(), axisTag, axisValue);
+        CFDictionaryAddValue(ctVariation.get(), axisTag, axisValue);
     }
-    return ctVariations;
+    return ctVariation;
 }
 
 int SkTypeface_Mac::onGetVariationDesignPosition(
@@ -2131,8 +2150,8 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
     // This call always returns nullptr on 10.11 and under for CGFontCreateWithDataProvider fonts.
     // When this happens, try converting the CG variation to a CT variation.
     // On 10.12 and later, this only returns non-default variations.
-    SkUniqueCFRef<CFDictionaryRef> ctVariations(CTFontCopyVariation(fFontRef.get()));
-    if (!ctVariations) {
+    SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(fFontRef.get()));
+    if (!ctVariation) {
         // When 10.11 and earlier are no longer supported, the following code can be replaced with
         // return -1 and ct_variation_from_cg_variation can be removed.
         SkUniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(fFontRef.get(), nullptr));
@@ -2143,8 +2162,8 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
         if (!cgVariations) {
             return -1;
         }
-        ctVariations = ct_variation_from_cg_variation(cgVariations.get(), ctAxes.get());
-        if (!ctVariations) {
+        ctVariation = ct_variation_from_cg_variation(cgVariations.get(), ctAxes.get());
+        if (!ctVariation) {
             return -1;
         }
     }
@@ -2168,7 +2187,7 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
         coordinates[i].axis = tagLong;
 
         CGFloat variationCGFloat;
-        CFTypeRef variationValue = CFDictionaryGetValue(ctVariations.get(), tagNumber);
+        CFTypeRef variationValue = CFDictionaryGetValue(ctVariation.get(), tagNumber);
         if (variationValue) {
             if (CFGetTypeID(variationValue) != CFNumberGetTypeID()) {
                 return -1;
@@ -2477,8 +2496,6 @@ static bool find_desc_str(CTFontDescriptorRef desc, CFStringRef name, SkString* 
     return true;
 }
 
-#include "include/core/SkFontMgr.h"
-
 static inline int sqr(int value) {
     SkASSERT(SkAbs32(value) < 0x7FFF);  // check for overflow
     return value * value;
@@ -2650,7 +2667,8 @@ protected:
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
         SkUniqueCFRef<CTFontRef> fallbackFont(
                 CTFontCreateForString(familyFont.get(), string.get(), range));
-        return create_from_CTFontRef(std::move(fallbackFont), nullptr, nullptr).release();
+        return create_from_CTFontRef(std::move(fallbackFont), nullptr,
+                                     OpszVariation(), nullptr).release();
     }
 
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
@@ -2659,36 +2677,52 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
-        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
-        if (!pr) {
+        if (ttcIndex != 0) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), SkMemoryStream::Make(std::move(data)),
-                                        ttcIndex);
+
+        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(data, ttcIndex);
+        if (!ct) {
+            return nullptr;
+        }
+
+        return create_from_CTFontRef(std::move(ct), nullptr, OpszVariation(),
+                                     SkMemoryStream::Make(std::move(data)));
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
-        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream->duplicate()));
-        if (!pr) {
+        if (ttcIndex != 0) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), std::move(stream), ttcIndex);
+
+        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
+        if (!data) {
+            return nullptr;
+        }
+        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
+        if (!ct) {
+            return nullptr;
+        }
+
+        return create_from_CTFontRef(std::move(ct), nullptr, OpszVariation(), std::move(stream));
     }
 
-    /** Creates a dictionary suitable for setting the axes on a CGFont. */
-    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CGFontRef cg, const SkFontArguments& args) {
-        // The CGFont variation data is keyed by name, but lacks the tag.
-        // The CTFont variation data is keyed by tag, and also has the name.
-        // We would like to work with CTFont variations, but creating a CTFont font with
-        // CTFont variation dictionary runs into bugs. So use the CTFont variation data
-        // to match names to tags to create the appropriate CGFont.
-        SkUniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
-        // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
-        // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
-        SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct.get()));
+    struct CTFontVariation {
+        SkUniqueCFRef<CFDictionaryRef> dict;
+        OpszVariation opsz;
+    };
+
+    /** Creates a dictionary suitable for setting the axes on a CTFont. */
+    static CTFontVariation ctvariation_from_skfontarguments(CTFontRef ct,
+                                                            const SkFontArguments& args)
+    {
+        OpszVariation opsz;
+        constexpr const SkFourByteTag opszTag = SkSetFourByteTag('o','p','s','z');
+
+        SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct));
         if (!ctAxes) {
-            return nullptr;
+            return CTFontVariation();
         }
         CFIndex axisCount = CFArrayGetCount(ctAxes.get());
 
@@ -2702,26 +2736,18 @@ protected:
         for (int i = 0; i < axisCount; ++i) {
             CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
             if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
-                return nullptr;
+                return CTFontVariation();
             }
             CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
-            // The assumption is that values produced by kCTFontVariationAxisNameKey and
-            // kCGFontVariationAxisName will always be equal.
-            // If they are ever not, seach the project history for "get_tag_for_name".
-            CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisNameKey);
-            if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
-                return nullptr;
-            }
-
             CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
             if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
-                return nullptr;
+                return CTFontVariation();
             }
             CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
             int64_t tagLong;
             if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
-                return nullptr;
+                return CTFontVariation();
             }
 
             // The variation axes can be set to any value, but cg will effectively pin them.
@@ -2733,7 +2759,7 @@ protected:
                 !max || CFGetTypeID(max) != CFNumberGetTypeID() ||
                 !def || CFGetTypeID(def) != CFNumberGetTypeID())
             {
-                return nullptr;
+                return CTFontVariation();
             }
             CFNumberRef minNumber = static_cast<CFNumberRef>(min);
             CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
@@ -2745,7 +2771,7 @@ protected:
                 !CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble) ||
                 !CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble))
             {
-                return nullptr;
+                return CTFontVariation();
             }
 
             double value = defDouble;
@@ -2755,58 +2781,129 @@ protected:
                 if (position.coordinates[j].axis == tagLong) {
                     value = SkTPin(SkScalarToDouble(position.coordinates[j].value),
                                    minDouble, maxDouble);
+                    if (tagLong == opszTag) {
+                        opsz.isSet = true;
+                    }
                     break;
                 }
             }
+            if (tagLong == opszTag) {
+                opsz.value = value;
+            }
             SkUniqueCFRef<CFNumberRef> valueNumber(
                 CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
-            CFDictionaryAddValue(dict.get(), axisName, valueNumber.get());
+            CFDictionaryAddValue(dict.get(), tagNumber, valueNumber.get());
         }
-        return dict;
+        return { SkUniqueCFRef<CFDictionaryRef>(std::move(dict)), opsz };
     }
-    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> s,
-                                           const SkFontArguments& args) const override {
-        if (args.getCollectionIndex() != 0) {
-            return nullptr;
+
+    static sk_sp<SkData> skdata_from_skstreamasset(std::unique_ptr<SkStreamAsset> stream) {
+        size_t size = stream->getLength();
+        if (const void* base = stream->getMemoryBase()) {
+            return SkData::MakeWithProc(base, size,
+                                        [](const void*, void* ctx) -> void {
+                                            delete (SkStreamAsset*)ctx;
+                                        }, stream.release());
         }
-        SkUniqueCFRef<CGDataProviderRef> provider(SkCreateDataProviderFromStream(s->duplicate()));
-        if (!provider) {
-            return nullptr;
-        }
-        SkUniqueCFRef<CGFontRef> cg(CGFontCreateWithDataProvider(provider.get()));
-        if (!cg) {
+        return SkData::MakeFromStream(stream.get(), size);
+    }
+
+    static SkUniqueCFRef<CFDataRef> cfdata_from_skdata(sk_sp<SkData> data) {
+        void const * const addr = data->data();
+        size_t const size = data->size();
+
+        CFAllocatorContext ctx = {
+            0, // CFIndex version
+            data.release(), // void* info
+            nullptr, // const void *(*retain)(const void *info);
+            nullptr, // void (*release)(const void *info);
+            nullptr, // CFStringRef (*copyDescription)(const void *info);
+            nullptr, // void * (*allocate)(CFIndex size, CFOptionFlags hint, void *info);
+            nullptr, // void*(*reallocate)(void* ptr,CFIndex newsize,CFOptionFlags hint,void* info);
+            [](void*,void* info) -> void { // void (*deallocate)(void *ptr, void *info);
+                SkASSERT(info);
+                ((SkData*)info)->unref();
+            },
+            nullptr, // CFIndex (*preferredSize)(CFIndex size, CFOptionFlags hint, void *info);
+        };
+        SkUniqueCFRef<CFAllocatorRef> alloc(CFAllocatorCreate(kCFAllocatorDefault, &ctx));
+        return SkUniqueCFRef<CFDataRef>(CFDataCreateWithBytesNoCopy(
+                kCFAllocatorDefault, (const UInt8 *)addr, size, alloc.get()));
+    }
+
+    static SkUniqueCFRef<CTFontRef> ctfont_from_skdata(sk_sp<SkData> data, int ttcIndex) {
+        // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
+        if (ttcIndex != 0) {
             return nullptr;
         }
 
-        SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), args);
-        // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
-        // created from a data provider does not appear to have any ownership of the underlying
-        // data. The original CGFontRef must be kept alive until the copy will no longer be used.
-        SkUniqueCFRef<CGFontRef> cgVariant;
-        if (cgVariations) {
-            cgVariant.reset(CGFontCreateCopyWithVariations(cg.get(), cgVariations.get()));
-        } else {
-            cgVariant.reset(cg.release());
+        SkUniqueCFRef<CFDataRef> cfData(cfdata_from_skdata(std::move(data)));
+
+        SkUniqueCFRef<CTFontDescriptorRef> desc(
+                CTFontManagerCreateFontDescriptorFromData(cfData.get()));
+        if (!desc) {
+            return nullptr;
+        }
+        return SkUniqueCFRef<CTFontRef>(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
+    }
+
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override
+    {
+        // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
+        int ttcIndex = args.getCollectionIndex();
+        if (ttcIndex != 0) {
+            return nullptr;
         }
 
-        SkUniqueCFRef<CTFontRef> ct(
-                CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, nullptr));
+        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
+        if (!data) {
+            return nullptr;
+        }
+        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
         if (!ct) {
             return nullptr;
         }
-        return create_from_CTFontRef(std::move(ct), std::move(cg), std::move(s));
-    }
 
-    /** Creates a dictionary suitable for setting the axes on a CGFont. */
-    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CGFontRef cg, SkFontData* fontData) {
-        SkUniqueCFRef<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cg));
-        if (!cgAxes) {
+        CTFontVariation ctVariation = ctvariation_from_skfontarguments(ct.get(), args);
+
+        SkUniqueCFRef<CTFontRef> ctVariant;
+        if (ctVariation.dict) {
+            SkUniqueCFRef<CFMutableDictionaryRef> attributes(
+                    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                              &kCFTypeDictionaryKeyCallBacks,
+                                              &kCFTypeDictionaryValueCallBacks));
+            CFDictionaryAddValue(attributes.get(),
+                                 kCTFontVariationAttribute, ctVariation.dict.get());
+            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
+                    CTFontDescriptorCreateWithAttributes(attributes.get()));
+            ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
+        } else {
+            ctVariant.reset(ct.release());
+        }
+        if (!ctVariant) {
             return nullptr;
         }
 
-        CFIndex axisCount = CFArrayGetCount(cgAxes.get());
+        return create_from_CTFontRef(std::move(ctVariant), nullptr, ctVariation.opsz,
+                                     std::move(stream));
+    }
+
+    /** Creates a dictionary suitable for setting the axes on a CTFont. */
+    static CTFontVariation ctvariation_from_skfontdata(CTFontRef ct, SkFontData* fontData) {
+        // In macOS 10.15 CTFontCreate* overrides any 'opsz' variation with the 'size'.
+        // Track the 'opsz' and return it, since it is an out of band axis.
+        OpszVariation opsz;
+        constexpr const SkFourByteTag opszTag = SkSetFourByteTag('o','p','s','z');
+
+        SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct));
+        if (!ctAxes) {
+            return CTFontVariation();
+        }
+
+        CFIndex axisCount = CFArrayGetCount(ctAxes.get());
         if (0 == axisCount || axisCount != fontData->getAxisCount()) {
-            return nullptr;
+            return CTFontVariation();
         }
 
         SkUniqueCFRef<CFMutableDictionaryRef> dict(
@@ -2815,25 +2912,31 @@ protected:
                                           &kCFTypeDictionaryValueCallBacks));
 
         for (int i = 0; i < fontData->getAxisCount(); ++i) {
-            CFTypeRef axisInfo = CFArrayGetValueAtIndex(cgAxes.get(), i);
+            CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
             if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
-                return nullptr;
+                return CTFontVariation();
             }
             CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
-            CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisName);
-            if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
-                return nullptr;
+            CFTypeRef tag = CFDictionaryGetValue(axisInfoDict,
+                                                 kCTFontVariationAxisIdentifierKey);
+            if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+                return CTFontVariation();
+            }
+            CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
+            int64_t tagLong;
+            if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+                return CTFontVariation();
             }
 
             // The variation axes can be set to any value, but cg will effectively pin them.
             // Pin them here to normalize.
-            CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisMinValue);
-            CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisMaxValue);
+            CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMinimumValueKey);
+            CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
             if (!min || CFGetTypeID(min) != CFNumberGetTypeID() ||
                 !max || CFGetTypeID(max) != CFNumberGetTypeID())
             {
-                return nullptr;
+                return CTFontVariation();
             }
             CFNumberRef minNumber = static_cast<CFNumberRef>(min);
             CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
@@ -2842,54 +2945,71 @@ protected:
             if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble) ||
                 !CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble))
             {
-                return nullptr;
+                return CTFontVariation();
             }
             double value = SkTPin(SkFixedToDouble(fontData->getAxis()[i]), minDouble, maxDouble);
+
+            if (tagLong == opszTag) {
+                opsz.isSet = true;
+                opsz.value = value;
+            }
+
             SkUniqueCFRef<CFNumberRef> valueNumber(
                     CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
-            CFDictionaryAddValue(dict.get(), axisName, valueNumber.get());
+            CFDictionaryAddValue(dict.get(), tagNumber, valueNumber.get());
         }
-        return dict;
+        return { SkUniqueCFRef<CFDictionaryRef>(std::move(dict)), opsz };
     }
     sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+        // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
         if (fontData->getIndex() != 0) {
             return nullptr;
         }
-        SkUniqueCFRef<CGDataProviderRef> provider(
-                SkCreateDataProviderFromStream(fontData->getStream()->duplicate()));
-        if (!provider) {
+
+        sk_sp<SkData> data = skdata_from_skstreamasset(fontData->getStream()->duplicate());
+        if (!data) {
             return nullptr;
         }
-        SkUniqueCFRef<CGFontRef> cg(CGFontCreateWithDataProvider(provider.get()));
-        if (!cg) {
-            return nullptr;
-        }
-
-        SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), fontData.get());
-        // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
-        // created from a data provider does not appear to have any ownership of the underlying
-        // data. The original CGFontRef must be kept alive until the copy will no longer be used.
-        SkUniqueCFRef<CGFontRef> cgVariant;
-        if (cgVariations) {
-            cgVariant.reset(CGFontCreateCopyWithVariations(cg.get(), cgVariations.get()));
-        } else {
-            cgVariant.reset(cg.release());
-        }
-
-        SkUniqueCFRef<CTFontRef> ct(
-                CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, nullptr));
+        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), fontData->getIndex());
         if (!ct) {
             return nullptr;
         }
-        return create_from_CTFontRef(std::move(ct), std::move(cg), fontData->detachStream());
+
+        CTFontVariation ctVariation = ctvariation_from_skfontdata(ct.get(), fontData.get());
+
+        SkUniqueCFRef<CTFontRef> ctVariant;
+        if (ctVariation.dict) {
+            SkUniqueCFRef<CFMutableDictionaryRef> attributes(
+                    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                              &kCFTypeDictionaryKeyCallBacks,
+                                              &kCFTypeDictionaryValueCallBacks));
+            CFDictionaryAddValue(attributes.get(),
+                                 kCTFontVariationAttribute, ctVariation.dict.get());
+            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
+                    CTFontDescriptorCreateWithAttributes(attributes.get()));
+            ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
+        } else {
+            ctVariant.reset(ct.release());
+        }
+        if (!ctVariant) {
+            return nullptr;
+        }
+
+        return create_from_CTFontRef(std::move(ctVariant), nullptr,
+                                     ctVariation.opsz, fontData->detachStream());
     }
 
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
-        SkUniqueCFRef<CGDataProviderRef> pr(CGDataProviderCreateWithFilename(path));
-        if (!pr) {
+        if (ttcIndex != 0) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), SkFILEStream::Make(path), ttcIndex);
+
+        sk_sp<SkData> data = SkData::MakeFromFileName(path);
+        if (!data) {
+            return nullptr;
+        }
+
+        return this->onMakeFromData(std::move(data), ttcIndex);
     }
 
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {

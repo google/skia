@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
-#include <functional>  // std::hash
 #include <vector>      // std::vector
 
 class SkWStream;
@@ -59,6 +58,7 @@ namespace skvm {
 
         void align(int mod);
 
+        void int3();
         void vzeroupper();
         void ret();
 
@@ -70,10 +70,17 @@ namespace skvm {
         DstEqXOpY vpand, vpor, vpxor, vpandn,
                   vpaddd, vpsubd, vpmulld,
                           vpsubw, vpmullw,
-                  vaddps, vsubps, vmulps, vdivps,
+                  vaddps, vsubps, vmulps, vdivps, vminps, vmaxps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
+
+        // Floating point comparisons are all the same instruction with varying imm.
+        void vcmpps(Ymm dst, Ymm x, Ymm y, int imm);
+        void vcmpeqps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,0); }
+        void vcmpltps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,1); }
+        void vcmpleps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,2); }
+        void vcmpneqps(Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,4); }
 
         using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
         DstEqXOpImm vpslld, vpsrld, vpsrad,
@@ -81,14 +88,14 @@ namespace skvm {
                     vpermq;
 
         using DstEqOpX = void(Ymm dst, Ymm x);
-        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq;
+        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq;
 
         void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
 
         struct Label {
-            int                                 offset = 0;
-            enum { None, ARMDisp19, X86Disp32 } kind = None;
-            std::vector<int>                    references;
+            int                                      offset = 0;
+            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
+            std::vector<int>                         references;
         };
 
         Label here();
@@ -98,13 +105,19 @@ namespace skvm {
         void je (Label*);
         void jne(Label*);
         void jl (Label*);
+        void jc (Label*);
         void cmp(GP64, int imm);
+
+        void vptest(Ymm dst, Label*);
 
         void vbroadcastss(Ymm dst, Label*);
         void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
         void vpshufb(Ymm dst, Ymm x, Label*);
+        void vpaddd (Ymm dst, Ymm x, Label*);
+        void vpsubd (Ymm dst, Ymm x, Label*);
+        void vmulps (Ymm dst, Ymm x, Label*);
 
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
@@ -136,8 +149,12 @@ namespace skvm {
                add4s,  sub4s,  mul4s,
               cmeq4s, cmgt4s,
                        sub8h,  mul8h,
-              fadd4s, fsub4s, fmul4s, fdiv4s,
+              fadd4s, fsub4s, fmul4s, fdiv4s, fmin4s, fmax4s,
+              fcmeq4s, fcmgt4s, fcmge4s,
               tbl;
+
+        // TODO: there are also float ==,<,<=,>,>= instructions with an immediate 0.0f,
+        // and the register comparison > and >= can also compare absolute values.  Interesting.
 
         // d += n*m
         void fmla4s(V d, V n, V m);
@@ -150,15 +167,17 @@ namespace skvm {
 
         // d = op(n)
         using DOpN = void(V d, V n);
-        DOpN scvtf4s,   // int -> float
+        DOpN not16b,    // d = ~n
+             scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
+             fcvtns4s,  // round float -> int
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
              uxtlb2h,   // u8 -> u16
-             uxtlh2s;   // u16 -> u32
+             uxtlh2s,   // u16 -> u32
+             uminv4s;   // dst[0] = min(n[0],n[1],n[2],n[3]), n as unsigned
 
-        // TODO: both these platforms support rounding float->int (vcvtps2dq, fcvtns.4s)... use?
-
+        void brk (int imm16);
         void ret (X);
         void add (X d, X n, int imm12);
         void sub (X d, X n, int imm12);
@@ -189,6 +208,8 @@ namespace skvm {
         void strq(V src, X dst);  // 128-bit *dst = src
         void strs(V src, X dst);  //  32-bit *dst = src
         void strb(V src, X dst);  //   8-bit *dst = src
+
+        void fmovs(X dst, V src); // dst = 32-bit src[0]
 
     private:
         // dst = op(dst, imm)
@@ -235,9 +256,10 @@ namespace skvm {
     };
 
     enum class Op : uint8_t {
+          assert_true,
           store8,   store16,   store32,
     // ↑ side effects / no side effects ↓
-
+           index,
            load8,    load16,    load32,
          gather8,  gather16,  gather32,
     // ↑ always varying / uniforms, constants, Just Math ↓
@@ -249,17 +271,18 @@ namespace skvm {
         sub_f32, sub_i32, sub_i16x2,
         mul_f32, mul_i32, mul_i16x2,
         div_f32,
+        min_f32,
+        max_f32,
         mad_f32,
                  shl_i32, shl_i16x2,
                  shr_i32, shr_i16x2,
                  sra_i32, sra_i16x2,
+        mul_f32_imm,
 
-         to_i32,  to_f32,
+         trunc, round,  to_f32,
 
          eq_f32,  eq_i32,  eq_i16x2,
         neq_f32, neq_i32, neq_i16x2,
-         lt_f32,  lt_i32,  lt_i16x2,
-        lte_f32, lte_i32, lte_i16x2,
          gt_f32,  gt_i32,  gt_i16x2,
         gte_f32, gte_i32, gte_i16x2,
 
@@ -287,7 +310,7 @@ namespace skvm {
         struct Instruction {
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
-            int imm;        // Immediate bit pattern, shift count, argument index, etc.
+            int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
 
             // Not populated until done() has been called.
             int  death;         // Index of last live instruction taking this input; live if != 0.
@@ -314,10 +337,15 @@ namespace skvm {
         // TODO: sign extension (signed types) for <32-bit loads?
         // TODO: unsigned integer operations where relevant (just comparisons?)?
 
+        void assert_true(I32 val);
+
         // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
         void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
+
+        // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
+        I32 index();
 
         // Load u8,u16,i32 varying.
         I32 load8 (Arg ptr);
@@ -333,6 +361,16 @@ namespace skvm {
         I32 uniform8 (Arg ptr, int offset=0);
         I32 uniform16(Arg ptr, int offset=0);
         I32 uniform32(Arg ptr, int offset=0);
+        F32 uniformF (Arg ptr, int offset=0) { return this->bit_cast(this->uniform32(ptr,offset)); }
+
+        struct Uniform {
+            Arg ptr;
+            int offset;
+        };
+        I32 uniform8 (Uniform u) { return this->uniform8 (u.ptr, u.offset); }
+        I32 uniform16(Uniform u) { return this->uniform16(u.ptr, u.offset); }
+        I32 uniform32(Uniform u) { return this->uniform32(u.ptr, u.offset); }
+        F32 uniformF (Uniform u) { return this->uniformF (u.ptr, u.offset); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -344,6 +382,8 @@ namespace skvm {
         F32 sub(F32 x, F32 y);
         F32 mul(F32 x, F32 y);
         F32 div(F32 x, F32 y);
+        F32 min(F32 x, F32 y);
+        F32 max(F32 x, F32 y);
         F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
 
         I32 eq (F32 x, F32 y);
@@ -353,7 +393,8 @@ namespace skvm {
         I32 gt (F32 x, F32 y);
         I32 gte(F32 x, F32 y);
 
-        I32 to_i32(F32 x);
+        I32 trunc(F32 x);
+        I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
 
         // int math, comparisons, etc.
@@ -426,36 +467,69 @@ namespace skvm {
         //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
         I32 bytes  (I32 x, int control);
 
-        I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
+        I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
         void dump(SkWStream* = nullptr) const;
 
+        uint32_t hash() const;
+
     private:
         struct InstructionHash {
-            template <typename T>
-            static size_t Hash(T val) {
-                return std::hash<T>{}(val);
-            }
             size_t operator()(const Instruction& inst) const;
         };
 
-        Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
-        bool isZero(Val) const;
+        Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
+
+        bool allImm() const;
+
+        template <typename T, typename... Rest>
+        bool allImm(Val, T* imm, Rest...) const;
+
+        template <typename T>
+        bool isImm(Val id, T want) const {
+            T imm = 0;
+            return this->allImm(id, &imm) && imm == want;
+        }
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+        uint32_t                                      fHash{0};
     };
+
+    // Helper to streamline allocating and working with uniforms.
+    struct Uniforms {
+        Arg              ptr;
+        std::vector<int> buf;
+
+        explicit Uniforms(int init) : ptr(Arg{0}), buf(init) {}
+
+        Builder::Uniform push(const int* vals, int n) {
+            int offset = sizeof(int)*buf.size();
+            buf.insert(buf.end(), vals, vals+n);
+            return {ptr, offset};
+        }
+        Builder::Uniform pushF(const float* vals, int n) {
+            return this->push((const int*)vals, n);
+        }
+
+        Builder::Uniform push (int   val) { return this->push (&val, 1); }
+        Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
+    };
+
+    // Maps Builder::Instructions to regions of JIT'd code, for debugging in VTune.
+    struct LineTableEntry { int line; size_t offset; };
 
     using Reg = int;
 
     class Program {
     public:
-        struct Instruction {   // d = op(x, y, z/imm)
+        struct Instruction {   // d = op(x, y/imm, z/imm)
             Op  op;
-            Reg d,x,y;
-            union { Reg z; int imm; };
+            Reg d,x;
+            union { Reg y; int immy; };
+            union { Reg z; int immz; };
         };
 
         Program(const std::vector<Builder::Instruction>& instructions,
@@ -495,6 +569,7 @@ namespace skvm {
 
         bool jit(const std::vector<Builder::Instruction>&,
                  bool try_hoisting,
+                 std::vector<LineTableEntry>*,
                  Assembler*) const;
 
         // Dump jit-*.dump files for perf inject.

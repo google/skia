@@ -6,6 +6,7 @@
 */
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -23,10 +24,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        const GrStencilSettings& stencil,
-        GrPrimitiveType primitiveType,
-        Desc* desc,
+        GrProgramDesc* desc,
         VkRenderPass compatibleRenderPass) {
+    // ensure that we use "." as a decimal separator when creating SkSL code
+    GrAutoLocaleSetter als("C");
+
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     GrVkPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
@@ -35,7 +37,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(stencil, primitiveType, compatibleRenderPass, desc);
+    return builder.finalize(compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -64,7 +66,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
-                                                    Desc* desc,
+                                                    GrProgramDesc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
     if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
@@ -133,21 +135,22 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
-    const Desc* desc = static_cast<const Desc*>(this->desc());
     // Here we shear off the Vk-specific portion of the Desc in order to create the
     // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
     // program, and that only depends on the base GrProgramDesc data.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+    // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
+    // to the key right after the base key.
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
+                                                this->desc()->initialKeyLength()+4);
+
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
-                                                      GrPrimitiveType primitiveType,
-                                                      VkRenderPass compatibleRenderPass,
-                                                      Desc* desc) {
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
+                                                      GrProgramDesc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -175,10 +178,12 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
-    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), CreatePipelineLayout(fGpu->device(),
-                                                                  &layoutCreateInfo,
-                                                                  nullptr,
-                                                                  &pipelineLayout));
+    VkResult result;
+    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
+                                                         &pipelineLayout));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
@@ -207,7 +212,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         // Here we shear off the Vk-specific portion of the Desc in order to create the
         // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
         // program, and that only depends on the base GrProgramDesc data.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+        // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
+        // to the key right after the base key.
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
@@ -291,8 +298,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
-        GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, stencil,
-            shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
+
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
+                                                             numShaderStages, compatibleRenderPass,
+                                                             pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
@@ -319,35 +328,4 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  std::move(fXferProcessor),
                                  std::move(fFragmentProcessors),
                                  fFragmentProcessorCnt);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
-                                           GrRenderTarget* renderTarget,
-                                           const GrProgramInfo& programInfo,
-                                           const GrStencilSettings& stencil,
-                                           GrPrimitiveType primitiveType,
-                                           GrVkGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
-        return false;
-    }
-
-    GrProcessorKeyBuilder b(&desc->key());
-
-    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
-    int keyLength = desc->key().count();
-    SkASSERT(0 == (keyLength % 4));
-    desc->fShaderKeyLength = SkToU32(keyLength);
-
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
-    vkRT->simpleRenderPass()->genKey(&b);
-
-    stencil.genKey(&b);
-
-    b.add32(programInfo.pipeline().getBlendInfoKey());
-
-    b.add32((uint32_t)primitiveType);
-
-    return true;
 }

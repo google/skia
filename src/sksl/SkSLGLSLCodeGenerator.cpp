@@ -153,6 +153,8 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             }
             break;
         }
+        case Type::kEnum_Kind:
+            return "int";
         default:
             return type.name();
     }
@@ -795,6 +797,10 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         case SK_CLOCKWISE_BUILTIN:
             this->write(fProgram.fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
+            break;
+        case SK_SAMPLEMASK_BUILTIN:
+            SkASSERT(fProgram.fSettings.fCaps->sampleMaskSupport());
+            this->write("gl_SampleMask");
             break;
         case SK_VERTEXID_BUILTIN:
             this->write("gl_VertexID");

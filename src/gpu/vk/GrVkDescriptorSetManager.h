@@ -50,17 +50,15 @@ public:
 
 private:
     struct DescriptorPoolManager {
-        DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
-                              const SkTArray<uint32_t>& visibilities,
-                              const SkTArray<const GrVkSampler*>& immutableSamplers);
-
+        DescriptorPoolManager(VkDescriptorSetLayout, VkDescriptorType type,
+                              uint32_t descCountPerSet);
 
         ~DescriptorPoolManager() {
             SkASSERT(!fDescLayout);
             SkASSERT(!fPool);
         }
 
-        void getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds);
+        bool getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds);
 
         void freeGPUResources(GrVkGpu* gpu);
         void abandonGPUResources();
@@ -74,16 +72,20 @@ private:
 
     private:
         enum {
-            kUniformDescPerSet = 1,
             kMaxDescriptors = 1024,
             kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
         };
 
-        void getNewPool(GrVkGpu* gpu);
+        bool getNewPool(GrVkGpu* gpu);
     };
 
+    static GrVkDescriptorSetManager* Create(GrVkGpu* gpu,
+                                            VkDescriptorType,
+                                            const SkTArray<uint32_t>& visibilities,
+                                            const SkTArray<const GrVkSampler*>& immutableSamplers);
+
     GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorType,
+                             VkDescriptorType, VkDescriptorSetLayout, uint32_t descCountPerSet,
                              const SkTArray<uint32_t>& visibilities,
                              const SkTArray<const GrVkSampler*>& immutableSamplers);
 

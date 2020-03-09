@@ -180,12 +180,8 @@ def parse_trace(trace_json, lottie_filename, api):
   current_frame_duration = 0
   total_frames = 0
   frame_start = False
-  skipped_first_seek = False  # Skip the first seek constructor call.
   for trace in trace_json:
     if '%s' in trace['name']:
-      if not skipped_first_seek:
-        skipped_first_seek = True
-        continue
       if frame_start:
         raise Exception('We got consecutive Animation::seek without a ' +
                         'render. Something is wrong.')

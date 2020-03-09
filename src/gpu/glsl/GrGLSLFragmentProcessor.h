@@ -35,7 +35,7 @@ public:
 
 private:
     /**
-     * This class allows the shader builder to provide each GrGLSLFragmentProcesor with an array of
+     * This class allows the shader builder to provide each GrGLSLFragmentProcessor with an array of
      * generated variables where each generated variable corresponds to an element of an array on
      * the GrFragmentProcessor that generated the GLSLFP. For example, this is used to provide a
      * variable holding transformed coords for each GrCoordTransform owned by the FP.
@@ -54,15 +54,15 @@ private:
 
         BuilderInputProvider childInputs(int childIdx) const {
             const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
-            GrFragmentProcessor::Iter iter(fFP);
             int numToSkip = 0;
-            while (true) {
-                const GrFragmentProcessor* fp = iter.next();
-                if (fp == child) {
+            for (const auto& fp : GrFragmentProcessor::FPCRange(*fFP)) {
+                if (&fp == child) {
                     return BuilderInputProvider(child, fTs + numToSkip);
                 }
-                numToSkip += (fp->*COUNT)();
+                numToSkip += (fp.*COUNT)();
             }
+            SK_ABORT("Didn't find the child.");
+            return {nullptr, nullptr};
         }
 
     private:
@@ -134,9 +134,7 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLSLFragmentProcessor* childProcessor(int index) {
-        return fChildProcessors[index];
-    }
+    GrGLSLFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
 
     // Invoke the child with the default input color (solid white)
     inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs,
@@ -168,17 +166,22 @@ public:
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
-     * GLSLFPS. This agrees with the traversal order of GrFragmentProcessor::Iter
+     * GLSLFPS. If initialized with an array color followed by coverage processors installed in a
+     * program thenthe iteration order will agree with a GrFragmentProcessor::Iter initialized with
+     * a GrPipeline that produces the same program key.
      */
-    class Iter : public SkNoncopyable {
+    class Iter {
     public:
-        explicit Iter(GrGLSLFragmentProcessor* fp) { fFPStack.push_back(fp); }
-        explicit Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt) {
-            for (int i = cnt - 1; i >= 0; --i) {
-                fFPStack.push_back(fps[i].get());
-            }
-        }
-        GrGLSLFragmentProcessor* next();
+        Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt);
+
+        GrGLSLFragmentProcessor& operator*() const;
+        GrGLSLFragmentProcessor* operator->() const;
+        Iter& operator++();
+        operator bool() const { return !fFPStack.empty(); }
+
+        // Because each iterator carries a stack we want to avoid copies.
+        Iter(const Iter&) = delete;
+        Iter& operator=(const Iter&) = delete;
 
     private:
         SkSTArray<4, GrGLSLFragmentProcessor*, true> fFPStack;

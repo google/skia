@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrResourceHandle.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
@@ -44,10 +45,8 @@ public:
     void init();
 
     GrVkPipeline* createPipeline(const GrProgramInfo&,
-                                 const GrStencilSettings& stencil,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
-                                 GrPrimitiveType primitiveType,
                                  VkRenderPass compatibleRenderPass,
                                  VkPipelineLayout layout);
 
@@ -70,7 +69,7 @@ public:
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
     // If this is non null it will be set to a handle that can be used in the furutre to quickly
     // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
-    const GrVkRenderPass* findRenderPass(const GrVkRenderTarget& target,
+    const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle = nullptr);
@@ -113,7 +112,6 @@ public:
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
             GrRenderTarget*,
             const GrProgramInfo&,
-            GrPrimitiveType,
             VkRenderPass compatibleRenderPass);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
@@ -194,7 +192,6 @@ private:
         void release();
         GrVkPipelineState* refPipelineState(GrRenderTarget*,
                                             const GrProgramInfo&,
-                                            GrPrimitiveType,
                                             VkRenderPass compatibleRenderPass);
 
     private:
@@ -206,7 +203,7 @@ private:
             }
         };
 
-        SkLRUCache<const GrVkPipelineStateBuilder::Desc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<const GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
         GrVkGpu*                    fGpu;
 
@@ -221,7 +218,7 @@ private:
         // This will always construct the basic load store render pass (all attachments load and
         // store their data) so that there is at least one compatible VkRenderPass that can be used
         // with this set.
-        CompatibleRenderPassSet(const GrVkGpu* gpu, const GrVkRenderTarget& target);
+        CompatibleRenderPassSet(GrVkRenderPass* renderPass);
 
         bool isCompatible(const GrVkRenderTarget& target) const;
 
@@ -232,7 +229,7 @@ private:
             return fRenderPasses[0];
         }
 
-        GrVkRenderPass* getRenderPass(const GrVkGpu* gpu,
+        GrVkRenderPass* getRenderPass(GrVkGpu* gpu,
                                       const GrVkRenderPass::LoadStoreOps& colorOps,
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 

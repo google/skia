@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
     arrowPath.addPoly(arrow, SK_ARRAY_COUNT(arrow), true);
     arrowPaint.setPathEffect(SkPath1DPathEffect::Make(arrowPath, 176, 0,
                              SkPath1DPathEffect::kRotate_Style));
-    for (auto direction : { SkPath::kCW_Direction, SkPath::kCCW_Direction } ) {
+    for (auto direction : { SkPathDirection::kCW, SkPathDirection::kCCW } ) {
         for (unsigned start : { 0, 1, 2, 3 } ) {
            SkPath path;
            path.addRect(rect, direction, start);

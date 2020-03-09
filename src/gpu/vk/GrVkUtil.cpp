@@ -96,12 +96,6 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
         case 16:
             *vkSamples = VK_SAMPLE_COUNT_16_BIT;
             return true;
-        case 32:
-            *vkSamples = VK_SAMPLE_COUNT_32_BIT;
-            return true;
-        case 64:
-            *vkSamples = VK_SAMPLE_COUNT_64_BIT;
-            return true;
         default:
             return false;
     }
@@ -118,7 +112,7 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
     return SkSL::Program::kFragment_Kind;
 }
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
+bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
@@ -144,7 +138,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
     return GrInstallVkShaderModule(gpu, *outSPIRV, stage, shaderModule, stageInfo);
 }
 
-bool GrInstallVkShaderModule(const GrVkGpu* gpu,
+bool GrInstallVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& spirv,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
@@ -157,10 +151,9 @@ bool GrInstallVkShaderModule(const GrVkGpu* gpu,
     moduleCreateInfo.codeSize = spirv.size();
     moduleCreateInfo.pCode = (const uint32_t*)spirv.c_str();
 
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
-                                                                     &moduleCreateInfo,
-                                                                     nullptr,
-                                                                     shaderModule));
+    VkResult err;
+    GR_VK_CALL_RESULT(gpu, err, CreateShaderModule(gpu->device(), &moduleCreateInfo, nullptr,
+                                                   shaderModule));
     if (err) {
         return false;
     }

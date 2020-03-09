@@ -187,8 +187,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
             auto proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, X_SIZE, Y_SIZE, info.fColorType, info.fAlphaType, origin,
-                    rgbaData, 0);
+                    context, renderable, origin,
+                    {info.fColorType, info.fAlphaType, nullptr, X_SIZE, Y_SIZE}, rgbaData, 0);
             if (!proxy) {
                 continue;
             }

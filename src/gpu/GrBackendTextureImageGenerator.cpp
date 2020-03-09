@@ -24,11 +24,13 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLTexture.h"
 
-GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture, uint32_t owningContextID)
+GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture, uint32_t owningContextID,
+                                                     std::unique_ptr<GrSemaphore> semaphore)
         : fOriginalTexture(texture)
         , fOwningContextID(owningContextID)
         , fBorrowingContextReleaseProc(nullptr)
-        , fBorrowingContextID(SK_InvalidGenID) {}
+        , fBorrowingContextID(SK_InvalidGenID)
+        , fSemaphore(std::move(semaphore)) {}
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     SkASSERT(fBorrowingContextID == SK_InvalidUniqueID);
@@ -41,7 +43,7 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 
 std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
-                                     sk_sp<GrSemaphore> semaphore, SkColorType colorType,
+                                     std::unique_ptr<GrSemaphore> semaphore, SkColorType colorType,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     GrContext* context = texture->getContext();
 
@@ -64,15 +66,15 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
           std::move(semaphore), backendTexture));
 }
 
-GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo& info,
-                                                               GrTexture* texture,
-                                                               GrSurfaceOrigin origin,
-                                                               uint32_t owningContextID,
-                                                               sk_sp<GrSemaphore> semaphore,
-                                                               const GrBackendTexture& backendTex)
+GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(
+        const SkImageInfo& info,
+        GrTexture* texture,
+        GrSurfaceOrigin origin,
+        uint32_t owningContextID,
+        std::unique_ptr<GrSemaphore> semaphore,
+        const GrBackendTexture& backendTex)
         : INHERITED(info)
-        , fRefHelper(new RefHelper(texture, owningContextID))
-        , fSemaphore(std::move(semaphore))
+        , fRefHelper(new RefHelper(texture, owningContextID, std::move(semaphore)))
         , fBackendTexture(backendTex)
         , fSurfaceOrigin(origin) {}
 
@@ -111,6 +113,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
         if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
             fBorrowingMutex.release();
+            SkDebugf("GrBackendTextureImageGenerator: Trying to use texture on two GrContexts!\n");
             return nullptr;
         } else {
             SkASSERT(fRefHelper->fBorrowingContextReleaseProc);
@@ -160,11 +163,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actually execute the lambda.
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper = fRefHelper, releaseProcHelper, semaphore = fSemaphore,
-             backendTexture = fBackendTexture, grColorType](
+            [refHelper = fRefHelper, releaseProcHelper, backendTexture = fBackendTexture,
+             grColorType](
                     GrResourceProvider* resourceProvider) -> GrSurfaceProxy::LazyCallbackResult {
-                if (semaphore) {
-                    resourceProvider->priv().gpu()->waitSemaphore(semaphore);
+                if (refHelper->fSemaphore) {
+                    resourceProvider->priv().gpu()->waitSemaphore(refHelper->fSemaphore.get());
                 }
 
                 // If a client re-draws the same image multiple times, the texture we return
@@ -218,7 +221,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        return GrSurfaceProxy::Copy(context, proxy.get(), grColorType, mipMapped, subset,
-                                    SkBackingFit::kExact, SkBudgeted::kYes);
+        return GrSurfaceProxy::Copy(context, proxy.get(), mipMapped, subset, SkBackingFit::kExact,
+                                    SkBudgeted::kYes);
     }
 }

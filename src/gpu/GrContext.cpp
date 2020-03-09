@@ -12,6 +12,7 @@
 #include "include/private/SkDeferredDisplayList.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrContextPriv.h"
@@ -256,7 +257,7 @@ size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipMapped mipMapped, 
 
     const GrCaps& caps = *gpuImage->context()->priv().caps();
     int colorSamplesPerPixel = 1;
-    return GrSurface::ComputeSize(caps, proxy->backendFormat(), image->width(), image->height(),
+    return GrSurface::ComputeSize(caps, proxy->backendFormat(), image->dimensions(),
                                   colorSamplesPerPixel, mipMapped, useNextPow2);
 }
 
@@ -287,10 +288,10 @@ bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[
         return false;
     }
     for (int i = 0; i < numSemaphores; ++i) {
-        sk_sp<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+        std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
                 waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
                 kAdopt_GrWrapOwnership);
-        fGpu->waitSemaphore(std::move(sema));
+        fGpu->waitSemaphore(sema.get());
     }
     return true;
 }
@@ -380,9 +381,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return fGpu->createBackendTexture(width, height, backendFormat,
-                                      mipMapped, renderable,
-                                      nullptr, 0, nullptr, isProtected);
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
+    }
+
+    return fGpu->createBackendTexture({width, height}, backendFormat, renderable, nullptr,
+                                      numMipLevels, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -481,9 +486,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return fGpu->createBackendTexture(width, height, backendFormat,
-                                      mipMapped, renderable,
-                                      nullptr, 0, &color, isProtected);
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
+    }
+    GrGpu::BackendTextureData data(color);
+    return fGpu->createBackendTexture({width, height}, backendFormat, renderable, &data,
+                                      numMipLevels, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -534,9 +543,9 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
 
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
-    return fGpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
-                                      numLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
-                                      renderable, srcData, numLevels, nullptr, isProtected);
+    GrGpu::BackendTextureData data(srcData);
+    return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable, &data,
+                                      numLevels, isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {

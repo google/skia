@@ -691,7 +691,7 @@ protected:
 
             // mimic how Chrome does circles
             temp.arcTo(r, 0, 0, false);
-            temp.addOval(r, SkPath::kCCW_Direction);
+            temp.addOval(r, SkPathDirection::kCCW);
             temp.arcTo(r, 360, 0, true);
             temp.close();
 
@@ -1206,7 +1206,7 @@ public:
         fPath.addRRect(SkRRect::MakeRectXY(r, w/8.0f, h/8.0f));
 
         if (forceConcave) {
-            fPath.setConvexity(SkPath::kConcave_Convexity);
+            fPath.setConvexityType(SkPathConvexityType::kConcave);
             SkASSERT(!fPath.isConvex());
         } else {
             SkASSERT(fPath.isConvex());

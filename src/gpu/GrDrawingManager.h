@@ -26,6 +26,7 @@ class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSoftwarePathRenderer;
+class GrSurfaceProxyView;
 class GrTextureContext;
 class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
@@ -48,7 +49,7 @@ public:
 
     // A managed opsTask is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.
-    sk_sp<GrOpsTask> newOpsTask(sk_sp<GrRenderTargetProxy>, bool managedOpsTask);
+    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool managedOpsTask);
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call
@@ -60,7 +61,8 @@ public:
     // work (even to other proxies) that has already been recorded or will be recorded later. The
     // only guarantee is that future work to the passed in proxy will wait on the semaphores to be
     // signaled.
-    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy, std::unique_ptr<sk_sp<GrSemaphore>[]>,
+    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                           std::unique_ptr<std::unique_ptr<GrSemaphore>[]>,
                            int numSemaphores);
 
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
@@ -72,14 +74,14 @@ public:
                                    GrColorType surfaceColorType, GrColorType dstColorType,
                                    sk_sp<GrGpuBuffer> dstBuffer, size_t dstOffset);
 
-    // Creates a new render task which copies a pixel rectangle from srcProxy into dstProxy. The src
+    // Creates a new render task which copies a pixel rectangle from srcView into dstView. The src
     // pixels copied are specified by srcRect. They are copied to a rect of the same size in
     // dstProxy with top left at dstPoint. If the src rect is clipped by the src bounds then  pixel
     // values in the dst rect corresponding to the area clipped by the src rect are not overwritten.
     // This method is not guaranteed to succeed depending on the type of surface, formats, etc, and
     // the backend-specific limitations.
-    bool newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy, const SkIRect& srcRect,
-                           sk_sp<GrSurfaceProxy> dstProxy, const SkIPoint& dstPoint);
+    bool newCopyRenderTask(GrSurfaceProxyView srcView, const SkIRect& srcRect,
+                           GrSurfaceProxyView dstView, const SkIPoint& dstPoint);
 
     GrRecordingContext* getContext() { return fContext; }
 

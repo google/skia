@@ -83,8 +83,7 @@ LOTTIE_WEB_CANVAS_BLACKLIST = LOTTIE_WEB_BLACKLIST + [
 def RunSteps(api):
   api.vars.setup()
   api.flavor.setup()
-  checkout_root = api.checkout.default_checkout_root
-  api.checkout.bot_update(checkout_root=checkout_root)
+  checkout_root = api.path['start_dir']
   buildername = api.properties['buildername']
   node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
   lottie_files = api.file.listdir(

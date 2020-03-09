@@ -537,10 +537,11 @@ static void create_vertices(const SegmentArray& segments,
 
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkMatrix& localMatrix, bool usesLocalCoords,
-                                           bool wideColor) {
-        return sk_sp<GrGeometryProcessor>(
-                new QuadEdgeEffect(localMatrix, usesLocalCoords, wideColor));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const SkMatrix& localMatrix,
+                                     bool usesLocalCoords,
+                                     bool wideColor) {
+        return arena->make<QuadEdgeEffect>(localMatrix, usesLocalCoords, wideColor);
     }
 
     ~QuadEdgeEffect() override {}
@@ -610,9 +611,9 @@ public:
 
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& gp,
-                     FPCoordTransformIter&& transformIter) override {
+                     const CoordTransformRange& transformRange) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
-            this->setTransformDataHelper(qe.fLocalMatrix, pdman, &transformIter);
+            this->setTransformDataHelper(qe.fLocalMatrix, pdman, transformRange);
         }
 
     private:
@@ -628,6 +629,8 @@ public:
     }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords, bool wideColor)
             : INHERITED(kQuadEdgeEffect_ClassID)
             , fLocalMatrix(localMatrix)
@@ -653,11 +656,11 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
+GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
     return d->caps()->shaderCaps()->shaderDerivativeSupport()
-                   ? QuadEdgeEffect::Make(GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool(),
-                                          d->fRandom->nextBool())
+                   ? QuadEdgeEffect::Make(d->allocator(), GrTest::TestMatrix(d->fRandom),
+                                          d->fRandom->nextBool(), d->fRandom->nextBool())
                    : nullptr;
 }
 #endif
@@ -740,8 +743,9 @@ private:
         }
 
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> quadProcessor(
-                QuadEdgeEffect::Make(invert, fHelper.usesLocalCoords(), fWideColor));
+        GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(target->allocator(), invert,
+                                                                  fHelper.usesLocalCoords(),
+                                                                  fWideColor);
         const size_t kVertexStride = quadProcessor->vertexStride();
 
         // TODO generate all segments for all paths and use one vertex buffer
@@ -812,7 +816,7 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->recordDraw(quadProcessor, meshes, draws.count());
+            target->recordDraw(quadProcessor, meshes, draws.count(), GrPrimitiveType::kTriangles);
         }
     }
 

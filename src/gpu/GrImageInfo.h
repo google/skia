@@ -25,22 +25,30 @@ public:
     GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, const SkISize& dimensions)
             : fColorInfo(ct, at, std::move(cs)), fDimensions(dimensions) {}
 
+    GrImageInfo(const GrColorInfo& info, const SkISize& dimensions)
+            : fColorInfo(info), fDimensions(dimensions) {}
+
+    GrImageInfo(GrColorInfo&& info, const SkISize& dimensions)
+            : fColorInfo(std::move(info)), fDimensions(dimensions) {}
+
     GrImageInfo(const GrImageInfo&) = default;
     GrImageInfo(GrImageInfo&&) = default;
     GrImageInfo& operator=(const GrImageInfo&) = default;
     GrImageInfo& operator=(GrImageInfo&&) = default;
 
-    GrImageInfo makeColorType(GrColorType ct) {
+    GrImageInfo makeColorType(GrColorType ct) const {
         return {ct, this->alphaType(), this->refColorSpace(), this->width(), this->height()};
     }
 
-    GrImageInfo makeAlphaType(SkAlphaType at) {
+    GrImageInfo makeAlphaType(SkAlphaType at) const {
         return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
     }
 
-    GrImageInfo makeWH(int width, int height) {
+    GrImageInfo makeWH(int width, int height) const {
         return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
     }
+
+    const GrColorInfo& colorInfo() const { return fColorInfo; }
 
     GrColorType colorType() const { return fColorInfo.colorType(); }
 

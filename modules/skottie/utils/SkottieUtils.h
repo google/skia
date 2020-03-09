@@ -8,10 +8,6 @@
 #ifndef SkottieUtils_DEFINED
 #define SkottieUtils_DEFINED
 
-#include "include/core/SkColor.h"
-#include "include/core/SkString.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTHash.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 
@@ -20,74 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-class SkAnimCodecPlayer;
-class SkData;
-class SkImage;
-
 namespace skottie_utils {
-
-class MultiFrameImageAsset final : public skottie::ImageAsset {
-public:
-    /**
-    * By default, images are decoded on-the-fly, at rasterization time.
-    * Large images may cause jank as decoding is expensive (and can thrash internal caches).
-    *
-    * Pass |predecode| true to force-decode all images upfront, at the cost of potentially more RAM
-    * and slower animation build times.
-    */
-    static sk_sp<MultiFrameImageAsset> Make(sk_sp<SkData>, bool predecode = false);
-
-    bool isMultiFrame() override;
-
-    sk_sp<SkImage> getFrame(float t) override;
-
-private:
-    explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>, bool predecode);
-
-    std::unique_ptr<SkAnimCodecPlayer> fPlayer;
-    bool                               fPreDecode;
-
-    using INHERITED = skottie::ImageAsset;
-};
-
-class FileResourceProvider final : public skottie::ResourceProvider {
-public:
-    static sk_sp<FileResourceProvider> Make(SkString base_dir, bool predecode = false);
-
-    sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override;
-
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char[], const char[],
-                                              const char[]) const override;
-
-private:
-    FileResourceProvider(SkString, bool);
-
-    const SkString fDir;
-    const bool     fPredecode;
-
-    using INHERITED = skottie::ResourceProvider;
-};
-
-class CachingResourceProvider final : public skottie::ResourceProvider {
-public:
-    static sk_sp<CachingResourceProvider> Make(sk_sp<ResourceProvider> rp) {
-        return rp ? sk_sp<CachingResourceProvider>(new CachingResourceProvider(std::move(rp)))
-                  : nullptr;
-    }
-
-private:
-    explicit CachingResourceProvider(sk_sp<ResourceProvider>);
-
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char[], const char[],
-                                              const char[]) const override;
-
-    const sk_sp<ResourceProvider> fProxy;
-
-    mutable SkMutex                                          fMutex;
-    mutable SkTHashMap<SkString, sk_sp<skottie::ImageAsset>> fImageCache;
-
-    using INHERITED = skottie::ResourceProvider;
-};
 
 /**
  * CustomPropertyManager implements a property management scheme where color/opacity/transform

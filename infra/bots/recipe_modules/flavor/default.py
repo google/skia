@@ -9,73 +9,18 @@
 """Default flavor, used for running code on desktop machines."""
 
 
+import collections
+
+
 WIN_TOOLCHAIN_DIR = 't'
 
 
-class DeviceDirs(object):
-  def __init__(self,
-               bin_dir,
-               dm_dir,
-               perf_data_dir,
-               resource_dir,
-               images_dir,
-               lotties_dir,
-               skp_dir,
-               svg_dir,
-               mskp_dir,
-               tmp_dir):
-    self._bin_dir = bin_dir
-    self._dm_dir = dm_dir
-    self._perf_data_dir = perf_data_dir
-    self._resource_dir = resource_dir
-    self._images_dir = images_dir
-    self._lotties_dir = lotties_dir
-    self._skp_dir = skp_dir
-    self._svg_dir = svg_dir
-    self._mskp_dir = mskp_dir
-    self._tmp_dir = tmp_dir
-
-  @property
-  def bin_dir(self):
-    return self._bin_dir
-
-  @property
-  def dm_dir(self):
-    """Where DM writes."""
-    return self._dm_dir
-
-  @property
-  def perf_data_dir(self):
-    return self._perf_data_dir
-
-  @property
-  def resource_dir(self):
-    return self._resource_dir
-
-  @property
-  def images_dir(self):
-    return self._images_dir
-
-  @property
-  def lotties_dir(self):
-    return self._lotties_dir
-
-  @property
-  def skp_dir(self):
-    """Holds SKP files that are consumed by RenderSKPs and BenchPictures."""
-    return self._skp_dir
-
-  @property
-  def svg_dir(self):
-    return self._svg_dir
-
-  @property
-  def mskp_dir(self):
-    return self._mskp_dir
-
-  @property
-  def tmp_dir(self):
-    return self._tmp_dir
+# Notes:
+#   dm_dir: Where DM writes.
+#   skp_dir: Holds SKP files that are consumed by RenderSKPs and BenchPictures.
+DeviceDirs = collections.namedtuple(
+    'DeviceDirs', ['bin_dir', 'dm_dir', 'perf_data_dir', 'resource_dir', 'images_dir',
+                   'lotties_dir', 'skp_dir', 'svg_dir', 'mskp_dir', 'tmp_dir', 'texttraces_dir'])
 
 
 class DefaultFlavor(object):
@@ -99,7 +44,8 @@ class DefaultFlavor(object):
         skp_dir=self.m.path['start_dir'].join('skp'),
         svg_dir=self.m.path['start_dir'].join('svg'),
         mskp_dir=self.m.path['start_dir'].join('mskp'),
-        tmp_dir=self.m.vars.tmp_dir)
+        tmp_dir=self.m.vars.tmp_dir,
+        texttraces_dir=self.m.path['start_dir'].join('text_blob_traces'))
     self.host_dirs = self.device_dirs
 
   def device_path_join(self, *args):

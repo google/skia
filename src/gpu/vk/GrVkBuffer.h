@@ -77,7 +77,7 @@ protected:
     };
 
     // convenience routine for raw buffer creation
-    static const Resource* Create(const GrVkGpu* gpu,
+    static const Resource* Create(GrVkGpu* gpu,
                                   const Desc& descriptor);
 
     GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)

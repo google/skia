@@ -26,7 +26,6 @@ def RunSteps(api):
   checkout_flutter = False
   extra_gclient_env = {}
   flutter_android = False
-  parent_rev = False
   if 'CommandBuffer' in api.vars.builder_name:
     checkout_chromium = True
   if 'RecreateSKPs' in api.vars.builder_name:
@@ -38,8 +37,6 @@ def RunSteps(api):
     checkout_flutter = True
     if 'Android' in api.vars.builder_name:
       flutter_android = True
-  if 'ParentRevision' in api.vars.builder_name:
-    parent_rev = True
 
   if bot_update:
     api.checkout.bot_update(
@@ -47,15 +44,13 @@ def RunSteps(api):
         checkout_chromium=checkout_chromium,
         checkout_flutter=checkout_flutter,
         extra_gclient_env=extra_gclient_env,
-        flutter_android=flutter_android,
-        parent_rev=parent_rev)
+        flutter_android=flutter_android)
   else:
     api.checkout.git(checkout_root=api.path['start_dir'])
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 
 TEST_BUILDERS = [
-  'Build-Win-Clang-x86_64-Release-ParentRevision',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Housekeeper-Weekly-RecreateSKPs',
 ]
@@ -71,25 +66,7 @@ def GenTests(api):
                        path_config='kitchen',
                        swarm_out_dir='[SWARM_OUT_DIR]')
     )
-    if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
-      test += api.platform('win', 64)
     yield test
-
-  buildername = 'Build-Win-Clang-x86_64-Release-ParentRevision'
-  yield (
-      api.test('parent_revision_trybot') +
-      api.properties(buildername=buildername,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
-                     patch_issue=456789,
-                     patch_set=12,
-                     patch_ref='refs/changes/89/456789/12',
-                     patch_repo='https://skia.googlesource.com/skia.git',
-                     patch_storage='gerrit') +
-      api.platform('win', 64)
-  )
 
   buildername = 'Build-Debian9-Clang-arm-Release-Flutter_Android'
   yield (
@@ -126,7 +103,7 @@ def GenTests(api):
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
-  buildername = 'Build-Debian9-GCC-x86_64-Release'
+  buildername = 'Build-Debian9-Clang-x86_64-Release'
   yield (
       api.test('cross_repo_trybot') +
       api.properties(

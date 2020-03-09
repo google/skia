@@ -26,7 +26,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get lottie-samples VERSION"
+    "name": "Get lottie-samples VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -139,13 +143,16 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read [START_DIR]/[SWARM_OUT_DIR]/2.json"
+    "name": "read [START_DIR]/[SWARM_OUT_DIR]/2.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@2.json@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "lottie 3!.json",
       "/path/to/tmp/json"
@@ -178,12 +185,8 @@
       "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
       "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
       "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
       "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
       "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
       "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
@@ -275,13 +278,16 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read [START_DIR]/[SWARM_OUT_DIR]/3.json"
+    "name": "read [START_DIR]/[SWARM_OUT_DIR]/3.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@3.json@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "lottie(test)'!2.json",
       "/path/to/tmp/json"
@@ -314,12 +320,8 @@
       "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
       "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
       "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
       "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
       "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
       "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
@@ -411,13 +413,16 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read [START_DIR]/[SWARM_OUT_DIR]/4.json"
+    "name": "read [START_DIR]/[SWARM_OUT_DIR]/4.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@4.json@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "lottie1.json",
       "/path/to/tmp/json"
@@ -450,12 +455,8 @@
       "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
       "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
       "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
       "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
       "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
       "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
       "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",

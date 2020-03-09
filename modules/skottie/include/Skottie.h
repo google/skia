@@ -13,12 +13,11 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "modules/skresources/include/SkResources.h"
 
 #include <memory>
 
 class SkCanvas;
-class SkData;
-class SkImage;
 struct SkRect;
 class SkStream;
 
@@ -33,68 +32,10 @@ class Scene;
 
 namespace skottie {
 
+using ImageAsset = skresources::ImageAsset;
+using ResourceProvider = skresources::ResourceProvider;
+
 class PropertyObserver;
-
-/**
- * Image asset proxy interface.
- */
-class SK_API ImageAsset : public SkRefCnt {
-public:
-    /**
-     * Returns true if the image asset is animated.
-     */
-    virtual bool isMultiFrame() = 0;
-
-    /**
-     * Returns the SkImage for a given frame.
-     *
-     * If the image asset is static, getImage() is only called once, at animation load time.
-     * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
-     *
-     * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
-     *
-     * @param t   Frame time code, in seconds, relative to the image layer timeline origin
-     *            (in-point).
-     */
-    virtual sk_sp<SkImage> getFrame(float t) = 0;
-};
-
-/**
- * ResourceProvider allows Skottie embedders to control loading of external
- * Skottie resources -- e.g. images, fonts, nested animations.
- */
-class SK_API ResourceProvider : public SkRefCnt {
-public:
-    /**
-     * Load a generic resource (currently only nested animations) specified by |path| + |name|,
-     * and return as an SkData.
-     */
-    virtual sk_sp<SkData> load(const char resource_path[],
-                               const char resource_name[]) const;
-
-    /**
-     * Load an image asset specified by |path| + |name|, and returns the corresponding
-     * ImageAsset proxy.
-     */
-    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
-                                             const char resource_name[],
-                                             const char resource_id[]) const;
-
-    /**
-     * Load an external font and return as SkData.
-     *
-     * @param name  font name    ("fName" Lottie property)
-     * @param url   web font URL ("fPath" Lottie property)
-     *
-     * -- Note --
-     *
-     *   This mechanism assumes monolithic fonts (single data blob).  Some web font providers may
-     *   serve multiple font blobs, segmented for various unicode ranges, depending on user agent
-     *   capabilities (woff, woff2).  In that case, the embedder would need to advertise no user
-     *   agent capabilities when fetching the URL, in order to receive full font data.
-     */
-    virtual sk_sp<SkData> loadFont(const char name[], const char url[]) const;
-};
 
 /**
  * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
@@ -207,6 +148,9 @@ public:
     /**
      * Draws the current animation frame.
      *
+     * It is undefined behavior to call render() on a newly created Animation
+     * before specifying an initial frame via one of the seek() variants.
+     *
      * @param canvas   destination canvas
      * @param dst      optional destination rect
      * @param flags    optional RenderFlags
@@ -215,13 +159,29 @@ public:
     void render(SkCanvas* canvas, const SkRect* dst, RenderFlags) const;
 
     /**
+     * [Deprecated: use one of the other versions.]
+     *
      * Updates the animation state for |t|.
      *
      * @param t   normalized [0..1] frame selector (0 -> first frame, 1 -> final frame)
      * @param ic  optional invalidation controller (dirty region tracking)
      *
      */
-    void seek(SkScalar t, sksg::InvalidationController* ic = nullptr);
+    void seek(SkScalar t, sksg::InvalidationController* ic = nullptr) {
+        this->seekFrameTime(t * this->duration(), ic);
+    }
+
+    /**
+     * Update the animation state to match |t|, specified as a frame index
+     * i.e. relative to duration() * fps().
+     *
+     * Fractional values are allowed and meaningful - e.g.
+     *
+     *   0.0 -> first frame
+     *   1.0 -> second frame
+     *   0.5 -> halfway between first and second frame
+     */
+    void seekFrame(double t, sksg::InvalidationController* ic = nullptr);
 
     /** Update the animation state to match t, specifed in frame time
      *  i.e. relative to duration().
@@ -231,10 +191,15 @@ public:
     /**
      * Returns the animation duration in seconds.
      */
-    SkScalar duration() const { return fDuration; }
+    double duration() const { return fDuration; }
 
-    const SkString& version() const { return fVersion;   }
-    const SkSize&      size() const { return fSize;      }
+    /**
+     * Returns the animation frame rate (frames / second).
+     */
+    double fps() const { return fFPS; }
+
+    const SkString& version() const { return fVersion; }
+    const SkSize&      size() const { return fSize;    }
 
 private:
     enum Flags : uint32_t {
@@ -242,14 +207,15 @@ private:
     };
 
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
-              SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags = 0);
+              double inPoint, double outPoint, double duration, double fps, uint32_t flags);
 
     std::unique_ptr<sksg::Scene> fScene;
     const SkString               fVersion;
     const SkSize                 fSize;
-    const SkScalar               fInPoint,
+    const double                 fInPoint,
                                  fOutPoint,
-                                 fDuration;
+                                 fDuration,
+                                 fFPS;
     const uint32_t               fFlags;
 
     typedef SkNVRefCnt<Animation> INHERITED;

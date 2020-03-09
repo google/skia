@@ -738,7 +738,7 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
+    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -1166,7 +1166,7 @@ public:
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     SkScalar z() const { return fZ; }
     int octaves() const { return fOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
+    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {

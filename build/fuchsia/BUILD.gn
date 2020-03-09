@@ -1,0 +1,35 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+assert(is_fuchsia)
+
+import("//build/fuchsia/sdk.gni")
+
+fuchsia_sdk_manifest_exists = false
+if (is_fuchsia && using_fuchsia_sdk) {
+  manifest_exists = exec_script("//build/fuchsia/file_exists",
+                                [
+                                  "-file_name",
+                                  rebase_path(fuchsia_sdk_manifest_path),
+                                ],
+                                "list lines",
+                                [ "//build/fuchsia/file_exists" ])
+  if (manifest_exists == [ "true" ]) {
+    fuchsia_sdk_manifest_exists = true
+  }
+}
+
+group("fuchsia") {
+  if (fuchsia_sdk_manifest_exists == true) {
+    deps = [
+      "fidl",
+      "pkg",
+      "sysroot",
+    ]
+  } else {
+    assert(false,
+           "Fuchsia SDK not found. Set arg skia_update_fuchsia_sdk=True " +
+               "to initialize.")
+  }
+}

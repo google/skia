@@ -72,19 +72,22 @@ fi
 
 MANAGED_SKOTTIE_BINDINGS="\
   -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
-  modules/skottie/utils/SkottieUtils.cpp"
+  modules/skottie/utils/SkottieUtils.cpp \
+  modules/skresources/src/SkResources.cpp"
 if [[ $@ == *no_managed_skottie* ]]; then
   echo "Omitting managed Skottie"
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
 GN_PARTICLES="skia_enable_sksl_interpreter=true"
+PARTICLES_JS="--pre-js $BASE_DIR/particles.js"
 PARTICLES_BINDINGS="$BASE_DIR/particles_bindings.cpp"
 PARTICLES_LIB="$BUILD_DIR/libparticles.a"
 
 if [[ $@ == *no_particles* ]]; then
   echo "Omitting Particles"
   GN_PARTICLES="skia_enable_sksl_interpreter=false"
+  PARTICLES_JS=""
   PARTICLES_BINDINGS=""
   PARTICLES_LIB=""
 fi
@@ -127,7 +130,7 @@ else
       --align 4
 fi
 
-GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_system_harfbuzz=false"
+GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
 SHAPER_TARGETS="libharfbuzz.a libicu.a"
@@ -142,6 +145,14 @@ PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
 PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
 PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
   $BASE_DIR/paragraph_bindings.cpp"
+
+if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]]; then
+  echo "Omitting paragraph (must also have non-primitive shaper)"
+  PARAGRAPH_JS=""
+  PARAGRAPH_LIB=""
+  PARAGRAPH_BINDINGS=""
+fi
+
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -163,7 +174,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     ${GN_GPU_FLAGS}
@@ -188,11 +199,12 @@ echo "Compiling bitcode"
   skia_use_libwebp=false \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_system_libpng=true \
-  skia_use_system_freetype2=true \
+  skia_use_system_libpng=false \
+  skia_use_system_freetype2=false \
   skia_use_system_libjpeg_turbo=false \
+  skia_use_system_zlib=false\
   skia_use_vulkan=false \
-  skia_use_wuffs = true \
+  skia_use_wuffs=true \
   skia_use_zlib=true \
   \
   ${GN_SHAPER} \
@@ -234,6 +246,7 @@ ${EMCXX} \
     --pre-js $BASE_DIR/interface.js \
     $PARAGRAPH_JS \
     $SKOTTIE_JS \
+    $PARTICLES_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \
@@ -256,8 +269,6 @@ ${EMCXX} \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
     -s TOTAL_MEMORY=128MB \
-    -s USE_FREETYPE=1 \
-    -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

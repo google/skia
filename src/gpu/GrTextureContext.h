@@ -42,7 +42,9 @@ protected:
                      sk_sp<GrTextureProxy>,
                      GrColorType,
                      SkAlphaType,
-                     sk_sp<SkColorSpace>);
+                     sk_sp<SkColorSpace>,
+                     GrSurfaceOrigin origin,
+                     GrSwizzle texSwizzle);
 
     SkDEBUGCODE(void validate() const override;)
 

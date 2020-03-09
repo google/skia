@@ -26,7 +26,7 @@
 #include "include/effects/SkGradientShader.h"
 
 #define WIDTH 500
-#define HEIGHT 500
+#define HEIGHT 160
 
 static void set_color_matrix(SkPaint* paint, const SkColorMatrix& matrix) {
     paint->setColorFilter(SkColorFilters::Matrix(matrix));
@@ -100,41 +100,25 @@ protected:
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 0, 0, &paint);
 
-            matrix.setRotate(SkColorMatrix::kR_Axis, 90);
+            ///////////////////////////////////////////////
+
+            matrix.setSaturation(0.0f);
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 80, 0, &paint);
 
-            matrix.setRotate(SkColorMatrix::kG_Axis, 90);
+            matrix.setSaturation(0.5f);
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 160, 0, &paint);
 
-            matrix.setRotate(SkColorMatrix::kB_Axis, 90);
-            set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 240, 0, &paint);
-            ///////////////////////////////////////////////
-            matrix.setSaturation(0.0f);
-            set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 0, 80, &paint);
-
-            matrix.setSaturation(0.5f);
-            set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 80, 80, &paint);
-
             matrix.setSaturation(1.0f);
             set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 160, 80, &paint);
+            canvas->drawImage(bmps[i], 240, 0, &paint);
 
             matrix.setSaturation(2.0f);
             set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 240, 80, &paint);
-            ///////////////////////////////////////////////
-            matrix.setRGB2YUV();
-            set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 0, 160, &paint);
+            canvas->drawImage(bmps[i], 320, 0, &paint);
 
-            matrix.setYUV2RGB();
-            set_color_matrix(&paint, matrix);
-            canvas->drawImage(bmps[i], 80, 160, &paint);
+            ///////////////////////////////////////////////
 
             // Move red into alpha, set color to white
             float data[20] = {
@@ -145,9 +129,9 @@ protected:
             };
 
             set_array(&paint, data);
-            canvas->drawImage(bmps[i], 160, 160, &paint);
+            canvas->drawImage(bmps[i], 400, 0, &paint);
             ///////////////////////////////////////////////
-            canvas->translate(0, 240);
+            canvas->translate(0, 80);
         }
     }
 

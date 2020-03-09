@@ -10,17 +10,17 @@
 
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 
 class GrDawnRingBuffer : public SkRefCnt {
 public:
-    GrDawnRingBuffer(GrDawnGpu* gpu, dawn::BufferUsage usage);
+    GrDawnRingBuffer(GrDawnGpu* gpu, wgpu::BufferUsage usage);
     ~GrDawnRingBuffer() override;
 
     struct Slice {
-        Slice(dawn::Buffer buffer, int offset) : fBuffer(buffer), fOffset(offset) {}
+        Slice(wgpu::Buffer buffer, int offset) : fBuffer(buffer), fOffset(offset) {}
         Slice() : fBuffer(nullptr), fOffset(0) {}
         Slice(const Slice& other) : fBuffer(other.fBuffer), fOffset(other.fOffset) {}
         Slice& operator=(const Slice& other) {
@@ -28,15 +28,15 @@ public:
             fOffset = other.fOffset;
             return *this;
         }
-        dawn::Buffer fBuffer;
+        wgpu::Buffer fBuffer;
         int fOffset;
     };
     Slice allocate(int size);
 
 private:
     GrDawnGpu*            fGpu;
-    dawn::BufferUsage     fUsage;
-    dawn::Buffer          fBuffer;
+    wgpu::BufferUsage     fUsage;
+    wgpu::Buffer          fBuffer;
     int                   fOffset = 0;
 };
 

@@ -76,6 +76,8 @@ public:
 
     static void Flatten(const SkFont&, SkWriteBuffer& buffer);
     static bool Unflatten(SkFont*, SkReadBuffer& buffer);
+
+    static inline uint8_t Flags(const SkFont& font) { return font.fFlags; }
 };
 
 class SkAutoToGlyphs {

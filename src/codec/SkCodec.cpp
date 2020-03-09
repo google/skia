@@ -26,8 +26,8 @@
 #include "src/codec/SkWebpCodec.h"
 #ifdef SK_HAS_WUFFS_LIBRARY
 #include "src/codec/SkWuffsCodec.h"
-#else
-#include "src/codec/SkGifCodec.h"
+#elif defined(SK_USE_LIBGIFCODEC)
+#include "SkGifCodec.h"
 #endif
 
 struct DecoderProc {
@@ -45,7 +45,7 @@ static std::vector<DecoderProc>* decoders() {
     #endif
     #ifdef SK_HAS_WUFFS_LIBRARY
         { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
-    #else
+    #elif defined(SK_USE_LIBGIFCODEC)
         { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
     #endif
     #ifdef SK_HAS_PNG_LIBRARY

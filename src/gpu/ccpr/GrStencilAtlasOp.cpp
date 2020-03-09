@@ -21,7 +21,7 @@ namespace {
 
 class StencilResolveProcessor : public GrGeometryProcessor {
 public:
-    StencilResolveProcessor() : GrGeometryProcessor(kStencilResolveProcessor_ClassID) {
+    StencilResolveProcessor() : INHERITED(kStencilResolveProcessor_ClassID) {
         static constexpr Attribute kIBounds = {
                 "ibounds", kShort4_GrVertexAttribType, kShort4_GrSLType};
         this->setInstanceAttributes(&kIBounds, 1);
@@ -29,10 +29,12 @@ public:
     }
 
 private:
-    const char* name() const override { return "GrCCPathProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    const char* name() const final { return "StencilResolveProcessor"; }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     class Impl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 // This processor draws pixel-aligned rectangles directly on top of every path in the atlas.
@@ -57,7 +59,7 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&&) override {}
+                 const CoordTransformRange&) override {}
 };
 
 GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrShaderCaps&) const {
@@ -90,11 +92,13 @@ static constexpr GrUserStencilSettings kIncrDecrStencil(
 );
 
 // Resolves stencil winding counts to A8 coverage. Leaves stencil values untouched.
+// NOTE: For the CCW face we intentionally use "1 == (stencil & 1)" because the contrapositive logic
+// (i.e. 0 != ...) causes bugs on Adreno Vulkan. http://skbug.com/9643
 static constexpr GrUserStencilSettings kResolveStencilCoverage(
     GrUserStencilSettings::StaticInitSeparate<
-        0x0000,                           0x0000,
-        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
-        0xffff,                           0x1,
+        0x0000,                           0x0001,
+        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kEqual,
+        0xffff,                           0x0001,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         0xffff,                           0xffff>()
@@ -106,7 +110,7 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
     GrUserStencilSettings::StaticInitSeparate<
         0x0000,                           0x0000,
         GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
-        0xffff,                           0x1,
+        0xffff,                           0x0001,
         GrUserStencilOp::kZero,           GrUserStencilOp::kZero,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         0xffff,                           0xffff>()
@@ -151,12 +155,14 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     StencilResolveProcessor primProc;
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              resolvePipeline,
-                              primProc,
+    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                              flushState->proxy()->numStencilSamples(),
+                              flushState->proxy()->backendFormat(),
+                              flushState->view()->origin(),
+                              &resolvePipeline,
+                              &primProc,
                               &scissorRectState,
-                              nullptr, 0);
+                              nullptr, 0, GrPrimitiveType::kTriangleStrip);
 
     flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }

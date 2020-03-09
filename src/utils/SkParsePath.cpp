@@ -175,7 +175,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                         && (data = skip_sep(data))
                         && (data = find_points(data, &points[0], 1, relative, &c))) {
                     path.arcTo(radii, angle, (SkPath::ArcSize) SkToBool(largeArc),
-                            (SkPath::Direction) !SkToBool(sweep), points[0]);
+                            (SkPathDirection) !SkToBool(sweep), points[0]);
                     path.getLastPt(&c);
                 }
                 } break;

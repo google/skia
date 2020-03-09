@@ -274,6 +274,13 @@ public:
         return nullptr;
     }
 
+    V& operator[](const K& key) {
+        if (V* val = this->find(key)) {
+            return *val;
+        }
+        return *this->set(key, V{});
+    }
+
     // Remove the key/value entry in the table with this key.
     void remove(const K& key) {
         SkASSERT(this->find(key));

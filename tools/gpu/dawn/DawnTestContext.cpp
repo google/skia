@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn_native/DawnNative.h"
 #include "tools/gpu/dawn/DawnTestContext.h"
 
@@ -20,7 +20,7 @@
 #define USE_OPENGL_BACKEND 0
 
 #ifdef SK_DAWN
-#include "dawn/dawn.h"
+#include "dawn/webgpu.h"
 #include "dawn/dawn_proc.h"
 #include "include/gpu/GrContext.h"
 #include "tools/AutoreleasePool.h"
@@ -62,10 +62,10 @@ public:
 private:
     Proc getProc(const char* name) {
         PROC proc;
-        if (proc = GetProcAddress(fModule, name)) {
+        if ((proc = GetProcAddress(fModule, name))) {
             return (Proc) proc;
         }
-        if (proc = wglGetProcAddress(name)) {
+        if ((proc = wglGetProcAddress(name))) {
             return (Proc) proc;
         }
         return nullptr;
@@ -80,7 +80,7 @@ ProcGetter* ProcGetter::fInstance;
 
 class DawnFence {
 public:
-    DawnFence(const dawn::Device& device, const dawn::Buffer& buffer)
+    DawnFence(const wgpu::Device& device, const wgpu::Buffer& buffer)
       : fDevice(device), fBuffer(buffer), fCalled(false) {
         fBuffer.MapReadAsync(callback, this);
     }
@@ -95,16 +95,16 @@ public:
     ~DawnFence() {
     }
 
-    static void callback(DawnBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
+    static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
                          void* userData) {
         DawnFence* fence = static_cast<DawnFence*>(userData);
         fence->fCalled = true;
     }
-    dawn::Buffer buffer() { return fBuffer; }
+    wgpu::Buffer buffer() { return fBuffer; }
 
 private:
-    dawn::Device                   fDevice;
-    dawn::Buffer                   fBuffer;
+    wgpu::Device                   fDevice;
+    wgpu::Buffer                   fBuffer;
     bool                           fCalled;
 };
 
@@ -113,17 +113,17 @@ private:
  */
 class DawnFenceSync : public sk_gpu_test::FenceSync {
 public:
-    DawnFenceSync(dawn::Device device) : fDevice(device) {
+    DawnFenceSync(wgpu::Device device) : fDevice(device) {
     }
 
     ~DawnFenceSync() override {
     }
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
-        dawn::Buffer buffer;
+        wgpu::Buffer buffer;
         if (fBuffers.empty()) {
-            dawn::BufferDescriptor desc;
-            desc.usage = dawn::BufferUsage::MapRead | dawn::BufferUsage::CopyDst;
+            wgpu::BufferDescriptor desc;
+            desc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
             desc.size = 1;
             buffer = fDevice.CreateBuffer(&desc);
         } else {
@@ -147,15 +147,15 @@ public:
     }
 
 private:
-    dawn::Device                      fDevice;
-    mutable std::vector<dawn::Buffer> fBuffers;
+    wgpu::Device                      fDevice;
+    mutable std::vector<wgpu::Buffer> fBuffers;
     mutable AutoreleasePool           fAutoreleasePool;
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
-    static dawn::Device createDevice(const dawn_native::Instance& instance,
+    static wgpu::Device createDevice(const dawn_native::Instance& instance,
                                      dawn_native::BackendType type) {
         DawnProcTable backendProcs = dawn_native::GetProcs();
         dawnProcSetProcs(&backendProcs);
@@ -171,7 +171,7 @@ public:
 
     static DawnTestContext* Create(DawnTestContext* sharedContext) {
         std::unique_ptr<dawn_native::Instance> instance = std::make_unique<dawn_native::Instance>();
-        dawn::Device device;
+        wgpu::Device device;
         if (sharedContext) {
             device = sharedContext->getDevice();
         } else {
@@ -227,7 +227,7 @@ protected:
 
 private:
     DawnTestContextImpl(std::unique_ptr<dawn_native::Instance> instance,
-                        const dawn::Device& device)
+                        const wgpu::Device& device)
             : DawnTestContext(device)
             , fInstance(std::move(instance)) {
         fFenceSync.reset(new DawnFenceSync(fDevice));

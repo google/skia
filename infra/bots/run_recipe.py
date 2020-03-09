@@ -31,7 +31,6 @@ cmd = [
     '-known-gerrit-host', 'llvm.googlesource.com',
     '-known-gerrit-host', 'skia.googlesource.com',
     '-known-gerrit-host', 'webrtc.googlesource.com',
-    '-workdir', '.',
     '-recipe', sys.argv[2],
     '-properties', sys.argv[3],
     '-logdog-annotation-url', logdog_url,

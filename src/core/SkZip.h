@@ -8,7 +8,6 @@
 #ifndef SkZip_DEFINED
 #define SkZip_DEFINED
 
-#include <cstddef>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -48,10 +47,10 @@ class SkZip {
     };
 
     template<typename T>
-    using make_nullptr = std::integral_constant<std::nullptr_t, nullptr>;
+    static constexpr T* nullify = nullptr;
 
 public:
-    constexpr SkZip() : fPointers{make_nullptr<Ts*>::value...}, fSize{0} {}
+    constexpr SkZip() : fPointers{nullify<Ts>...}, fSize{0} {}
     constexpr SkZip(size_t) = delete;
     constexpr SkZip(size_t size, Ts*... ts)
             : fPointers{ts...}
@@ -83,7 +82,19 @@ public:
     constexpr std::tuple<Ts*...> data() const { return fPointers; }
     constexpr SkZip first(size_t n) const {
         SkASSERT(n <= this->size());
+        if (n == 0) { return SkZip(); }
         return SkZip{n, fPointers};
+    }
+    constexpr SkZip last(size_t n) const {
+        SkASSERT(n <= this->size());
+        if (n == 0) { return SkZip(); }
+        return SkZip{n, this->pointersAt(fSize - n)};
+    }
+    constexpr SkZip subspan(size_t offset, size_t count) const {
+        SkASSERT(offset < this->size());
+        SkASSERT(count <= this->size() - offset);
+        if (count == 0) { return SkZip(); }
+        return SkZip(count, pointersAt(offset));
     }
 
 private:
@@ -100,6 +111,17 @@ private:
     template<std::size_t... Is>
     constexpr ReturnTuple indexDetail(size_t i, skstd::index_sequence<Is...>) const {
         return ReturnTuple((std::get<Is>(fPointers))[i]...);
+    }
+
+    std::tuple<Ts*...> pointersAt(size_t i) const {
+        SkASSERT(this->size() > 0);
+        SkASSERT(i < this->size());
+        return pointersAtDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+    }
+
+    template<std::size_t... Is>
+    constexpr std::tuple<Ts*...> pointersAtDetail(size_t i, skstd::index_sequence<Is...>) const {
+        return std::tuple<Ts*...>{&(std::get<Is>(fPointers))[i]...};
     }
 
     std::tuple<Ts*...> fPointers;
@@ -179,6 +201,10 @@ public:
         return SkZip<ValueType<Ts>...>{size, Span<Ts>::Data(std::forward<Ts>(ts))...};
     }
 };
+
+template<typename... Ts>
+template<typename T>
+constexpr T* SkZip<Ts...>::nullify;
 
 template<typename... Ts>
 inline constexpr auto SkMakeZip(Ts&& ... ts) {

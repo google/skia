@@ -22,8 +22,6 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"go.skia.org/infra/go/sklog"
-	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
@@ -42,7 +40,7 @@ const (
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
-	DEFAULT_OS_WIN       = "Windows-Server-14393"
+	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -99,66 +97,10 @@ var (
 			Path: "cache/docker",
 		},
 	}
-	// Versions of the following copied from
-	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template_canary.json#42
-	// to test the fix for chromium:836196.
-	// (In the future we may want to use versions from
-	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template.json#42)
-	// TODO(borenet): Roll these versions automatically!
-	CIPD_PKGS_PYTHON = []*specs.CipdPackage{
-		&specs.CipdPackage{
-			Name:    "infra/tools/luci/vpython/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "git_revision:f96db4b66034c859090be3c47eb38227277f228b",
-		},
-	}
 
-	CIPD_PKGS_CPYTHON = []*specs.CipdPackage{
-		&specs.CipdPackage{
-			Name:    "infra/python/cpython/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "version:2.7.15.chromium14",
-		},
-	}
-
-	CIPD_PKGS_KITCHEN = append([]*specs.CipdPackage{
-		&specs.CipdPackage{
-			Name:    "infra/tools/luci/kitchen/${platform}",
-			Path:    ".",
-			Version: "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc",
-		},
-		&specs.CipdPackage{
-			Name:    "infra/tools/luci-auth/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
-		},
-	}, CIPD_PKGS_PYTHON...)
-
-	CIPD_PKGS_GIT = []*specs.CipdPackage{
-		&specs.CipdPackage{
-			Name:    "infra/git/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "version:2.17.1.chromium15",
-		},
-		&specs.CipdPackage{
-			Name:    "infra/tools/git/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77",
-		},
-		&specs.CipdPackage{
-			Name:    "infra/tools/luci/git-credential-luci/${platform}",
-			Path:    "cipd_bin_packages",
-			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
-		},
-	}
-
-	CIPD_PKGS_GSUTIL = []*specs.CipdPackage{
-		&specs.CipdPackage{
-			Name:    "infra/gsutil",
-			Path:    "cipd_bin_packages",
-			Version: "version:4.28",
-		},
-	}
+	// TODO(borenet): This hacky and bad.
+	CIPD_PKGS_KITCHEN = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
+	CIPD_PKG_CPYTHON  = specs.CIPD_PKGS_PYTHON[0]
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -246,9 +188,6 @@ type Config struct {
 	// URL of the Skia Gold known hashes endpoint.
 	GoldHashesURL string `json:"gold_hashes_url"`
 
-	// GCS bucket used for Calmbench results.
-	GsBucketCalm string `json:"gs_bucket_calm"`
-
 	// GCS bucket used for GM results.
 	GsBucketGm string `json:"gs_bucket_gm"`
 
@@ -268,13 +207,12 @@ type Config struct {
 	Project string `json:"project"`
 
 	// Service accounts.
-	ServiceAccountCompile         string `json:"service_account_compile"`
-	ServiceAccountHousekeeper     string `json:"service_account_housekeeper"`
-	ServiceAccountRecreateSKPs    string `json:"service_account_recreate_skps"`
-	ServiceAccountUploadBinary    string `json:"service_account_upload_binary"`
-	ServiceAccountUploadCalmbench string `json:"service_account_upload_calmbench"`
-	ServiceAccountUploadGM        string `json:"service_account_upload_gm"`
-	ServiceAccountUploadNano      string `json:"service_account_upload_nano"`
+	ServiceAccountCompile      string `json:"service_account_compile"`
+	ServiceAccountHousekeeper  string `json:"service_account_housekeeper"`
+	ServiceAccountRecreateSKPs string `json:"service_account_recreate_skps"`
+	ServiceAccountUploadBinary string `json:"service_account_upload_binary"`
+	ServiceAccountUploadGM     string `json:"service_account_upload_gm"`
+	ServiceAccountUploadNano   string `json:"service_account_upload_nano"`
 
 	// Optional override function which derives Swarming bot dimensions
 	// from parts of task names.
@@ -310,6 +248,18 @@ func LoadJson(filename string, dest interface{}) {
 	if err := json.Unmarshal(b, dest); err != nil {
 		glog.Fatalf("Unable to parse %q: %s", filename, err)
 	}
+}
+
+// In returns true if |s| is *in* |a| slice.
+// TODO(borenet): This is copied from go.skia.org/infra/go/util to avoid the
+// huge set of additional dependencies added by that package.
+func In(s string, a []string) bool {
+	for _, x := range a {
+		if x == s {
+			return true
+		}
+	}
+	return false
 }
 
 // GenTasks regenerates the tasks.json file. Loads the job list from a jobs.json
@@ -369,7 +319,7 @@ func GenTasks(cfg *Config) {
 func getThisDirName() string {
 	_, thisFileName, _, ok := runtime.Caller(0)
 	if !ok {
-		sklog.Fatal("Unable to find path to current file.")
+		glog.Fatal("Unable to find path to current file.")
 	}
 	return filepath.Dir(filepath.Dir(thisFileName))
 }
@@ -381,7 +331,7 @@ func getThisDirName() string {
 func getCallingDirName() string {
 	_, callingFileName, _, ok := runtime.Caller(2)
 	if !ok {
-		sklog.Fatal("Unable to find path to calling file.")
+		glog.Fatal("Unable to find path to calling file.")
 	}
 	return filepath.Dir(callingFileName)
 }
@@ -417,7 +367,7 @@ func props(p map[string]string) string {
 
 	j, err := json.Marshal(d)
 	if err != nil {
-		sklog.Fatal(err)
+		glog.Fatal(err)
 	}
 	return strings.Replace(string(j), "\\u003c", "<", -1)
 }
@@ -427,9 +377,9 @@ func props(p map[string]string) string {
 func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []string, extraProps map[string]string, outputDir string) *specs.TaskSpec {
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
 	if strings.Contains(name, "Win") && !strings.Contains(name, "LenovoYogaC630") {
-		cipd = append(cipd, CIPD_PKGS_CPYTHON...)
+		cipd = append(cipd, CIPD_PKG_CPYTHON)
 	} else if strings.Contains(name, "P30") {
-		cipd = append(cipd, CIPD_PKGS_CPYTHON...)
+		cipd = append(cipd, CIPD_PKG_CPYTHON)
 	}
 	properties := map[string]string{
 		"buildername":   name,
@@ -503,7 +453,7 @@ func (b *builder) dockerGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
@@ -512,17 +462,17 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
-				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp"}
+				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp", "Docker"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
-				if !util.In(part, ignore) {
+				if !In(part, ignore) {
 					keep = append(keep, part)
 				}
 			}
 			ec = keep
 		}
 		if task_os == "Android" {
-			if !util.In("Android", ec) {
+			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
 			task_os = "Debian9"
@@ -537,6 +487,10 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
+		} else if parts["compiler"] == "GCC" {
+			// GCC compiles are now on a Docker container. We use the same OS and
+			// version to compile as to test.
+			ec = append(ec, "Docker")
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
 			task_os = "Debian9"
 		} else if strings.Contains(task_os, "Mac") {
@@ -591,6 +545,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
+	if strings.Contains(parts["extra_config"], "Docker") && (parts["role"] == "Build" || (parts["cpu_or_gpu"] == "CPU" && parts["model"] == "GCE")) {
+		return b.dockerGceDimensions()
+	}
 	if os, ok := parts["os"]; ok {
 		d["os"], ok = map[string]string{
 			"Android":    "Android",
@@ -604,7 +561,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18363",
-			"Win2016":    DEFAULT_OS_WIN,
+			"Win2019":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-11.4.1",
@@ -620,10 +577,6 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
 		}
-		if d["os"] == DEFAULT_OS_WIN {
-			// Upgrades result in a new image but not a new OS version.
-			d["image"] = "windows-server-2016-dc-v20190108"
-		}
 		if parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
@@ -631,7 +584,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
-	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
@@ -651,6 +604,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"Pixel2XL":        {"taimen", "PPR1.180610.009"},
 				"Pixel3":          {"blueline", "PQ1A.190105.004"},
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
+				"Pixel4":          {"flame", "QD1A.190821.011.C4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 			}[parts["model"]]
 			if !ok {
@@ -829,15 +783,15 @@ func (b *builder) relpath(f string) string {
 	target := filepath.Join(b.relpathTargetDir, f)
 	rv, err := filepath.Rel(b.relpathBaseDir, target)
 	if err != nil {
-		sklog.Fatal(err)
+		glog.Fatal(err)
 	}
 	return rv
 }
 
 // bundleRecipes generates the task to bundle and isolate the recipes.
 func (b *builder) bundleRecipes() string {
-	pkgs := append([]*specs.CipdPackage{}, CIPD_PKGS_GIT...)
-	pkgs = append(pkgs, CIPD_PKGS_PYTHON...)
+	pkgs := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+	pkgs = append(pkgs, specs.CIPD_PKGS_PYTHON...)
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Command: []string{
@@ -858,7 +812,7 @@ func (b *builder) bundleRecipes() string {
 func (b *builder) buildTaskDrivers() string {
 	b.MustAddTask(BUILD_TASK_DRIVERS_NAME, &specs.TaskSpec{
 		Caches:       CACHES_GO,
-		CipdPackages: append(CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
+		CipdPackages: append(specs.CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
 		Command: []string{
 			"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 		},
@@ -874,7 +828,7 @@ func (b *builder) buildTaskDrivers() string {
 
 // updateGoDeps generates the task to update Go dependencies.
 func (b *builder) updateGoDeps(name string) string {
-	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_GIT...)
+	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
 	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
 	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
 
@@ -948,7 +902,7 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 		// Skpbench only needs skps
 		deps = append(deps, ISOLATE_SKP_NAME)
 		deps = append(deps, ISOLATE_MSKP_NAME)
-	} else if util.In(o, rpiOS) {
+	} else if In(o, rpiOS) {
 		deps = append(deps, ISOLATE_SKP_NAME)
 		deps = append(deps, ISOLATE_SVG_NAME)
 		deps = append(deps, ISOLATE_SKIMAGE_NAME)
@@ -963,7 +917,7 @@ func (b *builder) usesGit(t *specs.TaskSpec, name string) {
 	if !strings.Contains(name, "NoDEPS") {
 		t.Caches = append(t.Caches, CACHES_WORKDIR...)
 	}
-	t.CipdPackages = append(t.CipdPackages, CIPD_PKGS_GIT...)
+	t.CipdPackages = append(t.CipdPackages, specs.CIPD_PKGS_GIT...)
 }
 
 // usesGo adds attributes to tasks which use go. Recipes should use
@@ -980,7 +934,7 @@ func (b *builder) usesGo(t *specs.TaskSpec, name string) {
 
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
-	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") {
+	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") || strings.Contains(name, "Docker") {
 		t.Caches = append(t.Caches, CACHES_DOCKER...)
 	}
 }
@@ -1020,7 +974,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		strings.Contains(name, "CMake") ||
 		strings.Contains(name, "CommandBuffer") ||
 		strings.Contains(name, "Flutter") ||
-		strings.Contains(name, "ParentRevision") ||
 		strings.Contains(name, "SKQP") {
 		recipe = "sync_and_compile"
 		isolate = "swarm_recipe.isolate"
@@ -1060,12 +1013,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-		}
-		if parts["target_arch"] == "mips64el" || parts["target_arch"] == "loongson3a" {
-			if parts["compiler"] != "GCC" {
-				glog.Fatalf("mips64el toolchain is GCC, but compiler is %q in %q", parts["compiler"], name)
-			}
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("mips64el_toolchain_linux"))
 		}
 		if strings.Contains(name, "SwiftShader") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_linux"))
@@ -1108,7 +1055,7 @@ func (b *builder) compile(name string, parts map[string]string) string {
 
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
-	if !util.In(name, b.jobs) {
+	if !In(name, b.jobs) {
 		glog.Fatalf("Job %q is missing from the jobs list!", name)
 	}
 
@@ -1124,7 +1071,7 @@ func (b *builder) recreateSKPs(name string) string {
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 	}
 	task := b.kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", b.cfg.ServiceAccountRecreateSKPs, dims, EXTRA_PROPS, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
+	b.usesGit(task, name)
 	b.usesGo(task, name)
 	timeout(task, 4*time.Hour)
 	b.MustAddTask(name, task)
@@ -1135,8 +1082,9 @@ func (b *builder) recreateSKPs(name string) string {
 // by hand.
 func (b *builder) checkGeneratedFiles(name string) string {
 	task := b.kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
+	b.usesGit(task, name)
 	b.usesGo(task, name)
+	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1154,8 +1102,9 @@ func (b *builder) housekeeper(name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *builder) androidFrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", "skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 2*time.Hour)
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1164,8 +1113,9 @@ func (b *builder) androidFrameworkCompile(name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *builder) g3FrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 3*time.Hour)
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1188,7 +1138,7 @@ func (b *builder) infra(name string) string {
 		"repository": specs.PLACEHOLDER_REPO,
 	}
 	task := b.kitchenTask(name, "infra", "infra_tests.isolate", b.cfg.ServiceAccountCompile, dims, extraProps, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GSUTIL...)
+	task.CipdPackages = append(task.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
 	task.Idempotent = true
 	// Repos which call into Skia's gen_tasks.go should define their own
 	// infra_tests.isolate and therefore should not use relpath().
@@ -1205,11 +1155,12 @@ func (b *builder) buildstats(name string, parts map[string]string, compileTaskNa
 	task := b.kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 
 	// Upload release results (for tracking in perf)
 	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
-	if strings.Contains(name, "Release") && !util.In(name, BUILD_STATS_NO_UPLOAD) {
+	if strings.Contains(name, "Release") && !In(name, BUILD_STATS_NO_UPLOAD) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
 		extraProps := map[string]string{
 			"gs_bucket": b.cfg.GsBucketNano,
@@ -1218,44 +1169,7 @@ func (b *builder) buildstats(name string, parts map[string]string, compileTaskNa
 			extraProps[k] = v
 		}
 		uploadTask := b.kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
-		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
-		b.MustAddTask(uploadName, uploadTask)
-		return uploadName
-	}
-
-	return name
-}
-
-// getParentRevisionName returns the name of a compile task which builds
-// against a "parent" revision.
-func getParentRevisionName(compileTaskName string, parts map[string]string) string {
-	if parts["extra_config"] == "" {
-		return compileTaskName + "-ParentRevision"
-	} else {
-		return compileTaskName + "_ParentRevision"
-	}
-}
-
-// calmbench generates a calmbench task. Returns the name of the last task in the
-// generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) calmbench(name string, parts map[string]string, compileTaskName, compileParentName string) string {
-	task := b.kitchenTask(name, "calmbench", "calmbench.isolate", "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
-	b.usesGit(task, name)
-	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
-	b.MustAddTask(name, task)
-
-	// Upload results if necessary.
-	if strings.Contains(name, "Release") && b.doUpload(name) {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
-		extraProps := map[string]string{
-			"gs_bucket": b.cfg.GsBucketCalm,
-		}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
-		uploadTask := b.kitchenTask(name, "upload_calmbench_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadCalmbench, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
+		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
 		return uploadName
@@ -1281,8 +1195,10 @@ func (b *builder) doUpload(name string) bool {
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func (b *builder) test(name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	isolate := "test_skia_bundled.isolate"
 	recipe := "test"
 	if strings.Contains(name, "SKQP") {
+		isolate = "skqp.isolate"
 		recipe = "skqp_test"
 		if strings.Contains(name, "Emulator") {
 			recipe = "test_skqp_emulator"
@@ -1292,10 +1208,13 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		// running hs_bench or kx, it will be easier to fit into the current job name schema.
 		recipe = "compute_test"
 	} else if strings.Contains(name, "PathKit") {
+		isolate = "pathkit.isolate"
 		recipe = "test_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
+		isolate = "canvaskit.isolate"
 		recipe = "test_canvaskit"
 	} else if strings.Contains(name, "LottieWeb") {
+		isolate = "lottie_web.isolate"
 		recipe = "test_lottie_web"
 	}
 	extraProps := map[string]string{
@@ -1307,10 +1226,6 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 	iid := b.internalHardwareLabel(parts)
 	if iid != nil {
 		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
-	}
-	isolate := "test_skia_bundled.isolate"
-	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "Emulator") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "PathKit") {
-		isolate = "swarm_recipe.isolate"
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
@@ -1362,7 +1277,7 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 			extraProps[k] = v
 		}
 		uploadTask := b.kitchenTask(name, "upload_dm_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadGM, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
+		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
 		return uploadName
@@ -1380,13 +1295,19 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 		recipe = "skpbench"
 		isolate = b.relpath("skpbench_skia_bundled.isolate")
 	} else if strings.Contains(name, "PathKit") {
+		isolate = "pathkit.isolate"
 		recipe = "perf_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
+		isolate = "canvaskit.isolate"
 		recipe = "perf_canvaskit"
 	} else if strings.Contains(name, "SkottieTracing") {
 		recipe = "perf_skottietrace"
-	} else if strings.Contains(name, "SkottieWASM") || strings.Contains(name, "LottieWeb") {
+	} else if strings.Contains(name, "SkottieWASM") {
 		recipe = "perf_skottiewasm_lottieweb"
+		isolate = "skottie_wasm.isolate"
+	} else if strings.Contains(name, "LottieWeb") {
+		recipe = "perf_skottiewasm_lottieweb"
+		isolate = "lottie_web.isolate"
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
@@ -1415,10 +1336,14 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	} else if strings.Contains(parts["extra_config"], "SkottieWASM") || strings.Contains(parts["extra_config"], "LottieWeb") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("node"))
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
-		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	} else if strings.Contains(parts["extra_config"], "Skottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
+
+	if strings.Contains(name, "Android") && strings.Contains(name, "CPU") {
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
+	}
+
 	iid := b.internalHardwareLabel(parts)
 	if iid != nil {
 		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
@@ -1435,7 +1360,7 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 			extraProps[k] = v
 		}
 		uploadTask := b.kitchenTask(name, "upload_nano_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
+		uploadTask.CipdPackages = append(uploadTask.CipdPackages, specs.CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
 		return uploadName
@@ -1463,7 +1388,7 @@ func (b *builder) presubmit(name string) string {
 	task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
 		Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
 		Path:    "recipe_bundle",
-		Version: "git_revision:617e0fd3186eaae8bcb7521def0d6d3b4a5bcaf1",
+		Version: "git_revision:a8bcedad6768e206c4d2bd1718caa849f29cd42d",
 	})
 	task.Dependencies = []string{} // No bundled recipes for this one.
 	b.MustAddTask(name, task)
@@ -1528,11 +1453,6 @@ func (b *builder) process(name string) {
 	if err != nil {
 		glog.Fatal(err)
 	}
-	compileParentName := getParentRevisionName(compileTaskName, compileTaskParts)
-	compileParentParts, err := b.jobNameSchema.ParseJobName(compileParentName)
-	if err != nil {
-		glog.Fatal(err)
-	}
 
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
@@ -1550,9 +1470,6 @@ func (b *builder) process(name string) {
 		!strings.Contains(name, "SkottieWASM") &&
 		!strings.Contains(name, "LottieWeb") {
 		b.compile(compileTaskName, compileTaskParts)
-		if parts["role"] == "Calmbench" {
-			b.compile(compileParentName, compileParentParts)
-		}
 	}
 
 	// Housekeepers.
@@ -1615,11 +1532,6 @@ func (b *builder) process(name string) {
 		deps = append(deps, b.perf(name, parts, compileTaskName, pkgs))
 	}
 
-	// Calmbench bots.
-	if parts["role"] == "Calmbench" {
-		deps = append(deps, b.calmbench(name, parts, compileTaskName, compileParentName))
-	}
-
 	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
 	if strings.Contains(name, "Valgrind") {
 		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
@@ -1676,7 +1588,11 @@ func NewJobNameSchema(jsonFile string) (*JobNameSchema, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer util.Close(f)
+	defer func() {
+		if err := f.Close(); err != nil {
+			glog.Errorf("Failed to close %s: %s", jsonFile, err)
+		}
+	}()
 	if err := json.NewDecoder(f).Decode(&rv); err != nil {
 		return nil, err
 	}

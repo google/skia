@@ -129,6 +129,8 @@ static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
                "defaulting to one extra thread per core.");
 
+static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
+
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -311,6 +313,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fSuppressPrints = true;
     displayParams.fGrContextOptions.fInternalMultisampleCount = FLAGS_internalSamples;
     fWindow->setRequestedDisplayParams(displayParams);
+    fRefresh = FLAGS_redraw;
 
     // Configure timers
     fStatsLayer.setActive(false);

@@ -2,10 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Recipe which runs the PathKit tests using docker
+# Recipe which runs the Canvaskit tests using docker
 
 DEPS = [
   'checkout',
+  'docker',
   'env',
   'infra',
   'recipe_engine/file',
@@ -18,103 +19,54 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:72.0.3626.121_v1'
-INNER_KARMA_SCRIPT = '/SRC/skia/infra/canvaskit/perf_canvaskit.sh'
+DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1'
+INNER_KARMA_SCRIPT = 'skia/infra/canvaskit/perf_canvaskit.sh'
 
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
+  checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
-  api.checkout.bot_update(checkout_root=checkout_root)
-
-  # Make sure this exists, otherwise Docker will make it with root permissions.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
   # The karma script is configured to look in ./canvaskit/bin/ for
   # the test files to load, so we must copy them there (see Set up for docker).
   copy_dest = checkout_root.join('skia', 'modules', 'canvaskit',
                                  'canvaskit', 'bin')
-
   base_dir = api.vars.build_dir
-  bundle_name = 'canvaskit.wasm'
+  copies = {
+    base_dir.join('canvaskit.js'):   copy_dest.join('canvaskit.js'),
+    base_dir.join('canvaskit.wasm'): copy_dest.join('canvaskit.wasm'),
+  }
+  recursive_read = [checkout_root.join('skia')]
 
-  api.python.inline(
-      name='Set up for docker',
-      program='''import errno
-import os
-import shutil
-import sys
-
-copy_dest = sys.argv[1]
-base_dir = sys.argv[2]
-bundle_name = sys.argv[3]
-out_dir = sys.argv[4]
-
-# Clean out old binaries (if any)
-try:
-  shutil.rmtree(copy_dest)
-except OSError as e:
-  if e.errno != errno.ENOENT:
-    raise
-
-# Make folder
-try:
-  os.makedirs(copy_dest)
-except OSError as e:
-  if e.errno != errno.EEXIST:
-    raise
-
-# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests
-# expect them ($SKIA_ROOT/modules/canvaskit/canvaskit/bin/)
-dest = os.path.join(copy_dest, 'canvaskit.js')
-shutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)
-os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
-
-if bundle_name:
-  dest = os.path.join(copy_dest, bundle_name)
-  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)
-  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
-
-# Prepare output folder, api.file.ensure_directory doesn't touch
-# the permissions of the out directory if it already exists.
-os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.
-''',
-      args=[copy_dest, base_dir, bundle_name, out_dir],
-      infra_step=True)
-
-
-  cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
-         '--volume', '%s:/SRC' % checkout_root,
-         '--volume', '%s:/OUT' % out_dir]
-
-  cmd.extend([
-    DOCKER_IMAGE,             INNER_KARMA_SCRIPT,
+  args = [
     '--builder',              api.vars.builder_name,
     '--git_hash',             api.properties['revision'],
-    '--buildbucket_build_id', api.properties.get('buildbucket_build_id',
-                                              ''),
+    '--buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
     '--bot_id',               api.vars.swarming_bot_id,
     '--task_id',              api.vars.swarming_task_id,
     '--browser',              'Chrome',
     '--config',               api.vars.configuration,
     '--source_type',          'canvaskit',
-    ])
-
+  ]
   if api.vars.is_trybot:
-    cmd.extend([
+    args.extend([
       '--issue',         api.vars.issue,
       '--patchset',      api.vars.patchset,
-      '--patch_storage', api.vars.patch_storage,
     ])
 
-  # Override DOCKER_CONFIG set by Kitchen.
-  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
-  with api.env(env):
-    api.run(
-        api.step,
-        'Performance tests of canvaskit with Docker',
-        cmd=cmd)
+  api.docker.run(
+      name='Performance tests of CanvasKit with Docker',
+      docker_image=DOCKER_IMAGE,
+      src_dir=checkout_root,
+      out_dir=out_dir,
+      script=checkout_root.join(INNER_KARMA_SCRIPT),
+      args=args,
+      docker_args=None,
+      copies=copies,
+      recursive_read=recursive_read,
+      attempts=3,
+  )
 
 
 def GenTests(api):

@@ -10,7 +10,7 @@
 
 void SkOpEdgeBuilder::init() {
     fOperand = false;
-    fXorMask[0] = fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
+    fXorMask[0] = fXorMask[1] = ((int)fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;
     fUnparseable = false;
     fSecondHalf = preFetch();
@@ -40,7 +40,7 @@ void SkOpEdgeBuilder::addOperand(const SkPath& path) {
     SkASSERT(fPathVerbs.count() > 0 && fPathVerbs.end()[-1] == SkPath::kDone_Verb);
     fPathVerbs.pop();
     fPath = &path;
-    fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
+    fXorMask[1] = ((int)fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;
     preFetch();
 }

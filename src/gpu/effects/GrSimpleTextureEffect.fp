@@ -9,7 +9,7 @@ in uniform sampler2D image;
 in half4x4 matrix;
 
 @constructorParams {
-    GrColorType srcColorType,
+    SkAlphaType alphaType,
     GrSamplerState samplerParams
 }
 
@@ -22,35 +22,35 @@ in half4x4 matrix;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
                     GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType, p));
+            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType, p));
     }
 }
 
 @optimizationFlags {
-    ModulateForSamplerOptFlags(srcColorType,
+    ModulateForSamplerOptFlags(alphaType,
             samplerParams.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
             samplerParams.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder)
 }
@@ -76,6 +76,7 @@ void main() {
                                                                : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
+    auto alphaType = static_cast<SkAlphaType>(
+            testData->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
     return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx),
-                                       testData->textureProxyColorType(texIdx), matrix, params);
-}
+                                       alphaType, matrix, params);}

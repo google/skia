@@ -65,8 +65,13 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount, MTLPixelFormat srcFormat,
-                       int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
+    bool canCopyAsBlit(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+                       bool areDstSrcSameObj) const;
+
+    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount,
+                       MTLPixelFormat srcFormat, int srcSampleCount,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
@@ -84,6 +89,8 @@ public:
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
+
+    GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
 
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;

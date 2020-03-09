@@ -997,12 +997,14 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         ctx->createBackendTexture(100, 100, kRGBA_8888_SkColorType, SkColors::kTransparent,
                                   GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
-    GrXferProcessor::DstProxy fakeDstProxy;
+    GrXferProcessor::DstProxyView fakeDstProxyView;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
                 backendTex, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin,
                 kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType);
-        fakeDstProxy.setProxy(std::move(proxy));
+        GrSwizzle swizzle = caps.getTextureSwizzle(backendTex.getBackendFormat(),
+                                                   GrColorType::kRGBA_8888);
+        fakeDstProxyView.setProxyView({std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle});
     }
 
     static const GrProcessorAnalysisColor colorInputs[] = {

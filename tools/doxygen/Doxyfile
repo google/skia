@@ -792,6 +792,7 @@ WARN_LOGFILE           =
 
 INPUT = ../../include/core \
   ../../include/effects \
+  ../../include/docs \
   ../../include/gpu \
   ../../include/pathops \
   ../../third_party/skcms \

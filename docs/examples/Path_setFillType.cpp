@@ -5,7 +5,7 @@
 REG_FIDDLE(Path_setFillType, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
-    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.setFillType(SkPathFillType::kInverseWinding);
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     canvas->drawPath(path, paint);

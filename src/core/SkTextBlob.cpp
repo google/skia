@@ -875,27 +875,27 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
     interceptPaint.setPathEffect(nullptr);
 
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(interceptFont, &interceptPaint);
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
+    SkBulkGlyphMetricsAndPaths metricsAndPaths{strikeSpec};
 
     SkScalar xOffset = 0;
     SkScalar xPos = xOffset;
     SkScalar prevAdvance = 0;
 
     const SkPoint* posCursor = glyphRun.positions().begin();
-    for (auto glyphID : glyphRun.glyphsIDs()) {
+    for (const SkGlyph* glyph : metricsAndPaths.glyphs(glyphRun.glyphsIDs())) {
         SkPoint pos = *posCursor++;
 
-        SkGlyph* glyph = cache->glyph(glyphID);
         xPos += prevAdvance * scale;
         prevAdvance = glyph->advanceX();
-        if (cache->preparePath(glyph) != nullptr) {
+        if (glyph->path() != nullptr) {
             // The typeface is scaled, so un-scale the bounds to be in the space of the typeface.
             // Also ensure the bounds are properly offset by the vertical positioning of the glyph.
             SkScalar scaledBounds[2] = {
                 (bounds[0] - pos.y()) / scale,
                 (bounds[1] - pos.y()) / scale
             };
-            cache->findIntercepts(scaledBounds, scale, pos.x(), glyph, intervals, intervalCount);
+            metricsAndPaths.findIntercepts(
+                    scaledBounds, scale, pos.x(), glyph, intervals, intervalCount);
         }
     }
     return *intervalCount;

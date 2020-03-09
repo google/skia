@@ -1,0 +1,20 @@
+{
+    "program": {
+        "binary": "bin/skqp",
+        "args" : [ "/pkg/data", "tmp/logs" ]
+    },
+    "sandbox": {
+        "dev": [
+            "class/display-controller"
+        ],
+        "features": [
+            "vulkan",
+            "system-temp"
+        ],
+        "services": [
+            "fuchsia.sysmem.Allocator",
+            "fuchsia.tracing.provider.Registry",
+            "fuchsia.vulkan.loader.Loader"
+        ]
+    }
+}

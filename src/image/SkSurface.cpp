@@ -361,60 +361,6 @@ bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
     return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
 }
 
-// Stuff to keep the legacy async readback APIs working on top of the new implementation.
-namespace {
-struct BridgeContext {
-    SkSurface::ReadPixelsContext fClientContext;
-    SkSurface::LegacyReadPixelsCallback* fClientCallback;
-};
-struct BridgeContextYUV420 {
-    SkSurface::ReadPixelsContext fClientContext;
-    SkSurface::LegacyReadPixelsCallbackYUV420* fClientCallback;
-};
-}  // anonymous namespace
-
-static void bridge_callback(SkSurface::ReadPixelsContext context,
-                            std::unique_ptr<const SkSurface::AsyncReadResult> result) {
-    auto bridgeContext = static_cast<const BridgeContext*>(context);
-    if (!result || result->count() != 1) {
-        bridgeContext->fClientCallback(bridgeContext->fClientContext, nullptr, 0);
-    } else {
-        bridgeContext->fClientCallback(bridgeContext->fClientContext, result->data(0),
-                                       result->rowBytes(0));
-    }
-    delete bridgeContext;
-}
-
-static void bridge_callback_yuv420(SkSurface::ReadPixelsContext context,
-                                   std::unique_ptr<const SkSurface::AsyncReadResult> result) {
-    auto bridgeContext = static_cast<const BridgeContextYUV420*>(context);
-    if (!result || result->count() != 3) {
-        bridgeContext->fClientCallback(bridgeContext->fClientContext, nullptr, 0);
-    } else {
-        const void* data[] = {result->data(0),    result->data(1),     result->data(2)};
-        size_t rowBytes[] = {result->rowBytes(0), result->rowBytes(1), result->rowBytes(2)};
-        bridgeContext->fClientCallback(bridgeContext->fClientContext, data, rowBytes);
-    }
-    delete bridgeContext;
-}
-
-void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info,
-                                          const SkIRect& srcRect,
-                                          RescaleGamma rescaleGamma,
-                                          SkFilterQuality rescaleQuality,
-                                          LegacyReadPixelsCallback callback,
-                                          ReadPixelsContext context) {
-    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
-        !SkImageInfoIsValid(info)) {
-        callback(context, nullptr, 0);
-        return;
-    }
-
-    auto bridgeContext = new BridgeContext{context, callback};
-    asSB(this)->onAsyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality,
-                                            bridge_callback, bridgeContext);
-}
-
 void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                           const SkIRect& srcRect,
                                           RescaleGamma rescaleGamma,
@@ -428,29 +374,6 @@ void SkSurface::asyncRescaleAndReadPixels(const SkImageInfo& info,
     }
     asSB(this)->onAsyncRescaleAndReadPixels(
             info, srcRect, rescaleGamma, rescaleQuality, callback, context);
-}
-
-void SkSurface::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                                sk_sp<SkColorSpace> dstColorSpace,
-                                                const SkIRect& srcRect,
-                                                int dstW, int dstH,
-                                                RescaleGamma rescaleGamma,
-                                                SkFilterQuality rescaleQuality,
-                                                LegacyReadPixelsCallbackYUV420 callback,
-                                                ReadPixelsContext context) {
-    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || (dstW & 0b1) ||
-        (dstH & 0b1)) {
-        callback(context, nullptr, nullptr);
-        return;
-    }
-    auto bridgeContext = new BridgeContextYUV420{context, callback};
-    asSB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace,
-                                                  std::move(dstColorSpace), srcRect,
-                                                  {dstW, dstH},
-                                                  rescaleGamma,
-                                                  rescaleQuality,
-                                                  bridge_callback_yuv420,
-                                                  bridgeContext);
 }
 
 void SkSurface::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,

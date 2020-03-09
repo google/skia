@@ -122,8 +122,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
             String name = "sk_TransformedCoords2D_" + to_string(index);
-            fFormatArgs.push_back("_outer.computeLocalCoordsInVertexShader() ? " + name +
-                                  ".c_str() : \"_coords\"");
+            fFormatArgs.push_back(name + ".c_str()");
             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
                 addExtraEmitCodeLine("SkString " + name +
                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
@@ -498,7 +497,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(c.fArguments[0]->fKind == Expression::kVariableReference_Kind);
         String sampler = this->getSamplerHandle(((VariableReference&) *c.fArguments[0]).fVariable);
         fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
-                              ").c_str()");
+                              ").asString().c_str()");
     }
 }
 

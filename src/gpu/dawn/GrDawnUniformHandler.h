@@ -27,15 +27,14 @@ public:
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
     enum {
-        kGeometryBinding = 0,
-        kFragBinding = 1,
-        kSamplerBindingBase = 2,
+        kUniformBinding = 0,
     };
+    uint32_t getRTHeightOffset() const;
 
 private:
     explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
 
-    SamplerHandle addSampler(const GrTextureProxy*, const GrSamplerState&, const GrSwizzle&,
+    SamplerHandle addSampler(const GrSurfaceProxy*, const GrSamplerState&, const GrSwizzle&,
                              const char* name, const GrShaderCaps*) override;
     const char* samplerVariable(SamplerHandle handle) const override;
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override;
@@ -55,8 +54,8 @@ private:
     SkTArray<GrSwizzle>  fSamplerSwizzles;
     SkTArray<SkString>   fSamplerReferences;
 
-    uint32_t fCurrentGeometryUBOOffset = 0;
-    uint32_t fCurrentFragmentUBOOffset = 0;
+    uint32_t fCurrentUBOOffset = 0;
+    uint32_t fRTHeightOffset = 0;
 
     friend class GrDawnProgramBuilder;
     typedef GrGLSLUniformHandler INHERITED;

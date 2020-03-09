@@ -18,16 +18,17 @@ class ChromebookFlavor(ssh.SSHFlavor):
     super(ChromebookFlavor, self).__init__(m)
     self.chromeos_homedir = '/home/chronos/user/'
     self.device_dirs = default.DeviceDirs(
-      bin_dir       = self.chromeos_homedir + 'bin',
-      dm_dir        = self.chromeos_homedir + 'dm_out',
-      perf_data_dir = self.chromeos_homedir + 'perf',
-      resource_dir  = self.chromeos_homedir + 'resources',
-      images_dir    = self.chromeos_homedir + 'images',
-      lotties_dir   = self.chromeos_homedir + 'lotties',
-      skp_dir       = self.chromeos_homedir + 'skps',
-      svg_dir       = self.chromeos_homedir + 'svgs',
-      mskp_dir      = self.chromeos_homedir + 'mskp',
-      tmp_dir       = self.chromeos_homedir)
+      bin_dir        = self.chromeos_homedir + 'bin',
+      dm_dir         = self.chromeos_homedir + 'dm_out',
+      perf_data_dir  = self.chromeos_homedir + 'perf',
+      resource_dir   = self.chromeos_homedir + 'resources',
+      images_dir     = self.chromeos_homedir + 'images',
+      lotties_dir    = self.chromeos_homedir + 'lotties',
+      skp_dir        = self.chromeos_homedir + 'skps',
+      svg_dir        = self.chromeos_homedir + 'svgs',
+      mskp_dir       = self.chromeos_homedir + 'mskp',
+      tmp_dir        = self.chromeos_homedir,
+      texttraces_dir = '')
 
   def install(self):
     super(ChromebookFlavor, self).install()

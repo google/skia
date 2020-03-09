@@ -1,0 +1,7 @@
+package: skia/fuchsia/skqp/arch/arm64
+description: ARM64 build of Skia's skqp test suite for Fuchsia
+install_mode: copy
+root: ../../..
+data:
+  - file: build/fuchsia/skqp/test_manifest.json
+  - file: out/fuchsia-arm64/far/skqp_pkg.far

@@ -35,7 +35,7 @@ void GrGLSLFragmentProcessor::writeChildCall(GrGLSLFPFragmentBuilder* fragBuilde
     }
     // if the fragment processor is invoked with overridden coordinates, it must *always* be invoked
     // with overridden coords
-    SkASSERT(args.fFp.computeLocalCoordsInVertexShader() == (skslCoords.length() == 0));
+    SkASSERT(args.fFp.coordTransformsApplyToLocalCoords() == (skslCoords.length() == 0));
     fragBuilder->codeAppendf("%s = %s(%s", outputColor, fFunctionNames[childIndex].c_str(),
                              inputColor ? inputColor : "half4(1)");
     if (skslCoords.length()) {
@@ -54,7 +54,7 @@ void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
     }
-    if (!args.fFp.computeLocalCoordsInVertexShader() && skslCoords.length() == 0) {
+    if (!args.fFp.coordTransformsApplyToLocalCoords() && skslCoords.length() == 0) {
         skslCoords = "_coords";
     }
     if (fFunctionNames[childIndex].size() == 0) {
@@ -117,14 +117,26 @@ void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* in
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrGLSLFragmentProcessor* GrGLSLFragmentProcessor::Iter::next() {
-    if (fFPStack.empty()) {
-        return nullptr;
+GrGLSLFragmentProcessor::Iter::Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt) {
+    for (int i = cnt - 1; i >= 0; --i) {
+        fFPStack.push_back(fps[i].get());
     }
-    GrGLSLFragmentProcessor* back = fFPStack.back();
+}
+
+GrGLSLFragmentProcessor& GrGLSLFragmentProcessor::Iter::operator*() const {
+    return *fFPStack.back();
+}
+
+GrGLSLFragmentProcessor* GrGLSLFragmentProcessor::Iter::operator->() const {
+    return fFPStack.back();
+}
+
+GrGLSLFragmentProcessor::Iter& GrGLSLFragmentProcessor::Iter::operator++() {
+    SkASSERT(!fFPStack.empty());
+    const GrGLSLFragmentProcessor* back = fFPStack.back();
     fFPStack.pop_back();
     for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(back->childProcessor(i));
     }
-    return back;
+    return *this;
 }

@@ -46,7 +46,7 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 static void setup_always_evict_atlas(GrContext* context) {
-    context->priv().getAtlasManager()->setAtlasSizesToMinimum_ForTesting();
+    context->priv().getAtlasManager()->setAtlasDimensionsToMinimum_ForTesting();
 }
 
 // This test hammers the GPU textblobcache and font atlas

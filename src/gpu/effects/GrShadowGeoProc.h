@@ -8,6 +8,7 @@
 #ifndef GrShadowGeoProc_DEFINED
 #define GrShadowGeoProc_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
 
@@ -19,8 +20,8 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make() {
-        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc());
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const GrTextureProxy* lut) {
+        return arena->make<GrRRectShadowGeoProc>(lut);
     }
 
     const char* name() const override { return "RRectShadow"; }
@@ -35,9 +36,14 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrRRectShadowGeoProc();
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GrRRectShadowGeoProc(const GrTextureProxy* lut);
+
+    const TextureSampler& onTextureSampler(int i) const override { return fLUTTextureSampler; }
 
     GrColor          fColor;
+    TextureSampler   fLUTTextureSampler;
 
     Attribute fInPosition;
     Attribute fInColor;

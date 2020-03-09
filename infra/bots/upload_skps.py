@@ -12,6 +12,7 @@ import sys
 import urllib2
 
 import git_utils
+import utils
 
 
 COMMIT_MSG = '''Update SKP version
@@ -21,7 +22,6 @@ Automatic commit by the RecreateSKPs bot.
 TBR=rmistry@google.com
 NO_MERGE_BUILDS
 '''
-SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 
 def main(target_dir):
@@ -32,7 +32,7 @@ def main(target_dir):
   skp_dir = os.path.join(infrabots_dir, 'assets', 'skp')
   upload_py = os.path.join(skp_dir, 'upload.py')
 
-  with git_utils.NewGitCheckout(repository=SKIA_REPO):
+  with git_utils.NewGitCheckout(repository=utils.SKIA_REPO):
     # First verify that there are no gen_tasks diffs.
     tmp_infrabots_dir = os.path.join(os.getcwd(), 'infra', 'bots')
     tmp_gen_tasks = os.path.join(tmp_infrabots_dir, 'gen_tasks.go')

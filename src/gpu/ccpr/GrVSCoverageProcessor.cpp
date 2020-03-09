@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
 #include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 // This class implements the coverage processor with vertex shaders.
@@ -18,8 +19,8 @@ public:
 
 private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) final {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+                 const CoordTransformRange& transformRange) final {
+        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
     }
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
@@ -441,7 +442,7 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                           "vertexpos", "coverage", "corner_coverage", "wind");
 
     varyingHandler->emitAttributes(proc);
-    SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
+    SkASSERT(!*args.fFPCoordTransformHandler);
 
     // Fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
@@ -531,6 +532,9 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
 
 void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
                                        int baseInstance, SkTArray<GrMesh>* out) const {
+    SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
+             fTriangleType == GrPrimitiveType::kTriangleStrip);
+
     GrMesh& mesh = out->emplace_back(fTriangleType);
     auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
     mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),

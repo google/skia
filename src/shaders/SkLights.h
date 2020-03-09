@@ -20,7 +20,7 @@ class SkWriteBuffer;
     SkLights encapsulates a set of directional, point and ambient lights for use with the
     SkLightingShader.
 */
-class SK_API SkLights  : public SkRefCnt {
+class SkLights  : public SkRefCnt {
 public:
     class Light {
     public:

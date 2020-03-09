@@ -24,19 +24,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static dawn::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
+static wgpu::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     switch (loadOp) {
         case GrLoadOp::kLoad:
-            return dawn::LoadOp::Load;
+            return wgpu::LoadOp::Load;
         case GrLoadOp::kDiscard:
             // Use LoadOp::Load to emulate DontCare.
             // Dawn doesn't have DontCare, for security reasons.
             // Load should be equivalent to DontCare for desktop; Clear would
             // probably be better for tilers. If Dawn does add DontCare
             // as an extension, use it here.
-            return dawn::LoadOp::Load;
+            return wgpu::LoadOp::Load;
         case GrLoadOp::kClear:
-            return dawn::LoadOp::Clear;
+            return wgpu::LoadOp::Clear;
         default:
             SK_ABORT("Invalid LoadOp");
     }
@@ -49,38 +49,40 @@ GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrS
         , fGpu(gpu)
         , fColorInfo(colorInfo) {
     fEncoder = fGpu->device().CreateCommandEncoder();
-    dawn::LoadOp colorOp = to_dawn_load_op(colorInfo.fLoadOp);
-    dawn::LoadOp stencilOp = to_dawn_load_op(stencilInfo.fLoadOp);
+    wgpu::LoadOp colorOp = to_dawn_load_op(colorInfo.fLoadOp);
+    wgpu::LoadOp stencilOp = to_dawn_load_op(stencilInfo.fLoadOp);
     fPassEncoder = beginRenderPass(colorOp, stencilOp);
 }
 
-dawn::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(dawn::LoadOp colorOp,
-                                                             dawn::LoadOp stencilOp) {
-    dawn::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
+wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorOp,
+                                                             wgpu::LoadOp stencilOp) {
+    wgpu::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
     auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
         fRenderTarget->renderTargetPriv().getStencilAttachment());
-    dawn::TextureView colorView = texture.CreateView();
+    wgpu::TextureViewDescriptor desc;
+    desc.mipLevelCount = 1;
+    wgpu::TextureView colorView = texture.CreateView(&desc);
     const float *c = fColorInfo.fClearColor.vec();
 
-    dawn::RenderPassColorAttachmentDescriptor colorAttachment;
+    wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
     colorAttachment.attachment = colorView;
     colorAttachment.resolveTarget = nullptr;
     colorAttachment.clearColor = { c[0], c[1], c[2], c[3] };
     colorAttachment.loadOp = colorOp;
-    colorAttachment.storeOp = dawn::StoreOp::Store;
-    dawn::RenderPassColorAttachmentDescriptor* colorAttachments = { &colorAttachment };
-    dawn::RenderPassDescriptor renderPassDescriptor;
+    colorAttachment.storeOp = wgpu::StoreOp::Store;
+    wgpu::RenderPassColorAttachmentDescriptor* colorAttachments = { &colorAttachment };
+    wgpu::RenderPassDescriptor renderPassDescriptor;
     renderPassDescriptor.colorAttachmentCount = 1;
     renderPassDescriptor.colorAttachments = colorAttachments;
     if (stencilAttachment) {
-        dawn::RenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
+        wgpu::RenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
         depthStencilAttachment.attachment = stencilAttachment->view();
         depthStencilAttachment.depthLoadOp = stencilOp;
         depthStencilAttachment.stencilLoadOp = stencilOp;
         depthStencilAttachment.clearDepth = 1.0f;
         depthStencilAttachment.clearStencil = 0;
-        depthStencilAttachment.depthStoreOp = dawn::StoreOp::Store;
-        depthStencilAttachment.stencilStoreOp = dawn::StoreOp::Store;
+        depthStencilAttachment.depthStoreOp = wgpu::StoreOp::Store;
+        depthStencilAttachment.stencilStoreOp = wgpu::StoreOp::Store;
         renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
     } else {
         renderPassDescriptor.depthStencilAttachment = nullptr;
@@ -107,12 +109,12 @@ void GrDawnOpsRenderPass::insertEventMarker(const char* msg) {
 
 void GrDawnOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     fPassEncoder.EndPass();
-    fPassEncoder = beginRenderPass(dawn::LoadOp::Load, dawn::LoadOp::Clear);
+    fPassEncoder = beginRenderPass(wgpu::LoadOp::Load, wgpu::LoadOp::Clear);
 }
 
 void GrDawnOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     fPassEncoder.EndPass();
-    fPassEncoder = beginRenderPass(dawn::LoadOp::Clear, dawn::LoadOp::Load);
+    fPassEncoder = beginRenderPass(wgpu::LoadOp::Clear, wgpu::LoadOp::Load);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -139,21 +141,17 @@ void GrDawnOpsRenderPass::setScissorState(const GrProgramInfo& programInfo) {
     fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-void GrDawnOpsRenderPass::applyState(const GrProgramInfo& programInfo,
-                                     const GrPrimitiveType primitiveType) {
-    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget,
-                                                                   programInfo,
-                                                                   primitiveType);
-    auto bindGroup = program->setData(fGpu, fRenderTarget, programInfo);
+void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo& programInfo) {
+    auto bindGroup = program->setUniformData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     const GrPipeline& pipeline = programInfo.pipeline();
     if (pipeline.isStencilEnabled()) {
-        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fFront.fRef);
+        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fCCWFace.fRef);
     }
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     const float* c = blendInfo.fBlendConstant.vec();
-    dawn::Color color{c[0], c[1], c[2], c[3]};
+    wgpu::Color color{c[0], c[1], c[2], c[3]};
     fPassEncoder.SetBlendColor(&color);
     this->setScissorState(programInfo);
 }
@@ -165,8 +163,21 @@ void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     if (!meshCount) {
         return;
     }
+    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget, programInfo);
+    if (!programInfo.hasDynamicPrimProcTextures()) {
+        auto textures = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
+                                                               : nullptr;
+        auto bindGroup = program->setTextures(fGpu, programInfo, textures);
+        fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
+    }
     for (int i = 0; i < meshCount; ++i) {
-        applyState(programInfo, meshes[0].primitiveType());
+        SkASSERT(meshes[i].primitiveType() == programInfo.primitiveType());
+        if (programInfo.hasDynamicPrimProcTextures()) {
+            auto textures = programInfo.dynamicPrimProcTextures(i);
+            auto bindGroup = program->setTextures(fGpu, programInfo, textures);
+            fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
+        }
+        this->applyState(program.get(), programInfo);
         meshes[i].sendToGpu(this);
     }
 }
@@ -178,7 +189,7 @@ void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
                                                  const GrBuffer* instanceBuffer,
                                                  int instanceCount,
                                                  int baseInstance) {
-    dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
+    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
     fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.Draw(vertexCount, 1, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
@@ -194,8 +205,8 @@ void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
                                                         int instanceCount,
                                                         int baseInstance,
                                                         GrPrimitiveRestart restart) {
-    dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
-    dawn::Buffer ib = static_cast<const GrDawnBuffer*>(indexBuffer)->get();
+    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
+    wgpu::Buffer ib = static_cast<const GrDawnBuffer*>(indexBuffer)->get();
     fPassEncoder.SetIndexBuffer(ib);
     fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.DrawIndexed(indexCount, 1, baseIndex, baseVertex, baseInstance);
