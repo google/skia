@@ -318,6 +318,10 @@ void DebugCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
     this->addDrawCommand(new ClipRegionCommand(region, op));
 }
 
+void DebugCanvas::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    this->addDrawCommand(new ClipShaderCommand(std::move(cs), op));
+}
+
 void DebugCanvas::didConcat44(const SkScalar m[16]) {
     // TODO
     this->INHERITED::didConcat44(m);
