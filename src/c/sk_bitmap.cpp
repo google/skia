@@ -97,20 +97,20 @@ sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y) {
     return AsBitmap(cbitmap)->getColor(x, y);
 }
 
-void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color) {
-    // TODO
-}
-
 bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->readyToDraw();
 }
 
 void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors) {
-    // TODO
-}
-
-void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors) {
-    // TODO
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    int w = bmp->width();
+    int h = bmp->height();
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            *colors = bmp->getColor(x, y);
+            colors++;
+        }
+    }
 }
 
 bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_bitmap_release_proc releaseProc, void* context) {
