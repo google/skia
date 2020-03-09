@@ -16,8 +16,12 @@ class GrD3DResourceProvider {
 public:
     GrD3DResourceProvider(GrD3DGpu*);
 
+    gr_cp<ID3D12GraphicsCommandList> findOrCreateDirectCommandList();
+
 private:
-    // GrD3DGpu* fGpu;
+    gr_cp<ID3D12CommandAllocator> fDirectCommandAllocator;
+
+    GrD3DGpu* fGpu;
 };
 
 #endif
