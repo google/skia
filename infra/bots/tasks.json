@@ -3938,10 +3938,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -5262,10 +5258,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -5350,10 +5342,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -14686,6 +14674,14 @@
     "Housekeeper-Nightly-UpdateGoDeps": {
       "caches": [
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "go_cache",
           "path": "cache/go_cache"
         },
@@ -14780,10 +14776,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -14947,6 +14939,14 @@
     },
     "Housekeeper-PerCommit-BuildTaskDrivers": {
       "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
         {
           "name": "go_cache",
           "path": "cache/go_cache"
@@ -15171,6 +15171,14 @@
           "path": "cache/docker"
         },
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "go_cache",
           "path": "cache/go_cache"
         },
@@ -15264,6 +15272,14 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
         },
         {
           "name": "go_cache",
@@ -15375,10 +15391,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -15482,10 +15494,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -15724,6 +15732,14 @@
           "path": "cache/docker"
         },
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "go_cache",
           "path": "cache/go_cache"
         },
@@ -15812,6 +15828,14 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
         },
         {
           "name": "go_cache",
@@ -15903,6 +15927,14 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
         },
         {
           "name": "go_cache",
