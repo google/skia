@@ -514,4 +514,36 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             })();
         });
     });
+
+    it('can draw a triangle mesh with SkVertices', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+
+            let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+            let colors = [CanvasKit.RED, CanvasKit.BLUE,
+                          CanvasKit.YELLOW, CanvasKit.CYAN];
+            let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
+
+            let bounds = vertices.bounds();
+            expect(bounds.fLeft).toEqual(0);
+            expect(bounds.fTop).toEqual(0);
+            expect(bounds.fRight).toEqual(250);
+            expect(bounds.fBottom).toEqual(250);
+
+            canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+            vertices.delete();
+
+            surface.flush();
+            reportSurface(surface, 'drawvertices_canvas', done);
+        }));
+    });
 });
