@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
 
@@ -150,6 +151,9 @@ public:
     void clipPath(const SkPath& path, SkClipOp op, bool aa) {
         this->onClipPath(path, op, aa);
     }
+    void clipShader(sk_sp<SkShader> sh, SkClipOp op) {
+        this->onClipShader(std::move(sh), op);
+    }
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
@@ -184,6 +188,7 @@ protected:
     virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
+    virtual void onClipShader(sk_sp<SkShader>, SkClipOp) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
