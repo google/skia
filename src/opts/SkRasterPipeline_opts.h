@@ -1764,6 +1764,13 @@ STAGE(lerp_1_float, const float* c) {
     b = lerp(db, b, *c);
     a = lerp(da, a, *c);
 }
+STAGE(scale_native, const float scales[]) {
+    auto c = sk_unaligned_load<F>(scales);
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
+}
 STAGE(lerp_native, const float scales[]) {
     auto c = sk_unaligned_load<F>(scales);
     r = lerp(dr, r, c);
@@ -3842,6 +3849,14 @@ STAGE_PP(lerp_1_float, const float* f) {
     b = lerp(db, b, c);
     a = lerp(da, a, c);
 }
+STAGE_PP(scale_native, const uint16_t scales[]) {
+    auto c = sk_unaligned_load<U16>(scales);
+    r = div255( r * c );
+    g = div255( g * c );
+    b = div255( b * c );
+    a = div255( a * c );
+}
+
 STAGE_PP(lerp_native, const uint16_t scales[]) {
     auto c = sk_unaligned_load<U16>(scales);
     r = lerp(dr, r, c);

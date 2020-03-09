@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkClipOpPriv.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -208,4 +209,20 @@ DEF_GM(return new ComplexClipGM(true, false, false);)
 DEF_GM(return new ComplexClipGM(true, false, true);)
 DEF_GM(return new ComplexClipGM(true, true, false);)
 DEF_GM(return new ComplexClipGM(true, true, true);)
+}
+
+DEF_SIMPLE_GM(clip_shader, canvas, 500, 500) {
+    auto img = GetResourceAsImage("images/color_wheel.png");
+    auto sh = img->makeShader();
+
+    SkRect r = SkRect::MakeIWH(img->width(), img->height());
+    SkPaint p;
+
+    canvas->translate(10, 10);
+    canvas->drawImage(img, 0, 0, nullptr);
+
+    canvas->translate(img->width() + 10, 0);
+    canvas->clipShader(sh);
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(r, p);
 }

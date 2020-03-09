@@ -143,7 +143,8 @@ public:
                              const SkMatrix& matrix,
                              const SkPaint& paint,
                              SkArenaAlloc*,
-                             bool drawCoverage = false);
+                             bool drawCoverage = false,
+                             sk_sp<SkShader> clipShader = nullptr);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,
