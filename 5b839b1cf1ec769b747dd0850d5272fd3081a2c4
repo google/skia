@@ -22,6 +22,30 @@
       "revId": "5b839b1cf1ec769b747dd0850d5272fd3081a2c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2466e2c2_f19f81fd",
+        "filename": "src/core/SkVerticesPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-09T12:49:35Z",
+      "side": 1,
+      "message": "Kinda related: if this is only accessibly via SkVerticesPriv, does it even have to be publicly declared in SkVertices?  It could be its own thing (SkVerticesPriv::Info or SkVerticesInfo).",
+      "parentUuid": "cb6c3057_3236bf6f",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 17,
+        "endChar": 23
+      },
+      "revId": "5b839b1cf1ec769b747dd0850d5272fd3081a2c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
