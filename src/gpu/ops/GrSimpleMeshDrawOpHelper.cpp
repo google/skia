@@ -164,11 +164,13 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             GrProcessorSet&& processorSet,
             GrPrimitiveType primitiveType,
             GrPipeline::InputFlags pipelineFlags,
-            const GrUserStencilSettings* stencilSettings) {
-    static constexpr int kZeroPrimProcTextures = 0;
-    auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena,
-                                                                         &appliedClip,
-                                                                         kZeroPrimProcTextures);
+            const GrUserStencilSettings* stencilSettings,
+            GrPipeline::FixedDynamicState* fixedDynamicState) {
+    if (!fixedDynamicState) {
+        static constexpr int kZeroPrimProcTextures = 0;
+        fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena, &appliedClip,
+                                                                        kZeroPrimProcTextures);
+    }
 
     auto pipeline = CreatePipeline(caps,
                                    arena,
@@ -192,7 +194,6 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                           nullptr,
                                           kOneMesh,
                                           primitiveType);
-    SkASSERT(tmp->primProc().numTextureSamplers() <= 0);
     return tmp;
 }
 

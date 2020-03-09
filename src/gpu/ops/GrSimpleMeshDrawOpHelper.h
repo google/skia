@@ -155,7 +155,8 @@ public:
                                             GrPipeline::InputFlags pipelineFlags
                                                                 = GrPipeline::InputFlags::kNone,
                                             const GrUserStencilSettings*
-                                                                = &GrUserStencilSettings::kUnused);
+                                                                = &GrUserStencilSettings::kUnused,
+                                            GrPipeline::FixedDynamicState* = nullptr);
 
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
