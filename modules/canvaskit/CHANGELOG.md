@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Shadows are properly draw on fillRect and strokeRect in the canvas2d emulation layer.
  - Shadow offsets properly ignore the CTM in the canvas2d emulation layer.
 
+### Removed
+ - Removed inverse filltypes
+ - Removed StrokeAndFill paint style
+ - Removed TextEncoding enum, all functions assume UTF-8.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated

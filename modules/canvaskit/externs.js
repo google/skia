@@ -739,13 +739,6 @@ var CanvasKit = {
     RTL: {},
   },
 
-  TextEncoding: {
-    UTF8: {},
-    UTF16: {},
-    UTF32: {},
-    GlyphID: {},
-  },
-
   TileMode: {
     Clamp: {},
     Repeat: {},

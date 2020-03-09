@@ -161,8 +161,7 @@ CanvasKit._extraInitializations.push(function() {
     stringToUTF8(str, strPtr, strLen);
     var rptr = rsxBuilder.build();
 
-    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1,
-                          rptr, font, CanvasKit.TextEncoding.UTF8);
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1, rptr, font);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
@@ -185,7 +184,7 @@ CanvasKit._extraInitializations.push(function() {
     // Add 1 for the null terminator.
     stringToUTF8(str, strPtr, strLen);
 
-    var blob = CanvasKit.SkTextBlob._MakeFromText(strPtr, strLen - 1, font, CanvasKit.TextEncoding.UTF8);
+    var blob = CanvasKit.SkTextBlob._MakeFromText(strPtr, strLen - 1, font);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
