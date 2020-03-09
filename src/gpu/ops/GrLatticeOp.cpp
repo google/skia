@@ -13,6 +13,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrVertexWriter.h"
@@ -169,9 +170,13 @@ public:
     const char* name() const override { return "NonAALatticeOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
-        func(fView.proxy(), GrMipMapped(mipped));
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
+            func(fView.proxy(), GrMipMapped(mipped));
+            fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -208,12 +213,60 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
-        auto gp = LatticeGP::Make(target->allocator(), fView, fColorSpaceXform,
-                                  fFilter, fWideColor);
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+
+        auto gp = LatticeGP::Make(arena, fView, fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {
-            SkDebugf("Couldn't create GrGeometryProcessor\n");
-            return;
+            return nullptr;
+        }
+
+        static constexpr int kOnePrimProcTexture = 1;
+        auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena, &appliedClip,
+                                                                             kOnePrimProcTexture);
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = fView.proxy();
+
+        return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                           std::move(appliedClip), dstProxyView,
+                                                           gp, fHelper.detachProcessorSet(),
+                                                           GrPrimitiveType::kTriangles,
+                                                           fHelper.pipelineFlags(),
+                                                           &GrUserStencilSettings::kUnused,
+                                                           fixedDynamicState);
+    }
+
+    GrProgramInfo* createProgramInfo(Target* target) {
+        return this->createProgramInfo(&target->caps(),
+                                       target->allocator(),
+                                       target->outputView(),
+                                       target->detachAppliedClip(),
+                                       target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onPrepareDraws(Target* target) override {
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return;
+            }
         }
 
         int patchCnt = fPatches.count();
@@ -226,7 +279,7 @@ private:
             return;
         }
 
-        const size_t kVertexStride = gp->vertexStride();
+        const size_t kVertexStride = fProgramInfo->primProc().vertexStride();
 
         QuadHelper helper(target, kVertexStride, numRects);
 
@@ -284,15 +337,17 @@ private:
                     GrResourceProvider::NumVertsPerNonAAQuad() * patch.fIter->numRectsToDraw());
             }
         }
-        auto fixedDynamicState = target->makeFixedDynamicState(1);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fView.proxy();
-        helper.recordDraw(target, gp, fixedDynamicState);
+
+        fMesh = helper.mesh();
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipeline(flushState);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -330,6 +385,9 @@ private:
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     GrSamplerState::Filter fFilter;
     bool fWideColor;
+
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
