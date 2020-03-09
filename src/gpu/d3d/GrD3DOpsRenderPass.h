@@ -52,6 +52,7 @@ private:
                          int baseVertex) override {}
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override {}
+
     void onClear(const GrFixedClip&, const SkPMColor4f& color) override {}
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}

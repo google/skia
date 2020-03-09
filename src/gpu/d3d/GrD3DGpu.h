@@ -13,6 +13,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
+#include "src/gpu/d3d/GrD3DResourceProvider.h"
 
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
@@ -172,6 +173,8 @@ private:
 
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
+
+    GrD3DResourceProvider fResourceProvider;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
