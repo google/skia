@@ -514,4 +514,75 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             })();
         });
     });
+
+    it('can draw a triangle mesh with SkVertices', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+
+            const points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+            const colors = [CanvasKit.RED, CanvasKit.BLUE,
+                          CanvasKit.YELLOW, CanvasKit.CYAN];
+            const vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
+
+            const bounds = vertices.bounds();
+            expect(bounds.fLeft).toEqual(0);
+            expect(bounds.fTop).toEqual(0);
+            expect(bounds.fRight).toEqual(250);
+            expect(bounds.fBottom).toEqual(250);
+
+            canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+            vertices.delete();
+
+            surface.flush();
+            reportSurface(surface, 'drawvertices_canvas', done);
+        }));
+    });
+
+    it('can draw a textured triangle mesh with SkVertices', function(done) {
+        const imgPromise = fetch('/assets/brickwork-texture.jpg')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const imgData = values[0];
+            expect(imgData).toBeTruthy();
+            const img = CanvasKit.MakeImageFromEncoded(imgData);
+
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+
+            const points = [
+                [ 70, 170 ], [ 40, 90 ], [ 130, 150 ], [ 100, 50 ],
+                [ 225, 150 ], [ 225, 60 ], [ 310, 180 ], [ 330, 100 ]
+            ];
+            const textureCoordinates = [
+                [ 0, 240 ], [ 0, 0 ], [ 80, 240 ], [ 80, 0 ],
+                [ 160, 240 ], [ 160, 0 ], [ 240, 240 ], [ 240, 0 ]
+            ];
+            const vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TrianglesStrip,
+                points, textureCoordinates, null /* colors */, false /*isVolatile*/);
+
+            const shader = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+            paint.setShader(shader);
+            canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+
+            vertices.delete();
+            surface.flush();
+            reportSurface(surface, 'drawvertices_texture_canvas', done);
+        });
+    });
 });
