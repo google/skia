@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4063e548_117eb0c0",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7383e3af_8cc8a088",
+      "range": {
+        "startLine": 312,
+        "startChar": 42,
+        "endLine": 312,
+        "endChar": 88
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3adad62_e37e981f",
         "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-06T23:06:26Z",
       "side": 1,
       "message": "I\u0027d bet this was an accident. (No changes required.)",
+      "range": {
+        "startLine": 950,
+        "startChar": 22,
+        "endLine": 950,
+        "endChar": 31
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "848b0e3b_520aaafc",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Yeah, hard to know without a bug to reference...  Added a TODO.",
+      "parentUuid": "a3adad62_e37e981f",
       "range": {
         "startLine": 950,
         "startChar": 22,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "264d7ef5_1c3de96c",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "That\u0027s correct, although this logic probably shouldn\u0027t have anything to do with CanvasKit:\n`\nif b.model(\"GCE\") \u0026\u0026 b.isLinux() {\n    b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)\n}\n`",
+      "parentUuid": "ce2f0da8_67f5a02d",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7cb83c6_fa70bcf3",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 4
@@ -85,6 +151,30 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1322535a_4435071b",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "I agree, I\u0027d prefer to never explicitly name a task in this file, except inside the function which defines it. I think these were the only instances of that.",
+      "parentUuid": "d7cb83c6_fa70bcf3",
+      "range": {
+        "startLine": 905,
+        "startChar": 0,
+        "endLine": 906,
+        "endChar": 63
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "8f050699_c098c7cf",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c472e5a_ee5fd471",
+      "range": {
+        "startLine": 1295,
+        "startChar": 31,
+        "endLine": 1296,
+        "endChar": 70
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0b123bd_e49e8050",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 4
@@ -131,6 +245,30 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aa866ef_98a7774a",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0b123bd_e49e8050",
+      "range": {
+        "startLine": 1392,
+        "startChar": 16,
+        "endLine": 1392,
+        "endChar": 26
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "ad20e5bc_7199e97d",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1406,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4c62320_768a9654",
+      "range": {
+        "startLine": 1405,
+        "startChar": 31,
+        "endLine": 1406,
+        "endChar": 70
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "112bef15_c5cd1f27",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 4
@@ -177,6 +339,30 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "336c613b_ebc0dd25",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Apparently so. Modified the comment.",
+      "parentUuid": "112bef15_c5cd1f27",
+      "range": {
+        "startLine": 1409,
+        "startChar": 4,
+        "endLine": 1409,
+        "endChar": 19
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "bdb27c8a_d930da49",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d1bec75_ed652c37",
+      "range": {
+        "startLine": 1498,
+        "startChar": 16,
+        "endLine": 1498,
+        "endChar": 26
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4017c906_f8258d31",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 4
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "82900e51_b09bbb7e",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done, I think I just forgot to remove this.",
+      "parentUuid": "4017c906_f8258d31",
+      "range": {
+        "startLine": 1537,
+        "startChar": 2,
+        "endLine": 1537,
+        "endChar": 70
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ab2df5e_e21c4336",
         "filename": "infra/bots/gen_tasks_logic/job_builder.go",
         "patchSetId": 4
@@ -237,6 +471,30 @@
       "writtenOn": "2020-03-06T23:06:26Z",
       "side": 1,
       "message": "less efficient, but easier to understand:\n\nnewSpecs :\u003d util.NewStringSet(b.Spec.TaskSpecs)\nnewSpecs[tb.Name] \u003d true\nb.Specs.TaskSpecs \u003d newSpecs.Complement(util.NewStringSet(tb.Spec.Dependencies)).Keys()\n\n(specs package already depends on util package)\n\nI\u0027m happy if you leave it as-is.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 28
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8af7c373_794c15e9",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Changed to use `In`, which is already copied out of util to avoid adding that dependency.  I\u0027d like to trim down the dependencies of the specs package (and probably rename) to make it a little lighter-weight.",
+      "parentUuid": "6ab2df5e_e21c4336",
       "range": {
         "startLine": 52,
         "startChar": 0,
@@ -266,6 +524,24 @@
     },
     {
       "key": {
+        "uuid": "bbdd0122_b11e5423",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6af61e87_44c47393",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f8bcad0_f1a76f23",
         "filename": "infra/bots/gen_tasks_logic/job_builder.go",
         "patchSetId": 4
@@ -280,6 +556,24 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ceec2eb_01d4fa9d",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "If docker is going to be more prevalent in our infrastructure, it seems reasonable to me to add it to the task/job name schema, eg. `docker-build-skia-wasm-release`, where everything after \"build\" becomes the image name.",
+      "parentUuid": "7f8bcad0_f1a76f23",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -300,6 +594,24 @@
     },
     {
       "key": {
+        "uuid": "d2e154a0_8cececa1",
+        "filename": "infra/bots/gen_tasks_logic/job_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01efa82e_4a878794",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1ce4289_9c1a794f",
         "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
         "patchSetId": 4
@@ -317,6 +629,24 @@
     },
     {
       "key": {
+        "uuid": "615bdfb9_30161e8b",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1ce4289_9c1a794f",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f267ddc_c0341a95",
         "filename": "infra/bots/gen_tasks_logic/schema.go",
         "patchSetId": 4
@@ -328,6 +658,30 @@
       "writtenOn": "2020-03-06T23:06:26Z",
       "side": 1,
       "message": "nit: Seems like this behavior might mask bugs. Maybe better to log.Fatal when eq is empty?\n\nI\u0027m ok with cpu() and gpu(), but those are already specifically handled in those methods. (But it also seems like it wouldn\u0027t be too bad to change those to isCpu() and isGpu().)\n\nIt\u0027s maybe a good idea to also log.Fatal if p[part] is empty (e.g. I try to call matchGpu(\"Intel\") on a Housekeeper task), but I don\u0027t feel strongly about it. (Wouldn\u0027t apply to extraConfig.)",
+      "range": {
+        "startLine": 23,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4249a49c_f337a17c",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Added log.Fatal for no values.  Fataling if the part is empty is possible but would be tricky, since we have a number of places which use the same logic for multiple types of tasks which don\u0027t have the same parts defined.  An example is \u0027arch\u0027 below.  We could change all of those instances to care about the role as well, but I suspect it\u0027ll make for clunky logic and a frustrating experience for devs.",
+      "parentUuid": "3f267ddc_c0341a95",
       "range": {
         "startLine": 23,
         "startChar": 17,
@@ -363,6 +717,30 @@
     },
     {
       "key": {
+        "uuid": "30b0f7ce_706dabd3",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ad3a21c_0c03fb23",
+      "range": {
+        "startLine": 39,
+        "startChar": 3,
+        "endLine": 39,
+        "endChar": 22
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2feda37_7102ee05",
         "filename": "infra/bots/gen_tasks_logic/schema.go",
         "patchSetId": 4
@@ -383,6 +761,30 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9de15809_f0cf9e6f",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "(story time) Initially I was only using regular expressions in these functions, with none for equality.  This behavior seemed more logical and it was consistent with the behavior I wanted from cpu() and gpu().  It later became obvious that we needed equality because of things like `arch(\"x86\")`, and this behavior carried over.\n\nDone.",
+      "parentUuid": "b2feda37_7102ee05",
+      "range": {
+        "startLine": 108,
+        "startChar": 43,
+        "endLine": 109,
+        "endChar": 80
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -409,6 +811,30 @@
     },
     {
       "key": {
+        "uuid": "808a04fd_105e8b46",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1de8db0_edb64f8e",
+      "range": {
+        "startLine": 116,
+        "startChar": 9,
+        "endLine": 116,
+        "endChar": 31
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ef92261_f4ff417d",
         "filename": "infra/bots/gen_tasks_logic/schema.go",
         "patchSetId": 4
@@ -423,6 +849,24 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0bcf8c6_a912ee21",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done. I don\u0027t know the exact lingo; IIUC \"submatch\" in the Golang regexp package refers to capture groups.",
+      "parentUuid": "1ef92261_f4ff417d",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -449,6 +893,30 @@
     },
     {
       "key": {
+        "uuid": "661d2125_2b9e69f9",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac5b6300_e239538d",
+      "range": {
+        "startLine": 132,
+        "startChar": 34,
+        "endLine": 133,
+        "endChar": 66
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0005cdab_2e81fcee",
         "filename": "infra/bots/gen_tasks_logic/schema.go",
         "patchSetId": 4
@@ -472,6 +940,30 @@
     },
     {
       "key": {
+        "uuid": "8425c961_a08f117b",
+        "filename": "infra/bots/gen_tasks_logic/schema.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "So it\u0027s now in a separate file, but the issue isn\u0027t really resolved, which is that we\u0027re getting the schema from elsewhere.  Once we\u0027ve made all the recipes dumb so that they don\u0027t depend on the builder_name_schema recipe module, we can make this the source of truth.",
+      "parentUuid": "0005cdab_2e81fcee",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 33
+      },
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1dc4f72_f315484f",
         "filename": "infra/bots/gen_tasks_logic/task_builder.go",
         "patchSetId": 4
@@ -486,6 +978,24 @@
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68a81473_54f7db4d",
+        "filename": "infra/bots/gen_tasks_logic/task_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1dc4f72_f315484f",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -506,6 +1016,24 @@
     },
     {
       "key": {
+        "uuid": "d0a2e820_be7d1140",
+        "filename": "infra/bots/gen_tasks_logic/task_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79b93acc_7e6e245f",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "970b7af5_6f54ae58",
         "filename": "infra/bots/gen_tasks_logic/task_builder.go",
         "patchSetId": 4
@@ -517,6 +1045,24 @@
       "writtenOn": "2020-03-06T23:06:26Z",
       "side": 1,
       "message": "The \"Docker cache\" is really just another name for the \"work\" cache. The tasks using CACHES_DOCKER probably should have instead just used different subdirs of the work cache, but Kevin was being careful when he first added Docker builds and decided to put it in a completely separate cache.\n\nTasks that don\u0027t need to compile or are using the work cache don\u0027t need the \"Docker cache\".",
+      "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f048798_9bcabbc5",
+        "filename": "infra/bots/gen_tasks_logic/task_builder.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-09T12:38:17Z",
+      "side": 1,
+      "message": "I\u0027m a little confused by this; anything built in a docker container (at least by default) ends up owned by root, so we absolutely should be using a separate cache for these tasks to avoid poisoning the work cache. We have an open bug which is caused by this: https://bugs.chromium.org/p/skia/issues/detail?id\u003d9749\n\nChanged the logic to reflect your comment, removed the variable so that it doesn\u0027t accidentally get used elsewhere, and added a comment to clarify.\n\nIdeally these \"uses\" functions would have minimal logic; they should really be \"all tasks which use X need these caches/dimensions/dependencies/whatever\"",
+      "parentUuid": "970b7af5_6f54ae58",
       "revId": "2d639c8804e1c0104a8cd51b86a9bea63f434ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
