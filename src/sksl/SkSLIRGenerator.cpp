@@ -1784,6 +1784,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
+    if (fKind == Program::kPipelineStage_Kind && !function.fDefined && !function.fBuiltin) {
+        String msg = "call to undefined function '" + function.fName + "'";
+        fErrors.error(offset, msg);
+        return nullptr;
+    }
     std::vector<const Type*> types;
     const Type* returnType;
     if (!function.determineFinalTypes(arguments, &types, &returnType)) {
