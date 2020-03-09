@@ -227,7 +227,10 @@ void GrMtlGpu::checkFinishProcs() {
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
-    submitCommandBuffer(SyncQueue::kSkip_SyncQueue);
+//    std::unique_ptr<GrSemaphore> sema = this->makeSemaphore(false);
+//    this->insertSemaphore(sema.get());
+    this->submitCommandBuffer(SyncQueue::kSkip_SyncQueue);
+//    return sema;
     return nullptr;
 }
 
