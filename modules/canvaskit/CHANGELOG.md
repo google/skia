@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Shadows are properly draw on fillRect and strokeRect in the canvas2d emulation layer.
  - Shadow offsets properly ignore the CTM in the canvas2d emulation layer.
 
+### Changed
+ - Stop compiling jpeg and webp encoders, for a smaller binary.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
@@ -46,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - SkMatrix.invert now returns null when the matrix is not invertible. Previously it would return an
    identity matrix. Callers must determine what behavior would be appropriate in this situation.
  - In Canvas2D compatibility layer, the underlying SkFont will have setSubpixel(true).
-- Bones are removed from Vertices builder
+ - Bones are removed from Vertices builder
 
 ### Fixed
  - Support for .otf fonts (.woff and .woff2 still not supported).
