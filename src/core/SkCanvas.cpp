@@ -1651,7 +1651,17 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
     if (sh) {
-        this->onClipShader(std::move(sh), op);
+        if (sh->isOpaque()) {
+            if (op == SkClipOp::kIntersect) {
+                // we don't occlude anything, so skip this call
+            } else {
+                SkASSERT(op == SkClipOp::kDifference);
+                // we occlude everything, so set the clip to empty
+                this->clipRect({0,0,0,0});
+            }
+        } else {
+            this->onClipShader(std::move(sh), op);
+        }
     }
 }
 
