@@ -51,6 +51,9 @@ class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
 
+    sk_sp<SkShader> makeInvertAlpha() const;
+    sk_sp<SkShader> makeWithCTM(const SkMatrix&) const;  // owns its own ctm
+
     /**
      *  Returns true if the shader is guaranteed to produce only a single color.
      *  Subclasses can override this to allow loop-hoisting optimization.

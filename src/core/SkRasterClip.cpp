@@ -347,6 +347,24 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     return this->updateCacheAndReturnNonEmpty();
 }
 
+bool SkRasterClip::op(sk_sp<SkShader> sh, const SkMatrix& ctm, SkRegion::Op op) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+
+    sh = as_SB(sh)->makeWithCTM(ctm);
+    if (!fShader) {
+        if (op != SkRegion::kIntersect_Op) {
+            sh = as_SB(sh)->makeInvertAlpha();
+        }
+        fShader = sh;
+    } else {
+        SkBlendMode mode = (op == SkRegion::kIntersect_Op) ?
+                            SkBlendMode::kSrcIn :
+                            SkBlendMode::kSrcOut;
+        fShader = SkShaders::Blend(mode, sh, fShader);
+    }
+    return !this->isEmpty();
+}
+
 /**
  *  Our antialiasing currently has a granularity of 1/4 of a pixel along each
  *  axis. Thus we can treat an axis coordinate as an integer if it differs

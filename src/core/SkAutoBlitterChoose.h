@@ -12,6 +12,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
 
 class SkMatrix;
 class SkPaint;
@@ -34,12 +35,13 @@ public:
         if (!matrix) {
             matrix = draw.fMatrix;
         }
-        fBlitter = SkBlitter::Choose(draw.fDst, *matrix, paint, &fAlloc, drawCoverage);
+        fBlitter = SkBlitter::Choose(draw.fDst, *matrix, paint, &fAlloc, drawCoverage,
+                                     draw.fRC->clipShader());
 
         if (draw.fCoverage) {
             // hmm, why can't choose ignore the paint if drawCoverage is true?
             SkBlitter* coverageBlitter = SkBlitter::Choose(*draw.fCoverage, *matrix, SkPaint(),
-                                                           &fAlloc, true);
+                                                           &fAlloc, true, draw.fRC->clipShader());
             fBlitter = fAlloc.make<SkPairBlitter>(fBlitter, coverageBlitter);
         }
         return fBlitter;

@@ -415,6 +415,11 @@ void SkRecorder::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeS
     this->append<SkRecords::ClipPath>(path, opAA);
 }
 
+void SkRecorder::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    INHERITED(onClipShader, cs, op);
+    this->append<SkRecords::ClipShader>(std::move(cs), op);
+}
+
 void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     INHERITED(onClipRegion, deviceRgn, op);
     this->append<SkRecords::ClipRegion>(deviceRgn, op);

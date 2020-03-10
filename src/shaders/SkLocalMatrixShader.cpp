@@ -93,3 +93,75 @@ sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const
 
     return sk_make_sp<SkLocalMatrixShader>(std::move(baseShader), *lm);
 }
+
+////////////////////////////////////////////////////////////////////
+
+/**
+ *  Replaces the CTM when used. Created to support clipShaders, which have to be evaluated
+ *  using the CTM that was present at the time they were specified (which may be different
+ *  from the CTM at the time something is drawn through the clip.
+ */
+class SkCTMShader final : public SkShaderBase {
+public:
+    SkCTMShader(sk_sp<SkShader> proxy, const SkMatrix& ctm)
+    : fProxyShader(std::move(proxy))
+    , fCTM(ctm)
+    {}
+
+    GradientType asAGradient(GradientInfo* info) const override {
+        return fProxyShader->asAGradient(info);
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
+
+protected:
+    void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
+
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override { return nullptr; }
+#endif
+
+    bool onAppendStages(const SkStageRec&) const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkCTMShader)
+
+    sk_sp<SkShader> fProxyShader;
+    SkMatrix        fCTM;
+
+    typedef SkShaderBase INHERITED;
+};
+
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(
+        const GrFPArgs& args) const {
+    return as_SB(fProxyShader)->asFragmentProcessor(
+        GrFPArgs::WithPreLocalMatrix(args, this->getLocalMatrix()));
+}
+#endif
+
+sk_sp<SkFlattenable> SkCTMShader::CreateProc(SkReadBuffer& buffer) {
+    SkASSERT(false);
+    return nullptr;
+}
+
+bool SkCTMShader::onAppendStages(const SkStageRec& rec) const {
+    SkStageRec newRec = {
+        rec.fPipeline,
+        rec.fAlloc,
+        rec.fDstColorType,
+        rec.fDstCS,
+        rec.fPaint,
+        rec.fLocalM,
+        fCTM,
+    };
+    return as_SB(fProxyShader)->appendStages(newRec);
+}
+
+sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
+    return postM.isIdentity() ? sk_ref_sp(this)
+                              : sk_sp<SkShader>(new SkCTMShader(sk_ref_sp(this), postM));
+}
