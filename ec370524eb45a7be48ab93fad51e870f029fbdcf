@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6cfdfaf8_bbae1b6f",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T17:22:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3edbdd33_386e52fb",
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e649b33f_83f37f6c",
         "filename": "modules/skottie/src/Animator.cpp",
         "patchSetId": 9
@@ -30,6 +48,30 @@
       "writtenOn": "2020-03-10T16:20:10Z",
       "side": 1,
       "message": "Is this right?  Not *cmeasure \u003d\u003d *other.cmeasure?",
+      "range": {
+        "startLine": 475,
+        "startChar": 37,
+        "endLine": 475,
+        "endChar": 63
+      },
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93494b15_b3310758",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T17:22:44Z",
+      "side": 1,
+      "message": "Good observation...\n\n1) SkContourMeasure doesn\u0027t have an equality operator, nor do I feel inclined to add one :)\n2) the test is only used to decide whether we can de-dupe consecutive values, and I don\u0027t expect to ever see coincident points with spatial tangents\n\nCome to think of it, let\u0027s legislate #2: updated the path interpolator logic to filter out coincident points, made the de-dupe test explicit on v2 only, and removed these equality operators.",
+      "parentUuid": "e649b33f_83f37f6c",
       "range": {
         "startLine": 475,
         "startChar": 37,
@@ -79,6 +121,24 @@
       "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf49d3da_1a1a516f",
+        "filename": "modules/skottie/src/SkottieJson.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T17:22:44Z",
+      "side": 1,
+      "message": "BodyMovin plays loose with 2d values - depending on version, property and phase of the moon, sometimes there\u0027s a third component \u003d\u003d 0.  Added a comment.",
+      "parentUuid": "36a5b267_ce4033fb",
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
