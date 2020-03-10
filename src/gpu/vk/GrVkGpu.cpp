@@ -2077,7 +2077,7 @@ void GrVkGpu::testingOnly_flushGpuAndSync() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpu::addBufferMemoryBarrier(const GrVkResource* resource,
+void GrVkGpu::addBufferMemoryBarrier(const GrManagedResource* resource,
                                      VkPipelineStageFlags srcStageMask,
                                      VkPipelineStageFlags dstStageMask,
                                      bool byRegion,
@@ -2093,7 +2093,7 @@ void GrVkGpu::addBufferMemoryBarrier(const GrVkResource* resource,
                                        barrier);
 }
 
-void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
+void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
                                     VkPipelineStageFlags srcStageMask,
                                     VkPipelineStageFlags dstStageMask,
                                     bool byRegion,

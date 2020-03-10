@@ -29,7 +29,7 @@ public:
 
     ~GrVkStencilAttachment() override;
 
-    const GrVkResource* imageResource() const { return this->resource(); }
+    const GrManagedResource* imageResource() const { return this->resource(); }
     const GrVkImageView* stencilView() const { return fStencilView; }
 
     VkFormat vkFormat() const { return fFormat.fInternalFormat; }

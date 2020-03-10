@@ -136,10 +136,10 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
-    // We're about to be severed from our GrVkResource. If there are "finish" idle procs we have to
-    // decide who will handle them. If the resource is still tied to a command buffer we let it
-    // handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
+    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
+    // have to decide who will handle them. If the resource is still tied to a command buffer we let
+    // it handle them. Otherwise, we handle them.
+    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
         this->removeFinishIdleProcs();
     }
 
@@ -170,10 +170,10 @@ struct GrVkTexture::DescriptorCacheEntry {
 };
 
 void GrVkTexture::onAbandon() {
-    // We're about to be severed from our GrVkResource. If there are "finish" idle procs we have to
-    // decide who will handle them. If the resource is still tied to a command buffer we let it
-    // handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
+    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
+    // have to decide who will handle them. If the resource is still tied to a command buffer we let
+    // it handle them. Otherwise, we handle them.
+    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
         this->removeFinishIdleProcs();
     }
 
@@ -233,7 +233,7 @@ void GrVkTexture::willRemoveLastRef() {
     // This is called when the GrTexture is purgeable. However, we need to check whether the
     // Resource is still owned by any command buffers. If it is then it will call the proc.
     auto* resource = this->hasResource() ? this->resource() : nullptr;
-    bool callFinishProcs = !resource || !resource->isOwnedByCommandBuffer();
+    bool callFinishProcs = !resource || !resource->isQueuedForWorkOnGpu();
     if (callFinishProcs) {
         // Everything must go!
         fIdleProcs.reset();

@@ -380,7 +380,7 @@ GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
                                  this->grVkImageLayout());
 }
 
-const GrVkResource* GrVkRenderTarget::stencilImageResource() const {
+const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {

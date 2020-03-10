@@ -9,7 +9,7 @@
 #define GrVkBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/GrManagedResource.h"
 
 class GrVkGpu;
 
@@ -27,7 +27,7 @@ public:
 
     VkBuffer                    buffer() const { return fResource->fBuffer; }
     const GrVkAlloc&            alloc() const { return fResource->fAlloc; }
-    const GrVkRecycledResource* resource() const { return fResource; }
+    const GrRecycledResource*   resource() const { return fResource; }
     size_t                      size() const { return fDesc.fSizeInBytes; }
     VkDeviceSize                offset() const { return fOffset;  }
 
@@ -54,12 +54,12 @@ protected:
         bool        fDynamic;
     };
 
-    class Resource : public GrVkRecycledResource {
+    class Resource : public GrRecycledResource {
     public:
         Resource(VkBuffer buf, const GrVkAlloc& alloc, Type type)
             : INHERITED(), fBuffer(buf), fAlloc(alloc), fType(type) {}
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkBuffer: %d (%d refs)\n", fBuffer, this->getRefCnt());
         }
@@ -69,11 +69,11 @@ protected:
         Type               fType;
 
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(GrGpu* gpu) const override;
 
-        void onRecycle(GrVkGpu* gpu) const override { this->unref(gpu); }
+        void onRecycle(GrGpu* gpu) const override { this->unref(gpu); }
 
-        typedef GrVkRecycledResource INHERITED;
+        typedef GrRecycledResource INHERITED;
     };
 
     // convenience routine for raw buffer creation

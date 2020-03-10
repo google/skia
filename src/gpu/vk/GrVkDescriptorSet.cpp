@@ -20,11 +20,12 @@ GrVkDescriptorSet::GrVkDescriptorSet(VkDescriptorSet descSet,
     fPool->ref();
 }
 
-void GrVkDescriptorSet::freeGPUData(GrVkGpu* gpu) const {
+void GrVkDescriptorSet::freeGPUData(GrGpu* gpu) const {
     fPool->unref(gpu);
 }
 
-void GrVkDescriptorSet::onRecycle(GrVkGpu* gpu) const {
-    gpu->resourceProvider().recycleDescriptorSet(this, fHandle);
+void GrVkDescriptorSet::onRecycle(GrGpu* gpu) const {
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    vkGpu->resourceProvider().recycleDescriptorSet(this, fHandle);
 }
 

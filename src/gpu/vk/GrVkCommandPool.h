@@ -8,15 +8,15 @@
 #ifndef GrVkCommandPool_DEFINED
 #define GrVkCommandPool_DEFINED
 
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/vk/GrVkInterface.h"
-#include "src/gpu/vk/GrVkResource.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
 class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 class GrVkGpu;
 
-class GrVkCommandPool : public GrVkResource {
+class GrVkCommandPool : public GrManagedResource {
 public:
     static GrVkCommandPool* Create(GrVkGpu* gpu);
 
@@ -52,7 +52,7 @@ private:
 
     GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
 
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
 
     bool fOpen = true;
 

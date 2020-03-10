@@ -18,8 +18,8 @@
 #include "src/gpu/vk/GrVkUniformBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
-#ifdef SK_TRACE_VK_RESOURCES
-std::atomic<uint32_t> GrVkResource::fKeyCounter{0};
+#ifdef SK_TRACE_MANAGED_RESOURCES
+std::atomic<uint32_t> GrManagedResource::fKeyCounter{0};
 #endif
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
@@ -357,8 +357,8 @@ void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
     }
 }
 
-const GrVkResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
-    const GrVkResource* resource = nullptr;
+const GrManagedResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
+    const GrManagedResource* resource = nullptr;
     int count = fAvailableUniformBufferResources.count();
     if (count > 0) {
         resource = fAvailableUniformBufferResources[count - 1];
@@ -369,7 +369,7 @@ const GrVkResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResou
     return resource;
 }
 
-void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResource* resource) {
+void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrManagedResource* resource) {
     fAvailableUniformBufferResources.push_back(resource);
 }
 

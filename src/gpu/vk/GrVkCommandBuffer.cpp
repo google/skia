@@ -40,7 +40,7 @@ void GrVkCommandBuffer::invalidateState() {
     }
 }
 
-void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu, VkCommandPool cmdPool) const {
+void GrVkCommandBuffer::freeGPUData(GrGpu* gpu, VkCommandPool cmdPool) const {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fIsActive);
     SkASSERT(!fTrackedResources.count());
@@ -48,9 +48,10 @@ void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu, VkCommandPool cmdPool) const {
     SkASSERT(cmdPool != VK_NULL_HANDLE);
     SkASSERT(!this->isWrapped());
 
-    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), cmdPool, 1, &fCmdBuffer));
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    GR_VK_CALL(vkGpu->vkInterface(), FreeCommandBuffers(vkGpu->device(), cmdPool, 1, &fCmdBuffer));
 
-    this->onFreeGPUData(gpu);
+    this->onFreeGPUData(vkGpu);
 }
 
 void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
@@ -58,11 +59,11 @@ void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
     SkDEBUGCODE(fResourcesReleased = true;)
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
-        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
+        fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
         fTrackedResources[i]->unref(gpu);
     }
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
-        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
+        fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
         fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
     }
 
@@ -87,7 +88,7 @@ void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
-                                        const GrVkResource* resource,
+                                        const GrManagedResource* resource,
                                         VkPipelineStageFlags srcStageMask,
                                         VkPipelineStageFlags dstStageMask,
                                         bool byRegion,
@@ -643,10 +644,10 @@ void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,
 }
 
 void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
-                                         const GrVkResource* srcResource,
+                                         const GrManagedResource* srcResource,
                                          VkImage srcImage,
                                          VkImageLayout srcLayout,
-                                         const GrVkResource* dstResource,
+                                         const GrManagedResource* dstResource,
                                          VkImage dstImage,
                                          VkImageLayout dstLayout,
                                          uint32_t blitRegionCount,

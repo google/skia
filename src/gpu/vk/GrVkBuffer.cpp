@@ -104,11 +104,12 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                 &bufferMemoryBarrier);
 }
 
-void GrVkBuffer::Resource::freeGPUData(GrVkGpu* gpu) const {
+void GrVkBuffer::Resource::freeGPUData(GrGpu* gpu) const {
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory);
-    VK_CALL(gpu, DestroyBuffer(gpu->device(), fBuffer, nullptr));
-    GrVkMemory::FreeBufferMemory(gpu, fType, fAlloc);
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    VK_CALL(vkGpu, DestroyBuffer(vkGpu->device(), fBuffer, nullptr));
+    GrVkMemory::FreeBufferMemory(vkGpu, fType, fAlloc);
 }
 
 void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {

@@ -11,8 +11,8 @@
 #include "src/gpu/GrSemaphore.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/vk/GrVkResource.h"
 
 class GrBackendSemaphore;
 class GrVkGpu;
@@ -32,7 +32,7 @@ public:
 
     GrBackendSemaphore backendSemaphore() const override;
 
-    class Resource : public GrVkResource {
+    class Resource : public GrManagedResource {
     public:
         Resource(VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait, bool isOwned)
                 : INHERITED()
@@ -63,20 +63,20 @@ public:
             fIsOwned = true;
         }
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkSemaphore: %d (%d refs)\n", fSemaphore, this->getRefCnt());
         }
 #endif
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(GrGpu* gpu) const override;
 
         VkSemaphore fSemaphore;
         bool        fHasBeenSubmittedToQueueForSignal;
         bool        fHasBeenSubmittedToQueueForWait;
         bool        fIsOwned;
 
-        typedef GrVkResource INHERITED;
+        typedef GrManagedResource INHERITED;
     };
 
     Resource* getResource() { return fResource; }
