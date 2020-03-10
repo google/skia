@@ -9,6 +9,7 @@
 #define SkRasterClip_DEFINED
 
 #include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
 #include "include/private/SkMacros.h"
 #include "src/core/SkAAClip.h"
 
@@ -97,6 +98,7 @@ public:
     bool op(const SkRect&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
     bool op(const SkRRect&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
     bool op(const SkPath&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
+    bool op(sk_sp<SkShader>, const SkMatrix&, SkRegion::Op);
 
     void translate(int dx, int dy, SkRasterClip* dst) const;
     void translate(int dx, int dy) {
@@ -130,6 +132,8 @@ public:
         fClipRestrictionRect = rect;
     }
 
+    sk_sp<SkShader> clipShader() const { return fShader; }
+
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
@@ -138,6 +142,8 @@ private:
     bool        fIsEmpty;
     bool        fIsRect;
     const SkIRect*    fClipRestrictionRect = nullptr;
+    // if present, this augments the clip, not replaces it
+    sk_sp<SkShader> fShader;
 
     bool computeIsEmpty() const {
         return fIsBW ? fBW.isEmpty() : fAA.isEmpty();

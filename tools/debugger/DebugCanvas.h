@@ -204,6 +204,7 @@ protected:
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
+    void onClipShader(sk_sp<SkShader>, SkClipOp) override;
     void onClipRegion(const SkRegion& region, SkClipOp) override;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 

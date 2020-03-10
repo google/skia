@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "include/core/SkShader.h"
 #include "src/utils/SkCanvasStack.h"
 
 SkCanvasStack::SkCanvasStack(int width, int height)
@@ -90,6 +92,11 @@ void SkCanvasStack::onClipRRect(const SkRRect& rr, SkClipOp op, ClipEdgeStyle ed
 void SkCanvasStack::onClipPath(const SkPath& p, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->INHERITED::onClipPath(p, op, edgeStyle);
     this->clipToZOrderedBounds();
+}
+
+void SkCanvasStack::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    this->INHERITED::onClipShader(std::move(cs), op);
+    // we don't change the "bounds" of the clip, so we don't need to update zorder
 }
 
 void SkCanvasStack::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {

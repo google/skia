@@ -37,11 +37,11 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
 
     // The size used for a typical blitter.
     SkSTArenaAlloc<3308> alloc;
-    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, &alloc, false);
+    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, &alloc, false, fRC->clipShader());
     if (fCoverage) {
         blitter = alloc.make<SkPairBlitter>(
-                blitter,
-                SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), &alloc, true));
+            blitter,
+            SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), &alloc, true, fRC->clipShader()));
     }
 
     SkAAClipBlitterWrapper wrapper{*fRC, blitter};

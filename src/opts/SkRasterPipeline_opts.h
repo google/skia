@@ -1364,6 +1364,9 @@ STAGE(store_src, float* ptr) {
     sk_unaligned_store(ptr + 2*N, b);
     sk_unaligned_store(ptr + 3*N, a);
 }
+STAGE(store_src_a, float* ptr) {
+    sk_unaligned_store(ptr, a);
+}
 
 // load registers dr,dg,db,da from context (mirrors store_dst)
 STAGE(load_dst, const float* ptr) {
@@ -1763,6 +1766,13 @@ STAGE(lerp_1_float, const float* c) {
     g = lerp(dg, g, *c);
     b = lerp(db, b, *c);
     a = lerp(da, a, *c);
+}
+STAGE(scale_native, const float scales[]) {
+    auto c = sk_unaligned_load<F>(scales);
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
 }
 STAGE(lerp_native, const float scales[]) {
     auto c = sk_unaligned_load<F>(scales);
@@ -3813,6 +3823,9 @@ STAGE_PP(store_src, uint16_t* ptr) {
     sk_unaligned_store(ptr + 2*N, b);
     sk_unaligned_store(ptr + 3*N, a);
 }
+STAGE_PP(store_src_a, uint16_t* ptr) {
+    sk_unaligned_store(ptr, a);
+}
 STAGE_PP(load_dst, const uint16_t* ptr) {
     dr = sk_unaligned_load<U16>(ptr + 0*N);
     dg = sk_unaligned_load<U16>(ptr + 1*N);
@@ -3842,6 +3855,14 @@ STAGE_PP(lerp_1_float, const float* f) {
     b = lerp(db, b, c);
     a = lerp(da, a, c);
 }
+STAGE_PP(scale_native, const uint16_t scales[]) {
+    auto c = sk_unaligned_load<U16>(scales);
+    r = div255( r * c );
+    g = div255( g * c );
+    b = div255( b * c );
+    a = div255( a * c );
+}
+
 STAGE_PP(lerp_native, const uint16_t scales[]) {
     auto c = sk_unaligned_load<U16>(scales);
     r = lerp(dr, r, c);

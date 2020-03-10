@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkClipOpPriv.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -208,4 +209,40 @@ DEF_GM(return new ComplexClipGM(true, false, false);)
 DEF_GM(return new ComplexClipGM(true, false, true);)
 DEF_GM(return new ComplexClipGM(true, true, false);)
 DEF_GM(return new ComplexClipGM(true, true, true);)
+}
+
+DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
+    auto img = GetResourceAsImage("images/yellow_rose.png");
+    auto sh = img->makeShader();
+
+    SkRect r = SkRect::MakeIWH(img->width(), img->height());
+    SkPaint p;
+
+    canvas->translate(10, 10);
+    canvas->drawImage(img, 0, 0, nullptr);
+
+    canvas->save();
+    canvas->translate(img->width() + 10, 0);
+    canvas->clipShader(sh, SkClipOp::kIntersect);
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(r, p);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(0, img->height() + 10);
+    canvas->clipShader(sh, SkClipOp::kDifference);
+    p.setColor(SK_ColorGREEN);
+    canvas->drawRect(r, p);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(img->width() + 10, img->height() + 10);
+    canvas->clipShader(sh, SkClipOp::kIntersect);
+    canvas->save();
+    SkMatrix lm = SkMatrix::MakeScale(1.0f / 5);
+    canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm));
+    canvas->drawImage(img, 0, 0, nullptr);
+
+    canvas->restore();
+    canvas->restore();
 }

@@ -366,7 +366,8 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
     p.setShader(sk_ref_sp(shader));
 
     if (!textures) {    // only tricolor shader
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc,
+                                                     this->fRC->clipShader());
         while (vertProc(&state)) {
             if (triShader->update(ctmInv, positions, dstColors, state.f0, state.f1, state.f2)) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
@@ -386,7 +387,8 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                                 // all opaque (and the blendmode will keep them that way
         }
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc,
+                                                     fRC->clipShader());
         while (vertProc(&state)) {
             if (triShader && !triShader->update(ctmInv, positions, dstColors,
                                                 state.f0, state.f1, state.f2)) {
@@ -421,7 +423,8 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                 ctm = &tmpCtm;
             }
 
-            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
+            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc,
+                                                         this->fRC->clipShader());
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
     }
@@ -443,7 +446,8 @@ void SkDraw::draw_vdata_vertices(const SkVertices* vt, const SkPaint& paint,
         auto triShader = outerAlloc->make<SkTriColorShader>(false, dev3 != nullptr);
         p.setShader(sk_ref_sp(triShader));
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc,
+                                                     this->fRC->clipShader());
         auto colors = (const SkPMColor4f*)vt->perVertexData();
         while (vertProc(&state)) {
             if (triShader->update(ctmInv, vt->positions(), colors, state.f0, state.f1, state.f2)) {
