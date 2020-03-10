@@ -165,16 +165,6 @@ protected:
 #endif
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
-    void onDrawBitmapLattice(const SkBitmap&,
-                             const Lattice&,
-                             const SkRect&,
-                             const SkPaint*) override;
-    void onDrawBitmapRect(const SkBitmap&,
-                          const SkRect* src,
-                          const SkRect& dst,
-                          const SkPaint*,
-                          SrcRectConstraint) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageLattice(const SkImage* image,
                             const Lattice& lattice,
@@ -185,10 +175,6 @@ protected:
                          const SkRect& dst,
                          const SkPaint*,
                          SrcRectConstraint) override;
-    void onDrawBitmapNine(const SkBitmap&,
-                          const SkIRect& center,
-                          const SkRect&  dst,
-                          const SkPaint*) override;
     void onDrawImageNine(const SkImage*,
                          const SkIRect& center,
                          const SkRect&  dst,
