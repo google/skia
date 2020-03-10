@@ -643,15 +643,6 @@ void SkPDFDevice::drawImageRect(const SkImage* image,
                                 src, dst, paint, this->localToDevice());
 }
 
-void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
-                                 const SkRect* src,
-                                 const SkRect& dst,
-                                 const SkPaint& paint,
-                                 SkCanvas::SrcRectConstraint) {
-    SkASSERT(!bm.drawsNothing());
-    this->internalDrawImageRect(SkKeyedImage(bm), src, dst, paint, this->localToDevice());
-}
-
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
     SkASSERT(!bm.drawsNothing());
     auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
