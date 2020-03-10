@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/GrManagedResource.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;
@@ -22,7 +22,7 @@ class GrVkGpu;
 class GrVkRenderPass;
 struct SkIRect;
 
-class GrVkPipeline : public GrVkResource {
+class GrVkPipeline : public GrManagedResource {
 public:
     static GrVkPipeline* Create(GrVkGpu*,
                                 const GrProgramInfo&,
@@ -42,7 +42,7 @@ public:
                                              const GrSwizzle& outputSwizzle,
                                              const GrXferProcessor&);
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkPipeline: %d (%d refs)\n", fPipeline, this->getRefCnt());
     }
@@ -56,9 +56,9 @@ protected:
     VkPipelineLayout  fPipelineLayout;
 
 private:
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
 
-    typedef GrVkResource INHERITED;
+    typedef GrManagedResource INHERITED;
 };
 
 #endif

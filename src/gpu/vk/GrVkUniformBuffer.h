@@ -17,7 +17,7 @@ class GrVkUniformBuffer : public GrVkBuffer {
 
 public:
     static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size);
-    static const GrVkResource* CreateResource(GrVkGpu* gpu, size_t size);
+    static const GrManagedResource* CreateResource(GrVkGpu* gpu, size_t size);
     static const size_t kStandardSize = 256;
 
     void* map(GrVkGpu* gpu) {
@@ -40,7 +40,7 @@ private:
         Resource(VkBuffer buf, const GrVkAlloc& alloc)
             : INHERITED(buf, alloc, kUniform_Type) {}
 
-        void onRecycle(GrVkGpu* gpu) const override;
+        void onRecycle(GrGpu* gpu) const override;
 
         typedef GrVkBuffer::Resource INHERITED;
     };

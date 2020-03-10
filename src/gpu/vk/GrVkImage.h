@@ -12,9 +12,9 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/vk/GrVkImageLayout.h"
-#include "src/gpu/vk/GrVkResource.h"
 
 class GrVkGpu;
 class GrVkTexture;
@@ -165,7 +165,7 @@ protected:
     bool                   fIsBorrowed;
 
 private:
-    class Resource : public GrVkResource {
+    class Resource : public GrTextureResource {
     public:
         Resource()
                 : fImage(VK_NULL_HANDLE) {
@@ -178,61 +178,22 @@ private:
             , fAlloc(alloc)
             , fImageTiling(tiling) {}
 
-        ~Resource() override {
-            SkASSERT(!fReleaseHelper);
-        }
+        ~Resource() override {}
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
-        void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
-            fReleaseHelper = std::move(releaseHelper);
-        }
-
-        /**
-         * These are used to coordinate calling the "finished" idle procs between the GrVkTexture
-         * and the Resource. If the GrVkTexture becomes purgeable and if there are no command
-         * buffers referring to the Resource then it calls the procs. Otherwise, the Resource calls
-         * them when the last command buffer reference goes away and the GrVkTexture is purgeable.
-         */
-        void addIdleProc(GrVkTexture*, sk_sp<GrRefCntedCallback>) const;
-        int idleProcCnt() const;
-        sk_sp<GrRefCntedCallback> idleProc(int) const;
-        void resetIdleProcs() const;
-        void removeOwningTexture() const;
-
-        /**
-         * We track how many outstanding references this Resource has in command buffers and
-         * when the count reaches zero we call the idle proc.
-         */
-        void notifyAddedToCommandBuffer() const override;
-        void notifyRemovedFromCommandBuffer() const override;
-        bool isOwnedByCommandBuffer() const { return fNumCommandBufferOwners > 0; }
-
-    protected:
-        mutable sk_sp<GrRefCntedCallback> fReleaseHelper;
-
-        void invokeReleaseProc() const {
-            if (fReleaseHelper) {
-                // Depending on the ref count of fReleaseHelper this may or may not actually trigger
-                // the ReleaseProc to be called.
-                fReleaseHelper.reset();
-            }
-        }
 
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(GrGpu* gpu) const override;
 
         VkImage        fImage;
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
-        mutable int fNumCommandBufferOwners = 0;
-        mutable SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
-        mutable GrVkTexture* fOwningTexture = nullptr;
 
-        typedef GrVkResource INHERITED;
+        typedef GrTextureResource INHERITED;
     };
 
     // for wrapped textures
@@ -242,7 +203,7 @@ private:
             : Resource(image, alloc, tiling) {
         }
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(GrGpu* gpu) const override;
     };
 
     Resource* fResource;
