@@ -24,5 +24,6 @@ require (
 	golang.org/x/tools v0.0.0-20200309202150-20ab64c0d93f // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.20.0
+	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20200309141739-5b75447e413d // indirect
 )
