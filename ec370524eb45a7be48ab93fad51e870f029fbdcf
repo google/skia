@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3edbdd33_386e52fb",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-10T16:20:10Z",
+      "side": 1,
+      "message": "This being a .cpp file, `inline` doesn\u0027t really mean anything... we\u0027re unlikely to encounter another identical definition of lerp(), right?\n\n(I\u0027ll never object to a static to as a reminder that a function is file-scoped though.)",
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e649b33f_83f37f6c",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-10T16:20:10Z",
+      "side": 1,
+      "message": "Is this right?  Not *cmeasure \u003d\u003d *other.cmeasure?",
+      "range": {
+        "startLine": 475,
+        "startChar": 37,
+        "endLine": 475,
+        "endChar": 63
+      },
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36a5b267_ce4033fb",
+        "filename": "modules/skottie/src/SkottieJson.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-10T16:20:10Z",
+      "side": 1,
+      "message": "Why isn\u0027t this \u003d\u003d 2?  Maybe leave a comment?",
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
