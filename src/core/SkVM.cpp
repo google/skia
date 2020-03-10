@@ -144,6 +144,44 @@ namespace skvm {
         }
     }
 
+    void Builder::dot(SkWStream* o) const {
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
+        std::vector<OptimizedInstruction> optimized = this->optimize();
+
+        o->writeText("digraph {\n");
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            auto [op, x,y,z, immy,immz, death,can_hoist,used_in_loop] = optimized[id];
+
+            switch (op) {
+                default:
+                    write(o, "\t", V{id}, " [label = \"", V{id}, op);
+                    // Not a perfect heuristic; sometimes y/z == NA and there is no immy/z.
+                    // On the other hand, sometimes immy/z=0 is meaningful and should be printed.
+                    if (y == NA) { write(o, "", Hex{immy}); }
+                    if (z == NA) { write(o, "", Hex{immz}); }
+                    write(o, "\"]\n");
+
+                    write(o, "\t", V{id}, " -> {");
+                    // In contrast to the heuristic imm labels, these dependences are exact.
+                    if (x != NA) { write(o, "", V{x}); }
+                    if (y != NA) { write(o, "", V{y}); }
+                    if (z != NA) { write(o, "", V{z}); }
+                    write(o, " }\n");
+
+                    break;
+
+                // That default: impl works pretty well for most instructions,
+                // but some are nicer to see with a specialized label.
+
+                case Op::splat:
+                    write(o, "\t", V{id}, " [label = \"", V{id}, op, Splat{immy}, "\"]\n");
+                    break;
+            }
+        }
+        o->writeText("}\n");
+    }
 
     void Builder::dump(SkWStream* o) const {
         SkDebugfStream debug;
