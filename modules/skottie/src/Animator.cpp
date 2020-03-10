@@ -699,44 +699,10 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
     }
 
     // Separate-dimensions vector value: each component is animated independently.
-    class SeparateDimensionsAnimator final : public AnimatablePropertyContainer {
-    public:
-        static sk_sp<SeparateDimensionsAnimator> Make(const AnimationBuilder& abuilder,
-                                                      const skjson::ObjectValue& jprop,
-                                                      VectorValue* v) {
-
-            sk_sp<SeparateDimensionsAnimator> animator(new SeparateDimensionsAnimator(v));
-            auto bound  = animator->bind(abuilder, jprop["x"], &animator->fX);
-                 bound |= animator->bind(abuilder, jprop["y"], &animator->fY);
-                 bound |= animator->bind(abuilder, jprop["z"], &animator->fZ);
-
-            return bound ? animator : nullptr;
-        }
-
-    private:
-        explicit SeparateDimensionsAnimator(VectorValue* v)
-            : fTarget(v) {}
-
-        void onSync() override {
-            *fTarget = { fX, fY, fZ };
-        }
-
-        VectorValue* fTarget;
-        ScalarValue  fX = 0,
-                     fY = 0,
-                     fZ = 0;
-    };
-
-    if (auto sd_animator = SeparateDimensionsAnimator::Make(abuilder, *jprop, v)) {
-        if (sd_animator->isStatic()) {
-            sd_animator->tick(0);
-        } else {
-            fAnimators.push_back(std::move(sd_animator));
-        }
-        return true;
-    }
-
-    return false;
+    v->resize(3ul, 0);
+    return this->bind(abuilder, (*jprop)["x"], v->data() + 0)
+         | this->bind(abuilder, (*jprop)["y"], v->data() + 1)
+         | this->bind(abuilder, (*jprop)["z"], v->data() + 2);
 }
 
 } // namespace internal
