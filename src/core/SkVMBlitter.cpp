@@ -145,9 +145,15 @@ namespace {
             };
 
             SkASSERT(params.shader);
-            SkASSERT(params.  clip);
-            uint64_t shaderHash = hash_shader(params.shader),
-                       clipHash = hash_shader(params.  clip);
+            uint64_t shaderHash = hash_shader(params.shader);
+
+            uint64_t clipHash = 0;
+            if (params.clip) {
+                clipHash = hash_shader(params.clip);
+                if (clipHash == 0) {
+                    clipHash = 1;
+                }
+            }
 
             switch (params.colorType) {
                 default: *ok = false;
@@ -262,19 +268,23 @@ namespace {
                         break;
                 }
 
-                skvm::Color clip;
-                SkAssertResult(as_SB(params.clip)->program(this,
-                                                           params.ctm, /*localM=*/nullptr,
-                                                           params.quality, params.colorSpace.get(),
-                                                           uniforms, alloc,
-                                                           x,y,
-                                                           &clip.r, &clip.g, &clip.b, &clip.a));
-                cov->r = mul(cov->r, clip.a);   // We use the alpha channel of clip for all four.
-                cov->g = mul(cov->g, clip.a);
-                cov->b = mul(cov->b, clip.a);
-                cov->a = mul(cov->a, clip.a);
+                if (params.clip) {
+                    skvm::Color clip;
+                    SkAssertResult(as_SB(params.clip)->program(this,
+                                                               params.ctm, /*localM=*/nullptr,
+                                                               params.quality,
+                                                               params.colorSpace.get(),
+                                                               uniforms, alloc,
+                                                               x,y,
+                                                               &clip.r, &clip.g, &clip.b, &clip.a));
+                    cov->r = mul(cov->r, clip.a);  // We use the alpha channel of clip for all four.
+                    cov->g = mul(cov->g, clip.a);
+                    cov->b = mul(cov->b, clip.a);
+                    cov->a = mul(cov->a, clip.a);
+                    return true;
+                }
 
-                return partial_coverage || !params.clip->isOpaque();
+                return partial_coverage;
             };
 
             // The math for some blend modes lets us fold coverage into src before the blend,
@@ -469,27 +479,6 @@ namespace {
         }
     };
 
-    // A shader that behaves the same as a nullptr clip shader.  It will be completely folded away.
-    struct NoClip : public SkShaderBase {
-
-        // Only created here temporarily... never serialized.
-        Factory      getFactory() const override { return nullptr; }
-        const char* getTypeName() const override { return "NoClip"; }
-
-        bool isOpaque() const override { return true; }
-
-        bool onProgram(skvm::Builder* p,
-                       const SkMatrix& ctm, const SkMatrix* localM,
-                       SkFilterQuality quality, SkColorSpace* dstCS,
-                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                       skvm::F32 x, skvm::F32 y,
-                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-            *r = *g = *b = *a = p->splat(1.0f);
-            return true;
-        }
-    };
-
-
     static Params effective_params(const SkPixmap& device,
                                    const SkPaint& paint,
                                    const SkMatrix& ctm,
@@ -557,11 +546,6 @@ namespace {
         SkBlendMode blendMode = paint.getBlendMode();
         if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
             blendMode =  SkBlendMode::kSrc;
-        }
-
-        // A nullptr clip shader does not change coverage, as if producing 1.0f like NoClip.
-        if (!clip) {
-            clip = sk_make_sp<NoClip>();
         }
 
         return {
