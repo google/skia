@@ -13,6 +13,7 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -65,7 +66,11 @@ public:
     const char* name() const override { return "GrRegionOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -94,12 +99,52 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
-        GrGeometryProcessor* gp = make_gp(target->allocator(), target->caps().shaderCaps(),
-                                          fViewMatrix, fWideColor);
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+
+        GrGeometryProcessor* gp = make_gp(arena, caps->shaderCaps(), fViewMatrix, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
-            return;
+            return nullptr;
+        }
+
+        return fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                    std::move(appliedClip), dstProxyView,
+                                                    gp, GrPrimitiveType::kTriangles);
+    }
+
+    GrProgramInfo* createProgramInfo(Target* target) {
+        return this->createProgramInfo(&target->caps(),
+                                       target->allocator(),
+                                       target->outputView(),
+                                       target->detachAppliedClip(),
+                                       target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onPrepareDraws(Target* target) override {
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return;
+            }
         }
 
         int numRegions = fRegions.count();
@@ -112,7 +157,7 @@ private:
             return;
         }
 
-        QuadHelper helper(target, gp->vertexStride(), numRects);
+        QuadHelper helper(target, fProgramInfo->primProc().vertexStride(), numRects);
 
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr) {
@@ -129,13 +174,17 @@ private:
                 iter.next();
             }
         }
-        helper.recordDraw(target, gp);
+
+        fMesh = helper.mesh();
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -163,6 +212,9 @@ private:
     SkMatrix fViewMatrix;
     SkSTArray<1, RegionInfo, true> fRegions;
     bool fWideColor;
+
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };

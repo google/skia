@@ -424,17 +424,17 @@ private:
         }
 
         SkScalar xInner[4] = { bounds.fLeft + umbraInset, bounds.fRight - umbraInset,
-            bounds.fLeft + umbraInset, bounds.fRight - umbraInset };
-        SkScalar xMid[4] = { bounds.fLeft + outerRadius, bounds.fRight - outerRadius,
-            bounds.fLeft + outerRadius, bounds.fRight - outerRadius };
+                               bounds.fLeft + umbraInset, bounds.fRight - umbraInset };
+        SkScalar xMid[4] =   { bounds.fLeft + outerRadius, bounds.fRight - outerRadius,
+                               bounds.fLeft + outerRadius, bounds.fRight - outerRadius };
         SkScalar xOuter[4] = { bounds.fLeft, bounds.fRight,
-            bounds.fLeft, bounds.fRight };
+                               bounds.fLeft, bounds.fRight };
         SkScalar yInner[4] = { bounds.fTop + umbraInset, bounds.fTop + umbraInset,
-            bounds.fBottom - umbraInset, bounds.fBottom - umbraInset };
-        SkScalar yMid[4] = { bounds.fTop + outerRadius, bounds.fTop + outerRadius,
-            bounds.fBottom - outerRadius, bounds.fBottom - outerRadius };
+                               bounds.fBottom - umbraInset, bounds.fBottom - umbraInset };
+        SkScalar yMid[4] =   { bounds.fTop + outerRadius, bounds.fTop + outerRadius,
+                               bounds.fBottom - outerRadius, bounds.fBottom - outerRadius };
         SkScalar yOuter[4] = { bounds.fTop, bounds.fTop,
-            bounds.fBottom, bounds.fBottom };
+                               bounds.fBottom, bounds.fBottom };
 
         SkScalar blurRadius = args.fBlurRadius;
 
@@ -541,8 +541,7 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
-                                                             fFalloffView);
+        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(), fFalloffView);
 
         int instanceCount = fGeoData.count();
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
