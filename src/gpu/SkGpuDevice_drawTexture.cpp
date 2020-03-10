@@ -637,7 +637,6 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
             image->width(), image->height(), paint.getFilterQuality(), ctm, srcToDst,
             fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-    SkDebugf("first filter quality pass: sk = %d, gr = %d, %d\n", paint.getFilterQuality(), fm, doBicubic);
 
     auto clip = this->clip();
 

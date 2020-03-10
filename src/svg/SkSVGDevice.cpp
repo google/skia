@@ -31,6 +31,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkUtils.h"
+#include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
 
@@ -902,6 +903,14 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     {
         AutoElement imageUse("use", this, fResourceBucket.get(), mc, paint);
         imageUse.addAttribute("xlink:href", SkStringPrintf("#%s", imageID.c_str()));
+    }
+}
+
+void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        this->drawBitmapRect(bm, src, dst, paint, constraint);
     }
 }
 
