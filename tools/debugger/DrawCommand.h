@@ -34,6 +34,7 @@ public:
         kClipRegion_OpType,
         kClipRect_OpType,
         kClipRRect_OpType,
+        kClipShader_OpType,
         kConcat_OpType,
         kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
@@ -192,6 +193,20 @@ private:
     SkRRect  fRRect;
     SkClipOp fOp;
     bool     fDoAA;
+
+    typedef DrawCommand INHERITED;
+};
+
+class ClipShaderCommand : public DrawCommand {
+public:
+    ClipShaderCommand(sk_sp<SkShader>, SkClipOp);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+
+private:
+    sk_sp<SkShader> fShader;
+    SkClipOp fOp;
 
     typedef DrawCommand INHERITED;
 };
