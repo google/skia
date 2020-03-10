@@ -46,7 +46,7 @@ public:
     const GrVkImageView* textureView();
 
     void addIdleProc(sk_sp<GrRefCntedCallback>, IdleState) override;
-    void callIdleProcsOnBehalfOfResource();
+    void callIdleProcsOnBehalfOfResource() override;
 
     // For each GrVkTexture, there is a cache of GrVkDescriptorSets which only contain a single
     // texture/sampler descriptor. If there is a cached descriptor set that matches the passed in

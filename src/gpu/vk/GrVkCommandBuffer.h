@@ -9,8 +9,8 @@
 #define GrVkCommandBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/vk/GrVkGpu.h"
-#include "src/gpu/vk/GrVkResource.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
@@ -40,7 +40,7 @@ public:
     };
 
     void pipelineBarrier(const GrVkGpu* gpu,
-                         const GrVkResource* resource,
+                         const GrManagedResource* resource,
                          VkPipelineStageFlags srcStageMask,
                          VkPipelineStageFlags dstStageMask,
                          bool byRegion,
@@ -96,24 +96,24 @@ public:
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
-    void addResource(const GrVkResource* resource) {
+    void addResource(const GrManagedResource* resource) {
         SkASSERT(resource);
         resource->ref();
-        resource->notifyAddedToCommandBuffer();
+        resource->notifyQueuedForWorkOnGpu();
         fTrackedResources.append(1, &resource);
     }
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
-    void addRecycledResource(const GrVkRecycledResource* resource) {
+    void addRecycledResource(const GrRecycledResource* resource) {
         resource->ref();
-        resource->notifyAddedToCommandBuffer();
+        resource->notifyQueuedForWorkOnGpu();
         fTrackedRecycledResources.append(1, &resource);
     }
 
     void releaseResources(GrVkGpu* gpu);
 
-    void freeGPUData(GrVkGpu* gpu, VkCommandPool pool) const;
+    void freeGPUData(GrGpu* gpu, VkCommandPool pool) const;
 
     bool hasWork() const { return fHasWork; }
 
@@ -132,8 +132,8 @@ protected:
 
     void submitPipelineBarriers(const GrVkGpu* gpu);
 
-    SkTDArray<const GrVkResource*>          fTrackedResources;
-    SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
+    SkTDArray<const GrManagedResource*>   fTrackedResources;
+    SkTDArray<const GrRecycledResource*>  fTrackedRecycledResources;
 
     // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
     // new commands to the buffer;
@@ -232,10 +232,10 @@ public:
                    const VkImageCopy* copyRegions);
 
     void blitImage(const GrVkGpu* gpu,
-                   const GrVkResource* srcResource,
+                   const GrManagedResource* srcResource,
                    VkImage srcImage,
                    VkImageLayout srcLayout,
-                   const GrVkResource* dstResource,
+                   const GrManagedResource* dstResource,
                    VkImage dstImage,
                    VkImageLayout dstLayout,
                    uint32_t blitRegionCount,

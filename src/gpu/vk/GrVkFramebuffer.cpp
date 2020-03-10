@@ -50,7 +50,8 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
     return new GrVkFramebuffer(framebuffer);
 }
 
-void GrVkFramebuffer::freeGPUData(GrVkGpu* gpu) const {
+void GrVkFramebuffer::freeGPUData(GrGpu* gpu) const {
     SkASSERT(fFramebuffer);
-    GR_VK_CALL(gpu->vkInterface(), DestroyFramebuffer(gpu->device(), fFramebuffer, nullptr));
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    GR_VK_CALL(vkGpu->vkInterface(), DestroyFramebuffer(vkGpu->device(), fFramebuffer, nullptr));
 }
