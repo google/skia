@@ -14,7 +14,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
-#include <stdlib.h>
+#include "src/gpu/GrProgramInfo.h"
+#include <cstdlib>
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
@@ -467,9 +468,6 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(instanceIndices[0].fConics == fBaseInstances[1].fConics);
     SkASSERT(instanceIndices[1].fConics == quadEndIdx);
 
-    fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
-    fScissorRectScratchBuffer.reserve(fMaxMeshesPerDraw);
-
     return true;
 }
 
@@ -483,36 +481,47 @@ void GrCCFiller::drawFills(
     GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
 
+    int numSubpasses = proc->numSubpasses();
+
     if (batchTotalCounts.fTriangles) {
-        proc->reset(PrimitiveType::kTriangles, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fTriangles, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kTriangles, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+                                 &PrimitiveTallies::fTriangles, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fWeightedTriangles) {
         SkASSERT(Algorithm::kStencilWindingCount != fAlgorithm);
-        proc->reset(PrimitiveType::kWeightedTriangles, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fWeightedTriangles,
-                drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kWeightedTriangles, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+                                 &PrimitiveTallies::fWeightedTriangles, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fQuadratics) {
-        proc->reset(PrimitiveType::kQuadratics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fQuadratics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kQuadratics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+                                 &PrimitiveTallies::fQuadratics, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fCubics) {
-        proc->reset(PrimitiveType::kCubics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kCubics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics,
+                                 drawBounds);
+        }
     }
 
     if (batchTotalCounts.fConics) {
-        proc->reset(PrimitiveType::kConics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kConics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics,
+                                 drawBounds);
+        }
     }
 }
 
@@ -521,9 +530,9 @@ void GrCCFiller::drawPrimitives(
         BatchID batchID, int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const {
     SkASSERT(pipeline.isScissorTestEnabled());
 
-    // Don't call reset(), as that also resets the reserve count.
-    fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
-    fScissorRectScratchBuffer.pop_back_n(fScissorRectScratchBuffer.count());
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    proc.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
+    proc.bindBuffers(renderPass, fInstanceBuffer.get());
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fBatches.count());
@@ -536,9 +545,9 @@ void GrCCFiller::drawPrimitives(
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
-        fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
-                                                      drawBounds.height());
+        renderPass->setScissorRect(SkIRect::MakeXYWH(0, 0, drawBounds.width(),
+                                                     drawBounds.height()));
+        proc.drawInstances(renderPass, instanceCount, baseInstance);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
@@ -554,19 +563,10 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
-                        &fMeshesScratchBuffer);
-        fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
+        renderPass->setScissorRect(scissorSubBatch.fScissor);
+        proc.drawInstances(renderPass, instanceCount, baseScissorInstance + startIndex);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
-    SkASSERT(fMeshesScratchBuffer.count() == fScissorRectScratchBuffer.count());
-    SkASSERT(fMeshesScratchBuffer.count() <= fMaxMeshesPerDraw);
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
-
-    if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
-                  fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
-                  SkRect::Make(drawBounds));
-    }
 }
