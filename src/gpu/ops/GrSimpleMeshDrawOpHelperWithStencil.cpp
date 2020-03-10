@@ -21,8 +21,8 @@ const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
         const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
-        InputFlags inputFlags)
-        : INHERITED(args, aaType, inputFlags)
+        bool foo, InputFlags inputFlags)
+        : INHERITED(args, aaType, foo, inputFlags)
         , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionFlags() const {

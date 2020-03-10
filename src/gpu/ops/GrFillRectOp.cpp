@@ -80,7 +80,7 @@ public:
     FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, GrAAType aaType,
                DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil, inputFlags)
+            , fHelper(args, aaType, stencil, false, inputFlags) //$$
             , fQuads(1, !fHelper.isTrivial()) {
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).

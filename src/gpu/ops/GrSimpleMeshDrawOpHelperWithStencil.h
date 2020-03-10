@@ -42,7 +42,7 @@ public:
     }
 
     GrSimpleMeshDrawOpHelperWithStencil(const MakeArgs&, GrAAType, const GrUserStencilSettings*,
-                                        InputFlags = InputFlags::kNone);
+                                        bool foo, InputFlags = InputFlags::kNone);
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 

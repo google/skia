@@ -203,7 +203,7 @@ public:
                        GrAAType aaType,
                        const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
+            , fHelper(helperArgs, aaType, stencilSettings, false) //$$4
             , fColor(color)
             , fShape(shape)
             , fViewMatrix(viewMatrix)

@@ -244,7 +244,7 @@ public:
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings, false) { //$$
         SkASSERT(shape.hasUnstyledKey());
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsHairline::kNo);

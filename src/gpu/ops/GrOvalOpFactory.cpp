@@ -1051,7 +1051,7 @@ public:
     CircleOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
              const SkMatrix& viewMatrix, SkPoint center, SkScalar radius, const GrStyle& style,
              const ArcParams* arcParams)
-            : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+            : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, true) {
         const SkStrokeRec& stroke = style.strokeRec();
         SkStrokeRec::Style recStyle = stroke.getStyle();
 
@@ -1546,7 +1546,7 @@ public:
                           const SkMatrix& viewMatrix, SkPoint center, SkScalar radius,
                           SkScalar strokeWidth, SkScalar startAngle, SkScalar onAngle,
                           SkScalar offAngle, SkScalar phaseAngle)
-            : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+            : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, true) {
         SkASSERT(circle_stays_circle(viewMatrix));
         viewMatrix.mapPoints(&center, 1);
         radius = viewMatrix.mapRadius(radius);
@@ -1945,7 +1945,7 @@ public:
               const SkMatrix& viewMatrix, const DeviceSpaceParams& params,
               const SkStrokeRec& stroke)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(helperArgs, GrAAType::kCoverage, true)
             , fUseScale(false) {
         SkStrokeRec::Style style = stroke.getStyle();
         bool isStrokeOnly =
@@ -2243,7 +2243,7 @@ public:
     DIEllipseOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                 const DeviceSpaceParams& params, const SkMatrix& viewMatrix)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(helperArgs, GrAAType::kCoverage, true)
             , fUseScale(false) {
         // This expands the outer rect so that after CTM we end up with a half-pixel border
         SkScalar a = viewMatrix[SkMatrix::kMScaleX];
@@ -2587,7 +2587,7 @@ public:
                     float devStrokeWidth, bool strokeOnly)
             : INHERITED(ClassID())
             , fViewMatrixIfUsingLocalCoords(viewMatrix)
-            , fHelper(helperArgs, GrAAType::kCoverage) {
+            , fHelper(helperArgs, GrAAType::kCoverage, true) {
         SkRect bounds = devRect;
         SkASSERT(!(devStrokeWidth <= 0 && strokeOnly));
         SkScalar innerRadius = 0.0f;
@@ -3000,7 +3000,7 @@ public:
                       const SkMatrix& viewMatrix, const SkRect& devRect, float devXRadius,
                       float devYRadius, SkVector devStrokeHalfWidths, bool strokeOnly)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(helperArgs, GrAAType::kCoverage, true)
             , fUseScale(false) {
         SkScalar innerXRadius = 0.0f;
         SkScalar innerYRadius = 0.0f;
