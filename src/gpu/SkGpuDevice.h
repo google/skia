@@ -157,8 +157,6 @@ private:
 
     GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
 
-    const GrCaps* caps() const;
-
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
      * matrix, clip, and the device's render target has already been set on GrContext.
@@ -184,43 +182,11 @@ private:
                                         SkIPoint* offset,
                                         const SkImageFilter* filter);
 
-    // Splits bitmap into tiles of tileSize and draws them using separate textures for each tile.
-    void drawTiledBitmap(const SkBitmap& bitmap,
-                         const SkMatrix& viewMatrix,
-                         const SkMatrix& srcToDstMatrix,
-                         const SkRect& srcRect,
-                         const SkIRect& clippedSrcRect,
-                         GrSamplerState::Filter,
-                         const SkPaint& paint,
-                         SkCanvas::SrcRectConstraint,
-                         int tileSize,
-                         bool bicubic);
-
-    // Used by drawTiledBitmap to draw each tile.
-    void drawBitmapTile(const SkBitmap&,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& dstRect,
-                        const SkRect& srcRect,
-                        GrSamplerState::Filter,
-                        const SkPaint& paint,
-                        SkCanvas::SrcRectConstraint,
-                        bool bicubic,
-                        bool needsTextureDomain);
-
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
     void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
                        const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                        const SkMatrix* preViewMatrix, const SkPaint&, SkCanvas::SrcRectConstraint);
-
-    // TODO(michaelludwig): This can be removed once drawBitmapRect is removed from SkDevice
-    // so that drawImageQuad is the sole entry point into the draw-single-image op
-    void drawTextureProducer(GrTextureProducer*,
-                             const SkRect* srcRect,
-                             const SkRect* dstRect,
-                             SkCanvas::SrcRectConstraint,
-                             const SkMatrix& viewMatrix,
-                             const SkPaint&);
 
     void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
                              const SkPaint&);
