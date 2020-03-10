@@ -13,7 +13,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCanvasPriv.h"
@@ -34,7 +33,6 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
@@ -42,7 +40,6 @@
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/text/GrTextTarget.h"
 #include "src/image/SkImage_Base.h"
@@ -635,10 +632,6 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
                                          paint, this->localToDevice(), shape);
 }
 
-const GrCaps* SkGpuDevice::caps() const {
-    return fContext->priv().caps();
-}
-
 void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
                              int left, int top, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -769,76 +762,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& origDst,
                                  const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
-    ASSERT_SINGLE_OWNER
-    // The src rect is inferred to be the bmp bounds if not provided. Otherwise, the src rect must
-    // be clipped to the bmp bounds. To determine tiling parameters we need the filter mode which
-    // in turn requires knowing the src-to-dst mapping. If the src was clipped to the bmp bounds
-    // then we use the src-to-dst mapping to compute a new clipped dst rect.
-    const SkRect* dst = &origDst;
-    const SkRect bmpBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
-    // Compute matrix from the two rectangles
-    if (!src) {
-        src = &bmpBounds;
-    }
-
-    SkMatrix srcToDstMatrix;
-    if (!srcToDstMatrix.setRectToRect(*src, *dst, SkMatrix::kFill_ScaleToFit)) {
-        return;
-    }
-    SkRect tmpSrc, tmpDst;
-    if (src != &bmpBounds) {
-        if (!bmpBounds.contains(*src)) {
-            tmpSrc = *src;
-            if (!tmpSrc.intersect(bmpBounds)) {
-                return; // nothing to draw
-            }
-            src = &tmpSrc;
-            srcToDstMatrix.mapRect(&tmpDst, *src);
-            dst = &tmpDst;
-        }
-    }
-
-    int maxTileSize = this->caps()->maxTileSize();
-
-    // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
-    // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool useCoverageAA = fRenderTargetContext->numSamples() <= 1 &&
-                         paint.isAntiAlias() && bitmap.width() <= maxTileSize &&
-                         bitmap.height() <= maxTileSize;
-
-    bool skipTileCheck = useCoverageAA || paint.getMaskFilter();
-
-    if (!skipTileCheck) {
-        int tileSize;
-        SkIRect clippedSrcRect;
-
-        bool doBicubic;
-        GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-                bitmap.width(), bitmap.height(), paint.getFilterQuality(), this->localToDevice(),
-                srcToDstMatrix, fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-
-        int tileFilterPad;
-
-        if (doBicubic) {
-            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-        } else if (GrSamplerState::Filter::kNearest == textureFilterMode) {
-            tileFilterPad = 0;
-        } else {
-            tileFilterPad = 1;
-        }
-
-        int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
-        if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(),
-                                    this->localToDevice(), srcToDstMatrix, src,
-                                    maxTileSizeForFilter, &tileSize, &clippedSrcRect)) {
-            this->drawTiledBitmap(bitmap, this->localToDevice(), srcToDstMatrix, *src,
-                                  clippedSrcRect, textureFilterMode, paint, constraint, tileSize,
-                                  doBicubic);
-            return;
-        }
-    }
-    GrBitmapTextureMaker maker(fContext.get(), bitmap, GrBitmapTextureMaker::Cached::kYes);
-    this->drawTextureProducer(&maker, src, dst, constraint, this->localToDevice(), paint);
+    sk_sp<SkImage> asImage = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+    this->drawImageRect(asImage.get(), src, origDst, paint, constraint);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
