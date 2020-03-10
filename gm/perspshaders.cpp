@@ -115,6 +115,8 @@ protected:
         canvas->drawBitmapRect(fBitmap, r, &filterPaint);
         canvas->restore();
 
+        if (true) return;
+
         canvas->translate(SkIntToScalar(kCellSize), 0);
         canvas->save();
         canvas->concat(fPerspMatrix);
@@ -153,14 +155,15 @@ protected:
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 
-        this->drawRow(canvas, kNone_SkFilterQuality);
-        canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, kLow_SkFilterQuality);
-        canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, kMedium_SkFilterQuality);
-        canvas->translate(0, SkIntToScalar(kCellSize));
+        SkDebugf("gm on draw\n");
+        // this->drawRow(canvas, kNone_SkFilterQuality);
+        // canvas->translate(0, SkIntToScalar(kCellSize));
+        // this->drawRow(canvas, kLow_SkFilterQuality);
+        // canvas->translate(0, SkIntToScalar(kCellSize));
+        // this->drawRow(canvas, kMedium_SkFilterQuality);
+        // canvas->translate(0, SkIntToScalar(kCellSize));
         this->drawRow(canvas, kHigh_SkFilterQuality);
-        canvas->translate(0, SkIntToScalar(kCellSize));
+        // canvas->translate(0, SkIntToScalar(kCellSize));
     }
 private:
     static constexpr int kCellSize = 50;
