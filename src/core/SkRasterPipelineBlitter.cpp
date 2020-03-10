@@ -333,7 +333,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         p.append_gamut_clamp_if_normalized(fDst.info());
-        if (fBlend == SkBlendMode::kSrcOver && false
+        if (fBlend == SkBlendMode::kSrcOver
                 && (fDst.info().colorType() == kRGBA_8888_SkColorType ||
                     fDst.info().colorType() == kBGRA_8888_SkColorType)
                 && !fDst.colorSpace()
