@@ -10,14 +10,14 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkOpts.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
 #include <atomic>
 
 class GrSamplerState;
 class GrVkGpu;
 
-class GrVkSampler : public GrVkResource {
+class GrVkSampler : public GrManagedResource {
 public:
     static GrVkSampler* Create(GrVkGpu* gpu, GrSamplerState, const GrVkYcbcrConversionInfo&);
 
@@ -51,7 +51,7 @@ public:
 
     uint32_t uniqueID() const { return fUniqueID; }
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkSampler: %d (%d refs)\n", fSampler, this->getRefCnt());
     }
@@ -65,7 +65,7 @@ private:
             , fKey(key)
             , fUniqueID(GenID()) {}
 
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
 
     static uint32_t GenID() {
         static std::atomic<uint32_t> nextID{1};
@@ -81,7 +81,7 @@ private:
     Key                         fKey;
     uint32_t                    fUniqueID;
 
-    typedef GrVkResource INHERITED;
+    typedef GrManagedResource INHERITED;
 };
 
 #endif

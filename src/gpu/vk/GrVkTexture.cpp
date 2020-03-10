@@ -136,7 +136,7 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
-    // We're about to be severed from our GrVkResource. If there are "finish" idle procs we have to
+    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we have to
     // decide who will handle them. If the resource is still tied to a command buffer we let it
     // handle them. Otherwise, we handle them.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
@@ -170,7 +170,7 @@ struct GrVkTexture::DescriptorCacheEntry {
 };
 
 void GrVkTexture::onAbandon() {
-    // We're about to be severed from our GrVkResource. If there are "finish" idle procs we have to
+    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we have to
     // decide who will handle them. If the resource is still tied to a command buffer we let it
     // handle them. Otherwise, we handle them.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {

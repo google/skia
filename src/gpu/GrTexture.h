@@ -84,6 +84,7 @@ protected:
         // We're about to be idle in the resource cache. Do our part to trigger the idle callbacks.
         fIdleProcs.reset();
     }
+    virtual void callIdleProcsOnBehalfOfResource() {}
     void computeScratchKey(GrScratchKey*) const override;
 
 private:
@@ -95,6 +96,7 @@ private:
     GrMipMapsStatus               fMipMapsStatus;
     int                           fMaxMipMapLevel;
     friend class GrTexturePriv;
+    friend class GrTextureResource;
 
     typedef GrSurface INHERITED;
 };

@@ -45,8 +45,9 @@ bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) con
     return fType == type && count <= fCount;
 }
 
-void GrVkDescriptorPool::freeGPUData(GrVkGpu* gpu) const {
+void GrVkDescriptorPool::freeGPUData(GrGpu* gpu) const {
     // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
     // allocated from the pool.
-    GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorPool(gpu->device(), fDescPool, nullptr));
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    GR_VK_CALL(vkGpu->vkInterface(), DestroyDescriptorPool(vkGpu->device(), fDescPool, nullptr));
 }

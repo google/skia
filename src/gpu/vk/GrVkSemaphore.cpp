@@ -59,10 +59,11 @@ GrVkSemaphore::~GrVkSemaphore() {
     }
 }
 
-void GrVkSemaphore::Resource::freeGPUData(GrVkGpu* gpu) const {
+void GrVkSemaphore::Resource::freeGPUData(GrGpu* gpu) const {
     if (fIsOwned) {
-        GR_VK_CALL(gpu->vkInterface(),
-                   DestroySemaphore(gpu->device(), fSemaphore, nullptr));
+        GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+        GR_VK_CALL(vkGpu->vkInterface(),
+                   DestroySemaphore(vkGpu->device(), fSemaphore, nullptr));
     }
 }
 
