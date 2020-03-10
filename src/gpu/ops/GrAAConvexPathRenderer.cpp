@@ -15,6 +15,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"
@@ -710,7 +711,11 @@ public:
     const char* name() const override { return "AAConvexPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -734,19 +739,61 @@ public:
     }
 
 private:
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+        SkMatrix invert;
+        if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
+            return nullptr;
+        }
+
+        GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(arena, invert,
+                                                                  fHelper.usesLocalCoords(),
+                                                                  fWideColor);
+
+        return fHelper.createProgramInfoWithStencil(caps, arena, outputView, std::move(appliedClip),
+                                                    dstProxyView, quadProcessor,
+                                                    GrPrimitiveType::kTriangles);
+    }
+
+    GrProgramInfo* createProgramInfo(Target* target) {
+        return this->createProgramInfo(&target->caps(),
+                                       target->allocator(),
+                                       target->outputView(),
+                                       target->detachAppliedClip(),
+                                       target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
     void onPrepareDraws(Target* target) override {
         int instanceCount = fPaths.count();
 
-        SkMatrix invert;
-        if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
-            return;
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return;
+            }
         }
 
-        // Setup GrGeometryProcessor
-        GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(target->allocator(), invert,
-                                                                  fHelper.usesLocalCoords(),
-                                                                  fWideColor);
-        const size_t kVertexStride = quadProcessor->vertexStride();
+        const size_t kVertexStride = fProgramInfo->primProc().vertexStride();
+
+        fDraws.reserve(instanceCount);
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -815,14 +862,21 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->recordDraw(quadProcessor, meshes, draws.count(), GrPrimitiveType::kTriangles);
+
+            fDraws.push_back({ meshes, draws.count() });
         }
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        if (!fProgramInfo || fDraws.isEmpty()) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        for (int i = 0; i < fDraws.count(); ++i) {
+            flushState->opsRenderPass()->drawMeshes(*fProgramInfo,
+                                                    fDraws[i].fMeshes, fDraws[i].fMeshCount);
+        }
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -842,14 +896,22 @@ private:
     }
 
     struct PathData {
-        SkMatrix fViewMatrix;
-        SkPath fPath;
+        SkMatrix    fViewMatrix;
+        SkPath      fPath;
         SkPMColor4f fColor;
     };
 
     Helper fHelper;
     SkSTArray<1, PathData, true> fPaths;
     bool fWideColor;
+
+    struct MeshDraw {
+        GrMesh* fMeshes;
+        int     fMeshCount;
+    };
+
+    SkTDArray<MeshDraw> fDraws;
+    GrProgramInfo*      fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
