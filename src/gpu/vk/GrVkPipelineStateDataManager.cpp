@@ -12,8 +12,7 @@
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                            uint32_t uniformSize)
-    : fUniformSize(uniformSize)
-    , fUniformsDirty(false) {
+    : fUniformSize(uniformSize) {
     fUniformData.reset(uniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
@@ -34,7 +33,6 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
 }
 
 void* GrVkPipelineStateDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
-    fUniformsDirty = true;
     return static_cast<char*>(fUniformData.get())+uni.fOffset;
 }
 
@@ -306,7 +304,6 @@ template<int N> inline void GrVkPipelineStateDataManager::setMatrices(UniformHan
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = fUniformData.get();
-    fUniformsDirty = true;
 
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
@@ -336,10 +333,9 @@ template<> struct set_uniform_matrix<4> {
 bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
                                                         GrVkUniformBuffer* buffer) const {
     bool updatedBuffer = false;
-    if (buffer && fUniformsDirty) {
+    if (buffer) {
         SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
                                           fUniformSize, &updatedBuffer));
-        fUniformsDirty = false;
     }
 
     return updatedBuffer;
