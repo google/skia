@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkShader.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 
@@ -149,6 +150,14 @@ void SkNWayCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edg
         iter->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
     }
     this->INHERITED::onClipPath(path, op, edgeStyle);
+}
+
+void SkNWayCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->clipShader(sh, op);
+    }
+    this->INHERITED::onClipShader(std::move(sh), op);
 }
 
 void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {

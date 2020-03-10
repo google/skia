@@ -143,13 +143,14 @@ public:
                              const SkMatrix& matrix,
                              const SkPaint& paint,
                              SkArenaAlloc*,
-                             bool drawCoverage = false);
+                             bool drawCoverage,
+                             sk_sp<SkShader> clipShader);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,
                                    const SkPixmap& src,
                                    int left, int top,
-                                   SkArenaAlloc*);
+                                   SkArenaAlloc*, sk_sp<SkShader> clipShader);
     ///@}
 
     static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
