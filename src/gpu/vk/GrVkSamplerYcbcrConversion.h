@@ -8,14 +8,14 @@
 #ifndef GrVkSamplerYcbcrConverison_DEFINED
 #define GrVkSamplerYcbcrConverison_DEFINED
 
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/GrManagedResource.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkOpts.h"
 
 class GrVkGpu;
 
-class GrVkSamplerYcbcrConversion : public GrVkResource {
+class GrVkSamplerYcbcrConversion : public GrManagedResource {
 public:
     static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
 
@@ -51,7 +51,7 @@ public:
         return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
     }
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkSamplerYcbcrConversion: %d (%d refs)\n", fYcbcrConversion, this->getRefCnt());
     }
@@ -63,12 +63,12 @@ private:
             , fYcbcrConversion(ycbcrConversion)
             , fKey(key) {}
 
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
 
     VkSamplerYcbcrConversion fYcbcrConversion;
     Key                      fKey;
 
-    typedef GrVkResource INHERITED;
+    typedef GrManagedResource INHERITED;
 };
 
 #endif

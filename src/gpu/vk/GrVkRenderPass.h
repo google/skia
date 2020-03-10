@@ -10,13 +10,13 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/GrManagedResource.h"
 
 class GrProcessorKeyBuilder;
 class GrVkGpu;
 class GrVkRenderTarget;
 
-class GrVkRenderPass : public GrVkResource {
+class GrVkRenderPass : public GrManagedResource {
 public:
     struct LoadStoreOps {
         VkAttachmentLoadOp  fLoadOp;
@@ -118,7 +118,7 @@ public:
 
     void genKey(GrProcessorKeyBuilder* b) const;
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkRenderPass: %d (%d refs)\n", fRenderPass, this->getRefCnt());
     }
@@ -136,7 +136,7 @@ private:
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
 
     VkRenderPass          fRenderPass;
     AttachmentFlags       fAttachmentFlags;
@@ -146,7 +146,7 @@ private:
     // For internally created render passes we assume the color attachment index is always 0.
     uint32_t              fColorAttachmentIndex = 0;
 
-    typedef GrVkResource INHERITED;
+    typedef GrManagedResource INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags);

@@ -9,13 +9,13 @@
 #define GrVkDescriptorSet_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
-#include "src/gpu/vk/GrVkResource.h"
 
 class GrVkDescriptorPool;
 class GrVkGpu;
 
-class GrVkDescriptorSet : public GrVkRecycledResource {
+class GrVkDescriptorSet : public GrRecycledResource {
 public:
     GrVkDescriptorSet(VkDescriptorSet descSet,
                       GrVkDescriptorPool* pool,
@@ -25,15 +25,15 @@ public:
 
     const VkDescriptorSet* descriptorSet() const { return &fDescSet; }
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkDescriptorSet: %d (%d refs)\n", fDescSet, this->getRefCnt());
     }
 #endif
 
 private:
-    void freeGPUData(GrVkGpu* gpu) const override;
-    void onRecycle(GrVkGpu* gpu) const override;
+    void freeGPUData(GrGpu* gpu) const override;
+    void onRecycle(GrGpu* gpu) const override;
 
     VkDescriptorSet                          fDescSet;
     SkDEBUGCODE(mutable) GrVkDescriptorPool* fPool;

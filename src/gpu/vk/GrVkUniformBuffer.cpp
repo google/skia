@@ -14,7 +14,7 @@ GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size) {
     if (0 == size) {
         return nullptr;
     }
-    const GrVkResource* resource = nullptr;
+    const GrManagedResource* resource = nullptr;
     if (size <= GrVkUniformBuffer::kStandardSize) {
         resource = gpu->resourceProvider().findOrCreateStandardUniformBufferResource();
     } else {
@@ -39,7 +39,7 @@ GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size) {
 }
 
 // We implement our own creation function for special buffer resource type
-const GrVkResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size) {
+const GrManagedResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size) {
     if (0 == size) {
         return nullptr;
     }
@@ -72,7 +72,7 @@ const GrVkResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size)
         return nullptr;
     }
 
-    const GrVkResource* resource = new GrVkUniformBuffer::Resource(buffer, alloc);
+    const GrManagedResource* resource = new GrVkUniformBuffer::Resource(buffer, alloc);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         GrVkMemory::FreeBufferMemory(gpu, kUniform_Type, alloc);
@@ -84,7 +84,7 @@ const GrVkResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size)
 
 const GrVkBuffer::Resource* GrVkUniformBuffer::createResource(GrVkGpu* gpu,
                                                               const GrVkBuffer::Desc& descriptor) {
-    const GrVkResource* vkResource;
+    const GrManagedResource* vkResource;
     if (descriptor.fSizeInBytes <= GrVkUniformBuffer::kStandardSize) {
         GrVkResourceProvider& provider = gpu->resourceProvider();
         vkResource = provider.findOrCreateStandardUniformBufferResource();
@@ -94,9 +94,10 @@ const GrVkBuffer::Resource* GrVkUniformBuffer::createResource(GrVkGpu* gpu,
     return (const GrVkBuffer::Resource*) vkResource;
 }
 
-void GrVkUniformBuffer::Resource::onRecycle(GrVkGpu* gpu) const {
+void GrVkUniformBuffer::Resource::onRecycle(GrGpu* gpu) const {
     if (fAlloc.fSize <= GrVkUniformBuffer::kStandardSize) {
-        gpu->resourceProvider().recycleStandardUniformBufferResource(this);
+        GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+        vkGpu->resourceProvider().recycleStandardUniformBufferResource(this);
     } else {
         this->unref(gpu);
     }

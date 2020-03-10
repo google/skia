@@ -182,9 +182,10 @@ GrVkRenderPass::GrVkRenderPass(VkRenderPass renderPass, AttachmentFlags flags,
         , fClearValueCount(clearValueCount) {
 }
 
-void GrVkRenderPass::freeGPUData(GrVkGpu* gpu) const {
+void GrVkRenderPass::freeGPUData(GrGpu* gpu) const {
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
     if (!(fAttachmentFlags & kExternal_AttachmentFlag)) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
+        GR_VK_CALL(vkGpu->vkInterface(), DestroyRenderPass(vkGpu->device(), fRenderPass, nullptr));
     }
 }
 

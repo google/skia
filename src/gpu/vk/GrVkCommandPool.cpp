@@ -86,19 +86,20 @@ void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
     fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(this);
 }
 
-void GrVkCommandPool::freeGPUData(GrVkGpu* gpu) const {
-    // TODO: having freeGPUData virtual on GrVkResource be const seems like a bad restriction since
+void GrVkCommandPool::freeGPUData(GrGpu* gpu) const {
+    // TODO: having freeGPUData virtual on GrManagedResource be const seems like a bad restriction since
     // we are changing the internal objects of these classes when it is called. We should go back a
     // revisit how much of a headache it would be to make this function non-const
+    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
     GrVkCommandPool* nonConstThis = const_cast<GrVkCommandPool*>(this);
     nonConstThis->close();
-    nonConstThis->releaseResources(gpu);
+    nonConstThis->releaseResources(vkGpu);
     fPrimaryCommandBuffer->freeGPUData(gpu, fCommandPool);
     for (const auto& buffer : fAvailableSecondaryBuffers) {
         buffer->freeGPUData(gpu, fCommandPool);
     }
     if (fCommandPool != VK_NULL_HANDLE) {
-        GR_VK_CALL(gpu->vkInterface(),
-                   DestroyCommandPool(gpu->device(), fCommandPool, nullptr));
+        GR_VK_CALL(vkGpu->vkInterface(),
+                   DestroyCommandPool(vkGpu->device(), fCommandPool, nullptr));
     }
 }
