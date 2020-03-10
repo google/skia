@@ -82,31 +82,23 @@ public:
     void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint) override;
     void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) override;
-    void drawBitmapRect(const SkBitmap&, const SkRect* srcOrNull, const SkRect& dst,
-                        const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
-    void drawSprite(const SkBitmap& bitmap, int x, int y,
-                    const SkPaint& paint) override;
+
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
-
     void drawImageNine(const SkImage* image, const SkIRect& center,
                        const SkRect& dst, const SkPaint& paint) override;
-    void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                        const SkRect& dst, const SkPaint& paint) override;
-
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, const SkPaint&) override;
-    void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
-                           const SkRect& dst, const SkPaint&) override;
 
     void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas* canvas) override;
+
+    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
                      SkImage*, const SkMatrix&) override;

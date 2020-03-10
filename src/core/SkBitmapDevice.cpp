@@ -23,6 +23,7 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
+#include "src/image/SkImage_Base.h"
 
 struct Bounder {
     SkRect  fBounds;
@@ -425,11 +426,16 @@ static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& pain
     return m.getType() <= SkMatrix::kTranslate_Mask;
 }
 
-void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
+void SkBitmapDevice::drawImageRect(const SkImage* image,
                                     const SkRect* src, const SkRect& dst,
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(dst.isFinite());
     SkASSERT(dst.isSorted());
+
+    SkBitmap bitmap;
+    if (!as_IB(image)->getROPixels(&bitmap)) {
+        return;
+    }
 
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
@@ -542,10 +548,6 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     this->drawRect(*dstPtr, paintWithShader);
 }
 
-void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
-    BDDraw(this).drawSprite(bitmap, x, y, paint);
-}
-
 void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphPainter), nullptr )
 }
@@ -573,7 +575,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.drawBitmap(*src->fCoverage.get(),
                         SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
     } else {
-        this->drawSprite(src->fBitmap, x, y, *paint);
+        BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);
     }
 }
 
@@ -645,7 +647,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
     if (!clipImage) {
         SkBitmap resultBM;
         if (src->getROPixels(&resultBM)) {
-            this->drawSprite(resultBM, x, y, *paint);
+            BDDraw(this).drawSprite(resultBM, x, y, *paint);
         }
         return;
     }

@@ -30,6 +30,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkUtils.h"
+#include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
 
@@ -917,28 +918,22 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 }
 
-void SkSVGDevice::drawSprite(const SkBitmap& bitmap,
-                             int x, int y, const SkPaint& paint) {
-    MxCp mc(this);
-    SkMatrix adjustedMatrix = *mc.fMatrix;
-    adjustedMatrix.preTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    mc.fMatrix = &adjustedMatrix;
+void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+    SkBitmap bm;
+    if (!as_IB(image)->getROPixels(&bm)) {
+        return;
+    }
 
-    drawBitmapCommon(mc, bitmap, paint);
-}
-
-void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
-                                 const SkRect& dst, const SkPaint& paint,
-                                 SkCanvas::SrcRectConstraint) {
     SkClipStack* cs = &this->cs();
     SkClipStack::AutoRestore ar(cs, false);
-    if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
+    if (src && *src != SkRect::Make(bm.bounds())) {
         cs->save();
         cs->clipRect(dst, this->localToDevice(), kIntersect_SkClipOp, paint.isAntiAlias());
     }
 
     SkMatrix adjustedMatrix;
-    adjustedMatrix.setRectToRect(srcOrNull ? *srcOrNull : SkRect::Make(bm.bounds()),
+    adjustedMatrix.setRectToRect(src ? *src : SkRect::Make(bm.bounds()),
                                  dst,
                                  SkMatrix::kFill_ScaleToFit);
     adjustedMatrix.postConcat(this->localToDevice());
