@@ -625,8 +625,6 @@ var CanvasKit = {
   FillType: {
     Winding: {},
     EvenOdd: {},
-    InverseWinding: {},
-    InverseEvenOdd: {},
   },
 
   FilterQuality: {
@@ -683,7 +681,6 @@ var CanvasKit = {
   PaintStyle: {
     Fill: {},
     Stroke: {},
-    StrokeAndFill: {},
   },
 
   PathOp: {
@@ -737,13 +734,6 @@ var CanvasKit = {
   TextDirection: {
     LTR: {},
     RTL: {},
-  },
-
-  TextEncoding: {
-    UTF8: {},
-    UTF16: {},
-    UTF32: {},
-    GlyphID: {},
   },
 
   TileMode: {
