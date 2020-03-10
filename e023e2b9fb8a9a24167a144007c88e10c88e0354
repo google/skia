@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af55787f_4e6b006a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T15:16:17Z",
+      "side": 1,
+      "message": "Do we think GPU is going to do anything fundamentally different?  If not, would it make sense to hoist/share all this (SkCanvas::MCRec)?",
+      "range": {
+        "startLine": 11,
+        "startChar": 3,
+        "endLine": 14,
+        "endChar": 52
+      },
+      "revId": "e023e2b9fb8a9a24167a144007c88e10c88e0354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2627ca00_121144d5",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 2649,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T15:16:17Z",
+      "side": 1,
+      "message": "also \"override\" in SkCanvasVirtualEnforcer",
+      "range": {
+        "startLine": 2649,
+        "startChar": 17,
+        "endLine": 2649,
+        "endChar": 29
+      },
+      "revId": "e023e2b9fb8a9a24167a144007c88e10c88e0354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8402e262_8bbb2cac",
+        "filename": "src/shaders/SkLocalMatrixShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-10T15:16:17Z",
+      "side": 1,
+      "message": "This is borked, right?  Kind of a bummer we *just* removed WithPostLocalMatrix... shall I revert that part, or can you perform the same trick as software?",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 137,
+        "endChar": 68
+      },
+      "revId": "e023e2b9fb8a9a24167a144007c88e10c88e0354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
