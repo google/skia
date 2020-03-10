@@ -744,8 +744,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 #if defined(SK_USE_SKVM_BLITTER)
     try_skvm_blitter = true;
 #endif
-    if (try_skvm_blitter && !clipShader) {
-        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrix, alloc)) {
+    if (try_skvm_blitter) {
+        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrix, alloc, clipShader)) {
             return blitter;
         }
     }
