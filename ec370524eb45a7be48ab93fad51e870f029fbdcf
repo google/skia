@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "1844f03a_c2a89efc",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-10T16:50:26Z",
+      "side": 1,
+      "message": "reads very nicely.\n\nnote: *if* we see a perf hit due to the general nature of having to make a SkPath and use SkContourMeasureIter, it should be easy to make a lighter-weight variant that explicitly just took one cubic.",
+      "range": {
+        "startLine": 524,
+        "startChar": 36,
+        "endLine": 524,
+        "endChar": 56
+      },
+      "revId": "ec370524eb45a7be48ab93fad51e870f029fbdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36a5b267_ce4033fb",
         "filename": "modules/skottie/src/SkottieJson.cpp",
         "patchSetId": 9
