@@ -61,18 +61,18 @@ static_assert ((int)SkPath::AddPathMode::kAppend_AddPathMode   == (int)APPEND_SK
 static_assert ((int)SkPath::AddPathMode::kExtend_AddPathMode   == (int)EXTEND_SK_PATH_ADD_MODE,   ASSERT_MSG(SkPath::AddPathMode, sk_path_add_mode_t));
 
 // sk_path_direction_t
-static_assert ((int)SkPath::Direction::kCCW_Direction   == (int)CCW_SK_PATH_DIRECTION,   ASSERT_MSG(SkPath::Direction, sk_path_direction_t));
-static_assert ((int)SkPath::Direction::kCW_Direction    == (int)CW_SK_PATH_DIRECTION,    ASSERT_MSG(SkPath::Direction, sk_path_direction_t));
+static_assert ((int)SkPathDirection::kCCW   == (int)CCW_SK_PATH_DIRECTION,   ASSERT_MSG(SkPathDirection, sk_path_direction_t));
+static_assert ((int)SkPathDirection::kCW    == (int)CW_SK_PATH_DIRECTION,    ASSERT_MSG(SkPathDirection, sk_path_direction_t));
 
 // sk_path_arc_size_t
 static_assert ((int)SkPath::ArcSize::kLarge_ArcSize   == (int)LARGE_SK_PATH_ARC_SIZE,   ASSERT_MSG(SkPath::ArcSize, sk_path_arc_size_t));
 static_assert ((int)SkPath::ArcSize::kSmall_ArcSize   == (int)SMALL_SK_PATH_ARC_SIZE,   ASSERT_MSG(SkPath::ArcSize, sk_path_arc_size_t));
 
 // sk_path_filltype_t
-static_assert ((int)SkPath::FillType::kWinding_FillType          == (int)WINDING_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
-static_assert ((int)SkPath::FillType::kEvenOdd_FillType          == (int)EVENODD_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
-static_assert ((int)SkPath::FillType::kInverseWinding_FillType   == (int)INVERSE_WINDING_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
-static_assert ((int)SkPath::FillType::kInverseEvenOdd_FillType   == (int)INVERSE_EVENODD_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
+static_assert ((int)SkPathFillType::kWinding          == (int)WINDING_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPathFillType, sk_path_filltype_t));
+static_assert ((int)SkPathFillType::kEvenOdd          == (int)EVENODD_SK_PATH_FILLTYPE,           ASSERT_MSG(SkPathFillType, sk_path_filltype_t));
+static_assert ((int)SkPathFillType::kInverseWinding   == (int)INVERSE_WINDING_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPathFillType, sk_path_filltype_t));
+static_assert ((int)SkPathFillType::kInverseEvenOdd   == (int)INVERSE_EVENODD_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPathFillType, sk_path_filltype_t));
 
 // sk_path_segment_mask_t
 static_assert ((int)SkPath::SegmentMask::kLine_SegmentMask    == (int)LINE_SK_PATH_SEGMENT_MASK,    ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
@@ -309,9 +309,9 @@ static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHO
 static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
 
 // sk_path_convexity_t
-static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
-static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
-static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+static_assert ((int)SkPathConvexityType::kUnknown   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
+static_assert ((int)SkPathConvexityType::kConvex    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
+static_assert ((int)SkPathConvexityType::kConcave   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
 
 // sk_lattice_flags_t
 static_assert ((int)SkCanvas::Lattice::RectType::kDefault       == (int)DEFAULT_SK_LATTICE_RECT_TYPE,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));

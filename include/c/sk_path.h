@@ -73,7 +73,7 @@ SK_C_API bool sk_path_is_rect(sk_path_t* cpath, sk_rect_t* rect, bool* isClosed,
 
 /* Iterators */
 SK_C_API sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose);
-SK_C_API sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4], int doConsumeDegenerates, int exact);
+SK_C_API sk_path_verb_t sk_path_iter_next (sk_path_iterator_t *iterator, sk_point_t points [4]);
 SK_C_API float sk_path_iter_conic_weight (sk_path_iterator_t *iterator);
 SK_C_API int sk_path_iter_is_close_line (sk_path_iterator_t *iterator);
 SK_C_API int sk_path_iter_is_closed_contour (sk_path_iterator_t *iterator);

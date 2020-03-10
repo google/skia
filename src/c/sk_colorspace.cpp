@@ -56,10 +56,6 @@ bool sk_colorspace_is_numerical_transfer_fn(const sk_colorspace_t* colorspace, s
     return AsColorSpace(colorspace)->isNumericalTransferFn(AsColorSpaceTransferFn(transferFn));
 }
 
-bool sk_colorspace_to_xyzd50_matrix44(const sk_colorspace_t* colorspace, sk_matrix44_t* toXYZD50) {
-    return AsColorSpace(colorspace)->toXYZD50(AsMatrix44(toXYZD50));
-}
-
 bool sk_colorspace_to_xyzd50(const sk_colorspace_t* colorspace, sk_colorspace_xyz_t* toXYZD50) {
     return AsColorSpace(colorspace)->toXYZD50(AsColorSpaceXyz(toXYZD50));
 }

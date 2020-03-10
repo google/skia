@@ -28,7 +28,6 @@ SK_C_API void sk_colorspace_to_profile(const sk_colorspace_t* colorspace, sk_col
 SK_C_API bool sk_colorspace_gamma_close_to_srgb(const sk_colorspace_t* colorspace);
 SK_C_API bool sk_colorspace_gamma_is_linear(const sk_colorspace_t* colorspace);
 SK_C_API bool sk_colorspace_is_numerical_transfer_fn(const sk_colorspace_t* colorspace, sk_colorspace_transfer_fn_t* transferFn);
-SK_C_API bool sk_colorspace_to_xyzd50_matrix44(const sk_colorspace_t* colorspace, sk_matrix44_t* toXYZD50);
 SK_C_API bool sk_colorspace_to_xyzd50(const sk_colorspace_t* colorspace, sk_colorspace_xyz_t* toXYZD50);
 SK_C_API sk_colorspace_t* sk_colorspace_make_linear_gamma(const sk_colorspace_t* colorspace);
 SK_C_API sk_colorspace_t* sk_colorspace_make_srgb_gamma(const sk_colorspace_t* colorspace);
