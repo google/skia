@@ -20,8 +20,7 @@ import (
 type parts map[string]string
 
 // equal returns true if the given part of this job's name equals any of the
-// given values. Panics if no values are provided or the given part is not
-// defined, except for "extra_config" which is allowed not to be defined.
+// given values. Panics if no values are provided.
 func (p parts) equal(part string, eq ...string) bool {
 	if len(eq) == 0 {
 		log.Fatal("No values provided for equal!")
@@ -124,10 +123,10 @@ func (p parts) extraConfig(eq ...string) bool {
 // matchPart returns true if the given part of this job's name matches any of
 // the given regular expressions. Note that a regular expression might match any
 // substring, so if you need an exact match on the entire string you'll need to
-// use `^` and `$`.
+// use `^` and `$`. Panics if no regular expressions are provided.
 func (p parts) matchPart(part string, re ...string) bool {
 	if len(re) == 0 {
-		log.Fatal("No values provided for matchPart()!")
+		log.Fatal("No regular expressions provided for matchPart()!")
 	}
 	v := p[part]
 	for _, r := range re {
