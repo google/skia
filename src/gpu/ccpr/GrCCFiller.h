@@ -11,7 +11,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTessellator.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
@@ -120,8 +119,6 @@ private:
 
     sk_sp<GrGpuBuffer> fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
-    mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
-    mutable SkSTArray<32, SkIRect> fScissorRectScratchBuffer;
 };
 
 #endif
