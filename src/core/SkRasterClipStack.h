@@ -117,8 +117,8 @@ public:
         this->validate();
     }
 
-    void clipShader(const SkMatrix& ctm, sk_sp<SkShader> sh, SkClipOp op) {
-        this->writable_rc().op(std::move(sh), ctm, (SkRegion::Op)op);
+    void clipShader(sk_sp<SkShader> sh) {
+        this->writable_rc().op(std::move(sh));
         this->validate();
     }
 

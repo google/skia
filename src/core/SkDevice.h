@@ -15,6 +15,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
 struct SkDrawShadowRec;
@@ -152,7 +153,11 @@ public:
         this->onClipPath(path, op, aa);
     }
     void clipShader(sk_sp<SkShader> sh, SkClipOp op) {
-        this->onClipShader(std::move(sh), op);
+        sh = as_SB(sh)->makeWithCTM(this->localToDevice());
+        if (op == SkClipOp::kDifference) {
+            sh = as_SB(sh)->makeInvertAlpha();
+        }
+        this->onClipShader(std::move(sh));
     }
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
@@ -188,7 +193,7 @@ protected:
     virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
-    virtual void onClipShader(sk_sp<SkShader>, SkClipOp) {}
+    virtual void onClipShader(sk_sp<SkShader>) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
