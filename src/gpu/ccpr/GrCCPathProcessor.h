@@ -68,7 +68,7 @@ public:
     }
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
-    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrPipeline::FixedDynamicState*,
+    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrSurfaceProxy& atlasProxy,
                    const GrCCPerFlushResources&, int baseInstance, int endInstance,
                    const SkRect& bounds) const;
 

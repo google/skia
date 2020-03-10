@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -409,7 +409,8 @@ public:
     }
 };
 
-void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider*) {
+void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
+                                  GrResourceProvider*) {
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
 
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
@@ -427,28 +428,23 @@ void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     }
 
     this->setVertexAttributes(&fInputXOrYValues, 1);
+
+    SkASSERT(subpassIdx == 0 || subpassIdx == 1);
+    fSubpass = (Subpass)subpassIdx;
 }
 
-void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+void GrGSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
+                                        const GrBuffer* instanceBuffer) const {
+    renderPass->bindBuffers(nullptr, nullptr, instanceBuffer);
+}
+
+void GrGSCoverageProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,
+                                          int baseInstance) const {
     // We don't actually make instanced draw calls. Instead, we feed transposed x,y point values to
     // the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex invocation
     // receives either the shape's x or y values as inputs, which it forwards to the geometry
     // shader.
-    GrMesh& mesh = out->push_back();
-    mesh.setNonIndexedNonInstanced(instanceCount * 2);
-    mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
-}
-
-void GrGSCoverageProcessor::draw(
-        GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
-        const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
-    // The geometry shader impl draws primitives in two subpasses: The first pass fills the interior
-    // and does edge AA. The second pass does touch up on corner pixels.
-    for (int i = 0; i < 2; ++i) {
-        fSubpass = (Subpass) i;
-        INHERITED::draw(flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
-    }
+    renderPass->draw(instanceCount * 2, baseInstance * 2);
 }
 
 GrGLSLPrimitiveProcessor* GrGSCoverageProcessor::onCreateGLSLInstance(

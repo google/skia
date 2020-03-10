@@ -680,9 +680,6 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(fPathInfos.count() == pathIdx);
     SkASSERT(pts.count() == ptsIdx);
     SkASSERT(normals.count() == normalsIdx);
-
-    fMeshesBuffer.reserve((1 + fMaxNumScissorSubBatches) * kMaxNumLinearSegmentsLog2);
-    fScissorsBuffer.reserve((1 + fMaxNumScissorSubBatches) * kMaxNumLinearSegmentsLog2);
     return true;
 }
 
@@ -707,54 +704,63 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
                         flushState->drawOpArgs().outputSwizzle());
 
     // Draw linear strokes.
-    this->appendStrokeMeshesToBuffers(0, batch, startIndices, startScissorSubBatch, drawBounds);
-    if (!fMeshesBuffer.empty()) {
-        LinearStrokeProcessor linearProc;
-        this->flushBufferedMeshesAsStrokes(linearProc, flushState, pipeline, drawBounds);
-    }
+    this->drawLog2Strokes(0, flushState, LinearStrokeProcessor(), pipeline, batch, startIndices,
+                          startScissorSubBatch, drawBounds);
 
     // Draw cubic strokes. (Quadratics were converted to cubics for GPU processing.)
+    CubicStrokeProcessor cubicProc;
     for (int i = 1; i <= kMaxNumLinearSegmentsLog2; ++i) {
-        this->appendStrokeMeshesToBuffers(i, batch, startIndices, startScissorSubBatch, drawBounds);
+        this->drawLog2Strokes(i, flushState, cubicProc, pipeline, batch, startIndices,
+                              startScissorSubBatch, drawBounds);
     }
-    if (!fMeshesBuffer.empty()) {
-        CubicStrokeProcessor cubicProc;
-        this->flushBufferedMeshesAsStrokes(cubicProc, flushState, pipeline, drawBounds);
-    }
+
+    int numConnectingGeometrySubpasses = proc->numSubpasses();
 
     // Draw triangles.
-    proc->reset(PrimitiveType::kTriangles, flushState->resourceProvider());
-    this->drawConnectingGeometry<&InstanceTallies::fTriangles>(
-            flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
+    for (int i = 0; i < numConnectingGeometrySubpasses; ++i) {
+        proc->reset(PrimitiveType::kTriangles, i, flushState->resourceProvider());
+        this->drawConnectingGeometry<&InstanceTallies::fTriangles>(
+                flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
+    }
 
     // Draw conics.
-    proc->reset(PrimitiveType::kConics, flushState->resourceProvider());
-    this->drawConnectingGeometry<&InstanceTallies::fConics>(
-            flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
+    for (int i = 0; i < numConnectingGeometrySubpasses; ++i) {
+        proc->reset(PrimitiveType::kConics, i, flushState->resourceProvider());
+        this->drawConnectingGeometry<&InstanceTallies::fConics>(
+                flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
+    }
 }
 
-void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& batch,
-                                              const InstanceTallies* startIndices[2],
-                                              int startScissorSubBatch,
-                                              const SkIRect& drawBounds) const {
+void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushState,
+                                  const GrPrimitiveProcessor& processor, const GrPipeline& pipeline,
+                                  const Batch& batch, const InstanceTallies* startIndices[2],
+                                  int startScissorSubBatch, const SkIRect& drawBounds) const {
+    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                              flushState->proxy()->numStencilSamples(),
+                              flushState->proxy()->backendFormat(),
+                              flushState->outputView()->origin(), &pipeline, &processor, nullptr,
+                              nullptr, 0, GrPrimitiveType::kTriangleStrip);
+
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    renderPass->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    renderPass->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
+
     // Linear strokes draw a quad. Cubic strokes emit a strip with normals at "numSegments"
     // evenly-spaced points along the curve, plus one more for the final endpoint, plus two more for
     // AA butt caps. (i.e., 2 vertices * (numSegments + 3).)
     int numStripVertices = (0 == numSegmentsLog2) ? 4 : ((1 << numSegmentsLog2) + 3) * 2;
 
-    // Append non-scissored meshes.
+    // Draw non-scissored strokes.
     int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].fStrokes[numSegmentsLog2];
     int startIdx = startIndices[(int)GrScissorTest::kDisabled]->fStrokes[numSegmentsLog2];
     int endIdx = batch.fNonScissorEndInstances->fStrokes[numSegmentsLog2];
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        GrMesh& mesh = fMeshesBuffer.push_back();
-        mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                          numStripVertices);
-        fScissorsBuffer.push_back(drawBounds);
+        renderPass->setScissorRect(drawBounds);
+        renderPass->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
     }
 
-    // Append scissored meshes.
+    // Draw scissored strokes.
     baseInstance = fBaseInstances[(int)GrScissorTest::kEnabled].fStrokes[numSegmentsLog2];
     startIdx = startIndices[(int)GrScissorTest::kEnabled]->fStrokes[numSegmentsLog2];
     for (int i = startScissorSubBatch; i < batch.fEndScissorSubBatch; ++i) {
@@ -762,38 +768,11 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
         endIdx = subBatch.fEndInstances->fStrokes[numSegmentsLog2];
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            GrMesh& mesh = fMeshesBuffer.push_back();
-            mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                              numStripVertices);
-            fScissorsBuffer.push_back(subBatch.fScissor);
+            renderPass->setScissorRect(subBatch.fScissor);
+            renderPass->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
             startIdx = endIdx;
         }
     }
-}
-
-void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& processor,
-                                               GrOpFlushState* flushState,
-                                               const GrPipeline& pipeline,
-                                               const SkIRect& drawBounds) const {
-    SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
-    GrPipeline::DynamicStateArrays dynamicStateArrays;
-    dynamicStateArrays.fScissorRects = fScissorsBuffer.begin();
-
-    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
-                              flushState->proxy()->numStencilSamples(),
-                              flushState->proxy()->backendFormat(),
-                              flushState->outputView()->origin(),
-                              &pipeline,
-                              &processor,
-                              nullptr,
-                              &dynamicStateArrays, 0, GrPrimitiveType::kTriangleStrip);
-
-    flushState->opsRenderPass()->bindPipeline(programInfo, SkRect::Make(drawBounds));
-    flushState->opsRenderPass()->drawMeshes(programInfo, fMeshesBuffer.begin(),
-                                            fMeshesBuffer.count());
-    // Don't call reset(), as that also resets the reserve count.
-    fMeshesBuffer.pop_back_n(fMeshesBuffer.count());
-    fScissorsBuffer.pop_back_n(fScissorsBuffer.count());
 }
 
 template<int GrCCStrokeGeometry::InstanceTallies::* InstanceType>
@@ -802,15 +781,18 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
                                          const Batch& batch, const InstanceTallies* startIndices[2],
                                          int startScissorSubBatch,
                                          const SkIRect& drawBounds) const {
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    processor.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
+    processor.bindBuffers(renderPass, fInstanceBuffer.get());
+
     // Append non-scissored meshes.
     int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*InstanceType;
     int startIdx = startIndices[(int)GrScissorTest::kDisabled]->*InstanceType;
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                             &fMeshesBuffer);
-        fScissorsBuffer.push_back(drawBounds);
+        renderPass->setScissorRect(drawBounds);
+        processor.drawInstances(renderPass, instanceCount, baseInstance + startIdx);
     }
 
     // Append scissored meshes.
@@ -821,20 +803,9 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
         endIdx = subBatch.fEndInstances->*InstanceType;
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                                 &fMeshesBuffer);
-            fScissorsBuffer.push_back(subBatch.fScissor);
+            renderPass->setScissorRect(subBatch.fScissor);
+            processor.drawInstances(renderPass, instanceCount, baseInstance + startIdx);
             startIdx = endIdx;
         }
-    }
-
-    // Flush the geometry.
-    if (!fMeshesBuffer.empty()) {
-        SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
-        processor.draw(flushState, pipeline, fScissorsBuffer.begin(), fMeshesBuffer.begin(),
-                       fMeshesBuffer.count(), SkRect::Make(drawBounds));
-        // Don't call reset(), as that also resets the reserve count.
-        fMeshesBuffer.pop_back_n(fMeshesBuffer.count());
-        fScissorsBuffer.pop_back_n(fScissorsBuffer.count());
     }
 }

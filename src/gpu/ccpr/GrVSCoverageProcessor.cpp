@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -452,7 +452,9 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 }
 
-void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
+                                  GrResourceProvider* rp) {
+    SkASSERT(subpassIdx == 0);
     const GrCaps& caps = *rp->caps();
 
     fPrimitiveType = primitiveType;
@@ -530,16 +532,17 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     }
 }
 
-void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+void GrVSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
+                                        const GrBuffer* instanceBuffer) const {
     SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
              fTriangleType == GrPrimitiveType::kTriangleStrip);
+    renderPass->bindBuffers(fIndexBuffer.get(), instanceBuffer, fVertexBuffer.get(),
+                            GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType));
+}
 
-    GrMesh& mesh = out->push_back();
-    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
-    mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),
-                             instanceCount, baseInstance, primitiveRestart);
-    mesh.setVertexData(fVertexBuffer, 0);
+void GrVSCoverageProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,
+                                          int baseInstance) const {
+    renderPass->drawIndexedInstanced(fNumIndicesPerInstance, 0, instanceCount, baseInstance, 0);
 }
 
 GrGLSLPrimitiveProcessor* GrVSCoverageProcessor::onCreateGLSLInstance(
