@@ -598,6 +598,11 @@ namespace {
                     SkDebugf("\ncouldn't JIT %s\n", debug_name(key).c_str());
                     builder.dump();
                     program.dump();
+
+                    SkString path = SkStringPrintf("/tmp/%s.dot", debug_name(key).c_str());
+                    SkFILEWStream tmp(path.c_str());
+                    builder.dot(&tmp);
+
                     missed++;
                 }
                 if (0 == total++) {
