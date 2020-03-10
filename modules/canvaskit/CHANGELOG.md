@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Stop compiling jpeg and webp encoders, for a smaller binary.
 
+### Removed
+ - Removed inverse filltypes
+ - Removed StrokeAndFill paint style
+ - Removed TextEncoding enum (it was only used internally). All functions assume UTF-8.
+
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
