@@ -18,12 +18,11 @@ public:
     GrSampleMaskProcessor() : GrCCCoverageProcessor(kGrSampleMaskProcessor_ClassID) {}
 
 private:
-    void reset(PrimitiveType, GrResourceProvider*) override;
-
-    void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount, int baseInstance,
-                    SkTArray<GrMesh>* out) const override;
-
+    int numSubpasses() const override { return 1; }
+    void reset(PrimitiveType, int subpassIdx, GrResourceProvider*) override;
     GrPrimitiveType primType() const final;
+    void bindBuffers(GrOpsRenderPass*, const GrBuffer* instanceBuffer) const override;
+    void drawInstances(GrOpsRenderPass*, int instanceCount, int baseInstance) const override;
 
     GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const override;
 
