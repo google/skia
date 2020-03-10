@@ -9,6 +9,7 @@
 #define SkottieValue_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkScalar.h"
@@ -35,6 +36,7 @@ struct ValueTraits {
 };
 
 using ScalarValue = SkScalar;
+using   Vec2Value = SkV2;
 using VectorValue = std::vector<ScalarValue>;
 
 struct BezierVertex {
