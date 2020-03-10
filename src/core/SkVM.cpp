@@ -144,6 +144,24 @@ namespace skvm {
         }
     }
 
+    void Builder::dot(SkWStream* o) const {
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
+        o->writeText("digraph {\n");
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            auto [op, x,y,z, immy,immz] = fProgram[id];
+
+            write(o, "\t", V{id}, " [label = \"", op, Hex{immy}, Hex{immz}, "\"]\n");
+
+            write(o, "\t", V{id}, " -> {");
+            if (x != NA) { write(o, "", V{x}); }
+            if (y != NA) { write(o, "", V{y}); }
+            if (z != NA) { write(o, "", V{z}); }
+            write(o, "}\n");
+        }
+        o->writeText("}\n");
+    }
 
     void Builder::dump(SkWStream* o) const {
         SkDebugfStream debug;
