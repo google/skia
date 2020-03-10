@@ -529,15 +529,12 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
-	if b.extraConfig("Docker") && (b.role("Build") || (b.cpu() && b.model("GCE"))) {
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		return
-	}
 	if os, ok := b.parts["os"]; ok {
 		d["os"], ok = map[string]string{
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
 			"Debian9":  DEFAULT_OS_DEBIAN,
+			"Debian10": DEFAULT_OS_DEBIAN, // Runs in Docker.
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
 			"Mac10.14": "Mac-10.14.3",
@@ -627,7 +624,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// So, we run on bare metal machines in the Skolo (that should also have KVM).
 			d["kvm"] = "1"
 			d["docker_installed"] = "true"
-		} else if b.cpu() || b.extraConfig("SwiftShader") {
+		} else if b.cpu() || b.extraConfig("CanvasKit", "Docker", "SwiftShader") {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
 					"Golo":      "x86-64-E5-2670",
@@ -664,12 +661,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
 			}
 		} else {
-			if b.extraConfig("CanvasKit") {
-				// GPU is defined for the WebGL version of CanvasKit, but
-				// it can still run on a GCE instance.
-				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-				return
-			} else if b.matchOs("Win") {
+			if b.matchOs("Win") {
 				gpu, ok := map[string]string{
 					// At some point this might use the device ID, but for now it's like Chromebooks.
 					"Adreno630":     "Adreno630",
@@ -738,7 +730,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
-			if b.extraConfig("PathKit", "CanvasKit", "CMake") || b.role("BuildStats") {
+			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 				return
 			}
