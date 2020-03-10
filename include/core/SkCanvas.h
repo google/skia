@@ -2612,14 +2612,17 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
+    // DEPRECATED - onDrawBitmapX (the public drawBitmapX route through onDrawImageX) are being
+    // removed from SkCanvas and are never called. SkCanvasVirtualEnforcer no longer requires them
+    // to be implemented and these will be removed from SkCanvas at a later date.
     virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                              const SkPaint* paint);
+                      const SkPaint* paint) {}
     virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint, SrcRectConstraint constraint);
+                                  const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {}
     virtual void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                  const SkPaint* paint);
-    virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                     const SkRect& dst, const SkPaint* paint);
+                                  const SkPaint* paint) {}
+    virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
+                                     const SkRect& dst, const SkPaint* paint) {}
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
@@ -2821,9 +2824,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                const SkRect& dst, const SkPaint* paint,
-                                SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);

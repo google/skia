@@ -2083,21 +2083,20 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
+static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
+    // Never copy the bitmap so that its generation ID is preserved for any devices that convert the
+    // SkImage back into a bitmap for rendering. Devices already do the right thing at a low level
+    // if they decide they need to copy the pixels for deferred rendering.
+    return SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (bitmap.drawsNothing()) {
-        return;
-    }
-    this->onDrawBitmap(bitmap, dx, dy, paint);
+    this->drawImage(bitmap_as_image(bitmap), dx, dy, paint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (bitmap.drawsNothing() || dst.isEmpty() || src.isEmpty()) {
-        return;
-    }
-    this->onDrawBitmapRect(bitmap, &src, dst, paint, constraint);
+    this->drawImageRect(bitmap_as_image(bitmap), src, dst, paint, constraint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
@@ -2113,38 +2112,13 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const S
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                               const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (bitmap.drawsNothing() || dst.isEmpty()) {
-        return;
-    }
-    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), center)) {
-        LatticePaint latticePaint(paint);
-        this->onDrawBitmapNine(bitmap, center, dst, latticePaint.get());
-    } else {
-        this->drawBitmapRect(bitmap, dst, paint);
-    }
+    this->drawImageNine(bitmap_as_image(bitmap), center, dst, paint);
 }
 
 void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                                  const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (bitmap.drawsNothing() || dst.isEmpty()) {
-        return;
-    }
-
-    SkIRect bounds;
-    Lattice latticePlusBounds = lattice;
-    if (!latticePlusBounds.fBounds) {
-        bounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-        latticePlusBounds.fBounds = &bounds;
-    }
-
-    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), latticePlusBounds)) {
-        LatticePaint latticePaint(paint);
-        this->onDrawBitmapLattice(bitmap, latticePlusBounds, dst, latticePaint.get());
-    } else {
-        this->drawBitmapRect(bitmap, dst, paint);
-    }
+    sk_sp<SkImage> image = bitmap_as_image(bitmap);
+    this->drawImageLattice(image.get(), lattice, dst, paint);
 }
 
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
@@ -2588,94 +2562,6 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     DRAW_END
 }
 
-void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkDEBUGCODE(bitmap.validate();)
-
-    if (bitmap.drawsNothing()) {
-        return;
-    }
-
-    SkPaint realPaint;
-    init_image_paint(&realPaint, paint);
-    paint = &realPaint;
-
-    SkRect bounds;
-    bitmap.getBounds(&bounds);
-    bounds.offset(x, y);
-    bool canFastBounds = paint->canComputeFastBounds();
-    if (canFastBounds) {
-        SkRect storage;
-        if (this->quickReject(paint->computeFastBounds(bounds, &storage))) {
-            return;
-        }
-    }
-
-    sk_sp<SkSpecialImage> special;
-    bool drawAsSprite = canFastBounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(),
-                                                                     bitmap.height(), *paint);
-    if (drawAsSprite && paint->getImageFilter()) {
-        special = this->getDevice()->makeSpecial(bitmap);
-        if (!special) {
-            drawAsSprite = false;
-        }
-    }
-
-    DRAW_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
-
-    while (iter.next()) {
-        const SkPaint& pnt = draw.paint();
-        if (special) {
-            SkPoint pt;
-            iter.fDevice->localToDevice().mapXY(x, y, &pt);
-            iter.fDevice->drawSpecial(special.get(),
-                                      SkScalarRoundToInt(pt.fX),
-                                      SkScalarRoundToInt(pt.fY), pnt,
-                                      nullptr, SkMatrix::I());
-        } else {
-            SkRect fullImage = SkRect::MakeWH(bitmap.width(), bitmap.height());
-            iter.fDevice->drawBitmapRect(bitmap, &fullImage, fullImage.makeOffset(x, y), pnt,
-                                         kStrict_SrcRectConstraint);
-        }
-    }
-
-    DRAW_END
-}
-
-// this one is non-virtual, so it can be called safely by other canvas apis
-void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                      const SkRect& dst, const SkPaint* paint,
-                                      SrcRectConstraint constraint) {
-    if (bitmap.drawsNothing() || dst.isEmpty()) {
-        return;
-    }
-
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
-
-    DRAW_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, &dst, bitmap.isOpaque())
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmapRect(bitmap, src, dst, draw.paint(), constraint);
-    }
-
-    DRAW_END
-}
-
-void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                const SkPaint* paint, SrcRectConstraint constraint) {
-    SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmapRect(bitmap, src, dst, paint, constraint);
-}
-
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
     SkPaint realPaint;
@@ -2698,29 +2584,6 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
     DRAW_END
 }
 
-void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                const SkPaint* paint) {
-    SkDEBUGCODE(bitmap.validate();)
-    SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
-
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-    paint = &realPaint;
-
-    DRAW_BEGIN(*paint, &dst)
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmapNine(bitmap, center, dst, draw.paint());
-    }
-
-    DRAW_END
-}
-
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
     SkPaint realPaint;
@@ -2738,28 +2601,6 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
     while (iter.next()) {
         iter.fDevice->drawImageLattice(image, lattice, dst, draw.paint());
-    }
-
-    DRAW_END
-}
-
-void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                   const SkRect& dst, const SkPaint* paint) {
-    SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
-
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-    paint = &realPaint;
-
-    DRAW_BEGIN(*paint, &dst)
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmapLattice(bitmap, lattice, dst, draw.paint());
     }
 
     DRAW_END

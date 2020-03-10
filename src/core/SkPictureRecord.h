@@ -235,23 +235,6 @@ protected:
     void recordSaveLayer(const SaveLayerRec&);
     void recordRestore(bool fillInSkips = true);
 
-    // SHOULD NEVER BE CALLED
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          SrcRectConstraint) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice& lattice, const SkRect& dst,
-                             const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-
 private:
     SkTArray<SkPaint>  fPaints;
 
