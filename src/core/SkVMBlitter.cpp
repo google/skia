@@ -34,6 +34,7 @@ namespace {
     struct Params {
         sk_sp<SkColorSpace> colorSpace;
         sk_sp<SkShader>     shader;
+        sk_sp<SkShader>     clip;
         SkColorType         colorType;
         SkAlphaType         alphaType;
         SkBlendMode         blendMode;
@@ -52,18 +53,20 @@ namespace {
     struct Key {
         uint64_t colorSpace;
         uint64_t shader;
+        uint64_t clip;
         uint8_t  colorType,
                  alphaType,
                  blendMode,
                  coverage;
         uint32_t padding{0};
-        // Params::quality and Params::ctm are only passed to shader->program(),
+        // Params::quality and Params::ctm are only passed to {shader,clip}->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
 
         bool operator==(const Key& that) const {
             return this->colorSpace == that.colorSpace
                 && this->shader     == that.shader
+                && this->clip       == that.clip
                 && this->colorType  == that.colorType
                 && this->alphaType  == that.alphaType
                 && this->blendMode  == that.blendMode
@@ -79,13 +82,14 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx-Clip%llx",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
                               key.colorSpace,
-                              key.shader);
+                              key.shader,
+                              key.clip);
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
@@ -110,10 +114,9 @@ namespace {
                             skvm::Uniforms* uniforms,
                             SkArenaAlloc* alloc,
                             bool* ok) {
-            SkASSERT(params.shader);
-            uint64_t shaderHash = 0;
-            {
-                const SkShaderBase* shader = as_SB(params.shader);
+
+            auto hash_shader = [&](const sk_sp<SkShader>& shader) {
+                const SkShaderBase* sb = as_SB(shader);
                 skvm::Builder p;
 
                 skvm::I32 dx = p.sub(p.uniform32(uniforms->base, offsetof(BlitterUniforms, right)),
@@ -123,21 +126,28 @@ namespace {
                           y = p.add(p.to_f32(dy), p.splat(0.5f));
 
                 skvm::F32 r,g,b,a;
-                if (shader->program(&p,
-                                    params.ctm, /*localM=*/nullptr,
-                                    params.quality, params.colorSpace.get(),
-                                    uniforms,alloc,
-                                    x,y, &r,&g,&b,&a)) {
-                    shaderHash = p.hash();
+                uint64_t hash = 0;
+                if (sb->program(&p,
+                                params.ctm, /*localM=*/nullptr,
+                                params.quality, params.colorSpace.get(),
+                                uniforms,alloc,
+                                x,y, &r,&g,&b,&a)) {
+                    hash = p.hash();
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
                     // precisely which value we'll treat as which channel.  Imagine the shader
                     // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
                     const int outputs[] = { r.id, g.id, b.id, a.id };
-                    shaderHash ^= SkOpts::hash(outputs, sizeof(outputs));
+                    hash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
                 }
-            }
+                return hash;
+            };
+
+            SkASSERT(params.shader);
+            SkASSERT(params.  clip);
+            uint64_t shaderHash = hash_shader(params.shader),
+                       clipHash = hash_shader(params.  clip);
 
             switch (params.colorType) {
                 default: *ok = false;
@@ -160,6 +170,7 @@ namespace {
             return {
                 params.colorSpace ? params.colorSpace->hash() : 0,
                 shaderHash,
+                  clipHash,
                 SkToU8(params.colorType),
                 SkToU8(params.alphaType),
                 SkToU8(params.blendMode),
@@ -228,27 +239,42 @@ namespace {
 
             // load_coverage() returns false when there's no need to apply coverage.
             auto load_coverage = [&](skvm::Color* cov) {
+                bool partial_coverage = true;
                 switch (params.coverage) {
-                    case Coverage::Full: return false;
+                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = splat(1.0f);
+                                         partial_coverage = false;
+                                         break;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
                                               from_unorm(8, uniform8(uniform(), 0));
-                                              return true;
+                                              break;
 
                     case Coverage::Mask3D:
                     case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
                                            from_unorm(8, load8(varying<uint8_t>()));
-                                           return true;
+                                           break;
 
                     case Coverage::MaskLCD16:
                         SkASSERT(dst_loaded);
                         *cov = unpack_565(load16(varying<uint16_t>()));
-                        cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
-                                                        , max(cov->r, max(cov->g,cov->b)));
-                        return true;
+                        cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g, cov->b))
+                                                        , max(cov->r, max(cov->g, cov->b)));
+                        break;
                 }
-                // GCC insists...
-                return false;
+
+                skvm::Color clip;
+                SkAssertResult(as_SB(params.clip)->program(this,
+                                                           params.ctm, /*localM=*/nullptr,
+                                                           params.quality, params.colorSpace.get(),
+                                                           uniforms, alloc,
+                                                           x,y,
+                                                           &clip.r, &clip.g, &clip.b, &clip.a));
+                cov->r = mul(cov->r, clip.a);   // We use the alpha channel of clip for all four.
+                cov->g = mul(cov->g, clip.a);
+                cov->b = mul(cov->b, clip.a);
+                cov->a = mul(cov->a, clip.a);
+
+                return partial_coverage || !params.clip->isOpaque();
             };
 
             // The math for some blend modes lets us fold coverage into src before the blend,
@@ -305,8 +331,7 @@ namespace {
             src = skvm::BlendModeProgram(this, params.blendMode, src, dst);
 
             // Lerp with coverage post-blend if needed.
-            skvm::Color cov;
-            if (lerp_coverage_post_blend && load_coverage(&cov)) {
+            if (skvm::Color cov; lerp_coverage_post_blend && load_coverage(&cov)) {
                 src.r = mad(sub(src.r, dst.r), cov.r, dst.r);
                 src.g = mad(sub(src.g, dst.g), cov.g, dst.g);
                 src.b = mad(sub(src.b, dst.b), cov.b, dst.b);
@@ -444,9 +469,31 @@ namespace {
         }
     };
 
+    // A shader that behaves the same as a nullptr clip shader.  It will be completely folded away.
+    struct NoClip : public SkShaderBase {
+
+        // Only created here temporarily... never serialized.
+        Factory      getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return "NoClip"; }
+
+        bool isOpaque() const override { return true; }
+
+        bool onProgram(skvm::Builder* p,
+                       const SkMatrix& ctm, const SkMatrix* localM,
+                       SkFilterQuality quality, SkColorSpace* dstCS,
+                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                       skvm::F32 x, skvm::F32 y,
+                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
+            *r = *g = *b = *a = p->splat(1.0f);
+            return true;
+        }
+    };
+
+
     static Params effective_params(const SkPixmap& device,
                                    const SkPaint& paint,
-                                   const SkMatrix& ctm) {
+                                   const SkMatrix& ctm,
+                                   sk_sp<SkShader> clip) {
         // Color filters have been handled for us by SkBlitter::Choose().
         SkASSERT(!paint.getColorFilter());
 
@@ -496,11 +543,7 @@ namespace {
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
-        SkBlendMode blendMode = paint.getBlendMode();
-        if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
-            blendMode =  SkBlendMode::kSrc;
-        }
-
+        //
         // In general all the information we use to make decisions here need to
         // be reflected in Params and Key to make program caching sound, and it
         // might appear that shader->isOpaque() is a property of the shader's
@@ -511,10 +554,20 @@ namespace {
         // the opaque bit is strongly guaranteed to be part of the program and
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
+        SkBlendMode blendMode = paint.getBlendMode();
+        if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
+            blendMode =  SkBlendMode::kSrc;
+        }
+
+        // A nullptr clip shader does not change coverage, as if producing 1.0f like NoClip.
+        if (!clip) {
+            clip = sk_make_sp<NoClip>();
+        }
 
         return {
             device.refColorSpace(),
             std::move(shader),
+            std::move(clip),
             device.colorType(),
             device.alphaType(),
             blendMode,
@@ -526,10 +579,14 @@ namespace {
 
     class Blitter final : public SkBlitter {
     public:
-        Blitter(const SkPixmap& device, const SkPaint& paint, const SkMatrix& ctm, bool* ok)
+        Blitter(const SkPixmap& device,
+                const SkPaint& paint,
+                const SkMatrix& ctm,
+                sk_sp<SkShader> clip,
+                bool* ok)
             : fDevice(device)
             , fUniforms(kBlitterUniformsCount)
-            , fParams(effective_params(device, paint, ctm))
+            , fParams(effective_params(device, paint, ctm, std::move(clip)))
             , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
         {}
 
@@ -588,7 +645,8 @@ namespace {
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);
             Builder builder{fParams.withCoverage(coverage), &fUniforms, &fAlloc};
-            SkASSERT(fUniforms.buf.size() == prev);
+            SkASSERTF(fUniforms.buf.size() == prev,
+                      "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (false) {
@@ -789,8 +847,9 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                const SkPaint& paint,
                                const SkMatrix& ctm,
-                               SkArenaAlloc* alloc) {
+                               SkArenaAlloc* alloc,
+                               sk_sp<SkShader> clip) {
     bool ok = true;
-    auto blitter = alloc->make<Blitter>(device, paint, ctm, &ok);
+    auto blitter = alloc->make<Blitter>(device, paint, ctm, std::move(clip), &ok);
     return ok ? blitter : nullptr;
 }
