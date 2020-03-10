@@ -226,6 +226,7 @@ bool SkShaderBase::onProgram(skvm::Builder*,
                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
                              skvm::F32 x, skvm::F32 y,
                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return false;
 }
 

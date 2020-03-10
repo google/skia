@@ -61,6 +61,7 @@ bool SkColorFilter::onProgram(skvm::Builder*,
                               SkColorSpace* dstCS,
                               skvm::Uniforms* uniforms, SkArenaAlloc*,
                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return false;
 }
 
