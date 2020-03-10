@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "996d0d00_a8b1c63c",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-10T20:20:28Z",
+      "side": 1,
+      "message": "Is there a reason you have this in its own scope?",
+      "range": {
+        "startLine": 681,
+        "startChar": 4,
+        "endLine": 681,
+        "endChar": 5
+      },
+      "revId": "1e156e59d7272a5b13ac6c7315e4a7c4cb51408f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
