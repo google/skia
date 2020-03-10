@@ -61,12 +61,12 @@ public:
 private:
     void onSync() override;
 
-    VectorValue fAnchorPoint,
-                fPosition,
-                fScale    = { 100, 100 };
-    ScalarValue fRotation = 0,
-                fSkew     = 0,
-                fSkewAxis = 0;
+    Vec2Value   fAnchorPoint = {   0,   0 },
+                fPosition    = {   0,   0 },
+                fScale       = { 100, 100 };
+    ScalarValue fRotation    = 0,
+                fSkew        = 0,
+                fSkewAxis    = 0;
 
     using INHERITED = DiscardableAdapterBase<TransformAdapter2D, sksg::Matrix<SkMatrix>>;
 };
