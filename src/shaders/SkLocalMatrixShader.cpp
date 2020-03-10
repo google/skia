@@ -93,3 +93,70 @@ sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const
 
     return sk_make_sp<SkLocalMatrixShader>(std::move(baseShader), *lm);
 }
+
+///////////
+
+class SkPostMatrixShader final : public SkShaderBase {
+public:
+    SkPostMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& postMatrix)
+    : fProxyShader(std::move(proxy))
+    , fPostMatrix(postMatrix)
+    {}
+
+    GradientType asAGradient(GradientInfo* info) const override {
+        return fProxyShader->asAGradient(info);
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
+
+protected:
+    void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
+
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override { return nullptr; }
+#endif
+
+    bool onAppendStages(const SkStageRec&) const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkPostMatrixShader)
+
+    sk_sp<SkShader> fProxyShader;
+    SkMatrix        fPostMatrix;
+
+    typedef SkShaderBase INHERITED;
+};
+
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> SkPostMatrixShader::asFragmentProcessor(
+        const GrFPArgs& args) const {
+    return as_SB(fProxyShader)->asFragmentProcessor(
+        GrFPArgs::WithPreLocalMatrix(args, this->getLocalMatrix()));
+}
+#endif
+
+sk_sp<SkFlattenable> SkPostMatrixShader::CreateProc(SkReadBuffer& buffer) {
+    SkASSERT(false);
+    return nullptr;
+}
+
+bool SkPostMatrixShader::onAppendStages(const SkStageRec& rec) const {
+    SkStageRec newRec = {
+        rec.fPipeline,
+        rec.fAlloc,
+        rec.fDstColorType,
+        rec.fDstCS,
+        rec.fPaint,
+        rec.fLocalM,
+        SkMatrix::Concat(rec.fCTM, fPostMatrix),
+    };
+    return as_SB(fProxyShader)->appendStages(newRec);
+}
+
+sk_sp<SkShader> SkShaderBase::makePostMatrix(const SkMatrix& postM) const {
+    return postM.isIdentity() ? sk_ref_sp(this)
+                              : sk_sp<SkShader>(new SkPostMatrixShader(sk_ref_sp(this), postM));
+}
