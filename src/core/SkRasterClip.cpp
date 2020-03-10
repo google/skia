@@ -347,20 +347,13 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     return this->updateCacheAndReturnNonEmpty();
 }
 
-bool SkRasterClip::op(sk_sp<SkShader> sh, const SkMatrix& ctm, SkRegion::Op op) {
+bool SkRasterClip::op(sk_sp<SkShader> sh) {
     AUTO_RASTERCLIP_VALIDATE(*this);
 
-    sh = as_SB(sh)->makeWithCTM(ctm);
     if (!fShader) {
-        if (op != SkRegion::kIntersect_Op) {
-            sh = as_SB(sh)->makeInvertAlpha();
-        }
         fShader = sh;
     } else {
-        SkBlendMode mode = (op == SkRegion::kIntersect_Op) ?
-                            SkBlendMode::kSrcIn :
-                            SkBlendMode::kSrcOut;
-        fShader = SkShaders::Blend(mode, sh, fShader);
+        fShader = SkShaders::Blend(SkBlendMode::kSrcIn, sh, fShader);
     }
     return !this->isEmpty();
 }
