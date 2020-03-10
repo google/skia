@@ -82,22 +82,19 @@ public:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fSrcProxy);
-        GrSurfaceProxy* srcProxy = fSrcProxy.get();
-        SkASSERT(srcProxy->isInstantiated());
+        SkASSERT(fSrcProxy->isInstantiated());
 
         auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                 fResources->renderedPathCoverageType());
         GrColorType ct = GrCCAtlas::CoverageTypeToColorType(fResources->renderedPathCoverageType());
-        GrSwizzle swizzle = flushState->caps().getReadSwizzle(srcProxy->backendFormat(), ct);
-        GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(), swizzle,
+        GrSwizzle swizzle = flushState->caps().getReadSwizzle(fSrcProxy->backendFormat(), ct);
+        GrCCPathProcessor pathProc(coverageMode, fSrcProxy->peekTexture(), swizzle,
                                    GrCCAtlas::kTextureOrigin);
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().outputSwizzle());
-        GrPipeline::FixedDynamicState dynamicState;
-        dynamicState.fPrimitiveProcessorTextures = &srcProxy;
 
-        pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
+        pathProc.drawPaths(flushState, pipeline, *fSrcProxy, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
     }
 
