@@ -360,6 +360,7 @@ namespace skvm {
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
+            int use_count = 0;
         };
         SK_END_REQUIRE_DENSE
 
@@ -556,7 +557,7 @@ namespace skvm {
 
         Color lerp(Color lo, Color hi, F32 t);
 
-        void dump(SkWStream* = nullptr) const;
+        void dump(bool for_jitting = false, SkWStream* = nullptr) const;
 
         uint64_t hash() const;
 

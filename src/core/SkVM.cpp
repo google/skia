@@ -16,6 +16,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <atomic>
+#include <queue>
 
 #if defined(SKVM_LLVM)
     #include <future>
@@ -145,11 +146,11 @@ namespace skvm {
     }
 
 
-    void Builder::dump(SkWStream* o) const {
+    void Builder::dump(bool for_jitting, SkWStream* o) const {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        std::vector<OptimizedInstruction> optimized = this->optimize();
+        std::vector<OptimizedInstruction> optimized = this->optimize(for_jitting);
         o->writeDecAsText(optimized.size());
         o->writeText(" values (originally ");
         o->writeDecAsText(fProgram.size());
@@ -447,46 +448,65 @@ namespace skvm {
 
         // Map old Val index to rewritten index in optimized.
         std::vector<Val> new_index(program.size(), NA);
+        struct ScheduleElement {
+            int score;
+            Val val;
+            bool operator<(const ScheduleElement& that) const {
+                return score < that.score;
+            }
+        };
+        std::priority_queue<ScheduleElement, std::deque<ScheduleElement>> frontier;
+        int issue = 0;
 
-        auto rewrite = [&](Val id, auto& recurse) -> Val {
-            auto rewrite_input = [&](Val input) -> Val {
-                if (input == NA) {
-                    return NA;
-                }
-                if (new_index[input] == NA) {
-                    new_index[input] = recurse(input, recurse);
-                }
-                return new_index[input];
-            };
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (program[id].op <= Op::store32) {
+                frontier.push({issue * 3, id});
+                new_index[id] = -2;
+                issue++;
+            }
+        }
 
-            // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
-            // But we try to preserve the original program order as much as possible by
-            // rewriting inst's inputs in the order they were themselves originally issued.
-            // This makes debugging  dumps a little easier.
+        while (!frontier.empty()) {
+            Val id = frontier.top().val;
+            frontier.pop();
+            SkASSERT(new_index[id] == -2);
+            new_index[id] = optimized.size();
             Builder::Instruction inst = program[id];
-            Val *min = &inst.x,
-                *mid = &inst.y,
-                *max = &inst.z;
-            if (*min > *mid) { std::swap(min, mid); }
-            if (*mid > *max) { std::swap(mid, max); }
-            if (*min > *mid) { std::swap(min, mid); }
-            *min = rewrite_input(*min);
-            *mid = rewrite_input(*mid);
-            *max = rewrite_input(*max);
             optimized.push_back({inst.op,
                                  inst.x, inst.y, inst.z,
                                  inst.immy, inst.immz,
-                                 /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false});
-            return (Val)optimized.size()-1;
-        };
-
-        // Here we go with the actual rewriting, starting with all the store instructions
-        // and letting rewrite() work back recursively through their inputs.
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            if (program[id].op <= Op::store32) {
-                rewrite(id, rewrite);
+                                        /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false});
+            issue++;
+            if (inst.x != NA && new_index[inst.x] == NA) {
+                frontier.push({issue * 3 + 0, inst.x});
+                new_index[inst.x] = -2;
+            }
+            if (inst.y != NA && new_index[inst.y] == NA) {
+                frontier.push({issue * 3 + 1, inst.y});
+                new_index[inst.y] = -2;
+            }
+            if (inst.z != NA && new_index[inst.z] == NA) {
+                frontier.push({issue * 3 + 2, inst.z});
+                new_index[inst.z] = -2;
             }
         }
+
+        std::reverse(optimized.begin(), optimized.end());
+
+        for (int i = 0; i < new_index.size(); i++) {
+            if (new_index[i] != NA) {
+                new_index[i] = optimized.size() - 1 - new_index[i];
+            }
+        }
+
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
+            if (inst.x != NA ) { inst.x = new_index[inst.x]; }
+            if (inst.y != NA ) { inst.y = new_index[inst.y]; }
+            if (inst.z != NA ) { inst.z = new_index[inst.z]; }
+        }
+
+
 
         // We're done with `program` now... everything below will analyze `optimized`.
 
@@ -540,10 +560,14 @@ namespace skvm {
             debug_name = buf;
         }
 
-    #if defined(SKVM_LLVM) || defined(SKVM_JIT)
-        return {this->optimize(false), this->optimize(true), fStrides, debug_name};
+        this->dump();
+
+        this->dump(true);
+
+#if defined(SKVM_LLVM) || defined(SKVM_JIT)
+        return Program{this->optimize(false), this->optimize(true), fStrides, debug_name};
     #else
-        return {this->optimize(false), fStrides};
+        return Program{this->optimize(false), fStrides};
     #endif
     }
 

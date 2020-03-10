@@ -26,7 +26,7 @@ const char* fmt_name(Fmt fmt) {
 
 static void dump(skvm::Builder& builder, SkWStream* o) {
     skvm::Program program = builder.done();
-    builder.dump(o);
+    builder.dump(false, o);
     o->writeText("\n");
     program.dump(o);
     o->writeText("\n");
