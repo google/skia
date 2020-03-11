@@ -79,6 +79,7 @@ private:
     SkTArray<Uniform, true> fUniforms;
 
     mutable SkAutoMalloc fUniformData;
+    mutable bool         fUniformsDirty;
 };
 
 #endif
