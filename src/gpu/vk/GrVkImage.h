@@ -167,8 +167,9 @@ protected:
 private:
     class Resource : public GrTextureResource {
     public:
-        Resource()
-                : fImage(VK_NULL_HANDLE) {
+        Resource(const GrVkGpu* gpu)
+                : fGpu(gpu)
+			    , fImage(VK_NULL_HANDLE) {
             fAlloc.fMemory = VK_NULL_HANDLE;
             fAlloc.fOffset = 0;
         }
@@ -187,8 +188,9 @@ private:
 #endif
 
     private:
-        void freeGPUData(GrGpu* gpu) const override;
+        void freeGPUData() const override;
 
+		const GrVkGpu* fGpu;
         VkImage        fImage;
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
@@ -203,7 +205,7 @@ private:
             : Resource(image, alloc, tiling) {
         }
     private:
-        void freeGPUData(GrGpu* gpu) const override;
+        void freeGPUData() const override;
     };
 
     Resource* fResource;

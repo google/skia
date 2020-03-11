@@ -50,20 +50,19 @@ std::unique_ptr<GrVkSemaphore> GrVkSemaphore::MakeWrapped(GrVkGpu* gpu,
 GrVkSemaphore::GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal,
                              bool prohibitWait, bool isOwned)
         : fGpu(gpu) {
-    fResource = new Resource(semaphore, prohibitSignal, prohibitWait, isOwned);
+    fResource = new Resource(gpu, semaphore, prohibitSignal, prohibitWait, isOwned);
 }
 
 GrVkSemaphore::~GrVkSemaphore() {
     if (fResource) {
-        fResource->unref(fGpu);
+        fResource->unref();
     }
 }
 
-void GrVkSemaphore::Resource::freeGPUData(GrGpu* gpu) const {
+void GrVkSemaphore::Resource::freeGPUData() const {
     if (fIsOwned) {
-        GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-        GR_VK_CALL(vkGpu->vkInterface(),
-                   DestroySemaphore(vkGpu->device(), fSemaphore, nullptr));
+        GR_VK_CALL(fGpu->vkInterface(),
+                   DestroySemaphore(fGpu->device(), fSemaphore, nullptr));
     }
 }
 

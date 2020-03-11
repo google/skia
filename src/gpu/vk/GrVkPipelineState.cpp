@@ -63,19 +63,19 @@ GrVkPipelineState::~GrVkPipelineState() {
     SkASSERT(!fPipeline);
 }
 
-void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
+void GrVkPipelineState::freeGPUResources() {
     if (fPipeline) {
-        fPipeline->unref(gpu);
+        fPipeline->unref();
         fPipeline = nullptr;
     }
 
     if (fUniformBuffer) {
-        fUniformBuffer->release(gpu);
+        fUniformBuffer->release();
         fUniformBuffer.reset();
     }
 
     if (fUniformDescriptorSet) {
-        fUniformDescriptorSet->recycle(const_cast<GrVkGpu*>(gpu));
+        fUniformDescriptorSet->recycle();
         fUniformDescriptorSet = nullptr;
     }
 }
@@ -108,7 +108,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
         if (fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get()) ||
             !fUniformDescriptorSet) {
             if (fUniformDescriptorSet) {
-                fUniformDescriptorSet->recycle(gpu);
+                fUniformDescriptorSet->recycle();
             }
             fUniformDescriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
             if (!fUniformDescriptorSet) {
@@ -225,7 +225,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                        UpdateDescriptorSets(gpu->device(), 1, &writeInfo, 0, nullptr));
             commandBuffer->addResource(sampler);
             if (!fImmutableSamplers[i]) {
-                sampler->unref(gpu);
+                sampler->unref();
             }
             commandBuffer->addResource(samplerBindings[i].fTexture->textureView());
             commandBuffer->addResource(samplerBindings[i].fTexture->resource());
@@ -239,7 +239,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kSamplerDSIdx, 1,
                                           descriptorSet->descriptorSet(), 0, nullptr);
         commandBuffer->addRecycledResource(descriptorSet);
-        descriptorSet->recycle(gpu);
+        descriptorSet->recycle();
     }
     return true;
 }

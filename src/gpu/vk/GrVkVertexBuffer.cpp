@@ -29,14 +29,14 @@ sk_sp<GrVkVertexBuffer> GrVkVertexBuffer::Make(GrVkGpu* gpu, size_t size, bool d
 
     GrVkVertexBuffer* buffer = new GrVkVertexBuffer(gpu, desc, bufferResource);
     if (!buffer) {
-        bufferResource->unref(gpu);
+        bufferResource->unref();
     }
     return sk_sp<GrVkVertexBuffer>(buffer);
 }
 
 void GrVkVertexBuffer::onRelease() {
     if (!this->wasDestroyed()) {
-        this->vkRelease(this->getVkGpu());
+        this->vkRelease();
     }
 
     INHERITED::onRelease();
@@ -44,7 +44,7 @@ void GrVkVertexBuffer::onRelease() {
 
 void GrVkVertexBuffer::onAbandon() {
     if (!this->wasDestroyed()) {
-        this->vkRelease(this->getVkGpu());
+        this->vkRelease();
     }
     INHERITED::onAbandon();
 }

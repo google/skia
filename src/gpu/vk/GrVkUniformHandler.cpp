@@ -203,10 +203,9 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
 }
 
 GrVkUniformHandler::~GrVkUniformHandler() {
-    GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
     for (decltype(fSamplers)::Iter iter(&fSamplers); iter.next();) {
         if (iter->fImmutableSampler) {
-            iter->fImmutableSampler->unref(gpu);
+            iter->fImmutableSampler->unref();
             iter->fImmutableSampler = nullptr;
         }
     }
