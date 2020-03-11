@@ -81,8 +81,10 @@ DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.paint,
                                                  r.backdrop.get(),
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
                                                  r.clipMask.get(),
                                                  r.clipMatrix,
+#endif
                                                  r.saveLayerFlags)));
 
 template <> void Draw::draw(const SaveBehind& r) {
