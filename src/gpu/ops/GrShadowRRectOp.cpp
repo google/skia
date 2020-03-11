@@ -539,6 +539,14 @@ private:
 
     }
 
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
