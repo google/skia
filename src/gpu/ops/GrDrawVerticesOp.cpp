@@ -71,18 +71,7 @@ private:
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    void drawVolatile(Target*, const GrPrimitiveProcessor&);
-    void drawNonVolatile(Target*, const GrPrimitiveProcessor&);
-
-    void fillBuffers(size_t vertexStride,
-                     void* verts,
-                     uint16_t* indices) const;
-
-    void createMesh(Target*,
-                    sk_sp<const GrBuffer> vertexBuffer,
-                    int firstVertex,
-                    sk_sp<const GrBuffer> indexBuffer,
-                    int firstIndex);
+    void fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const;
 
     GrGeometryProcessor* makeGP(SkArenaAlloc*, const GrShaderCaps*);
 
@@ -304,20 +293,11 @@ void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {
     if (!fProgramInfo) {
-        // Note: this could be moved to onExecute if draw*Volatile were made to compute
-        // their own vertex stride and hasColorAttribute and hasLocalCoordsAttribute settings.
+        // Note: this could be moved to onExecute if we computed the vertex stride directly.
         fProgramInfo = this->createProgramInfo(target);
     }
 
-    bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-    if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
-        this->drawVolatile(target, fProgramInfo->primProc());
-    } else {
-        this->drawNonVolatile(target, fProgramInfo->primProc());
-    }
-}
-
-void DrawVerticesOp::drawVolatile(Target* target, const GrPrimitiveProcessor& gp) {
+    const GrPrimitiveProcessor& gp(fProgramInfo->primProc());
 
     // Allocate buffers.
     size_t vertexStride = gp.vertexStride();
@@ -342,73 +322,15 @@ void DrawVerticesOp::drawVolatile(Target* target, const GrPrimitiveProcessor& gp
 
     this->fillBuffers(vertexStride, verts, indices);
 
-    this->createMesh(target, std::move(vertexBuffer), firstVertex, indexBuffer, firstIndex);
-}
-
-void DrawVerticesOp::drawNonVolatile(Target* target, const GrPrimitiveProcessor& gp) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-
-    SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
-
-    // Get the resource provider.
-    GrResourceProvider* rp = target->resourceProvider();
-
-    // Generate keys for the buffers.
-    GrUniqueKey vertexKey, indexKey;
-    GrUniqueKey::Builder vertexKeyBuilder(&vertexKey, kDomain, 2);
-    GrUniqueKey::Builder indexKeyBuilder(&indexKey, kDomain, 2);
-    vertexKeyBuilder[0] = indexKeyBuilder[0] = fMeshes[0].fVertices->uniqueID();
-    vertexKeyBuilder[1] = 0;
-    indexKeyBuilder[1] = 1;
-    vertexKeyBuilder.finish();
-    indexKeyBuilder.finish();
-
-    // Try to grab data from the cache.
-    sk_sp<GrGpuBuffer> vertexBuffer = rp->findByUniqueKey<GrGpuBuffer>(vertexKey);
-    sk_sp<GrGpuBuffer> indexBuffer =
-            this->isIndexed() ? rp->findByUniqueKey<GrGpuBuffer>(indexKey) : nullptr;
-
-    // Draw using the cached buffers if possible.
-    if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->createMesh(target, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
-        return;
-    }
-
-    // Allocate vertex buffer.
-    size_t vertexStride = gp.vertexStride();
-    vertexBuffer = rp->createBuffer(
-            fVertexCount * vertexStride, GrGpuBufferType::kVertex, kStatic_GrAccessPattern);
-    void* verts = vertexBuffer ? vertexBuffer->map() : nullptr;
-    if (!verts) {
-        SkDebugf("Could not allocate vertices\n");
-        return;
-    }
-
-    // Allocate index buffer.
-    uint16_t* indices = nullptr;
+    SkASSERT(!fMesh);
+    fMesh = target->allocMesh();
     if (this->isIndexed()) {
-        indexBuffer = rp->createBuffer(
-                fIndexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
-        indices = indexBuffer ? static_cast<uint16_t*>(indexBuffer->map()) : nullptr;
-        if (!indices) {
-            SkDebugf("Could not allocate indices\n");
-            return;
-        }
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+                         GrPrimitiveRestart::kNo);
+    } else {
+        fMesh->setNonIndexedNonInstanced(fVertexCount);
     }
-
-    this->fillBuffers(vertexStride, verts, indices);
-
-    vertexBuffer->unmap();
-    if (indexBuffer) {
-        indexBuffer->unmap();
-    }
-
-    // Cache the buffers.
-    rp->assignUniqueKeyToResource(vertexKey, vertexBuffer.get());
-    rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
-
-    // Draw the vertices.
-    this->createMesh(target, std::move(vertexBuffer), 0, std::move(indexBuffer), 0);
+    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
 }
 
 void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const {
@@ -503,23 +425,6 @@ void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* ind
     }
 }
 
-void DrawVerticesOp::createMesh(Target* target,
-                                sk_sp<const GrBuffer> vertexBuffer,
-                                int firstVertex,
-                                sk_sp<const GrBuffer> indexBuffer,
-                                int firstIndex) {
-    SkASSERT(!fMesh);
-
-    fMesh = target->allocMesh();
-    if (this->isIndexed()) {
-        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
-                         GrPrimitiveRestart::kNo);
-    } else {
-        fMesh->setNonIndexedNonInstanced(fVertexCount);
-    }
-    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
-}
-
 void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fMesh) {
         return;
@@ -536,13 +441,6 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
     DrawVerticesOp* that = t->cast<DrawVerticesOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
-    }
-
-    // Non-volatile meshes cannot batch, because if a non-volatile mesh batches with another mesh,
-    // then on the next frame, if that non-volatile mesh is drawn, it will draw the other mesh
-    // that was saved in its vertex buffer, which is not necessarily there anymore.
-    if (!this->fMeshes[0].fVertices->isVolatile() || !that->fMeshes[0].fVertices->isVolatile()) {
         return CombineResult::kCannotCombine;
     }
 
