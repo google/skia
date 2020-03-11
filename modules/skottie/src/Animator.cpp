@@ -495,6 +495,53 @@ public:
         }
 
     private:
+        void backfill_spatial(const SpatialValue& val) {
+            if (fTi == SkV2{0,0} && fTo == SkV2{0,0}) {
+                // no tangents => linear
+                return;
+            }
+
+            SkASSERT(!fValues.empty());
+            auto& prev_val = fValues.back();
+            SkASSERT(!prev_val.cmeasure);
+
+            if (val.v2 == prev_val.v2) {
+                // spatial interpolation only make sense for noncoincident values
+                return;
+            }
+
+            // Check whether v0 and v1 have the same direction AND ||v0||>=||v1||
+            auto check_vecs = [](const SkV2& v0, const SkV2& v1) {
+                const auto v0_len2 = v0.lengthSquared(),
+                           v1_len2 = v1.lengthSquared();
+
+                // check magnitude
+                if (v0_len2 < v1_len2) {
+                    return false;
+                }
+
+                // v0, v1 have the same direction iff dot(v0,v1) = ||v0||*||v1||
+                // <=>    dot(v0,v1)^2 = ||v0||^2 * ||v1||^2
+                const auto dot = v0.dot(v1);
+                return SkScalarNearlyEqual(dot * dot, v0_len2 * v1_len2);
+            };
+
+            if (check_vecs(val.v2 - prev_val.v2, fTo) &&
+                check_vecs(prev_val.v2 - val.v2, fTi)) {
+                // Both control points lie on the [prev_val..val] segment
+                //   => we can power-reduce the Bezier "curve" to a straight line.
+                return;
+            }
+
+            // Finally, this looks like a legitimate spatial keyframe.
+            SkPath p;
+            p.moveTo (prev_val.v2.x        , prev_val.v2.y);
+            p.cubicTo(prev_val.v2.x + fTo.x, prev_val.v2.y + fTo.y,
+                           val.v2.x + fTi.x,      val.v2.y + fTi.y,
+                           val.v2.x,              val.v2.y);
+            prev_val.cmeasure = SkContourMeasureIter(p, false).next();
+        }
+
         bool parseValue(const AnimationBuilder&,
                         const skjson::ObjectValue& jkf,
                         const skjson::Value& jv,
@@ -504,23 +551,7 @@ public:
                 return false;
             }
 
-            if (fTi != SkV2{0,0} || fTo != SkV2{0,0}) {
-                // The previous keyframe is spatial: back-fill its contour interpolator
-                // (now that we know the end point).
-                SkASSERT(!fValues.empty());
-                auto& prev_val = fValues.back();
-                SkASSERT(!prev_val.cmeasure);
-
-                // spatial interpolation only make sense for noncoincident values
-                if (val.v2 != prev_val.v2) {
-                    SkPath p;
-                    p.moveTo (prev_val.v2.x        , prev_val.v2.y);
-                    p.cubicTo(prev_val.v2.x + fTo.x, prev_val.v2.y + fTo.y,
-                                   val.v2.x + fTi.x,      val.v2.y + fTi.y,
-                                   val.v2.x,              val.v2.y);
-                    prev_val.cmeasure = SkContourMeasureIter(p, false).next();
-                }
-            }
+            this->backfill_spatial(val);
 
             // Track the last keyframe spatial tangents (checked on next parseValue).
             fTi = ParseDefault<SkV2>(jkf["ti"], {0,0});
