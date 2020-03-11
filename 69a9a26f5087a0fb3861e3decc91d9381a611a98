@@ -22,6 +22,30 @@
       "revId": "69a9a26f5087a0fb3861e3decc91d9381a611a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9891738d_b78a3e89",
+        "filename": "tools/abandon_gerrit_cls.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-11T18:26:23Z",
+      "side": 1,
+      "message": "That would have been a good idea if I thought of doing that before typing all this :)\nI\u0027ll just add a comment here to remove this if args ever change.",
+      "parentUuid": "a664dcfc_6cdfb499",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "69a9a26f5087a0fb3861e3decc91d9381a611a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
