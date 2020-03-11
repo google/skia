@@ -334,7 +334,6 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
 }
 
 void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const {
-    int instanceCount = fMeshes.count();
     bool hasColorAttribute = SkToBool(fFlags & kHasColorAttribute_Flag);
     bool hasLocalCoordsAttribute = SkToBool(fFlags & kHasLocalCoordAttribute_Flag);
     SkASSERT(fFlags & kWasCharacterized_Flag);
@@ -342,18 +341,13 @@ void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* ind
 
     // Copy data into the buffers.
     int vertexOffset = 0;
-    // We have a fast case below for uploading the vertex data when the matrix is translate
-    // only and there are colors but not local coords.
-    bool fastAttrs = hasColorAttribute && !hasLocalCoordsAttribute;
-    for (int i = 0; i < instanceCount; i++) {
-        // Get each mesh.
-        const Mesh& mesh = fMeshes[i];
 
+    for (const auto& mesh : fMeshes) {
         // Copy data into the index buffer.
         if (indices) {
             int indexCount = mesh.fVertices->indexCount();
-            for (int j = 0; j < indexCount; ++j) {
-                *indices++ = mesh.fVertices->indices()[j] + vertexOffset;
+            for (int i = 0; i < indexCount; ++i) {
+                *indices++ = mesh.fVertices->indices()[i] + vertexOffset;
             }
         }
 
@@ -362,65 +356,37 @@ void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* ind
         const SkPoint* positions = mesh.fVertices->positions();
         const SkColor* colors = mesh.fVertices->colors();
         const SkPoint* localCoords = mesh.fVertices->texCoords();
-        bool fastMesh = (!this->hasMultipleViewMatrices() ||
-                         mesh.fViewMatrix.getType() <= SkMatrix::kTranslate_Mask) &&
-                        mesh.hasPerVertexColors();
-        if (fastAttrs && fastMesh) {
-            // Fast case.
-            struct V {
-                SkPoint fPos;
-                uint32_t fColor;
-            };
-            SkASSERT(sizeof(V) == vertexStride);
-            V* v = (V*)verts;
-            Sk2f t(0, 0);
+
+        static constexpr size_t kColorOffset = sizeof(SkPoint);
+        size_t localCoordOffset =
+                hasColorAttribute ? kColorOffset + sizeof(uint32_t) : kColorOffset;
+
+        // TODO4F: Preserve float colors
+        GrColor color = mesh.fColor.toBytes_RGBA();
+
+        for (int i = 0; i < vertexCount; ++i) {
             if (this->hasMultipleViewMatrices()) {
-                t = Sk2f(mesh.fViewMatrix.getTranslateX(), mesh.fViewMatrix.getTranslateY());
+                mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[i], 1);
+            } else {
+                *((SkPoint*)verts) = positions[i];
             }
-            for (int j = 0; j < vertexCount; ++j) {
-                Sk2f p = Sk2f::Load(positions++) + t;
-                p.store(&v[j].fPos);
-                v[j].fColor = colors[j];
-            }
-            verts = v + vertexCount;
-        } else {
-            // Normal case.
-            static constexpr size_t kColorOffset = sizeof(SkPoint);
-            size_t offset = kColorOffset;
             if (hasColorAttribute) {
-                offset += sizeof(uint32_t);
-            }
-            size_t localCoordOffset = offset;
-            if (hasLocalCoordsAttribute) {
-                offset += sizeof(SkPoint);
-            }
-
-            // TODO4F: Preserve float colors
-            GrColor color = mesh.fColor.toBytes_RGBA();
-
-            for (int j = 0; j < vertexCount; ++j) {
-                if (this->hasMultipleViewMatrices()) {
-                    mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[j], 1);
+                if (mesh.hasPerVertexColors()) {
+                    *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[i];
                 } else {
-                    *((SkPoint*)verts) = positions[j];
+                    *(uint32_t*)((intptr_t)verts + kColorOffset) = color;
                 }
-                if (hasColorAttribute) {
-                    if (mesh.hasPerVertexColors()) {
-                        *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[j];
-                    } else {
-                        *(uint32_t*)((intptr_t)verts + kColorOffset) = color;
-                    }
-                }
-                if (hasLocalCoordsAttribute) {
-                    if (mesh.hasExplicitLocalCoords()) {
-                        *(SkPoint*)((intptr_t)verts + localCoordOffset) = localCoords[j];
-                    } else {
-                        *(SkPoint*)((intptr_t)verts + localCoordOffset) = positions[j];
-                    }
-                }
-                verts = (void*)((intptr_t)verts + vertexStride);
             }
+            if (hasLocalCoordsAttribute) {
+                if (mesh.hasExplicitLocalCoords()) {
+                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = localCoords[i];
+                } else {
+                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = positions[i];
+                }
+            }
+            verts = (void*)((intptr_t)verts + vertexStride);
         }
+
         vertexOffset += vertexCount;
     }
 }
