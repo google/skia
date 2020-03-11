@@ -13,6 +13,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
@@ -539,13 +540,54 @@ private:
 
     }
 
-    void onPrepareDraws(Target* target) override {
-        // Setup geometry processor
-        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
-                                                             fFalloffView);
-
-        int instanceCount = fGeoData.count();
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&& appliedClip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) {
+        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(arena, fFalloffView);
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
+
+        static constexpr int kOnePrimProcTexture = 1;
+        auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena, &appliedClip,
+                                                                             kOnePrimProcTexture);
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = fFalloffView.proxy();
+
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                                   std::move(appliedClip),
+                                                                   dstProxyView, gp,
+                                                                   GrProcessorSet::MakeEmptySet(),
+                                                                   GrPrimitiveType::kTriangles,
+                                                                   GrPipeline::InputFlags::kNone,
+                                                                   &GrUserStencilSettings::kUnused,
+                                                                   fixedDynamicState);
+    }
+
+    void createProgramInfo(Target* target) {
+        this->createProgramInfo(&target->caps(),
+                                target->allocator(),
+                                target->outputView(),
+                                target->detachAppliedClip(),
+                                target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onPrepareDraws(Target* target) override {
+        int instanceCount = fGeoData.count();
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -593,22 +635,23 @@ private:
             }
         }
 
-        auto fixedDynamicState = target->makeFixedDynamicState(1);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fFalloffView.proxy();
-
-        GrMesh* mesh = target->allocMesh();
-        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
-                         GrPrimitiveRestart::kNo);
-        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(gp, mesh, 1, fixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
+        fMesh = target->allocMesh();
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
+                          GrPrimitiveRestart::kNo);
+        fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
-                                                                 GrProcessorSet::MakeEmptySet(),
-                                                                 GrPipeline::InputFlags::kNone);
+        if (!fProgramInfo) {
+            this->createProgramInfo(flushState);
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
+
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -621,13 +664,20 @@ private:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fFalloffView.proxy(), GrMipMapped(false));
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            func(fFalloffView.proxy(), GrMipMapped(false));
+        }
     }
 
     SkSTArray<1, Geometry, true> fGeoData;
     int fVertCount;
     int fIndexCount;
     GrSurfaceProxyView fFalloffView;
+
+    GrMesh*            fMesh = nullptr;
+    GrProgramInfo*     fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
