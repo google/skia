@@ -15,7 +15,9 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
+#include <algorithm>
 #include <atomic>
+#include <queue>
 
 #if defined(SKVM_LLVM)
     #include <future>
@@ -476,16 +478,110 @@ namespace skvm {
         const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
                                                                    : fProgram;
 
+        struct UseCount {
+            int total = 0;
+            int uses = 0;
+            bool live = false;
+        };
+
+        std::vector<UseCount> use_counts(program.size());
+
+        int live_instructions = 0;
+        auto count_uses = [&](Val id, auto& recurse) -> void {
+            Builder::Instruction inst = program[id];
+            UseCount& use_count = use_counts[id];
+            if (!use_count.live) {
+                use_count.live = true;
+                live_instructions += 1;
+                if (inst.x != NA) {
+                    use_counts[inst.x].total += 1;
+                    use_counts[inst.x].uses += 1;
+                    recurse(inst.x, recurse);
+                }
+                if (inst.y != NA) {
+                    use_counts[inst.y].total += 1;
+                    use_counts[inst.y].uses += 1;
+                    recurse(inst.y, recurse);
+                }
+                if (inst.z != NA) {
+                    use_counts[inst.z].total += 1;
+                    use_counts[inst.z].uses += 1;
+                    recurse(inst.z, recurse);
+                }
+            }
+        };
+
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (program[id].op <= Op::store32) {
+                count_uses(id, count_uses);
+            }
+        }
+
         // Next rewrite the program order by issuing instructions as late as possible:
         //    - any side-effect-only (i.e. store) instruction in order as we see them;
         //    - any other instruction only once it's shown to be needed.
         // This elides all dead code and helps minimize value lifetime / register pressure.
         std::vector<OptimizedInstruction> optimized;
-        optimized.reserve(program.size());
+        optimized.resize(live_instructions);
 
         // Map old Val index to rewritten index in optimized.
         std::vector<Val> new_index(program.size(), NA);
 
+        auto compare = [&](const Val& lhs, const Val& rhs) {
+            return lhs < rhs;
+        };
+        std::vector<Val> frontier;
+
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (program[id].op <= Op::store32) {
+                frontier.push_back(id);
+            }
+        }
+
+        std::make_heap(frontier.begin(), frontier.end(), compare);
+
+        for (int i = live_instructions; i-- > 0;) {
+            SkASSERT(!frontier.empty());
+            std::pop_heap(frontier.begin(), frontier.end(), compare);
+            Val id = frontier.back();
+            frontier.pop_back();
+            new_index[id] = i;
+            Builder::Instruction inst = program[id];
+            SkASSERT(inst.uses == 0);
+            optimized[i] = {inst.op,
+                            inst.x, inst.y, inst.z,
+                            inst.immy, inst.immz,
+                             /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
+            if (inst.x != NA) {
+                use_counts[inst.x].uses--;
+                if (use_counts[inst.x].uses == 0) {
+                    frontier.push_back(inst.x);
+                }
+            }
+            if (inst.y != NA) {
+                use_counts[inst.y].uses--;
+                if (use_counts[inst.y].uses == 0) {
+                    frontier.push_back(inst.y);
+                }
+            }
+            if (inst.z != NA) {
+                use_counts[inst.z].uses--;
+                if (use_counts[inst.z].uses == 0) {
+                    frontier.push_back(inst.z);
+                }
+            }
+            std::make_heap(frontier.begin(), frontier.end(), compare);
+        }
+
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
+            if (inst.x != NA ) { inst.x = new_index[inst.x]; }
+            if (inst.y != NA ) { inst.y = new_index[inst.y]; }
+            if (inst.z != NA ) { inst.z = new_index[inst.z]; }
+        }
+
+        SkASSERT(frontier.empty());
+#if 0
         auto rewrite = [&](Val id, auto& recurse) -> Val {
             auto rewrite_input = [&](Val input) -> Val {
                 if (input == NA) {
@@ -525,7 +621,7 @@ namespace skvm {
                 rewrite(id, rewrite);
             }
         }
-
+#endif
         // We're done with `program` now... everything below will analyze `optimized`.
 
         // We'll want to know when it's safe to recycle registers holding the values
