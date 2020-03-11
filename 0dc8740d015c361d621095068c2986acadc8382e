@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5497eed8_33a82e79",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-11T20:10:12Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 205,
+        "startChar": 100,
+        "endLine": 205,
+        "endChar": 104
+      },
+      "revId": "0dc8740d015c361d621095068c2986acadc8382e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
