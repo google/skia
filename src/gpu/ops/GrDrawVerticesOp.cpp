@@ -10,6 +10,7 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrDrawVerticesOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -63,8 +64,6 @@ private:
                            const GrXferProcessor::DstProxyView&) override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-
-    void fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const;
 
     GrGeometryProcessor* makeGP(SkArenaAlloc*, const GrShaderCaps*);
 
@@ -289,14 +288,21 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
         this->createProgramInfo(target);
     }
 
-    const GrPrimitiveProcessor& gp(fProgramInfo->primProc());
+    bool hasColorAttribute = SkToBool(fFlags & kHasColorAttribute_Flag);
+    bool hasLocalCoordsAttribute = SkToBool(fFlags & kHasLocalCoordAttribute_Flag);
+    SkASSERT(fFlags & kWasCharacterized_Flag);
+    SkASSERT(hasColorAttribute == this->requiresPerVertexColors());
 
     // Allocate buffers.
-    size_t vertexStride = gp.vertexStride();
+    size_t vertexStride = sizeof(SkPoint)
+                          + (hasColorAttribute ? sizeof(uint32_t) : 0)
+                          + (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0);
+    SkASSERT(vertexStride == fProgramInfo->primProc().vertexStride());
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex = 0;
-    void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
-    if (!verts) {
+    GrVertexWriter verts{
+            target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex)};
+    if (!verts.fPtr) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
@@ -311,25 +317,6 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
             return;
         }
     }
-
-    this->fillBuffers(vertexStride, verts, indices);
-
-    SkASSERT(!fMesh);
-    fMesh = target->allocMesh();
-    if (this->isIndexed()) {
-        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
-                         GrPrimitiveRestart::kNo);
-    } else {
-        fMesh->setNonIndexedNonInstanced(fVertexCount);
-    }
-    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
-}
-
-void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* indices) const {
-    bool hasColorAttribute = SkToBool(fFlags & kHasColorAttribute_Flag);
-    bool hasLocalCoordsAttribute = SkToBool(fFlags & kHasLocalCoordAttribute_Flag);
-    SkASSERT(fFlags & kWasCharacterized_Flag);
-    SkASSERT(hasColorAttribute == this->requiresPerVertexColors());
 
     // Copy data into the buffers.
     int vertexOffset = 0;
@@ -347,40 +334,40 @@ void DrawVerticesOp::fillBuffers(size_t vertexStride, void* verts, uint16_t* ind
         int vertexCount = mesh.fVertices->vertexCount();
         const SkPoint* positions = mesh.fVertices->positions();
         const SkColor* colors = mesh.fVertices->colors();
-        const SkPoint* localCoords = mesh.fVertices->texCoords();
-
-        static constexpr size_t kColorOffset = sizeof(SkPoint);
-        size_t localCoordOffset =
-                hasColorAttribute ? kColorOffset + sizeof(uint32_t) : kColorOffset;
+        const SkPoint* localCoords =
+                mesh.hasExplicitLocalCoords() ? mesh.fVertices->texCoords() : positions;
 
         // TODO4F: Preserve float colors
-        GrColor color = mesh.fColor.toBytes_RGBA();
+        GrColor meshColor = mesh.fColor.toBytes_RGBA();
+
+        SkPoint* posBase = (SkPoint*)verts.fPtr;
 
         for (int i = 0; i < vertexCount; ++i) {
-            if (this->hasMultipleViewMatrices()) {
-                mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[i], 1);
-            } else {
-                *((SkPoint*)verts) = positions[i];
-            }
+            verts.write(positions[i]);
             if (hasColorAttribute) {
-                if (mesh.hasPerVertexColors()) {
-                    *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[i];
-                } else {
-                    *(uint32_t*)((intptr_t)verts + kColorOffset) = color;
-                }
+                verts.write(mesh.hasPerVertexColors() ? colors[i] : meshColor);
             }
             if (hasLocalCoordsAttribute) {
-                if (mesh.hasExplicitLocalCoords()) {
-                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = localCoords[i];
-                } else {
-                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = positions[i];
-                }
+                verts.write(localCoords[i]);
             }
-            verts = (void*)((intptr_t)verts + vertexStride);
+        }
+
+        if (this->hasMultipleViewMatrices()) {
+            SkMatrixPriv::MapPointsWithStride(mesh.fViewMatrix, posBase, vertexStride, vertexCount);
         }
 
         vertexOffset += vertexCount;
     }
+
+    SkASSERT(!fMesh);
+    fMesh = target->allocMesh();
+    if (this->isIndexed()) {
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+                         GrPrimitiveRestart::kNo);
+    } else {
+        fMesh->setNonIndexedNonInstanced(fVertexCount);
+    }
+    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
 }
 
 void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
