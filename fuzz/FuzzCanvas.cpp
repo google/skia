@@ -1375,46 +1375,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 42: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                SkIRect center;
-                SkRect dst;
-                bool usePaint;
-                fuzz->next(&usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                if (make_fuzz_t<bool>(fuzz)) {
-                    fuzz->next(&center);
-                } else {  // Make valid center, see SkLatticeIter::Valid().
-                    if (img.width() == 0 || img.height() == 0) {
-                        // bitmap may not have had its pixels initialized.
-                        break;
-                    }
-                    fuzz->nextRange(&center.fLeft, 0, img.width() - 1);
-                    fuzz->nextRange(&center.fTop, 0, img.height() - 1);
-                    fuzz->nextRange(&center.fRight, center.fLeft + 1, img.width());
-                    fuzz->nextRange(&center.fBottom, center.fTop + 1, img.height());
-                }
-                fuzz->next(&dst);
-                canvas->drawBitmapNine(img, center, dst, usePaint ? &paint : nullptr);
                 break;
             }
             case 43: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                bool usePaint;
-                SkRect dst;
-                fuzz->next(&usePaint, &dst);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                constexpr int kMax = 6;
-                int xDivs[kMax], yDivs[kMax];
-                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr, nullptr};
-                fuzz->nextRange(&lattice.fXCount, 2, kMax);
-                fuzz->nextRange(&lattice.fYCount, 2, kMax);
-                fuzz->nextN(xDivs, lattice.fXCount);
-                fuzz->nextN(yDivs, lattice.fYCount);
-                canvas->drawBitmapLattice(img, lattice, dst, usePaint ? &paint : nullptr);
                 break;
             }
             case 44: {

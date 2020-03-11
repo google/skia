@@ -256,22 +256,6 @@ void SkNWayCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, c
     }
 }
 
-void SkNWayCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                    const SkRect& dst, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawBitmapNine(bitmap, center, dst, paint);
-    }
-}
-
-void SkNWayCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                       const SkRect& dst, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawBitmapLattice(bitmap, lattice, dst, paint);
-    }
-}
-
 void SkNWayCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                const SkPaint* paint) {
     Iter iter(fList);
