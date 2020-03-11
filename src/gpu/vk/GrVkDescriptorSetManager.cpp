@@ -207,7 +207,7 @@ const GrVkDescriptorSet* GrVkDescriptorSetManager::getDescriptorSet(GrVkGpu* gpu
             return nullptr;
         }
 
-        ds = new GrVkDescriptorSet(vkDS, fPoolManager.fPool, handle);
+        ds = new GrVkDescriptorSet(gpu, vkDS, fPoolManager.fPool, handle);
     }
     SkASSERT(ds);
     return ds;
@@ -222,13 +222,13 @@ void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     fPoolManager.freeGPUResources(gpu);
 
     for (int i = 0; i < fFreeSets.count(); ++i) {
-        fFreeSets[i]->unref(gpu);
+        fFreeSets[i]->unref();
     }
     fFreeSets.reset();
 
     for (int i = 0; i < fImmutableSamplers.count(); ++i) {
         if (fImmutableSamplers[i]) {
-            fImmutableSamplers[i]->unref(gpu);
+            fImmutableSamplers[i]->unref();
         }
     }
     fImmutableSamplers.reset();
@@ -290,7 +290,7 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
 
 bool GrVkDescriptorSetManager::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
     if (fPool) {
-        fPool->unref(gpu);
+        fPool->unref();
         uint32_t newPoolSize = fMaxDescriptors + ((fMaxDescriptors + 1) >> 1);
         if (newPoolSize < kMaxDescriptors) {
             fMaxDescriptors = newPoolSize;
@@ -339,7 +339,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* 
     }
 
     if (fPool) {
-        fPool->unref(gpu);
+        fPool->unref();
         fPool = nullptr;
     }
 }
