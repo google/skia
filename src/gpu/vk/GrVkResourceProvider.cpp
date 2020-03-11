@@ -418,19 +418,21 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     }
     fAvailableCommandPools.reset();
 
-    // We must release/destroy all command buffers and pipeline states before releasing the
-    // GrVkDescriptorSetManagers
-    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        fDescriptorSetManagers[i]->release(fGpu);
-    }
-    fDescriptorSetManagers.reset();
-
     // release our uniform buffers
     for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
         SkASSERT(fAvailableUniformBufferResources[i]->unique());
         fAvailableUniformBufferResources[i]->unref(fGpu);
     }
     fAvailableUniformBufferResources.reset();
+
+    // We must release/destroy all command buffers and pipeline states before releasing the
+    // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold
+    // refs to GrVkDescriptorSets.
+    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
+        fDescriptorSetManagers[i]->release(fGpu);
+    }
+    fDescriptorSetManagers.reset();
+
 }
 
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
