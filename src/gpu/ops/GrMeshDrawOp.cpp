@@ -15,6 +15,14 @@ GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
+void GrMeshDrawOp::createProgramInfo(Target* target) {
+    this->createProgramInfo(&target->caps(),
+                            target->allocator(),
+                            target->outputView(),
+                            target->detachAppliedClip(),
+                            target->dstProxyView());
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primitiveType,

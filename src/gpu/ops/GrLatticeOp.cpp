@@ -213,15 +213,15 @@ public:
     }
 
 private:
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
 
         auto gp = LatticeGP::Make(arena, fView, fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {
-            return nullptr;
+            return;
         }
 
         static constexpr int kOnePrimProcTexture = 1;
@@ -229,21 +229,14 @@ private:
                                                                              kOnePrimProcTexture);
         fixedDynamicState->fPrimitiveProcessorTextures[0] = fView.proxy();
 
-        return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
-                                                           std::move(appliedClip), dstProxyView,
-                                                           gp, fHelper.detachProcessorSet(),
-                                                           GrPrimitiveType::kTriangles,
-                                                           fHelper.pipelineFlags(),
-                                                           &GrUserStencilSettings::kUnused,
-                                                           fixedDynamicState);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                                   std::move(appliedClip),
+                                                                   dstProxyView, gp,
+                                                                   fHelper.detachProcessorSet(),
+                                                                   GrPrimitiveType::kTriangles,
+                                                                   fHelper.pipelineFlags(),
+                                                                   &GrUserStencilSettings::kUnused,
+                                                                   fixedDynamicState);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -255,15 +248,15 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(target);
+            this->createProgramInfo(target);
             if (!fProgramInfo) {
                 return;
             }

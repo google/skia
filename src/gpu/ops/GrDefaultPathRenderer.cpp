@@ -426,11 +426,11 @@ private:
         return GrPrimitiveType::kTriangles;
     }
 
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -448,17 +448,10 @@ private:
 
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
 
-        return fHelper.createProgramInfoWithStencil(caps, arena, outputView, std::move(appliedClip),
-                                                    dstProxyView, gp, this->primType());
+        fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                             std::move(appliedClip),
+                                                             dstProxyView, gp, this->primType());
 
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -470,8 +463,8 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
@@ -488,7 +481,7 @@ private:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(flushState);
+            this->createProgramInfo(flushState);
         }
 
         if (!fProgramInfo || !fMeshes.count()) {

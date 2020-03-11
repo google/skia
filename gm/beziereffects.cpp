@@ -85,30 +85,24 @@ protected:
 
     virtual GrGeometryProcessor* makeGP(const GrCaps& caps, SkArenaAlloc* arena) = 0;
 
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
         auto gp = this->makeGP(*caps, arena);
         if (!gp) {
-            return nullptr;
+            return;
         }
 
         GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone;
 
-        return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
-                                                           std::move(appliedClip), dstProxyView,
-                                                           gp, std::move(fProcessorSet),
-                                                           GrPrimitiveType::kTriangles, flags);
-    }
-
-    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
-        return this->createProgramInfo(&flushState->caps(),
-                                       flushState->allocator(),
-                                       flushState->outputView(),
-                                       flushState->detachAppliedClip(),
-                                       flushState->dstProxyView());
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                                   std::move(appliedClip),
+                                                                   dstProxyView, gp,
+                                                                   std::move(fProcessorSet),
+                                                                   GrPrimitiveType::kTriangles,
+                                                                   flags);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -120,15 +114,15 @@ protected:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(flushState);
+            this->createProgramInfo(flushState);
         }
 
         if (!fProgramInfo) {

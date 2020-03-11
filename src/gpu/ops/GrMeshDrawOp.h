@@ -36,6 +36,16 @@ public:
 protected:
     GrMeshDrawOp(uint32_t classID);
 
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&& appliedClip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) {
+        this->onCreateProgramInfo(caps, arena, outputView, std::move(appliedClip), dstProxyView);
+    }
+
+    void createProgramInfo(Target* target);
+
     /** Helper for rendering repeating meshes using a patterned index buffer. This class creates the
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
@@ -90,6 +100,14 @@ protected:
     }
 
 private:
+    // This method is responsible for creating all the programInfos required
+    // by this op.
+    virtual void onCreateProgramInfo(const GrCaps*,
+                                     SkArenaAlloc*,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&&,
+                                     const GrXferProcessor::DstProxyView&) = 0;
+
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* outputView,
                       GrAppliedClip* clip,
