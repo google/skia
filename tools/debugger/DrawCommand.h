@@ -38,8 +38,6 @@ public:
         kConcat_OpType,
         kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
-        kDrawBitmapLattice_OpType,
-        kDrawBitmapNine_OpType,
         kDrawBitmapRect_OpType,
         kDrawDRRect_OpType,
         kDrawImage_OpType,
@@ -248,44 +246,6 @@ private:
     SkBitmap         fBitmap;
     SkScalar         fLeft;
     SkScalar         fTop;
-    SkTLazy<SkPaint> fPaint;
-
-    typedef DrawCommand INHERITED;
-};
-
-class DrawBitmapLatticeCommand : public DrawCommand {
-public:
-    DrawBitmapLatticeCommand(const SkBitmap&          bitmap,
-                             const SkCanvas::Lattice& lattice,
-                             const SkRect&            dst,
-                             const SkPaint*           paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
-
-private:
-    SkBitmap          fBitmap;
-    SkCanvas::Lattice fLattice;
-    SkRect            fDst;
-    SkTLazy<SkPaint>  fPaint;
-
-    typedef DrawCommand INHERITED;
-};
-
-class DrawBitmapNineCommand : public DrawCommand {
-public:
-    DrawBitmapNineCommand(const SkBitmap& bitmap,
-                          const SkIRect&  center,
-                          const SkRect&   dst,
-                          const SkPaint*  paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
-
-private:
-    SkBitmap         fBitmap;
-    SkIRect          fCenter;
-    SkRect           fDst;
     SkTLazy<SkPaint> fPaint;
 
     typedef DrawCommand INHERITED;

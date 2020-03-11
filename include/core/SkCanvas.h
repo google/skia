@@ -1813,35 +1813,6 @@ public:
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
-    /** Draws SkBitmap bitmap stretched proportionally to fit into SkRect dst.
-        SkIRect center divides the bitmap into nine sections: four sides, four corners,
-        and the center. Corners are not scaled, or scaled down proportionately if their
-        sides are larger than dst; center and four sides are scaled to fit remaining
-        space, if any.
-
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter,
-        SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
-        Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
-
-        If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
-        just as SkShader made from SkShader::MakeBitmapShader with
-        SkShader::kClamp_TileMode set replicates the bitmap edge color when it samples
-        outside of its bounds.
-
-        @param bitmap  SkBitmap containing pixels, dimensions, and format
-        @param center  SkIRect edge of image corners and sides
-        @param dst     destination SkRect of image to draw to
-        @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                       and so on; or nullptr
-    */
-    void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                        const SkPaint* paint = nullptr);
-
     /** \struct SkCanvas::Lattice
         SkCanvas::Lattice divides SkBitmap or SkImage into a rectangular grid.
         Grid entries on even columns and even rows are fixed; these entries are
@@ -1871,37 +1842,6 @@ public:
         const SkIRect*  fBounds;    //!< source bounds to draw from
         const SkColor*  fColors;    //!< array of colors
     };
-
-    /** Draws SkBitmap bitmap stretched proportionally to fit into SkRect dst.
-
-        SkCanvas::Lattice lattice divides bitmap into a rectangular grid.
-        Each intersection of an even-numbered row and column is fixed; like the corners
-        of drawBitmapNine(), fixed lattice elements never scale larger than their initial
-        size and shrink proportionately when all fixed elements exceed the bitmap
-        dimension. All other grid elements scale to fill the available space, if any.
-
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter,
-        SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from bitmap bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
-        Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
-
-        If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
-        just as SkShader made from SkShader::MakeBitmapShader with
-        SkShader::kClamp_TileMode set replicates the bitmap edge color when it samples
-        outside of its bounds.
-
-        @param bitmap   SkBitmap containing pixels, dimensions, and format
-        @param lattice  division of bitmap into fixed and variable rectangles
-        @param dst      destination SkRect of image to draw to
-        @param paint    SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                        and so on; or nullptr
-    */
-    void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
-                           const SkPaint* paint = nullptr);
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
 
@@ -2616,10 +2556,12 @@ protected:
                               const SkPaint* paint);
     virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                   const SkPaint* paint, SrcRectConstraint constraint);
-    virtual void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                  const SkPaint* paint);
-    virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                     const SkRect& dst, const SkPaint* paint);
+    // REMOVE ME
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&,
+                                  const SkRect&, const SkPaint*) {}
+    // REMOVE ME
+    virtual void onDrawBitmapLattice(const SkBitmap&, const Lattice&,
+                                     const SkRect&, const SkPaint*) {}
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
