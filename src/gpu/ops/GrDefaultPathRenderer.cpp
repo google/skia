@@ -439,7 +439,6 @@ private:
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
             gp = GrDefaultGeoProcFactory::Make(arena,
-                                               caps->shaderCaps(),
                                                color,
                                                coverage,
                                                localCoords,

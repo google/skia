@@ -936,7 +936,6 @@ GrGeometryProcessor* AAHairlineOp::makeLineGP(const GrCaps& caps, SkArenaAlloc* 
     localCoords.fMatrix = geometryProcessorLocalM;
 
     GrGeometryProcessor* lineGP = GrDefaultGeoProcFactory::Make(arena,
-                                                                caps.shaderCaps(),
                                                                 color,
                                                                 Coverage::kAttribute_Type,
                                                                 localCoords,

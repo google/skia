@@ -36,7 +36,6 @@ enum GPFlag {
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
-                                     const GrShaderCaps* shaderCaps,
                                      uint32_t gpTypeFlags,
                                      const SkPMColor4f& color,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -44,9 +43,9 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool localCoordsWillBeRead,
                                      uint8_t coverage) {
-        return arena->make<DefaultGeoProc>(shaderCaps, gpTypeFlags, color,
-                                           std::move(colorSpaceXform), viewMatrix, localMatrix,
-                                           coverage, localCoordsWillBeRead);
+        return arena->make<DefaultGeoProc>(gpTypeFlags, color, std::move(colorSpaceXform),
+                                           viewMatrix, localMatrix, coverage,
+                                           localCoordsWillBeRead);
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -230,8 +229,7 @@ public:
 private:
     friend class ::SkArenaAlloc; // for access to ctor
 
-    DefaultGeoProc(const GrShaderCaps* shaderCaps,
-                   uint32_t gpTypeFlags,
+    DefaultGeoProc(uint32_t gpTypeFlags,
                    const SkPMColor4f& color,
                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                    const SkMatrix& viewMatrix,
@@ -302,7 +300,7 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kLocalCoordAttribute_GPFlag;
     }
 
-    return DefaultGeoProc::Make(d->allocator(), d->caps()->shaderCaps(),
+    return DefaultGeoProc::Make(d->allocator(),
                                 flags,
                                 SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                 GrTest::TestColorXform(d->fRandom),
@@ -314,7 +312,6 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 #endif
 
 GrGeometryProcessor* GrDefaultGeoProcFactory::Make(SkArenaAlloc* arena,
-                                                   const GrShaderCaps* shaderCaps,
                                                    const Color& color,
                                                    const Coverage& coverage,
                                                    const LocalCoords& localCoords,
@@ -338,7 +335,6 @@ GrGeometryProcessor* GrDefaultGeoProcFactory::Make(SkArenaAlloc* arena,
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     return DefaultGeoProc::Make(arena,
-                                shaderCaps,
                                 flags,
                                 color.fColor,
                                 color.fColorSpaceXform,
@@ -349,7 +345,6 @@ GrGeometryProcessor* GrDefaultGeoProcFactory::Make(SkArenaAlloc* arena,
 }
 
 GrGeometryProcessor* GrDefaultGeoProcFactory::MakeForDeviceSpace(SkArenaAlloc* arena,
-                                                                 const GrShaderCaps* shaderCaps,
                                                                  const Color& color,
                                                                  const Coverage& coverage,
                                                                  const LocalCoords& localCoords,
@@ -367,5 +362,5 @@ GrGeometryProcessor* GrDefaultGeoProcFactory::MakeForDeviceSpace(SkArenaAlloc* a
     }
 
     LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
-    return Make(arena, shaderCaps, color, coverage, inverted, SkMatrix::I());
+    return Make(arena, color, coverage, inverted, SkMatrix::I());
 }

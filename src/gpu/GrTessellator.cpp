@@ -7,7 +7,6 @@
 
 #include "src/gpu/GrTessellator.h"
 
-#include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"

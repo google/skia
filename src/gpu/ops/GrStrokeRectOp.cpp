@@ -192,8 +192,7 @@ private:
             LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
-            gp = GrDefaultGeoProcFactory::Make(arena, caps->shaderCaps(),
-                                               color, Coverage::kSolid_Type, localCoordsType,
+            gp = GrDefaultGeoProcFactory::Make(arena, color, Coverage::kSolid_Type, localCoordsType,
                                                fViewMatrix);
         }
 
@@ -353,7 +352,6 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
 }
 
 static GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
-                                                     const GrShaderCaps* shaderCaps,
                                                      bool tweakAlphaForCoverage,
                                                      const SkMatrix& viewMatrix,
                                                      bool usesLocalCoords,
@@ -367,8 +365,7 @@ static GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
     Color::Type colorType =
         wideColor ? Color::kPremulWideColorAttribute_Type: Color::kPremulGrColorAttribute_Type;
 
-    return MakeForDeviceSpace(arena, shaderCaps, colorType, coverageType,
-                              localCoordsType, viewMatrix);
+    return MakeForDeviceSpace(arena, colorType, coverageType, localCoordsType, viewMatrix);
 }
 
 class AAStrokeRectOp final : public GrMeshDrawOp {
@@ -548,7 +545,6 @@ GrProgramInfo* AAStrokeRectOp::createProgramInfo(
                                  const GrXferProcessor::DstProxyView& dstProxyView) {
 
     GrGeometryProcessor* gp = create_aa_stroke_rect_gp(arena,
-                                                       caps->shaderCaps(),
                                                        fHelper.compatibleWithCoverageAsAlpha(),
                                                        this->viewMatrix(),
                                                        fHelper.usesLocalCoords(),

@@ -101,7 +101,6 @@ private:
 };
 
 static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
-                                    const GrShaderCaps* shaderCaps,
                                     bool hasColors,
                                     const SkPMColor4f& color,
                                     const SkMatrix& viewMatrix) {
@@ -111,7 +110,7 @@ static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
         gpColor.fType = Color::kPremulGrColorAttribute_Type;
     }
 
-    return GrDefaultGeoProcFactory::Make(arena, shaderCaps, gpColor, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(arena, gpColor, Coverage::kSolid_Type,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
@@ -217,7 +216,6 @@ GrProgramInfo* DrawAtlasOp::createProgramInfo(const GrCaps* caps,
                                               const GrXferProcessor::DstProxyView& dstProxyView) {
     // Setup geometry processor
     GrGeometryProcessor* gp = make_gp(arena,
-                                      caps->shaderCaps(),
                                       this->hasColors(),
                                       this->color(),
                                       this->viewMatrix());
