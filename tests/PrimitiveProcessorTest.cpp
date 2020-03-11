@@ -124,6 +124,14 @@ private:
         helper.recordDraw(target, gp);
     }
 
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
                                                                  GrProcessorSet::MakeEmptySet(),
