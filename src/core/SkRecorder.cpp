@@ -15,6 +15,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
+#include "src/image/SkImage_Base.h"
 #include <new>
 
 SkDrawableList::~SkDrawableList() {
@@ -193,47 +194,38 @@ void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->append<SkRecords::DrawPath>(paint, path);
 }
 
-void SkRecorder::onDrawBitmap(const SkBitmap& bitmap,
-                              SkScalar left,
-                              SkScalar top,
-                              const SkPaint* paint) {
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
-    if (image) {
-        this->onDrawImage(image.get(), left, top, paint);
-    }
-}
-
-void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
-                                  const SkRect* src,
-                                  const SkRect& dst,
-                                  const SkPaint* paint,
-                                  SrcRectConstraint constraint) {
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
-    if (image) {
-        this->onDrawImageRect(image.get(), src, dst, paint, constraint);
-    }
+sk_sp<SkImage> ref_or_copy_mutable_bitmap(const SkImage* image) {
+  // SkCanvas wraps mutable bitmaps as SkImages without a copy for performance, and most subclasses
+  // of canvas don't persist the image, or immediately draw the image so it doesn't matter. When
+  // recording, it is necessary to extract and copy any mutable bitmap.
+  SkBitmap bm;
+  if (as_IB(image)->getROPixels(&bm) && !bm.isImmutable()) {
+    return SkImage::MakeFromBitmap(bm);
+  } else {
+    return sk_ref_sp(image);
+  }
 }
 
 void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                              const SkPaint* paint) {
-    this->append<SkRecords::DrawImage>(this->copy(paint), sk_ref_sp(image), left, top);
+    this->append<SkRecords::DrawImage>(this->copy(paint), ref_or_copy_mutable_bitmap(image), left, top);
 }
 
 void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint) {
-    this->append<SkRecords::DrawImageRect>(this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);
+    this->append<SkRecords::DrawImageRect>(this->copy(paint), ref_or_copy_mutable_bitmap(image), this->copy(src), dst, constraint);
 }
 
 void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint* paint) {
-    this->append<SkRecords::DrawImageNine>(this->copy(paint), sk_ref_sp(image), center, dst);
+    this->append<SkRecords::DrawImageNine>(this->copy(paint), ref_or_copy_mutable_bitmap(image), center, dst);
 }
 
 void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint) {
     int flagCount = lattice.fRectTypes ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
     SkASSERT(lattice.fBounds);
-    this->append<SkRecords::DrawImageLattice>(this->copy(paint), sk_ref_sp(image),
+    this->append<SkRecords::DrawImageLattice>(this->copy(paint), ref_or_copy_mutable_bitmap(image),
            lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
            lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
            flagCount, this->copy(lattice.fRectTypes, flagCount),
