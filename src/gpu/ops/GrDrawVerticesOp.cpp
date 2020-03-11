@@ -51,18 +51,11 @@ private:
         kSkColor,
     };
 
-    GrProgramInfo* createProgramInfo(const GrCaps*,
-                                     SkArenaAlloc*,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&);
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
+   void onCreateProgramInfo(const GrCaps*,
+                            SkArenaAlloc*,
+                            const GrSurfaceProxyView* outputView,
+                            GrAppliedClip&&,
+                            const GrXferProcessor::DstProxyView&) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView* outputView,
@@ -264,16 +257,15 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena, const GrShaderC
                                          vm);
 }
 
-GrProgramInfo* DrawVerticesOp::createProgramInfo(
-                                            const GrCaps* caps,
-                                            SkArenaAlloc* arena,
-                                            const GrSurfaceProxyView* outputView,
-                                            GrAppliedClip&& appliedClip,
-                                            const GrXferProcessor::DstProxyView& dstProxyView) {
+void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
+                                         SkArenaAlloc* arena,
+                                         const GrSurfaceProxyView* outputView,
+                                         GrAppliedClip&& appliedClip,
+                                         const GrXferProcessor::DstProxyView& dstProxyView) {
     GrGeometryProcessor* gp = this->makeGP(arena, caps->shaderCaps());
 
-    return fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip), dstProxyView,
-                                     gp, this->primitiveType());
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+                                             dstProxyView, gp, this->primitiveType());
 }
 
 void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
@@ -285,8 +277,8 @@ void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                           std::move(appliedClip), dstProxyView);
+    this->createProgramInfo(context->priv().caps(), arena, outputView,
+                            std::move(appliedClip), dstProxyView);
 
     context->priv().recordProgramInfo(fProgramInfo);
 }
@@ -294,7 +286,7 @@ void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
 void DrawVerticesOp::onPrepareDraws(Target* target) {
     if (!fProgramInfo) {
         // Note: this could be moved to onExecute if we computed the vertex stride directly.
-        fProgramInfo = this->createProgramInfo(target);
+        this->createProgramInfo(target);
     }
 
     const GrPrimitiveProcessor& gp(fProgramInfo->primProc());
