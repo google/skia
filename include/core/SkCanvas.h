@@ -1813,6 +1813,9 @@ public:
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
+#ifndef SK_SUPPORT_LEGACY_DRAWBITMAP
+private:
+#endif
     /** Draws SkBitmap bitmap stretched proportionally to fit into SkRect dst.
         SkIRect center divides the bitmap into nine sections: four sides, four corners,
         and the center. Corners are not scaled, or scaled down proportionately if their
@@ -1841,6 +1844,7 @@ public:
     */
     void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = nullptr);
+public:
 
     /** \struct SkCanvas::Lattice
         SkCanvas::Lattice divides SkBitmap or SkImage into a rectangular grid.
@@ -1872,6 +1876,9 @@ public:
         const SkColor*  fColors;    //!< array of colors
     };
 
+#ifndef SK_SUPPORT_LEGACY_DRAWBITMAP
+private:
+#endif
     /** Draws SkBitmap bitmap stretched proportionally to fit into SkRect dst.
 
         SkCanvas::Lattice lattice divides bitmap into a rectangular grid.
@@ -1902,6 +1909,7 @@ public:
     */
     void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                            const SkPaint* paint = nullptr);
+public:
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
 

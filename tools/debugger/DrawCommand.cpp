@@ -1197,7 +1197,7 @@ DrawBitmapLatticeCommand::DrawBitmapLatticeCommand(const SkBitmap&          bitm
         , fPaint(paint) {}
 
 void DrawBitmapLatticeCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapLattice(fBitmap, fLattice, fDst, fPaint.getMaybeNull());
+//    canvas->drawBitmapLattice(fBitmap, fLattice, fDst, fPaint.getMaybeNull());
 }
 
 bool DrawBitmapLatticeCommand::render(SkCanvas* canvas) const {
@@ -1240,7 +1240,7 @@ DrawBitmapNineCommand::DrawBitmapNineCommand(const SkBitmap& bitmap,
         , fPaint(paint) {}
 
 void DrawBitmapNineCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapNine(fBitmap, fCenter, fDst, fPaint.getMaybeNull());
+//    canvas->drawBitmapNine(fBitmap, fCenter, fDst, fPaint.getMaybeNull());
 }
 
 bool DrawBitmapNineCommand::render(SkCanvas* canvas) const {
