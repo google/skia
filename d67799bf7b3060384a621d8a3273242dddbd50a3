@@ -46,6 +46,30 @@
       "revId": "d67799bf7b3060384a621d8a3273242dddbd50a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3defc790_40c5f15b",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-11T19:05:19Z",
+      "side": 1,
+      "message": "Or rather, let\u0027s try deleting it!",
+      "parentUuid": "c4b24e01_ba1e74a3",
+      "range": {
+        "startLine": 383,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 17
+      },
+      "revId": "d67799bf7b3060384a621d8a3273242dddbd50a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
