@@ -368,6 +368,8 @@ namespace skvm {
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
+            int totalUse = 0,
+                uses = 0;
         };
         SK_END_REQUIRE_DENSE
 
