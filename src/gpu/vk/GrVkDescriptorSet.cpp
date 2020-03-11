@@ -11,21 +11,22 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
-GrVkDescriptorSet::GrVkDescriptorSet(VkDescriptorSet descSet,
+GrVkDescriptorSet::GrVkDescriptorSet(GrVkGpu* gpu,
+                                     VkDescriptorSet descSet,
                                      GrVkDescriptorPool* pool,
                                      GrVkDescriptorSetManager::Handle handle)
-    : fDescSet(descSet)
+    : INHERITED(gpu)
+    , fDescSet(descSet)
     , fPool(pool)
     , fHandle(handle) {
     fPool->ref();
 }
 
-void GrVkDescriptorSet::freeGPUData(GrGpu* gpu) const {
-    fPool->unref(gpu);
+void GrVkDescriptorSet::freeGPUData() const {
+    fPool->unref();
 }
 
-void GrVkDescriptorSet::onRecycle(GrGpu* gpu) const {
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-    vkGpu->resourceProvider().recycleDescriptorSet(this, fHandle);
+void GrVkDescriptorSet::onRecycle() const {
+    fGpu->resourceProvider().recycleDescriptorSet(this, fHandle);
 }
 
