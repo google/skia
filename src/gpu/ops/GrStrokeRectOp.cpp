@@ -137,7 +137,8 @@ public:
     NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                       Helper::InputFlags inputFlags, const SkMatrix& viewMatrix, const SkRect& rect,
                       const SkStrokeRec& stroke, GrAAType aaType)
-            : INHERITED(ClassID()), fHelper(helperArgs, aaType, inputFlags) {
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, aaType, inputFlags) {
         fColor = color;
         fViewMatrix = viewMatrix;
         fRect = rect;
@@ -180,11 +181,11 @@ public:
     }
 
 private:
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& clip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&& clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -197,17 +198,9 @@ private:
                                                fViewMatrix);
         }
 
-        return fHelper.createProgramInfo(caps, arena, outputView, std::move(clip), dstProxyView, gp,
-                                         (fStrokeWidth > 0) ? GrPrimitiveType::kTriangleStrip
-                                                            : GrPrimitiveType::kLineStrip);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(clip), dstProxyView, gp,
+                                                 (fStrokeWidth > 0) ? GrPrimitiveType::kTriangleStrip
+                                                                    : GrPrimitiveType::kLineStrip);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -219,15 +212,15 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(target);
+            this->createProgramInfo(target);
         }
 
         size_t kVertexStride = fProgramInfo->primProc().vertexStride();
@@ -479,12 +472,11 @@ public:
     }
 
 private:
-    GrProgramInfo* createProgramInfo(const GrCaps*,
-                                     SkArenaAlloc*,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&);
-    GrProgramInfo* createProgramInfo(Target*);
+    void createProgramInfo(const GrCaps*,
+                           SkArenaAlloc*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&&,
+                           const GrXferProcessor::DstProxyView&) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView* outputView,
@@ -540,7 +532,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-GrProgramInfo* AAStrokeRectOp::createProgramInfo(
+void AAStrokeRectOp::createProgramInfo(
                                  const GrCaps* caps,
                                  SkArenaAlloc* arena,
                                  const GrSurfaceProxyView* outputView,
@@ -555,24 +547,16 @@ GrProgramInfo* AAStrokeRectOp::createProgramInfo(
                                                        fWideColor);
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
-        return nullptr;
+        return;
     }
 
-    return fHelper.createProgramInfo(caps,
-                                     arena,
-                                     outputView,
-                                     std::move(appliedClip),
-                                     dstProxyView,
-                                     gp,
-                                     GrPrimitiveType::kTriangles);
-}
-
-GrProgramInfo* AAStrokeRectOp::createProgramInfo(Target* target) {
-    return this->createProgramInfo(&target->caps(),
-                                   target->allocator(),
-                                   target->outputView(),
-                                   target->detachAppliedClip(),
-                                   target->dstProxyView());
+    fProgramInfo = fHelper.createProgramInfo(caps,
+                                             arena,
+                                             outputView,
+                                             std::move(appliedClip),
+                                             dstProxyView,
+                                             gp,
+                                             GrPrimitiveType::kTriangles);
 }
 
 void AAStrokeRectOp::onPrePrepareDraws(GrRecordingContext* context,
@@ -584,8 +568,8 @@ void AAStrokeRectOp::onPrePrepareDraws(GrRecordingContext* context,
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                           std::move(appliedClip), dstProxyView);
+    this->createProgramInfo(context->priv().caps(), arena, outputView,
+                            std::move(appliedClip), dstProxyView);
 
     context->priv().recordProgramInfo(fProgramInfo);
 }
@@ -593,7 +577,7 @@ void AAStrokeRectOp::onPrePrepareDraws(GrRecordingContext* context,
 void AAStrokeRectOp::onPrepareDraws(Target* target) {
 
     if (!fProgramInfo) {
-        fProgramInfo = this->createProgramInfo(target);
+        this->createProgramInfo(target);
         if (!fProgramInfo) {
             return;
         }

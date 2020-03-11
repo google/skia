@@ -36,6 +36,16 @@ public:
 protected:
     GrMeshDrawOp(uint32_t classID);
 
+    // This method is responsible for creating all the programInfos required
+    // by this op.
+    virtual void createProgramInfo(const GrCaps*,
+                                   SkArenaAlloc*,
+                                   const GrSurfaceProxyView* outputView,
+                                   GrAppliedClip&&,
+                                   const GrXferProcessor::DstProxyView&) = 0;
+
+    void createProgramInfo(Target* target);
+
     /** Helper for rendering repeating meshes using a patterned index buffer. This class creates the
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
