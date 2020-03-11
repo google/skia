@@ -10,12 +10,12 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrVkSamplerYcbcrConversion;
 struct GrVkYcbcrConversionInfo;
 
-class GrVkImageView : public GrManagedResource {
+class GrVkImageView : public GrVkManagedResource {
 public:
     enum Type {
         kColor_Type,
@@ -35,18 +35,19 @@ public:
 #endif
 
 private:
-    GrVkImageView(VkImageView imageView, GrVkSamplerYcbcrConversion* ycbcrConversion)
-            : INHERITED(), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
+    GrVkImageView(const GrVkGpu* gpu, VkImageView imageView,
+                  GrVkSamplerYcbcrConversion* ycbcrConversion)
+            : INHERITED(gpu), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
 
     GrVkImageView(const GrVkImageView&);
     GrVkImageView& operator=(const GrVkImageView&);
 
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkImageView  fImageView;
     GrVkSamplerYcbcrConversion* fYcbcrConversion;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 #endif

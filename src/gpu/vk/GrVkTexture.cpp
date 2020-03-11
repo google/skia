@@ -27,7 +27,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kOwned)
+        , GrVkImage(gpu, info, std::move(layout), GrBackendObjectOwnership::kOwned)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
@@ -45,7 +45,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& 
                          GrMipMapsStatus mipMapsStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(info, std::move(layout), ownership)
+        , GrVkImage(gpu, info, std::move(layout), ownership)
         , INHERITED(gpu, dimensions, info.fProtected,
                     isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
@@ -66,7 +66,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(info, layout, ownership)
+        , GrVkImage(gpu, info, layout, ownership)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
@@ -145,7 +145,7 @@ void GrVkTexture::onRelease() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref(this->getVkGpu());
+        fTextureView->unref();
         fTextureView = nullptr;
     }
 
@@ -161,7 +161,7 @@ struct GrVkTexture::DescriptorCacheEntry {
             : fDescriptorSet(fDescSet), fGpu(gpu) {}
     ~DescriptorCacheEntry() {
         if (fDescriptorSet) {
-            fDescriptorSet->recycle(fGpu);
+            fDescriptorSet->recycle();
         }
     }
 
@@ -179,7 +179,7 @@ void GrVkTexture::onAbandon() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref(this->getVkGpu());
+        fTextureView->unref();
         fTextureView = nullptr;
     }
 
