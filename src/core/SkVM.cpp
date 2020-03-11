@@ -15,7 +15,9 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
+#include <algorithm>
 #include <atomic>
+#include <queue>
 
 #if defined(SKVM_LLVM)
     #include <future>
@@ -478,55 +480,151 @@ namespace skvm {
         const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
                                                                    : fProgram;
 
-        // Next rewrite the program order by issuing instructions as late as possible:
-        //    - any side-effect-only (i.e. store) instruction in order as we see them;
-        //    - any other instruction only once it's shown to be needed.
-        // This elides all dead code and helps minimize value lifetime / register pressure.
-        std::vector<OptimizedInstruction> optimized;
-        optimized.reserve(program.size());
+        struct UseCount {
+            int total = 0;
+            int remaining_uses = 0;
+            bool visited = false;
+        };
+
+        std::vector<UseCount> use_counts(program.size());
+
+        int live_instructions = 0;
+        auto count_uses = [&](Val id, auto& recurse) -> void {
+            Builder::Instruction inst = program[id];
+            if (!use_counts[id].visited) {
+                use_counts[id].visited = true;
+                live_instructions += 1;
+                if (inst.x != NA) {
+                    use_counts[inst.x].total += 1;
+                    use_counts[inst.x].remaining_uses += 1;
+                    recurse(inst.x, recurse);
+                }
+                if (inst.y != NA) {
+                    use_counts[inst.y].total += 1;
+                    use_counts[inst.y].remaining_uses += 1;
+                    recurse(inst.y, recurse);
+                }
+                if (inst.z != NA) {
+                    use_counts[inst.z].total += 1;
+                    use_counts[inst.z].remaining_uses += 1;
+                    recurse(inst.z, recurse);
+                }
+            }
+        };
+
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (program[id].op <= Op::store32) {
+                count_uses(id, count_uses);
+            }
+        }
 
         // Map old Val index to rewritten index in optimized.
         std::vector<Val> new_index(program.size(), NA);
 
-        auto rewrite = [&](Val id, auto& recurse) -> Val {
-            auto rewrite_input = [&](Val input) -> Val {
-                if (input == NA) {
-                    return NA;
-                }
-                if (new_index[input] == NA) {
-                    new_index[input] = recurse(input, recurse);
-                }
-                return new_index[input];
-            };
-
-            // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
-            // But we try to preserve the original program order as much as possible by
-            // rewriting inst's inputs in the order they were themselves originally issued.
-            // This makes debugging  dumps a little easier.
+        auto pressure_change = [&](Val id) -> int {
+            int pressure = 0;
             Builder::Instruction inst = program[id];
-            Val *min = &inst.x,
-                *mid = &inst.y,
-                *max = &inst.z;
-            if (*min > *mid) { std::swap(min, mid); }
-            if (*mid > *max) { std::swap(mid, max); }
-            if (*min > *mid) { std::swap(min, mid); }
-            *min = rewrite_input(*min);
-            *mid = rewrite_input(*mid);
-            *max = rewrite_input(*max);
-            optimized.push_back({inst.op,
-                                 inst.x, inst.y, inst.z,
-                                 inst.immy, inst.immz,
-                                 /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false});
-            return (Val)optimized.size()-1;
+
+            // If this is not a sink, then it takes up a register
+            if (inst.op > Op::store32) { pressure += 1; }
+
+            // If this is the last use of the value, then that register will be free.
+            if (inst.x != NA && use_counts[inst.x].remaining_uses == 1) { pressure -= 1; }
+            if (inst.y != NA && use_counts[inst.y].remaining_uses == 1) { pressure -= 1; }
+            if (inst.z != NA && use_counts[inst.z].remaining_uses == 1) { pressure -= 1; }
+            return pressure;
         };
 
-        // Here we go with the actual rewriting, starting with all the store instructions
-        // and letting rewrite() work back recursively through their inputs.
+        auto compare = [&](const Val& lhs, const Val& rhs) {
+            SkASSERT(lhs != rhs);
+            int lhs_change = pressure_change(lhs);
+            int rhs_change = pressure_change(rhs);
+
+            // This comparison operator orders instructions from least (likely negative) register
+            // pressure to most register pressure,  breaking ties arbitrarily using original
+            // program order comparing the instruction index itself.
+            //
+            // We'll use this operator with std::{make,push,pop}_heap() to maintain a max heap
+            // frontier of instructions that are ready to schedule.  We iterate backwards through
+            // the program, scheduling later instruction slots before earlier ones, and that means
+            // an instruction becomes ready to schedule once all instructions using its result have
+            // been scheduled (in later slots).
+            //
+            // All together that means we'll be issuing the instructions that hurt register pressure
+            // as late as possible, and issuing the instructions that help register pressure as soon
+            // as possible.
+            //
+            // This heuristic of greedily issuing the instruction that most immediately decreases
+            // register pressure approximates a more expensive search to find a schedule that
+            // minimizes the high-water maximum register pressure, the number of registers we'll
+            // need to run this program.
+            //
+            // The tie-breaker heuristic was found through experimentation.
+            return lhs_change < rhs_change || (lhs_change == rhs_change && lhs > rhs);
+        };
+
+        std::vector<Val> frontier;
+
         for (Val id = 0; id < (Val)program.size(); id++) {
             if (program[id].op <= Op::store32) {
-                rewrite(id, rewrite);
+                frontier.push_back(id);
             }
         }
+
+        // Order the instructions.
+        std::make_heap(frontier.begin(), frontier.end(), compare);
+
+        // Schedule the instructions last to first from the DAG. Produce a schedule that executes
+        // instructions that reduce register pressure before ones that increase register
+        // pressure.
+        std::vector<OptimizedInstruction> optimized;
+        optimized.resize(live_instructions);
+        for (int i = live_instructions; i-- > 0;) {
+            SkASSERT(!frontier.empty());
+            std::pop_heap(frontier.begin(), frontier.end(), compare);
+            Val id = frontier.back();
+            frontier.pop_back();
+            new_index[id] = i;
+            Builder::Instruction inst = program[id];
+            SkASSERT(use_counts[id].remaining_uses == 0);
+
+            // Use the old indices, and fix them up later.
+            optimized[i] = {inst.op,
+                            inst.x, inst.y, inst.z,
+                            inst.immy, inst.immz,
+                             /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
+            if (inst.x != NA) {
+                use_counts[inst.x].remaining_uses--;
+                if (use_counts[inst.x].remaining_uses == 0) {
+                    frontier.push_back(inst.x);
+                    std::push_heap(frontier.begin(), frontier.end(), compare);
+                }
+            }
+            if (inst.y != NA) {
+                use_counts[inst.y].remaining_uses--;
+                if (use_counts[inst.y].remaining_uses == 0) {
+                    frontier.push_back(inst.y);
+                    std::push_heap(frontier.begin(), frontier.end(), compare);
+                }
+            }
+            if (inst.z != NA) {
+                use_counts[inst.z].remaining_uses--;
+                if (use_counts[inst.z].remaining_uses == 0) {
+                    frontier.push_back(inst.z);
+                    std::push_heap(frontier.begin(), frontier.end(), compare);
+                }
+            }
+        }
+
+        // Fix up the optimized program to use the optimized indices.
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
+            if (inst.x != NA ) { inst.x = new_index[inst.x]; }
+            if (inst.y != NA ) { inst.y = new_index[inst.y]; }
+            if (inst.z != NA ) { inst.z = new_index[inst.z]; }
+        }
+
+        SkASSERT(frontier.empty());
 
         // We're done with `program` now... everything below will analyze `optimized`.
 
