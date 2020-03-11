@@ -245,7 +245,7 @@ void GrVkOpsRenderPass::reset() {
         fCurrentSecondaryCommandBuffer.release()->recycle(fGpu->cmdPool());
     }
     if (fCurrentRenderPass) {
-        fCurrentRenderPass->unref(fGpu);
+        fCurrentRenderPass->unref();
         fCurrentRenderPass = nullptr;
     }
     fCurrentCBIsEmpty = true;
@@ -384,7 +384,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
             vkRT->compatibleRenderPassHandle();
     SkASSERT(fCurrentRenderPass);
-    fCurrentRenderPass->unref(fGpu);
+    fCurrentRenderPass->unref();
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,

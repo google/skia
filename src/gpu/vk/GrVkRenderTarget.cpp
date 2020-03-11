@@ -184,7 +184,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
                                                                      GrVkYcbcrConversionInfo());
     if (!colorAttachmentView) {
         if (sampleCnt > 1) {
-            resolveAttachmentView->unref(gpu);
+            resolveAttachmentView->unref();
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
         }
         return nullptr;
@@ -234,11 +234,11 @@ bool GrVkRenderTarget::completeStencilAttachment() {
     // If we have a previous renderpass or framebuffer it will have been made without stencil, so
     // we set it to null to trigger creating a new one the next time we need it.
     if (fCachedSimpleRenderPass) {
-        fCachedSimpleRenderPass->unref(this->getVkGpu());
+        fCachedSimpleRenderPass->unref();
         fCachedSimpleRenderPass = nullptr;
     }
     if (fCachedFramebuffer) {
-        fCachedFramebuffer->unref(this->getVkGpu());
+        fCachedFramebuffer->unref();
         fCachedFramebuffer = nullptr;
     }
     fCompatibleRPHandle = GrVkResourceProvider::CompatibleRPHandle();
@@ -340,24 +340,24 @@ void GrVkRenderTarget::releaseInternalObjects() {
     }
 
     if (fResolveAttachmentView) {
-        fResolveAttachmentView->unref(gpu);
+        fResolveAttachmentView->unref();
         fResolveAttachmentView = nullptr;
     }
     if (fColorAttachmentView) {
-        fColorAttachmentView->unref(gpu);
+        fColorAttachmentView->unref();
         fColorAttachmentView = nullptr;
     }
     if (fCachedFramebuffer) {
-        fCachedFramebuffer->unref(gpu);
+        fCachedFramebuffer->unref();
         fCachedFramebuffer = nullptr;
     }
     if (fCachedSimpleRenderPass) {
-        fCachedSimpleRenderPass->unref(gpu);
+        fCachedSimpleRenderPass->unref();
         fCachedSimpleRenderPass = nullptr;
     }
     for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {
         SkASSERT(fGrSecondaryCommandBuffers[i]);
-        fGrSecondaryCommandBuffers[i]->releaseResources(gpu);
+        fGrSecondaryCommandBuffers[i]->releaseResources();
     }
     fGrSecondaryCommandBuffers.reset();
 }
