@@ -219,8 +219,6 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kConcat_OpType: return "Concat";
         case kDrawAnnotation_OpType: return "DrawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
-        case kDrawBitmapLattice_OpType: return "DrawBitmapLattice";
-        case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
         case kDrawDRRect_OpType: return "DrawDRRect";
         case kDrawImage_OpType: return "DrawImage";
@@ -1180,85 +1178,6 @@ void DrawBitmapCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     writer.endObject();
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonPoint(writer, fLeft, fTop);
-    if (fPaint.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint, urlDataManager);
-    }
-}
-
-DrawBitmapLatticeCommand::DrawBitmapLatticeCommand(const SkBitmap&          bitmap,
-                                                   const SkCanvas::Lattice& lattice,
-                                                   const SkRect&            dst,
-                                                   const SkPaint*           paint)
-        : INHERITED(kDrawBitmapLattice_OpType)
-        , fBitmap(bitmap)
-        , fLattice(lattice)
-        , fDst(dst)
-        , fPaint(paint) {}
-
-void DrawBitmapLatticeCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapLattice(fBitmap, fLattice, fDst, fPaint.getMaybeNull());
-}
-
-bool DrawBitmapLatticeCommand::render(SkCanvas* canvas) const {
-    SkAutoCanvasRestore acr(canvas, true);
-    canvas->clear(0xFFFFFFFF);
-
-    xlate_and_scale_to_bounds(canvas, fDst);
-
-    this->execute(canvas);
-    return true;
-}
-
-void DrawBitmapLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_BITMAP);
-    flatten(fBitmap, writer, urlDataManager);
-    writer.endObject();  // bitmap
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_LATTICE);
-    MakeJsonLattice(writer, fLattice);
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
-    MakeJsonRect(writer, fDst);
-    if (fPaint.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint, urlDataManager);
-    }
-
-    SkString desc;
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fDst)->c_str());
-}
-
-DrawBitmapNineCommand::DrawBitmapNineCommand(const SkBitmap& bitmap,
-                                             const SkIRect&  center,
-                                             const SkRect&   dst,
-                                             const SkPaint*  paint)
-        : INHERITED(kDrawBitmapNine_OpType)
-        , fBitmap(bitmap)
-        , fCenter(center)
-        , fDst(dst)
-        , fPaint(paint) {}
-
-void DrawBitmapNineCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapNine(fBitmap, fCenter, fDst, fPaint.getMaybeNull());
-}
-
-bool DrawBitmapNineCommand::render(SkCanvas* canvas) const {
-    SkRect tmp = SkRect::Make(fCenter);
-    render_bitmap(canvas, fBitmap, &tmp);
-    return true;
-}
-
-void DrawBitmapNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_BITMAP);
-    flatten(fBitmap, writer, urlDataManager);
-    writer.endObject();  // bitmap
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_CENTER);
-    MakeJsonIRect(writer, fCenter);
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
-    MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
         MakeJsonPaint(writer, *fPaint, urlDataManager);

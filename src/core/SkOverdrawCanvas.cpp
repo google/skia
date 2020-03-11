@@ -212,17 +212,6 @@ void SkOverdrawCanvas::onDrawBitmapRect(const SkBitmap&, const SkRect*, const Sk
     fList[0]->onDrawRect(dst, fPaint);
 }
 
-void SkOverdrawCanvas::onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect& dst,
-                                        const SkPaint*) {
-    fList[0]->onDrawRect(dst, fPaint);
-}
-
-void SkOverdrawCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                           const SkRect& dst, const SkPaint* paint) {
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
-    this->onDrawImageLattice(image.get(), lattice, dst, paint);
-}
-
 void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     drawable->draw(this, matrix);
 }
