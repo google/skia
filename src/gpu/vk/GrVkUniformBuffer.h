@@ -32,15 +32,15 @@ public:
                     bool* createdNewBuffer) {
         return this->vkUpdateData(gpu, src, srcSizeInBytes, createdNewBuffer);
     }
-    void release(const GrVkGpu* gpu) { this->vkRelease(gpu); }
+    void release() { this->vkRelease(); }
 
 private:
     class Resource : public GrVkBuffer::Resource {
     public:
-        Resource(VkBuffer buf, const GrVkAlloc& alloc)
-            : INHERITED(buf, alloc, kUniform_Type) {}
+        Resource(GrVkGpu* gpu, VkBuffer buf, const GrVkAlloc& alloc)
+            : INHERITED(gpu, buf, alloc, kUniform_Type) {}
 
-        void onRecycle(GrGpu* gpu) const override;
+        void onRecycle() const override;
 
         typedef GrVkBuffer::Resource INHERITED;
     };
