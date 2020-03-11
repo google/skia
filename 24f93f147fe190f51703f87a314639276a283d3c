@@ -22,6 +22,30 @@
       "revId": "24f93f147fe190f51703f87a314639276a283d3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da9d7fc7_95a70a61",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-11T19:56:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7bbbac2_9259590a",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 79
+      },
+      "revId": "24f93f147fe190f51703f87a314639276a283d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
