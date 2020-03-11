@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "tools/ToolUtils.h"
 
+#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
 static void DrawMask(SkCanvas* canvas) {
     ToolUtils::draw_checkerboard(canvas, SK_ColorTRANSPARENT, SK_ColorGREEN, 10);
 }
@@ -65,6 +66,7 @@ DEF_BENCH(return new ClipMaskBench("picture", [](int size) -> sk_sp<SkImage> {
                                     nullptr, nullptr, SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
 });)
+#endif
 
 /////////
 #include "include/core/SkPath.h"
