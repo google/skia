@@ -70,6 +70,30 @@
       "revId": "d67799bf7b3060384a621d8a3273242dddbd50a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bc496b2_bc496538",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-11T19:06:27Z",
+      "side": 1,
+      "message": "Will there still be some scenario where we can/do batch multiple verts draws?",
+      "parentUuid": "3defc790_40c5f15b",
+      "range": {
+        "startLine": 383,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 17
+      },
+      "revId": "d67799bf7b3060384a621d8a3273242dddbd50a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
