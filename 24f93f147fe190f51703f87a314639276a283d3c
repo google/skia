@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7bbbac2_9259590a",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-11T19:48:10Z",
+      "side": 1,
+      "message": "should this be private? Do any subclasses need to directly call it?",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 79
+      },
+      "revId": "24f93f147fe190f51703f87a314639276a283d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
