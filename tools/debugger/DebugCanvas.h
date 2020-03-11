@@ -165,12 +165,6 @@ protected:
 #endif
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
-    void onDrawBitmapRect(const SkBitmap&,
-                          const SkRect* src,
-                          const SkRect& dst,
-                          const SkPaint*,
-                          SrcRectConstraint) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageLattice(const SkImage* image,
                             const Lattice& lattice,
@@ -214,6 +208,9 @@ protected:
                               const SkMatrix[],
                               const SkPaint*,
                               SrcRectConstraint) override;
+
+    // This canvas holds on to the draw parameters as commands, so mutable bitmaps must be guarded
+    bool onMustCopyMutableBitmap() const override { return true; }
 
 private:
     SkTDArray<DrawCommand*> fCommandVector;

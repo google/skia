@@ -2552,16 +2552,14 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                              const SkPaint* paint);
-    virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint, SrcRectConstraint constraint);
-    // REMOVE ME
-    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&,
-                                  const SkRect&, const SkPaint*) {}
-    // REMOVE ME
-    virtual void onDrawBitmapLattice(const SkBitmap&, const Lattice&,
-                                     const SkRect&, const SkPaint*) {}
+    // REMOVE ME - SkCanvasVirtualEnforcer no longer requires the on DrawBitmapX functions
+    // to be implemented and these will be removed from SkCanvas at a later date.
+    virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
+    virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
+                                  SkCanvas::SrcRectConstraint) {}
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
+    virtual void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
+                                     const SkPaint*) {}
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
@@ -2592,6 +2590,9 @@ protected:
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp op);
 
     virtual void onDiscard();
+
+    // By default, canvas itself doesn't do anything that requires mutable bitmaps to be copied.
+    virtual bool onMustCopyMutableBitmap() const { return false; }
 
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
@@ -2717,6 +2718,7 @@ private:
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
+    friend class SkNWayCanvas;      // needs onMustCopyMutableBitmap()
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds);
@@ -2763,9 +2765,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                const SkRect& dst, const SkPaint* paint,
-                                SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
@@ -2775,6 +2774,12 @@ private:
     // shared by save() and saveLayer()
     void internalSave();
     void internalRestore();
+
+    /**
+     * Wraps an SkBitmap in an SkImage, copying the bitmap if it is mutable and the canvas or
+     * its devices require it.
+     */
+    sk_sp<SkImage> wrapBitmapAsImage(const SkBitmap&) const;
 
     /*
      *  Returns true if drawing the specified rect (or all if it is null) with the specified
