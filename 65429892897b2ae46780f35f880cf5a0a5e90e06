@@ -34,6 +34,24 @@
       "revId": "65429892897b2ae46780f35f880cf5a0a5e90e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dda72514_64f0d4c5",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-11T17:07:16Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s what I was hoping.  😊\n\nI think I\u0027d go with just this single comprehensive test, then the other two checks if they\u0027re proven necessary or to help some profile.  Isn\u0027t this backfill_spatial() called way less often than the spatial interpolation it\u0027s trying to prevent?",
+      "parentUuid": "ca731b36_4731af0e",
+      "revId": "65429892897b2ae46780f35f880cf5a0a5e90e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
