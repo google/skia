@@ -52,6 +52,24 @@
       "revId": "65429892897b2ae46780f35f880cf5a0a5e90e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3fc5787_73f6ea61",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-11T18:03:06Z",
+      "side": 1,
+      "message": "Indeed, this is only called at animation build time, as we parse keyframes.\n\nI tried to drop the tests but turns out I was wrong: the coincidence test is not covered, because any non-zero ctrl is outside a zero-length segment (doh!).  We could prolly still remove the zero tangent test, but it also servers as an empty fValues guard - so we\u0027d have to replace it with another explicit test, which makes it somewhat less interesting.  So back maybe keep as-is after all?",
+      "parentUuid": "dda72514_64f0d4c5",
+      "revId": "65429892897b2ae46780f35f880cf5a0a5e90e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
