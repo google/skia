@@ -232,7 +232,7 @@ private:
                                       const GrVkRenderPass::LoadStoreOps& colorOps,
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 
-        void releaseResources(GrVkGpu* gpu);
+        void releaseResources();
 
     private:
         SkSTArray<4, GrVkRenderPass*> fRenderPasses;

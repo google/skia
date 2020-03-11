@@ -14,7 +14,6 @@
 #include "include/utils/SkRandom.h"
 #include <atomic>
 
-class GrGpu;
 class GrTexture;
 
 // uncomment to enable tracing of resource refs
@@ -123,15 +122,14 @@ public:
         the object needs to have been allocated via new, and not on the stack.
         Any GPU data associated with this resource will be freed before it's deleted.
      */
-    void unref(GrGpu* gpu) const {
-        SkASSERT(gpu);
+    void unref() const {
         // A release here acts in place of all releases we "should" have been doing in ref().
         int newRefCount = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
         SkASSERT(newRefCount >= 0);
         if (newRefCount == 1) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
-            this->internal_dispose(gpu);
+            this->internal_dispose();
         }
     }
 
@@ -165,13 +163,13 @@ private:
     /** Must be implemented by any subclasses.
      *  Deletes any GPU data associated with this resource
      */
-    virtual void freeGPUData(GrGpu* gpu) const = 0;
+    virtual void freeGPUData() const = 0;
 
     /**
      *  Called when the ref count goes to 0. Will free GPU resources.
      */
-    void internal_dispose(GrGpu* gpu) const {
-        this->freeGPUData(gpu);
+    void internal_dispose() const {
+        this->freeGPUData();
 #ifdef SK_TRACE_MANAGED_RESOURCES
         GetTrace()->remove(this);
 #endif
@@ -197,16 +195,16 @@ public:
     // When recycle is called and there is only one ref left on the resource, we will signal that
     // the resource can be recycled for reuse. If the subclass (or whoever is managing this resource)
     // decides not to recycle the objects, it is their responsibility to call unref on the object.
-    void recycle(GrGpu* gpu) const {
+    void recycle() const {
         if (this->unique()) {
-            this->onRecycle(gpu);
+            this->onRecycle();
         } else {
-            this->unref(gpu);
+            this->unref();
         }
     }
 
 private:
-    virtual void onRecycle(GrGpu* gpu) const = 0;
+    virtual void onRecycle() const = 0;
 };
 
 /** \class GrTextureResource

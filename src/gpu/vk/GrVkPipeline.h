@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;
@@ -22,7 +22,7 @@ class GrVkGpu;
 class GrVkRenderPass;
 struct SkIRect;
 
-class GrVkPipeline : public GrManagedResource {
+class GrVkPipeline : public GrVkManagedResource {
 public:
     static GrVkPipeline* Create(GrVkGpu*,
                                 const GrProgramInfo&,
@@ -49,16 +49,16 @@ public:
 #endif
 
 protected:
-    GrVkPipeline(VkPipeline pipeline, VkPipelineLayout layout)
-            : INHERITED(), fPipeline(pipeline), fPipelineLayout(layout) {}
+    GrVkPipeline(const GrVkGpu* gpu, VkPipeline pipeline, VkPipelineLayout layout)
+            : INHERITED(gpu), fPipeline(pipeline), fPipelineLayout(layout) {}
 
     VkPipeline  fPipeline;
     VkPipelineLayout  fPipelineLayout;
 
 private:
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 #endif

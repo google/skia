@@ -154,7 +154,8 @@ const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
         }
     }
 
-    const GrVkRenderPass* newRenderPass = new GrVkRenderPass(renderPass, colorAttachmentIndex);
+    const GrVkRenderPass* newRenderPass = new GrVkRenderPass(fGpu, renderPass,
+                                                             colorAttachmentIndex);
     fExternalRenderPasses.push_back(newRenderPass);
     newRenderPass->ref();
     return newRenderPass;
@@ -381,23 +382,23 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
-        fRenderPassArray[i].releaseResources(fGpu);
+        fRenderPassArray[i].releaseResources();
     }
     fRenderPassArray.reset();
 
     for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
-        fExternalRenderPasses[i]->unref(fGpu);
+        fExternalRenderPasses[i]->unref();
     }
     fExternalRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
     for (decltype(fSamplers)::Iter iter(&fSamplers); !iter.done(); ++iter) {
-        (*iter).unref(fGpu);
+        (*iter).unref();
     }
     fSamplers.reset();
 
     for (decltype(fYcbcrConversions)::Iter iter(&fYcbcrConversions); !iter.done(); ++iter) {
-        (*iter).unref(fGpu);
+        (*iter).unref();
     }
     fYcbcrConversions.reset();
 
@@ -408,20 +409,20 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 
     for (GrVkCommandPool* pool : fActiveCommandPools) {
         SkASSERT(pool->unique());
-        pool->unref(fGpu);
+        pool->unref();
     }
     fActiveCommandPools.reset();
 
     for (GrVkCommandPool* pool : fAvailableCommandPools) {
         SkASSERT(pool->unique());
-        pool->unref(fGpu);
+        pool->unref();
     }
     fAvailableCommandPools.reset();
 
     // release our uniform buffers
     for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
         SkASSERT(fAvailableUniformBufferResources[i]->unique());
-        fAvailableUniformBufferResources[i]->unref(fGpu);
+        fAvailableUniformBufferResources[i]->unref();
     }
     fAvailableUniformBufferResources.reset();
 
@@ -438,7 +439,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
-    pool->releaseResources(fGpu);
+    pool->releaseResources();
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->add([this, pool]() {
@@ -521,10 +522,10 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
     return renderPass;
 }
 
-void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(GrVkGpu* gpu) {
+void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources() {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         if (fRenderPasses[i]) {
-            fRenderPasses[i]->unref(gpu);
+            fRenderPasses[i]->unref();
             fRenderPasses[i] = nullptr;
         }
     }

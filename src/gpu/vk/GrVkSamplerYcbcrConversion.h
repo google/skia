@@ -8,14 +8,14 @@
 #ifndef GrVkSamplerYcbcrConverison_DEFINED
 #define GrVkSamplerYcbcrConverison_DEFINED
 
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkOpts.h"
 
 class GrVkGpu;
 
-class GrVkSamplerYcbcrConversion : public GrManagedResource {
+class GrVkSamplerYcbcrConversion : public GrVkManagedResource {
 public:
     static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
 
@@ -58,17 +58,18 @@ public:
 #endif
 
 private:
-    GrVkSamplerYcbcrConversion(VkSamplerYcbcrConversion ycbcrConversion, Key key)
-            : INHERITED()
+    GrVkSamplerYcbcrConversion(const GrVkGpu* gpu, VkSamplerYcbcrConversion ycbcrConversion,
+                               Key key)
+            : INHERITED(gpu)
             , fYcbcrConversion(ycbcrConversion)
             , fKey(key) {}
 
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkSamplerYcbcrConversion fYcbcrConversion;
     Key                      fKey;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 #endif

@@ -40,7 +40,7 @@ void GrVkCommandBuffer::invalidateState() {
     }
 }
 
-void GrVkCommandBuffer::freeGPUData(GrGpu* gpu, VkCommandPool cmdPool) const {
+void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) const {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fIsActive);
     SkASSERT(!fTrackedResources.count());
@@ -54,17 +54,17 @@ void GrVkCommandBuffer::freeGPUData(GrGpu* gpu, VkCommandPool cmdPool) const {
     this->onFreeGPUData(vkGpu);
 }
 
-void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
+void GrVkCommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkDEBUGCODE(fResourcesReleased = true;)
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
-        fTrackedResources[i]->unref(gpu);
+        fTrackedResources[i]->unref();
     }
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
         fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
-        fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
+        fTrackedRecycledResources[i]->recycle();
     }
 
     if (++fNumResets > kNumRewindResetsBeforeFullReset) {
@@ -80,7 +80,7 @@ void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
 
     this->invalidateState();
 
-    this->onReleaseResources(gpu);
+    this->onReleaseResources();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -608,9 +608,9 @@ void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<GrRefCntedCallback> finishe
     fFinishedProcs.push_back(std::move(finishedProc));
 }
 
-void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
+void GrVkPrimaryCommandBuffer::onReleaseResources() {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
-        fSecondaryCommandBuffers[i]->releaseResources(gpu);
+        fSecondaryCommandBuffers[i]->releaseResources();
     }
     fFinishedProcs.reset();
 }
@@ -828,7 +828,7 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
                                                    regions));
 }
 
-void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
+void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(!fActiveRenderPass);
     // Destroy the fence, if any
     if (VK_NULL_HANDLE != fSubmitFence) {

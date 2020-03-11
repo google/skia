@@ -58,15 +58,14 @@ const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat
         return nullptr;
     }
 
-    return new GrVkImageView(imageView, ycbcrConversion);
+    return new GrVkImageView(gpu, imageView, ycbcrConversion);
 }
 
-void GrVkImageView::freeGPUData(GrGpu* gpu) const {
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-    GR_VK_CALL(vkGpu->vkInterface(), DestroyImageView(vkGpu->device(), fImageView, nullptr));
+void GrVkImageView::freeGPUData() const {
+    GR_VK_CALL(fGpu->vkInterface(), DestroyImageView(fGpu->device(), fImageView, nullptr));
 
     if (fYcbcrConversion) {
-        fYcbcrConversion->unref(vkGpu);
+        fYcbcrConversion->unref();
     }
 }
 

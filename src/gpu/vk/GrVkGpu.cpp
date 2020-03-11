@@ -257,17 +257,17 @@ void GrVkGpu::destroyResources() {
 #endif
 
     if (fCmdPool) {
-        fCmdPool->unref(this);
+        fCmdPool->unref();
         fCmdPool = nullptr;
     }
 
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
-        fSemaphoresToWaitOn[i]->unref(this);
+        fSemaphoresToWaitOn[i]->unref();
     }
     fSemaphoresToWaitOn.reset();
 
     for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
-        fSemaphoresToSignal[i]->unref(this);
+        fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
 
@@ -353,7 +353,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc
     // submission.
     if (didSubmit) {
         for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
-            fSemaphoresToWaitOn[i]->unref(this);
+            fSemaphoresToWaitOn[i]->unref();
         }
         fSemaphoresToWaitOn.reset();
     }
@@ -363,12 +363,12 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc
     // will be notified that the semaphores were not submit so that they will not try to wait on
     // them.
     for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
-        fSemaphoresToSignal[i]->unref(this);
+        fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
 
     // Release old command pool and create a new one
-    fCmdPool->unref(this);
+    fCmdPool->unref();
     fCmdPool = fResourceProvider.findOrCreateCommandPool();
     if (fCmdPool) {
         fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();

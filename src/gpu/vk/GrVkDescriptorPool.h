@@ -9,7 +9,7 @@
 #define GrVkDescriptorPool_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrVkGpu;
 
@@ -18,7 +18,7 @@ class GrVkGpu;
  * make one type of descriptor set. Thus a single VkDescriptorPool will only allocated space for
  * for one type of descriptor.
  */
-class GrVkDescriptorPool : public GrManagedResource {
+class GrVkDescriptorPool : public GrVkManagedResource {
 public:
     static GrVkDescriptorPool* Create(GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
 
@@ -36,15 +36,16 @@ public:
 #endif
 
 private:
-    GrVkDescriptorPool(VkDescriptorPool pool, VkDescriptorType type, uint32_t count);
+    GrVkDescriptorPool(const GrVkGpu*, VkDescriptorPool pool, VkDescriptorType type,
+                       uint32_t count);
 
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkDescriptorType     fType;
     uint32_t             fCount;
     VkDescriptorPool     fDescPool;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 #endif

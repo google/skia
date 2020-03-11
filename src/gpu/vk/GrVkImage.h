@@ -24,7 +24,7 @@ private:
     class Resource;
 
 public:
-    GrVkImage(const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
+    GrVkImage(const GrVkGpu* gpu, const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
               GrBackendObjectOwnership ownership, bool forSecondaryCB = false)
             : fInfo(info)
             , fInitialQueueFamily(info.fCurrentQueueFamily)
@@ -34,10 +34,10 @@ public:
         if (forSecondaryCB) {
             fResource = nullptr;
         } else if (fIsBorrowed) {
-            fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
+            fResource = new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
         } else {
             SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
-            fResource = new Resource(info.fImage, info.fAlloc, info.fImageTiling);
+            fResource = new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
         }
     }
     virtual ~GrVkImage();
@@ -167,14 +167,16 @@ protected:
 private:
     class Resource : public GrTextureResource {
     public:
-        Resource()
-                : fImage(VK_NULL_HANDLE) {
+        explicit Resource(const GrVkGpu* gpu)
+                : fGpu(gpu)
+                , fImage(VK_NULL_HANDLE) {
             fAlloc.fMemory = VK_NULL_HANDLE;
             fAlloc.fOffset = 0;
         }
 
-        Resource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
-            : fImage(image)
+        Resource(const GrVkGpu* gpu, VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
+            : fGpu(gpu)
+            , fImage(image)
             , fAlloc(alloc)
             , fImageTiling(tiling) {}
 
@@ -187,8 +189,9 @@ private:
 #endif
 
     private:
-        void freeGPUData(GrGpu* gpu) const override;
+        void freeGPUData() const override;
 
+        const GrVkGpu* fGpu;
         VkImage        fImage;
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
@@ -199,11 +202,12 @@ private:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
-            : Resource(image, alloc, tiling) {
+        BorrowedResource(const GrVkGpu* gpu, VkImage image, const GrVkAlloc& alloc,
+                         VkImageTiling tiling)
+            : Resource(gpu, image, alloc, tiling) {
         }
     private:
-        void freeGPUData(GrGpu* gpu) const override;
+        void freeGPUData() const override;
     };
 
     Resource* fResource;

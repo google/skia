@@ -652,13 +652,13 @@ GrVkPipeline* GrVkPipeline::Create(
         return nullptr;
     }
 
-    return new GrVkPipeline(vkPipeline, layout);
+    return new GrVkPipeline(gpu, vkPipeline, layout);
 }
 
-void GrVkPipeline::freeGPUData(GrGpu* gpu) const {
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-    GR_VK_CALL(vkGpu->vkInterface(), DestroyPipeline(vkGpu->device(), fPipeline, nullptr));
-    GR_VK_CALL(vkGpu->vkInterface(), DestroyPipelineLayout(vkGpu->device(), fPipelineLayout, nullptr));
+void GrVkPipeline::freeGPUData() const {
+    GR_VK_CALL(fGpu->vkInterface(), DestroyPipeline(fGpu->device(), fPipeline, nullptr));
+    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), fPipelineLayout,
+               nullptr));
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,

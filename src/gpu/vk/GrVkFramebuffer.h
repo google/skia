@@ -10,13 +10,13 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrVkGpu;
 class GrVkImageView;
 class GrVkRenderPass;
 
-class GrVkFramebuffer : public GrManagedResource {
+class GrVkFramebuffer : public GrVkManagedResource {
 public:
     static GrVkFramebuffer* Create(GrVkGpu* gpu,
                                    int width, int height,
@@ -33,16 +33,17 @@ public:
 #endif
 
 private:
-    GrVkFramebuffer(VkFramebuffer framebuffer) : INHERITED(), fFramebuffer(framebuffer) {}
+    GrVkFramebuffer(const GrVkGpu* gpu, VkFramebuffer framebuffer)
+        : INHERITED(gpu), fFramebuffer(framebuffer) {}
 
     GrVkFramebuffer(const GrVkFramebuffer&);
     GrVkFramebuffer& operator=(const GrVkFramebuffer&);
 
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkFramebuffer  fFramebuffer;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 #endif

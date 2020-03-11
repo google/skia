@@ -259,7 +259,7 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
     }
     if (fResource) {
         fResource->removeOwningTexture();
-        fResource->unref(gpu);
+        fResource->unref();
         fResource = nullptr;
     }
 }
@@ -270,15 +270,14 @@ void GrVkImage::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
     fResource->setRelease(std::move(releaseHelper));
 }
 
-void GrVkImage::Resource::freeGPUData(GrGpu* gpu) const {
+void GrVkImage::Resource::freeGPUData() const {
     this->invokeReleaseProc();
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-    VK_CALL(vkGpu, DestroyImage(vkGpu->device(), fImage, nullptr));
+    VK_CALL(fGpu, DestroyImage(fGpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
-    GrVkMemory::FreeImageMemory(vkGpu, isLinear, fAlloc);
+    GrVkMemory::FreeImageMemory(fGpu, isLinear, fAlloc);
 }
 
-void GrVkImage::BorrowedResource::freeGPUData(GrGpu* gpu) const {
+void GrVkImage::BorrowedResource::freeGPUData() const {
     this->invokeReleaseProc();
 }
 

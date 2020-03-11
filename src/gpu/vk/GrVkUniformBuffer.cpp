@@ -35,7 +35,7 @@ GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size) {
     if (!buffer) {
         // this will destroy anything we got from the resource provider,
         // but this avoids a conditional
-        resource->unref(gpu);
+        resource->unref();
     }
     return buffer;
 }
@@ -106,7 +106,7 @@ const GrManagedResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t 
                                                         &descriptorWrite,
                                                         0, nullptr));
 
-    const GrManagedResource* resource = new GrVkUniformBuffer::Resource(buffer, alloc,
+    const GrManagedResource* resource = new GrVkUniformBuffer::Resource(gpu, buffer, alloc,
                                                                         descriptorSet);
     return resource;
 }
@@ -123,20 +123,19 @@ const GrVkBuffer::Resource* GrVkUniformBuffer::createResource(GrVkGpu* gpu,
     return (const GrVkBuffer::Resource*) vkResource;
 }
 
-void GrVkUniformBuffer::Resource::onRecycle(GrGpu* gpu) const {
+void GrVkUniformBuffer::Resource::onRecycle() const {
     if (fAlloc.fSize <= GrVkUniformBuffer::kStandardSize) {
-        GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-        vkGpu->resourceProvider().recycleStandardUniformBufferResource(this);
+        fGpu->resourceProvider().recycleStandardUniformBufferResource(this);
     } else {
-        this->unref(gpu);
+        this->unref();
     }
 }
 
-void GrVkUniformBuffer::Resource::freeGPUData(GrGpu* gpu) const {
+void GrVkUniformBuffer::Resource::freeGPUData() const {
     if (fDescriptorSet) {
-        fDescriptorSet->recycle(gpu);
+        fDescriptorSet->recycle();
     }
-    INHERITED::freeGPUData(gpu);
+    INHERITED::freeGPUData();
 }
 
 const VkDescriptorSet* GrVkUniformBuffer::Resource::descriptorSet() const {
