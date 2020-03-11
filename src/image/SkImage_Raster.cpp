@@ -148,7 +148,9 @@ SkImage_Raster::SkImage_Raster(const SkImageInfo& info, sk_sp<SkData> data, size
     void* addr = const_cast<void*>(data->data());
 
     fBitmap.installPixels(info, addr, rowBytes, release_data, data.release());
-    fBitmap.setImmutable();
+    if (fBitmap.pixelRef()) {
+        fBitmap.pixelRef()->setImmutableWithID(this->uniqueID());
+    }
 }
 
 SkImage_Raster::~SkImage_Raster() {
@@ -330,26 +332,29 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes());
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,
-                                               uint32_t idForCopy) {
-    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkPixmap pmap;
-        if (bm.peekPixels(&pmap)) {
-            return MakeRasterCopyPriv(pmap, idForCopy);
-        } else {
-            return sk_sp<SkImage>();
-        }
-    }
-
-    return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
-}
-
 sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
     if (!SkImageInfoIsValid(bm.info()) || bm.rowBytes() < bm.info().minRowBytes()) {
         return nullptr;
     }
 
-    return SkMakeImageFromRasterBitmapPriv(bm, cpm, kNeedNewImageUniqueID);
+    if (kAlways_SkCopyPixelsMode == cpm ||
+        (kIfMutable_SkCopyPixelsMode == cpm && !bm.isImmutable())) {
+        SkPixmap pmap;
+        if (bm.peekPixels(&pmap)) {
+            // Even though this is a copy, use the bitmap's current generation ID for the image,
+            // since for the time being they represent the same pixel content (unless the bitmap
+            // is a subset, in which case the image needs a new ID).
+            uint32_t idForCopy = is_not_subset(bm) ? bm.getGenerationID()
+                                                   : (uint32_t) kNeedNewImageUniqueID;
+            return MakeRasterCopyPriv(pmap, idForCopy);
+        } else {
+            return nullptr;
+        }
+    }
+
+    // This ctor uses the bitmap's generation ID for the image when the bitmap is not a subset
+    // (i.e. the image and bitmap's pixel content are the same)
+    return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {

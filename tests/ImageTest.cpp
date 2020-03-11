@@ -202,7 +202,8 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameMutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsMutable == sameMutable);
-        REPORTER_ASSERT(reporter, (bm.getGenerationID() == img->uniqueID()) == sameMutable);
+        // The image uses the gen ID at the time of copy, a mutable bitmap will change its own ID
+        REPORTER_ASSERT(reporter, bm.getGenerationID() == img->uniqueID());
 
         bm.notifyPixelsChanged();   // force a new generation ID
 
@@ -211,7 +212,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameImmutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsImmutable == sameImmutable);
-        REPORTER_ASSERT(reporter, (bm.getGenerationID() == img->uniqueID()) == sameImmutable);
+        REPORTER_ASSERT(reporter, bm.getGenerationID() == img->uniqueID());
     }
 }
 
@@ -300,7 +301,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
         bool fExpectSharedID;
         bool fExpectLazy;
     } rec[] = {
-        { make_bitmap_mutable,      true,   false, false },
+        { make_bitmap_mutable,      true,   true, false },
         { make_bitmap_immutable,    true,   true,  false },
     };
 

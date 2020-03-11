@@ -117,6 +117,7 @@ private:
 
     void setImmutableWithID(uint32_t genID);
     friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
+    friend class SkImage_Raster;
 
     typedef SkRefCnt INHERITED;
 };
