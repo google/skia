@@ -702,7 +702,7 @@ public:
     AAConvexPathOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, const SkPath& path,
                    const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            : INHERITED(ClassID(), true), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(PathData{viewMatrix, path, color});
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
                                    IsHairline::kNo);
@@ -739,31 +739,28 @@ public:
     }
 
 private:
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&& appliedClip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        if (fProgramInfo) {
+            return;
+        }
+
         SkMatrix invert;
         if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
-            return nullptr;
+            return;
         }
 
         GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(arena, invert,
                                                                   fHelper.usesLocalCoords(),
                                                                   fWideColor);
 
-        return fHelper.createProgramInfoWithStencil(caps, arena, outputView, std::move(appliedClip),
-                                                    dstProxyView, quadProcessor,
-                                                    GrPrimitiveType::kTriangles);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                            std::move(appliedClip),
+                                                            dstProxyView, quadProcessor,
+                                                            GrPrimitiveType::kTriangles);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -775,8 +772,8 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
@@ -784,11 +781,9 @@ private:
     void onPrepareDraws(Target* target) override {
         int instanceCount = fPaths.count();
 
+        this->createProgramInfo(target);
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(target);
-            if (!fProgramInfo) {
-                return;
-            }
+            return;
         }
 
         const size_t kVertexStride = fProgramInfo->primProc().vertexStride();

@@ -34,7 +34,7 @@ public:
     }
 
 protected:
-    GrMeshDrawOp(uint32_t classID);
+    GrMeshDrawOp(uint32_t classID, bool foo);
 
     /** Helper for rendering repeating meshes using a patterned index buffer. This class creates the
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
@@ -97,6 +97,16 @@ private:
         this->onPrePrepareDraws(context, outputView, clip, dstProxyView);
     }
     void onPrepare(GrOpFlushState* state) final;
+
+    // This method is responsible for creating all the programInfos required
+    // by this op.
+    virtual void createProgramInfo(const GrCaps*,
+                                   SkArenaAlloc*,
+                                   const GrSurfaceProxyView* outputView,
+                                   GrAppliedClip&&,
+                                   const GrXferProcessor::DstProxyView&) = 0;
+
+    void createProgramInfo(Target* target);
 
     // Only the GrTextureOp currently overrides this virtual
     virtual void onPrePrepareDraws(GrRecordingContext*,

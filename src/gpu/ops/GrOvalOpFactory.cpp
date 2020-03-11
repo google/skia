@@ -1292,14 +1292,6 @@ private:
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
-
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
@@ -1676,14 +1668,6 @@ private:
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
-
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
@@ -2026,14 +2010,6 @@ private:
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
-
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
@@ -2317,14 +2293,6 @@ private:
 
         return fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -2743,14 +2711,6 @@ private:
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
-
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
@@ -3084,14 +3044,6 @@ private:
 
         return fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
