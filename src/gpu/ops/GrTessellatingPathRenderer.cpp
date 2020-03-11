@@ -316,6 +316,14 @@ private:
         this->drawVertices(target, gp, std::move(vertexBuffer), firstVertex, count);
     }
 
+    void createProgramInfo(const GrCaps*,
+                           SkArenaAlloc*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&&,
+                           const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void onPrepareDraws(Target* target) override {
         GrGeometryProcessor* gp;
         {

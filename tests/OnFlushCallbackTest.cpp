@@ -121,14 +121,6 @@ private:
                                          dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
-    }
-
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
