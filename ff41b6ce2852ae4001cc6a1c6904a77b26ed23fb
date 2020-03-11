@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b19ba87a_db523b8a",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-11T19:16:17Z",
+      "side": 1,
+      "message": "Do you think it is worth marking a lot of this ctors that just take gpu now as explicit?",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 170,
+        "endChar": 16
+      },
+      "revId": "ff41b6ce2852ae4001cc6a1c6904a77b26ed23fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5e49d68_8708c786",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-11T19:16:17Z",
+      "side": 1,
+      "message": "this ctor doesn\u0027t take the gpu. I think that is the crash reason.",
+      "range": {
+        "startLine": 177,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 16
+      },
+      "revId": "ff41b6ce2852ae4001cc6a1c6904a77b26ed23fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
