@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5a87fef_9845d559",
+        "filename": "modules/skottie/src/Animator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-11T16:54:14Z",
+      "side": 1,
+      "message": "Does this test cover either of the previous two early return cases?",
+      "revId": "65429892897b2ae46780f35f880cf5a0a5e90e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
