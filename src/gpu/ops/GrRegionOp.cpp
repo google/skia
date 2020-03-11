@@ -99,29 +99,20 @@ public:
     }
 
 private:
-    GrProgramInfo* createProgramInfo(const GrCaps* caps,
-                                     SkArenaAlloc* arena,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
-
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp = make_gp(arena, caps->shaderCaps(), fViewMatrix, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
-            return nullptr;
+            return;
         }
 
-        return fHelper.createProgramInfoWithStencil(caps, arena, outputView,
-                                                    std::move(appliedClip), dstProxyView,
-                                                    gp, GrPrimitiveType::kTriangles);
-    }
-
-    GrProgramInfo* createProgramInfo(Target* target) {
-        return this->createProgramInfo(&target->caps(),
-                                       target->allocator(),
-                                       target->outputView(),
-                                       target->detachAppliedClip(),
-                                       target->dstProxyView());
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                            std::move(appliedClip), dstProxyView,
+                                                            gp, GrPrimitiveType::kTriangles);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -133,15 +124,15 @@ private:
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                               std::move(appliedClip), dstProxyView);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
         if (!fProgramInfo) {
-            fProgramInfo = this->createProgramInfo(target);
+            this->createProgramInfo(target);
             if (!fProgramInfo) {
                 return;
             }
