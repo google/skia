@@ -41,36 +41,33 @@ public:
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
-                                      const uint16_t indices[],
-                                      bool isVolatile = true);
+                                      const uint16_t indices[]);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
-                                      const SkColor colors[],
-                                      bool isVolatile = true) {
+                                      const SkColor colors[]) {
         return MakeCopy(mode,
                         vertexCount,
                         positions,
                         texs,
                         colors,
                         0,
-                        nullptr,
-                        isVolatile);
+                        nullptr);
     }
+
+    struct CustomLayout { int fPerVertexDataCount; };
 
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
-        kIsNonVolatile_BuilderFlag  = 1 << 2,
     };
     class Builder {
     public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
         // EXPERIMENTAL -- do not call if you care what happens
-        Builder(VertexMode mode, int vertexCount, int indexCount, int perVertexDataCount,
-                bool isVolatile);
+        Builder(VertexMode mode, int vertexCount, int indexCount, CustomLayout customLayout);
 
         bool isValid() const { return fVertices != nullptr; }
 
@@ -78,7 +75,6 @@ public:
         int vertexCount() const;
         int indexCount() const;
         int perVertexDataCount() const;
-        bool isVolatile() const;
         SkPoint* positions();
         uint16_t* indices();        // returns null if there are no indices
 
@@ -125,8 +121,6 @@ public:
     const SkColor* colors() const { return fColors; }
     const uint16_t* indices() const { return fIndices; }
 
-    bool isVolatile() const { return fIsVolatile; }
-
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
 
@@ -169,8 +163,6 @@ private:
     int     fVertexCount;
     int     fIndexCount;
     int     fPerVertexDataCount;
-
-    bool fIsVolatile;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.

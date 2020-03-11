@@ -271,8 +271,8 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
     SkRect r = { 10, 10, 480, 480 };
     int vcount = 4; // just a quad
     int icount = 0;
-    int dcount = 4; // rgba values for now
-    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, dcount, false);
+    SkVertices::CustomLayout customLayout { 4 }; // rgba values for now
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, customLayout);
 
     // build the quad
     SkPoint* pos = builder.positions();

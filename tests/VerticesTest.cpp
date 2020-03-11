@@ -108,7 +108,7 @@ DEF_TEST(Vertices, reporter) {
     // per-vertex-data tests
     for (int perVertexDataCount : {0, 1, 2, 3, 4, 7, 32}) {
         SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount,
-                                    perVertexDataCount, false);
+                                    SkVertices::CustomLayout{perVertexDataCount});
         REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
         REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
         REPORTER_ASSERT(reporter, builder.perVertexDataCount() == perVertexDataCount);
@@ -159,17 +159,20 @@ DEF_TEST(Vertices, reporter) {
     // validity tests for per-vertex-data
 
     {   // negative count is bad
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, -1, true);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
+                                    SkVertices::CustomLayout{-1});
         REPORTER_ASSERT(reporter, !builder.isValid());
     }
     {   // zero-per-vertex-data should be ok
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, 0, true);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
+                                    SkVertices::CustomLayout{0});
         REPORTER_ASSERT(reporter, builder.isValid());
         REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 0);
         REPORTER_ASSERT(reporter, builder.perVertexData() == nullptr);
     }
     {   // "normal" number of per-vertex-data
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, 4, true);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
+                                    SkVertices::CustomLayout{4});
         REPORTER_ASSERT(reporter, builder.isValid());
         REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 4);
         REPORTER_ASSERT(reporter, builder.perVertexData() != nullptr);

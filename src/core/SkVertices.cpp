@@ -33,8 +33,7 @@ struct SkVertices::Desc {
                 fIndexCount,
                 fPerVertexDataCount;
     bool        fHasTexs,
-                fHasColors,
-                fIsVolatile;
+                fHasColors;
 
     void validate() const {
         SkASSERT(fPerVertexDataCount == 0 || (!fHasTexs && !fHasColors));
@@ -109,13 +108,12 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
                              uint32_t builderFlags) {
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
-    bool isVolatile = !SkToBool(builderFlags & SkVertices::kIsNonVolatile_BuilderFlag);
-    this->init({mode, vertexCount, indexCount, 0, hasTexs, hasColors, isVolatile});
+    this->init({mode, vertexCount, indexCount, 0, hasTexs, hasColors});
 }
 
 SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
-                             int perVertexDataCount, bool isVolatile) {
-    this->init({mode, vertexCount, indexCount, perVertexDataCount, false, false, isVolatile});
+                             SkVertices::CustomLayout customLayout) {
+    this->init({mode, vertexCount, indexCount, customLayout.fPerVertexDataCount, false, false});
 }
 
 SkVertices::Builder::Builder(const Desc& desc) {
@@ -155,7 +153,6 @@ void SkVertices::Builder::init(const Desc& desc) {
     fVertices->fVertexCount        = desc.fVertexCount;
     fVertices->fPerVertexDataCount = desc.fPerVertexDataCount;
     fVertices->fIndexCount         = desc.fIndexCount;
-    fVertices->fIsVolatile         = desc.fIsVolatile;
 
     fVertices->fMode = desc.fMode;
 
@@ -204,10 +201,6 @@ int SkVertices::Builder::perVertexDataCount() const {
     return fVertices ? fVertices->fPerVertexDataCount : 0;
 }
 
-bool SkVertices::Builder::isVolatile() const {
-    return fVertices ? fVertices->isVolatile() : true;
-}
-
 SkPoint* SkVertices::Builder::positions() {
     return fVertices ? const_cast<SkPoint*>(fVertices->positions()) : nullptr;
 }
@@ -239,9 +232,8 @@ uint16_t* SkVertices::Builder::indices() {
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[],
-                                       int indexCount, const uint16_t indices[],
-                                       bool isVolatile) {
-    auto desc = Desc{mode, vertexCount, indexCount, 0, !!texs, !!colors, isVolatile};
+                                       int indexCount, const uint16_t indices[]) {
+    auto desc = Desc{mode, vertexCount, indexCount, 0, !!texs, !!colors};
     Builder builder(desc);
     if (!builder.isValid()) {
         return nullptr;
@@ -265,7 +257,7 @@ size_t SkVertices::approximateSize() const {
 SkVertices::Sizes SkVertices::getSizes() const {
     Sizes sizes({
         fMode, fVertexCount, fIndexCount, fPerVertexDataCount,
-        this->hasTexCoords(), this->hasColors(), fIsVolatile
+        this->hasTexCoords(), this->hasColors()
     });
     SkASSERT(sizes.isValid());
     return sizes;
@@ -306,7 +298,7 @@ struct Header_v2 {
 #define kHasTexs_Mask       0x100
 #define kHasColors_Mask     0x200
 #define kHasBones_Mask_V0   0x400
-#define kIsNonVolatile_Mask 0x800
+#define kIsNonVolatile_Mask 0x800  // Deprecated flag
 // new as of 3/2020
 #define kVersion_Shift      24
 #define kVersion_Mask       (0xFF << kVersion_Shift)
@@ -320,9 +312,6 @@ sk_sp<SkData> SkVertices::encode() const {
     }
     if (this->hasColors()) {
         packed |= kHasColors_Mask;
-    }
-    if (!this->isVolatile()) {
-        packed |= kIsNonVolatile_Mask;
     }
     packed |= kCurrent_Version << kVersion_Shift;
 
@@ -376,14 +365,13 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
     const bool hasBones = SkToBool(packed & kHasBones_Mask_V0);
-    const bool isVolatile = !SkToBool(packed & kIsNonVolatile_Mask);
 
     // check if we're overspecified for v2+
     if (perVertexDataCount > 0 && (hasTexs || hasColors || hasBones)) {
         return nullptr;
     }
     const Desc desc{
-        mode, vertexCount, indexCount, perVertexDataCount, hasTexs, hasColors, isVolatile
+        mode, vertexCount, indexCount, perVertexDataCount, hasTexs, hasColors
     };
     Sizes sizes(desc);
     if (!sizes.isValid()) {
