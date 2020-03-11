@@ -17,6 +17,7 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStyle.h"
@@ -182,7 +183,11 @@ public:
     const char* name() const override { return "TessellatingPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -240,7 +245,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, const GrGeometryProcessor* gp) {
+    void draw(Target* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -264,7 +269,7 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
         if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, gp, std::move(cachedVertexBuffer), 0, actualCount);
+            this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
             return;
         }
 
@@ -292,10 +297,10 @@ private:
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 
-        this->drawVertices(target, gp, std::move(vb), 0, count);
+        this->createMesh(target, std::move(vb), 0, count);
     }
 
-    void drawAA(Target* target, const GrGeometryProcessor* gp) {
+    void drawAA(Target* target) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -313,10 +318,14 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, gp, std::move(vertexBuffer), firstVertex, count);
+        this->createMesh(target, std::move(vertexBuffer), firstVertex, count);
     }
 
-    void onPrepareDraws(Target* target) override {
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -336,54 +345,92 @@ private:
                 coverageType = Coverage::kSolid_Type;
             }
             if (fAntiAlias) {
-                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(target->allocator(),
-                                                                 target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(arena, caps->shaderCaps(),
                                                                  color, coverageType,
                                                                  localCoordsType, fViewMatrix);
             } else {
-                gp = GrDefaultGeoProcFactory::Make(target->allocator(), target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::Make(arena, caps->shaderCaps(),
                                                    color, coverageType, localCoordsType,
                                                    fViewMatrix);
             }
         }
         if (!gp) {
-            return;
+            return nullptr;
         }
+
 #ifdef SK_DEBUG
-        auto mode = (fAntiAlias) ?
-                GrTessellator::Mode::kEdgeAntialias : GrTessellator::Mode::kNormal;
+        auto mode = (fAntiAlias) ? GrTessellator::Mode::kEdgeAntialias
+                                 : GrTessellator::Mode::kNormal;
         SkASSERT(GrTessellator::GetVertexStride(mode) == gp->vertexStride());
 #endif
-        if (fAntiAlias) {
-            this->drawAA(target, gp);
-        } else {
-            this->draw(target, gp);
-        }
-    }
 
-    void drawVertices(Target* target, const GrGeometryProcessor* gp, sk_sp<const GrBuffer> vb,
-                      int firstVertex, int count) {
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
                                                               : GrPrimitiveType::kTriangles;
 
-        GrMesh* mesh = target->allocMesh();
-        mesh->setNonIndexedNonInstanced(count);
-        mesh->setVertexData(std::move(vb), firstVertex);
-        target->recordDraw(gp, mesh, 1, primitiveType);
+        return fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                    std::move(appliedClip), dstProxyView,
+                                                    gp, primitiveType);
+    }
+
+    GrProgramInfo* createProgramInfo(Target* target) {
+        return this->createProgramInfo(&target->caps(),
+                                       target->allocator(),
+                                       target->outputView(),
+                                       target->detachAppliedClip(),
+                                       target->dstProxyView());
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                               std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
+
+    void onPrepareDraws(Target* target) override {
+        if (fAntiAlias) {
+            this->drawAA(target);
+        } else {
+            this->draw(target);
+        }
+    }
+
+    void createMesh(Target* target, sk_sp<const GrBuffer> vb, int firstVertex, int count) {
+        fMesh = target->allocMesh();
+        fMesh->setNonIndexedNonInstanced(count);
+        fMesh->setVertexData(std::move(vb), firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(flushState);
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
+
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
-    Helper                  fHelper;
-    SkPMColor4f             fColor;
-    GrShape                 fShape;
-    SkMatrix                fViewMatrix;
-    SkIRect                 fDevClipBounds;
-    bool                    fAntiAlias;
+    Helper         fHelper;
+    SkPMColor4f    fColor;
+    GrShape        fShape;
+    SkMatrix       fViewMatrix;
+    SkIRect        fDevClipBounds;
+    bool           fAntiAlias;
+
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
