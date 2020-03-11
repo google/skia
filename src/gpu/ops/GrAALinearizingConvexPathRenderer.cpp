@@ -147,7 +147,7 @@ public:
                              SkPaint::Join join,
                              SkScalar miterLimit,
                              const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            : INHERITED(ClassID(), true), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(
                 PathData{color, viewMatrix, path, strokeWidth, style, join, miterLimit});
 
@@ -200,6 +200,14 @@ public:
     }
 
 private:
+    void createProgramInfo(const GrCaps*,
+                           SkArenaAlloc*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&&,
+                           const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void recordDraw(Target* target, const GrGeometryProcessor* gp, int vertexCount,
                     size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {

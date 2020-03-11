@@ -452,7 +452,7 @@ private:
               GrAAType aaType,
               DrawQuad* quad,
               const SkRect* domainRect)
-            : INHERITED(ClassID())
+            : INHERITED(ClassID(), true)
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
@@ -501,7 +501,7 @@ private:
               SkCanvas::SrcRectConstraint constraint,
               const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
-            : INHERITED(ClassID())
+            : INHERITED(ClassID(), true)
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
@@ -640,6 +640,14 @@ private:
             fMetadata.fTotalQuadCount++;
         }
         return quadCount;
+    }
+
+    void createProgramInfo(const GrCaps*,
+                           SkArenaAlloc*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&&,
+                           const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,

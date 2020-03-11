@@ -194,7 +194,7 @@ public:
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
                           float devRadius, bool isCircle, float blurRadius, float insetWidth,
                           GrSurfaceProxyView falloffView)
-            : INHERITED(ClassID())
+            : INHERITED(ClassID(), true)
             , fFalloffView(std::move(falloffView)) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
@@ -537,6 +537,14 @@ private:
             (*verts)++;
         }
 
+    }
+
+    void createProgramInfo(const GrCaps*,
+                           SkArenaAlloc*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&&,
+                           const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
     }
 
     void onPrepareDraws(Target* target) override {
