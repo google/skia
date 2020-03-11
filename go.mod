@@ -16,13 +16,14 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	go.chromium.org/gae v0.0.0-20190826183307-50a499513efa // indirect
-	go.chromium.org/luci v0.0.0-20200310012309-6d34c549ba3d // indirect
-	go.skia.org/infra v0.0.0-20200310010731-19a1530e3baa
+	go.chromium.org/luci v0.0.0-20200311043637-b168ef601b69 // indirect
+	go.skia.org/infra v0.0.0-20200310201532-2d6626b95ff4
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200309202150-20ab64c0d93f // indirect
+	golang.org/x/tools v0.0.0-20200311035431-43e3193a9bc5 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.20.0
-	google.golang.org/genproto v0.0.0-20200309141739-5b75447e413d // indirect
+	google.golang.org/genproto v0.0.0-20200310143817-43be25429f5a // indirect
+	google.golang.org/grpc v1.28.0 // indirect
 )
