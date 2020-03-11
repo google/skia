@@ -125,8 +125,6 @@
 #include "../../docs/examples/Canvas_drawAtlas_3.cpp"
 #include "../../docs/examples/Canvas_drawAtlas_4.cpp"
 #include "../../docs/examples/Canvas_drawBitmap.cpp"
-#include "../../docs/examples/Canvas_drawBitmapLattice.cpp"
-#include "../../docs/examples/Canvas_drawBitmapNine.cpp"
 #include "../../docs/examples/Canvas_drawBitmapRect.cpp"
 #include "../../docs/examples/Canvas_drawBitmapRect_2.cpp"
 #include "../../docs/examples/Canvas_drawBitmapRect_3.cpp"

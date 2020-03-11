@@ -250,14 +250,6 @@ void SkLuaCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, co
     }
 }
 
-void SkLuaCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                   const SkPaint* paint) {
-    AUTO_LUA("drawBitmapNine");
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
-    }
-}
-
 void SkLuaCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     AUTO_LUA("drawImage");
     if (paint) {

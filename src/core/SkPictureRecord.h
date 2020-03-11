@@ -243,14 +243,6 @@ protected:
                           SrcRectConstraint) override {
         SK_ABORT("not reached");
     }
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice& lattice, const SkRect& dst,
-                             const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
 
 private:
     SkTArray<SkPaint>  fPaints;

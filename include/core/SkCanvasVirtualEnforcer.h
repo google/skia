@@ -76,10 +76,6 @@ protected:
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                           const SkPaint* paint,
                           SkCanvas::SrcRectConstraint constraint) override = 0;
-    void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                          const SkPaint* paint) override = 0;
-    void onDrawBitmapLattice(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
-                             const SkRect& dst, const SkPaint* paint) override = 0;
 
     void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                      const SkColor colors[], int count, SkBlendMode mode, const SkRect* cull,
