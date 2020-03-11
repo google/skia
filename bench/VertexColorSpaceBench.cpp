@@ -168,6 +168,14 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void onPrepareDraws(Target* target) override {
         GrGeometryProcessor* gp = GP::Make(target->allocator(), fMode, fColorSpaceXform);
 
