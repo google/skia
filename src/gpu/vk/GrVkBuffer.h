@@ -68,9 +68,10 @@ protected:
         GrVkAlloc          fAlloc;
         Type               fType;
 
-    private:
+    protected:
         void freeGPUData(GrGpu* gpu) const override;
 
+    private:
         void onRecycle(GrGpu* gpu) const override { this->unref(gpu); }
 
         typedef GrRecycledResource INHERITED;
