@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d12690a7_85543205",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-11T18:37:49Z",
+      "side": 1,
+      "message": "While we\u0027re on the topic of \"things that never happen\": This is to handle batching of multiple drawVertices calls where one of them has local coordinates supplied, and the other doesn\u0027t (but the draws are otherwise identical enough to be batched). I\u0027m sure it happens in the context of our GM that draws every possible combination of shaders and vertex options, but other than that... ?\n\nMostly because removing these special-cases (there\u0027s the similar one for colors, although that can be triggered in other ways) here will again simplify bookkeeping, and make this loop faster all the time (rather than forcing us to write special case versions of the loop).",
+      "range": {
+        "startLine": 383,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 17
+      },
+      "revId": "d67799bf7b3060384a621d8a3273242dddbd50a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
