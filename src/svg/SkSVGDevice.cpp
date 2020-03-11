@@ -322,6 +322,12 @@ private:
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
+    // Path effects are applied to all vector graphics (rects, rrects, ovals, paths etc).
+    // This should only happen when a path effect is attached to non-vector graphics (text, image) or
+    // a new vector graphics primitive is added that is not handled by base drawPath() routine.
+    if (paint.getPathEffect() != nullptr) {
+        SkDebugf("Unsupported path effect in addPaint.");
+    }
     SkPaint::Style style = paint.getStyle();
     if (style == SkPaint::kFill_Style || style == SkPaint::kStrokeAndFill_Style) {
         static constexpr char kDefaultFill[] = "black";
@@ -821,19 +827,17 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                 path.rewind();
                 path.moveTo(pts[i]);
                 path.lineTo(pts[i+1]);
-                AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
-                elem.addPathAttributes(path);
             }
             break;
         case SkCanvas::kPolygon_PointMode:
             if (count > 1) {
                 path.addPoly(pts, SkToInt(count), false);
                 path.moveTo(pts[0]);
-                AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
-                elem.addPathAttributes(path);
             }
             break;
     }
+
+    this->drawPath(path, paint, true);
 }
 
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
@@ -872,6 +876,37 @@ void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
 }
 
 void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
+    if (path.isInverseFillType()) {
+      SkDebugf("Inverse path fill type not yet implemented.");
+      return;
+    }
+
+    SkPath pathToDraw;
+    SkPath* pathPtr = const_cast<SkPath*>(&path);
+
+    // Pass 1: apply path effect from paint to path.
+    if (paint.getPathEffect()) {
+      if (!pathIsMutable) {
+        pathPtr = &pathToDraw;
+        pathIsMutable = true;
+      }
+      bool fill = paint.getFillPath(path, pathPtr);
+      SkPaint pathPaint(paint);
+      if (fill) {
+        // Path should be filled.
+        pathPaint.setStyle(SkPaint::kFill_Style);
+      } else {
+        // Path should be drawn with a hairline (width == 0).
+        pathPaint.setStyle(SkPaint::kStroke_Style);
+        pathPaint.setStrokeWidth(0);
+      }
+
+      pathPaint.setPathEffect(nullptr); // path effect processed
+      drawPath(*pathPtr, pathPaint, pathIsMutable);
+      return;
+    }
+
+    // Pass 2: create path element.
     AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
     elem.addPathAttributes(path);
 

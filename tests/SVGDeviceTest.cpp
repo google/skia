@@ -21,6 +21,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
+#include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
@@ -526,4 +527,44 @@ DEF_TEST(SVGDevice_fill_stroke_rect_hex, reporter) {
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke"), "#123456") == 0);
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke-width"), "1") == 0);
 }
+
+DEF_TEST(SVGDevice_path_effect, reporter) {
+    SkDOM dom;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(10);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+
+    // Produces a line of three red dots.
+    SkScalar intervals[] = {0, 20};
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    paint.setPathEffect(pathEffect);
+    SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);
+    }
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+
+    // The SVG path to draw the three dots is a complex list of instructions.
+    // To avoid test brittleness, we don't attempt to match the entire path.
+    // Instead, we simply confirm there are three (M)ove instructions, one per
+    // dot.  If path effects were not being honored, we would expect only one
+    // Move instruction, to the starting position, before drawing a continuous
+    // straight line.
+    const auto* d = dom.findAttr(pathElement, "d");
+    int mCount = 0;
+    const char* pos;
+    for (pos = d; *pos != '\0'; pos++) {
+      mCount += (*pos == 'M') ? 1 : 0;
+    }
+    REPORTER_ASSERT(reporter, mCount == 3);
+}
+
+
 #endif
