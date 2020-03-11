@@ -145,7 +145,7 @@ void GrVkTexture::onRelease() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref(this->getVkGpu());
+        fTextureView->unref();
         fTextureView = nullptr;
     }
 
@@ -161,7 +161,7 @@ struct GrVkTexture::DescriptorCacheEntry {
             : fDescriptorSet(fDescSet), fGpu(gpu) {}
     ~DescriptorCacheEntry() {
         if (fDescriptorSet) {
-            fDescriptorSet->recycle(fGpu);
+            fDescriptorSet->recycle();
         }
     }
 
@@ -179,7 +179,7 @@ void GrVkTexture::onAbandon() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref(this->getVkGpu());
+        fTextureView->unref();
         fTextureView = nullptr;
     }
 

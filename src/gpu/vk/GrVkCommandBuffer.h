@@ -111,9 +111,9 @@ public:
         fTrackedRecycledResources.append(1, &resource);
     }
 
-    void releaseResources(GrVkGpu* gpu);
+    void releaseResources();
 
-    void freeGPUData(GrGpu* gpu, VkCommandPool pool) const;
+    void freeGPUData(const GrGpu* gpu, VkCommandPool pool) const;
 
     bool hasWork() const { return fHasWork; }
 
@@ -150,8 +150,8 @@ protected:
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
-    virtual void onReleaseResources(GrVkGpu* gpu) {}
-    virtual void onFreeGPUData(GrVkGpu* gpu) const = 0;
+    virtual void onReleaseResources() {}
+    virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
 
     static constexpr uint32_t kMaxInputBuffers = 2;
 
@@ -298,9 +298,9 @@ private:
         : INHERITED(cmdBuffer)
         , fSubmitFence(VK_NULL_HANDLE) {}
 
-    void onFreeGPUData(GrVkGpu* gpu) const override;
+    void onFreeGPUData(const GrVkGpu* gpu) const override;
 
-    void onReleaseResources(GrVkGpu* gpu) override;
+    void onReleaseResources() override;
 
     SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
     VkFence                                                     fSubmitFence;
@@ -327,7 +327,7 @@ private:
     explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped)
         : INHERITED(cmdBuffer, isWrapped) {}
 
-    void onFreeGPUData(GrVkGpu* gpu) const override {}
+    void onFreeGPUData(const GrVkGpu* gpu) const override {}
 
     // Used for accessing fIsActive (on GrVkCommandBuffer)
     friend class GrVkPrimaryCommandBuffer;

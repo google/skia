@@ -71,7 +71,7 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
         return nullptr;
     }
 
-    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc, desc.fType);
+    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(gpu, buffer, alloc, desc.fType);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         GrVkMemory::FreeBufferMemory(gpu, desc.fType, alloc);
@@ -104,17 +104,16 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                 &bufferMemoryBarrier);
 }
 
-void GrVkBuffer::Resource::freeGPUData(GrGpu* gpu) const {
+void GrVkBuffer::Resource::freeGPUData() const {
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory);
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
-    VK_CALL(vkGpu, DestroyBuffer(vkGpu->device(), fBuffer, nullptr));
-    GrVkMemory::FreeBufferMemory(vkGpu, fType, fAlloc);
+    VK_CALL(fGpu, DestroyBuffer(fGpu->device(), fBuffer, nullptr));
+    GrVkMemory::FreeBufferMemory(fGpu, fType, fAlloc);
 }
 
-void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
+void GrVkBuffer::vkRelease() {
     VALIDATE();
-    fResource->recycle(const_cast<GrVkGpu*>(gpu));
+    fResource->recycle();
     fResource = nullptr;
     if (!fDesc.fDynamic) {
         delete[] (unsigned char*)fMapPtr;
@@ -144,7 +143,7 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
     if (!fResource->unique()) {
         if (fDesc.fDynamic) {
             // in use by the command buffer, so we need to create a new one
-            fResource->recycle(gpu);
+            fResource->recycle();
             fResource = this->createResource(gpu, fDesc);
             if (createdNewBuffer) {
                 *createdNewBuffer = true;

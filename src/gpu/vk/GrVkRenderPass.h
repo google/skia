@@ -10,13 +10,13 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrProcessorKeyBuilder;
 class GrVkGpu;
 class GrVkRenderTarget;
 
-class GrVkRenderPass : public GrManagedResource {
+class GrVkRenderPass : public GrVkManagedResource {
 public:
     struct LoadStoreOps {
         VkAttachmentLoadOp  fLoadOp;
@@ -43,8 +43,9 @@ public:
 
     // Used when importing an external render pass. In this case we have to explicitly be told the
     // color attachment index
-    explicit GrVkRenderPass(VkRenderPass renderPass, uint32_t colorAttachmentIndex)
-            : INHERITED()
+    explicit GrVkRenderPass(const GrVkGpu* gpu, VkRenderPass renderPass,
+                            uint32_t colorAttachmentIndex)
+            : INHERITED(gpu)
             , fRenderPass(renderPass)
             , fAttachmentFlags(kExternal_AttachmentFlag)
             , fClearValueCount(0)
@@ -125,7 +126,7 @@ public:
 #endif
 
 private:
-    GrVkRenderPass(VkRenderPass, AttachmentFlags, const AttachmentsDescriptor&,
+    GrVkRenderPass(const GrVkGpu*, VkRenderPass, AttachmentFlags, const AttachmentsDescriptor&,
                    const VkExtent2D& granularity, uint32_t clearValueCount);
 
     static GrVkRenderPass* Create(GrVkGpu* gpu,
@@ -136,7 +137,7 @@ private:
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
-    void freeGPUData(GrGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkRenderPass          fRenderPass;
     AttachmentFlags       fAttachmentFlags;
@@ -146,7 +147,7 @@ private:
     // For internally created render passes we assume the color attachment index is always 0.
     uint32_t              fColorAttachmentIndex = 0;
 
-    typedef GrManagedResource INHERITED;
+    typedef GrVkManagedResource INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags);
