@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Removed "volatile" flag from SkVertices. All SkVertices objects are assumed to be
+    volatile (the previous default behavior).
+
   * Make it possible to selectively turn on/off individual encoders/decoders,
     using skia_use_(libpng/libjpeg_turbo/libwebp)(decode/encode).
 
