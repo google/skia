@@ -27,7 +27,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPaint.h"
@@ -291,11 +290,11 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        GrMesh mesh;
-        mesh.setInstanced(nullptr, 200*200, 0, 4);
-
-        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, SkRect::MakeIWH(200, 200));
-        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, &mesh, 1);
+        GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+        renderPass->bindPipeline(*fProgramInfo, SkRect::MakeIWH(200, 200),
+                                 flushState->scissorRectIfEnabled());
+        renderPass->bindBuffers(nullptr, nullptr, nullptr);
+        renderPass->drawInstanced(200*200, 0, 4, 0);
     }
 
     const GradType fGradType;
