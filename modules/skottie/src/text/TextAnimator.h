@@ -35,10 +35,10 @@ public:
         VectorValue position,
                     scale    = { 100, 100, 100 },
                     fill_color,
-                    stroke_color,
-                    blur;
+                    stroke_color;
         // unlike pos/scale which are animated vectors, rotation is separated in each dimension.
         SkV3        rotation = { 0, 0, 0 };
+        Vec2Value   blur     = { 0, 0 };
         ScalarValue opacity  = 100,
                     tracking = 0;
     };
@@ -51,7 +51,7 @@ public:
                   tracking = 0;
         SkColor fill_color = SK_ColorTRANSPARENT,
               stroke_color = SK_ColorTRANSPARENT;
-        SkVector      blur = { 0, 0 };
+        SkV2          blur = { 0, 0 };
     };
 
     struct AnimatedPropsModulator {

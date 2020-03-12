@@ -56,14 +56,14 @@ private:
         : fGradient(std::move(gradient))
         , fType(type)
         , fStopCount(stop_count) {
-        this->bind(abuilder,  jgrad["s"], &fStartPoint);
-        this->bind(abuilder,  jgrad["e"], &fEndPoint);
-        this->bind(abuilder, jstops["k"], &fStops);
+        this->bind(abuilder,  jgrad["s"], fStartPoint);
+        this->bind(abuilder,  jgrad["e"], fEndPoint  );
+        this->bind(abuilder, jstops["k"], fStops     );
     }
 
     void onSync() override {
-        const auto s_point = ValueTraits<VectorValue>::As<SkPoint>(this->fStartPoint),
-                   e_point = ValueTraits<VectorValue>::As<SkPoint>(this->fEndPoint);
+        const auto s_point = SkPoint{fStartPoint.x, fStartPoint.y},
+                   e_point = SkPoint{  fEndPoint.x,   fEndPoint.y};
 
         switch (fType) {
         case Type::kLinear: {
@@ -196,9 +196,9 @@ private:
     const Type                  fType;
     const size_t                fStopCount;
 
-    VectorValue  fStartPoint,
-                 fEndPoint,
-                 fStops;
+    VectorValue  fStops;
+    Vec2Value    fStartPoint = {0,0},
+                 fEndPoint   = {0,0};
 };
 
 } // namespace

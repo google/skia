@@ -77,7 +77,7 @@ public:
     bool hasEffect() const {
         return !this->isStatic()
             || fOpacity < 100
-            || ValueTraits<VectorValue>::As<SkVector>(fFeather) != SkVector{ 0, 0 };
+            || fFeather != SkV2{0,0};
     }
 
     sk_sp<sksg::RenderNode> makeMask(sk_sp<sksg::Path> mask_path) const {
@@ -91,18 +91,17 @@ private:
     void onSync() override {
         fMaskPaint->setOpacity(fOpacity * 0.01f);
         if (fMaskFilter) {
-            const auto f = ValueTraits<VectorValue>::As<SkVector>(fFeather);
-
             // Close enough to AE.
             static constexpr SkScalar kFeatherToSigma = 0.38f;
-            fMaskFilter->setSigma(f * kFeatherToSigma);
+            fMaskFilter->setSigma({fFeather.x * kFeatherToSigma,
+                                   fFeather.y * kFeatherToSigma});
         }
     }
 
     const sk_sp<sksg::PaintNode> fMaskPaint;
     sk_sp<sksg::BlurImageFilter> fMaskFilter; // optional "feather"
 
-    VectorValue fFeather;
+    Vec2Value   fFeather = {0,0};
     ScalarValue fOpacity = 100;
 };
 

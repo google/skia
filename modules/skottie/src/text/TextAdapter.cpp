@@ -81,9 +81,9 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
                                                       std::move(logger),
                                                       gGroupingMap[SkToSizeT(apg - 1)]));
 
-    adapter->bind(*abuilder, jd, &adapter->fText.fCurrentValue);
+    adapter->bind(*abuilder, jd, adapter->fText.fCurrentValue);
     if (jm) {
-        adapter->bind(*abuilder, (*jm)["a"], &adapter->fGroupingAlignment);
+        adapter->bind(*abuilder, (*jm)["a"], adapter->fGroupingAlignment);
     }
 
     // Animators
@@ -335,9 +335,6 @@ void TextAdapter::onSync() {
         animator->modulateProps(fMaps, buf);
     }
 
-    const auto grouping_alignment =
-            ValueTraits<VectorValue>::As<SkVector>(fGroupingAlignment) * .01f; // percentage
-
     const TextAnimator::DomainMap* grouping_domain = nullptr;
     switch (fAnchorPointGrouping) {
         // for word/line grouping, we rely on domain map info
@@ -367,7 +364,7 @@ void TextAdapter::onSync() {
 
             const auto& props = buf[i].props;
             const auto& frag  = fFragments[i];
-            this->pushPropsToFragment(props, frag, grouping_alignment,
+            this->pushPropsToFragment(props, frag, fGroupingAlignment * .01f, // percentage
                                       grouping_domain ? &(*grouping_domain)[grouping_span_index]
                                                         : nullptr);
 
@@ -382,7 +379,7 @@ void TextAdapter::onSync() {
 }
 
 SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
-                                      const SkVector& grouping_alignment,
+                                      const SkV2& grouping_alignment,
                                       const TextAnimator::DomainSpan* grouping_span) const {
     // Construct the following 2x ascent box:
     //
@@ -430,8 +427,8 @@ SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
     const auto ab = anchor_box();
 
     // Apply grouping alignment.
-    const auto ap = SkV2 { ab.centerX() + ab.width()  * 0.5f * grouping_alignment.fX,
-                           ab.centerY() + ab.height() * 0.5f * grouping_alignment.fY };
+    const auto ap = SkV2 { ab.centerX() + ab.width()  * 0.5f * grouping_alignment.x,
+                           ab.centerY() + ab.height() * 0.5f * grouping_alignment.y };
 
     // The anchor point is relative to the fragment position.
     return ap - SkV2 { rec.fOrigin.fX, rec.fOrigin.fY };
@@ -439,7 +436,7 @@ SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
 
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec,
-                                      const SkVector& grouping_alignment,
+                                      const SkV2& grouping_alignment,
                                       const TextAnimator::DomainSpan* grouping_span) const {
     const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment, grouping_span);
 
@@ -464,7 +461,8 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
         rec.fStrokeColorNode->setColor(scale_alpha(props.stroke_color, props.opacity));
     }
     if (rec.fBlur) {
-        rec.fBlur->setSigma(props.blur * kBlurSizeToSigma);
+        rec.fBlur->setSigma({ props.blur.x * kBlurSizeToSigma,
+                              props.blur.y * kBlurSizeToSigma });
     }
 }
 

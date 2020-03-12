@@ -124,7 +124,7 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
             (ValueTraits<VectorValue>::As<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
     // ... as does blur
-    modulated_props.blur += ValueTraits<VectorValue>::As<SkVector>(fTextProps.blur) * amount;
+    modulated_props.blur += fTextProps.blur * amount;
 
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
@@ -158,22 +158,22 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     : fSelectors(std::move(selectors))
     , fRequiresAnchorPoint(false) {
 
-    acontainer->bind(*abuilder, jprops["p"], &fTextProps.position);
-    acontainer->bind(*abuilder, jprops["o"], &fTextProps.opacity );
-    acontainer->bind(*abuilder, jprops["t"], &fTextProps.tracking);
+    acontainer->bind(*abuilder, jprops["p"], fTextProps.position);
+    acontainer->bind(*abuilder, jprops["o"], fTextProps.opacity );
+    acontainer->bind(*abuilder, jprops["t"], fTextProps.tracking);
 
     // Scale and rotation are anchor-point-dependent.
-    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["s"], &fTextProps.scale);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["s"], fTextProps.scale);
 
     // Depending on whether we're in 2D/3D mode, some of these will stick and some will not.
     // It's fine either way.
-    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["rx"], &fTextProps.rotation.x);
-    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["ry"], &fTextProps.rotation.y);
-    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation.z);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["rx"], fTextProps.rotation.x);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["ry"], fTextProps.rotation.y);
+    fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["r" ], fTextProps.rotation.z);
 
-    fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], &fTextProps.fill_color  );
-    fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], &fTextProps.stroke_color);
-    fHasBlur        = acontainer->bind(*abuilder, jprops["bl"], &fTextProps.blur        );
+    fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], fTextProps.fill_color  );
+    fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], fTextProps.stroke_color);
+    fHasBlur        = acontainer->bind(*abuilder, jprops["bl"], fTextProps.blur        );
 }
 
 } // namespace internal

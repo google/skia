@@ -27,24 +27,21 @@ public:
                                                                         : SkPathDirection::kCW);
         this->node()->setInitialPointIndex(1); // starting point: (Center, Top)
 
-        this->bind(*abuilder, jellipse["s"], &fSize);
-        this->bind(*abuilder, jellipse["p"], &fPosition);
+        this->bind(*abuilder, jellipse["s"], fSize);
+        this->bind(*abuilder, jellipse["p"], fPosition);
     }
 
 private:
     void onSync() override {
-        const auto size   = ValueTraits<VectorValue>::As<SkSize >(fSize);
-        const auto center = ValueTraits<VectorValue>::As<SkPoint>(fPosition);
-
-        const auto bounds = SkRect::MakeXYWH(center.x() - size.width()  / 2,
-                                             center.y() - size.height() / 2,
-                                             size.width(), size.height());
+        const auto bounds = SkRect::MakeXYWH(fPosition.x - fSize.x / 2,
+                                             fPosition.y - fSize.y / 2,
+                                             fSize.x, fSize.y);
 
         this->node()->setRRect(SkRRect::MakeOval(bounds));
     }
 
-    VectorValue fSize,
-                fPosition;
+    Vec2Value fSize     = {0,0},
+              fPosition = {0,0}; // center
 };
 
 } // namespace
