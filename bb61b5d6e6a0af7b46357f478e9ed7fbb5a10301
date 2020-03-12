@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "964a8f63_2d8d42d8",
+        "filename": "modules/skottie/src/effects/GradientEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-12T13:37:07Z",
+      "side": 1,
+      "message": "should SkV2 be convertible to SkPoint (and maybe SkSize)?",
+      "range": {
+        "startLine": 96,
+        "startChar": 33,
+        "endLine": 96,
+        "endChar": 70
+      },
+      "revId": "bb61b5d6e6a0af7b46357f478e9ed7fbb5a10301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
