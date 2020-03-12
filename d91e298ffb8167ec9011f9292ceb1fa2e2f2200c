@@ -22,6 +22,30 @@
       "revId": "d91e298ffb8167ec9011f9292ceb1fa2e2f2200c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0921471e_972602b3",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-12T13:19:53Z",
+      "side": 1,
+      "message": "Probably not terrible, but the GPU is certainly going to be faster at it, and that mapping is probably more expensive than most of the other work in this loop. It also feels like this should be the rare case - most times that we\u0027re batching, I assume that all the draws had the same view matrix?",
+      "parentUuid": "bee885f6_2c1a742e",
+      "range": {
+        "startLine": 363,
+        "startChar": 8,
+        "endLine": 363,
+        "endChar": 46
+      },
+      "revId": "d91e298ffb8167ec9011f9292ceb1fa2e2f2200c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
