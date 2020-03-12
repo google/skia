@@ -345,7 +345,6 @@ private:
             LocalCoords::Type localCoordsType =
                     fUsesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
             gp = MakeForDeviceSpace(arena,
-                                    caps->shaderCaps(),
                                     color,
                                     Coverage::kSolid_Type,
                                     localCoordsType,

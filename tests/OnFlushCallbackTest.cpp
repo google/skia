@@ -106,7 +106,6 @@ private:
 
         GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(
                                               arena,
-                                              caps->shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
