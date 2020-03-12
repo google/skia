@@ -235,43 +235,6 @@ private:
     typedef DrawCommand INHERITED;
 };
 
-class DrawBitmapCommand : public DrawCommand {
-public:
-    DrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPaint* paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
-
-private:
-    SkBitmap         fBitmap;
-    SkScalar         fLeft;
-    SkScalar         fTop;
-    SkTLazy<SkPaint> fPaint;
-
-    typedef DrawCommand INHERITED;
-};
-
-class DrawBitmapRectCommand : public DrawCommand {
-public:
-    DrawBitmapRectCommand(const SkBitmap& bitmap,
-                          const SkRect*   src,
-                          const SkRect&   dst,
-                          const SkPaint*  paint,
-                          SkCanvas::SrcRectConstraint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
-
-private:
-    SkBitmap                    fBitmap;
-    SkTLazy<SkRect>             fSrc;
-    SkRect                      fDst;
-    SkTLazy<SkPaint>            fPaint;
-    SkCanvas::SrcRectConstraint fConstraint;
-
-    typedef DrawCommand INHERITED;
-};
-
 class DrawImageCommand : public DrawCommand {
 public:
     DrawImageCommand(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint);
