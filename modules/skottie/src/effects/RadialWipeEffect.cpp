@@ -152,12 +152,12 @@ private:
 
         wiper->setCompletion(fCompletion);
         wiper->setStartAngle(fStartAngle);
-        wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(fWipeCenter));
+        wiper->setWipeCenter({fWipeCenter.x, fWipeCenter.y});
         wiper->setWipe(fWipe);
         wiper->setFeather(fFeather);
     }
 
-    VectorValue fWipeCenter;
+    Vec2Value   fWipeCenter = {0,0};
     ScalarValue fCompletion = 0,
                 fStartAngle = 0,
                 fWipe       = 0,

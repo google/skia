@@ -37,7 +37,7 @@ private:
             kChannel_Index = 0,
         };
 
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kChannel_Index), &fChannel);
+        EffectBinder(jprops, *abuilder, this).bind(kChannel_Index, fChannel);
     }
 
     void onSync() override {
