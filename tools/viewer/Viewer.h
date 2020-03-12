@@ -175,6 +175,7 @@ private:
     bool                   fTiled;
     bool                   fDrawTileBoundaries;
     SkSize                 fTileScale;
+    bool                   fDrawViaSerialize = false;
 
     enum PerspectiveMode {
         kPerspective_Off,
