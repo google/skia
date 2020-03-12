@@ -20,13 +20,12 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
-                                    const GrShaderCaps* shaderCaps,
                                     const SkMatrix& viewMatrix,
                                     bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
     Color::Type colorType = wideColor ? Color::kPremulWideColorAttribute_Type
                                       : Color::kPremulGrColorAttribute_Type;
-    return GrDefaultGeoProcFactory::Make(arena, shaderCaps, colorType, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(arena, colorType, Coverage::kSolid_Type,
                                          LocalCoords::kUsePosition_Type, viewMatrix);
 }
 
@@ -104,7 +103,7 @@ private:
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
-        GrGeometryProcessor* gp = make_gp(arena, caps->shaderCaps(), fViewMatrix, fWideColor);
+        GrGeometryProcessor* gp = make_gp(arena, fViewMatrix, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

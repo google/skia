@@ -10,7 +10,6 @@
 
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrShaderCaps.h"
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
@@ -77,7 +76,6 @@ namespace GrDefaultGeoProcFactory {
     };
 
     GrGeometryProcessor* Make(SkArenaAlloc*,
-                              const GrShaderCaps*,
                               const Color&,
                               const Coverage&,
                               const LocalCoords&,
@@ -89,7 +87,6 @@ namespace GrDefaultGeoProcFactory {
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
     GrGeometryProcessor* MakeForDeviceSpace(SkArenaAlloc*,
-                                            const GrShaderCaps*,
                                             const Color&,
                                             const Coverage&,
                                             const LocalCoords&,

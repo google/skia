@@ -345,12 +345,10 @@ private:
                 coverageType = Coverage::kSolid_Type;
             }
             if (fAntiAlias) {
-                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(arena, caps->shaderCaps(),
-                                                                 color, coverageType,
+                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(arena, color, coverageType,
                                                                  localCoordsType, fViewMatrix);
             } else {
-                gp = GrDefaultGeoProcFactory::Make(arena, caps->shaderCaps(),
-                                                   color, coverageType, localCoordsType,
+                gp = GrDefaultGeoProcFactory::Make(arena, color, coverageType, localCoordsType,
                                                    fViewMatrix);
             }
         }

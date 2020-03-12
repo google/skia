@@ -65,7 +65,7 @@ private:
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    GrGeometryProcessor* makeGP(SkArenaAlloc*, const GrShaderCaps*);
+    GrGeometryProcessor* makeGP(SkArenaAlloc*);
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -218,7 +218,7 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
     return result;
 }
 
-GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena, const GrShaderCaps* shaderCaps) {
+GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
@@ -249,7 +249,6 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena, const GrShaderC
 
     fFlags |= kWasCharacterized_Flag;
     return GrDefaultGeoProcFactory::Make(arena,
-                                         shaderCaps,
                                          color,
                                          Coverage::kSolid_Type,
                                          localCoordsType,
@@ -261,7 +260,7 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
                                          const GrSurfaceProxyView* outputView,
                                          GrAppliedClip&& appliedClip,
                                          const GrXferProcessor::DstProxyView& dstProxyView) {
-    GrGeometryProcessor* gp = this->makeGP(arena, caps->shaderCaps());
+    GrGeometryProcessor* gp = this->makeGP(arena);
 
     fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                              dstProxyView, gp, this->primitiveType());

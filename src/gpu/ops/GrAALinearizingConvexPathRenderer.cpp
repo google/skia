@@ -97,7 +97,6 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 }
 
 static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
-                                                 const GrShaderCaps* shaderCaps,
                                                  bool tweakAlphaForCoverage,
                                                  const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords,
@@ -111,8 +110,7 @@ static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
     Color::Type colorType =
         wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
 
-    return MakeForDeviceSpace(arena, shaderCaps, colorType, coverageType,
-                              localCoordsType, viewMatrix);
+    return MakeForDeviceSpace(arena, colorType, coverageType, localCoordsType, viewMatrix);
 }
 
 namespace {
@@ -241,7 +239,6 @@ private:
     void onPrepareDraws(Target* target) override {
         // Setup GrGeometryProcessor
         GrGeometryProcessor* gp = create_lines_only_gp(target->allocator(),
-                                                       target->caps().shaderCaps(),
                                                        fHelper.compatibleWithCoverageAsAlpha(),
                                                        this->viewMatrix(),
                                                        fHelper.usesLocalCoords(),
