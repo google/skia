@@ -14,6 +14,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/SkGr.h"
@@ -168,18 +169,45 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    void onCreateProgramInfo(const GrCaps*,
-                             SkArenaAlloc*,
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
-                             GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+        GrGeometryProcessor* gp = GP::Make(arena, fMode, fColorSpaceXform);
+
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
+                                                                   arena,
+                                                                   outputView,
+                                                                   std::move(appliedClip),
+                                                                   dstProxyView,
+                                                                   gp,
+                                                                   GrProcessorSet::MakeEmptySet(),
+                                                                   GrPrimitiveType::kTriangleStrip,
+                                                                   GrPipeline::InputFlags::kNone);
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
-        GrGeometryProcessor* gp = GP::Make(target->allocator(), fMode, fColorSpaceXform);
+        if (!fProgramInfo) {
+            this->createProgramInfo(target);
+        }
 
-        size_t vertexStride = gp->vertexStride();
+        size_t vertexStride = fProgramInfo->primProc().vertexStride();
         const int kVertexCount = 1024;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex = 0;
@@ -237,24 +265,27 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh();
-        mesh->setNonIndexedNonInstanced(kVertexCount);
-        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangleStrip);
+        fMesh = target->allocMesh();
+        fMesh->setNonIndexedNonInstanced(kVertexCount);
+        fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
-                                                                 GrProcessorSet::MakeEmptySet(),
-                                                                 GrPipeline::InputFlags::kNone);
+        if (!fProgramInfo || !fMesh) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 
     Mode fMode;
     GrColor fColor;
     SkColor4f fColor4f;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
+
+    GrMesh*        fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
