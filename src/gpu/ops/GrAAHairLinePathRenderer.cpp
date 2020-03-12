@@ -859,11 +859,25 @@ private:
                                      const SkMatrix* geometryProcessorViewM,
                                      const SkMatrix* geometryProcessorLocalM);
 
+    GrProgramInfo* programInfo() override {
+        // This Op has 3 programInfos and implements its own onPrePrepareDraws so this entry point
+        // should really never be called.
+        SkASSERT(0);
+        return nullptr;
+    }
+
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override {
         // TODO [PI]: implement
     }
 
