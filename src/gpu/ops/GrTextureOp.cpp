@@ -22,6 +22,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
@@ -233,9 +234,13 @@ public:
     const char* name() const override { return "TextureOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        bool mipped = (GrSamplerState::Filter::kMipMap == fMetadata.filter());
-        for (unsigned p = 0; p <  fMetadata.fProxyCount; ++p) {
-            func(fViewCountPairs[p].fProxy.get(), GrMipMapped(mipped));
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            bool mipped = (GrSamplerState::Filter::kMipMap == fMetadata.filter());
+            for (unsigned p = 0; p <  fMetadata.fProxyCount; ++p) {
+                func(fViewCountPairs[p].fProxy.get(), GrMipMapped(mipped));
+            }
         }
     }
 
@@ -378,14 +383,14 @@ private:
 
     // This descriptor is used in both onPrePrepareDraws and onPrepareDraws.
     //
-    // In the onPrePrepareDraws case it is allocated in the creation-time opData
-    // arena. Both allocateCommon and allocatePrePrepareOnly are called and they also allocate
-    // their memory in the creation-time opData arena.
+    // In the onPrePrepareDraws case both allocateCommon and allocatePrePrepareOnly are called
+    // and they allocate their memory in the creation-time opData arena.
     //
-    // In the onPrepareDraws case this descriptor is created on the stack and only
-    // allocateCommon is called. In this case the common memory fields are allocated
-    // in the flush-time arena (i.e., as part of the flushState).
-    struct PrePreparedDesc {
+    // In the onPrepareDraws case only allocateCommon is called. In this case the common memory
+    // fields are allocated in the flush-time arena (i.e., as part of the flushState).
+    struct Characterization {
+
+        bool                            fInited = false;
         VertexSpec                      fVertexSpec;
         int                             fNumProxies = 0;
         int                             fNumTotalQuads = 0;
@@ -455,7 +460,6 @@ private:
             : INHERITED(ClassID())
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fPrePreparedDesc(nullptr)
             , fMetadata(proxyView.swizzle(), filter, Domain(!!domainRect), saturate) {
 
         // Clean up disparities between the overall aa type and edge configuration and apply
@@ -504,7 +508,6 @@ private:
             : INHERITED(ClassID())
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fPrePreparedDesc(nullptr)
             , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
                         Domain::kNo, saturate) {
         // Update counts to reflect the batch op
@@ -642,12 +645,46 @@ private:
         return quadCount;
     }
 
-    void onCreateProgramInfo(const GrCaps*,
-                             SkArenaAlloc*,
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
-                             GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkASSERT(fCharacterization.fInited);
+
+        GrGeometryProcessor* gp;
+
+        {
+            const GrBackendFormat& backendFormat =
+                    fViewCountPairs[0].fProxy->backendFormat();
+
+            GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                         fMetadata.filter());
+
+            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(arena,
+                fCharacterization.fVertexSpec, *caps->shaderCaps(), backendFormat,
+                samplerState, fMetadata.fSwizzle, std::move(fTextureColorSpaceXform),
+                fMetadata.saturate());
+
+            SkASSERT(fCharacterization.fVertexSpec.vertexSize() == gp->vertexStride());
+        }
+
+#if 0
+//        target->recordDraw(gp, fMeshes, desc.fNumProxies,
+//                           desc.fFixedDynamicState, desc.fDynamicStateArrays,
+//                           desc.fVertexSpec.primitiveType());
+
+
+        auto pipelineFlags = (GrAAType::kMSAA == fMetadata.aaType())
+                ? GrPipeline::InputFlags::kHWAntialias
+                : GrPipeline::InputFlags::kNone;
+
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 GrProcessorSet::MakeEmptySet(),
+                                                                 pipelineFlags);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+#endif
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -657,25 +694,32 @@ private:
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
-        SkASSERT(!fPrePreparedDesc);
+        SkASSERT(!fCharacterization.fInited);
 
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
-        fPrePreparedDesc = arena->make<PrePreparedDesc>();
+        this->characterize(&fCharacterization);
 
-        this->characterize(fPrePreparedDesc);
+        GrMeshDrawOp::onPrePrepareDraws(context, outputView, clip, dstProxyView);
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-        fPrePreparedDesc->allocateCommon(arena, clip);
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
 
-        fPrePreparedDesc->allocatePrePrepareOnly(arena);
+        context->priv().recordProgramInfo(fProgramInfo);
+
+        fCharacterization.allocateCommon(arena, clip);
+
+        fCharacterization.allocatePrePrepareOnly(arena);
 
         // At this juncture we only fill in the vertex data and state arrays. Filling in of
         // the meshes is left until onPrepareDraws.
-        SkAssertResult(FillInData(*context->priv().caps(), this, fPrePreparedDesc,
-                                  fPrePreparedDesc->fVertices, nullptr, 0, nullptr, nullptr));
+        SkAssertResult(FillInData(*context->priv().caps(), this, &fCharacterization,
+                                  fCharacterization.fVertices, nullptr, 0, nullptr, nullptr));
     }
 
-    static bool FillInData(const GrCaps& caps, TextureOp* texOp, PrePreparedDesc* desc,
+    static bool FillInData(const GrCaps& caps, TextureOp* texOp, Characterization* desc,
                            char* pVertexData, GrMesh* meshes, int absBufferOffset,
                            sk_sp<const GrBuffer> vertexBuffer,
                            sk_sp<const GrBuffer> indexBuffer) {
@@ -776,7 +820,7 @@ private:
     int numQuads() const final { return this->totNumQuads(); }
 #endif
 
-    void characterize(PrePreparedDesc* desc) const {
+    void characterize(Characterization* desc) const {
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
@@ -856,25 +900,19 @@ private:
 
         SkDEBUGCODE(this->validate();)
 
-        PrePreparedDesc desc;
+        if (!fCharacterization.fInited) {
+            this->characterize(&fCharacterization);
+            fCharacterization.allocateCommon(target->allocator(), target->appliedClip());
 
-        if (fPrePreparedDesc) {
-            desc = *fPrePreparedDesc;
-        } else {
-            SkArenaAlloc* arena = target->allocator();
-
-            this->characterize(&desc);
-            desc.allocateCommon(arena, target->appliedClip());
-
-            SkASSERT(!desc.fVertices);
+            SkASSERT(!fCharacterization.fVertices);
         }
 
-        size_t vertexSize = desc.fVertexSpec.vertexSize();
+        size_t vertexSize = fCharacterization.fVertexSpec.vertexSize();
 
         sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
 
-        void* vdata = target->makeVertexSpace(vertexSize, desc.totalNumVertices(),
+        void* vdata = target->makeVertexSpace(vertexSize, fCharacterization.totalNumVertices(),
                                               &vbuffer, &vertexOffsetInBuffer);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
@@ -882,9 +920,9 @@ private:
         }
 
         sk_sp<const GrBuffer> indexBuffer;
-        if (desc.fVertexSpec.needsIndexBuffer()) {
+        if (fCharacterization.fVertexSpec.needsIndexBuffer()) {
             indexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(target,
-                                                          desc.fVertexSpec.indexBufferOption());
+                                                          fCharacterization.fVertexSpec.indexBufferOption());
             if (!indexBuffer) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -892,57 +930,39 @@ private:
         }
 
         // Note: this allocation is always in the flush-time arena (i.e., the flushState)
-        GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
+        fMeshes = target->allocMeshes(fCharacterization.fNumProxies);
 
         bool result;
-        if (fPrePreparedDesc) {
-            memcpy(vdata, desc.fVertices, desc.totalSizeInBytes());
+        if (fCharacterization.fVertices) {
+            memcpy(vdata, fCharacterization.fVertices, fCharacterization.totalSizeInBytes());
             // The above memcpy filled in the vertex data - just call FillInData to fill in the
             // mesh data
-            result = FillInData(target->caps(), this, &desc, nullptr, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), std::move(indexBuffer));
+            result = FillInData(target->caps(), this, &fCharacterization, nullptr, fMeshes,
+                                vertexOffsetInBuffer, std::move(vbuffer), std::move(indexBuffer));
         } else {
             // Fills in both vertex data and mesh data
-            result = FillInData(target->caps(), this, &desc, (char*) vdata, meshes,
+            result = FillInData(target->caps(), this, &fCharacterization, (char*) vdata, fMeshes,
                                 vertexOffsetInBuffer, std::move(vbuffer), std::move(indexBuffer));
         }
 
         if (!result) {
+            fMeshes = nullptr;
             return;
         }
-
-        GrGeometryProcessor* gp;
-
-        {
-            const GrBackendFormat& backendFormat =
-                    fViewCountPairs[0].fProxy->backendFormat();
-
-            GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
-                                                         fMetadata.filter());
-
-            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(target->allocator(),
-                desc.fVertexSpec, *target->caps().shaderCaps(), backendFormat,
-                samplerState, fMetadata.fSwizzle, std::move(fTextureColorSpaceXform),
-                fMetadata.saturate());
-
-            SkASSERT(vertexSize == gp->vertexStride());
-        }
-
-        target->recordDraw(gp, meshes, desc.fNumProxies,
-                           desc.fFixedDynamicState, desc.fDynamicStateArrays,
-                           desc.fVertexSpec.primitiveType());
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipelineFlags = (GrAAType::kMSAA == fMetadata.aaType())
-                ? GrPipeline::InputFlags::kHWAntialias
-                : GrPipeline::InputFlags::kNone;
+        if (!fProgramInfo) {
+            this->createProgramInfo(flushState);
+        }
 
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
-                                                                 GrProcessorSet::MakeEmptySet(),
-                                                                 pipelineFlags);
+        if (!fProgramInfo || !fMeshes) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMeshes,
+                                                fCharacterization.fNumProxies);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -950,7 +970,9 @@ private:
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
 
-        if (fPrePreparedDesc || that->fPrePreparedDesc) {
+        SkASSERT(fCharacterization.fInited);
+
+        if (fCharacterization.fVertices || that->fCharacterization.fVertices) {
             // This should never happen (since only DDL recorded ops should be prePrepared)
             // but, in any case, we should never combine ops that that been prePrepared
             return CombineResult::kCannotCombine;
@@ -1017,10 +1039,8 @@ private:
 
     GrQuadBuffer<ColorDomainAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
-    // 'fPrePreparedDesc' is only filled in when this op has been prePrepared. In that case,
-    // it - and the matching dynamic and fixed state - have been allocated in the opPOD arena
-    // not in the FlushState arena.
-    PrePreparedDesc* fPrePreparedDesc;
+
+    Characterization fCharacterization;
     // All configurable state of TextureOp is packed into one field to minimize the op's size.
     // Historically, increasing the size of TextureOp has caused surprising perf regressions, so
     // consider/measure changes with care.
@@ -1030,6 +1050,9 @@ private:
     // additional ViewCountPairs immediately after the op's allocation so we can treat this
     // as an fProxyCnt-length array.
     ViewCountPair fViewCountPairs[1];
+
+    GrMesh*        fMeshes = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };

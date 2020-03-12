@@ -99,6 +99,12 @@ protected:
                                              : GrResourceProvider::MaxNumNonAAQuads());
     }
 
+    // Only the GrTextureOp currently overrides this virtual
+    virtual void onPrePrepareDraws(GrRecordingContext*,
+                                   const GrSurfaceProxyView* outputView,
+                                   GrAppliedClip*,
+                                   const GrXferProcessor::DstProxyView&) {}
+
 private:
     // This method is responsible for creating all the programInfos required
     // by this op.
@@ -115,12 +121,6 @@ private:
         this->onPrePrepareDraws(context, outputView, clip, dstProxyView);
     }
     void onPrepare(GrOpFlushState* state) final;
-
-    // Only the GrTextureOp currently overrides this virtual
-    virtual void onPrePrepareDraws(GrRecordingContext*,
-                                   const GrSurfaceProxyView* outputView,
-                                   GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&) {}
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
