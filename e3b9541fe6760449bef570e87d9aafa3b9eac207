@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21aa56cf_b2d7f6b8",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-12T15:40:41Z",
+      "side": 1,
+      "message": "super-nit: 80 cols line break",
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae301c6a_309c6d45",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-12T15:40:41Z",
+      "side": 1,
+      "message": "nit: since we\u0027re not always using this for drawing, I would rename it to \"pathStorage\" or similar.",
+      "range": {
+        "startLine": 884,
+        "startChar": 11,
+        "endLine": 884,
+        "endChar": 21
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89802762_ba025517",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-12T15:40:41Z",
+      "side": 1,
+      "message": "hopefully no longer needed if we avoid recursion.",
+      "range": {
+        "startLine": 891,
+        "startChar": 8,
+        "endLine": 891,
+        "endChar": 29
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcce9f78_11e1a911",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-12T15:40:41Z",
+      "side": 1,
+      "message": "no need to recurse, we can let it fall through, right?  We\u0027d need to tweak the paint storage/scope, but that\u0027 pretty straightforward with SkTCopyOnFirstWrite:\n\n  SkTCopyOnFirstWrite\u003cSkPaint\u003e path_paint(paint);\n  ...\n  path_paint.writable()-\u003esetStyle(...);\n  ...\n\nthen use *path_paint instead of paint below.",
+      "range": {
+        "startLine": 905,
+        "startChar": 6,
+        "endLine": 906,
+        "endChar": 13
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
