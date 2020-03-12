@@ -598,6 +598,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fStatsLayer.setDisplayScale(fZoomUI ? 2.0f : 1.0f);
         fWindow->inval();
     });
+    fCommands.addCommand('$', "ViaSerialize", "Toggle ViaSerialize", [this]() {
+        fDrawViaSerialize = !fDrawViaSerialize;
+        this->updateTitle();
+        fWindow->inval();
+    });
 
     // set up slides
     this->initSlides();
@@ -810,6 +815,9 @@ void Viewer::updateTitle() {
         } else {
             title.append(" <AAA>");
         }
+    }
+    if (fDrawViaSerialize) {
+        title.append(" <serialize>");
     }
 
     SkPaintTitleUpdater paintTitle(&title);
@@ -1329,6 +1337,14 @@ void Viewer::drawSlide(SkSurface* surface) {
         slideCanvas = offscreenSurface->getCanvas();
     }
 
+    SkPictureRecorder recorder;
+    SkCanvas* recorderRestoreCanvas = nullptr;
+    if (fDrawViaSerialize) {
+        recorderRestoreCanvas = slideCanvas;
+        slideCanvas = recorder.beginRecording(
+                SkRect::Make(fSlides[fCurrentSlide]->getDimensions()));
+    }
+
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
     // Time the painting logic of the slide
@@ -1365,6 +1381,13 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
     fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
+
+    if (recorderRestoreCanvas) {
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
+        auto data = picture->serialize();
+        slideCanvas = recorderRestoreCanvas;
+        slideCanvas->drawPicture(SkPicture::MakeFromData(data.get()));
+    }
 
     // Force a flush so we can time that, too
     fStatsLayer.beginTiming(fFlushTimer);
