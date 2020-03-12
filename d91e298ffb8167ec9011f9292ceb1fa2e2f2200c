@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bee885f6_2c1a742e",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-12T13:15:01Z",
+      "side": 1,
+      "message": "Do you think it would be bad if we just always mapped the points?",
+      "range": {
+        "startLine": 363,
+        "startChar": 8,
+        "endLine": 363,
+        "endChar": 46
+      },
+      "revId": "d91e298ffb8167ec9011f9292ceb1fa2e2f2200c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
