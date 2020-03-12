@@ -642,6 +642,12 @@ private:
         return quadCount;
     }
 
+    GrProgramInfo* programInfo() override {
+        // This Op implements its own onPrePrepareDraws so this entry point should never be called.
+        SkASSERT(0);
+        return nullptr;
+    }
+
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,
@@ -653,7 +659,7 @@ private:
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+                           const GrXferProcessor::DstProxyView& dstProxyView, bool) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
