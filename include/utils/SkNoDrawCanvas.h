@@ -54,9 +54,6 @@ protected:
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override {}
     void onDrawRRect(const SkRRect&, const SkPaint&) override {}
     void onDrawPath(const SkPath&, const SkPaint&) override {}
-    void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) override {}
-    void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
-                          SrcRectConstraint) override {}
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override {}
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
                          SrcRectConstraint) override {}
