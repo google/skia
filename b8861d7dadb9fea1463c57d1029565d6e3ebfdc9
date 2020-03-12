@@ -22,6 +22,47 @@
       "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4de1e8e_64d8d47e",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-12T17:30:19Z",
+      "side": 1,
+      "message": "Test.*Lottie tasks are in https://status.skia.org/repo/lottie-ci",
+      "parentUuid": "daf07865_741aafa1",
+      "range": {
+        "startLine": 993,
+        "startChar": 0,
+        "endLine": 999,
+        "endChar": 2
+      },
+      "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47bc84aa_9c6c6730",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-12T17:30:19Z",
+      "side": 1,
+      "message": "Nit:\n\nWe have to specify extra props even for things we do not \"want\"? What if we only specified them when we want them then we could do in recipes \"svgs \u003d api.properties[\u0027svgs\u0027] !\u003d \u0027\u0027\"\nalso it might simplify this whole block to get rid of all the want* vars and have:\nelse {\n  b.asset(\"skp\")\n  extraProps[\"skps\"] \u003d \"true\"\n  ...\n}",
+      "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
