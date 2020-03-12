@@ -654,7 +654,7 @@ private:
     int fIndexCount;
     GrSurfaceProxyView fFalloffView;
 
-    GrMesh*            fMesh = nullptr;
+    GrSimpleMesh*      fMesh = nullptr;
     GrProgramInfo*     fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
