@@ -2093,21 +2093,20 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
-void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
     if (bitmap.drawsNothing()) {
-        return;
+        return nullptr;
     }
-    this->onDrawBitmap(bitmap, dx, dy, paint);
+    return SkImage::MakeFromBitmap(bitmap);
+}
+
+void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+    this->drawImage(bitmap_as_image(bitmap), dx, dy, paint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (bitmap.drawsNothing() || dst.isEmpty() || src.isEmpty()) {
-        return;
-    }
-    this->onDrawBitmapRect(bitmap, &src, dst, paint, constraint);
+    this->drawImageRect(bitmap_as_image(bitmap), src, dst, paint, constraint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
@@ -2560,94 +2559,6 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     }
 
     DRAW_END
-}
-
-void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkDEBUGCODE(bitmap.validate();)
-
-    if (bitmap.drawsNothing()) {
-        return;
-    }
-
-    SkPaint realPaint;
-    init_image_paint(&realPaint, paint);
-    paint = &realPaint;
-
-    SkRect bounds;
-    bitmap.getBounds(&bounds);
-    bounds.offset(x, y);
-    bool canFastBounds = paint->canComputeFastBounds();
-    if (canFastBounds) {
-        SkRect storage;
-        if (this->quickReject(paint->computeFastBounds(bounds, &storage))) {
-            return;
-        }
-    }
-
-    sk_sp<SkSpecialImage> special;
-    bool drawAsSprite = canFastBounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(),
-                                                                     bitmap.height(), *paint);
-    if (drawAsSprite && paint->getImageFilter()) {
-        special = this->getDevice()->makeSpecial(bitmap);
-        if (!special) {
-            drawAsSprite = false;
-        }
-    }
-
-    DRAW_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
-
-    while (iter.next()) {
-        const SkPaint& pnt = draw.paint();
-        if (special) {
-            SkPoint pt;
-            iter.fDevice->localToDevice().mapXY(x, y, &pt);
-            iter.fDevice->drawSpecial(special.get(),
-                                      SkScalarRoundToInt(pt.fX),
-                                      SkScalarRoundToInt(pt.fY), pnt,
-                                      nullptr, SkMatrix::I());
-        } else {
-            SkRect fullImage = SkRect::MakeWH(bitmap.width(), bitmap.height());
-            iter.fDevice->drawBitmapRect(bitmap, &fullImage, fullImage.makeOffset(x, y), pnt,
-                                         kStrict_SrcRectConstraint);
-        }
-    }
-
-    DRAW_END
-}
-
-// this one is non-virtual, so it can be called safely by other canvas apis
-void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                      const SkRect& dst, const SkPaint* paint,
-                                      SrcRectConstraint constraint) {
-    if (bitmap.drawsNothing() || dst.isEmpty()) {
-        return;
-    }
-
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
-
-    DRAW_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, &dst, bitmap.isOpaque())
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmapRect(bitmap, src, dst, draw.paint(), constraint);
-    }
-
-    DRAW_END
-}
-
-void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                const SkPaint* paint, SrcRectConstraint constraint) {
-    SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmapRect(bitmap, src, dst, paint, constraint);
 }
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,

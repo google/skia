@@ -56,6 +56,7 @@ class FilterIndiaBoxGM : public skiagm::GM {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }
+        fBM.setImmutable();
 
         SkScalar cx = SkScalarHalf(fBM.width());
         SkScalar cy = SkScalarHalf(fBM.height());
