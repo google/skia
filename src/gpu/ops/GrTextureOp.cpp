@@ -642,6 +642,12 @@ private:
         return quadCount;
     }
 
+    GrProgramInfo* programInfo() override {
+        // This Op implements its own onPrePrepareDraws so this entry point should never be called.
+        SkASSERT(0);
+        return nullptr;
+    }
+
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,

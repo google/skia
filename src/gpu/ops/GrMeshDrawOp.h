@@ -100,6 +100,7 @@ protected:
     }
 
 private:
+    virtual GrProgramInfo* programInfo() = 0;
     // This method is responsible for creating all the programInfos required
     // by this op.
     virtual void onCreateProgramInfo(const GrCaps*,
@@ -116,11 +117,10 @@ private:
     }
     void onPrepare(GrOpFlushState* state) final;
 
-    // Only the GrTextureOp currently overrides this virtual
     virtual void onPrePrepareDraws(GrRecordingContext*,
                                    const GrSurfaceProxyView* outputView,
                                    GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&) {}
+                                   const GrXferProcessor::DstProxyView&);
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;

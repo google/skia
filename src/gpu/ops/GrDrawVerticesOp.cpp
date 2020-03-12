@@ -52,16 +52,14 @@ private:
         kSkColor,
     };
 
-   void onCreateProgramInfo(const GrCaps*,
-                            SkArenaAlloc*,
-                            const GrSurfaceProxyView* outputView,
-                            GrAppliedClip&&,
-                            const GrXferProcessor::DstProxyView&) override;
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
 
-    void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override;
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) override;
+
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -266,21 +264,6 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
     GrGeometryProcessor* gp = this->makeGP(arena);
     fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                              dstProxyView, gp, this->primitiveType());
-}
-
-void DrawVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
-                                       const GrSurfaceProxyView* outputView,
-                                       GrAppliedClip* clip,
-                                       const GrXferProcessor::DstProxyView& dstProxyView) {
-    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-    // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-    this->createProgramInfo(context->priv().caps(), arena, outputView,
-                            std::move(appliedClip), dstProxyView);
-
-    context->priv().recordProgramInfo(fProgramInfo);
 }
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {

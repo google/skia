@@ -217,6 +217,12 @@ private:
                           fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
     }
 
+    GrProgramInfo* programInfo() override {
+        // This Op implements its own onPrePrepareDraws so this entry point should never be called.
+        SkASSERT(0);
+        return fProgramInfo;
+    }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,

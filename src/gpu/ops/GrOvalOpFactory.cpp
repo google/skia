@@ -1273,6 +1273,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
@@ -1291,21 +1292,6 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -1651,6 +1637,8 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -1668,21 +1656,6 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -1995,6 +1968,8 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -2010,21 +1985,6 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -2284,6 +2244,8 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -2295,21 +2257,6 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -2694,6 +2641,8 @@ private:
                     outerRadius, innerRadius);
     }
 
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -2712,22 +2661,6 @@ private:
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
-    }
-
 
     void onPrepareDraws(Target* target) override {
         if (!fProgramInfo) {
@@ -3031,6 +2964,8 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -3046,21 +2981,6 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {
