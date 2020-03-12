@@ -2552,16 +2552,14 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                              const SkPaint* paint);
-    virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint, SrcRectConstraint constraint);
-    // REMOVE ME
-    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&,
-                                  const SkRect&, const SkPaint*) {}
-    // REMOVE ME
-    virtual void onDrawBitmapLattice(const SkBitmap&, const Lattice&,
-                                     const SkRect&, const SkPaint*) {}
+    // REMOVE ME - SkCanvasVirtualEnforcer no longer requires the on DrawBitmapX functions
+    // to be implemented and these will be removed from SkCanvas at a later date.
+    virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
+    virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
+                                  SkCanvas::SrcRectConstraint) {}
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
+    virtual void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
+                                     const SkPaint*) {}
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
@@ -2763,9 +2761,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                const SkRect& dst, const SkPaint* paint,
-                                SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);

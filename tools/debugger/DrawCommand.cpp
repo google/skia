@@ -315,53 +315,6 @@ void render_region(SkCanvas* canvas, const SkRegion& region) {
     canvas->drawRegion(region, p);
 }
 
-void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRect = nullptr) {
-    const SkISize& size = canvas->getBaseLayerSize();
-
-    SkScalar xScale = SkIntToScalar(size.fWidth - 2) / input.width();
-    SkScalar yScale = SkIntToScalar(size.fHeight - 2) / input.height();
-
-    if (input.width() > input.height()) {
-        yScale *= input.height() / (float)input.width();
-    } else {
-        xScale *= input.width() / (float)input.height();
-    }
-
-    SkRect dst = SkRect::MakeXYWH(
-            SK_Scalar1, SK_Scalar1, xScale * input.width(), yScale * input.height());
-
-    static const int kNumBlocks = 8;
-
-    canvas->clear(0xFFFFFFFF);
-    SkISize block = {canvas->imageInfo().width() / kNumBlocks,
-                     canvas->imageInfo().height() / kNumBlocks};
-    for (int y = 0; y < kNumBlocks; ++y) {
-        for (int x = 0; x < kNumBlocks; ++x) {
-            SkPaint paint;
-            paint.setColor((x + y) % 2 ? SK_ColorLTGRAY : SK_ColorDKGRAY);
-            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x * block.width()),
-                                        SkIntToScalar(y * block.height()),
-                                        SkIntToScalar(block.width()),
-                                        SkIntToScalar(block.height()));
-            canvas->drawRect(r, paint);
-        }
-    }
-
-    canvas->drawBitmapRect(input, dst, nullptr);
-
-    if (srcRect) {
-        SkRect  r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,
-                                    srcRect->fTop * yScale + SK_Scalar1,
-                                    srcRect->fRight * xScale + SK_Scalar1,
-                                    srcRect->fBottom * yScale + SK_Scalar1);
-        SkPaint p;
-        p.setColor(SK_ColorRED);
-        p.setStyle(SkPaint::kStroke_Style);
-
-        canvas->drawRect(r, p);
-    }
-}
-
 void render_rrect(SkCanvas* canvas, const SkRRect& rrect) {
     canvas->clear(0xFFFFFFFF);
     canvas->save();
@@ -1155,80 +1108,6 @@ void DrawAnnotationCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlData
 }
 
 ////
-
-DrawBitmapCommand::DrawBitmapCommand(const SkBitmap& bitmap,
-                                     SkScalar        left,
-                                     SkScalar        top,
-                                     const SkPaint*  paint)
-        : INHERITED(kDrawBitmap_OpType), fBitmap(bitmap), fLeft(left), fTop(top), fPaint(paint) {}
-
-void DrawBitmapCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmap(fBitmap, fLeft, fTop, fPaint.getMaybeNull());
-}
-
-bool DrawBitmapCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
-    return true;
-}
-
-void DrawBitmapCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_BITMAP);
-    flatten(fBitmap, writer, urlDataManager);
-    writer.endObject();
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
-    MakeJsonPoint(writer, fLeft, fTop);
-    if (fPaint.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint, urlDataManager);
-    }
-}
-
-DrawBitmapRectCommand::DrawBitmapRectCommand(const SkBitmap&             bitmap,
-                                             const SkRect*               src,
-                                             const SkRect&               dst,
-                                             const SkPaint*              paint,
-                                             SkCanvas::SrcRectConstraint constraint)
-        : INHERITED(kDrawBitmapRect_OpType)
-        , fBitmap(bitmap)
-        , fSrc(src)
-        , fDst(dst)
-        , fPaint(paint)
-        , fConstraint(constraint) {}
-
-void DrawBitmapRectCommand::execute(SkCanvas* canvas) const {
-    canvas->legacy_drawBitmapRect(
-            fBitmap, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
-}
-
-bool DrawBitmapRectCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap, fSrc.getMaybeNull());
-    return true;
-}
-
-void DrawBitmapRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_BITMAP);
-    flatten(fBitmap, writer, urlDataManager);
-    writer.endObject();  // bitmap
-
-    if (fSrc.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
-        MakeJsonRect(writer, *fSrc);
-    }
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
-    MakeJsonRect(writer, fDst);
-    if (fPaint.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint, urlDataManager);
-    }
-    if (fConstraint == SkCanvas::kStrict_SrcRectConstraint) {
-        writer.appendBool(DEBUGCANVAS_ATTRIBUTE_STRICT, true);
-    }
-
-    SkString desc;
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fDst)->c_str());
-}
 
 DrawImageCommand::DrawImageCommand(const SkImage* image,
                                    SkScalar       left,

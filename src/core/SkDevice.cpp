@@ -159,15 +159,6 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     }
 }
 
-void SkBaseDevice::drawImageRect(const SkImage* image, const SkRect* src,
-                                 const SkRect& dst, const SkPaint& paint,
-                                 SkCanvas::SrcRectConstraint constraint) {
-    SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->drawBitmapRect(bm, src, dst, paint, constraint);
-    }
-}
-
 void SkBaseDevice::drawImageNine(const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
     SkLatticeIter iter(image->width(), image->height(), center, dst);
@@ -175,16 +166,6 @@ void SkBaseDevice::drawImageNine(const SkImage* image, const SkIRect& center,
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
         this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-}
-
-void SkBaseDevice::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                  const SkRect& dst, const SkPaint& paint) {
-    SkLatticeIter iter(bitmap.width(), bitmap.height(), center, dst);
-
-    SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawBitmapRect(bitmap, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 }
 
@@ -212,17 +193,6 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
         } else {
             this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
         }
-    }
-}
-
-void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
-                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                     const SkPaint& paint) {
-    SkLatticeIter iter(lattice, dst);
-
-    SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawBitmapRect(bitmap, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 }
 

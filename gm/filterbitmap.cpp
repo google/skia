@@ -57,6 +57,7 @@ class FilterBitmapGM : public skiagm::GM {
         this->setBGColor(0xFFDDDDDD);
 
         this->makeBitmap();
+        fBM.setImmutable();
 
         SkScalar cx = SkScalarHalf(fBM.width());
         SkScalar cy = SkScalarHalf(fBM.height());

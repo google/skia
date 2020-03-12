@@ -202,16 +202,6 @@ void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
     }
 }
 
-void SkOverdrawCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                                    const SkPaint*) {
-    fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()), fPaint);
-}
-
-void SkOverdrawCanvas::onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect& dst,
-                                        const SkPaint*, SrcRectConstraint) {
-    fList[0]->onDrawRect(dst, fPaint);
-}
-
 void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     drawable->draw(this, matrix);
 }

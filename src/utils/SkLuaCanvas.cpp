@@ -234,22 +234,6 @@ void SkLuaCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                               const SkPaint* paint) {
-    AUTO_LUA("drawBitmap");
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
-    }
-}
-
-void SkLuaCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                   const SkPaint* paint, SrcRectConstraint) {
-    AUTO_LUA("drawBitmapRect");
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
-    }
-}
-
 void SkLuaCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     AUTO_LUA("drawImage");
     if (paint) {

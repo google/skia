@@ -77,10 +77,6 @@ public:
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
     void drawPath(const SkPath& origpath, const SkPaint& paint, bool pathIsMutable) override;
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                        const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawSprite(const SkBitmap& bitmap, int x, int y,
-                    const SkPaint& paint) override;
 
     void drawImageRect(const SkImage*,
                        const SkRect* src,
@@ -93,6 +89,8 @@ public:
                     const SkPaint&) override;
 
     // PDF specific methods.
+    void drawSprite(const SkBitmap& bitmap, int x, int y,
+                    const SkPaint& paint);
 
     /** Create the resource dictionary for this device. Destructive. */
     std::unique_ptr<SkPDFDict> makeResourceDict();
