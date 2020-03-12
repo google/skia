@@ -16,6 +16,10 @@
 
 class SkWStream;
 
+#if 0
+    #define SKVM_LLVM
+#endif
+
 namespace skvm {
 
     class Assembler {
