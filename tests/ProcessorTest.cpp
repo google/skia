@@ -69,6 +69,10 @@ private:
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override { return; }
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override { return; }
     void onPrepareDraws(Target* target) override { return; }
     void onExecute(GrOpFlushState*, const SkRect&) override { return; }
 

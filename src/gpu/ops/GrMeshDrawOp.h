@@ -116,11 +116,10 @@ private:
     }
     void onPrepare(GrOpFlushState* state) final;
 
-    // Only the GrTextureOp currently overrides this virtual
     virtual void onPrePrepareDraws(GrRecordingContext*,
                                    const GrSurfaceProxyView* outputView,
                                    GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&) {}
+                                   const GrXferProcessor::DstProxyView&) = 0;
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;

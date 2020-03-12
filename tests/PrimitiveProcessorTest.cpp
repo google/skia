@@ -132,6 +132,13 @@ private:
         // TODO [PI]: implement
     }
 
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
                                                                  GrProcessorSet::MakeEmptySet(),
