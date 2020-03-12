@@ -1077,7 +1077,7 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 

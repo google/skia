@@ -134,6 +134,17 @@ SimpleM44 toSimpleM44(const SkM44& sm) {
     return m;
 }
 
+struct SimpleColor4f {
+    float r, g, b, a;
+};
+
+SimpleColor4f toSimpleColor4f(const SkColor4f c) {
+    SimpleColor4f color {
+        c.fA, c.fG, c.fB, c.fA,
+    };
+    return color;
+}
+
 // Surface creation structs and helpers
 struct SimpleImageInfo {
     int width;
@@ -797,15 +808,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
-                                uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
-        const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkColor4f* colors    = reinterpret_cast<const SkColor4f*>(cPtr);
+        const SkScalar*  positions = reinterpret_cast<const SkScalar*>(pPtr);
 
-        return SkGradientShader::MakeLinear(points, colors, positions, count,
-                                            mode, flags, nullptr);
+        return SkGradientShader::MakeLinear(points, colors, SkColorSpace::MakeSRGB(), positions,
+                                            count, mode, flags, nullptr);
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
@@ -922,7 +933,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
-        .function("clear", &SkCanvas::clear)
+        .function("clear", optional_override([](SkCanvas& self, SimpleColor4f c) {
+            self.clear(SkColor4f({c.r, c.g, c.b, c.a}).toSkColor());
+        }))
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
         .function("clipRRect", optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
             self.clipRRect(toRRect(r), op, doAntiAlias);
@@ -946,7 +959,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawAtlas(atlas, dstXforms, srcRects, colors, count, mode, nullptr, paint);
         }), allow_raw_pointers())
         .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
-        .function("drawColor", &SkCanvas::drawColor)
+        .function("drawColor", optional_override([](SkCanvas& self, SimpleColor4f c) {
+            self.drawColor(SkColor4f({c.r, c.g, c.b, c.a}).toSkColor());
+        }))
+        .function("drawColor", optional_override([](SkCanvas& self, SimpleColor4f c, SkBlendMode mode) {
+            self.drawColor(SkColor4f({c.r, c.g, c.b, c.a}).toSkColor(), mode);
+        }))
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
         }))
@@ -1270,7 +1288,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return p;
         }))
         .function("getBlendMode", &SkPaint::getBlendMode)
-        .function("getColor", &SkPaint::getColor)
+        .function("getColor", optional_override([](SkPaint& self) {
+            return toSimpleColor4f(self.getColor4f());
+        }))
         .function("getFilterQuality", &SkPaint::getFilterQuality)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
         .function("getStrokeJoin", &SkPaint::getStrokeJoin)
@@ -1278,12 +1298,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setBlendMode", &SkPaint::setBlendMode)
-        .function("setColor", optional_override([](SkPaint& self, SkColor c) {
-            self.setColor(c);
-        }))
-        .function("setColorf", optional_override([](SkPaint& self,
-                                                    float r, float g, float b, float a) {
-            self.setColor({r, g, b, a});
+        .function("setColor", optional_override([](SkPaint& self, SimpleColor4f c) {
+            self.setColor({c.r, c.g, c.b, c.a});
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
@@ -1430,7 +1446,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto m = toSkMatrix(sm);
             return SkShaders::Blend(mode, dst, src, &m);
         }))
-        .class_function("Color", select_overload<sk_sp<SkShader>(SkColor)>(&SkShaders::Color))
+        .class_function("Color",
+            //select_overload<sk_sp<SkShader>(SkColor)>(&SkShaders::Color)
+            optional_override([](SimpleColor4f c)->sk_sp<SkShader> {
+                // TODO(nifong): should not be hardcoded once wider gamuts are supported in canvaskit
+                return SkShaders::Color(SkColor4f({c.r, c.g, c.b, c.a}), SkColorSpace::MakeSRGB());
+            })
+        )
         .class_function("_Lerp", optional_override([](float t, sk_sp<SkShader> dst, sk_sp<SkShader> src)->sk_sp<SkShader> {
             return SkShaders::Lerp(t, dst, src, nullptr);
         }))
@@ -1713,6 +1735,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("text",        &ShapedTextOpts::text)
         .field("width",       &ShapedTextOpts::width);
 #endif
+
     value_object<SkRect>("SkRect")
         .field("fLeft",   &SkRect::fLeft)
         .field("fTop",    &SkRect::fTop)
@@ -1804,15 +1827,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .element(&SimpleM44::m8).element(&SimpleM44::m9).element(&SimpleM44::m10).element(&SimpleM44::m11)
         .element(&SimpleM44::m12).element(&SimpleM44::m13).element(&SimpleM44::m14).element(&SimpleM44::m15);
 
-    constant("TRANSPARENT", SK_ColorTRANSPARENT);
-    constant("RED",         SK_ColorRED);
-    constant("GREEN",       SK_ColorGREEN);
-    constant("BLUE",        SK_ColorBLUE);
-    constant("MAGENTA",     SK_ColorMAGENTA);
-    constant("YELLOW",      SK_ColorYELLOW);
-    constant("CYAN",        SK_ColorCYAN);
-    constant("BLACK",       SK_ColorBLACK);
-    constant("WHITE",       SK_ColorWHITE);
+    value_array<SimpleColor4f>("SkColor4f")
+        .element(&SimpleColor4f::r)
+        .element(&SimpleColor4f::g)
+        .element(&SimpleColor4f::b)
+        .element(&SimpleColor4f::a);
+
+    // constant("TRANSPARENT", {0, 0, 0, 0});
+    // constant("RED",         SK_ColorRED);
+    // constant("GREEN",       SK_ColorGREEN);
+    // constant("BLUE",        SK_ColorBLUE);
+    // constant("MAGENTA",     SK_ColorMAGENTA);
+    // constant("YELLOW",      SK_ColorYELLOW);
+    // constant("CYAN",        SK_ColorCYAN);
+    // constant("BLACK",       SK_ColorBLACK);
+    // constant("WHITE",       SK_ColorWHITE);
     // TODO(?)
 
     constant("MOVE_VERB",  MOVE);
