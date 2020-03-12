@@ -111,11 +111,20 @@ private:
         int fNumDraws = 0;
     };
 
+    GrProgramInfo* programInfo() override { return nullptr; }
+
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override {
+        // TODO [PI]: implement
+    }
+
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&, bool) override {
         // TODO [PI]: implement
     }
 
