@@ -246,3 +246,23 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     canvas->restore();
     canvas->restore();
 }
+
+DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
+    auto img = GetResourceAsImage("images/yellow_rose.png");
+    auto sh = img->makeShader();
+    auto img2 = GetResourceAsImage("images/mandrill_256.png");
+
+    SkRect r = SkRect::MakeIWH(img->width(), img->height());
+    SkPaint p;
+
+    canvas->translate(10, 10);
+    // draw some background, faded
+    p.setAlphaf(0.25f);
+    canvas->drawImageRect(img2, r, &p);
+    // now add the cool clip
+    canvas->clipShader(sh);
+    // now draw a layer with the same image, and watch it get restored w/ the clip
+    canvas->saveLayer(&r, nullptr);
+    canvas->drawImageRect(img2, r, nullptr);
+    canvas->restore();
+}
