@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daf07865_741aafa1",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-12T14:23:39Z",
+      "side": 1,
+      "message": "FTR, the Lottie tasks were previously setting DM flags pointing to the other assets (eg. --skps) but we weren\u0027t \"installing\" them.  I think they\u0027re desktop (although I don\u0027t see any Test.*Lottie tasks at all right now) which means they were still being run.  Now they will not be.",
+      "range": {
+        "startLine": 993,
+        "startChar": 0,
+        "endLine": 999,
+        "endChar": 2
+      },
+      "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
