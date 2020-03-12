@@ -58,42 +58,6 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skimage VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
-      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
       "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
       "/path/to/tmp/"
     ],

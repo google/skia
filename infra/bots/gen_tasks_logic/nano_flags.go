@@ -11,7 +11,7 @@ import (
 )
 
 // nanobenchFlags generates flags to Nanobench based on the given task properties.
-func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string) {
+func (b *taskBuilder) nanobenchFlags(extraProps map[string]string, doUpload bool) ([]string, map[string]string) {
 	args := []string{
 		"nanobench",
 		"--pre_log",
@@ -258,7 +258,53 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string
 		args = append(args, "--verbose")
 	}
 
-	props := map[string]string{
+	// Determine which assets are needed by the task.
+	var wantImages,
+		wantResources,
+		wantSkps,
+		wantSvgs,
+		wantTextTraces bool
+	if !b.gpu() {
+		wantImages = true
+	}
+	wantResources = true
+	if !b.os("iOS") {
+		wantSkps = true
+	}
+	if !b.extraConfig("Valgrind") {
+		wantSvgs = true
+	}
+	if b.cpu() && b.os("Android") {
+		wantTextTraces = true
+	}
+
+	// Add the required assets.
+	if wantImages {
+		b.asset("skimage")
+	}
+	if wantResources {
+		// These are part of the Skia repo; nothing to do.
+	}
+	if wantSkps {
+		b.asset("skp")
+	}
+	if wantSvgs {
+		b.asset("svg")
+	}
+	if wantTextTraces {
+		// TODO(borenet): Where do these come from?
+	}
+
+	// Add properties indicating which assets the task should use.
+	extraProps["do_upload"] = fmt.Sprintf("%v", doUpload)
+	extraProps["images"] = fmt.Sprintf("%v", wantImages)
+	extraProps["resources"] = fmt.Sprintf("%v", wantResources)
+	extraProps["skps"] = fmt.Sprintf("%v", wantSkps)
+	extraProps["svgs"] = fmt.Sprintf("%v", wantSvgs)
+	extraProps["texttraces"] = fmt.Sprintf("%v", wantTextTraces)
+
+	// These properties are plumbed through nanobench and into Perf results.
+	nanoProps := map[string]string{
 		"gitHash":          specs.PLACEHOLDER_REVISION,
 		"issue":            specs.PLACEHOLDER_ISSUE,
 		"patchset":         specs.PLACEHOLDER_PATCHSET,
@@ -286,5 +332,5 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string
 		}
 	}
 
-	return args, props
+	return args, nanoProps
 }

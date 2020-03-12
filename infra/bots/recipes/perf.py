@@ -27,26 +27,24 @@ DEPS = [
 ]
 
 
-def upload_perf_results(buildername):
-  if 'Release' not in buildername:
-    return False
-  skip_upload_bots = [
-    'ASAN',
-    'Coverage',
-    'MSAN',
-    'TSAN',
-    'Valgrind',
-  ]
-  for s in skip_upload_bots:
-    if s in buildername:
-      return False
-  return True
-
-
 def perf_steps(api):
   """Run Skia benchmarks."""
-  b = api.properties['buildername']
-  if upload_perf_results(b):
+  do_upload = api.properties['do_upload'] == 'true'
+  images = api.properties['images'] == 'true'
+  resources = api.properties['resources'] == 'true'
+  skps = api.properties['skps'] == 'true'
+  svgs = api.properties['svgs'] == 'true'
+  texttraces = api.properties['texttraces'] == 'true'
+
+  api.flavor.install(
+      resources=resources,
+      skps=skps,
+      images=images,
+      svgs=svgs,
+      texttraces=texttraces,
+  )
+
+  if do_upload:
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
 
@@ -55,7 +53,7 @@ def perf_steps(api):
   props = json.loads(api.properties['nanobench_properties'])
   swarming_bot_id = api.vars.swarming_bot_id
   swarming_task_id = api.vars.swarming_task_id
-  if upload_perf_results(b):
+  if do_upload:
     args.append('--properties')
     # Map iteration order is arbitrary; in order to maintain a consistent step
     # ordering, sort by key.
@@ -69,21 +67,19 @@ def perf_steps(api):
         args.extend([k, v])
 
   # Paths to required resources.
-  args.extend(['-i', api.flavor.device_dirs.resource_dir])
-  if 'iOS' not in b:
+  if resources:
+    args.extend(['-i', api.flavor.device_dirs.resource_dir])
+  if skps:
     args.extend(['--skps', api.flavor.device_dirs.skp_dir]),
-  if 'GPU' not in b:
+  if images:
     args.extend(['--images', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'nanobench')])
-
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU' and 'Android' in b:
+  if texttraces:
     assert api.flavor.device_dirs.texttraces_dir
     args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
-  # Do not run svgs on Valgrind.
-  if 'Valgrind' not in b:
+  if svgs:
     args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
-
-  if upload_perf_results(b):
+  if do_upload:
     now = api.time.utcnow()
     ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
@@ -95,7 +91,7 @@ def perf_steps(api):
           abort_on_failure=False)
 
   # Copy results to swarming out dir.
-  if upload_perf_results(b):
+  if do_upload:
     api.file.ensure_directory(
         'makedirs perf_dir',
         api.flavor.host_dirs.perf_data_dir)
@@ -110,11 +106,6 @@ def RunSteps(api):
   api.flavor.setup('nanobench')
 
   try:
-    if all(v in api.vars.builder_name for v in ['Android', 'CPU']):
-      api.flavor.install(skps=True, images=True, svgs=True, resources=True,
-                         texttraces=True)
-    else:
-      api.flavor.install(skps=True, images=True, svgs=True, resources=True)
     perf_steps(api)
   finally:
     api.flavor.cleanup_steps()
@@ -131,9 +122,23 @@ TEST_BUILDERS = [
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
+    do_upload = (
+        'false' if 'Valgrind' in builder or 'Debug' in builder else 'true')
+    images = 'false' if 'GPU' in builder else 'true'
+    resources = 'true'
+    skps = 'false' if 'iOS' in builder else 'true'
+    svgs = 'false' if 'Valgrind' in builder else 'true'
+    texttraces = (
+        'true' if 'Android' in builder and 'CPU' in builder else 'false')
     test = (
       api.test(builder) +
       api.properties(buildername=builder,
+                     do_upload=do_upload,
+                     images=images,
+                     resources=resources,
+                     skps=skps,
+                     svgs=svgs,
+                     texttraces=texttraces,
                      nanobench_flags='["nanobench","--dummy","--flags"]',
                      nanobench_properties=('{"key1":"value1","key2":"",'
                                            '"bot":"${SWARMING_BOT_ID}",'

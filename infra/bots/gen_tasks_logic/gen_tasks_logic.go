@@ -1347,7 +1347,7 @@ func (b *jobBuilder) test() {
 			iidStr = strconv.Itoa(*iid)
 		}
 		if recipe == "test" {
-			flags, props := b.dmFlags(iidStr)
+			flags, props := b.dmFlags(extraProps, b.doUpload(), iidStr)
 			extraProps["dm_flags"] = marshalJson(flags)
 			extraProps["dm_properties"] = marshalJson(props)
 		}
@@ -1451,7 +1451,7 @@ func (b *jobBuilder) perf() {
 			extraProps[k] = v
 		}
 		if recipe == "perf" {
-			flags, props := b.nanobenchFlags(doUpload)
+			flags, props := b.nanobenchFlags(extraProps, doUpload)
 			extraProps["nanobench_flags"] = marshalJson(flags)
 			extraProps["nanobench_properties"] = marshalJson(props)
 		}

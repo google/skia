@@ -41,7 +41,7 @@ func keyParams(parts map[string]string) []string {
 }
 
 // dmFlags generates flags to DM based on the given task properties.
-func (b *taskBuilder) dmFlags(internalHardwareLabel string) ([]string, map[string]string) {
+func (b *taskBuilder) dmFlags(extraProps map[string]string, doUpload bool, internalHardwareLabel string) ([]string, map[string]string) {
 	properties := map[string]string{
 		"gitHash":              specs.PLACEHOLDER_REVISION,
 		"builder":              b.Name,
@@ -982,5 +982,46 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) ([]string, map[strin
 	if b.extraConfig("ReleaseAndAbandonGpuContext") {
 		args = append(args, "--releaseAndAbandonGpuContext")
 	}
+
+	// Determine which assets are needed by the task.
+	var wantImages,
+		wantResources,
+		wantSkps,
+		wantSvgs,
+		wantLotties bool
+	wantResources = true
+	if b.matchExtraConfig("Lottie") {
+		wantLotties = true
+	} else {
+		wantImages = true
+		wantSkps = true
+		wantSvgs = true
+	}
+
+	// Add the required assets.
+	if wantImages {
+		b.asset("skimage")
+	}
+	if wantLotties {
+		b.asset("lottie")
+	}
+	if wantResources {
+		// These are part of the Skia repo; nothing to do.
+	}
+	if wantSkps {
+		b.asset("skp")
+	}
+	if wantSvgs {
+		b.asset("svg")
+	}
+
+	// Add properties indicating which assets the task should use.
+	extraProps["do_upload"] = fmt.Sprintf("%v", doUpload)
+	extraProps["images"] = fmt.Sprintf("%v", wantImages)
+	extraProps["lotties"] = fmt.Sprintf("%v", wantLotties)
+	extraProps["resources"] = fmt.Sprintf("%v", wantResources)
+	extraProps["skps"] = fmt.Sprintf("%v", wantSkps)
+	extraProps["svgs"] = fmt.Sprintf("%v", wantSvgs)
+
 	return args, properties
 }
