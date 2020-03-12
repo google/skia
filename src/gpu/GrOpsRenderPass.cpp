@@ -263,3 +263,20 @@ void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int in
     SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
     this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance, baseVertex);
 }
+
+void GrOpsRenderPass::drawIndexPattern(int patternIndexCount, int patternRepeatCount,
+                                       int maxPatternRepetitionsInIndexBuffer,
+                                       int patternVertexCount, int baseVertex) {
+    int baseRepetition = 0;
+    while (baseRepetition < patternRepeatCount) {
+        int repeatCount = std::min(patternRepeatCount - baseRepetition,
+                                   maxPatternRepetitionsInIndexBuffer);
+        int drawIndexCount = repeatCount * patternIndexCount;
+        // A patterned index buffer must contain indices in the range [0..vertexCount].
+        int minIndexValue = 0;
+        int maxIndexValue = patternVertexCount * repeatCount - 1;
+        this->drawIndexed(drawIndexCount, 0, minIndexValue, maxIndexValue,
+                          patternVertexCount * baseRepetition + baseVertex);
+        baseRepetition += repeatCount;
+    }
+}
