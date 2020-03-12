@@ -294,6 +294,7 @@ namespace skvm {
                 case Op::floor:  write(o, V{id}, "=", op, V{x}); break;
                 case Op::to_f32: write(o, V{id}, "=", op, V{x}); break;
                 case Op::trunc:  write(o, V{id}, "=", op, V{x}); break;
+                case Op::round:  write(o, V{id}, "=", op, V{x}); break;
             }
 
             write(o, "\n");
@@ -410,9 +411,10 @@ namespace skvm {
                 case Op::bytes:   write(o, R{d}, "=", op,  R{x}, Hex{immy}); break;
                 case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
-                case Op::floor:  write(o, R{d}, "=", op,  R{x}); break;
+                case Op::floor:  write(o, R{d}, "=", op, R{x}); break;
                 case Op::to_f32: write(o, R{d}, "=", op, R{x}); break;
-                case Op::trunc:  write(o, R{d}, "=", op,  R{x}); break;
+                case Op::trunc:  write(o, R{d}, "=", op, R{x}); break;
+                case Op::round:  write(o, R{d}, "=", op, R{x}); break;
             }
             write(o, "\n");
         }
@@ -924,13 +926,19 @@ namespace skvm {
         if (this->allImm(x.id,&X)) { return this->splat((int)X); }
         return {this->push(Op::trunc, x.id)};
     }
+    I32 Builder::round(F32 x) {
+        float X;
+        if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
+        return {this->push(Op::round, x.id)};
+    }
+
     F32 Builder::from_unorm(int bits, I32 x) {
         F32 limit = splat(1 / ((1<<bits)-1.0f));
         return mul(to_f32(x), limit);
     }
     I32 Builder::to_unorm(int bits, F32 x) {
         F32 limit = splat((1<<bits)-1.0f);
-        return trunc(mad(x, limit, splat(0.5f)));
+        return round(mul(x, limit));
     }
 
     Color Builder::unpack_1010102(I32 rgba) {
@@ -1952,6 +1960,26 @@ namespace skvm {
 
                 case Op::to_f32: vals[i] = I(b->CreateSIToFP(  vals[x] , F32)); break;
                 case Op::trunc : vals[i] =   b->CreateFPToSI(F(vals[x]), I32) ; break;
+                case Op::round : {
+                    // Basic impl when we can't use cvtps2dq and co.
+                    auto round = b->CreateUnaryIntrinsic(llvm::Intrinsic::rint, F(vals[x]));
+                    vals[i] = b->CreateFPToSI(round, I32);
+
+                #if 1 && defined(SK_CPU_X86)
+                    // Using b->CreateIntrinsic(..., {}, {...}) to avoid name mangling.
+                    if (scalar) {
+                        // cvtss2si is float x4 -> int, ignoring input lanes 1,2,3.  ¯\_(ツ)_/¯
+                        llvm::Value* v = llvm::UndefValue::get(llvm::VectorType::get(f32, 4));
+                        v = b->CreateInsertElement(v, F(vals[x]), (uint64_t)0);
+                        vals[i] = b->CreateIntrinsic(llvm::Intrinsic::x86_sse_cvtss2si, {}, {v});
+                    } else {
+                        SkASSERT(K == 4  || K == 8);
+                        auto intr = K == 4 ?   llvm::Intrinsic::x86_sse2_cvtps2dq :
+                                 /* K == 8 ?*/ llvm::Intrinsic::x86_avx_cvt_ps2dq_256;
+                        vals[i] = b->CreateIntrinsic(intr, {}, {F(vals[x])});
+                    }
+                #endif
+                } break;
 
                 case Op::add_i16x2: vals[i] = I(b->CreateAdd(x2(vals[x]), x2(vals[y]))); break;
                 case Op::sub_i16x2: vals[i] = I(b->CreateSub(x2(vals[x]), x2(vals[y]))); break;
@@ -2763,6 +2791,7 @@ namespace skvm {
                 case Op::floor : a->vroundps  (dst(), r[x], Assembler::FLOOR); break;
                 case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
+                case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
                 case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(immy)->label);
                                 break;
@@ -2888,6 +2917,9 @@ namespace skvm {
 
                 case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r[x]); break;
+                case Op::round:  a->fcvtns4s(dst(), r[x]); break;
+                // TODO: fcvtns.4s rounds to nearest even.
+                // I think we actually want frintx -> fcvtzs to round to current mode.
 
                 case Op::bytes:
                     if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(immy)->reg); }
