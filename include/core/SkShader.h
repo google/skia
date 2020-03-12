@@ -144,9 +144,6 @@ public:
     static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                 const SkMatrix* localMatrix = nullptr);
 
-    static sk_sp<SkShader> Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                const SkMatrix* localMatrix = nullptr);
-
 private:
     SkShaders() = delete;
 };

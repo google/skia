@@ -69,33 +69,4 @@ private:
     typedef SkShaderBase INHERITED;
 };
 
-class SkShader_LerpRed final : public SkShaderBase {
-public:
-    SkShader_LerpRed(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                     const SkMatrix* lm)
-        : INHERITED(lm)
-        , fDst(std::move(dst))
-        , fSrc(std::move(src))
-        , fRed(std::move(red))
-    {}
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
-#endif
-
-protected:
-    SkShader_LerpRed(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const override;
-    bool onAppendStages(const SkStageRec&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkShader_LerpRed)
-
-    sk_sp<SkShader> fDst;
-    sk_sp<SkShader> fSrc;
-    sk_sp<SkShader> fRed;
-
-    typedef SkShaderBase INHERITED;
-};
-
 #endif
