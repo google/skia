@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
@@ -21,6 +22,23 @@ void GrMeshDrawOp::createProgramInfo(Target* target) {
                             target->outputView(),
                             target->detachAppliedClip(),
                             target->dstProxyView());
+}
+
+// This onPrepareDraws implementation assumes the derived Op only has a single programInfo -
+// which is the majority of the cases.
+void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip* clip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // This is equivalent to a GrOpFlushState::detachAppliedClip
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+    this->createProgramInfo(context->priv().caps(), arena, outputView,
+                            std::move(appliedClip), dstProxyView);
+
+    context->priv().recordProgramInfo(this->programInfo());
 }
 
 //////////////////////////////////////////////////////////////////////////////
