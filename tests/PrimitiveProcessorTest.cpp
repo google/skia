@@ -56,6 +56,8 @@ private:
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsHairline::kNo);
     }
 
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
@@ -132,21 +134,6 @@ private:
                                                                    GrProcessorSet::MakeEmptySet(),
                                                                    GrPrimitiveType::kTriangles,
                                                                    GrPipeline::InputFlags::kNone);
-    }
-
-    void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
     }
 
     void onPrepareDraws(Target* target) override {

@@ -102,16 +102,13 @@ private:
                const SkRect& localRect,
                const SkMatrix& localMatrix);
 
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override;
 
-    void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) final;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -180,21 +177,6 @@ void TestRectOp::onCreateProgramInfo(const GrCaps* caps,
                                                                std::move(fProcessorSet),
                                                                GrPrimitiveType::kTriangles,
                                                                GrPipeline::InputFlags::kNone);
-}
-
-void TestRectOp::onPrePrepareDraws(GrRecordingContext* context,
-                                   const GrSurfaceProxyView* outputView,
-                                   GrAppliedClip* clip,
-                                   const GrXferProcessor::DstProxyView& dstProxyView) {
-    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-    // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-    this->createProgramInfo(context->priv().caps(), arena, outputView,
-                            std::move(appliedClip), dstProxyView);
-
-    context->priv().recordProgramInfo(fProgramInfo);
 }
 
 void TestRectOp::onPrepareDraws(Target* target) {
