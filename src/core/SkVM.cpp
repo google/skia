@@ -144,11 +144,11 @@ namespace skvm {
         }
     }
 
-    void Builder::dot(SkWStream* o) const {
+    void Builder::dot(SkWStream* o, bool for_jit) const {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        std::vector<OptimizedInstruction> optimized = this->optimize();
+        std::vector<OptimizedInstruction> optimized = this->optimize(for_jit);
 
         o->writeText("digraph {\n");
         for (Val id = 0; id < (Val)optimized.size(); id++) {

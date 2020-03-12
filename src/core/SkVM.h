@@ -562,7 +562,7 @@ namespace skvm {
         Color lerp(Color lo, Color hi, F32 t);
 
         void dump(SkWStream* = nullptr) const;
-        void dot (SkWStream* = nullptr) const;
+        void dot (SkWStream* = nullptr, bool for_jit=false) const;
 
         uint64_t hash() const;
 
