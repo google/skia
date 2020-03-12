@@ -810,6 +810,28 @@ DEF_TEST(SkVM_floor, r) {
     });
 }
 
+DEF_TEST(SkVM_round, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src = b.varying<float>();
+        skvm::Arg dst = b.varying<int>();
+        b.store32(dst, b.round(b.bit_cast(b.load32(src))));
+    }
+
+    // The test cases on exact 0.5f boundaries assume the current rounding mode is nearest even.
+    // We haven't explicitly guaranteed that here... it just probably is.
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        float buf[]  = { -1.5f, -0.5f, 0.0f, 0.5f, 0.2f, 0.6f, 1.0f, 1.4f, 1.5f, 2.0f };
+        int want[] =   { -2   ,  0   , 0   , 0   , 0   , 1   , 1   , 1   , 2   , 2    };
+        int dst[SK_ARRAY_COUNT(buf)];
+
+        program.eval(SK_ARRAY_COUNT(buf), buf, dst);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(dst); i++) {
+            REPORTER_ASSERT(r, dst[i] == want[i]);
+        }
+    });
+}
+
 DEF_TEST(SkVM_min, r) {
     skvm::Builder b;
     {

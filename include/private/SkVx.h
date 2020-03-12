@@ -28,7 +28,7 @@
 #include <cstring>           // memcpy()
 #include <initializer_list>  // std::initializer_list
 
-#if defined(__SSE__) || defined(__AVX2__)
+#if defined(__SSE__) || defined(__AVX__) || defined(__AVX2__)
     #include <immintrin.h>
 #elif defined(__ARM_NEON)
     #include <arm_neon.h>
@@ -288,6 +288,8 @@ SIT Vec<1,T> round(const Vec<1,T>& x) { return std::round(x.val); }
 SIT Vec<1,T>  sqrt(const Vec<1,T>& x) { return std:: sqrt(x.val); }
 SIT Vec<1,T>   abs(const Vec<1,T>& x) { return std::  abs(x.val); }
 
+SIT Vec<1,int> lrint(const Vec<1,T>& x) { return (int)std::lrint(x.val); }
+
 SIT Vec<1,T>   rcp(const Vec<1,T>& x) { return 1 / x.val; }
 SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
 SIT Vec<1,T>   mad(const Vec<1,T>& f,
@@ -315,6 +317,8 @@ SINT Vec<N,T> trunc(const Vec<N,T>& x) { return join(trunc(x.lo), trunc(x.hi)); 
 SINT Vec<N,T> round(const Vec<N,T>& x) { return join(round(x.lo), round(x.hi)); }
 SINT Vec<N,T>  sqrt(const Vec<N,T>& x) { return join( sqrt(x.lo),  sqrt(x.hi)); }
 SINT Vec<N,T>   abs(const Vec<N,T>& x) { return join(  abs(x.lo),   abs(x.hi)); }
+
+SINT Vec<N,int> lrint(const Vec<N,T>& x) { return join(lrint(x.lo), lrint(x.hi)); }
 
 SINT Vec<N,T>   rcp(const Vec<N,T>& x) { return join(  rcp(x.lo),   rcp(x.hi)); }
 SINT Vec<N,T> rsqrt(const Vec<N,T>& x) { return join(rsqrt(x.lo), rsqrt(x.hi)); }
@@ -486,6 +490,21 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
 
     // Platform-specific specializations and overloads can now drop in here.
 
+    #if defined(__AVX__)
+        static inline Vec<8,float> sqrt(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,float>>(_mm256_sqrt_ps(bit_pun<__m256>(x)));
+        }
+        static inline Vec<8,float> rsqrt(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,float>>(_mm256_rsqrt_ps(bit_pun<__m256>(x)));
+        }
+        static inline Vec<8,float> rcp(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,float>>(_mm256_rcp_ps(bit_pun<__m256>(x)));
+        }
+        static inline Vec<8,int> lrint(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,int>>(_mm256_cvtps_epi32(bit_pun<__m256>(x)));
+        }
+    #endif
+
     #if defined(__SSE__)
         static inline Vec<4,float> sqrt(const Vec<4,float>& x) {
             return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
@@ -496,6 +515,9 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         static inline Vec<4,float> rcp(const Vec<4,float>& x) {
             return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
         }
+        static inline Vec<4,int> lrint(const Vec<4,float>& x) {
+            return bit_pun<Vec<4,int>>(_mm_cvtps_epi32(bit_pun<__m128>(x)));
+        }
 
         static inline Vec<2,float>  sqrt(const Vec<2,float>& x) {
             return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x)));
@@ -505,6 +527,9 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         }
         static inline Vec<2,float>   rcp(const Vec<2,float>& x) {
             return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
+        }
+        static inline Vec<2,int> lrint(const Vec<2,float>& x) {
+            return shuffle<0,1>(lrint(shuffle<0,1,0,1>(x)));
         }
     #endif
 

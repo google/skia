@@ -273,9 +273,10 @@ namespace SK_OPTS_NS {
                                  | table[(immy >> 12) & 0xf] << 24;
                     } break;
 
-                    CASE(Op::floor):  r(d).f32 = skvx::floor(r(x).f32); break;
-                    CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
-                    CASE(Op::trunc):  r(d).i32 = skvx::cast<int>  (r(x).f32); break;
+                    CASE(Op::floor):  r(d).f32 =                   skvx::floor(r(x).f32) ; break;
+                    CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(            r(x).i32 ); break;
+                    CASE(Op::trunc):  r(d).i32 = skvx::cast<int>  (            r(x).f32 ); break;
+                    CASE(Op::round):  r(d).i32 = skvx::cast<int>  (skvx::lrint(r(x).f32)); break;
                 #undef CASE
                 }
             }
