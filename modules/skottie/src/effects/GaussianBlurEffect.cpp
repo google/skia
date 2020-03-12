@@ -41,9 +41,10 @@ private:
             kRepeatEdge_Index = 2,
         };
 
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kBlurriness_Index), &fBlurriness);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kDimensions_Index), &fDimensions);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kRepeatEdge_Index), &fRepeatEdge);
+        EffectBinder(jprops, *abuilder, this)
+                .bind(kBlurriness_Index, fBlurriness)
+                .bind(kDimensions_Index, fDimensions)
+                .bind(kRepeatEdge_Index, fRepeatEdge);
     }
 
     void onSync() override {

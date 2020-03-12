@@ -201,7 +201,7 @@ private:
     void onSync() override {
         const auto& tiler = this->node();
 
-        tiler->setTileCenter(ValueTraits<VectorValue>::As<SkPoint>(fTileCenter));
+        tiler->setTileCenter({fTileCenter.x, fTileCenter.y});
         tiler->setTileWidth (fTileW);
         tiler->setTileHeight(fTileH);
         tiler->setOutputWidth (fOutputW);
@@ -211,7 +211,7 @@ private:
         tiler->setHorizontalPhase(SkToBool(fHorizontalPhase));
     }
 
-    VectorValue fTileCenter;
+    Vec2Value   fTileCenter      = {0,0};
     ScalarValue fTileW           = 1,
                 fTileH           = 1,
                 fOutputW         = 1,

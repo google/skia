@@ -35,19 +35,20 @@ private:
         , fImageFilterEffect(sksg::ImageFilterEffect::Make(std::move(layer), fDropShadow)) {
         enum : size_t {
             kShadowColor_Index = 0,
-            kOpacity_Index     = 1,
-            kDirection_Index   = 2,
-            kDistance_Index    = 3,
-            kSoftness_Index    = 4,
-            kShadowOnly_Index  = 5,
+                kOpacity_Index = 1,
+              kDirection_Index = 2,
+               kDistance_Index = 3,
+               kSoftness_Index = 4,
+             kShadowOnly_Index = 5,
         };
 
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kShadowColor_Index), &fColor    );
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,     kOpacity_Index), &fOpacity  );
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,   kDirection_Index), &fDirection);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,    kDistance_Index), &fDistance );
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,    kSoftness_Index), &fSoftness );
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,  kShadowOnly_Index), &fShdwOnly );
+        EffectBinder(jprops, *abuilder, this)
+                .bind(kShadowColor_Index, fColor    )
+                .bind(    kOpacity_Index, fOpacity  )
+                .bind(  kDirection_Index, fDirection)
+                .bind(   kDistance_Index, fDistance )
+                .bind(   kSoftness_Index, fSoftness )
+                .bind( kShadowOnly_Index, fShdwOnly );
     }
 
     void onSync() override {

@@ -128,7 +128,7 @@ public:
         };
 
         EffectBinder(jprops, *abuilder, this)
-            .bind(       kChannel_Index, fChannel  )
+            .bind(       kChannel_Index, fChannel         )
             .bind(       kInBlack_Index, fMapper.fInBlack )
             .bind(       kInWhite_Index, fMapper.fInWhite )
             .bind(         kGamma_Index, fMapper.fGamma   )

@@ -10,6 +10,7 @@
 #include "include/private/SkColorData.h"
 #include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 
 namespace skottie {
@@ -44,15 +45,16 @@ private:
         : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {
         enum : size_t {
             kTakeAlphaFrom_Index = 0,
-            kTakeRedFrom_Index   = 1,
+              kTakeRedFrom_Index = 1,
             kTakeGreenFrom_Index = 2,
-            kTakeBlueFrom_Index  = 3,
+             kTakeBlueFrom_Index = 3,
         };
 
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,   kTakeRedFrom_Index), &fR);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeGreenFrom_Index), &fG);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,  kTakeBlueFrom_Index), &fB);
-        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeAlphaFrom_Index), &fA);
+        EffectBinder(jprops, *abuilder, this)
+                .bind(  kTakeRedFrom_Index, fR)
+                .bind(kTakeGreenFrom_Index, fG)
+                .bind( kTakeBlueFrom_Index, fB)
+                .bind(kTakeAlphaFrom_Index, fA);
     }
 
     enum class Source : uint8_t {
@@ -111,10 +113,10 @@ private:
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;
 
-    float fR = static_cast<float>(Source::kRed),
-          fG = static_cast<float>(Source::kGreen),
-          fB = static_cast<float>(Source::kBlue),
-          fA = static_cast<float>(Source::kAlpha);
+    ScalarValue fR = static_cast<float>(Source::kRed),
+                fG = static_cast<float>(Source::kGreen),
+                fB = static_cast<float>(Source::kBlue),
+                fA = static_cast<float>(Source::kAlpha);
 };
 
 } // namespace
