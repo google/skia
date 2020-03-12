@@ -231,19 +231,9 @@ inline void GrMesh::draw(GrOpsRenderPass* opsRenderPass) const {
     }
 
     SkASSERT(fIndexData.fPatternRepeatCount > 0);
-    int baseRepetition = 0;
-    do {
-        int repeatCount = std::min(fPatternData.fMaxPatternRepetitionsInIndexBuffer,
-                                 fIndexData.fPatternRepeatCount - baseRepetition);
-        int indexCount = fIndexData.fIndexCount * repeatCount;
-        // A patterned index buffer must contain indices in the range [0..vertexCount].
-        int minIndexValue = 0;
-        int maxIndexValue = fPatternData.fVertexCount * repeatCount - 1;
-        SkASSERT(!(fFlags & Flags::kUsePrimitiveRestart));
-        opsRenderPass->drawIndexed(indexCount, 0, minIndexValue, maxIndexValue,
-                                   fBaseVertex + fPatternData.fVertexCount * baseRepetition);
-        baseRepetition += repeatCount;
-    } while (baseRepetition < fIndexData.fPatternRepeatCount);
+    opsRenderPass->drawIndexPattern(fIndexData.fIndexCount, fIndexData.fPatternRepeatCount,
+                                    fPatternData.fMaxPatternRepetitionsInIndexBuffer,
+                                    fPatternData.fVertexCount, fBaseVertex);
 }
 
 #endif

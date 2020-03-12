@@ -103,6 +103,13 @@ public:
     void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                               int baseVertex);
 
+    // This is a helper method for drawing a repeating pattern of vertices. The bound index buffer
+    // is understood to contain 'maxPatternRepetitionsInIndexBuffer' repetitions of the pattern.
+    // If more repetitions are required, then we loop.
+    void drawIndexPattern(int patternIndexCount, int patternRepeatCount,
+                          int maxPatternRepetitionsInIndexBuffer, int patternVertexCount,
+                          int baseVertex);
+
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
 
