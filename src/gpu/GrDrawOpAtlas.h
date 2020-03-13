@@ -435,6 +435,9 @@ private:
     // nextTokenToFlush() value at the end of the previous flush
     GrDeferredUploadToken fPrevFlushToken;
 
+    // the number of flushes since this atlas has been last used
+    int                   fFlushesSinceLastUse;
+
     std::vector<EvictionCallback*> fEvictionCallbacks;
 
     struct Page {
