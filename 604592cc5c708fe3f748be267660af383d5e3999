@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8559be47_c735a831",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 10171
+      },
+      "writtenOn": "2020-03-13T13:34:49Z",
+      "side": 1,
+      "message": "nit: The name of this changed and it didn\u0027t compile when I #defined DUMP_ATLAS_DATA",
+      "range": {
+        "startLine": 545,
+        "startChar": 40,
+        "endLine": 545,
+        "endChar": 48
+      },
+      "revId": "604592cc5c708fe3f748be267660af383d5e3999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
