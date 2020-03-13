@@ -45,6 +45,9 @@ void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
 void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds,
                                    const SkIRect* optionalScissorRect) {
 #ifdef SK_DEBUG
+    // Both the 'programInfo' and this renderPass have an origin. Since they come from the same
+    // place (i.e., the target renderTargetProxy) they had best agree.
+    SkASSERT(programInfo.origin() == fOrigin);
     if (programInfo.primProc().hasInstanceAttributes()) {
          SkASSERT(this->gpu()->caps()->instanceAttribSupport());
     }
