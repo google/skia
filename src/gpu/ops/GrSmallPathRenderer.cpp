@@ -820,10 +820,11 @@ private:
             GrMesh* mesh = target->allocMesh();
             mesh->setIndexedPatterned(flushInfo->fIndexBuffer,
                                       GrResourceProvider::NumIndicesPerNonAAQuad(),
-                                      GrResourceProvider::NumVertsPerNonAAQuad(),
                                       flushInfo->fInstancesToFlush,
-                                      GrResourceProvider::MaxNumNonAAQuads());
-            mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
+                                      GrResourceProvider::MaxNumNonAAQuads(),
+                                      flushInfo->fVertexBuffer,
+                                      GrResourceProvider::NumVertsPerNonAAQuad(),
+                                      flushInfo->fVertexOffset);
             target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1,
                                flushInfo->fFixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
             flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *

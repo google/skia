@@ -152,8 +152,7 @@ private:
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.push_back();
-            mesh.setNonIndexedNonInstanced(4);
-            mesh.setVertexData(fVertexBuffer, 4 * i);
+            mesh.set(fVertexBuffer, 4, 4 * i);
         }
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;

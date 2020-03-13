@@ -1106,9 +1106,9 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
                                                            geometryProcessorLocalM);
 
             GrMesh* mesh = target->allocMesh();
-            mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
-                                      kQuadsNumInIdxBuffer);
-            mesh->setVertexData(vertexBuffer, firstVertex);
+            mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, quadCount,
+                                      kQuadsNumInIdxBuffer, vertexBuffer, kQuadNumVertices,
+                                      firstVertex);
             target->recordDraw(quadGP, mesh, 1, GrPrimitiveType::kTriangles);
             firstVertex += quadCount * kQuadNumVertices;
         }
@@ -1119,9 +1119,9 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
                                                              geometryProcessorLocalM);
 
             GrMesh* mesh = target->allocMesh();
-            mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
-                                      conicCount, kQuadsNumInIdxBuffer);
-            mesh->setVertexData(std::move(vertexBuffer), firstVertex);
+            mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, conicCount,
+                                      kQuadsNumInIdxBuffer, std::move(vertexBuffer),
+                                      kQuadNumVertices, firstVertex);
             target->recordDraw(conicGP, mesh, 1, GrPrimitiveType::kTriangles);
         }
     }

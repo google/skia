@@ -274,12 +274,12 @@ private:
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
             mesh = fTarget->allocMesh();
             if (!this->isIndexed()) {
-                mesh->setNonIndexedNonInstanced(vertexCount);
+                mesh->set(std::move(fVertexBuffer), vertexCount, fFirstVertex);
             } else {
                 mesh->setIndexed(std::move(fIndexBuffer), indexCount, fFirstIndex, 0,
-                                 vertexCount - 1, GrPrimitiveRestart::kNo);
+                                 vertexCount - 1, GrPrimitiveRestart::kNo, std::move(fVertexBuffer),
+                                 fFirstVertex);
             }
-            mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));

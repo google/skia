@@ -253,8 +253,7 @@ private:
         }
 
         fMesh = target->allocMesh();
-        fMesh->setNonIndexedNonInstanced(kVertexCount);
-        fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
+        fMesh->set(std::move(vertexBuffer), kVertexCount, firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

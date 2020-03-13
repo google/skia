@@ -400,11 +400,9 @@ void ConfigureMesh(const GrCaps& caps, GrMesh* mesh, const VertexSpec& spec,
 
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
         SkASSERT(!indexBuffer);
-
-        mesh->setNonIndexedNonInstanced(4);
         int offset = absVertBufferOffset +
                                     runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
-        mesh->setVertexData(std::move(vertexBuffer), offset);
+        mesh->set(std::move(vertexBuffer), 4, offset);
         return;
     }
 
@@ -434,9 +432,8 @@ void ConfigureMesh(const GrCaps& caps, GrMesh* mesh, const VertexSpec& spec,
         // preferred.
         int offset = absVertBufferOffset + runningQuadCount * numVertsPerQuad;
 
-        mesh->setIndexedPatterned(std::move(indexBuffer), numIndicesPerQuad,
-                                  numVertsPerQuad, quadsInDraw, maxNumQuads);
-        mesh->setVertexData(std::move(vertexBuffer), offset);
+        mesh->setIndexedPatterned(std::move(indexBuffer), numIndicesPerQuad, quadsInDraw,
+                                  maxNumQuads, std::move(vertexBuffer), numVertsPerQuad, offset);
     } else {
         int baseIndex = runningQuadCount * numIndicesPerQuad;
         int numIndicesToDraw = quadsInDraw * numIndicesPerQuad;
@@ -445,8 +442,8 @@ void ConfigureMesh(const GrCaps& caps, GrMesh* mesh, const VertexSpec& spec,
         int maxVertex = (runningQuadCount + quadsInDraw) * numVertsPerQuad;
 
         mesh->setIndexed(std::move(indexBuffer), numIndicesToDraw,
-                         baseIndex, minVertex, maxVertex, GrPrimitiveRestart::kNo);
-        mesh->setVertexData(std::move(vertexBuffer), absVertBufferOffset);
+                         baseIndex, minVertex, maxVertex, GrPrimitiveRestart::kNo,
+                         std::move(vertexBuffer), absVertBufferOffset);
     }
 }
 
