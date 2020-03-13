@@ -778,6 +778,26 @@ namespace skvm {
         return {this->push(Op::max_f32, x.id, y.id)};
     }
 
+    R32 Builder::mul(R32 x, R32 y) {
+        return { mul(x.num, y.num), x.den * y.den };
+    }
+
+    R32 Builder::add(R32 x, R32 y) {
+        if (x.den == y.den) {
+            return { add(x.num, y.num), x.den };
+        }
+        return { add(mul(x.num, splat(y.den)),
+                     mul(y.num, splat(x.den))), x.den * y.den, };
+    }
+
+    R32 Builder::sub(R32 x, R32 y) {
+        if (x.den == y.den) {
+            return { sub(x.num, y.num), x.den };
+        }
+        return { sub(mul(x.num, splat(y.den)),
+                     mul(y.num, splat(x.den))), x.den * y.den, };
+    }
+
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
     I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
     I32 Builder::mul(I32 x, I32 y) { return {this->push(Op::mul_i32, x.id, y.id)}; }
@@ -941,28 +961,28 @@ namespace skvm {
         return round(mul(x, limit));
     }
 
-    Color Builder::unpack_1010102(I32 rgba) {
+    RColor Builder::unpack_R_1010102(I32 rgba) {
         return {
-            from_unorm(10, extract(rgba,  0, splat(0x3ff))),
-            from_unorm(10, extract(rgba, 10, splat(0x3ff))),
-            from_unorm(10, extract(rgba, 20, splat(0x3ff))),
-            from_unorm( 2, extract(rgba, 30, splat(0x3  ))),
+            { to_f32(extract(rgba,  0, splat(0x3ff))), 0x3ff },
+            { to_f32(extract(rgba, 10, splat(0x3ff))), 0x3ff },
+            { to_f32(extract(rgba, 20, splat(0x3ff))), 0x3ff },
+            { to_f32(extract(rgba, 30, splat(0x3  ))), 0x3   },
         };
     }
-    Color Builder::unpack_8888(I32 rgba) {
+    RColor Builder::unpack_R_8888(I32 rgba) {
         return {
-            from_unorm(8, extract(rgba,  0, splat(0xff))),
-            from_unorm(8, extract(rgba,  8, splat(0xff))),
-            from_unorm(8, extract(rgba, 16, splat(0xff))),
-            from_unorm(8, extract(rgba, 24, splat(0xff))),
+            { to_f32(extract(rgba,  0, splat(0xff))), 0xff },
+            { to_f32(extract(rgba,  8, splat(0xff))), 0xff },
+            { to_f32(extract(rgba, 16, splat(0xff))), 0xff },
+            { to_f32(extract(rgba, 24, splat(0xff))), 0xff },
         };
     }
-    Color Builder::unpack_565(I32 bgr) {
+    RColor Builder::unpack_R_565(I32 bgr) {
         return {
-            from_unorm(5, extract(bgr, 11, splat(0b011'111))),
-            from_unorm(6, extract(bgr,  5, splat(0b111'111))),
-            from_unorm(5, extract(bgr,  0, splat(0b011'111))),
-            splat(1.0f),
+            { to_f32(extract(bgr, 11, splat(31))), 31 },
+            { to_f32(extract(bgr,  5, splat(63))), 63 },
+            { to_f32(extract(bgr,  0, splat(31))), 31 },
+            { splat(1.0f), 1.0f }
         };
     }
 
@@ -984,6 +1004,15 @@ namespace skvm {
     }
 
     Color Builder::lerp(Color lo, Color hi, F32 t) {
+        return {
+            lerp(lo.r, hi.r, t),
+            lerp(lo.g, hi.g, t),
+            lerp(lo.b, hi.b, t),
+            lerp(lo.a, hi.a, t),
+        };
+    }
+
+    RColor Builder::lerp(RColor lo, RColor hi, F32 t) {
         return {
             lerp(lo.r, hi.r, t),
             lerp(lo.g, hi.g, t),
