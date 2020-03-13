@@ -390,6 +390,8 @@ gm_sources = [
   "$_gm/yuvtorgbeffect.cpp",
   "$_gm/yuv420_odd_dim.cpp",
   "$_gm/verifiers/gmverifier.cpp",
+  "$_gm/verifiers/utils.cpp",
+  "$_gm/verifiers/verifiers.cpp",
 ]
 
 gl_gm_sources = [
