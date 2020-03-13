@@ -16,6 +16,7 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrVertexWriter.h"
@@ -168,7 +169,11 @@ public:
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fHelper.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
     }
 
 #ifdef SK_DEBUG
@@ -198,28 +203,31 @@ public:
     }
 
 private:
-    GrProgramInfo* programInfo() override {
-        // TODO [PI]: implement
-        return nullptr;
-    }
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
 
-    void onCreateProgramInfo(const GrCaps*,
-                             SkArenaAlloc*,
+    void onCreateProgramInfo(const GrCaps* caps,
+                             SkArenaAlloc* arena,
                              const GrSurfaceProxyView* outputView,
-                             GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
+                             GrAppliedClip&& appliedClip,
+                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+        GrGeometryProcessor* gp = create_lines_only_gp(arena,
+                                                       fHelper.compatibleWithCoverageAsAlpha(),
+                                                       this->viewMatrix(),
+                                                       fHelper.usesLocalCoords(),
+                                                       fWideColor);
+        if (!gp) {
+            SkDebugf("Couldn't create a GrGeometryProcessor\n");
+            return;
+        }
+
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+                                                            std::move(appliedClip), dstProxyView,
+                                                            gp, GrPrimitiveType::kTriangles);
     }
 
-    void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
-    }
-
-    void recordDraw(Target* target, const GrGeometryProcessor* gp, int vertexCount,
-                    size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
+    void recordDraw(Target* target,
+                    int vertexCount, size_t vertexStride, void* vertices,
+                    int indexCount, uint16_t* indices) {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
@@ -245,22 +253,18 @@ private:
         mesh->setIndexed(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangles);
+        fMeshes.push_back(mesh);
     }
 
     void onPrepareDraws(Target* target) override {
-        // Setup GrGeometryProcessor
-        GrGeometryProcessor* gp = create_lines_only_gp(target->allocator(),
-                                                       fHelper.compatibleWithCoverageAsAlpha(),
-                                                       this->viewMatrix(),
-                                                       fHelper.usesLocalCoords(),
-                                                       fWideColor);
-        if (!gp) {
-            SkDebugf("Couldn't create a GrGeometryProcessor\n");
-            return;
+        if (!fProgramInfo) {
+            this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return;
+            }
         }
 
-        size_t vertexStride = gp->vertexStride();
+        size_t vertexStride =  fProgramInfo->primProc().vertexStride();
         int instanceCount = fPaths.count();
 
         int64_t vertexCount = 0;
@@ -282,8 +286,7 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->recordDraw(
-                        target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+                this->recordDraw(target, vertexCount, vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -314,16 +317,21 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->recordDraw(target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+            this->recordDraw(target, vertexCount, vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);
         sk_free(indices);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        if (!fProgramInfo || fMeshes.isEmpty()) {
+            return;
+        }
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        for (int i = 0; i < fMeshes.count(); ++i) {
+            flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMeshes[i], 1);
+        }
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -353,6 +361,9 @@ private:
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
     bool fWideColor;
+
+    SkTDArray<GrMesh*> fMeshes;
+    GrProgramInfo*     fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };
