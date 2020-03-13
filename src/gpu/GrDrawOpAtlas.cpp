@@ -221,6 +221,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
+        , fFlushesSinceLastUse(0)
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
     int numPlotsX = width/plotWidth;
@@ -407,10 +408,12 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
 }
 
 void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
-    if (fNumActivePages <= 1) {
+    if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
     }
+
+    ++fFlushesSinceLastUse;
 
     // For all plots, reset number of flushes since used if used this frame.
     PlotList::Iter plotIter;
@@ -428,11 +431,11 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
         }
     }
 
-    // We only try to compact if the atlas was used in the recently completed flush.
+    // We only try to compact if the atlas was used in the recently completed flush or
+    // hasn't been used in a long time.
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
-    // TODO: consider if we should also do this if it's been a long time since the last atlas use
-    if (atlasUsedThisFlush) {
+    if (atlasUsedThisFlush || fFlushesSinceLastUse > kRecentlyUsedCount) {
         SkTArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
@@ -537,14 +540,16 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
         }
 
         // If none of the plots in the last page have been used recently, delete it.
-        if (!usedPlots) {
+        if (!usedPlots || fFlushesSinceLastUse > kRecentlyUsedCount) {
 #ifdef DUMP_ATLAS_DATA
             if (gDumpAtlasData) {
-                SkDebugf("delete %d\n", fNumPages-1);
+                SkDebugf("delete %d\n", fNumActivePages-1);
             }
 #endif
             this->deactivateLastPage();
         }
+
+        fFlushesSinceLastUse = 0;
     }
 
     fPrevFlushToken = startTokenForNextFlush;
