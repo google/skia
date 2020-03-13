@@ -14,6 +14,7 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -135,8 +136,9 @@ public:
     const GrSurfaceProxyView* outputView() const final { return this->drawOpArgs().outputView(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
-    const SkIRect* scissorRectIfEnabled() const {
-        return this->appliedClip() ? this->appliedClip()->scissorRectIfEnabled() : nullptr;
+    const GrAppliedHardClip& appliedHardClip() const {
+        return (fOpArgs->appliedClip()) ?
+                fOpArgs->appliedClip()->hardClip() : GrAppliedHardClip::Disabled();
     }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
@@ -154,6 +156,59 @@ public:
 
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
+
+    void bindPipelineAndScissorClip(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+        SkASSERT((programInfo.pipeline().isScissorTestEnabled()) ==
+                 (this->appliedClip() && this->appliedClip()->scissorState().enabled()));
+        this->bindPipeline(programInfo, drawBounds);
+        if (programInfo.pipeline().isScissorTestEnabled()) {
+            this->setScissorRect(this->appliedClip()->scissorState().rect());
+        }
+    }
+
+    // Pass-thru methods to GrOpsRenderPass.
+    void bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+        fOpsRenderPass->bindPipeline(programInfo, drawBounds);
+    }
+    void setScissorRect(const SkIRect& scissorRect) {
+        fOpsRenderPass->setScissorRect(scissorRect);
+    }
+    void bindTextures(const GrPrimitiveProcessor& primProc,
+                      const GrSurfaceProxy* const primProcTextures[], const GrPipeline& pipeline) {
+        fOpsRenderPass->bindTextures(primProc, primProcTextures, pipeline);
+    }
+    void bindTextures(const GrPrimitiveProcessor& primProc,
+                      const GrSurfaceProxy& singlePrimProcTexture, const GrPipeline& pipeline) {
+        fOpsRenderPass->bindTextures(primProc, singlePrimProcTexture, pipeline);
+    }
+    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
+                     const GrBuffer* vertexBuffer,
+                     GrPrimitiveRestart primitiveRestart = GrPrimitiveRestart::kNo) {
+        fOpsRenderPass->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, primitiveRestart);
+    }
+    void draw(int vertexCount, int baseVertex) {
+        fOpsRenderPass->draw(vertexCount, baseVertex);
+    }
+    void drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
+                     int baseVertex) {
+        fOpsRenderPass->drawIndexed(indexCount, baseIndex, minIndexValue, maxIndexValue,
+                                    baseVertex);
+    }
+    void drawInstanced(int instanceCount, int baseInstance, int vertexCount, int baseVertex) {
+        fOpsRenderPass->drawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
+    }
+    void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
+                              int baseVertex) {
+        fOpsRenderPass->drawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance,
+                                             baseVertex);
+    }
+
+    // This is a helper method for drawing a repeating pattern of vertices. The bound index buffer
+    // is understood to contain 'maxPatternRepetitionsInIndexBuffer' repetitions of the pattern.
+    // If more repetitions are required, then we loop.
+    void drawIndexPattern(int patternIndexCount, int patternRepeatCount,
+                          int maxPatternRepetitionsInIndexBuffer, int patternVertexCount,
+                          int baseVertex);
 
 private:
     struct InlineUpload {

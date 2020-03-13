@@ -50,11 +50,9 @@ public:
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
     virtual void end() = 0;
 
-    // Updates the internal pipeline state for drawing with the provided GrProgramInfo. If an
-    // optional scissor rect is provided, then this method calls setScissor for convenience after
-    // binding the pipeline. Enters an internal "bad" state if the pipeline could not be set.
-    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds,
-                      const SkIRect* optionalScissorRect = nullptr);
+    // Updates the internal pipeline state for drawing with the provided GrProgramInfo. Enters an
+    // internal "bad" state if the pipeline could not be set.
+    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
 
     // The scissor rect is always dynamic state and therefore not stored on GrPipeline. If scissor
     // test is enabled on the current pipeline, then the client must call setScissorRect() before
