@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "68ef713e_d8524f3c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-13T12:11:54Z",
+      "side": 1,
+      "message": "we should apply patheffects to text as well",
+      "parentUuid": "7c6c6822_86b569cc",
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae301c6a_309c6d45",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
