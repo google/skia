@@ -345,7 +345,14 @@ namespace skvm {
     struct I32 { Val id; };
     struct F32 { Val id; };
 
-    struct Color { skvm::F32 r,g,b,a; };
+    // An F32 with logical value `num / den`; see `F32 Builder::resolve(R32)`.
+    struct R32 {
+        skvm::F32 num;
+        float     den;
+    };
+
+    struct  Color { skvm::F32 r,g,b,a; };
+    struct RColor { skvm::R32 r,g,b,a; };
 
     struct OptimizedInstruction {
         Op op;
@@ -379,8 +386,8 @@ namespace skvm {
 
         // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
-        Arg varying() { return this->arg(sizeof(T)); }
-        Arg uniform() { return this->arg(0); }
+        Arg varying() { return arg(sizeof(T)); }
+        Arg uniform() { return arg(0); }
 
         // TODO: allow uniform (i.e. Arg) offsets to store* and load*?
         // TODO: sign extension (signed types) for <32-bit loads?
@@ -388,8 +395,8 @@ namespace skvm {
 
         // Assert cond is true, printing debug when not.
         void assert_true(I32 cond, I32 debug);
-        void assert_true(I32 cond, F32 debug) { this->assert_true(cond, this->bit_cast(debug)); }
-        void assert_true(I32 cond)            { this->assert_true(cond, cond); }
+        void assert_true(I32 cond, F32 debug) { assert_true(cond, bit_cast(debug)); }
+        void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
@@ -408,7 +415,7 @@ namespace skvm {
         I32 uniform8 (Arg ptr, int offset);
         I32 uniform16(Arg ptr, int offset);
         I32 uniform32(Arg ptr, int offset);
-        F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
+        F32 uniformF (Arg ptr, int offset) { return bit_cast(uniform32(ptr,offset)); }
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
         I32 gather8 (Arg ptr, int offset, I32 index);
@@ -420,34 +427,39 @@ namespace skvm {
             Arg ptr;
             int offset;
         };
-        I32 uniform8 (Uniform u)            { return this->uniform8 (u.ptr, u.offset); }
-        I32 uniform16(Uniform u)            { return this->uniform16(u.ptr, u.offset); }
-        I32 uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
-        F32 uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
-        I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
-        I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
-        I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
+        I32 uniform8 (Uniform u)            { return uniform8 (u.ptr, u.offset); }
+        I32 uniform16(Uniform u)            { return uniform16(u.ptr, u.offset); }
+        I32 uniform32(Uniform u)            { return uniform32(u.ptr, u.offset); }
+        F32 uniformF (Uniform u)            { return uniformF (u.ptr, u.offset); }
+        I32 gather8  (Uniform u, I32 index) { return gather8  (u.ptr, u.offset, index); }
+        I32 gather16 (Uniform u, I32 index) { return gather16 (u.ptr, u.offset, index); }
+        I32 gather32 (Uniform u, I32 index) { return gather32 (u.ptr, u.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);
-        I32 splat(unsigned u) { return this->splat((int)u); }
+        I32 splat(unsigned u) { return splat((int)u); }
         F32 splat(float    f);
 
         // float math, comparisons, etc.
-        F32 add(F32 x, F32 y);
-        F32 sub(F32 x, F32 y);
-        F32 mul(F32 x, F32 y);
+        F32 add(F32 x, F32 y);  R32 add(R32 x, R32 y);
+        F32 sub(F32 x, F32 y);  R32 sub(R32 x, R32 y);
+        F32 mul(F32 x, F32 y);  R32 mul(R32 x, R32 y);
         F32 div(F32 x, F32 y);
         F32 min(F32 x, F32 y);
         F32 max(F32 x, F32 y);
-        F32 mad(F32 x, F32 y, F32 z) { return this->add(this->mul(x,y), z); }
         F32 sqrt(F32 x);
+
+        F32   resolve(R32 x)    { return mul(x.num, splat(1.0f / x.den)); }
+        Color resolve(RColor c) { return {resolve(c.r), resolve(c.g), resolve(c.b), resolve(c.a)}; }
+
+        F32 mad(F32 x, F32 y, F32 z) { return add(mul(x,y), z); }
+        R32 mad(R32 x, R32 y, R32 z) { return add(mul(x,y), z); }
+
+        F32 lerp(F32 lo, F32 hi, F32 t) { return mad(sub(hi,lo),  t      , lo); }
+        R32 lerp(R32 lo, R32 hi, F32 t) { return mad(sub(hi,lo), {t,1.0f}, lo); }
 
         F32 negate(F32 x) {
             return sub(splat(0.0f), x);
-        }
-        F32 lerp(F32 lo, F32 hi, F32 t) {
-            return mad(sub(hi,lo), t, lo);
         }
         F32 clamp(F32 x, F32 lo, F32 hi) {
             return max(lo, min(x, hi));
@@ -518,8 +530,8 @@ namespace skvm {
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
         F32 select(I32 cond, F32 t, F32 f) {
-            return this->bit_cast(this->select(cond, this->bit_cast(t)
-                                                   , this->bit_cast(f)));
+            return bit_cast(select(cond, bit_cast(t)
+                                       , bit_cast(f)));
         }
 
         // More complex operations...
@@ -552,14 +564,20 @@ namespace skvm {
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
-        Color unpack_1010102(I32 rgba);
-        Color unpack_8888   (I32 rgba);
-        Color unpack_565    (I32 bgr );  // bottom 16 bits
+        RColor unpack_R_1010102(I32 rgba);
+        RColor unpack_R_8888   (I32 rgba);
+        RColor unpack_R_565    (I32 bgr );  // bottom 16 bits
+
+        Color unpack_1010102(I32 rgba) { return resolve(unpack_R_1010102(rgba)); }
+        Color unpack_8888   (I32 rgba) { return resolve(unpack_R_8888   (rgba)); }
+        Color unpack_565    (I32 bgr ) { return resolve(unpack_R_565    (bgr )); }
+
 
         void   premul(F32* r, F32* g, F32* b, F32 a);
         void unpremul(F32* r, F32* g, F32* b, F32 a);
 
-        Color lerp(Color lo, Color hi, F32 t);
+         Color lerp( Color lo,  Color hi, F32 t);
+        RColor lerp(RColor lo, RColor hi, F32 t);
 
         void dump(SkWStream* = nullptr) const;
         void dot (SkWStream* = nullptr, bool for_jit=false) const;
