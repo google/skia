@@ -63,18 +63,6 @@ cc_library_static {
             ],
         },
 
-        mips: {
-            srcs: [
-                $none_srcs
-            ],
-        },
-
-        mips64: {
-            srcs: [
-                $none_srcs
-            ],
-        },
-
         x86: {
             srcs: [
                 $x86_srcs
@@ -496,7 +484,6 @@ with open('Android.bp', 'w') as Android_bp:
     'arm_neon_srcs': bpfmt(20, strip_headers(defs['neon'])),
     'arm64_srcs':    bpfmt(16, strip_headers(defs['arm64'] +
                                              defs['crc32'])),
-    'none_srcs':     bpfmt(16, strip_headers(defs['none'])),
     'x86_srcs':      bpfmt(16, strip_headers(defs['sse2'] +
                                              defs['ssse3'] +
                                              defs['sse41'] +
