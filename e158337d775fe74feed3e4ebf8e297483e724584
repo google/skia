@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30b6d90e_d286894f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-03-13T14:44:07Z",
+      "side": 1,
+      "message": "nit: This doesn\u0027t provide much context. https://android-review.googlesource.com/c/platform/external/libjpeg-turbo/+/1252933 provides a little more:\n\nWe haven\u0027t supported mips in years, and are trying to remove\ncruft from the build system.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "e158337d775fe74feed3e4ebf8e297483e724584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
