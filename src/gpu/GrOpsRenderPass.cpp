@@ -42,8 +42,7 @@ void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
     this->onExecuteDrawable(std::move(drawable));
 }
 
-void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds,
-                                   const SkIRect* optionalScissorRect) {
+void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
 #ifdef SK_DEBUG
     if (programInfo.primProc().hasInstanceAttributes()) {
          SkASSERT(this->gpu()->caps()->instanceAttribSupport());
@@ -102,11 +101,6 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
     fXferBarrierType = programInfo.pipeline().xferBarrierType(fRenderTarget->asTexture(),
                                                               *this->gpu()->caps());
-
-    if (optionalScissorRect) {
-        SkASSERT(programInfo.pipeline().isScissorTestEnabled());
-        this->setScissorRect(*optionalScissorRect);
-    }
 }
 
 void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {

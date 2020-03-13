@@ -197,16 +197,10 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
 
 void GrCCCoverageProcessor::bindPipeline(GrOpFlushState* flushState, const GrPipeline& pipeline,
                                          const SkRect& drawBounds) const {
-    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-
-    GrPrimitiveType primitiveType = this->primType();
-
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
                               flushState->outputView()->origin(), &pipeline, this, nullptr, nullptr,
-                              0, primitiveType);
-
-
-    renderPass->bindPipeline(programInfo, drawBounds);
+                              0, this->primType());
+    flushState->bindPipeline(programInfo, drawBounds);
 }
