@@ -419,3 +419,17 @@ void SkVertices::operator delete(void* p)
 {
     ::operator delete(p);
 }
+
+void SkVertices::getInfo(Info* info) const {
+    info->fMode = fMode;
+
+    info->fVertexCount        = fVertexCount;
+    info->fIndexCount         = fIndexCount;
+    info->fPerVertexDataCount = fPerVertexDataCount;
+
+    info->fPositions     = fPositions;
+    info->fIndices       = fIndices;
+    info->fTexCoords     = fTexs;
+    info->fColors        = fColors;
+    info->fPerVertexData = fPerVertexData;
+}

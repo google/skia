@@ -41,6 +41,7 @@
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTextFormatParams.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/utils/SkPatchUtils.h"
@@ -1984,7 +1985,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
     // We expect fans to be converted to triangles when building or deserializing SkVertices.
-    SkASSERT(vertices->mode() != SkVertices::kTriangleFan_VertexMode);
+    SkASSERT(SkVerticesPriv::Mode(vertices) != SkVertices::kTriangleFan_VertexMode);
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 

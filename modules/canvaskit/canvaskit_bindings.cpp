@@ -1541,17 +1541,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkVertices>("SkVertices")
         .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
         .function("bounds", &SkVertices::bounds)
-        .function("mode", &SkVertices::mode)
-        .function("uniqueID", &SkVertices::uniqueID)
-#ifdef SK_DEBUG
-        .function("dumpPositions", optional_override([](SkVertices& self)->void {
-            auto pos = self.positions();
-            for(int i = 0; i< self.vertexCount(); i++) {
-                SkDebugf("position[%d] = (%f, %f)\n", i, pos[i].x(), pos[i].y());
-            }
-        }))
-#endif
-        .function("vertexCount", &SkVertices::vertexCount);
+        .function("uniqueID", &SkVertices::uniqueID);
 
     // Not intended to be called directly by clients
     class_<SkVertices::Builder>("_SkVerticesBuilder")
