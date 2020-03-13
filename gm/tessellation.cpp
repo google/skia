@@ -10,7 +10,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPipeline.h"
@@ -313,7 +312,6 @@ private:
                             state->drawOpArgs().outputSwizzle());
         GrPipeline::FixedDynamicState fixedDynamicState;
 
-        GrMesh mesh;
         int tessellationPatchVertexCount;
         std::unique_ptr<GrGeometryProcessor> shader;
         if (fTriPositions) {
@@ -321,14 +319,11 @@ private:
                 return;
             }
             tessellationPatchVertexCount = 3;
-            mesh.setNonIndexedNonInstanced(3);
-            mesh.setVertexData(fVertexBuffer, fBaseVertex);
             shader = std::make_unique<TessellationTestTriShader>(fViewMatrix);
         } else {
             // Use a mismatched number of vertices in the input patch vs output.
             // (The tessellation control shader will output one vertex per patch.)
             tessellationPatchVertexCount = 5;
-            mesh.setNonIndexedNonInstanced(5);
             shader = std::make_unique<TessellationTestRectShader>(fViewMatrix);
         }
 
@@ -337,8 +332,10 @@ private:
                                   &pipeline, shader.get(), &fixedDynamicState, nullptr, 0,
                                   GrPrimitiveType::kPatches, tessellationPatchVertexCount);
 
-        state->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
-        state->opsRenderPass()->drawMeshes(programInfo, &mesh, 1);
+        GrOpsRenderPass* renderPass = state->opsRenderPass();
+        renderPass->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
+        renderPass->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+        renderPass->draw(tessellationPatchVertexCount, fBaseVertex);
     }
 
     const SkMatrix fViewMatrix;

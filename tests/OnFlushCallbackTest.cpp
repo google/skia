@@ -182,8 +182,8 @@ private:
         }
 
         fMesh = target->allocMesh();
-        fMesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
-        fMesh->setVertexData(vertexBuffer, firstVertex);
+        fMesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo, vertexBuffer,
+                          firstVertex);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

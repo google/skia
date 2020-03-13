@@ -73,9 +73,9 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
 
     SkASSERT(maxRepetitions ==
              static_cast<int>(indexBuffer->size() / (sizeof(uint16_t) * indicesPerRepetition)));
-    fMesh->setIndexedPatterned(std::move(indexBuffer), indicesPerRepetition, verticesPerRepetition,
-                               repeatCount, maxRepetitions);
-    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
+    fMesh->setIndexedPatterned(std::move(indexBuffer), indicesPerRepetition, repeatCount,
+                               maxRepetitions, std::move(vertexBuffer), verticesPerRepetition,
+                               firstVertex);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryProcessor* gp) const {
