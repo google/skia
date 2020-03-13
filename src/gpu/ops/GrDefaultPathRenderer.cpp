@@ -17,10 +17,10 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrFixedClip.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/geometry/GrPathUtils.h"
@@ -69,7 +69,7 @@ class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType,
                    GrMeshDrawOp::Target* target,
-                   SkTDArray<GrMesh*>* meshes)
+                   SkTDArray<GrSimpleMesh*>* meshes)
             : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
@@ -270,7 +270,7 @@ private:
         SkASSERT(vertexCount <= fVerticesInChunk);
         SkASSERT(indexCount <= fIndicesInChunk);
 
-        GrMesh* mesh = nullptr;
+        GrSimpleMesh* mesh = nullptr;
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
             mesh = fTarget->allocMesh();
             if (!this->isIndexed()) {
@@ -333,7 +333,7 @@ private:
     uint16_t* fCurIdx;
     uint16_t fSubpathIndexStart;
 
-    SkTDArray<GrMesh*>* fMeshes;
+    SkTDArray<GrSimpleMesh*>* fMeshes;
 };
 
 class DefaultPathOp final : public GrMeshDrawOp {
@@ -524,8 +524,8 @@ private:
     SkMatrix fViewMatrix;
     bool fIsHairline;
 
-    SkTDArray<GrMesh*> fMeshes;
-    GrProgramInfo*     fProgramInfo = nullptr;
+    SkTDArray<GrSimpleMesh*> fMeshes;
+    GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
 };

@@ -1105,7 +1105,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
                                                            geometryProcessorViewM,
                                                            geometryProcessorLocalM);
 
-            GrMesh* mesh = target->allocMesh();
+            GrSimpleMesh* mesh = target->allocMesh();
             mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, quadCount,
                                       kQuadsNumInIdxBuffer, vertexBuffer, kQuadNumVertices,
                                       firstVertex);
@@ -1118,7 +1118,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
                                                              geometryProcessorViewM,
                                                              geometryProcessorLocalM);
 
-            GrMesh* mesh = target->allocMesh();
+            GrSimpleMesh* mesh = target->allocMesh();
             mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, conicCount,
                                       kQuadsNumInIdxBuffer, std::move(vertexBuffer),
                                       kQuadNumVertices, firstVertex);
