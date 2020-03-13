@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7c6c6822_86b569cc",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-03-13T03:51:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21aa56cf_b2d7f6b8",
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae301c6a_309c6d45",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7c929e1_84d797bf",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-03-13T03:51:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae301c6a_309c6d45",
+      "range": {
+        "startLine": 884,
+        "startChar": 11,
+        "endLine": 884,
+        "endChar": 21
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7aa9f364_f53eb9a6",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-03-13T03:51:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89802762_ba025517",
+      "range": {
+        "startLine": 891,
+        "startChar": 8,
+        "endLine": 891,
+        "endChar": 29
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcce9f78_11e1a911",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 1
@@ -85,6 +151,30 @@
       "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "265e94e2_13085cad",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-03-13T03:51:41Z",
+      "side": 1,
+      "message": "Ah my bad.  I\u0027ve removed the recursion. and used the (neat) `SkTCopyOnFirstWrite` as suggested.",
+      "parentUuid": "fcce9f78_11e1a911",
+      "range": {
+        "startLine": 905,
+        "startChar": 6,
+        "endLine": 906,
+        "endChar": 13
+      },
+      "revId": "e3b9541fe6760449bef570e87d9aafa3b9eac207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
