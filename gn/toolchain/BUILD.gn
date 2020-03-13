@@ -41,15 +41,7 @@ if (host_os == "win") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  if (msvc == 2015) {
-    if (target_cpu == "x86") {
-      bin = "$win_vc/bin"
-    } else {
-      bin = "$win_vc/bin/amd64"
-    }
-  } else {
-    bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
-  }
+  bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
 
   if (target_cpu == "x64") {
     _target = "amd64"
@@ -57,10 +49,9 @@ toolchain("msvc") {
     _target = "amd64_" + target_cpu
   }
   if (is_winrt) {
-    _target += " uwp 10.0.10240.0 -vcvars_ver=14.2"
-  } else {
-    _target += " 10.0.10240.0 -vcvars_ver=14.2"
+    _target += " uwp"
   }
+  _target += " " + win_sdk_version + " -vcvars_ver=14.2"
 
   _vcvarsall = "$win_vc/Auxiliary/Build/vcvarsall.bat"
   env_setup = "cmd /c set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "

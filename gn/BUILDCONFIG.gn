@@ -28,6 +28,7 @@ declare_args() {
   cxx = "c++"
 
   win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+  min_win_sdk_version = "10.0.10240.0"
   win_sdk_version = ""
 
   win_vc = ""
@@ -140,62 +141,18 @@ if (is_android) {
   }
 }
 
-msvc = ""
 if (is_win) {
-  # By default we look for 2017 (Pro & Community), then 2015. If MSVC is installed in a
+  # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
-  vc_2017_ent_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC"
-  vc_2017_pro_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
-  vc_2017_com_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC"
-  vc_2017_bt_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC"
-  vc_2015_default = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
 
   if (win_vc == "") {
-    if ("True" == exec_script("//gn/checkdir.py",
-                              [ "$vc_2017_ent_default" ],
-                              "trim string")) {
-      win_vc = vc_2017_ent_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                              [ "$vc_2017_pro_default" ],
-                              "trim string")) {
-      win_vc = vc_2017_pro_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2017_com_default" ],
-                                     "trim string")) {
-      win_vc = vc_2017_com_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2017_bt_default" ],
-                                     "trim string")) {
-      win_vc = vc_2017_bt_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2015_default" ],
-                                     "trim string")) {
-      win_vc = vc_2015_default
-      msvc = 2015
-    }
+    win_vc = exec_script("//gn/find_msvc.py", [], "trim string")
   }
   assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
-
-  if (msvc == "") {
-    if ("True" ==
-        exec_script("//gn/checkdir.py", [ "$win_vc/Tools" ], "trim string")) {
-      msvc = 2017
-    } else {
-      msvc = 2015
-    }
-  }
 }
 
 if (is_win) {
-  if (msvc == 2017 && win_toolchain_version == "") {
+  if (win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
                                         [
                                           "$win_vc/Tools/MSVC",
@@ -208,6 +165,7 @@ if (is_win) {
                                   [
                                     "$win_sdk/Include",
                                     "[0-9]{2}\.[0-9]\.[0-9]{5}\.[0-9]",
+                                    min_win_sdk_version
                                   ],
                                   "trim string")
   }
