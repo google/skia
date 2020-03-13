@@ -638,7 +638,7 @@ namespace {
                                          total{0};
                 if (!program.hasJIT()) {
                     SkDebugf("\ncouldn't JIT %s\n", debug_name(key).c_str());
-                    builder.dump();
+                    builder.dump(nullptr, true);
                     program.dump();
 
                     SkString path = SkStringPrintf("/tmp/%s.dot", debug_name(key).c_str());

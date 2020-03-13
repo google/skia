@@ -371,7 +371,7 @@ namespace skvm {
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-        std::vector<OptimizedInstruction> optimize(bool for_jit=false) const;
+        std::vector<OptimizedInstruction> optimize(bool for_jit) const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
@@ -561,7 +561,7 @@ namespace skvm {
 
         Color lerp(Color lo, Color hi, F32 t);
 
-        void dump(SkWStream* = nullptr) const;
+        void dump(SkWStream* = nullptr, bool for_jit=false) const;
         void dot (SkWStream* = nullptr, bool for_jit=false) const;
 
         uint64_t hash() const;

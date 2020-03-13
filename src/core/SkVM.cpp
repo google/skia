@@ -183,11 +183,11 @@ namespace skvm {
         o->writeText("}\n");
     }
 
-    void Builder::dump(SkWStream* o) const {
+    void Builder::dump(SkWStream* o, bool for_jit) const {
         SkDebugfStream debug;
         if (!o) { o = &debug; }
 
-        std::vector<OptimizedInstruction> optimized = this->optimize();
+        std::vector<OptimizedInstruction> optimized = this->optimize(for_jit);
         o->writeDecAsText(optimized.size());
         o->writeText(" values (originally ");
         o->writeDecAsText(fProgram.size());
