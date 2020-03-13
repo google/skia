@@ -686,7 +686,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     // sample() call uses the same uniform offsets.
     const size_t uniforms_before_sample = uniforms->buf.size();
 
-    auto sample = [&](skvm::F32 sx, skvm::F32 sy) -> skvm::Color {
+    auto sample = [&](skvm::F32 sx, skvm::F32 sy) -> skvm::RColor {
         uniforms->buf.resize(uniforms_before_sample);
 
         // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
@@ -734,30 +734,30 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         skvm::I32 index = p->add(p->trunc(clamped_x),
                           p->mul(p->trunc(clamped_y),
                                  p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
-        skvm::Color c;
+        skvm::RColor c;
         switch (pm.colorType()) {
             default: SkUNREACHABLE;
-            case   kRGB_565_SkColorType: c = p->unpack_565 (p->gather16(img, index)); break;
+            case   kRGB_565_SkColorType: c = p->unpack_R_565 (p->gather16(img, index)); break;
 
             case  kRGB_888x_SkColorType: [[fallthrough]];
-            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+            case kRGBA_8888_SkColorType: c = p->unpack_R_8888(p->gather32(img, index));
                                          break;
-            case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+            case kBGRA_8888_SkColorType: c = p->unpack_R_8888(p->gather32(img, index));
                                          std::swap(c.r, c.b);
                                          break;
 
             case  kRGB_101010x_SkColorType: [[fallthrough]];
-            case kRGBA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+            case kRGBA_1010102_SkColorType: c = p->unpack_R_1010102(p->gather32(img, index));
                                             break;
 
             case  kBGR_101010x_SkColorType: [[fallthrough]];
-            case kBGRA_1010102_SkColorType: c = p->unpack_1010102(p->gather32(img, index));
+            case kBGRA_1010102_SkColorType: c = p->unpack_R_1010102(p->gather32(img, index));
                                             std::swap(c.r, c.b);
                                             break;
         }
         // If we know the image is opaque, jump right to alpha = 1.0f, skipping work to unpack it.
         if (input_is_opaque) {
-            c.a = p->splat(1.0f);
+            c.a = {p->splat(1.0f), 1.0f};
         }
 
         // Mask away any pixels that we tried to sample outside the bounds in kDecal.
@@ -765,10 +765,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             skvm::I32 mask = p->splat(~0);
             if (fTileModeX == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(sx, clamped_x)); }
             if (fTileModeY == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(sy, clamped_y)); }
-            c.r = p->bit_cast(p->bit_and(mask, p->bit_cast(c.r)));
-            c.g = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g)));
-            c.b = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b)));
-            c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
+            c.r.num = p->bit_cast(p->bit_and(mask, p->bit_cast(c.r.num)));
+            c.g.num = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g.num)));
+            c.b.num = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b.num)));
+            c.a.num = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a.num)));
             // Notice that even if input_is_opaque, c.a might now be 0.
         }
 
@@ -776,7 +776,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     };
 
     if (quality == kNone_SkFilterQuality) {
-        skvm::Color c = sample(x,y);
+        skvm::Color c = p->resolve(sample(x,y));
         *r = c.r;
         *g = c.g;
         *b = c.b;
@@ -793,8 +793,9 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         skvm::F32 fx = p->fract(right ),
                   fy = p->fract(bottom);
 
-        skvm::Color c = p->lerp(p->lerp(sample(left,top   ), sample(right,top   ), fx),
-                                p->lerp(sample(left,bottom), sample(right,bottom), fx), fy);
+        skvm::RColor C = p->lerp(p->lerp(sample(left,top   ), sample(right,top   ), fx),
+                                 p->lerp(sample(left,bottom), sample(right,bottom), fx), fy);
+        skvm::Color c = p->resolve(C);
         *r = c.r;
         *g = c.g;
         *b = c.b;
@@ -836,21 +837,28 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             far (                       fy ),
         };
 
-        *r = *g = *b = *a = p->splat(0.0f);
+        const skvm::F32 zero = p->splat(0.0f);
+        skvm::RColor accum = { {zero,1}, {zero,1}, {zero,1}, {zero,1} };
 
         skvm::F32 sy = p->add(y, p->splat(-1.5f));
         for (int j = 0; j < 4; j++, sy = p->add(sy, p->splat(1.0f))) {
             skvm::F32 sx = p->add(x, p->splat(-1.5f));
             for (int i = 0; i < 4; i++, sx = p->add(sx, p->splat(1.0f))) {
-                skvm::Color c = sample(sx,sy);
+                skvm::RColor c = sample(sx,sy);
                 skvm::F32 w = p->mul(wx[i], wy[j]);
 
-                *r = p->mad(c.r,w, *r);
-                *g = p->mad(c.g,w, *g);
-                *b = p->mad(c.b,w, *b);
-                *a = p->mad(c.a,w, *a);
+                accum.r = p->mad(c.r, {w,1}, accum.r);
+                accum.g = p->mad(c.g, {w,1}, accum.g);
+                accum.b = p->mad(c.b, {w,1}, accum.b);
+                accum.a = p->mad(c.a, {w,1}, accum.a);
             }
         }
+
+        skvm::Color c = p->resolve(accum);
+        *r = c.r;
+        *g = c.g;
+        *b = c.b;
+        *a = c.a;
     }
 
     // If the input is opaque and we're not in decal mode, that means the output is too.
