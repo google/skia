@@ -13,7 +13,6 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrWindowRectsState.h"
@@ -398,9 +397,9 @@ private:
     int numTextureUnits() const { return this->caps()->shaderCaps()->maxFragmentSamplers(); }
 
     // Binds a texture to a target on the "scratch" texture unit to use for texture operations
-    // other than usual draw flow (i.e. a GrGLProgram derived from a GrPipeline used to draw
-    // GrMesh). It ensures that such operations don't negatively interact with draws.
-    // The active texture unit and the binding for 'target' will change.
+    // other than usual draw flow (i.e. a GrGLProgram derived from a GrPipeline used to draw). It
+    // ensures that such operations don't negatively interact with draws. The active texture unit
+    // and the binding for 'target' will change.
     void bindTextureToScratchUnit(GrGLenum target, GrGLint textureID);
 
     // The passed bounds contains the render target's color values that will subsequently be

@@ -12,7 +12,6 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrMesh.h"
 
 class GrD3DGpu;
 
