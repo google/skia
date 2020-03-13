@@ -387,29 +387,30 @@ DEF_TEST(SVGDevice_textpath, reporter) {
     SkFont font(ToolUtils::create_portable_typeface());
     SkPaint paint;
 
+    auto check_text = [&](uint32_t flags, bool expect_path) {
+        // By default, we emit <text> nodes.
+        {
+            auto svgCanvas = MakeDOMCanvas(&dom, flags);
+            svgCanvas->drawString("foo", 100, 100, font, paint);
+        }
+        const auto* rootElement = dom.finishParsing();
+        REPORTER_ASSERT(reporter, rootElement, "root element not found");
+        const auto* textElement = dom.getFirstChild(rootElement, "text");
+        REPORTER_ASSERT(reporter, !!textElement == !expect_path, "unexpected text element");
+        const auto* pathElement = dom.getFirstChild(rootElement, "path");
+        REPORTER_ASSERT(reporter, !!pathElement == expect_path, "unexpected path element");
+    };
+
     // By default, we emit <text> nodes.
-    {
-        auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawString("foo", 100, 100, font, paint);
-    }
-    const auto* rootElement = dom.finishParsing();
-    REPORTER_ASSERT(reporter, rootElement, "root element not found");
-    const auto* textElement = dom.getFirstChild(rootElement, "text");
-    REPORTER_ASSERT(reporter, textElement, "text element not found");
-    const auto* pathElement = dom.getFirstChild(rootElement, "path");
-    REPORTER_ASSERT(reporter, !pathElement, "path element found");
+    check_text(0, /*expect_path=*/false);
 
     // With kConvertTextToPaths_Flag, we emit <path> nodes.
-    {
-        auto svgCanvas = MakeDOMCanvas(&dom, SkSVGCanvas::kConvertTextToPaths_Flag);
-        svgCanvas->drawString("foo", 100, 100, font, paint);
-    }
-    rootElement = dom.finishParsing();
-    REPORTER_ASSERT(reporter, rootElement, "root element not found");
-    textElement = dom.getFirstChild(rootElement, "text");
-    REPORTER_ASSERT(reporter, !textElement, "text element found");
-    pathElement = dom.getFirstChild(rootElement, "path");
-    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+    check_text(SkSVGCanvas::kConvertTextToPaths_Flag, /*expect_path=*/true);
+
+    // We also use paths in the presence of path effects.
+    SkScalar intervals[] = {10, 5};
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    check_text(0, /*expect_path=*/true);
 }
 
 DEF_TEST(SVGDevice_fill_stroke, reporter) {

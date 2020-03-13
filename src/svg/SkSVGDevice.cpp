@@ -173,14 +173,12 @@ bool RequiresViewportReset(const SkPaint& paint) {
   return false;
 }
 
-SkPath GetPath(const SkGlyphRun& glyphRun, const SkPoint& offset) {
-    SkPath path;
-
+void AddPath(const SkGlyphRun& glyphRun, const SkPoint& offset, SkPath* path) {
     struct Rec {
         SkPath*        fPath;
         const SkPoint  fOffset;
         const SkPoint* fPos;
-    } rec = { &path, offset, glyphRun.positions().data() };
+    } rec = { path, offset, glyphRun.positions().data() };
 
     glyphRun.font().getPaths(glyphRun.glyphsIDs().data(), SkToInt(glyphRun.glyphsIDs().size()),
             [](const SkPath* path, const SkMatrix& mx, void* ctx) {
@@ -195,8 +193,6 @@ SkPath GetPath(const SkGlyphRun& glyphRun, const SkPoint& offset) {
                 }
                 rec->fPos += 1; // move to the next glyph's position
             }, &rec);
-
-    return path;
 }
 
 }  // namespace
@@ -1063,29 +1059,31 @@ private:
              fHasConstY             = true;
 };
 
-void SkSVGDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, const SkPoint& origin,
-                                     const SkPaint& runPaint) {
-    this->drawPath(GetPath(glyphRun, origin), runPaint);
-}
-
-void SkSVGDevice::drawGlyphRunAsText(const SkGlyphRun& glyphRun, const SkPoint& origin,
-                                     const SkPaint& runPaint) {
-    AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), runPaint);
-    elem.addTextAttributes(glyphRun.font());
-
-    SVGTextBuilder builder(origin, glyphRun);
-    elem.addAttribute("x", builder.posX());
-    elem.addAttribute("y", builder.posY());
-    elem.addText(builder.text());
-}
-
 void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
-    const auto processGlyphRun = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag)
-            ? &SkSVGDevice::drawGlyphRunAsPath
-            : &SkSVGDevice::drawGlyphRunAsText;
+    const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
+                              glyphRunList.paint().getPathEffect();
 
+    if (draw_as_path) {
+        // Emit a single <path> element.
+        SkPath path;
+        for (auto& glyphRun : glyphRunList) {
+            AddPath(glyphRun, glyphRunList.origin(), &path);
+        }
+
+        this->drawPath(path, glyphRunList.paint());
+
+        return;
+    }
+
+    // Emit one <text> element for each run.
     for (auto& glyphRun : glyphRunList) {
-        (this->*processGlyphRun)(glyphRun, glyphRunList.origin(), glyphRunList.paint());
+        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), glyphRunList.paint());
+        elem.addTextAttributes(glyphRun.font());
+
+        SVGTextBuilder builder(glyphRunList.origin(), glyphRun);
+        elem.addAttribute("x", builder.posX());
+        elem.addAttribute("y", builder.posY());
+        elem.addText(builder.text());
     }
 }
 

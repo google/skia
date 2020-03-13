@@ -43,9 +43,6 @@ private:
     SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
     ~SkSVGDevice() override;
 
-    void drawGlyphRunAsText(const SkGlyphRun&, const SkPoint&, const SkPaint&);
-    void drawGlyphRunAsPath(const SkGlyphRun&, const SkPoint&, const SkPaint&);
-
     struct MxCp;
     void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);
 
