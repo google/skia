@@ -53,8 +53,6 @@ DEF_TEST(Codec_end, r) {
     for (const char* path : { "images/plane.png",
                               "images/yellow_rose.png",
                               "images/plane_interlaced.png",
-                              "images/google_chrome.ico",
-                              "images/color_wheel.ico",
                               "images/mandrill.wbmp",
                               "images/randPixels.bmp",
                               }) {
