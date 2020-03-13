@@ -22,6 +22,30 @@
       "revId": "fc790b620bbeda5e31600f3aa036b2309d1da315",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6d1b473_b1dd6137",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-13T18:22:26Z",
+      "side": 1,
+      "message": "I was about to post a similar set of questions, but I think Brian covered it. Taking an explicit context does make some of these ambiguous.",
+      "parentUuid": "6b4aa5fb_2d6a27cb",
+      "range": {
+        "startLine": 916,
+        "startChar": 7,
+        "endLine": 916,
+        "endChar": 59
+      },
+      "revId": "fc790b620bbeda5e31600f3aa036b2309d1da315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
