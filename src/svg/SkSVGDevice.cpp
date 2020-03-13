@@ -1047,7 +1047,9 @@ void SkSVGDevice::drawGlyphRunAsText(const SkGlyphRun& glyphRun, const SkPoint& 
 }
 
 void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
-    const auto processGlyphRun = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag)
+    const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
+                              glyphRunList.paint().getPathEffect();
+    const auto processGlyphRun = draw_as_path
             ? &SkSVGDevice::drawGlyphRunAsPath
             : &SkSVGDevice::drawGlyphRunAsText;
 
