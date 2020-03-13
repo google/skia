@@ -29,6 +29,7 @@
 #include "src/core/SkStroke.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkVertState.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrContextPriv.h"
@@ -1031,10 +1032,13 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
 
+    SkVertices::Info info;
+    vertices->getInfo(&info);
+
     SkASSERT(vertices);
     GrPaint grPaint;
-    bool hasColors = vertices->hasColors();
-    bool hasTexs = vertices->hasTexCoords();
+    bool hasColors = info.hasColors();
+    bool hasTexs = info.hasTexCoords();
     if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),

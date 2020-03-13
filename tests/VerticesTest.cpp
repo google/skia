@@ -8,56 +8,61 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
+#include "src/core/SkVerticesPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
-static bool equal(const SkVertices* v0, const SkVertices* v1) {
-    if (v0->mode() != v1->mode()) {
+static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
+    SkVertices::Info v0, v1;
+    vert0->getInfo(&v0);
+    vert1->getInfo(&v1);
+
+    if (v0.fMode != v1.fMode) {
         return false;
     }
-    if (v0->vertexCount() != v1->vertexCount()) {
+    if (v0.fVertexCount != v1.fVertexCount) {
         return false;
     }
-    if (v0->indexCount() != v1->indexCount()) {
+    if (v0.fIndexCount != v1.fIndexCount) {
         return false;
     }
-    if (v0->perVertexDataCount() != v1->perVertexDataCount()) {
+    if (v0.fPerVertexDataCount != v1.fPerVertexDataCount) {
         return false;
     }
 
-    if (!!v0->perVertexData() != !!v1->perVertexData()) {
+    if (!!v0.fPerVertexData != !!v1.fPerVertexData) {
         return false;
     }
-    if (!!v0->texCoords() != !!v1->texCoords()) {
+    if (!!v0.fTexCoords != !!v1.fTexCoords) {
         return false;
     }
-    if (!!v0->colors() != !!v1->colors()) {
+    if (!!v0.fColors != !!v1.fColors) {
         return false;
     }
 
-    for (int i = 0; i < v0->vertexCount(); ++i) {
-        if (v0->positions()[i] != v1->positions()[i]) {
+    for (int i = 0; i < v0.fVertexCount; ++i) {
+        if (v0.fPositions[i] != v1.fPositions[i]) {
             return false;
         }
-        if (v0->texCoords()) {
-            if (v0->texCoords()[i] != v1->texCoords()[i]) {
+        if (v0.fTexCoords) {
+            if (v0.fTexCoords[i] != v1.fTexCoords[i]) {
                 return false;
             }
         }
-        if (v0->colors()) {
-            if (v0->colors()[i] != v1->colors()[i]) {
+        if (v0.fColors) {
+            if (v0.fColors[i] != v1.fColors[i]) {
                 return false;
             }
         }
     }
-    int totalVertexDataCount = v0->vertexCount() * v0->perVertexDataCount();
+    int totalVertexDataCount = v0.fVertexCount * v0.fPerVertexDataCount;
     for (int i = 0; i < totalVertexDataCount; ++i) {
-        if (v0->perVertexData()[i] != v1->perVertexData()[i]) {
+        if (v0.fPerVertexData[i] != v1.fPerVertexData[i]) {
             return false;
         }
     }
-    for (int i = 0; i < v0->indexCount(); ++i) {
-        if (v0->indices()[i] != v1->indices()[i]) {
+    for (int i = 0; i < v0.fIndexCount; ++i) {
+        if (v0.fIndices[i] != v1.fIndices[i]) {
             return false;
         }
     }

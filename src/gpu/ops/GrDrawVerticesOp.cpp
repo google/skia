@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -82,17 +83,17 @@ private:
         bool fIgnoreColors;
 
         bool hasExplicitLocalCoords() const {
-            return fVertices->hasTexCoords() && !fIgnoreTexCoords;
+            return SkVerticesPriv::HasTexCoords(fVertices.get()) && !fIgnoreTexCoords;
         }
 
         bool hasPerVertexColors() const {
-            return fVertices->hasColors() && !fIgnoreColors;
+            return SkVerticesPriv::HasColors(fVertices.get()) && !fIgnoreColors;
         }
     };
 
     bool isIndexed() const {
         // Consistency enforced in onCombineIfPossible.
-        return fMeshes[0].fVertices->hasIndices();
+        return SkVerticesPriv::HasIndices(fMeshes[0].fVertices.get());
     }
 
     bool requiresPerVertexColors() const {
@@ -164,10 +165,13 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(vertices);
 
-    fVertexCount = vertices->vertexCount();
-    fIndexCount = vertices->indexCount();
-    fColorArrayType = vertices->hasColors() ? ColorArrayType::kSkColor
-                                            : ColorArrayType::kPremulGrColor;
+    SkVertices::Info info;
+    vertices->getInfo(&info);
+
+    fVertexCount = info.fVertexCount;
+    fIndexCount = info.fIndexCount;
+    fColorArrayType = info.hasColors() ? ColorArrayType::kSkColor
+                                       : ColorArrayType::kPremulGrColor;
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -295,20 +299,22 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
     int vertexOffset = 0;
 
     for (const auto& mesh : fMeshes) {
+        SkVertices::Info info;
+        mesh.fVertices->getInfo(&info);
         // Copy data into the index buffer.
         if (indices) {
-            int indexCount = mesh.fVertices->indexCount();
+            int indexCount = info.fIndexCount;
             for (int i = 0; i < indexCount; ++i) {
-                *indices++ = mesh.fVertices->indices()[i] + vertexOffset;
+                *indices++ = info.fIndices[i] + vertexOffset;
             }
         }
 
         // Copy data into the vertex buffer.
-        int vertexCount = mesh.fVertices->vertexCount();
-        const SkPoint* positions = mesh.fVertices->positions();
-        const SkColor* colors = mesh.fVertices->colors();
+        int vertexCount = info.fVertexCount;
+        const SkPoint* positions = info.fPositions;
+        const SkColor* colors = info.fColors;
         const SkPoint* localCoords =
-                mesh.hasExplicitLocalCoords() ? mesh.fVertices->texCoords() : positions;
+                mesh.hasExplicitLocalCoords() ? info.fTexCoords : positions;
 
         // TODO4F: Preserve float colors
         GrColor meshColor = mesh.fColor.toBytes_RGBA();
@@ -413,8 +419,9 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType) {
     SkASSERT(vertices);
-    GrPrimitiveType primType = overridePrimType ? *overridePrimType
-                                                : SkVertexModeToGrPrimitiveType(vertices->mode());
+    GrPrimitiveType primType = overridePrimType
+                         ? *overridePrimType
+                         : SkVertexModeToGrPrimitiveType(SkVerticesPriv::Mode(vertices.get()));
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
                                                                    std::move(vertices),
                                                                    primType, aaType,

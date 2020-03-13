@@ -103,23 +103,7 @@ public:
     };
 
     uint32_t uniqueID() const { return fUniqueID; }
-    VertexMode mode() const { return fMode; }
     const SkRect& bounds() const { return fBounds; }
-
-    bool hasPerVertexData() const { return SkToBool(this->perVertexData()); }
-    bool hasColors() const { return SkToBool(this->colors()); }
-    bool hasTexCoords() const { return SkToBool(this->texCoords()); }
-    bool hasIndices() const { return SkToBool(this->indices()); }
-
-    int vertexCount() const { return fVertexCount; }
-    int indexCount() const { return fIndexCount; }
-    int perVertexDataCount() const { return fPerVertexDataCount; }
-
-    const SkPoint* positions() const { return fPositions; }
-    const float* perVertexData() const { return fPerVertexData; }
-    const SkPoint* texCoords() const { return fTexs; }
-    const SkColor* colors() const { return fColors; }
-    const uint16_t* indices() const { return fIndices; }
 
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
@@ -136,8 +120,15 @@ public:
      */
     sk_sp<SkData> encode() const;
 
+    struct Info;
+    void getInfo(Info*) const;
+
 private:
     SkVertices() {}
+
+    friend class SkVerticesPriv;
+    friend class SkDraw;
+    friend class SkGpuDevice;
 
     // these are needed since we've manually sized our allocation (see Builder::init)
     friend class SkNVRefCnt<SkVertices>;
@@ -147,6 +138,23 @@ private:
                                    size_t* arraySize);
 
     Sizes getSizes() const;
+
+    VertexMode mode() const { return fMode; }
+
+    bool hasPerVertexData() const { return SkToBool(this->perVertexData()); }
+    bool hasColors() const { return SkToBool(this->colors()); }
+    bool hasTexCoords() const { return SkToBool(this->texCoords()); }
+    bool hasIndices() const { return SkToBool(this->indices()); }
+
+    int vertexCount() const { return fVertexCount; }
+    int indexCount() const { return fIndexCount; }
+    int perVertexDataCount() const { return fPerVertexDataCount; }
+
+    const SkPoint* positions() const { return fPositions; }
+    const float* perVertexData() const { return fPerVertexData; }
+    const SkPoint* texCoords() const { return fTexs; }
+    const SkColor* colors() const { return fColors; }
+    const uint16_t* indices() const { return fIndices; }
 
     // we store this first, to pair with the refcnt in our base-class, so we don't have an
     // unnecessary pad between it and the (possibly 8-byte aligned) ptrs.
