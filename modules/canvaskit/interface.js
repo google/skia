@@ -1077,7 +1077,7 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1099,7 +1099,7 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1122,7 +1122,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                          colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1244,6 +1244,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
+// colors is an array of SimpleColor4f
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     indices, isVolatile) {
   // Default isVolitile to true if not set
@@ -1269,7 +1270,8 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
     copy2dArray(textureCoordinates, CanvasKit.HEAPF32, builder.texCoords());
   }
   if (builder.colors()) {
-    copy1dArray(colors,             CanvasKit.HEAPU32, builder.colors());
+    // Convert from canvaskit 4f colors to 32 bit uint colors which builder supports.
+    copy1dArray(colors.map(toUint32Color), CanvasKit.HEAPU32, builder.colors());
   }
   if (builder.indices()) {
     copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());
