@@ -203,6 +203,7 @@ var CanvasKit = {
     _drawPoints: function() {},
     _drawSimpleText: function() {},
     _readPixels: function() {},
+    _saveLayer: function() {},
     _writePixels: function() {},
     delete: function() {},
   },
