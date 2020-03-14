@@ -30,59 +30,21 @@ public:
         sk_free(fArray);
     }
 
-    class Iter {
-    public:
-        explicit Iter(SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
-            SkASSERT(hash);
-            ++(*this);
+    // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
+    template <typename Fn>  // f(T*)
+    void foreach(Fn&& fn) {
+        for (Iter it(this); !it.done(); ++it) {
+            fn(&*it);
         }
-        bool done() const {
-            SkASSERT(fCurrentIndex <= fHash->fCapacity);
-            return fCurrentIndex == fHash->fCapacity;
-        }
-        T& operator*() const {
-            SkASSERT(!this->done());
-            return *this->current();
-        }
-        void operator++() {
-            do {
-                fCurrentIndex++;
-            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
-        }
+    }
 
-    private:
-        T* current() const { return fHash->fArray[fCurrentIndex]; }
-
-        SkTDynamicHash* fHash;
-        int fCurrentIndex;
-    };
-
-    class ConstIter {
-    public:
-        explicit ConstIter(const SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
-            SkASSERT(hash);
-            ++(*this);
+    // Call fn on every entry in the table.  You may not mutate anything.
+    template <typename Fn>  // f(T) or f(const T&)
+    void foreach(Fn&& fn) const {
+        for (ConstIter it(this); !it.done(); ++it) {
+            fn(*it);
         }
-        bool done() const {
-            SkASSERT(fCurrentIndex <= fHash->fCapacity);
-            return fCurrentIndex == fHash->fCapacity;
-        }
-        const T& operator*() const {
-            SkASSERT(!this->done());
-            return *this->current();
-        }
-        void operator++() {
-            do {
-                fCurrentIndex++;
-            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
-        }
-
-    private:
-        const T* current() const { return fHash->fArray[fCurrentIndex]; }
-
-        const SkTDynamicHash* fHash;
-        int fCurrentIndex;
-    };
+    }
 
     int count() const { return fCount; }
 
@@ -159,6 +121,66 @@ private:
     // We have two special values to indicate an empty or deleted entry.
     static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. nullptr
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
+
+    // GrProxyProvider::removeAllUniqueKeys() uses Iter but removes elements from the table
+    // as it iterates, so it can't safely use foreach().
+    // TODO(mtklein): add mutate(), replace that use of Iter with that.
+    friend class GrProxyProvider;
+
+    class Iter {
+    public:
+        explicit Iter(SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
+            SkASSERT(hash);
+            ++(*this);
+        }
+        bool done() const {
+            SkASSERT(fCurrentIndex <= fHash->fCapacity);
+            return fCurrentIndex == fHash->fCapacity;
+        }
+        T& operator*() const {
+            SkASSERT(!this->done());
+            return *this->current();
+        }
+        void operator++() {
+            do {
+                fCurrentIndex++;
+            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
+        }
+
+    private:
+        T* current() const { return fHash->fArray[fCurrentIndex]; }
+
+        SkTDynamicHash* fHash;
+        int fCurrentIndex;
+    };
+
+
+    class ConstIter {
+    public:
+        explicit ConstIter(const SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
+            SkASSERT(hash);
+            ++(*this);
+        }
+        bool done() const {
+            SkASSERT(fCurrentIndex <= fHash->fCapacity);
+            return fCurrentIndex == fHash->fCapacity;
+        }
+        const T& operator*() const {
+            SkASSERT(!this->done());
+            return *this->current();
+        }
+        void operator++() {
+            do {
+                fCurrentIndex++;
+            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
+        }
+
+    private:
+        const T* current() const { return fHash->fArray[fCurrentIndex]; }
+
+        const SkTDynamicHash* fHash;
+        int fCurrentIndex;
+    };
 
     bool validate() const {
         #define SKTDYNAMICHASH_CHECK(x) SkASSERT(x); if (!(x)) return false

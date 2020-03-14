@@ -70,18 +70,10 @@ GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(GrSamplerStat
 }
 
 void GrMtlResourceProvider::destroyResources() {
-    // Iterate through all stored GrMtlSamplers and unref them before resetting the hash.
-    SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key>::Iter samplerIter(&fSamplers);
-    for (; !samplerIter.done(); ++samplerIter) {
-        (*samplerIter).unref();
-    }
+    fSamplers.foreach([&](GrMtlSampler* sampler) { sampler->unref(); });
     fSamplers.reset();
 
-    // Iterate through all stored GrMtlDepthStencils and unref them before resetting the hash.
-    SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key>::Iter dsIter(&fDepthStencilStates);
-    for (; !dsIter.done(); ++dsIter) {
-        (*dsIter).unref();
-    }
+    fDepthStencilStates.foreach([&](GrMtlDepthStencil* stencil) { stencil->unref(); });
     fDepthStencilStates.reset();
 
     fPipelineStateCache->release();
