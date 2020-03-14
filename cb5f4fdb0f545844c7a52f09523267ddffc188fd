@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4030fe39_80a1a5f1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-14T20:35:41Z",
+      "side": 1,
+      "message": "Yeah, that sounds neat to me.  Let\u0027s even do that for color filters too, with a pure input Color and a {Color,bool} return.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 79
+      },
+      "revId": "cb5f4fdb0f545844c7a52f09523267ddffc188fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d8b2d88_6a83076e",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-14T20:35:41Z",
+      "side": 1,
+      "message": "Why don\u0027t we move this blend mode stuff to SkVM.h or SkBlendModePriv.h sometime?  I always forget that SkVMBlitter.h is really just declarations for blend modes, not SkVMBlitter.",
+      "revId": "cb5f4fdb0f545844c7a52f09523267ddffc188fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c5e7ef_67a3a81e",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-14T20:35:41Z",
+      "side": 1,
+      "message": "These functions both might read more symmetrically if you also declare `skvm::F32 sr,sg,sb,sa` and use those for fSrc, storing into *r,*g,*b,*a only after BlendModeProgram().",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 86
+      },
+      "revId": "cb5f4fdb0f545844c7a52f09523267ddffc188fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
