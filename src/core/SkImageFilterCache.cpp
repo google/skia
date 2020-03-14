@@ -32,13 +32,7 @@ public:
     typedef SkImageFilterCacheKey Key;
     CacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) { }
     ~CacheImpl() override {
-        SkTDynamicHash<Value, Key>::Iter iter(&fLookup);
-
-        while (!iter.done()) {
-            Value* v = &*iter;
-            ++iter;
-            delete v;
-        }
+        fLookup.foreach([&](Value* v) { delete v; });
     }
     struct Value {
         Value(const Key& key, const skif::FilterResult<For::kOutput>& image,

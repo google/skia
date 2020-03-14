@@ -148,13 +148,11 @@ bool Window_mac::attach(BackendType attachType) {
 }
 
 void Window_mac::PaintWindows() {
-    SkTDynamicHash<Window_mac, NSInteger>::Iter iter(&gWindowMap);
-    while (!iter.done()) {
-        if ((*iter).fIsContentInvalidated) {
-            (*iter).onPaint();
+    gWindowMap.foreach([&](Window_mac* window) {
+        if (window->fIsContentInvalidated) {
+            window->onPaint();
         }
-        ++iter;
-    }
+    });
 }
 
 }   // namespace sk_app
