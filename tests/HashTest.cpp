@@ -230,3 +230,53 @@ DEF_TEST(HashFilter, r) {
 
     REPORTER_ASSERT(r, table.count() == 0);
 }
+
+DEF_TEST(HashTableGrowsAndShrinks, r) {
+    SkTHashSet<int> s;
+    auto check_count_cap = [&](int count, int cap) {
+        REPORTER_ASSERT(r, s.count() == count);
+        REPORTER_ASSERT(r, s.approxBytesUsed() == (sizeof(int) + sizeof(uint32_t)) * cap);
+    };
+
+    // Add and remove some elements to test basic growth and shrink patterns.
+                 check_count_cap(0,0);
+    s.add(1);    check_count_cap(1,4);
+    s.add(2);    check_count_cap(2,4);
+    s.add(3);    check_count_cap(3,4);
+    s.add(4);    check_count_cap(4,8);
+
+    s.remove(4); check_count_cap(3,8);
+    s.remove(3); check_count_cap(2,4);
+    s.remove(2); check_count_cap(1,4);
+    s.remove(1); check_count_cap(0,4);
+
+    s.add(1);    check_count_cap(1,4);
+    s.add(2);    check_count_cap(2,4);
+    s.add(3);    check_count_cap(3,4);
+    s.add(4);    check_count_cap(4,8);
+
+    // Add and remove single elements repeatedly to test hysteresis
+    // avoids reallocating these small tables all the time.
+    for (int i = 0; i < 10; i++) {
+        s.   add(5); check_count_cap(5,8);
+        s.remove(5); check_count_cap(4,8);
+    }
+
+    s.remove(4);     check_count_cap(3,8);
+    for (int i = 0; i < 10; i++) {
+        s.   add(4); check_count_cap(4,8);
+        s.remove(4); check_count_cap(3,8);
+    }
+
+    s.remove(3);     check_count_cap(2,4);
+    for (int i = 0; i < 10; i++) {
+        s.   add(4); check_count_cap(3,4);
+        s.remove(4); check_count_cap(2,4);
+    }
+
+    s.remove(2);     check_count_cap(1,4);
+    for (int i = 0; i < 10; i++) {
+        s.   add(2); check_count_cap(2,4);
+        s.remove(2); check_count_cap(1,4);
+    }
+}
