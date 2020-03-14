@@ -12,6 +12,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkComposeShader.h"
@@ -132,6 +133,30 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
+bool SkShader_Blend::onProgram(skvm::Builder* p,
+                               const SkMatrix& ctm, const SkMatrix* localM,
+                               SkFilterQuality q, SkColorSpace* cs,
+                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                               skvm::F32 x, skvm::F32 y,
+                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    if (!skvm::BlendModeSupported(fMode)) {
+        return false;
+    }
+    skvm::F32 dr, dg, db, da,
+              sr, sg, sb, sa;
+    if (!as_SB(fDst)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &dr, &dg, &db, &da) ||
+        !as_SB(fSrc)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &sr, &sg, &sb, &sa)) {
+        return false;
+    }
+    auto color = skvm::BlendModeProgram(p, fMode, {sr, sg, sb, sa}, {dr, dg, db, da});
+    *r = color.r;
+    *g = color.g;
+    *b = color.b;
+    *a = color.a;
+    return true;
+}
+
+
 sk_sp<SkFlattenable> SkShader_Lerp::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> dst(buffer.readShader());
     sk_sp<SkShader> src(buffer.readShader());
@@ -155,6 +180,26 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
 
     rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
     rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fWeight);
+    return true;
+}
+
+bool SkShader_Lerp::onProgram(skvm::Builder* p,
+                              const SkMatrix& ctm, const SkMatrix* localM,
+                              SkFilterQuality q, SkColorSpace* cs,
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                              skvm::F32 x, skvm::F32 y,
+                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    skvm::F32 dr, dg, db, da,
+              sr, sg, sb, sa;
+    if (!as_SB(fDst)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &dr, &dg, &db, &da) ||
+        !as_SB(fSrc)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &sr, &sg, &sb, &sa)) {
+        return false;
+    }
+    auto t = p->uniformF(uniforms->pushF(fWeight));
+    *r = p->lerp(dr, sr, t);
+    *g = p->lerp(dg, sg, t);
+    *b = p->lerp(db, sb, t);
+    *a = p->lerp(da, sa, t);
     return true;
 }
 

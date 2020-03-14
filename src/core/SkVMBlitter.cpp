@@ -15,7 +15,6 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
-#include "src/core/SkVMBlitter.h"
 #include "src/shaders/SkColorFilterShader.h"
 
 namespace {
