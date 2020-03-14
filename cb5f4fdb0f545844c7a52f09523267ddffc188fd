@@ -104,6 +104,30 @@
       "revId": "cb5f4fdb0f545844c7a52f09523267ddffc188fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ab349a3_90e669ba",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-14T20:38:51Z",
+      "side": 1,
+      "message": "or even `skvm::Color src, dst; .... \u0026src.r, \u0026src.g,.... \u0026dst.r, \u0026dst.g` etc.",
+      "parentUuid": "675dad47_edb95f51",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 86
+      },
+      "revId": "cb5f4fdb0f545844c7a52f09523267ddffc188fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
