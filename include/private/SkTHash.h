@@ -151,6 +151,7 @@ public:
                 // around to check slot i again.
             }
         }
+        // TODO: shrink table capacity like in remove()?
     }
 
 private:
