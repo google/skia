@@ -43,13 +43,11 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 #ifdef SK_DEBUG
 int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
     int count = 0;
-    UniqueHash::ConstIter iter(&fUniqueHash);
-    while (!iter.done()) {
-        if (0 == strcmp(tag, (*iter).getUniqueKey().tag())) {
+    fUniqueHash.foreach([&](const GrGpuResource& resource){
+        if (0 == strcmp(tag, resource.getUniqueKey().tag())) {
             ++count;
         }
-        ++iter;
-    }
+    });
     return count;
 }
 #endif

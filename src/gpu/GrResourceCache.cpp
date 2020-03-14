@@ -863,16 +863,13 @@ void GrResourceCache::validate() const {
     };
 
     {
-        ScratchMap::ConstIter iter(&fScratchMap);
-
         int count = 0;
-        for ( ; !iter.done(); ++iter) {
-            const GrGpuResource* resource = *iter;
-            SkASSERT(resource->resourcePriv().getScratchKey().isValid());
-            SkASSERT(!resource->getUniqueKey().isValid());
+        fScratchMap.foreach([&](const GrGpuResource& resource) {
+            SkASSERT(resource.resourcePriv().getScratchKey().isValid());
+            SkASSERT(!resource.getUniqueKey().isValid());
             count++;
-        }
-        SkASSERT(count == fScratchMap.count()); // ensure the iterator is working correctly
+        });
+        SkASSERT(count == fScratchMap.count());
     }
 
     Stats stats(this);

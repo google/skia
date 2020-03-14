@@ -891,12 +891,9 @@ bool GrProxyProvider::isAbandoned() const {
 }
 
 void GrProxyProvider::orphanAllUniqueKeys() {
-    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
-        GrTextureProxy& tmp = *iter;
-
-        tmp.fProxyProvider = nullptr;
-    }
+    fUniquelyKeyedProxies.foreach([&](GrTextureProxy* proxy){
+        proxy->fProxyProvider = nullptr;
+    });
 }
 
 void GrProxyProvider::removeAllUniqueKeys() {

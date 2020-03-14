@@ -171,59 +171,6 @@ DEF_TEST(DynamicHash_remove, reporter) {
     ASSERT(hash.find(5)->value == 3.0);
 }
 
-template<typename T> static void TestIter(skiatest::Reporter* reporter) {
-    Hash hash;
-
-    int count = 0;
-    // this should fall out of loop immediately
-    for (T iter(&hash); !iter.done(); ++iter) {
-        ++count;
-    }
-    ASSERT(0 == count);
-
-    // These collide.
-    Entry a = { 1, 2.0 };
-    Entry b = { 5, 3.0 };
-    Entry c = { 9, 4.0 };
-
-    hash.add(&a);
-    hash.add(&b);
-    hash.add(&c);
-
-    // should see all 3 unique keys when iterating over hash
-    count = 0;
-    int keys[3] = {0, 0, 0};
-    for (T iter(&hash); !iter.done(); ++iter) {
-        int key = (*iter).key;
-        keys[count] = key;
-        ASSERT(hash.find(key) != nullptr);
-        ++count;
-    }
-    ASSERT(3 == count);
-    ASSERT(keys[0] != keys[1]);
-    ASSERT(keys[0] != keys[2]);
-    ASSERT(keys[1] != keys[2]);
-
-    // should see 2 unique keys when iterating over hash that aren't 1
-    hash.remove(1);
-    count = 0;
-    memset(keys, 0, sizeof(keys));
-    for (T iter(&hash); !iter.done(); ++iter) {
-        int key = (*iter).key;
-        keys[count] = key;
-        ASSERT(key != 1);
-        ASSERT(hash.find(key) != nullptr);
-        ++count;
-    }
-    ASSERT(2 == count);
-    ASSERT(keys[0] != keys[1]);
-}
-
-DEF_TEST(DynamicHash_iterator, reporter) {
-    TestIter<Hash::Iter>(reporter);
-    TestIter<Hash::ConstIter>(reporter);
-}
-
 static void TestResetOrRewind(skiatest::Reporter* reporter, bool testReset) {
     Hash hash;
     Entry a = { 1, 2.0 };
