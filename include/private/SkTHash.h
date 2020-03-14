@@ -105,6 +105,9 @@ public:
             SkASSERT(!s.empty());
             if (hash == s.hash && key == Traits::GetKey(s.val)) {
                this->removeSlot(index);
+               if (4 * fCount <= fCapacity && fCapacity > 4) {
+                   this->resize(fCapacity / 2);
+               }
                return;
             }
             index = this->next(index);
