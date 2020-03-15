@@ -342,10 +342,16 @@ namespace skvm {
     static const Val NA = ~0;
 
     struct Arg { int ix; };
-    struct I32 { Val id; };
-    struct F32 { Val id; };
+    struct I32 { Val id; explicit operator bool() const { return id != NA; } };
+    struct F32 { Val id; explicit operator bool() const { return id != NA; } };
 
-    struct Color { skvm::F32 r,g,b,a; };
+    struct Color {
+        skvm::F32 r,g,b,a;
+
+        explicit operator bool() const { return r && g && b && a; }
+
+        static Color False() { return {{NA}, {NA}, {NA}, {NA}}; }
+    };
 
     struct OptimizedInstruction {
         Op op;

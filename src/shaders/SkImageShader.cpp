@@ -638,22 +638,23 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
-bool SkImageShader::onProgram(skvm::Builder* p,
-                              const SkMatrix& ctm, const SkMatrix* localM,
-                              SkFilterQuality quality, SkColorSpace* dstCS,
-                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                              skvm::F32 x, skvm::F32 y,
-                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkImageShader::onProgram(skvm::Builder* p,
+                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     SkFilterQuality quality, SkColorSpace* dstCS,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                     skvm::F32 x, skvm::F32 y) const {
+    auto failed = skvm::Color::False();
+
     SkMatrix inv;
     if (!this->computeTotalInverse(ctm, localM, &inv)) {
-        return false;
+        return failed;
     }
 
     // We use RequestBitmap() to make sure our SkBitmapController::State lives in the alloc.
     // This lets the SkVMBlitter hang on to this state and keep our image alive.
     auto state = SkBitmapController::RequestBitmap(as_IB(fImage.get()), inv, quality, alloc);
     if (!state) {
-        return false;
+        return failed;
     }
     const SkPixmap& pm = state->pixmap();
     inv     = state->invMatrix();
@@ -666,7 +667,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
 
     // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
-        default: return false;
+        default: return failed;
         case   kRGB_565_SkColorType:
         case  kRGB_888x_SkColorType:
         case kRGBA_8888_SkColorType:
@@ -775,12 +776,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         return c;
     };
 
+    skvm::Color color;
+
     if (quality == kNone_SkFilterQuality) {
-        skvm::Color c = sample(x,y);
-        *r = c.r;
-        *g = c.g;
-        *b = c.b;
-        *a = c.a;
+        color = sample(x,y);
     } else if (quality == kLow_SkFilterQuality) {
         // Our four sample points are the corners of a logical 1x1 pixel
         // box surrounding (x,y) at (0.5,0.5) off-center.
@@ -793,12 +792,8 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         skvm::F32 fx = p->fract(right ),
                   fy = p->fract(bottom);
 
-        skvm::Color c = p->lerp(p->lerp(sample(left,top   ), sample(right,top   ), fx),
-                                p->lerp(sample(left,bottom), sample(right,bottom), fx), fy);
-        *r = c.r;
-        *g = c.g;
-        *b = c.b;
-        *a = c.a;
+        color = p->lerp(p->lerp(sample(left,top   ), sample(right,top   ), fx),
+                        p->lerp(sample(left,bottom), sample(right,bottom), fx), fy);
     } else {
         SkASSERT(quality == kHigh_SkFilterQuality);
 
@@ -836,7 +831,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             far (                       fy ),
         };
 
-        *r = *g = *b = *a = p->splat(0.0f);
+        color.r = color.g = color.b = color.a = p->splat(0.0f);
 
         skvm::F32 sy = p->add(y, p->splat(-1.5f));
         for (int j = 0; j < 4; j++, sy = p->add(sy, p->splat(1.0f))) {
@@ -845,10 +840,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                 skvm::Color c = sample(sx,sy);
                 skvm::F32 w = p->mul(wx[i], wy[j]);
 
-                *r = p->mad(c.r,w, *r);
-                *g = p->mad(c.g,w, *g);
-                *b = p->mad(c.b,w, *b);
-                *a = p->mad(c.a,w, *a);
+                color.r = p->mad(c.r,w, color.r);
+                color.g = p->mad(c.g,w, color.g);
+                color.b = p->mad(c.b,w, color.b);
+                color.a = p->mad(c.a,w, color.a);
             }
         }
     }
@@ -858,19 +853,19 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     if (input_is_opaque
             && fTileModeX != SkTileMode::kDecal
             && fTileModeY != SkTileMode::kDecal) {
-        *a = p->splat(1.0f);
+        color.a = p->splat(1.0f);
     }
 
     if (quality == kHigh_SkFilterQuality) {
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-        *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
+        color.a = p->clamp(color.a, p->splat(0.0f), p->splat(1.0f));
 
         skvm::F32 limit = (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul)
                         ? p->splat(1.0f)
-                        : *a;
-        *r = p->clamp(*r, p->splat(0.0f), limit);
-        *g = p->clamp(*g, p->splat(0.0f), limit);
-        *b = p->clamp(*b, p->splat(0.0f), limit);
+                        : color.a;
+        color.r = p->clamp(color.r, p->splat(0.0f), limit);
+        color.g = p->clamp(color.g, p->splat(0.0f), limit);
+        color.b = p->clamp(color.b, p->splat(0.0f), limit);
     }
 
     // Follow SkColorSpaceXformSteps to match shader output convention (dstCS, premul).
@@ -879,11 +874,11 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                                         dstCS, kPremul_SkAlphaType}.flags;
 
     // TODO: once this all works, move it to SkColorSpaceXformSteps
-    if (flags.unpremul)        { p->unpremul(r,g,b,*a); }
-    if (flags.linearize)       { return false; }
-    if (flags.gamut_transform) { return false; }
-    if (flags.encode)          { return false; }
-    if (flags.premul)          { p->premul(r,g,b,*a); }
-    return true;
+    if (flags.unpremul)        { p->unpremul(&color.r,&color.g,&color.b,color.a); }
+    if (flags.linearize)       { return failed; }
+    if (flags.gamut_transform) { return failed; }
+    if (flags.encode)          { return failed; }
+    if (flags.premul)          { p->premul(&color.r,&color.g,&color.b,color.a); }
+    return color;
 }
 
