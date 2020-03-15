@@ -125,10 +125,10 @@ namespace {
                           y = p.add(p.to_f32(dy), p.splat(0.5f));
 
                 uint64_t hash = 0;
-                if (auto c = sb->program(&p,
+                if (auto c = sb->program(&p, x,y,
                                          params.ctm, /*localM=*/nullptr,
                                          params.quality, params.colorSpace.get(),
-                                         uniforms,alloc, x, y)) {
+                                         uniforms,alloc)) {
                     hash = p.hash();
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
                     // precisely which value we'll treat as which channel.  Imagine the shader
@@ -198,10 +198,10 @@ namespace {
             skvm::F32 x = add(to_f32(dx), splat(0.5f)),
                       y = add(to_f32(dy), splat(0.5f));
 
-            skvm::Color src = as_SB(params.shader)->program(this,
-                                                         params.ctm, /*localM=*/nullptr,
-                                                         params.quality, params.colorSpace.get(),
-                                                         uniforms, alloc, x,y);
+            skvm::Color src = as_SB(params.shader)->program(this, x,y,
+                                                            params.ctm, /*localM=*/nullptr,
+                                                            params.quality, params.colorSpace.get(),
+                                                            uniforms, alloc);
             SkASSERT(src);
             if (params.coverage == Coverage::Mask3D) {
                 skvm::F32 M = from_unorm(8, load8(varying<uint8_t>())),
@@ -265,11 +265,11 @@ namespace {
                 }
 
                 if (params.clip) {
-                    skvm::Color clip = as_SB(params.clip)->program(this,
+                    skvm::Color clip = as_SB(params.clip)->program(this, x,y,
                                                                    params.ctm, /*localM=*/nullptr,
                                                                    params.quality,
                                                                    params.colorSpace.get(),
-                                                                   uniforms, alloc, x,y);
+                                                                   uniforms, alloc);
                     SkAssertResult(clip);
                     cov->r = mul(cov->r, clip.a);  // We use the alpha channel of clip for all four.
                     cov->g = mul(cov->g, clip.a);
@@ -399,8 +399,8 @@ namespace {
     };
 
     struct NoopColorFilter : public SkColorFilter {
-        skvm::Color onProgram(skvm::Builder*, SkColorSpace*, skvm::Uniforms*,
-                              SkArenaAlloc*, skvm::Color c) const override {
+        skvm::Color onProgram(skvm::Builder*, skvm::Color c,
+                              SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override {
             return c;
         }
 
@@ -424,14 +424,13 @@ namespace {
 
         bool isOpaque() const override { return fShader->isOpaque(); }
 
-        skvm::Color onProgram(skvm::Builder* p,
+        skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                               const SkMatrix& ctm, const SkMatrix* localM,
                               SkFilterQuality quality, SkColorSpace* dstCS,
-                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                              skvm::F32 x, skvm::F32 y) const override {
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
-            skvm::Color c = as_SB(fShader)->program(p, ctm,localM, quality,dstCS,
-                                                    uniforms,alloc, x,y);
+            skvm::Color c = as_SB(fShader)->program(p, x,y,
+                                                    ctm,localM, quality,dstCS, uniforms,alloc);
             if (!c) {
                 return {};
             }

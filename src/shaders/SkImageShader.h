@@ -47,11 +47,10 @@ private:
     bool onAppendStages(const SkStageRec&) const override;
     SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*,
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
                           const SkMatrix& ctm, const SkMatrix* localM,
                           SkFilterQuality quality, SkColorSpace* dstCS,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*,
-                          skvm::F32 x, skvm::F32 y) const override;
+                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 

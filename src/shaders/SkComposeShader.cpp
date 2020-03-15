@@ -133,15 +133,14 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
+skvm::Color SkShader_Blend::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                       const SkMatrix& ctm, const SkMatrix* localM,
                                       SkFilterQuality q, SkColorSpace* cs,
-                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                      skvm::F32 x, skvm::F32 y) const {
+                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color dst, src;
     if (skvm::BlendModeSupported(fMode) &&
-        (dst = as_SB(fDst)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)) &&
-        (src = as_SB(fSrc)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)))
+        (dst = as_SB(fDst)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)) &&
+        (src = as_SB(fSrc)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)))
     {
         return skvm::BlendModeProgram(p, fMode, src, dst);
     }
@@ -175,14 +174,13 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
+skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                      const SkMatrix& ctm, const SkMatrix* localM,
                                      SkFilterQuality q, SkColorSpace* cs,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                     skvm::F32 x, skvm::F32 y) const {
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color dst, src;
-    if ((dst = as_SB(fDst)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)) &&
-        (src = as_SB(fSrc)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)))
+    if ((dst = as_SB(fDst)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)) &&
+        (src = as_SB(fSrc)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)))
     {
         auto t = p->uniformF(uniforms->pushF(fWeight));
         return {

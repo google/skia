@@ -106,18 +106,16 @@ static skvm::Color common_program(SkColor4f color, SkColorSpace* cs,
     };
 }
 
-skvm::Color SkColorShader::onProgram(skvm::Builder* p,
+skvm::Color SkColorShader::onProgram(skvm::Builder* p, skvm::F32 /*x*/, skvm::F32 /*y*/,
                                      const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
                                      SkFilterQuality /*quality*/, SkColorSpace* dstCS,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc*,
-                                     skvm::F32 /*x*/, skvm::F32 /*y*/) const {
+                                     skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(), p, dstCS, uniforms);
 }
-skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
+skvm::Color SkColor4Shader::onProgram(skvm::Builder* p, skvm::F32 /*x*/, skvm::F32 /*y*/,
                                       const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
                                       SkFilterQuality /*quality*/, SkColorSpace* dstCS,
-                                      skvm::Uniforms* uniforms, SkArenaAlloc*,
-                                      skvm::F32 /*x*/, skvm::F32 /*y*/) const {
+                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return common_program(fColor, fColorSpace.get(), p, dstCS, uniforms);
 }
 
