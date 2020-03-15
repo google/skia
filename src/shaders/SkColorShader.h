@@ -44,12 +44,11 @@ private:
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    bool onProgram(skvm::Builder*,
-                   const SkMatrix& ctm, const SkMatrix* localM,
-                   SkFilterQuality quality, SkColorSpace* dstCS,
-                   skvm::Uniforms* uniforms, SkArenaAlloc*,
-                   skvm::F32 x, skvm::F32 y,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override;
+    skvm::Color onProgram(skvm::Builder*,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*,
+                          skvm::F32 x, skvm::F32 y) const override;
 
     SkColor fColor;
 };
@@ -71,12 +70,11 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
 
-    bool onProgram(skvm::Builder*,
-                   const SkMatrix& ctm, const SkMatrix* localM,
-                   SkFilterQuality quality, SkColorSpace* dstCS,
-                   skvm::Uniforms* uniforms, SkArenaAlloc*,
-                   skvm::F32 x, skvm::F32 y,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override;
+    skvm::Color onProgram(skvm::Builder*,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*,
+                          skvm::F32 x, skvm::F32 y) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

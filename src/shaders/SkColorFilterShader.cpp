@@ -61,32 +61,32 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-bool SkColorFilterShader::onProgram(skvm::Builder* p,
-                                    const SkMatrix& ctm, const SkMatrix* localM,
-                                    SkFilterQuality quality, SkColorSpace* dstCS,
-                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                    skvm::F32 x, skvm::F32 y,
-                                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
+                                           const SkMatrix& ctm, const SkMatrix* localM,
+                                           SkFilterQuality quality, SkColorSpace* dstCS,
+                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                           skvm::F32 x, skvm::F32 y) const {
     // Run the shader.
-    if (!as_SB(fShader)->program(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y, r,g,b,a)) {
-        return false;
+    skvm::Color color = as_SB(fShader)->program(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y);
+    if (!color) {
+        return color;
     }
-
     // Scale that by alpha.
     if (fAlpha != 1.0f) {
         skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
-        *r = p->mul(*r, A);
-        *g = p->mul(*g, A);
-        *b = p->mul(*b, A);
-        *a = p->mul(*a, A);
+        color = {
+            p->mul(color.r, A),
+            p->mul(color.g, A),
+            p->mul(color.b, A),
+            p->mul(color.a, A),
+        };
     }
 
     // Finally run that through the color filter.
-    if (!fFilter->program(p, dstCS, uniforms,alloc, r,g,b,a)) {
-        return false;
+    if (fFilter->program(p, dstCS, uniforms,alloc, &color.r,&color.g,&color.b,&color.a)) {
+        return color;
     }
-
-    return true;
+    return skvm::Color::False();
 }
 
 #if SK_SUPPORT_GPU
