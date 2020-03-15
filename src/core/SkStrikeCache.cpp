@@ -101,6 +101,7 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
         auto scaler = typeface.createScalerContext(effects, &desc);
         strike = this->internalCreateStrike(desc, std::move(scaler));
     }
+    this->internalPurge();
     return strike;
 }
 
@@ -181,7 +182,9 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc) {
     SkAutoSpinlock ac(fLock);
-    return SkExclusiveStrikePtr(this->internalFindStrikeOrNull(desc));
+    sk_sp<SkStrike> result = this->internalFindStrikeOrNull(desc);
+    this->internalPurge();
+    return SkExclusiveStrikePtr(result);
 }
 
 auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
@@ -251,11 +254,6 @@ int SkStrikeCache::getCacheCountLimit() const {
 }
 
 size_t SkStrikeCache::setCacheSizeLimit(size_t newLimit) {
-    static const size_t minLimit = 256 * 1024;
-    if (newLimit < minLimit) {
-        newLimit = minLimit;
-    }
-
     SkAutoSpinlock ac(fLock);
 
     size_t prevLimit = fCacheSizeLimit;
