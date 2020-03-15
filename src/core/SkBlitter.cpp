@@ -26,7 +26,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 // Hacks for testing.
-bool gUseSkVMBlitter{false};
+bool gUseSkVMBlitter{true};
 bool gSkForceRasterPipelineBlitter{false};
 
 SkBlitter::~SkBlitter() {}
