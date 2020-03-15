@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b36182f_d7c40187",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T17:02:47Z",
+      "side": 1,
+      "message": "Does it make sense to call internalPurge() here instead?",
+      "revId": "421ba6bdfb191e3e24e4f4faefaa691764eee32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
