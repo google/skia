@@ -399,11 +399,9 @@ namespace {
     };
 
     struct NoopColorFilter : public SkColorFilter {
-        bool onProgram(skvm::Builder*,
-                       SkColorSpace*,
-                       skvm::Uniforms*, SkArenaAlloc*,
-                       skvm::F32*, skvm::F32*, skvm::F32*, skvm::F32*) const override {
-            return true;
+        skvm::Color onProgram(skvm::Builder*, SkColorSpace*, skvm::Uniforms*,
+                              SkArenaAlloc*, skvm::Color c) const override {
+            return c;
         }
 
         bool onAppendStages(const SkStageRec&, bool) const override { return true; }

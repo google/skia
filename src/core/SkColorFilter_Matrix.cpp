@@ -80,33 +80,27 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
-bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
-                                     SkColorSpace* /*dstCS*/,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc*,
-                                     skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p,
+                                            SkColorSpace* /*dstCS*/,
+                                            skvm::Uniforms* uniforms, SkArenaAlloc*,
+                                            skvm::Color c) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
-        p->unpremul(r,g,b,*a);
+        c = p->unpremul(c);
 
         auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
         skvm::F32 rgba[4];
         for (int j = 0; j < 4; j++) {
             rgba[j] =        m(4+j*5);
-            rgba[j] = p->mad(m(3+j*5), *a, rgba[j]);
-            rgba[j] = p->mad(m(2+j*5), *b, rgba[j]);
-            rgba[j] = p->mad(m(1+j*5), *g, rgba[j]);
-            rgba[j] = p->mad(m(0+j*5), *r, rgba[j]);
+            rgba[j] = p->mad(m(3+j*5), c.a, rgba[j]);
+            rgba[j] = p->mad(m(2+j*5), c.b, rgba[j]);
+            rgba[j] = p->mad(m(1+j*5), c.g, rgba[j]);
+            rgba[j] = p->mad(m(0+j*5), c.r, rgba[j]);
         }
-        *r = rgba[0];
-        *g = rgba[1];
-        *b = rgba[2];
-        *a = rgba[3];
-
-        p->premul(r,g,b,*a);
-        return true;
+        return p->premul({rgba[0], rgba[1], rgba[2], rgba[3]});
     }
-    return false;
+    return {};
 }
 
 #if SK_SUPPORT_GPU
