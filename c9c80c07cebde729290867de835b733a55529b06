@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6def8efd_285563b0",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-15T03:30:24Z",
+      "side": 1,
+      "message": "agreed",
+      "parentUuid": "1d66f937_dbd6bc6e",
+      "range": {
+        "startLine": 438,
+        "startChar": 23,
+        "endLine": 438,
+        "endChar": 29
+      },
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f3ef820_975913f0",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e4acc32f_788a3c1a",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-15T03:30:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f3ef820_975913f0",
+      "range": {
+        "startLine": 469,
+        "startChar": 0,
+        "endLine": 471,
+        "endChar": 65
+      },
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2a4724_d616ca0c",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 4
@@ -62,6 +110,24 @@
       "revId": "c9c80c07cebde729290867de835b733a55529b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "945b5df1_a7c02c13",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-15T03:30:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f2a4724_d616ca0c",
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
