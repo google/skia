@@ -123,6 +123,12 @@ public:
                fOuter->appendStages(rec, innerIsOpaque);
     }
 
+    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+                          SkArenaAlloc* alloc, skvm::Color c) const override {
+               c = fInner->program(p, dstCS, uniforms, alloc, c);
+        return c ? fOuter->program(p, dstCS, uniforms, alloc, c) : skvm::Color{};
+    }
+
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
@@ -321,6 +327,15 @@ public:
         float* storage = rec.fAlloc->make<float>(fWeight);
         p->append(SkRasterPipeline::lerp_1_float, storage);
         return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+                          SkArenaAlloc* alloc, skvm::Color c) const override {
+        skvm::Color c0 =        fCF0->program(p, dstCS, uniforms, alloc, c);
+        skvm::Color c1 = fCF1 ? fCF1->program(p, dstCS, uniforms, alloc, c) : c;
+        return (c0 && c1)
+               ? p->lerp(c0, c1, p->uniformF(uniforms->pushF(fWeight)))
+               : skvm::Color{};
     }
 
 #if SK_SUPPORT_GPU

@@ -50,6 +50,8 @@ private:
 
     SkLumaColorFilter();
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*, SkColorSpace* dstCS, skvm::Uniforms*,
+                          SkArenaAlloc*, skvm::Color) const override;
 
     typedef SkColorFilter INHERITED;
 };
