@@ -80,10 +80,9 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
-skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p,
+skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             SkColorSpace* /*dstCS*/,
-                                            skvm::Uniforms* uniforms, SkArenaAlloc*,
-                                            skvm::Color c) const {
+                                            skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
         c = p->unpremul(c);

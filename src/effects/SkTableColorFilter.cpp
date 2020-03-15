@@ -123,8 +123,9 @@ public:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                          SkArenaAlloc*, skvm::Color c) const override {
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
+                          SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
 
         auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
             c = p->clamp(c, p->splat(0.f), p->splat(1.0f));

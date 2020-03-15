@@ -43,10 +43,11 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-skvm::Color SkColorFilter::program(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                                   SkArenaAlloc* alloc, skvm::Color c) const {
+skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
+                                   SkColorSpace* dstCS,
+                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
-    if ((c = this->onProgram(p, dstCS, uniforms,alloc, c))) {
+    if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
         if (this->getFlags() & kAlphaUnchanged_Flag) {
             c.a = original;
         }
@@ -55,8 +56,8 @@ skvm::Color SkColorFilter::program(skvm::Builder* p, SkColorSpace* dstCS, skvm::
     return {};
 }
 
-skvm::Color SkColorFilter::onProgram(skvm::Builder*, SkColorSpace*, skvm::Uniforms*,
-                                     SkArenaAlloc*, skvm::Color) const {
+skvm::Color SkColorFilter::onProgram(skvm::Builder*, skvm::Color,
+                                     SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const {
     //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }
