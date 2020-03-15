@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d953fa6f_03117777",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T02:41:12Z",
+      "side": 1,
+      "message": "Let\u0027s maybe try\n\n struct Color {\n        skvm::F32 r{NA}, g{NA}, b{NA}, a{NA};\n\n        explicit operator bool() const { return r \u0026\u0026 g \u0026\u0026 b \u0026\u0026 a; }\n };\n\nso you can fail with just `return {};`?",
+      "range": {
+        "startLine": 353,
+        "startChar": 21,
+        "endLine": 353,
+        "endChar": 26
+      },
+      "revId": "66806f8657e6ef1adaddb37347cf609a0ca2bef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a6dce30_9af70f02",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T02:41:12Z",
+      "side": 1,
+      "message": "This means the same as SkASSERT(src).",
+      "range": {
+        "startLine": 206,
+        "startChar": 12,
+        "endLine": 206,
+        "endChar": 26
+      },
+      "revId": "66806f8657e6ef1adaddb37347cf609a0ca2bef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac121d97_e760e5c9",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T02:41:12Z",
+      "side": 1,
+      "message": "same",
+      "revId": "66806f8657e6ef1adaddb37347cf609a0ca2bef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a77657f_a20f87e9",
+        "filename": "src/shaders/SkColorFilterShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T02:41:12Z",
+      "side": 1,
+      "message": "I usually just go with \u0027c\u0027 for color so expressions like this have more signal to the \u0027olor\u0027 noise... the r,g,b,a get a little lost among all the other stuff.  I don\u0027t mind \u0027color\u0027 if you like it though.",
+      "range": {
+        "startLine": 86,
+        "startChar": 51,
+        "endLine": 86,
+        "endChar": 86
+      },
+      "revId": "66806f8657e6ef1adaddb37347cf609a0ca2bef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ca7753d_bcc3d7dd",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T02:41:12Z",
+      "side": 1,
+      "message": "Same deal here... I think it\u0027s more glance-able to see what channels are changing in p-\u003eunpremul(\u0026c.r, \u0026c.g, \u0026c.b, c.a) than with the longer name color?",
+      "range": {
+        "startLine": 877,
+        "startChar": 45,
+        "endLine": 877,
+        "endChar": 79
+      },
+      "revId": "66806f8657e6ef1adaddb37347cf609a0ca2bef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
