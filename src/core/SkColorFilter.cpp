@@ -43,10 +43,11 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-skvm::Color SkColorFilter::program(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                                   SkArenaAlloc* alloc, skvm::Color c) const {
+skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
+                                   SkColorSpace* dstCS,
+                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
-    if ((c = this->onProgram(p, dstCS, uniforms,alloc, c))) {
+    if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
         if (this->getFlags() & kAlphaUnchanged_Flag) {
             c.a = original;
         }
@@ -55,8 +56,8 @@ skvm::Color SkColorFilter::program(skvm::Builder* p, SkColorSpace* dstCS, skvm::
     return {};
 }
 
-skvm::Color SkColorFilter::onProgram(skvm::Builder*, SkColorSpace*, skvm::Uniforms*,
-                                     SkArenaAlloc*, skvm::Color) const {
+skvm::Color SkColorFilter::onProgram(skvm::Builder*, skvm::Color,
+                                     SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const {
     //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }
@@ -123,10 +124,11 @@ public:
                fOuter->appendStages(rec, innerIsOpaque);
     }
 
-    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                          SkArenaAlloc* alloc, skvm::Color c) const override {
-               c = fInner->program(p, dstCS, uniforms, alloc, c);
-        return c ? fOuter->program(p, dstCS, uniforms, alloc, c) : skvm::Color{};
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
+                          SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+               c = fInner->program(p, c, dstCS, uniforms, alloc);
+        return c ? fOuter->program(p, c, dstCS, uniforms, alloc) : skvm::Color{};
     }
 
 #if SK_SUPPORT_GPU
@@ -329,10 +331,11 @@ public:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                          SkArenaAlloc* alloc, skvm::Color c) const override {
-        skvm::Color c0 =        fCF0->program(p, dstCS, uniforms, alloc, c);
-        skvm::Color c1 = fCF1 ? fCF1->program(p, dstCS, uniforms, alloc, c) : c;
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
+                          SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        skvm::Color c0 =        fCF0->program(p, c, dstCS, uniforms, alloc);
+        skvm::Color c1 = fCF1 ? fCF1->program(p, c, dstCS, uniforms, alloc) : c;
         return (c0 && c1)
                ? p->lerp(c0, c1, p->uniformF(uniforms->pushF(fWeight)))
                : skvm::Color{};

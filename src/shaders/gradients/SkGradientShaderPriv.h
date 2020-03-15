@@ -79,11 +79,10 @@ protected:
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder* p,
+    skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                           const SkMatrix& ctm, const SkMatrix* localM,
                           SkFilterQuality quality, SkColorSpace* dstCS,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                          skvm::F32 x, skvm::F32 y) const override;
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;

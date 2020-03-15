@@ -193,11 +193,10 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
-skvm::Color SkShaderBase::program(skvm::Builder* p,
+skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                   const SkMatrix& ctm, const SkMatrix* localM,
                                   SkFilterQuality quality, SkColorSpace* dstCS,
-                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                  skvm::F32 x, skvm::F32 y) const {
+                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     // Force opaque alpha for all opaque shaders.
     //
     // This is primarily nice in that we usually have a 1.0f constant splat
@@ -210,7 +209,7 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y)) {
+    if (auto color = this->onProgram(p, x,y, ctm,localM, quality,dstCS, uniforms,alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);
         }
@@ -219,11 +218,10 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     return {};
 }
 
-skvm::Color SkShaderBase::onProgram(skvm::Builder*,
+skvm::Color SkShaderBase::onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
                                     const SkMatrix& ctm, const SkMatrix* localM,
                                     SkFilterQuality quality, SkColorSpace* dstCS,
-                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                    skvm::F32 x, skvm::F32 y) const {
+                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }

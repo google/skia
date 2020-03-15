@@ -26,9 +26,9 @@ bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
     return true;
 }
 
-skvm::Color SkLumaColorFilter::onProgram(skvm::Builder* p, SkColorSpace* dstCS,
-                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                         skvm::Color c) const {
+skvm::Color SkLumaColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
+                                         SkColorSpace* dstCS,
+                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     auto a = p->mad(c.r, p->splat(0.2126f),
              p->mad(c.g, p->splat(0.7152f),
              p->mul(c.b, p->splat(0.0722f))));
