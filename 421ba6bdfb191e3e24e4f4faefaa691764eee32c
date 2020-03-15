@@ -52,6 +52,24 @@
       "revId": "421ba6bdfb191e3e24e4f4faefaa691764eee32c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f18a82c_3e1c9eab",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-15T20:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b9d2eb5_758ce1a8",
+      "revId": "421ba6bdfb191e3e24e4f4faefaa691764eee32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
