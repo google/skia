@@ -36,6 +36,7 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
                                        const SkTypeface& typeface) -> sk_sp<Strike> {
     SkAutoSpinlock ac(fLock);
     sk_sp<Strike> strike = this->internalFindStrikeOrNull(desc);
+    this->internalPurge();
     if (strike == nullptr) {
         auto scaler = typeface.createScalerContext(effects, &desc);
         strike = this->internalCreateStrike(desc, std::move(scaler));
@@ -120,6 +121,7 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {
     SkAutoSpinlock ac(fLock);
+    this->internalPurge();
     return this->internalFindStrikeOrNull(desc);
 }
 
