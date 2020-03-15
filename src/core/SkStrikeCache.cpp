@@ -17,6 +17,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkScalerCache.h"
+#include "src/core/SkScopeExit.h"
 
 bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = false;
 
@@ -124,6 +125,8 @@ sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {
 }
 
 auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<Strike> {
+    // Be sure to check the resource limits on exit.
+    SkScopeExit( [this]() SK_REQUIRES(fLock) {this->internalPurge();} );
 
     // Check head because it is likely the strike we are looking for.
     if (fHead != nullptr && fHead->getDescriptor() == desc) { return sk_ref_sp(fHead); }
