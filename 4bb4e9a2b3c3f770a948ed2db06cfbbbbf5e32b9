@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1a9cc39_feefb63b",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T18:32:46Z",
+      "side": 1,
+      "message": "maybe even just inline these?",
+      "range": {
+        "startLine": 33,
+        "startChar": 34,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "4bb4e9a2b3c3f770a948ed2db06cfbbbbf5e32b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
