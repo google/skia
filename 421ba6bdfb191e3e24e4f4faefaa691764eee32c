@@ -16,6 +16,24 @@
       "revId": "421ba6bdfb191e3e24e4f4faefaa691764eee32c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57fce085_8dd40fb2",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-15T17:27:21Z",
+      "side": 1,
+      "message": "There are three exit points from this routine, and internalPurge should be called on all of them. I tried it here first, and moving it up seemed more natural.",
+      "parentUuid": "7b36182f_d7c40187",
+      "revId": "421ba6bdfb191e3e24e4f4faefaa691764eee32c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
