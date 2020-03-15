@@ -123,8 +123,8 @@ public:
         return true;
     }
 
-    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms, SkArenaAlloc*,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
+    skvm::Color onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+                          SkArenaAlloc*, skvm::Color c) const override {
 
         auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
             c = p->clamp(c, p->splat(0.f), p->splat(1.0f));
@@ -135,27 +135,25 @@ public:
             return p->from_unorm(8, byte);
         };
 
-        p->unpremul(r,g,b,*a);
+        c = p->unpremul(c);
 
         const uint8_t* ptr = fStorage;
         if (fFlags & kA_Flag) {
-            *a = apply_table_to_component(*a, ptr);
+            c.a = apply_table_to_component(c.a, ptr);
             ptr += 256;
         }
         if (fFlags & kR_Flag) {
-            *r = apply_table_to_component(*r, ptr);
+            c.r = apply_table_to_component(c.r, ptr);
             ptr += 256;
         }
         if (fFlags & kG_Flag) {
-            *g = apply_table_to_component(*g, ptr);
+            c.g = apply_table_to_component(c.g, ptr);
             ptr += 256;
         }
         if (fFlags & kB_Flag) {
-            *b = apply_table_to_component(*b, ptr);
+            c.b = apply_table_to_component(c.b, ptr);
         }
-
-        p->premul(r,g,b,*a);
-        return true;
+        return p->premul(c);
     }
 
 protected:

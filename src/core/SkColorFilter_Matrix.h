@@ -33,10 +33,8 @@ private:
     SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-    bool onProgram(skvm::Builder*,
-                   SkColorSpace* dstCS,
-                   skvm::Uniforms* uniforms, SkArenaAlloc*,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override;
+    skvm::Color onProgram(skvm::Builder*, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*, skvm::Color) const override;
 
     float       fMatrix[20];
     uint16_t    fFlags;

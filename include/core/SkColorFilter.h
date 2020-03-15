@@ -26,6 +26,7 @@ namespace skvm {
     class Builder;
     struct F32;
     struct Uniforms;
+    struct Color;
 }
 
 /**
@@ -62,10 +63,8 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
-    bool program(skvm::Builder*,
-                 SkColorSpace* dstCS,
-                 skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                 skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
+    skvm::Color program(skvm::Builder*, SkColorSpace* dstCS, skvm::Uniforms*,
+                        SkArenaAlloc*, skvm::Color) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -149,10 +148,8 @@ private:
 
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
-    virtual bool onProgram(skvm::Builder*,
-                           SkColorSpace* dstCS,
-                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
+    virtual skvm::Color onProgram(skvm::Builder*, SkColorSpace* dstCS, skvm::Uniforms*,
+                                  SkArenaAlloc*, skvm::Color) const;
 
     friend class SkComposeColorFilter;
 
