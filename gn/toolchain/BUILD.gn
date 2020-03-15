@@ -73,10 +73,9 @@ toolchain("msvc") {
     _target = "amd64_" + target_cpu
   }
   if (is_winrt) {
-    _target += " uwp 10.0.16299.0 -vcvars_ver=14.2"
-  } else {
-    _target += " 10.0.16299.0 -vcvars_ver=14.2"
+    _target += " uwp"
   }
+  _target += " " + win_sdk_version + " -vcvars_ver=14.2"
 
   _vcvarsall = "$win_vc/Auxiliary/Build/vcvarsall.bat"
   env_setup = "cmd /c set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
