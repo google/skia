@@ -75,18 +75,16 @@ bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 
-bool SkLocalMatrixShader::onProgram(skvm::Builder* p,
-                                    const SkMatrix& ctm, const SkMatrix* localM,
-                                    SkFilterQuality quality, SkColorSpace* dstCS,
-                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                    skvm::F32 x, skvm::F32 y,
-                                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p,
+                                           const SkMatrix& ctm, const SkMatrix* localM,
+                                           SkFilterQuality quality, SkColorSpace* dstCS,
+                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                           skvm::F32 x, skvm::F32 y) const {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (localM) {
         lm.writable()->preConcat(*localM);
     }
-    return as_SB(fProxyShader)
-        ->program(p, ctm,lm.get(), quality,dstCS, uniforms,alloc, x,y, r,g,b,a);
+    return as_SB(fProxyShader)->program(p, ctm,lm.get(), quality,dstCS, uniforms,alloc, x,y);
 }
 
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
@@ -152,14 +150,12 @@ protected:
         return as_SB(fProxyShader)->appendStages(newRec);
     }
 
-    bool onProgram(skvm::Builder* p,
-                   const SkMatrix& ctm, const SkMatrix* localM,
-                   SkFilterQuality quality, SkColorSpace* dstCS,
-                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                   skvm::F32 x, skvm::F32 y,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-        return as_SB(fProxyShader)
-            ->program(p, fCTM,localM, quality,dstCS, uniforms,alloc, x,y, r,g,b,a);
+    skvm::Color onProgram(skvm::Builder* p,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                          skvm::F32 x, skvm::F32 y) const override {
+        return as_SB(fProxyShader)->program(p, fCTM,localM, quality,dstCS, uniforms,alloc, x,y);
     }
 
 private:

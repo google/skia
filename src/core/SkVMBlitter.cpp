@@ -124,18 +124,16 @@ namespace {
                 skvm::F32 x = p.add(p.to_f32(dx), p.splat(0.5f)),
                           y = p.add(p.to_f32(dy), p.splat(0.5f));
 
-                skvm::F32 r,g,b,a;
                 uint64_t hash = 0;
-                if (sb->program(&p,
-                                params.ctm, /*localM=*/nullptr,
-                                params.quality, params.colorSpace.get(),
-                                uniforms,alloc,
-                                x,y, &r,&g,&b,&a)) {
+                if (auto c = sb->program(&p,
+                                         params.ctm, /*localM=*/nullptr,
+                                         params.quality, params.colorSpace.get(),
+                                         uniforms,alloc, x, y)) {
                     hash = p.hash();
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
                     // precisely which value we'll treat as which channel.  Imagine the shader
                     // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
-                    const int outputs[] = { r.id, g.id, b.id, a.id };
+                    const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
                     hash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
@@ -200,12 +198,11 @@ namespace {
             skvm::F32 x = add(to_f32(dx), splat(0.5f)),
                       y = add(to_f32(dy), splat(0.5f));
 
-            skvm::Color src;
-            SkAssertResult(as_SB(params.shader)->program(this,
+            skvm::Color src = as_SB(params.shader)->program(this,
                                                          params.ctm, /*localM=*/nullptr,
                                                          params.quality, params.colorSpace.get(),
-                                                         uniforms, alloc,
-                                                         x,y, &src.r, &src.g, &src.b, &src.a));
+                                                         uniforms, alloc, x,y);
+            SkASSERT(src);
             if (params.coverage == Coverage::Mask3D) {
                 skvm::F32 M = from_unorm(8, load8(varying<uint8_t>())),
                           A = from_unorm(8, load8(varying<uint8_t>()));
@@ -268,14 +265,12 @@ namespace {
                 }
 
                 if (params.clip) {
-                    skvm::Color clip;
-                    SkAssertResult(as_SB(params.clip)->program(this,
-                                                               params.ctm, /*localM=*/nullptr,
-                                                               params.quality,
-                                                               params.colorSpace.get(),
-                                                               uniforms, alloc,
-                                                               x,y,
-                                                               &clip.r, &clip.g, &clip.b, &clip.a));
+                    skvm::Color clip = as_SB(params.clip)->program(this,
+                                                                   params.ctm, /*localM=*/nullptr,
+                                                                   params.quality,
+                                                                   params.colorSpace.get(),
+                                                                   uniforms, alloc, x,y);
+                    SkAssertResult(clip);
                     cov->r = mul(cov->r, clip.a);  // We use the alpha channel of clip for all four.
                     cov->g = mul(cov->g, clip.a);
                     cov->b = mul(cov->b, clip.a);
@@ -431,16 +426,16 @@ namespace {
 
         bool isOpaque() const override { return fShader->isOpaque(); }
 
-        bool onProgram(skvm::Builder* p,
-                       const SkMatrix& ctm, const SkMatrix* localM,
-                       SkFilterQuality quality, SkColorSpace* dstCS,
-                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                       skvm::F32 x, skvm::F32 y,
-                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
+        skvm::Color onProgram(skvm::Builder* p,
+                              const SkMatrix& ctm, const SkMatrix* localM,
+                              SkFilterQuality quality, SkColorSpace* dstCS,
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                              skvm::F32 x, skvm::F32 y) const override {
             // Run our wrapped shader.
-            if (!as_SB(fShader)->program(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y,
-                                         r,g,b,a)) {
-                return false;
+            skvm::Color c = as_SB(fShader)->program(p, ctm,localM, quality,dstCS,
+                                                    uniforms,alloc, x,y);
+            if (!c) {
+                return {};
             }
             // See SkRasterPipeline dither stage.
             // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
@@ -466,15 +461,15 @@ namespace {
                   bias  = fRate * (-63/128.0f);
             skvm::F32 dither = p->mad(p->to_f32(M), p->splat(scale), p->splat(bias));
 
-            *r = p->add(*r, dither);
-            *g = p->add(*g, dither);
-            *b = p->add(*b, dither);
+            c.r = p->add(c.r, dither);
+            c.g = p->add(c.g, dither);
+            c.b = p->add(c.b, dither);
 
             // TODO: this is consistent with the old code but doesn't make sense for unpremul.
-            *r = p->clamp(*r, p->splat(0.0f), *a);
-            *g = p->clamp(*g, p->splat(0.0f), *a);
-            *b = p->clamp(*b, p->splat(0.0f), *a);
-            return true;
+            c.r = p->clamp(c.r, p->splat(0.0f), c.a);
+            c.g = p->clamp(c.g, p->splat(0.0f), c.a);
+            c.b = p->clamp(c.b, p->splat(0.0f), c.a);
+            return c;
         }
     };
 

@@ -91,38 +91,34 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-static bool common_program(SkColor4f color, SkColorSpace* cs,
-                           skvm::Builder* p,
-                           SkColorSpace* dstCS,
-                           skvm::Uniforms* uniforms,
-                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
+static skvm::Color common_program(SkColor4f color, SkColorSpace* cs,
+                                  skvm::Builder* p,
+                                  SkColorSpace* dstCS,
+                                  skvm::Uniforms* uniforms) {
     SkColorSpaceXformSteps(   cs, kUnpremul_SkAlphaType,
                            dstCS,   kPremul_SkAlphaType).apply(color.vec());
 
-    *r = p->uniformF(uniforms->pushF(color.fR));
-    *g = p->uniformF(uniforms->pushF(color.fG));
-    *b = p->uniformF(uniforms->pushF(color.fB));
-    *a = p->uniformF(uniforms->pushF(color.fA));
-    return true;
+    return {
+        p->uniformF(uniforms->pushF(color.fR)),
+        p->uniformF(uniforms->pushF(color.fG)),
+        p->uniformF(uniforms->pushF(color.fB)),
+        p->uniformF(uniforms->pushF(color.fA)),
+    };
 }
 
-bool SkColorShader::onProgram(skvm::Builder* p,
-                              const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                              SkFilterQuality /*quality*/, SkColorSpace* dstCS,
-                              skvm::Uniforms* uniforms, SkArenaAlloc*,
-                              skvm::F32 /*x*/, skvm::F32 /*y*/,
-                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
-                          p, dstCS, uniforms, r,g,b,a);
+skvm::Color SkColorShader::onProgram(skvm::Builder* p,
+                                     const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
+                                     SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc*,
+                                     skvm::F32 /*x*/, skvm::F32 /*y*/) const {
+    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(), p, dstCS, uniforms);
 }
-bool SkColor4Shader::onProgram(skvm::Builder* p,
-                               const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                               SkFilterQuality /*quality*/, SkColorSpace* dstCS,
-                               skvm::Uniforms* uniforms, SkArenaAlloc*,
-                               skvm::F32 /*x*/, skvm::F32 /*y*/,
-                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    return common_program(fColor, fColorSpace.get(),
-                          p, dstCS, uniforms, r,g,b,a);
+skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
+                                      const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
+                                      SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                                      skvm::Uniforms* uniforms, SkArenaAlloc*,
+                                      skvm::F32 /*x*/, skvm::F32 /*y*/) const {
+    return common_program(fColor, fColorSpace.get(), p, dstCS, uniforms);
 }
 
 #if SK_SUPPORT_GPU
