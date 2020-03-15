@@ -133,27 +133,19 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-bool SkShader_Blend::onProgram(skvm::Builder* p,
-                               const SkMatrix& ctm, const SkMatrix* localM,
-                               SkFilterQuality q, SkColorSpace* cs,
-                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                               skvm::F32 x, skvm::F32 y,
-                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    if (!skvm::BlendModeSupported(fMode)) {
-        return false;
+skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
+                                      const SkMatrix& ctm, const SkMatrix* localM,
+                                      SkFilterQuality q, SkColorSpace* cs,
+                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                      skvm::F32 x, skvm::F32 y) const {
+    skvm::Color dst, src;
+    if (skvm::BlendModeSupported(fMode) &&
+        (dst = as_SB(fDst)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)) &&
+        (src = as_SB(fSrc)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)))
+    {
+        return skvm::BlendModeProgram(p, fMode, src, dst);
     }
-    skvm::F32 dr, dg, db, da,
-              sr, sg, sb, sa;
-    if (!as_SB(fDst)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &dr, &dg, &db, &da) ||
-        !as_SB(fSrc)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &sr, &sg, &sb, &sa)) {
-        return false;
-    }
-    auto color = skvm::BlendModeProgram(p, fMode, {sr, sg, sb, sa}, {dr, dg, db, da});
-    *r = color.r;
-    *g = color.g;
-    *b = color.b;
-    *a = color.a;
-    return true;
+    return {};
 }
 
 
@@ -183,24 +175,24 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-bool SkShader_Lerp::onProgram(skvm::Builder* p,
-                              const SkMatrix& ctm, const SkMatrix* localM,
-                              SkFilterQuality q, SkColorSpace* cs,
-                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                              skvm::F32 x, skvm::F32 y,
-                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    skvm::F32 dr, dg, db, da,
-              sr, sg, sb, sa;
-    if (!as_SB(fDst)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &dr, &dg, &db, &da) ||
-        !as_SB(fSrc)->program(p, ctm, localM, q, cs, uniforms, alloc, x, y, &sr, &sg, &sb, &sa)) {
-        return false;
+skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
+                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     SkFilterQuality q, SkColorSpace* cs,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                     skvm::F32 x, skvm::F32 y) const {
+    skvm::Color dst, src;
+    if ((dst = as_SB(fDst)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)) &&
+        (src = as_SB(fSrc)->program(p, ctm,localM, q, cs, uniforms, alloc, x,y)))
+    {
+        auto t = p->uniformF(uniforms->pushF(fWeight));
+        return {
+            p->lerp(dst.r, src.r, t),
+            p->lerp(dst.g, src.g, t),
+            p->lerp(dst.b, src.b, t),
+            p->lerp(dst.a, src.a, t),
+        };
     }
-    auto t = p->uniformF(uniforms->pushF(fWeight));
-    *r = p->lerp(dr, sr, t);
-    *g = p->lerp(dg, sg, t);
-    *b = p->lerp(db, sb, t);
-    *a = p->lerp(da, sa, t);
-    return true;
+    return {};
 }
 
 #if SK_SUPPORT_GPU

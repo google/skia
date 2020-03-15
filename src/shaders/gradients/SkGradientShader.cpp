@@ -417,15 +417,14 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-bool SkGradientShaderBase::onProgram(skvm::Builder* p,
-                                     const SkMatrix& ctm, const SkMatrix* localM,
-                                     SkFilterQuality quality, SkColorSpace* dstCS,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                     skvm::F32 x, skvm::F32 y,
-                                     skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
+                                            const SkMatrix& ctm, const SkMatrix* localM,
+                                            SkFilterQuality quality, SkColorSpace* dstCS,
+                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                            skvm::F32 x, skvm::F32 y) const {
     SkMatrix inv;
     if (!this->computeTotalInverse(ctm, localM, &inv)) {
-        return false;
+        return {};
     }
     inv.postConcat(fPtsToUnit);
     inv.normalizePerspective();
@@ -478,6 +477,7 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
     // any t between stops i and i+1, the color we want is mad(t, f[i], b[i]).
     using F4 = skvx::Vec<4,float>;
     struct FB { F4 f,b; };
+    skvm::Color color;
 
     if (fColorCount == 2) {
         // 2-stop gradients have colors at 0 and 1, and so must be evenly spaced.
@@ -490,10 +490,12 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
            B = lo;
 
         auto T = p->clamp(t, p->splat(0.0f), p->splat(1.0f));
-        *r = p->mad(T, p->uniformF(uniforms->pushF(F[0])), p->uniformF(uniforms->pushF(B[0])));
-        *g = p->mad(T, p->uniformF(uniforms->pushF(F[1])), p->uniformF(uniforms->pushF(B[1])));
-        *b = p->mad(T, p->uniformF(uniforms->pushF(F[2])), p->uniformF(uniforms->pushF(B[2])));
-        *a = p->mad(T, p->uniformF(uniforms->pushF(F[3])), p->uniformF(uniforms->pushF(B[3])));
+        color = {
+            p->mad(T, p->uniformF(uniforms->pushF(F[0])), p->uniformF(uniforms->pushF(B[0]))),
+            p->mad(T, p->uniformF(uniforms->pushF(F[1])), p->uniformF(uniforms->pushF(B[1]))),
+            p->mad(T, p->uniformF(uniforms->pushF(F[2])), p->uniformF(uniforms->pushF(B[2]))),
+            p->mad(T, p->uniformF(uniforms->pushF(F[3])), p->uniformF(uniforms->pushF(B[3]))),
+        };
     } else {
         // To handle clamps in search we add a conceptual stop at t=-inf, so we
         // may need up to fColorCount+1 FBs and fColorCount t stops between them:
@@ -572,23 +574,26 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
         ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->bit_cast(p->gather32(fbs, ix));
 
         // This is what we've been building towards!
-        *r = p->mad(t, Fr, Br);
-        *g = p->mad(t, Fg, Bg);
-        *b = p->mad(t, Fb, Bb);
-        *a = p->mad(t, Fa, Ba);
+        color = {
+            p->mad(t, Fr, Br),
+            p->mad(t, Fg, Bg),
+            p->mad(t, Fb, Bb),
+            p->mad(t, Fa, Ba),
+        };
     }
 
     // If we interpolated unpremul, premul now to match our output convention.
     if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)
             && !fColorsAreOpaque) {
-        p->premul(r,g,b,*a);
+        color = p->premul(color);
     }
 
-    *r = p->bit_cast(p->bit_and(mask, p->bit_cast(*r)));
-    *g = p->bit_cast(p->bit_and(mask, p->bit_cast(*g)));
-    *b = p->bit_cast(p->bit_and(mask, p->bit_cast(*b)));
-    *a = p->bit_cast(p->bit_and(mask, p->bit_cast(*a)));
-    return true;
+    return {
+        p->bit_cast(p->bit_and(mask, p->bit_cast(color.r))),
+        p->bit_cast(p->bit_and(mask, p->bit_cast(color.g))),
+        p->bit_cast(p->bit_and(mask, p->bit_cast(color.b))),
+        p->bit_cast(p->bit_and(mask, p->bit_cast(color.a))),
+    };
 }
 
 

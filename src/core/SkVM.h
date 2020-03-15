@@ -342,10 +342,14 @@ namespace skvm {
     static const Val NA = ~0;
 
     struct Arg { int ix; };
-    struct I32 { Val id; };
-    struct F32 { Val id; };
+    struct I32 { Val id; explicit operator bool() const { return id != NA; } };
+    struct F32 { Val id; explicit operator bool() const { return id != NA; } };
 
-    struct Color { skvm::F32 r,g,b,a; };
+    struct Color {
+        skvm::F32 r{NA}, g{NA}, b{NA}, a{NA};
+
+        explicit operator bool() const { return r && g && b && a; }
+    };
 
     struct OptimizedInstruction {
         Op op;
@@ -559,6 +563,8 @@ namespace skvm {
         void   premul(F32* r, F32* g, F32* b, F32 a);
         void unpremul(F32* r, F32* g, F32* b, F32 a);
 
+        Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
+        Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
         Color lerp(Color lo, Color hi, F32 t);
 
         void dump(SkWStream* = nullptr) const;
