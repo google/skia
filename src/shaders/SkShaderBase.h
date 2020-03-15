@@ -208,11 +208,10 @@ public:
         return this->onAppendUpdatableStages(rec);
     }
 
-    skvm::Color program(skvm::Builder*,
+    skvm::Color program(skvm::Builder*, skvm::F32 x, skvm::F32 y,
                         const SkMatrix& ctm, const SkMatrix* localM,
                         SkFilterQuality quality, SkColorSpace* dstCS,
-                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                        skvm::F32 x, skvm::F32 y) const;
+                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
@@ -245,11 +244,10 @@ private:
     // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
-    virtual skvm::Color onProgram(skvm::Builder*,
+    virtual skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
                                   const SkMatrix& ctm, const SkMatrix* localM,
                                   SkFilterQuality quality, SkColorSpace* dstCS,
-                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
-                                  skvm::F32 x, skvm::F32 y) const;
+                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
     typedef SkShader INHERITED;
 };

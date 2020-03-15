@@ -28,9 +28,10 @@ protected:
     SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
-    skvm::Color onProgram(skvm::Builder*, const SkMatrix& ctm, const SkMatrix* localM,
-                          SkFilterQuality, SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*,
-                          skvm::F32 x, skvm::F32 y) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality, SkColorSpace* dstCS,
+                          skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkShader_Blend)
@@ -61,9 +62,10 @@ protected:
     SkShader_Lerp(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
-    skvm::Color onProgram(skvm::Builder*, const SkMatrix& ctm, const SkMatrix* localM,
-                          SkFilterQuality, SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*,
-                          skvm::F32 x, skvm::F32 y) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality, SkColorSpace* dstCS,
+                          skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkShader_Lerp)
