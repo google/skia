@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65d525ad_a25ade50",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T21:22:12Z",
+      "side": 1,
+      "message": "The SkScopeExit value goes out of scope immediately here, so this is the same as calling this-\u003einternalPurge().  If that\u0027s what you want, let\u0027s just call this-\u003einternalPurge()?\n\n`SkScopeExit _(...)`  would make this call internalPurge() just before returning, as would using SK_AT_SCOPE_EXIT().\n\nI think this is a sign we should not land this without tests.  Please take your time.",
+      "revId": "adce890d71cdc35f8af24c9168f79859527837e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
