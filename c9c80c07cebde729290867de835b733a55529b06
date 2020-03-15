@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d66f937_dbd6bc6e",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T03:17:04Z",
+      "side": 1,
+      "message": "Might be clearer as return {}?",
+      "range": {
+        "startLine": 438,
+        "startChar": 23,
+        "endLine": 438,
+        "endChar": 29
+      },
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3ef820_975913f0",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T03:17:04Z",
+      "side": 1,
+      "message": "Across this patch there are still a good number of color -\u003e c opportunities remaining if you like.",
+      "range": {
+        "startLine": 469,
+        "startChar": 0,
+        "endLine": 471,
+        "endChar": 65
+      },
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f2a4724_d616ca0c",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-15T03:17:04Z",
+      "side": 1,
+      "message": "Let\u0027s go with the first.  The reason I\u0027ve kept this this way is to emphasize that alpha is not changing.  That\u0027s muddled in `p-\u003epremul(\u0026color)` but I think fine in `color \u003d p-\u003epremul(color)`.",
+      "revId": "c9c80c07cebde729290867de835b733a55529b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
