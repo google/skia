@@ -195,9 +195,9 @@ void TestRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds
         this->createProgramInfo(flushState);
     }
 
-    static constexpr int kOneMesh = 1;
-    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
-    flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, kOneMesh);
+    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->drawMesh(*fMesh);
 }
 
 }  // anonymous namespace

@@ -54,8 +54,29 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   fCurrDraw->fMeshCnt,
                                   fCurrDraw->fPrimitiveType);
 
-        this->bindPipeline(programInfo, chainBounds);
-        this->opsRenderPass()->drawMeshes(programInfo, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt);
+        fOpsRenderPass->bindPipeline(programInfo, chainBounds);
+
+        if (programInfo.hasFixedScissor()) {
+            fOpsRenderPass->setScissorRect(programInfo.fixedScissor());
+        }
+        if (!programInfo.hasDynamicPrimProcTextures()) {
+            auto primProcTextures = (programInfo.hasFixedPrimProcTextures()) ?
+                    programInfo.fixedPrimProcTextures() : nullptr;
+            fOpsRenderPass->bindTextures(programInfo.primProc(), primProcTextures,
+                                         programInfo.pipeline());
+        }
+        for (int i = 0; i < fCurrDraw->fMeshCnt; ++i) {
+            if (programInfo.hasDynamicScissors()) {
+                fOpsRenderPass->setScissorRect(programInfo.dynamicScissor(i));
+            }
+            if (programInfo.hasDynamicPrimProcTextures()) {
+                fOpsRenderPass->bindTextures(programInfo.primProc(),
+                                             programInfo.dynamicPrimProcTextures(i),
+                                             programInfo.pipeline());
+            }
+            this->drawMesh(fCurrDraw->fMeshes[i]);
+        }
+
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
@@ -206,6 +227,25 @@ GrStrikeCache* GrOpFlushState::glyphCache() const {
 
 GrAtlasManager* GrOpFlushState::atlasManager() const {
     return fGpu->getContext()->priv().getAtlasManager();
+}
+
+void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
+    SkASSERT(mesh.fIsInitialized);
+    if (!mesh.fIndexBuffer) {
+        this->bindBuffers(nullptr, nullptr, mesh.fVertexBuffer.get());
+        this->draw(mesh.fVertexCount, mesh.fBaseVertex);
+    } else {
+        this->bindBuffers(mesh.fIndexBuffer.get(), nullptr, mesh.fVertexBuffer.get(),
+                          mesh.fPrimitiveRestart);
+        if (0 == mesh.fPatternRepeatCount) {
+            this->drawIndexed(mesh.fIndexCount, mesh.fBaseIndex, mesh.fMinIndexValue,
+                              mesh.fMaxIndexValue, mesh.fBaseVertex);
+        } else {
+            this->drawIndexPattern(mesh.fIndexCount, mesh.fPatternRepeatCount,
+                                   mesh.fMaxPatternRepetitionsInIndexBuffer, mesh.fVertexCount,
+                                   mesh.fBaseVertex);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

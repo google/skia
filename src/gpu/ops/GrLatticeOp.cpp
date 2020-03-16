@@ -225,19 +225,13 @@ private:
             return;
         }
 
-        static constexpr int kOnePrimProcTexture = 1;
-        auto fixedDynamicState = GrMeshDrawOp::Target::MakeFixedDynamicState(arena, &appliedClip,
-                                                                             kOnePrimProcTexture);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fView.proxy();
-
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
                                                                    std::move(appliedClip),
                                                                    dstProxyView, gp,
                                                                    fHelper.detachProcessorSet(),
                                                                    GrPrimitiveType::kTriangles,
                                                                    fHelper.pipelineFlags(),
-                                                                   &GrUserStencilSettings::kUnused,
-                                                                   fixedDynamicState);
+                                                                   &GrUserStencilSettings::kUnused);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -325,8 +319,10 @@ private:
             return;
         }
 
-        flushState->bindPipeline(*fProgramInfo, chainBounds);
-        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
+        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindTextures(fProgramInfo->primProc(), *fView.proxy(),
+                                 fProgramInfo->pipeline());
+        flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,

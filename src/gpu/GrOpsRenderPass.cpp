@@ -143,28 +143,6 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
     SkDEBUGCODE(fTextureBindingStatus = DynamicStateStatus::kConfigured);
 }
 
-void GrOpsRenderPass::drawMeshes(const GrProgramInfo& programInfo, const GrSimpleMesh meshes[],
-                                 int meshCount) {
-    if (programInfo.hasFixedScissor()) {
-        this->setScissorRect(programInfo.fixedScissor());
-    }
-    if (!programInfo.hasDynamicPrimProcTextures()) {
-        auto primProcTextures = (programInfo.hasFixedPrimProcTextures()) ?
-                programInfo.fixedPrimProcTextures() : nullptr;
-        this->bindTextures(programInfo.primProc(), primProcTextures, programInfo.pipeline());
-    }
-    for (int i = 0; i < meshCount; ++i) {
-        if (programInfo.hasDynamicScissors()) {
-            this->setScissorRect(programInfo.dynamicScissor(i));
-        }
-        if (programInfo.hasDynamicPrimProcTextures()) {
-            this->bindTextures(programInfo.primProc(), programInfo.dynamicPrimProcTextures(i),
-                               programInfo.pipeline());
-        }
-        meshes[i].draw(this);
-    }
-}
-
 void GrOpsRenderPass::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                                   const GrBuffer* vertexBuffer, GrPrimitiveRestart primRestart) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {

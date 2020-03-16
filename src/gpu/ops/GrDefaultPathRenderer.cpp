@@ -474,9 +474,10 @@ private:
             return;
         }
 
-        flushState->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         for (int i = 0; i < fMeshes.count(); ++i) {
-            flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMeshes[i], 1);
+            flushState->drawMesh(*fMeshes[i]);
         }
     }
 
