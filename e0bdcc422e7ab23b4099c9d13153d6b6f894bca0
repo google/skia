@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1aa5a88_1984d2c0",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-16T10:26:58Z",
+      "side": 1,
+      "message": "You\u0027ll also need to add an extern entry for the prototype part.",
+      "revId": "e0bdcc422e7ab23b4099c9d13153d6b6f894bca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
