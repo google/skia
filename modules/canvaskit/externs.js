@@ -83,6 +83,7 @@ var CanvasKit = {
   _MakeLinearGradientShader: function() {},
   _MakePathFromCmds: function() {},
   _MakeRadialGradientShader: function() {},
+  _MakeSweepGradientShader: function() {},
   _MakeManagedAnimation: function() {},
   _MakeParticles: function() {},
   _MakeSkDashPathEffect: function() {},
@@ -465,6 +466,7 @@ var CanvasKit = {
     MakeLinearGradient: function() {},
     MakeRadialGradient: function() {},
     MakeTwoPointConicalGradient: function() {},
+    MakeSweepGradient: function() {},
 
     _Blend: function() {},
     _Lerp: function() {},
