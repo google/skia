@@ -60,6 +60,28 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
 
 GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
+bool GrVkOpsRenderPass::bindRTAdjustUniform() {
+    if (!fCachedRTAdjustBuffer) {
+        fCachedRTAdjustBuffer = fGpu->resourceProvider().findOrCreateRTAdjustUniformBuffer(
+                fRenderTarget->dimensions(), fOrigin);
+        if (!fCachedRTAdjustBuffer) {
+            return false;
+        }
+        fCachedRTAdjustDescSet = buffer->descriptorSet();
+    }
+    SkASSERT(fCachedRTAdjustDescSet);
+    static const int kUniformDSIdx = GrVkUniformHandler::kRTAdjustUniformBufferDescSet;
+    // We want to make this this is our first set since we will be bind other sets for each draw and
+    // we don't want those to invalide this set.
+    SkASSERT(kUniformDSIdx == 0);
+
+    this->currentCommandBuffer()->bindDescriptorSet(fGpu, fGpu->defaultRTAdjustLayout(),
+                                                    kUniformDSIdx, 1,
+                                                    fCachedRTAdjustBuffer->descriptorSet(), 0,
+                                                    nullptr);
+    this->currentCommandBuffer()->addRecycledResources(fCachedRTAdjustBuffer->resources());
+}
+
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                              const SkPMColor4f& clearColor) {

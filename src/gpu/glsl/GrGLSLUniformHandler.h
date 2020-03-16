@@ -63,6 +63,10 @@ public:
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
+    virtual UniformHandle getRTAdjustUniform(uint32_t visibility) const {
+        return this->addUniform(visibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
+    }
+
     /**
      * 'Or's the visibility parameter with the current uniform visibililty.
      */

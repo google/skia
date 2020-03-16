@@ -13,6 +13,25 @@
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"
 #include "src/gpu/vk/GrVkTexture.h"
 
+GrVkUniformHandler::GrVkUniformHandler(GrGLSLProgramBuilder* program)
+        : INHERITED(program)
+        , fUniforms(kUniformsPerBlock)
+        , fSamplers(kUniformsPerBlock)
+        , fCurrentUBOOffset(0) {
+    fRTAdjustUniform.fVariable.setType(kFloat4_GrSLType);
+    fProgramBuilder->nameVariable(fRTAdjustUniform.fVariable.accessName(), prefix,
+                                  SkSL:Compiler::RTADJUST_NAME);
+    fRTAdjustUniform.fVariable.setArrayCount(0);
+    fRTAdjustUniform.fVisibility = kVertex_GrShaderFlag | kTessEvaluation_GrShaderFlag |
+            kGeometry_GrShaderFlag;
+    fRTAdjustUniform.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
+    fRTAdjustUniform.fUBOOffset = 0;
+
+    SkString layoutQualifier;
+    layoutQualifier.appendf("offset=%d", fRTAdjustUniform.fUBOffset);
+    fRTAdjustUniform.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+}
+
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
@@ -253,6 +272,9 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
+GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::addRTAdjustUnfiorm() {
+}
+
 GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
         const GrBackendFormat& backendFormat, GrSamplerState state, const GrSwizzle& swizzle,
         const char* name, const GrShaderCaps* shaderCaps) {
@@ -300,6 +322,14 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
+    if (visibility & fRTAdjustUniform.fVisibility) {
+        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
+                     kRTAdjustUniformBufferDescSet, kUniformBinding);
+        SkString rtString;
+        fRTAdjustUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &rtString);
+        out->appendf("%s\n};\n", rtString.c_str());
+    }
+
 #ifdef SK_DEBUG
     bool firstOffsetCheck = false;
     for (int i = 0; i < fUniforms.count(); ++i) {
@@ -312,7 +342,6 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 #endif
-
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         const UniformInfo& localUniform = fUniforms[i];

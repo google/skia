@@ -150,13 +150,15 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                       VkRenderPass compatibleRenderPass) {
-    VkDescriptorSetLayout dsLayout[2];
+    VkDescriptorSetLayout dsLayout[3];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE };
 
     GrVkResourceProvider& resourceProvider = fGpu->resourceProvider();
+    dsLayout[GrVkUniformHandler::kRTAdjustUniformBufferDescSet] =
+            resourceProvider.getUniformDSLayout();
     // These layouts are not owned by the PipelineStateBuilder and thus should not be destroyed
     dsLayout[GrVkUniformHandler::kUniformBufferDescSet] = resourceProvider.getUniformDSLayout();
 

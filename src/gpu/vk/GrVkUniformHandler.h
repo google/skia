@@ -26,8 +26,9 @@ public:
          * GP textures as dynamic state, meaning they get rebound for each GrMesh in a draw while
          * uniforms are bound once before all the draws.
          */
-        kUniformBufferDescSet = 0,
-        kSamplerDescSet = 1,
+        kRTAdjustUniformBufferDescSet = 0,
+        kUniformBufferDescSet = 1,
+        kSamplerDescSet = 2,
     };
     enum {
         kUniformBinding = 0
@@ -53,6 +54,10 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
+    UniformHandle getRTAdjustUniform() override {
+        return fRTAdjustUniform;
+    }
+
     /**
      * Returns the offset that the RTHeight synthetic uniform should use if it needs to be created.
      */
@@ -60,10 +65,22 @@ public:
 
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
-        : INHERITED(program)
-        , fUniforms(kUniformsPerBlock)
-        , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {
+            : INHERITED(program)
+            , fUniforms(kUniformsPerBlock)
+            , fSamplers(kUniformsPerBlock)
+            , fCurrentUBOOffset(0) {
+        fRTAdjustUniform.fVariable.setType(kFloat4_GrSLType);
+        fProgramBuilder->nameVariable(fRTAdjustUniform.fVariable.accessName(), prefix,
+                                      SkSL:Compiler::RTADJUST_NAME);
+        fRTAdjustUniform.fVariable.setArrayCount(0);
+        fRTAdjustUniform.fVisibility = kVertex_GrShaderFlag | kTessEvaluation_GrShaderFlag |
+                kGeometry_GrShaderFlag;
+        fRTAdjustUniform.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
+        fRTAdjustUniform.fUBOOffset = 0;
+
+        SkString layoutQualifier;
+        layoutQualifier.appendf("offset=%d", fRTAdjustUniform.fUBOffset);
+        fRTAdjustUniform.fVariable.addLayoutQualifier(layoutQualifier.c_str());
     }
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
@@ -104,8 +121,8 @@ private:
         return fUniforms[u.toIndex()];
     }
 
-
     UniformInfoArray    fUniforms;
+    UniformInfo         fRTAdjustUniform;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
 
