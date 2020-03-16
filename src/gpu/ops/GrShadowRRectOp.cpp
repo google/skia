@@ -642,10 +642,9 @@ private:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
+        func(fFalloffView.proxy(), GrMipMapped(false));
         if (fProgramInfo) {
-            fProgramInfo->visitProxies(func);
-        } else {
-            func(fFalloffView.proxy(), GrMipMapped(false));
+            fProgramInfo->visitFPProxies(func);
         }
     }
 
