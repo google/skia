@@ -12,6 +12,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkTo.h"
@@ -1031,14 +1032,28 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
 void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
+    SkASSERT(vertices);
 
     SkVertices::Info info;
     vertices->getInfo(&info);
 
-    SkASSERT(vertices);
+    int shaderVaryingCount = 0;
+    if (paint.getShader()) {
+        if (const auto* effect = as_SB(paint.getShader())->asRuntimeEffect()) {
+            shaderVaryingCount = effect->varyingCount();
+        }
+    }
+
+    // TODO: Hoist this check up to SkCanvas
+    if (shaderVaryingCount != info.fPerVertexDataCount) {
+        return;
+    }
+
+    // Pretend that we have tex coords when using custom per-vertex data. The shader is going to
+    // use those (rather than local coords), but our paint conversion remains the same.
     GrPaint grPaint;
     bool hasColors = info.hasColors();
-    bool hasTexs = info.hasTexCoords();
+    bool hasTexs = info.hasTexCoords() || info.hasPerVertexData();
     if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
