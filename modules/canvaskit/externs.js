@@ -194,6 +194,7 @@ var CanvasKit = {
     restoreToCount: function() {},
     rotate: function() {},
     save: function() {},
+    saveLayer: function() {},
     scale: function() {},
     skew: function() {},
     translate: function() {},
@@ -203,7 +204,6 @@ var CanvasKit = {
     _drawPoints: function() {},
     _drawSimpleText: function() {},
     _readPixels: function() {},
-    _saveLayer: function() {},
     _writePixels: function() {},
     delete: function() {},
   },
@@ -839,7 +839,6 @@ CanvasKit.SkImage.prototype.makeShader = function() {};
 CanvasKit.SkCanvas.prototype.drawAtlas = function() {};
 CanvasKit.SkCanvas.prototype.drawPoints = function() {};
 CanvasKit.SkCanvas.prototype.drawText = function() {};
-CanvasKit.SkCanvas.prototype.saveLayer = function() {};
 /** @return {Uint8Array} */
 CanvasKit.SkCanvas.prototype.readPixels = function() {};
 CanvasKit.SkCanvas.prototype.writePixels = function() {};
