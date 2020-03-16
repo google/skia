@@ -41,7 +41,7 @@ func keyParams(parts map[string]string) []string {
 }
 
 // dmFlags generates flags to DM based on the given task properties.
-func (b *taskBuilder) dmFlags(internalHardwareLabel string) ([]string, map[string]string) {
+func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	properties := map[string]string{
 		"gitHash":              specs.PLACEHOLDER_REVISION,
 		"builder":              b.Name,
@@ -982,5 +982,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) ([]string, map[strin
 	if b.extraConfig("ReleaseAndAbandonGpuContext") {
 		args = append(args, "--releaseAndAbandonGpuContext")
 	}
-	return args, properties
+
+	// Finalize the DM flags and properties.
+	b.recipeProp("dm_flags", marshalJson(args))
+	b.recipeProp("dm_properties", marshalJson(properties))
 }

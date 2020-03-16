@@ -15,8 +15,9 @@ import (
 type taskBuilder struct {
 	*jobBuilder
 	parts
-	Name string
-	Spec *specs.TaskSpec
+	Name             string
+	Spec             *specs.TaskSpec
+	recipeProperties map[string]string
 }
 
 // newTaskBuilder returns a taskBuilder instance.
@@ -26,10 +27,11 @@ func newTaskBuilder(b *jobBuilder, name string) *taskBuilder {
 		log.Fatal(err)
 	}
 	return &taskBuilder{
-		jobBuilder: b,
-		parts:      parts,
-		Name:       name,
-		Spec:       &specs.TaskSpec{},
+		jobBuilder:       b,
+		parts:            parts,
+		Name:             name,
+		Spec:             &specs.TaskSpec{},
+		recipeProperties: map[string]string{},
 	}
 }
 
@@ -212,4 +214,20 @@ func (b *taskBuilder) usesGo() {
 // usesDocker adds attributes to tasks which use docker.
 func (b *taskBuilder) usesDocker() {
 	b.dimension("docker_installed:true")
+}
+
+// recipeProp adds the given recipe property key/value pair. Panics if
+// kitchenTask was already called.
+func (b *taskBuilder) recipeProp(key, value string) {
+	if b.recipeProperties == nil {
+		log.Fatal("taskBuilder.recipeProp cannot be called after taskBuilder.kitchenTask!")
+	}
+	b.recipeProperties[key] = value
+}
+
+// recipeProps calls recipeProp for every key/value pair in the given map.
+func (b *taskBuilder) recipeProps(props map[string]string) {
+	for k, v := range props {
+		b.recipeProp(k, v)
+	}
 }

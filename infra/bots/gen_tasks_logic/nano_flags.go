@@ -11,7 +11,7 @@ import (
 )
 
 // nanobenchFlags generates flags to Nanobench based on the given task properties.
-func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string) {
+func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	args := []string{
 		"nanobench",
 		"--pre_log",
@@ -258,7 +258,8 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string
 		args = append(args, "--verbose")
 	}
 
-	props := map[string]string{
+	// These properties are plumbed through nanobench and into Perf results.
+	nanoProps := map[string]string{
 		"gitHash":          specs.PLACEHOLDER_REVISION,
 		"issue":            specs.PLACEHOLDER_ISSUE,
 		"patchset":         specs.PLACEHOLDER_PATCHSET,
@@ -286,5 +287,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) ([]string, map[string]string
 		}
 	}
 
-	return args, props
+	// Finalize the nanobench flags and properties.
+	b.recipeProp("nanobench_flags", marshalJson(args))
+	b.recipeProp("nanobench_properties", marshalJson(nanoProps))
 }
