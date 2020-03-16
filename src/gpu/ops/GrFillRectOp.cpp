@@ -337,8 +337,9 @@ private:
             this->createProgramInfo(flushState);
         }
 
-        flushState->bindPipeline(*fProgramInfo, chainBounds);
-        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
+        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
