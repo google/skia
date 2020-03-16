@@ -177,6 +177,9 @@ public:
         this->bindTextures(primProc, &ptr, pipeline);
     }
 
+    // Makes the appropriate bindBuffers() and draw*() calls for the provided mesh.
+    void drawMesh(const GrSimpleMesh& mesh);
+
     // Pass-through methods to GrOpsRenderPass.
     void bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
         fOpsRenderPass->bindPipeline(programInfo, drawBounds);

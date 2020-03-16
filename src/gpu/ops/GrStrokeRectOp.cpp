@@ -250,8 +250,9 @@ private:
             return;
         }
 
-        flushState->bindPipeline(*fProgramInfo, chainBounds);
-        flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
+        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->drawMesh(*fMesh);
     }
 
     // TODO: override onCombineIfPossible
@@ -592,8 +593,9 @@ void AAStrokeRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
         return;
     }
 
-    flushState->bindPipeline(*fProgramInfo, chainBounds);
-    flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
+    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->drawMesh(*fMesh);
 }
 
 sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
