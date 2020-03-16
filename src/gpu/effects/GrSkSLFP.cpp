@@ -61,6 +61,9 @@ public:
                                 SkASSERT((int) fFunctionNames.size() > arg.fIndex);
                                 result += fFunctionNames[arg.fIndex].c_str();
                                 break;
+                            case SkSL::Compiler::FormatArg::Kind::kVarying:
+                                result.appendf("_vtx_attr%d", arg.fIndex);
+                                break;
                         }
                         break;
                     }
@@ -158,6 +161,7 @@ public:
     SkSL::PipelineStageArgs fArgs;
     std::vector<UniformHandle> fUniformHandles;
     std::vector<SkString> fFunctionNames;
+    std::vector<SkString> fVaryingNames;
 };
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,

@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLInterpreter.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #if SK_SUPPORT_GPU
@@ -66,7 +67,24 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
     std::vector<SkString> children;
+    std::vector<Varying> varyings;
     const SkSL::Context& ctx(compiler->context());
+
+    // Scrape the "varyings", which are created by declaring functions starting with "vtx_"
+    // This is probably temporary - these should really be triggered by a varying keyword.
+    for (const auto& e : *program) {
+        if (e.fKind == SkSL::ProgramElement::kFunction_Kind) {
+            const SkSL::FunctionDefinition& def = (const SkSL::FunctionDefinition&) e;
+            const auto& decl = def.fDeclaration;
+            if (decl.fName.fLength > 4 && strncmp(decl.fName.fChars, "vtx_", 4) == 0) {
+                SkString name(decl.fName.fChars, decl.fName.fLength);
+                int width = decl.fReturnType.kind() == SkSL::Type::kVector_Kind
+                                    ? decl.fReturnType.columns()
+                                    : 1;
+                varyings.push_back({name, width});
+            }
+        }
+    }
 
     // Gather the inputs in two passes, to de-interleave them in our input layout.
     // We put the uniforms *first*, so that the CPU backend can alias the combined input block as
@@ -200,6 +218,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(program),
                                                       std::move(inAndUniformVars),
                                                       std::move(children),
+                                                      std::move(varyings),
                                                       uniformSize));
     return std::make_pair(std::move(effect), SkString());
 }
@@ -227,12 +246,14 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
+                                 std::vector<Varying>&& varyings,
                                  size_t uniformSize)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
         , fChildren(std::move(children))
+        , fVaryings(std::move(varyings))
         , fUniformSize(uniformSize) {
     SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
@@ -245,6 +266,14 @@ size_t SkRuntimeEffect::inputSize() const {
     return fInAndUniformVars.empty() ? 0
                                      : SkAlign4(fInAndUniformVars.back().fOffset +
                                                 fInAndUniformVars.back().sizeInBytes());
+}
+
+int SkRuntimeEffect::varyingCount() const {
+    int count = 0;
+    for (const auto& v : fVaryings) {
+        count += v.fWidth;
+    }
+    return count;
 }
 
 SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
