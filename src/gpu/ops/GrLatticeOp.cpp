@@ -169,11 +169,11 @@ public:
     const char* name() const override { return "NonAALatticeOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
+        bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
+        func(fView.proxy(), GrMipMapped(mipped));
         if (fProgramInfo) {
-            fProgramInfo->visitProxies(func);
+            fProgramInfo->pipeline().visitProxies(func);
         } else {
-            bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
-            func(fView.proxy(), GrMipMapped(mipped));
             fHelper.visitProxies(func);
         }
     }
