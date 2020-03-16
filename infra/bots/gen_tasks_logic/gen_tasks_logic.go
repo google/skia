@@ -367,22 +367,6 @@ func marshalJson(data interface{}) string {
 	return strings.Replace(string(j), "\\u003c", "<", -1)
 }
 
-// props creates a properties JSON string.
-func props(p map[string]string) string {
-	d := make(map[string]interface{}, len(p)+1)
-	for k, v := range p {
-		d[k] = interface{}(v)
-	}
-	d["$kitchen"] = struct {
-		DevShell bool `json:"devshell"`
-		GitAuth  bool `json:"git_auth"`
-	}{
-		DevShell: true,
-		GitAuth:  true,
-	}
-	return marshalJson(d)
-}
-
 // kitchenTaskNoBundle sets up the task to run a recipe via Kitchen, without the
 // recipe bundle.
 func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
@@ -392,14 +376,7 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	} else if b.os("Mac10.15") && b.model("VMware7.1") {
 		b.cipd(CIPD_PKG_CPYTHON)
 	}
-	properties := map[string]string{
-		"buildername":   b.Name,
-		"swarm_out_dir": outputDir,
-	}
-	for k, v := range b.recipeProperties {
-		properties[k] = v
-	}
-	b.recipeProperties = nil
+	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
@@ -408,7 +385,7 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 		Path: "cache/vpython",
 	})
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
-	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, props(properties), b.cfg.Project)
+	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.isolate("swarm_recipe.isolate")
 	b.timeout(time.Hour)
