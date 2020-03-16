@@ -2134,7 +2134,7 @@ void Viewer::drawImGui() {
                         }
 
                         SkReader32 reader(data->data(), data->size());
-                        entry.fShaderType = reader.readU32();
+                        entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
                         GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
                                                                     entry.fInputs,
                                                                     kGrShaderTypeCount);

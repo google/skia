@@ -27,6 +27,9 @@ struct ShaderMetadata {
     bool fHasSecondaryColorOutput = false;
 };
 
+// Increment this whenever the serialization format of cached shaders changes
+static constexpr int kCurrentVersion = 1;
+
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
                                               const SkSL::Program::Inputs inputs[],
@@ -37,6 +40,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     SkASSERT(numInputs >= 1 && numInputs <= kGrShaderTypeCount);
 
     SkWriter32 writer;
+    writer.write32(kCurrentVersion);
     writer.write32(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         writer.writeString(shaders[i].c_str(), shaders[i].size());
@@ -60,6 +64,17 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
         writer.writeBool(meta->fHasSecondaryColorOutput);
     }
     return writer.snapshotAsData();
+}
+
+static SkFourByteTag GetType(SkReader32* reader) {
+    constexpr SkFourByteTag kInvalidTag = ~0;
+    if (!reader->isAvailable(2 * sizeof(int))) {
+        return kInvalidTag;
+    }
+    if (reader->readInt() != kCurrentVersion) {
+        return kInvalidTag;
+    }
+    return reader->readU32();
 }
 
 static inline void UnpackCachedShaders(SkReader32* reader,
