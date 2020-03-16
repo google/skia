@@ -81,6 +81,24 @@
       "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ffc502e_3efaaac9",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-16T13:50:30Z",
+      "side": 1,
+      "message": "\u003e So this is an aesthetic decision, my reasoning is that it\u0027s easier to tell what the task is (and is not) doing if all of the switches are present.  For example, it\u0027s easier to determine whether a task is using SKPs if you have \u0027\"skps\": \"false\"\u0027 vs having nothing at all and needing to scan all of the properties to verify that it\u0027s not present.  I think it\u0027s particularly true when you don\u0027t know the exact name of the thing you\u0027re looking for.  I don\u0027t feel strongly about it though.\n\u003e \n\u003e FTR my plan is to have all recipe properties turn into flags for task drivers, ie. instead of this JSON blob:\n\u003e \n\u003e {\n\u003e   \"skps\": \"false\",\n\u003e   \"dm_flags\": [\"--blah\"],\n\u003e }\n\u003e \n\u003e We\u0027d have:\n\u003e \n\u003e run_dm --skps\u003dfalse --dm_flags\u003d\"--blah\"\n\u003e \n\u003e I\u0027m not sure whether that factors in here.  Obviously for --skps\u003dtrue we could just write --skps (and maybe use --no-skps instead of --skps\u003dfalse?), although I also like the idea of removing our assumptions around where task inputs are supposed to be and have those be provided as inputs to the task, ie. instead of doing \"--skps\" and having the task driver assume they\u0027re in the expected place, explicitly write \"--skps\u003d/path/to/skps\".  That would make local runs a whole lot less frustrating.  Another alternative is to actually perform the fetch inside the task driver, so just write \"--skps\" and the task driver does the right thing.  But now I\u0027m rambling.\n\n\nI think that having to specify all flags (eg: --skps\u003dfalse, --svgs\u003dfalse etc) will get tedious to do when running locally.\nI suspect it might be easier and cleaner in general to only specify things that tasks actually need. Parsing what a task does by looking at the flags is easier if you see --skps vs also having to look for the value of that flag.\n(Also one day having --skps\u003d/path/to/skps makes sense to me).\nStill LGTM though, this is more like a side discussion.",
+      "parentUuid": "03d3fa3b_f41e7199",
+      "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
