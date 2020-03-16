@@ -34,6 +34,24 @@
       "revId": "c1035926a22eb1b4a38b7aa534008b57655eafd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92cd14d5_3473f431",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-16T19:44:45Z",
+      "side": 1,
+      "message": "I see. It creates a GrProgramInfo with an empty processor set.\n\nHow does the appliedClip factor in? If you call visitProxies() after creating the pipeline, then GrPipeline::visitProxies visits the clip FPs. If it gets called before, do the clip FPs get visited from somewhere else?",
+      "parentUuid": "726fbd73_04035ac3",
+      "revId": "c1035926a22eb1b4a38b7aa534008b57655eafd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

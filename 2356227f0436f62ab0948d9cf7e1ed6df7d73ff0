@@ -22,6 +22,30 @@
       "revId": "2356227f0436f62ab0948d9cf7e1ed6df7d73ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eb76738_178ec661",
+        "filename": "src/gpu/GrProgramInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-16T19:44:45Z",
+      "side": 0,
+      "message": "I think the GrSimpleMeshDrawOp still does a few things with (Fixed)DynamicState. I think we need to clean up that one remaining spot before we can fully take the dynamic state off the GrProgramInfo.",
+      "parentUuid": "9d9d9b56_02f5bc92",
+      "range": {
+        "startLine": 122,
+        "startChar": 18,
+        "endLine": 122,
+        "endChar": 42
+      },
+      "revId": "2356227f0436f62ab0948d9cf7e1ed6df7d73ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
