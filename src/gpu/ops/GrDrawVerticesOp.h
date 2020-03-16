@@ -32,6 +32,13 @@ namespace GrDrawVerticesOp {
                                    GrAAType,
                                    sk_sp<GrColorSpaceXform>,
                                    GrPrimitiveType* overridePrimType = nullptr);
+
+    std::unique_ptr<GrDrawOp> MakeCustom(GrRecordingContext*,
+                                         GrPaint&&,
+                                         sk_sp<SkVertices>,
+                                         const SkMatrix& viewMatrix,
+                                         GrAAType,
+                                         GrPrimitiveType* overridePrimType = nullptr);
 };
 
 #endif

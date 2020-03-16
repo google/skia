@@ -864,6 +864,38 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         decl = newDecl.get();
         fSymbolTable->add(decl->fName, std::move(newDecl));
     }
+    if (fKind == Program::kPipelineStage_Kind && fd.fName.fLength > 4 &&
+        strncmp(fd.fName.fChars, "vtx_", 4) == 0) {
+        if (iter != f.end()) {
+            fErrors.error(f.fOffset, "vtx_ functions must only be declared");
+            return;
+        }
+        if (!returnType->isFloat() &&
+            !(returnType->kind() == Type::kVector_Kind && returnType->componentType().isFloat())) {
+            fErrors.error(f.fOffset, "vtx_ functions must return half/float scalar or vector");
+            return;
+        }
+        if (!decl->fParameters.empty()) {
+            fErrors.error(f.fOffset, "vtx_ functions must not take parameters");
+            return;
+        }
+        int columns = returnType->kind() == Type::kVector_Kind ? returnType->columns() : 1;
+        std::vector<std::unique_ptr<Expression>> constructorArgs;
+        for (int i = 0; i < columns; ++i) {
+            constructorArgs.emplace_back(new FloatLiteral(fContext, -1, 1.0));
+        }
+        std::unique_ptr<Expression> constructor(
+                new Constructor(-1, *returnType, std::move(constructorArgs)));
+        std::vector<std::unique_ptr<Statement>> bodyStmts;
+        bodyStmts.emplace_back(new ReturnStatement(std::move(constructor)));
+        std::unique_ptr<Statement> body(new Block(-1, std::move(bodyStmts)));
+        decl->fDefined = true;
+        std::unique_ptr<FunctionDefinition> result(
+                new FunctionDefinition(f.fOffset, *decl, std::move(body)));
+        result->fSource = &f;
+        fProgramElements->push_back(std::move(result));
+        return;
+    }
     if (iter != f.end()) {
         // compile body
         SkASSERT(!fCurrentFunction);

@@ -61,6 +61,9 @@ public:
                                 SkASSERT((int) fFunctionNames.size() > arg.fIndex);
                                 result += fFunctionNames[arg.fIndex].c_str();
                                 break;
+                            case SkSL::Compiler::FormatArg::Kind::kVarying:
+                                result.appendf("_vtx_attr%d", arg.fIndex);
+                                break;
                         }
                         break;
                     }
