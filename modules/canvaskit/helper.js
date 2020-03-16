@@ -4,29 +4,48 @@ function clamp(c) {
   return Math.round(Math.max(0, Math.min(c || 0, 255)));
 }
 
-// Colors are just a 32 bit number with 8 bits each of a, r, g, b
-// The API is the same as CSS's representation of color rgba(), that is
+// Constructs a Color with the same API as CSS's rgba(), that is
 // r,g,b are 0-255, and a is 0.0 to 1.0.
 // if a is omitted, it will be assumed to be 1.0
+// Internally, Colors are a TypedArray of four unpremulled 32-bit floats: a, r, g, b
+// In order to construct one with more precision or in a wider gamut, use
+// CanvasKit.Color4f
 CanvasKit.Color = function(r, g, b, a) {
   if (a === undefined) {
       a = 1;
   }
-  // The >>> 0 converts the signed int to an unsigned int. Skia's
-  // SkColor object is an unsigned int.
-  // https://stackoverflow.com/a/14891172
-  return ((clamp(a*255) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0)) >>> 0;
+  return CanvasKit.Color4f(clamp(r)/255, clamp(g)/255, clamp(b)/255, a);
 }
 
-// returns [r, g, b, a] from a color
+// Construct a 4-float color.
+// Opaque if opacity is omitted.
+CanvasKit.Color4f = function(r, g, b, a) {
+  if (a === undefined) {
+    a = 1;
+  }
+  return Float32Array.of(r, g, b, a);
+}
+
+CanvasKit.TRANSPARENT = CanvasKit.Color4f(0, 0, 0, 0);
+CanvasKit.BLACK       = CanvasKit.Color4f(0, 0, 0, 1);
+CanvasKit.WHITE       = CanvasKit.Color4f(1, 1, 1, 1);
+CanvasKit.RED         = CanvasKit.Color4f(1, 0, 0, 1);
+CanvasKit.GREEN       = CanvasKit.Color4f(0, 1, 0, 1);
+CanvasKit.BLUE        = CanvasKit.Color4f(0, 0, 1, 1);
+CanvasKit.YELLOW      = CanvasKit.Color4f(1, 1, 0, 1);
+CanvasKit.CYAN        = CanvasKit.Color4f(0, 1, 1, 1);
+CanvasKit.MAGENTA     = CanvasKit.Color4f(1, 0, 1, 1);
+
+// returns a css style [r, g, b, a] from a CanvasKit.Color
+// where r, g, b are returned as ints in the range [0, 255]
 // where a is scaled between 0 and 1.0
 CanvasKit.getColorComponents = function(color) {
   return [
-     (color >> 16) & 0xFF,
-     (color >>  8) & 0xFF,
-     (color >>  0) & 0xFF,
-    ((color >> 24) & 0xFF) / 255,
-  ]
+    Math.floor(color[0]*255),
+    Math.floor(color[1]*255),
+    Math.floor(color[2]*255),
+    color[3]
+  ];
 }
 
 // parseColorString takes in a CSS color value and returns a CanvasKit.Color
@@ -81,11 +100,28 @@ CanvasKit.parseColorString = function(colorStr, colorMap) {
     // Try for named color
     var nc = colorMap[colorStr];
     if (nc !== undefined) {
-      return nc;
+      return CanvasKit.Color(
+         (nc >> 16) & 0xFF,
+         (nc >>  8) & 0xFF,
+         (nc >>  0) & 0xFF,
+        ((nc >> 24) & 0xFF) / 255
+      );
     }
   }
   SkDebug('unrecognized color ' + colorStr);
   return CanvasKit.BLACK;
+}
+
+function isCanvasKitColor(ob) {
+  if (ob === undefined) {
+    return false;
+  }
+  return (ob.constructor === Float32Array && ob.length === 4);
+}
+
+// Warning information is lost by this conversion
+function toUint32Color(c) {
+  return ((clamp(c[3]*255) << 24) | (clamp(c[0]*255) << 16) | (clamp(c[1]*255) << 8) | (clamp(c[2]*255) << 0)) >>> 0;
 }
 
 function valueOrPercent(aStr) {
@@ -99,17 +135,10 @@ function valueOrPercent(aStr) {
   return a;
 }
 
+// TODO(nifong): this modifies it's argument, should it be made pure?
 CanvasKit.multiplyByAlpha = function(color, alpha) {
-  if (alpha === 1) {
-    return color;
-  }
-  // extract as int from 0 to 255
-  var a = (color >> 24) & 0xFF;
-  a *= alpha;
-  // mask off the old alpha
-  color &= 0xFFFFFF;
-  // back to unsigned int to match SkColor.
-  return (clamp(a) << 24 | color) >>> 0;
+  color[3] *= alpha;
+  return color
 }
 
 function radiansToDegrees(rad) {
