@@ -99,6 +99,24 @@
       "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9c8b872_e0b0a7cd",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-16T17:15:28Z",
+      "side": 1,
+      "message": "Sorry for being unclear, I\u0027d make the flags default to false, so you wouldn\u0027t have to type \"--skps\u003dfalse\" locally, it would just be for clarity in this automated stuff.  Switched to only providing the flags we want, since that\u0027ll map better to the \"--asset\u003d/path/to/asset\" format down the road.",
+      "parentUuid": "6ffc502e_3efaaac9",
+      "revId": "b8861d7dadb9fea1463c57d1029565d6e3ebfdc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
