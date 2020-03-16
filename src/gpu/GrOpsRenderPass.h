@@ -75,13 +75,6 @@ public:
     void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
-    // Draws the given array of meshes using the current pipeline state. The client must call
-    // bindPipeline() before using this method.
-    //
-    // NOTE: This method will soon be deleted. While it continues to exist, it takes care of calling
-    // setScissor() and bindTextures() on the client's behalf.
-    void drawMeshes(const GrProgramInfo&, const GrSimpleMesh[], int meshCount);
-
     // These methods issue draws using the current pipeline state. Before drawing, the caller must
     // configure the pipeline and dynamic state:
     //

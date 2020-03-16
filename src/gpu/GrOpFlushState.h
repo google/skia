@@ -178,6 +178,9 @@ public:
     }
 
     // Pass-through methods to GrOpsRenderPass.
+    void drawMesh(const GrSimpleMesh& mesh) {
+        mesh.draw(fOpsRenderPass);
+    }
     void bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
         fOpsRenderPass->bindPipeline(programInfo, drawBounds);
     }

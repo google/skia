@@ -54,8 +54,29 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   fCurrDraw->fMeshCnt,
                                   fCurrDraw->fPrimitiveType);
 
-        this->bindPipeline(programInfo, chainBounds);
-        this->opsRenderPass()->drawMeshes(programInfo, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt);
+        fOpsRenderPass->bindPipeline(programInfo, chainBounds);
+
+        if (programInfo.hasFixedScissor()) {
+            fOpsRenderPass->setScissorRect(programInfo.fixedScissor());
+        }
+        if (!programInfo.hasDynamicPrimProcTextures()) {
+            auto primProcTextures = (programInfo.hasFixedPrimProcTextures()) ?
+                    programInfo.fixedPrimProcTextures() : nullptr;
+            fOpsRenderPass->bindTextures(programInfo.primProc(), primProcTextures,
+                                         programInfo.pipeline());
+        }
+        for (int i = 0; i < fCurrDraw->fMeshCnt; ++i) {
+            if (programInfo.hasDynamicScissors()) {
+                fOpsRenderPass->setScissorRect(programInfo.dynamicScissor(i));
+            }
+            if (programInfo.hasDynamicPrimProcTextures()) {
+                fOpsRenderPass->bindTextures(programInfo.primProc(),
+                                             programInfo.dynamicPrimProcTextures(i),
+                                             programInfo.pipeline());
+            }
+            fCurrDraw->fMeshes[i].draw(fOpsRenderPass);
+        }
+
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
