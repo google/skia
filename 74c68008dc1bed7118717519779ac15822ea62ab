@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c13bf32b_1d5d32eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-03-16T17:57:34Z",
+      "side": 1,
+      "message": "Oops, I forgot to add the following:\n\nThis list is the same as the (non-robot) owners in the owners-skia Gerrit group.\n\nThat said, it would be better if we could just list that group here. I know we can use an email alias for a group here, but I\u0027m not sure what the owners-skia alias is, or whether it even has one (here\u0027s the group: https://googleplex-android-review.git.corp.google.com/admin/groups/1070,members).\n\n(We do have a skia-android@google.com alias, but it is a different set of people.)",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 35
+      },
+      "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cdd7baf_d0f0941a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-03-16T17:57:34Z",
+      "side": 1,
+      "message": "It seems that AOSP reviews do not require a review from the existing owners-skia group.",
+      "range": {
+        "startLine": 9,
+        "startChar": 56,
+        "endLine": 9,
+        "endChar": 63
+      },
+      "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "614a6702_32c88e81",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-03-16T17:57:34Z",
+      "side": 1,
+      "message": "Maybe mention b/131219491 here?\n\nThat was regarding +2, though, rather than helping commit authors find a reviewer.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4695f5f_2f97984b",
+        "filename": "OWNERS.android",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-03-16T17:57:34Z",
+      "side": 1,
+      "message": "Note: I listed myself first as an offer to take the brunt of code-reviews. But I can change the order if desired.\n\nAnd if we use a mailing list instead, this is moot.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
