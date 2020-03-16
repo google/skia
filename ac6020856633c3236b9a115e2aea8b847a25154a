@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74591c38_7ff51297",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-16T16:30:26Z",
+      "side": 1,
+      "message": "does this call actually put the map call into the GPU command stream? Like the callback won\u0027t be called till all previously submitted work has been finished on the GPU? Or is just async in the sense that it will be mapped sometime in the future which could be immediately even if the gpu has previous work to do.",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 28
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c4d3c24_dfc84ac1",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-16T16:30:26Z",
+      "side": 1,
+      "message": "shouldn\u0027t you need to check if something is finished here?",
+      "range": {
+        "startLine": 479,
+        "startChar": 6,
+        "endLine": 479,
+        "endChar": 34
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28bcf7a6_a3da2343",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-16T16:30:26Z",
+      "side": 1,
+      "message": "why the copy here?",
+      "range": {
+        "startLine": 594,
+        "startChar": 50,
+        "endLine": 594,
+        "endChar": 77
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4233fe30_b537bfab",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-16T16:30:26Z",
+      "side": 1,
+      "message": "i don\u0027t think Skia dawn itself should be dealing with the autorelease pools right? If needed that should all be handled inside dawn",
+      "range": {
+        "startLine": 605,
+        "startChar": 5,
+        "endLine": 605,
+        "endChar": 49
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d0b90d7_7f1923e5",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-16T16:30:26Z",
+      "side": 1,
+      "message": "does anything ever get pushed on this guy?",
+      "range": {
+        "startLine": 636,
+        "startChar": 12,
+        "endLine": 636,
+        "endChar": 28
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
