@@ -25,25 +25,25 @@ DEPS = [
 ]
 
 
-def upload_dm_results(buildername):
-  skip_upload_bots = [
-    'ASAN',
-    'Coverage',
-    'MSAN',
-    'TSAN',
-    'Valgrind',
-  ]
-  for s in skip_upload_bots:
-    if s in buildername:
-      return False
-  return True
-
-
 def test_steps(api):
   """Run the DM test."""
-  b = api.properties['buildername']
+  do_upload = api.properties.get('do_upload') == 'true'
+  images = api.properties.get('images') == 'true'
+  lotties = api.properties.get('lotties') == 'true'
+  resources = api.properties.get('resources') == 'true'
+  skps = api.properties.get('skps') == 'true'
+  svgs = api.properties.get('svgs') == 'true'
+
+  api.flavor.install(
+      images=images,
+      lotties=lotties,
+      resources=resources,
+      skps=skps,
+      svgs=svgs,
+  )
+
   use_hash_file = False
-  if upload_dm_results(b):
+  if do_upload:
     host_dm_dir = str(api.flavor.host_dirs.dm_dir)
     api.flavor.create_clean_host_dir(api.path['start_dir'].join('test'))
     device_dm_dir = str(api.flavor.device_dirs.dm_dir)
@@ -115,16 +115,20 @@ def test_steps(api):
       args.extend([k, v])
 
   # Paths to required resources.
-  args.extend([
-    '--resourcePath', api.flavor.device_dirs.resource_dir,
-    '--skps', api.flavor.device_dirs.skp_dir,
-    '--images', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'dm'),
-    '--colorImages', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'colorspace'),
-    '--svgs', api.flavor.device_dirs.svg_dir,
-  ])
-  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+  if resources:
+    args.extend(['--resourcePath', api.flavor.device_dirs.resource_dir])
+  if skps:
+    args.extend(['--skps', api.flavor.device_dirs.skp_dir])
+  if images:
+    args.extend([
+        '--images', api.flavor.device_path_join(
+            api.flavor.device_dirs.images_dir, 'dm'),
+        '--colorImages', api.flavor.device_path_join(
+            api.flavor.device_dirs.images_dir, 'colorspace'),
+    ])
+  if svgs:
+    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+  if lotties:
     args.extend([
       '--lotties',
       api.flavor.device_path_join(
@@ -134,13 +138,13 @@ def test_steps(api):
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
-  if upload_dm_results(b):
+  if do_upload:
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   # Run DM.
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
-  if upload_dm_results(b):
+  if do_upload:
     # Copy images and JSON to host machine if needed.
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
@@ -152,10 +156,6 @@ def RunSteps(api):
   api.flavor.setup('dm')
 
   try:
-    if 'Lottie' in api.vars.builder_name:
-      api.flavor.install(resources=True, lotties=True)
-    else:
-      api.flavor.install(skps=True, images=True, svgs=True, resources=True)
     test_steps(api)
   finally:
     api.flavor.cleanup_steps()
@@ -172,19 +172,31 @@ TEST_BUILDERS = [
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
+    props = dict(
+      buildername=builder,
+      buildbucket_build_id='123454321',
+      dm_flags='["dm","--dummy","--flags"]',
+      dm_properties=('{"key1":"value1","key2":"",'
+                     '"bot":"${SWARMING_BOT_ID}",'
+                     '"task":"${SWARMING_TASK_ID}"}'),
+      revision='abc123',
+      path_config='kitchen',
+      gold_hashes_url='https://example.com/hashes.txt',
+      swarm_out_dir='[SWARM_OUT_DIR]',
+      task_id='task_12345',
+      resources='true',
+    )
+    if 'ASAN' not in builder:
+      props['do_upload'] = 'true'
+    if 'Lottie' in builder:
+      props['lotties'] = 'true'
+    else:
+      props['images'] = 'true'
+      props['skps'] = 'true'
+      props['svgs'] = 'true'
     test = (
       api.test(builder) +
-      api.properties(buildername=builder,
-                     buildbucket_build_id='123454321',
-                     dm_flags='["dm","--dummy","--flags"]',
-                     dm_properties=('{"key1":"value1","key2":"",'
-                                    '"bot":"${SWARMING_BOT_ID}",'
-                                    '"task":"${SWARMING_TASK_ID}"}'),
-                     revision='abc123',
-                     path_config='kitchen',
-                     gold_hashes_url='https://example.com/hashes.txt',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
-                     task_id='task_12345') +
+      api.properties(**props) +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
