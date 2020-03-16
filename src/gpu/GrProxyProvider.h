@@ -262,6 +262,12 @@ private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
 
+    // processInvalidUniqueKey() with control over removing hash table entries,
+    // which is not safe while iterating with foreach().
+    enum class RemoveTableEntry { kNo, kYes };
+    void processInvalidUniqueKeyImpl(const GrUniqueKey&, GrTextureProxy*,
+                                     InvalidateGPUResource, RemoveTableEntry);
+
     bool isAbandoned() const;
 
     /*

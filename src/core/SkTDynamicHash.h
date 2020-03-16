@@ -122,11 +122,6 @@ private:
     static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. nullptr
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
-    // GrProxyProvider::removeAllUniqueKeys() uses Iter but removes elements from the table
-    // as it iterates, so it can't safely use foreach().
-    // TODO(mtklein): add mutate(), replace that use of Iter with that.
-    friend class GrProxyProvider;
-
     class Iter {
     public:
         explicit Iter(SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
