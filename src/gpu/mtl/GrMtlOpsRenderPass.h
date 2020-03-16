@@ -8,7 +8,6 @@
 #ifndef GrMtlOpsRenderPass_DEFINED
 #define GrMtlOpsRenderPass_DEFINED
 
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlGpu.h"

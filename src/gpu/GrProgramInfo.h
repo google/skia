@@ -12,7 +12,6 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
 
-class GrMesh;
 class GrStencilSettings;
 
 class GrProgramInfo {
