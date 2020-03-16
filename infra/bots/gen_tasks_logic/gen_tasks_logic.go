@@ -367,38 +367,16 @@ func marshalJson(data interface{}) string {
 	return strings.Replace(string(j), "\\u003c", "<", -1)
 }
 
-// props creates a properties JSON string.
-func props(p map[string]string) string {
-	d := make(map[string]interface{}, len(p)+1)
-	for k, v := range p {
-		d[k] = interface{}(v)
-	}
-	d["$kitchen"] = struct {
-		DevShell bool `json:"devshell"`
-		GitAuth  bool `json:"git_auth"`
-	}{
-		DevShell: true,
-		GitAuth:  true,
-	}
-	return marshalJson(d)
-}
-
 // kitchenTaskNoBundle sets up the task to run a recipe via Kitchen, without the
 // recipe bundle.
-func (b *taskBuilder) kitchenTaskNoBundle(recipe string, extraProps map[string]string, outputDir string) {
+func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.cipd(CIPD_PKGS_KITCHEN...)
 	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
 		b.cipd(CIPD_PKG_CPYTHON)
 	} else if b.os("Mac10.15") && b.model("VMware7.1") {
 		b.cipd(CIPD_PKG_CPYTHON)
 	}
-	properties := map[string]string{
-		"buildername":   b.Name,
-		"swarm_out_dir": outputDir,
-	}
-	for k, v := range extraProps {
-		properties[k] = v
-	}
+	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
@@ -407,7 +385,7 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, extraProps map[string]s
 		Path: "cache/vpython",
 	})
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
-	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, props(properties), b.cfg.Project)
+	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.isolate("swarm_recipe.isolate")
 	b.timeout(time.Hour)
@@ -431,8 +409,8 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, extraProps map[string]s
 }
 
 // kitchenTask sets up the task to run a recipe via Kitchen.
-func (b *taskBuilder) kitchenTask(recipe string, extraProps map[string]string, outputDir string) {
-	b.kitchenTaskNoBundle(recipe, extraProps, outputDir)
+func (b *taskBuilder) kitchenTask(recipe string, outputDir string) {
+	b.kitchenTaskNoBundle(recipe, outputDir)
 	b.dep(b.bundleRecipes())
 }
 
@@ -1028,11 +1006,10 @@ func (b *jobBuilder) compile() string {
 	b.addTask(name, func(b *taskBuilder) {
 		recipe := "compile"
 		isolate := "compile.isolate"
-		var props map[string]string
 		if b.extraConfig("NoDEPS", "CMake", "CommandBuffer", "Flutter", "SKQP") {
 			recipe = "sync_and_compile"
 			isolate = "swarm_recipe.isolate"
-			props = EXTRA_PROPS
+			b.recipeProps(EXTRA_PROPS)
 			b.usesGit()
 			if !b.extraConfig("NoDEPS") {
 				b.cache(CACHES_WORKDIR...)
@@ -1040,7 +1017,7 @@ func (b *jobBuilder) compile() string {
 		} else {
 			b.idempotent()
 		}
-		b.kitchenTask(recipe, props, OUTPUT_BUILD)
+		b.kitchenTask(recipe, OUTPUT_BUILD)
 		b.isolate(isolate)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
@@ -1120,7 +1097,8 @@ func (b *jobBuilder) compile() string {
 // recreateSKPs generates a RecreateSKPs task.
 func (b *jobBuilder) recreateSKPs() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("recreate_skps", EXTRA_PROPS, OUTPUT_NONE)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("recreate_skps", OUTPUT_NONE)
 		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
 		b.dimension(
 			"pool:SkiaCT",
@@ -1136,7 +1114,8 @@ func (b *jobBuilder) recreateSKPs() {
 // by hand.
 func (b *jobBuilder) checkGeneratedFiles() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("check_generated_files", EXTRA_PROPS, OUTPUT_NONE)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("check_generated_files", OUTPUT_NONE)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_LARGE)
 		b.usesGo()
@@ -1150,7 +1129,8 @@ func (b *jobBuilder) checkGeneratedFiles() {
 // housekeeper generates a Housekeeper task.
 func (b *jobBuilder) housekeeper() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("housekeeper", EXTRA_PROPS, OUTPUT_NONE)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("housekeeper", OUTPUT_NONE)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.usesGit()
@@ -1163,7 +1143,8 @@ func (b *jobBuilder) housekeeper() {
 // should add as a dependency.
 func (b *jobBuilder) androidFrameworkCompile() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("android_compile", EXTRA_PROPS, OUTPUT_NONE)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("android_compile", OUTPUT_NONE)
 		b.isolate("compile_android_framework.isolate")
 		b.serviceAccount("skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1177,7 +1158,8 @@ func (b *jobBuilder) androidFrameworkCompile() {
 // should add as a dependency.
 func (b *jobBuilder) g3FrameworkCompile() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("g3_compile", EXTRA_PROPS, OUTPUT_NONE)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("g3_compile", OUTPUT_NONE)
 		b.isolate("compile_g3_framework.isolate")
 		b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1201,10 +1183,8 @@ func (b *jobBuilder) infra() {
 		} else {
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		}
-		extraProps := map[string]string{
-			"repository": specs.PLACEHOLDER_REPO,
-		}
-		b.kitchenTask("infra", extraProps, OUTPUT_NONE)
+		b.recipeProp("repository", specs.PLACEHOLDER_REPO)
+		b.kitchenTask("infra", OUTPUT_NONE)
 		b.isolate("infra_tests.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.cipd(specs.CIPD_PKGS_GSUTIL...)
@@ -1221,7 +1201,8 @@ func (b *jobBuilder) infra() {
 func (b *jobBuilder) buildstats() {
 	compileTaskName := b.compile()
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.kitchenTask("compute_buildstats", EXTRA_PROPS, OUTPUT_PERF)
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTask("compute_buildstats", OUTPUT_PERF)
 		b.dep(compileTaskName)
 		b.asset("bloaty")
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
@@ -1235,17 +1216,13 @@ func (b *jobBuilder) buildstats() {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
 		depName := b.Name
 		b.addTask(uploadName, func(b *taskBuilder) {
-			extraProps := map[string]string{
-				"gs_bucket": b.cfg.GsBucketNano,
-			}
-			for k, v := range EXTRA_PROPS {
-				extraProps[k] = v
-			}
+			b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
+			b.recipeProps(EXTRA_PROPS)
 			// TODO(borenet): I'm not sure why the upload task is
 			// using the BuildStats task name, but I've done this
 			// to maintain existing behavior.
 			b.Name = depName
-			b.kitchenTask("upload_buildstats_results", extraProps, OUTPUT_NONE)
+			b.kitchenTask("upload_buildstats_results", OUTPUT_NONE)
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1335,23 +1312,17 @@ func (b *jobBuilder) test() {
 			isolate = "lottie_web.isolate"
 			recipe = "test_lottie_web"
 		}
-		extraProps := map[string]string{
-			"gold_hashes_url": b.cfg.GoldHashesURL,
-		}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
+		b.recipeProp("gold_hashes_url", b.cfg.GoldHashesURL)
+		b.recipeProps(EXTRA_PROPS)
 		iid := b.internalHardwareLabel()
 		iidStr := ""
 		if iid != nil {
 			iidStr = strconv.Itoa(*iid)
 		}
 		if recipe == "test" {
-			flags, props := b.dmFlags(iidStr)
-			extraProps["dm_flags"] = marshalJson(flags)
-			extraProps["dm_properties"] = marshalJson(props)
+			b.dmFlags(iidStr)
 		}
-		b.kitchenTask(recipe, extraProps, OUTPUT_TEST)
+		b.kitchenTask(recipe, OUTPUT_TEST)
 		b.isolate(isolate)
 		b.swarmDimensions()
 		if b.extraConfig("CanvasKit", "Docker", "LottieWeb", "PathKit", "SKQP") {
@@ -1397,17 +1368,13 @@ func (b *jobBuilder) test() {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
 		depName := b.Name
 		b.addTask(uploadName, func(b *taskBuilder) {
-			extraProps := map[string]string{
-				"gs_bucket": b.cfg.GsBucketGm,
-			}
-			for k, v := range EXTRA_PROPS {
-				extraProps[k] = v
-			}
+			b.recipeProp("gs_bucket", b.cfg.GsBucketGm)
+			b.recipeProps(EXTRA_PROPS)
 			// TODO(borenet): I'm not sure why the upload task is
 			// using the Test task name, but I've done this
 			// to maintain existing behavior.
 			b.Name = depName
-			b.kitchenTask("upload_dm_results", extraProps, OUTPUT_NONE)
+			b.kitchenTask("upload_dm_results", OUTPUT_NONE)
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1446,16 +1413,11 @@ func (b *jobBuilder) perf() {
 			recipe = "perf_skottiewasm_lottieweb"
 			isolate = "lottie_web.isolate"
 		}
-		extraProps := map[string]string{}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
+		b.recipeProps(EXTRA_PROPS)
 		if recipe == "perf" {
-			flags, props := b.nanobenchFlags(doUpload)
-			extraProps["nanobench_flags"] = marshalJson(flags)
-			extraProps["nanobench_properties"] = marshalJson(props)
+			b.nanobenchFlags(doUpload)
 		}
-		b.kitchenTask(recipe, extraProps, OUTPUT_PERF)
+		b.kitchenTask(recipe, OUTPUT_PERF)
 		b.isolate(isolate)
 		b.swarmDimensions()
 		if b.extraConfig("CanvasKit", "Docker", "PathKit") {
@@ -1502,17 +1464,13 @@ func (b *jobBuilder) perf() {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
 		depName := b.Name
 		b.addTask(uploadName, func(b *taskBuilder) {
-			extraProps := map[string]string{
-				"gs_bucket": b.cfg.GsBucketNano,
-			}
-			for k, v := range EXTRA_PROPS {
-				extraProps[k] = v
-			}
+			b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
+			b.recipeProps(EXTRA_PROPS)
 			// TODO(borenet): I'm not sure why the upload task is
 			// using the Perf task name, but I've done this to
 			// maintain existing behavior.
 			b.Name = depName
-			b.kitchenTask("upload_nano_results", extraProps, OUTPUT_NONE)
+			b.kitchenTask("upload_nano_results", OUTPUT_NONE)
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1525,18 +1483,16 @@ func (b *jobBuilder) perf() {
 // presubmit generates a task which runs the presubmit for this repo.
 func (b *jobBuilder) presubmit() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		extraProps := map[string]string{
+		b.recipeProps(map[string]string{
 			"category":         "cq",
 			"patch_gerrit_url": "https://skia-review.googlesource.com",
 			"patch_project":    "skia",
 			"patch_ref":        specs.PLACEHOLDER_PATCH_REF,
 			"reason":           "CQ",
 			"repo_name":        "skia",
-		}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
-		b.kitchenTaskNoBundle("run_presubmit", extraProps, OUTPUT_NONE)
+		})
+		b.recipeProps(EXTRA_PROPS)
+		b.kitchenTaskNoBundle("run_presubmit", OUTPUT_NONE)
 		b.isolate("run_recipe.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		// Use MACHINE_TYPE_LARGE because it seems to save time versus
