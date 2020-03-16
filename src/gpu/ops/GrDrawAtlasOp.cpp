@@ -246,7 +246,7 @@ void DrawAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
         return;
     }
 
-    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+    flushState->bindPipeline(*fProgramInfo, chainBounds);
     flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
 }
 

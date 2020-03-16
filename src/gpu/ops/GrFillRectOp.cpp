@@ -337,7 +337,7 @@ private:
             this->createProgramInfo(flushState);
         }
 
-        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->bindPipeline(*fProgramInfo, chainBounds);
         flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
     }
 

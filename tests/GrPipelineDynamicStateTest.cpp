@@ -168,8 +168,7 @@ private:
                                   nullptr,
                                   &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
 
-        flushState->opsRenderPass()->bindPipeline(programInfo,
-                                                  SkRect::MakeIWH(kScreenSize, kScreenSize));
+        flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
         flushState->opsRenderPass()->drawMeshes(programInfo, meshes.begin(), 4);
     }
 

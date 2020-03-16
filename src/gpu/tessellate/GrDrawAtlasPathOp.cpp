@@ -156,9 +156,6 @@ void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* state) {
 void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(fAtlasProxy->isInstantiated());
 
-    GrAppliedClip clip = state->detachAppliedClip();
-    const SkIRect* scissorRectIfEnabled = clip.scissorRectIfEnabled();
-
     GrPipeline::InitArgs initArgs;
     if (fEnableHWAA) {
         initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
@@ -166,7 +163,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     initArgs.fCaps = &state->caps();
     initArgs.fDstProxyView = state->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = state->drawOpArgs().outputSwizzle();
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline pipeline(initArgs, std::move(fProcessors), state->detachAppliedClip());
 
     GrSwizzle swizzle = state->caps().getReadSwizzle(fAtlasProxy->backendFormat(),
                                                      GrColorType::kAlpha_8);
@@ -179,9 +176,8 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
                               &pipeline, &shader, nullptr, nullptr, 0,
                               GrPrimitiveType::kTriangleStrip);
 
-    GrOpsRenderPass* renderPass = state->opsRenderPass();
-    renderPass->bindPipeline(programInfo, this->bounds(), scissorRectIfEnabled);
-    renderPass->bindTextures(shader, *fAtlasProxy, pipeline);
-    renderPass->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
-    renderPass->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
+    state->bindPipelineAndScissorClip(programInfo, this->bounds());
+    state->bindTextures(shader, *fAtlasProxy, pipeline);
+    state->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
+    state->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
 }

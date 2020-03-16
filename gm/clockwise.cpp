@@ -217,10 +217,9 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-        renderPass->bindPipeline(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
-        renderPass->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
-        renderPass->draw(4, 0);
+        flushState->bindPipeline(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
+        flushState->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+        flushState->draw(4, 0);
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

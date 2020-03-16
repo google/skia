@@ -357,7 +357,7 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
         return;
     }
 
-    flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+    flushState->bindPipeline(*fProgramInfo, chainBounds);
     flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, 1);
 }
 

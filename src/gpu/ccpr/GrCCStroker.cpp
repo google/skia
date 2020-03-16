@@ -741,9 +741,8 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
                               flushState->outputView()->origin(), &pipeline, &processor, nullptr,
                               nullptr, 0, GrPrimitiveType::kTriangleStrip);
 
-    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-    renderPass->bindPipeline(programInfo, SkRect::Make(drawBounds));
-    renderPass->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
+    flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    flushState->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
 
     // Linear strokes draw a quad. Cubic strokes emit a strip with normals at "numSegments"
     // evenly-spaced points along the curve, plus one more for the final endpoint, plus two more for
@@ -756,8 +755,8 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
     int endIdx = batch.fNonScissorEndInstances->fStrokes[numSegmentsLog2];
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        renderPass->setScissorRect(drawBounds);
-        renderPass->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
+        flushState->setScissorRect(drawBounds);
+        flushState->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
     }
 
     // Draw scissored strokes.
@@ -768,8 +767,8 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
         endIdx = subBatch.fEndInstances->fStrokes[numSegmentsLog2];
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            renderPass->setScissorRect(subBatch.fScissor);
-            renderPass->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
+            flushState->setScissorRect(subBatch.fScissor);
+            flushState->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
             startIdx = endIdx;
         }
     }
@@ -781,9 +780,8 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
                                          const Batch& batch, const InstanceTallies* startIndices[2],
                                          int startScissorSubBatch,
                                          const SkIRect& drawBounds) const {
-    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
     processor.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
-    processor.bindBuffers(renderPass, fInstanceBuffer.get());
+    processor.bindBuffers(flushState->opsRenderPass(), fInstanceBuffer.get());
 
     // Append non-scissored meshes.
     int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*InstanceType;
@@ -791,8 +789,9 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        renderPass->setScissorRect(drawBounds);
-        processor.drawInstances(renderPass, instanceCount, baseInstance + startIdx);
+        flushState->setScissorRect(drawBounds);
+        processor.drawInstances(flushState->opsRenderPass(), instanceCount,
+                                baseInstance + startIdx);
     }
 
     // Append scissored meshes.
@@ -803,8 +802,9 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
         endIdx = subBatch.fEndInstances->*InstanceType;
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            renderPass->setScissorRect(subBatch.fScissor);
-            processor.drawInstances(renderPass, instanceCount, baseInstance + startIdx);
+            flushState->setScissorRect(subBatch.fScissor);
+            processor.drawInstances(flushState->opsRenderPass(), instanceCount,
+                                    baseInstance + startIdx);
             startIdx = endIdx;
         }
     }

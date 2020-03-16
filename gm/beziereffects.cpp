@@ -117,7 +117,7 @@ protected:
         }
 
         static constexpr int kOneMesh = 1;
-        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->bindPipeline(*fProgramInfo, chainBounds);
         flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMesh, kOneMesh);
     }
 

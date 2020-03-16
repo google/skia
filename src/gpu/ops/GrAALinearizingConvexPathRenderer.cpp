@@ -327,7 +327,7 @@ private:
             return;
         }
 
-        flushState->opsRenderPass()->bindPipeline(*fProgramInfo, chainBounds);
+        flushState->bindPipeline(*fProgramInfo, chainBounds);
         for (int i = 0; i < fMeshes.count(); ++i) {
             flushState->opsRenderPass()->drawMeshes(*fProgramInfo, fMeshes[i], 1);
         }

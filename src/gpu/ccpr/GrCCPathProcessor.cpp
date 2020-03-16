@@ -140,12 +140,11 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                               rtProxy->backendFormat(), flushState->outputView()->origin(),
                               &pipeline, this, nullptr, nullptr, 0, primitiveType);
 
-    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-    renderPass->bindPipeline(programInfo, bounds, flushState->scissorRectIfEnabled());
-    renderPass->bindTextures(*this, atlasProxy, pipeline);
-    renderPass->bindBuffers(resources.indexBuffer(), resources.instanceBuffer(),
+    flushState->bindPipelineAndScissorClip(programInfo, bounds);
+    flushState->bindTextures(*this, atlasProxy, pipeline);
+    flushState->bindBuffers(resources.indexBuffer(), resources.instanceBuffer(),
                             resources.vertexBuffer(), enablePrimitiveRestart);
-    renderPass->drawIndexedInstanced(numIndicesPerInstance, 0, endInstance - baseInstance,
+    flushState->drawIndexedInstanced(numIndicesPerInstance, 0, endInstance - baseInstance,
                                      baseInstance, 0);
 }
 
