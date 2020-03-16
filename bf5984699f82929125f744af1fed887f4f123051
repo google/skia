@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "551945d6_f51b92e7",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-16T19:59:53Z",
+      "side": 1,
+      "message": "Sigh, we need this cast?",
+      "range": {
+        "startLine": 21,
+        "startChar": 24,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78ff8e6d_631f49e7",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-16T19:59:53Z",
+      "side": 1,
+      "message": "Just for my info, so we\u0027re going to track wasted space as \"totalUsableSpace - totalSpaceInUse\" ?",
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "256b3a87_94c688c1",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 29
@@ -134,6 +174,23 @@
         "endLine": 312,
         "endChar": 84
       },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9159bab3_74271296",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-16T19:59:53Z",
+      "side": 1,
+      "message": "overlength",
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
