@@ -365,7 +365,7 @@ private:
     GrSamplerState::Filter fFilter;
     bool fWideColor;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;

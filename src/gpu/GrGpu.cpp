@@ -19,7 +19,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrPipeline.h"

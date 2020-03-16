@@ -190,7 +190,7 @@ private:
     SkSTArray<1, RegionInfo, true> fRegions;
     bool fWideColor;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;

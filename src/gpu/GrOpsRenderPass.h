@@ -15,7 +15,7 @@
 class GrOpFlushState;
 class GrFixedClip;
 class GrGpu;
-class GrMesh;
+class GrSimpleMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrProgramInfo;
@@ -87,7 +87,7 @@ public:
     //
     // NOTE: This method will soon be deleted. While it continues to exist, it takes care of calling
     // setScissor() and bindTextures() on the client's behalf.
-    void drawMeshes(const GrProgramInfo&, const GrMesh[], int meshCount);
+    void drawMeshes(const GrProgramInfo&, const GrSimpleMesh[], int meshCount);
 
     // These methods issue draws using the current pipeline state. Before drawing, the caller must
     // configure the pipeline and dynamic state:
