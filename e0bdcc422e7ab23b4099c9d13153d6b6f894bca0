@@ -16,6 +16,24 @@
       "revId": "e0bdcc422e7ab23b4099c9d13153d6b6f894bca0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3c830f6_3ff41334",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-03-16T15:38:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1aa5a88_1984d2c0",
+      "revId": "e0bdcc422e7ab23b4099c9d13153d6b6f894bca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
