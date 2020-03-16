@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dbe779b5_c6efdc5b",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-16T18:54:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "099c7b0a_48bf9a25",
+      "range": {
+        "startLine": 124,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 8
+      },
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d17f11a6_023dbc54",
         "filename": "tests/SkStrikeCacheTest.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "39a65e60_6c537d09",
+        "filename": "tests/SkStrikeCacheTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-16T18:54:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d17f11a6_023dbc54",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 12
+      },
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd65d984_824614d5",
         "filename": "tests/SkStrikeCacheTest.cpp",
         "patchSetId": 5
@@ -62,6 +110,24 @@
       "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f207b5a4_d9076b7c",
+        "filename": "tests/SkStrikeCacheTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-16T18:54:30Z",
+      "side": 1,
+      "message": "In the block,\n    SkASSERT(cache.getTotalMemoryUsed() \u003d\u003d 0);\njust like outside the block. The cache size maintenance happens just before returning the strike. The strike does not need to be part of the cache to be useful. As long as the code holds the ref, it can use the strike independently of the strike cache. And the strike will cache all the calculations done by the scaler. When you look up the same descriptor again, you will get a different strike.",
+      "parentUuid": "dd65d984_824614d5",
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
