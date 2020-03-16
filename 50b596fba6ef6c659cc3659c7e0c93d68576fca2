@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "455b32f9_f267ab8a",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-16T16:56:50Z",
+      "side": 1,
+      "message": "What I usually do to test locally is to replace this done with a null and then run `make js-test` This causes the test to freeze after running, which lets me visually inspect it.",
+      "range": {
+        "startLine": 241,
+        "startChar": 53,
+        "endLine": 241,
+        "endChar": 57
+      },
+      "revId": "50b596fba6ef6c659cc3659c7e0c93d68576fca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
