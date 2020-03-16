@@ -4,9 +4,15 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
-Milestone 82
+Milestone 83
 
 <Insert new notes here- top is most recent.>
+
+  * 
+
+* * *
+
+Milestone 82
 
   * Removed drawBitmap and related functions from SkDevice; all public drawBitmap functions on
     SkCanvas automatically wrap the bitmap in an SkImage and call the equivalent drawImage function.
