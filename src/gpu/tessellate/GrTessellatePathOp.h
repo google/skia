@@ -56,8 +56,8 @@ private:
     void onPrepare(GrOpFlushState* state) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    void drawStencilPass(GrOpFlushState*, const GrAppliedHardClip&);
-    void drawCoverPass(GrOpFlushState*, GrAppliedClip&&);
+    void drawStencilPass(GrOpFlushState*);
+    void drawCoverPass(GrOpFlushState*);
 
     const Flags fFlags;
     const SkMatrix fViewMatrix;
