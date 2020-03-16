@@ -961,6 +961,25 @@ CanvasKit.onRuntimeInitialized = function() {
     return pixels;
   }
 
+  // Returns a the save count of the canvas as an integer.
+  //
+  // This handles saveLayerRec, saveLayerRecBounds, and saveLayer calls.
+  //
+  // In particular, makes sure that we can pass null as the bounds parameter for
+  // saveLayer.
+  CanvasKit.SkCanvas.prototype.saveLayer = function(a, b, c, d) {
+    if (d) {
+      return CanvasKit._saveLayerRecBounds(a, b, c, d)
+    }
+    if (c) {
+      return CanvasKit._saveLayerRec(a, b, c);
+    }
+    var rectPtr = copy1dArray(a);
+    var saveCount = this._saveLayer(rectPtr, b);
+    CanvasKit._free(rectPtr);
+    return saveCount;
+  }
+
   // pixels is a TypedArray. No matter the input size, it will be treated as
   // a Uint8Array (essentially, a byte array).
   CanvasKit.SkCanvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,

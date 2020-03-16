@@ -1071,12 +1071,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
          // 2 params
-        .function("saveLayer", select_overload<int (const SkRect&, const SkPaint*)>(&SkCanvas::saveLayer),
-                               allow_raw_pointers())
+        .function("_saveLayer", optional_override([](SkCanvas& self,
+                                                     uintptr_t /* SkRect */ rectPtr,
+                                                     const SkPaint* paint) {
+            // See comment above for uintptr_t explanation
+            const SkRect* rect = reinterpret_cast<SkRect*>(rectPtr);
+            return self.saveLayer(rect, paint);
+        }), allow_raw_pointers())
          // 3 params (effectively with SaveLayerRec, but no bounds)
-        .function("saveLayer", saveLayerRec, allow_raw_pointers())
+        .function("_saveLayerRec", saveLayerRec, allow_raw_pointers())
          // 4 params (effectively with SaveLayerRec)
-        .function("saveLayer", saveLayerRecBounds, allow_raw_pointers())
+        .function("_saveLayerRecBounds", saveLayerRecBounds, allow_raw_pointers())
 
         .function("scale", &SkCanvas::scale)
         .function("skew", &SkCanvas::skew)
