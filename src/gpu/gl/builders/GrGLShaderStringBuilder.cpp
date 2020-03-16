@@ -14,8 +14,8 @@
 #include "src/sksl/ir/SkSLProgram.h"
 
 // Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
-static const bool gPrintGLSL = false;
+static const bool gPrintSKSL = true;
+static const bool gPrintGLSL = true;
 
 void print_shader_banner(SkSL::Program::Kind programKind) {
     const char* typeName = "Unknown";
