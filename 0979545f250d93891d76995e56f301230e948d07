@@ -16,6 +16,24 @@
       "revId": "0979545f250d93891d76995e56f301230e948d07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9943f370_a047cb62",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-16T17:52:00Z",
+      "side": 1,
+      "message": "Added getRecipeProps() which folds in the props() function above as well as the properties listed here, and handles setting to nil.  I think it\u0027s wrapped up nicely now, and the docstrings should make things clear.",
+      "parentUuid": "1cc3ae77_90a06138",
+      "revId": "0979545f250d93891d76995e56f301230e948d07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
