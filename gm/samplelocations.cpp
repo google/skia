@@ -290,11 +290,9 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-        renderPass->bindPipeline(*fProgramInfo, SkRect::MakeIWH(200, 200),
-                                 flushState->scissorRectIfEnabled());
-        renderPass->bindBuffers(nullptr, nullptr, nullptr);
-        renderPass->drawInstanced(200*200, 0, 4, 0);
+        flushState->bindPipelineAndScissorClip(*fProgramInfo, SkRect::MakeIWH(200, 200));
+        flushState->bindBuffers(nullptr, nullptr, nullptr);
+        flushState->drawInstanced(200*200, 0, 4, 0);
     }
 
     const GradType fGradType;
