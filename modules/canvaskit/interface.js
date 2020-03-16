@@ -1120,6 +1120,33 @@ CanvasKit.onRuntimeInitialized = function() {
     return rgs;
   }
 
+  CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle) {
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    flags = flags || 0;
+    startAngle = startAngle || 0;
+    endAngle = endAngle || 360;
+    localMatrix = localMatrix || [
+                                   1, 0, 0,
+                                   0, 1, 0,
+                                   0, 0, 1,
+                                 ];
+
+    // Add perspective args if not provided.
+    if (localMatrix.length === 6) {
+      localMatrix.push(0, 0, 1);
+    }
+
+    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
+                                                  colors.length, mode,
+                                                  startAngle, endAngle, flags,
+                                                  localMatrix);
+
+    CanvasKit._free(colorPtr);
+    CanvasKit._free(posPtr);
+    return sgs;
+  }
+
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                          colors, pos, mode, localMatrix, flags) {
     var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
