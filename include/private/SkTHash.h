@@ -134,26 +134,6 @@ public:
         }
     }
 
-    // Call fn on every entry in the table. Fn can return false to remove the entry. You may mutate
-    // the entries, but be very careful.
-    template <typename Fn>  // f(T*)
-    void mutate(Fn&& fn) {
-        for (int i = 0; i < fCapacity;) {
-            bool keep = true;
-            if (!fSlots[i].empty()) {
-                keep = fn(&fSlots[i].val);
-            }
-            if (keep) {
-                i++;
-            } else {
-                this->removeSlot(i);
-                // Something may now have moved into slot i, so we'll loop
-                // around to check slot i again.
-            }
-        }
-        // TODO: shrink table capacity like in remove()?
-    }
-
 private:
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
@@ -324,13 +304,6 @@ public:
     template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
     void foreach(Fn&& fn) const {
         fTable.foreach([&fn](const Pair& p){ fn(p.key, p.val); });
-    }
-
-    // Call fn on every key/value pair in the table. Fn may return false to remove the entry. You
-    // may mutate the value but not the key.
-    template <typename Fn>  // f(K, V*) or f(const K&, V*)
-    void mutate(Fn&& fn) {
-        fTable.mutate([&fn](Pair* p) { return fn(p->key, &p->val); });
     }
 
 private:
