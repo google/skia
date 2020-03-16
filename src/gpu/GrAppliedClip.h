@@ -21,14 +21,16 @@
  */
 class GrAppliedHardClip {
 public:
+    static const GrAppliedHardClip& Disabled() {
+        static GrAppliedHardClip kDisabled;
+        return kDisabled;
+    }
+
     GrAppliedHardClip() = default;
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
     GrAppliedHardClip(const GrAppliedHardClip&) = delete;
 
     const GrScissorState& scissorState() const { return fScissorState; }
-    const SkIRect* scissorRectIfEnabled() const {
-        return fScissorState.enabled() ? &fScissorState.rect() : nullptr;
-    }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     uint32_t stencilStackID() const { return fStencilStackID; }
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fStencilStackID; }
@@ -84,7 +86,6 @@ public:
     GrAppliedClip(const GrAppliedClip&) = delete;
 
     const GrScissorState& scissorState() const { return fHardClip.scissorState(); }
-    const SkIRect* scissorRectIfEnabled() const { return fHardClip.scissorRectIfEnabled(); }
     const GrWindowRectsState& windowRectsState() const { return fHardClip.windowRectsState(); }
     uint32_t stencilStackID() const { return fHardClip.stencilStackID(); }
     bool hasStencilClip() const { return fHardClip.hasStencilClip(); }
@@ -98,6 +99,7 @@ public:
         return std::move(fClipCoverageFPs[i]);
     }
 
+    const GrAppliedHardClip& hardClip() const { return fHardClip; }
     GrAppliedHardClip& hardClip() { return fHardClip; }
 
     void addCoverageFP(std::unique_ptr<GrFragmentProcessor> fp) {
