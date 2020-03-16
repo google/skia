@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "120edb2f_49d4047f",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-16T17:40:15Z",
+      "side": 1,
+      "message": "This can be !\u003d \u0027\u0027 now? (or maybe better to handle this during skps\u003d/path/to/skps change)",
+      "range": {
+        "startLine": 33,
+        "startChar": 40,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "ecaf802b7cb8613f92e37b53f8ef61e4b47a7ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
