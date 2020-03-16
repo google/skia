@@ -154,10 +154,9 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
                               flushState->outputView()->origin(), &resolvePipeline, &primProc,
                               nullptr, nullptr, 0, GrPrimitiveType::kTriangleStrip);
 
-    flushState->opsRenderPass()->bindPipeline(programInfo, SkRect::Make(drawBoundsRect));
-    flushState->opsRenderPass()->setScissorRect(drawBoundsRect);
-    flushState->opsRenderPass()->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);
-    flushState->opsRenderPass()->drawInstanced(
-            fEndStencilResolveInstance - fBaseStencilResolveInstance, fBaseStencilResolveInstance,
-            4, 0);
+    flushState->bindPipeline(programInfo, SkRect::Make(drawBoundsRect));
+    flushState->setScissorRect(drawBoundsRect);
+    flushState->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);
+    flushState->drawInstanced(fEndStencilResolveInstance - fBaseStencilResolveInstance,
+                              fBaseStencilResolveInstance, 4, 0);
 }
