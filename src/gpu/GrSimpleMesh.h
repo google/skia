@@ -18,11 +18,7 @@ class GrPrimitiveProcessor;
  * Used to communicate simple (non-instanced, direct) draws from GrOp to GrOpsRenderPass.
  * TODO: Consider migrating every Op to make the appropriate draw directly on GrOpsRenderPass.
  */
-class GrSimpleMesh {
-public:
-    const GrBuffer* indexBuffer() const { return fIndexBuffer.get(); }
-    const GrBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
-
+struct GrSimpleMesh {
     void set(sk_sp<const GrBuffer> vertexBuffer, int vertexCount, int baseVertex);
     void setIndexed(sk_sp<const GrBuffer> indexBuffer, int indexCount, int baseIndex,
                     uint16_t minIndexValue, uint16_t maxIndexValue, GrPrimitiveRestart,
@@ -32,9 +28,6 @@ public:
                              sk_sp<const GrBuffer> vertexBuffer, int patternVertexCount,
                              int baseVertex);
 
-    void draw(GrOpsRenderPass*) const;
-
-private:
     sk_sp<const GrBuffer> fIndexBuffer;
     int fIndexCount;
     int fPatternRepeatCount;
@@ -100,26 +93,6 @@ inline void GrSimpleMesh::setIndexedPatterned(
     fVertexBuffer = std::move(vertexBuffer);
     fBaseVertex = baseVertex;
     SkDEBUGCODE(fIsInitialized = true;)
-}
-
-inline void GrSimpleMesh::draw(GrOpsRenderPass* opsRenderPass) const {
-    SkASSERT(fIsInitialized);
-
-    if (!fIndexBuffer) {
-        opsRenderPass->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
-        opsRenderPass->draw(fVertexCount, fBaseVertex);
-    } else {
-        opsRenderPass->bindBuffers(fIndexBuffer.get(), nullptr, fVertexBuffer.get(),
-                                   fPrimitiveRestart);
-        if (0 == fPatternRepeatCount) {
-            opsRenderPass->drawIndexed(fIndexCount, fBaseIndex, fMinIndexValue, fMaxIndexValue,
-                                       fBaseVertex);
-        } else {
-            opsRenderPass->drawIndexPattern(fIndexCount, fPatternRepeatCount,
-                                            fMaxPatternRepetitionsInIndexBuffer, fVertexCount,
-                                            fBaseVertex);
-        }
-    }
 }
 
 #endif
