@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d9d9b56_02f5bc92",
+        "filename": "src/gpu/GrProgramInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-16T19:05:10Z",
+      "side": 0,
+      "message": "Can\u0027t we also remove this and \u0027fFixedDynamicState\u0027 ?",
+      "range": {
+        "startLine": 122,
+        "startChar": 18,
+        "endLine": 122,
+        "endChar": 42
+      },
+      "revId": "2356227f0436f62ab0948d9cf7e1ed6df7d73ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
