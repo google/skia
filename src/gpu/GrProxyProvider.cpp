@@ -843,6 +843,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
 
 void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
                                               InvalidateGPUResource invalidateGPUResource) {
+    this->processInvalidUniqueKeyImpl(key, proxy, invalidateGPUResource, RemoveTableEntry::kYes);
+}
+
+void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrTextureProxy* proxy,
+                                                  InvalidateGPUResource invalidateGPUResource,
+                                                  RemoveTableEntry removeTableEntry) {
     SkASSERT(key.isValid());
 
     if (!proxy) {
@@ -865,7 +871,9 @@ void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureP
     // Note: this method is called for the whole variety of GrGpuResources so often 'key'
     // will not be in 'fUniquelyKeyedProxies'.
     if (proxy) {
-        fUniquelyKeyedProxies.remove(key);
+        if (removeTableEntry == RemoveTableEntry::kYes) {
+            fUniquelyKeyedProxies.remove(key);
+        }
         proxy->cacheAccess().clearUniqueKey();
     }
 
@@ -897,13 +905,15 @@ void GrProxyProvider::orphanAllUniqueKeys() {
 }
 
 void GrProxyProvider::removeAllUniqueKeys() {
-    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
-        GrTextureProxy& tmp = *iter;
-
-        this->processInvalidUniqueKey(tmp.getUniqueKey(), &tmp, InvalidateGPUResource::kNo);
-    }
-    SkASSERT(!fUniquelyKeyedProxies.count());
+    fUniquelyKeyedProxies.foreach([&](GrTextureProxy* proxy){
+        // It's not safe to remove table entries while iterating with foreach(),
+        // but since we're going to remove them all anyway, simply save that for the end.
+        this->processInvalidUniqueKeyImpl(proxy->getUniqueKey(), proxy,
+                                          InvalidateGPUResource::kNo,
+                                          RemoveTableEntry::kNo);
+    });
+    // Removing all those table entries is safe now.
+    fUniquelyKeyedProxies.reset();
 }
 
 bool GrProxyProvider::renderingDirectly() const {
