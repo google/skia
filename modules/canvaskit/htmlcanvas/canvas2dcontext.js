@@ -79,7 +79,7 @@ function CanvasRenderingContext2D(skcanvas) {
   Object.defineProperty(this, 'fillStyle', {
     enumerable: true,
     get: function() {
-      if (Number.isInteger(this._fillStyle)) {
+      if (isCanvasKitColor(this._fillStyle)) {
         return colorToString(this._fillStyle);
       }
       return this._fillStyle;
@@ -632,7 +632,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._fillPaint = function() {
     var paint = this._paint.copy();
     paint.setStyle(CanvasKit.PaintStyle.Fill);
-    if (Number.isInteger(this._fillStyle)) {
+    if (isCanvasKitColor(this._fillStyle)) {
       var alphaColor = CanvasKit.multiplyByAlpha(this._fillStyle, this._globalAlpha);
       paint.setColor(alphaColor);
     } else {
@@ -1047,7 +1047,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._strokePaint = function() {
     var paint = this._paint.copy();
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
-    if (Number.isInteger(this._strokeStyle)) {
+    if (isCanvasKitColor(this._strokeStyle)) {
       var alphaColor = CanvasKit.multiplyByAlpha(this._strokeStyle, this._globalAlpha);
       paint.setColor(alphaColor);
     } else {
