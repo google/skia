@@ -128,6 +128,24 @@
       "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db7ff299_48444bf4",
+        "filename": "tests/SkStrikeCacheTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-16T18:58:14Z",
+      "side": 1,
+      "message": "Ah, right!  Thanks, that and the new assert both help.",
+      "parentUuid": "f207b5a4_d9076b7c",
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
