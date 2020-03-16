@@ -255,7 +255,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     } else if (cached) {
         ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_hit");
         SkReader32 reader(fCached->data(), fCached->size());
-        SkFourByteTag shaderType = reader.readU32();
+        SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
 
         switch (shaderType) {
             case kGLPB_Tag: {
@@ -562,7 +562,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
                                            GrGLGpu* gpu,
                                            const SkData& cachedData) {
     SkReader32 reader(cachedData.data(), cachedData.size());
-    SkFourByteTag shaderType = reader.readU32();
+    SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
     if (shaderType != kSKSL_Tag) {
         // TODO: Support GLSL, and maybe even program binaries, too?
         return false;
