@@ -208,6 +208,40 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    it('can draw a sweep gradient', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            const shader = CanvasKit.SkShader.MakeSweepGradient(
+                100,
+                100,
+                [0xFF00FF00, 0xFF0000FF],
+                [0.0, 1.0],
+                CanvasKit.TileMode.Clamp,
+            );
+            expect(shader).toBeTruthy('Could not make shader');
+            if (!shader) {
+                done();
+                return;
+            }
+
+            paint.setShader(shader);
+            canvas.drawPaint(paint);
+            surface.flush();
+
+            paint.delete();
+            shader.delete();
+
+            reportSurface(surface, 'sweep_gradient', done);
+        }));
+    });
+
     it('can blur using ImageFilter or MaskFilter', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
