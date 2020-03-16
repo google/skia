@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cc3ae77_90a06138",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-03-16T17:18:32Z",
+      "side": 1,
+      "message": "Why does this need to be nil? (document in method and/or somewhere else)",
+      "revId": "0979545f250d93891d76995e56f301230e948d07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
