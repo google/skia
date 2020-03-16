@@ -2486,6 +2486,50 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView37 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph37"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const char* text = "PESTO";
+        canvas->drawColor(SK_ColorWHITE);
+
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextAlign(TextAlign::kCenter);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(48);
+        text_style.setFontStyle(SkFontStyle::Bold());
+        text_style.setLetterSpacing(3);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        auto w = width() / 2;
+        paragraph->layout(w);
+        paragraph->paint(canvas, 0, 0);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth() / 2, paragraph->getHeight()), paint);
+        SkDebugf("widths: %f %f %f %f\n",
+                paragraph->getMaxWidth(),
+                paragraph->getMinIntrinsicWidth(),
+                paragraph->getMaxIntrinsicWidth(),
+                paragraph->getLongestLine()
+                );
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //"\U0001f469\u200D\U0001f469\u200D\U0001f466\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467\U0001f1fa\U0001f1f8"
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
@@ -2523,3 +2567,4 @@ DEF_SAMPLE(return new ParagraphView33();)
 DEF_SAMPLE(return new ParagraphView34();)
 DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
+DEF_SAMPLE(return new ParagraphView37();)
