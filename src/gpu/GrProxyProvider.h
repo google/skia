@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrResourceKey.h"
-#include "src/core/SkTDynamicHash.h"
+#include "include/private/SkTHash.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrImageContext;
@@ -262,6 +262,10 @@ private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
 
+    // processInvalidUniqueKey(), returning whether the table entry should be kept,
+    // making this compatible with SkTHashTable::mutate() to remove the entries for us safely.
+    bool processInvalidUniqueKeyImpl(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
+
     bool isAbandoned() const;
 
     /*
@@ -283,11 +287,13 @@ private:
                                         UseAllocator useAllocator);
 
     struct UniquelyKeyedProxyHashTraits {
-        static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
+        static const GrUniqueKey& GetKey(const GrTextureProxy* p) { return p->getUniqueKey(); }
 
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
-    typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
+
+    using UniquelyKeyedProxyHash =
+        SkTHashTable<GrTextureProxy*, GrUniqueKey, UniquelyKeyedProxyHashTraits>;
 
     // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
     // on these proxies but they must send a message to the resourceCache when they are deleted.
