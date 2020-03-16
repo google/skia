@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "099c7b0a_48bf9a25",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-16T18:44:02Z",
+      "side": 1,
+      "message": "Might as well write sk_sp\u003cSkStrike\u003e?",
+      "range": {
+        "startLine": 124,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 8
+      },
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d17f11a6_023dbc54",
+        "filename": "tests/SkStrikeCacheTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-16T18:44:02Z",
+      "side": 1,
+      "message": "A naive reader of these tests might not know that this is a scoped thing we\u0027re returning?  auto\u0027s kind of hiding the important part?",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 12
+      },
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd65d984_824614d5",
+        "filename": "tests/SkStrikeCacheTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-16T18:44:02Z",
+      "side": 1,
+      "message": "Does it help demonstrate what\u0027s going on even more to add a\n\n  SkASSERT(cache.getTotalMemoryUsed() \u003e 0);\n\nbefore closing the block?",
+      "revId": "f147454260f3f9ac28953d3df5f9018f040a4d4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
