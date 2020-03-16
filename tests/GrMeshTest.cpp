@@ -79,10 +79,11 @@ struct Box {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * This is a GPU-backend specific test. It tries to test all possible usecases of GrMesh. The test
- * works by drawing checkerboards of colored boxes, reading back the pixels, and comparing with
- * expected results. The boxes are drawn on integer boundaries and the (opaque) colors are chosen
- * from the set (r,g,b) = (0,255)^3, so the GPU renderings ought to produce exact matches.
+ * This is a GPU-backend specific test. It tries to test all possible usecases of
+ * GrOpsRenderPass::draw*. The test works by drawing checkerboards of colored boxes, reading back
+ * the pixels, and comparing with expected results. The boxes are drawn on integer boundaries and
+ * the (opaque) colors are chosen from the set (r,g,b) = (0,255)^3, so the GPU renderings ought to
+ * produce exact matches.
  */
 
 static void run_test(GrContext* context, const char* testName, skiatest::Reporter*,

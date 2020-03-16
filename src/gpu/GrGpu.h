@@ -27,7 +27,6 @@ class GrGpuBuffer;
 class GrContext;
 struct GrContextOptions;
 class GrGLContext;
-class GrMesh;
 class GrPath;
 class GrPathRenderer;
 class GrPathRendererChain;

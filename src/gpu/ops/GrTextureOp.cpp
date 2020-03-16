@@ -682,7 +682,7 @@ private:
     }
 
     static bool FillInData(const GrCaps& caps, TextureOp* texOp, PrePreparedDesc* desc,
-                           char* pVertexData, GrMesh* meshes, int absBufferOffset,
+                           char* pVertexData, GrSimpleMesh* meshes, int absBufferOffset,
                            sk_sp<const GrBuffer> vertexBuffer,
                            sk_sp<const GrBuffer> indexBuffer) {
         int totQuadsSeen = 0;
@@ -898,7 +898,7 @@ private:
         }
 
         // Note: this allocation is always in the flush-time arena (i.e., the flushState)
-        GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
+        GrSimpleMesh* meshes = target->allocMeshes(desc.fNumProxies);
 
         bool result;
         if (fPrePreparedDesc) {

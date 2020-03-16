@@ -22,7 +22,6 @@ GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
 }
 
 #ifdef SK_DEBUG
-#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
 void GrProgramInfo::validate(bool flushTime) const {

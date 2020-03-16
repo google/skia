@@ -11,7 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include <type_traits>
 
@@ -60,7 +60,7 @@ protected:
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
-        GrMesh* mesh() { return fMesh; }
+        GrSimpleMesh* mesh() { return fMesh; }
 
     protected:
         PatternHelper() = default;
@@ -70,7 +70,7 @@ protected:
 
     private:
         void* fVertices = nullptr;
-        GrMesh* fMesh = nullptr;
+        GrSimpleMesh* fMesh = nullptr;
         GrPrimitiveType fPrimitiveType;
     };
 
@@ -132,18 +132,18 @@ public:
 
     /** Adds a draw of a mesh. */
     virtual void recordDraw(const GrGeometryProcessor*,
-                            const GrMesh[],
+                            const GrSimpleMesh[],
                             int meshCnt,
                             const GrPipeline::FixedDynamicState*,
                             const GrPipeline::DynamicStateArrays*,
                             GrPrimitiveType) = 0;
 
     /**
-     * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
-     * scissor clip.
+     * Helper for drawing GrSimpleMesh(es) with zero primProc textures and no dynamic state besides
+     * the scissor clip.
      */
     void recordDraw(const GrGeometryProcessor* gp,
-                    const GrMesh meshes[],
+                    const GrSimpleMesh meshes[],
                     int meshCnt,
                     GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
@@ -190,8 +190,8 @@ public:
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
-    GrMesh* allocMesh() { return this->allocator()->make<GrMesh>(); }
-    GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
+    GrSimpleMesh* allocMesh() { return this->allocator()->make<GrSimpleMesh>(); }
+    GrSimpleMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrSimpleMesh>(n); }
 
     static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
                                                                    int numMeshes,

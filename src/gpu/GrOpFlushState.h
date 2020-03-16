@@ -116,7 +116,7 @@ public:
 
     /** Overrides of GrMeshDrawOp::Target. */
     void recordDraw(const GrGeometryProcessor*,
-                    const GrMesh[],
+                    const GrSimpleMesh[],
                     int meshCnt,
                     const GrPipeline::FixedDynamicState*,
                     const GrPipeline::DynamicStateArrays*,
@@ -175,7 +175,7 @@ private:
         const GrGeometryProcessor* fGeometryProcessor = nullptr;
         const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
-        const GrMesh* fMeshes = nullptr;
+        const GrSimpleMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
         GrPrimitiveType fPrimitiveType;

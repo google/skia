@@ -1490,7 +1490,7 @@ private:
     bool fRoundCaps;
     bool fWideColor;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
@@ -1798,7 +1798,7 @@ private:
     int fIndexCount;
     bool fWideColor;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
@@ -2080,7 +2080,7 @@ private:
     bool fUseScale;
     SkSTArray<1, Ellipse, true> fEllipses;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
@@ -2348,7 +2348,7 @@ private:
     bool fUseScale;
     SkSTArray<1, Ellipse, true> fEllipses;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
@@ -2808,7 +2808,7 @@ private:
     bool fWideColor;
     SkSTArray<1, RRect, true> fRRects;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;
@@ -3117,7 +3117,7 @@ private:
     bool fUseScale;
     SkSTArray<1, RRect, true> fRRects;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;

@@ -833,7 +833,7 @@ private:
             GrVertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
-            GrMesh* meshes = target->allocMeshes(draws.count());
+            GrSimpleMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
                 meshes[j].setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0,
@@ -886,8 +886,8 @@ private:
     bool fWideColor;
 
     struct MeshDraw {
-        GrMesh* fMeshes;
-        int     fMeshCount;
+        GrSimpleMesh* fMeshes;
+        int fMeshCount;
     };
 
     SkTDArray<MeshDraw> fDraws;

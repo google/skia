@@ -450,7 +450,7 @@ private:
     GrQuadBuffer<ColorAndAA> fQuads;
     char* fPrePreparedVertices = nullptr;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
     ColorType      fColorType;
 

@@ -32,7 +32,7 @@ class GrRenderTargetContext;
 /**
  * This immutable object contains information needed to set build a shader program and set API
  * state for a draw. It is used along with a GrPrimitiveProcessor and a source of geometric
- * data (GrMesh or GrPath) to draw.
+ * data to draw.
  */
 class GrPipeline {
 public:
@@ -92,7 +92,7 @@ public:
 
     /**
      * Any non-null array overrides the FixedDynamicState on a mesh-by-mesh basis. Arrays must
-     * have one entry for each GrMesh.
+     * have one entry for each GrSimpleMesh.
      */
     struct DynamicStateArrays {
         const SkIRect* fScissorRects = nullptr;

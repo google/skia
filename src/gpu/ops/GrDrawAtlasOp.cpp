@@ -83,7 +83,7 @@ private:
     int fQuadCount;
     bool fHasColors;
 
-    GrMesh*        fMesh = nullptr;
+    GrSimpleMesh* fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
     typedef GrMeshDrawOp INHERITED;

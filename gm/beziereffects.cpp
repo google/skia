@@ -127,7 +127,7 @@ protected:
     const SkPMColor4f& color() const { return fColor; }
 
 protected:
-    GrMesh*              fMesh = nullptr;  // filled in by the derived classes
+    GrSimpleMesh*        fMesh = nullptr;  // filled in by the derived classes
 
 private:
     SkRect               fRect;

@@ -121,7 +121,7 @@ private:
     // If this op is prePrepared the created programInfo will be stored here for use in
     // onExecute. In the prePrepared case it will have been stored in the record-time arena.
     GrProgramInfo* fProgramInfo = nullptr;
-    GrMesh*        fMesh        = nullptr;
+    GrSimpleMesh*  fMesh        = nullptr;
 
     friend class ::GrOpMemoryPool;
 };

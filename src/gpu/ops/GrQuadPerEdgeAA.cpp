@@ -392,7 +392,7 @@ int QuadLimit(IndexBufferOption option) {
     SkUNREACHABLE;
 }
 
-void ConfigureMesh(const GrCaps& caps, GrMesh* mesh, const VertexSpec& spec,
+void ConfigureMesh(const GrCaps& caps, GrSimpleMesh* mesh, const VertexSpec& spec,
                    int runningQuadCount, int quadsInDraw, int maxVerts,
                    sk_sp<const GrBuffer> vertexBuffer,
                    sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset) {
