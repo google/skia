@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62f18cb8_d39fc5ce",
+        "filename": "src/gpu/GrPersistentCacheUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-16T21:00:06Z",
+      "side": 1,
+      "message": "Under what conditions do we change this?\n\nThis feels to me like the first step down the road of ANGLE-style embedding the git hash into the code.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 41
+      },
+      "revId": "05ddf58d2a767278b0c2c9f17e0531fbf44472cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
