@@ -91,6 +91,30 @@
       "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eaafa57_b4c0c9f3",
+        "filename": "OWNERS.android",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-03-16T18:42:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a4695f5f_2f97984b",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "74c68008dc1bed7118717519779ac15822ea62ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
