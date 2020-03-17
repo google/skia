@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da21e2f4_b91cfa6f",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-03-17T16:29:46Z",
+      "side": 1,
+      "message": "nit: document that this means the rect will be null and the current effective clip will be used.",
+      "revId": "0d95bddbacce863be628adb46a9122839a9f1890",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
