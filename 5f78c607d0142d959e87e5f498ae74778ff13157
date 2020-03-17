@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "b381969f_e90d3741",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T16:42:46Z",
+      "side": 1,
+      "message": "The longer answer is that all the ops will require a reset method that releases all the resources locked in either onPrepare or onExecute.",
+      "parentUuid": "aa8684cd_ebc2f65b",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c0dd28_b5f51afe",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
