@@ -182,9 +182,10 @@ namespace GrQuadPerEdgeAA {
     // What is the maximum number of quads allowed for the specified indexBuffer option?
     int QuadLimit(IndexBufferOption);
 
-    // This method will configure the vertex and index data of the provided 'mesh' to comply
-    // with the indexing method specified in the vertexSpec. It is up to the calling code
-    // to allocate and fill in the vertex data and acquire the correct indexBuffer if it is needed.
+    // This method will issue the draw call on the provided GrOpsRenderPass, as specified by the
+    // indexing method in vertexSpec. It is up to the calling code to allocate, fill in, and bind a
+    // vertex buffer, and to acquire and bind the correct index buffer (if needed) with
+    // GrPrimitiveRestart::kNo.
     //
     // @param runningQuadCount  the number of quads already stored in 'vertexBuffer' and
     //                          'indexBuffer' e.g., different GrMeshes have already been placed in
@@ -192,9 +193,8 @@ namespace GrQuadPerEdgeAA {
     // @param quadCount         the number of quads that will be drawn by the provided 'mesh'.
     //                          A subsequent ConfigureMesh call would the use
     //                          'runningQuadCount' + 'quadCount' for its new 'runningQuadCount'.
-    void ConfigureMesh(const GrCaps&, GrSimpleMesh*, const VertexSpec&, int runningQuadCount,
-                       int quadCount, int maxVerts, sk_sp<const GrBuffer> vertexBuffer,
-                       sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset);
+    void IssueDraw(const GrCaps&, GrOpsRenderPass*, const VertexSpec&, int runningQuadCount,
+                   int quadCount, int maxVerts, int absVertBufferOffset);
 
 } // namespace GrQuadPerEdgeAA
 
