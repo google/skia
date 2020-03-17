@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b04a53e7_7da15e1f",
+        "filename": "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T20:15:12Z",
+      "side": 1,
+      "message": "If you don\u0027t specify a specific renderer ID, it will pick the default for the display, which can be the integrated GPU. It \"allows\" offline renderers, but doesn\u0027t force it. And the only eGPUs allowed are AMD. Apple has pretty much cut off NVIDIA entirely.",
+      "parentUuid": "113b6768_317ccae4",
+      "range": {
+        "startLine": 56,
+        "startChar": 52,
+        "endLine": 56,
+        "endChar": 80
+      },
+      "revId": "5507d0105de79726d46255e04a60f4cf2728624f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39cfb8ee_2b3a0596",
         "filename": "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "5507d0105de79726d46255e04a60f4cf2728624f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "557239f4_92d13c85",
+        "filename": "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T20:15:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39cfb8ee_2b3a0596",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 44
+      },
+      "revId": "5507d0105de79726d46255e04a60f4cf2728624f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
