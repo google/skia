@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39bfa69d_6cfd5033",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T20:15:13Z",
+      "side": 1,
+      "message": "Are these still getting unreffed somewhere?",
+      "range": {
+        "startLine": 496,
+        "startChar": 48,
+        "endLine": 496,
+        "endChar": 51
+      },
+      "revId": "cd16e762b0b6abeb028a7fcc5939ae99b2001a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
