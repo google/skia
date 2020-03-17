@@ -119,7 +119,7 @@ public:
     void recordDraw(const GrGeometryProcessor*,
                     const GrSimpleMesh[],
                     int meshCnt,
-                    const GrPipeline::FixedDynamicState*,
+                    const GrSurfaceProxy* const primProcProxies[],
                     GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
@@ -237,7 +237,8 @@ private:
         // the stack (for CCPR). In either case this object does not need to manage its
         // lifetime.
         const GrGeometryProcessor* fGeometryProcessor = nullptr;
-        const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+        const GrSurfaceProxy* const* fPrimProcProxies = nullptr;
         const GrSimpleMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
