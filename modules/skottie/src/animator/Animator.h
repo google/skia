@@ -20,6 +20,7 @@ namespace skottie {
 namespace internal {
 
 class AnimationBuilder;
+class KeyframeAnimatorBuilder;
 
 class AnimatablePropertyContainer : public sksg::Animator {
 public:
@@ -45,6 +46,11 @@ protected:
 
 private:
     void onTick(float) final;
+
+    bool bindImpl(const AnimationBuilder&,
+                  const skjson::ObjectValue*,
+                  KeyframeAnimatorBuilder&,
+                  void*);
 
     sksg::AnimatorList fAnimators;
 };

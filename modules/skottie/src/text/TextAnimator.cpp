@@ -10,8 +10,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkNx.h"
-#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/RangeSelector.h"
 #include "src/utils/SkJSON.h"
 

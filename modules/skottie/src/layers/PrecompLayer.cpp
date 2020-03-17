@@ -7,10 +7,10 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
-#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "src/core/SkTLazy.h"
