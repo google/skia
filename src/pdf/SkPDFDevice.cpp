@@ -100,6 +100,10 @@ private:
 
 // Utility functions
 
+static SkString to_string(const SkData& d) {
+    return SkString(static_cast<const char*>(d.data()), d.size() - 1);
+}
+
 static SkPath to_path(const SkRect& r) {
     SkPath p;
     p.addRect(r);
@@ -367,13 +371,17 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (transformedRect.isEmpty()) {
         return;
     }
+    std::unique_ptr<SkPDFLink> link = std::make_unique<SkPDFLink>();
+    link->fRect = transformedRect;
+    link->fNodeId = fNodeId;
     if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        fDocument->fCurrentPageLinkToURLs.push_back(
-                std::make_pair(sk_ref_sp(value), transformedRect));
+        link->fUrl = to_string(*value);
     } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        fDocument->fCurrentPageLinkToDestinations.emplace_back(
-                std::make_pair(sk_ref_sp(value), transformedRect));
+        link->fNamedDestination = to_string(*value);
+    } else {
+        return;
     }
+    fDocument->fCurrentPageLinks.push_back(std::move(link));
 }
 
 void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
