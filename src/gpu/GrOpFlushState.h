@@ -120,7 +120,6 @@ public:
                     const GrSimpleMesh[],
                     int meshCnt,
                     const GrPipeline::FixedDynamicState*,
-                    const GrPipeline::DynamicStateArrays*,
                     GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
@@ -239,7 +238,6 @@ private:
         // lifetime.
         const GrGeometryProcessor* fGeometryProcessor = nullptr;
         const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
-        const GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
         const GrSimpleMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;

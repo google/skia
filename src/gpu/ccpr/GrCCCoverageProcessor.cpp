@@ -200,7 +200,7 @@ void GrCCCoverageProcessor::bindPipeline(GrOpFlushState* flushState, const GrPip
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
-                              flushState->outputView()->origin(), &pipeline, this, nullptr, nullptr,
-                              0, this->primType());
+                              flushState->outputView()->origin(), &pipeline, this, nullptr,
+                              this->primType());
     flushState->bindPipeline(programInfo, drawBounds);
 }
