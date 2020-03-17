@@ -27,7 +27,21 @@ public:
             device = sharedContextImpl->device();
             queue = sharedContextImpl->queue();
         } else {
-            device = MTLCreateSystemDefaultDevice();
+            NSArray<id <MTLDevice>>* availableDevices = MTLCopyAllDevices();
+            // Choose the non-integrated CPU if available
+            for (id<MTLDevice> dev in availableDevices) {
+                if (!dev.isLowPower) {
+                    device = dev;
+                    break;
+                }
+                if (dev.isRemovable) {
+                    device = dev;
+                    break;
+                }
+            }
+            if (!device) {
+                device = MTLCreateSystemDefaultDevice();
+            }
             queue = [device newCommandQueue];
         }
 
