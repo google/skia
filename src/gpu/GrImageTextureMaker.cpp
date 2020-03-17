@@ -24,16 +24,17 @@ static GrImageInfo get_image_info(GrRecordingContext* context, const SkImage* cl
     return {ct, client->alphaType(), client->refColorSpace(), client->dimensions()};
 }
 
-GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                                         SkImage::CachingHint chint)
+GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context,
+                                         const SkImage* client,
+                                         GrImageTexGenPolicy texGenPolicy)
         : INHERITED(context, get_image_info(context, client))
         , fImage(static_cast<const SkImage_Lazy*>(client))
-        , fCachingHint(chint) {
+        , fTexGenPolicy(texGenPolicy) {
     SkASSERT(client->isLazyGenerated());
 }
 
 GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(GrMipMapped mipMapped) {
-    return fImage->lockTextureProxyView(this->context(), fCachingHint, mipMapped);
+    return fImage->lockTextureProxyView(this->context(), fTexGenPolicy, mipMapped);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

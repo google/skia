@@ -1035,18 +1035,26 @@ public:
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
         mipMapped setting; if mipMapped equals GrMipMapped::kYes, the backing texture
-        allocates mip map levels. Returns original SkImage if context
-        and dstColorSpace match and mipMapped is compatible with backing GPU texture.
+        allocates mip map levels.
+
+        The mipMapped parameter is effectively treated as kNo if MIP maps are not supported by the
+        GPU.
+
+        Returns original SkImage if the image is already texture-backed, the context matches, and
+        mipMapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrContext.
 
-        @param context        GPU context
-        @param dstColorSpace  range of colors of matching SkSurface on GPU
-        @param mipMapped      whether created SkImage texture must allocate mip map levels
+        @param GrContext      GPU context
+        @param GrMipMapped    whether created SkImage texture must allocate mip map levels
+        @param SkBudgeted     whether to count a newly created texture for the returned image
+                              counts against the GrContext's budget.
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, GrMipMapped = GrMipMapped::kNo) const;
+    sk_sp<SkImage> makeTextureImage(GrContext*,
+                                    GrMipMapped = GrMipMapped::kNo,
+                                    SkBudgeted = SkBudgeted::kYes) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,

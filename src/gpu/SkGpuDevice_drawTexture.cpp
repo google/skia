@@ -569,8 +569,7 @@ void draw_tiled_bitmap(GrContext* context,
                 SkASSERT(tmpB.width() <= context->priv().caps()->maxTileSize() &&
                          tmpB.height() <= context->priv().caps()->maxTileSize());
 
-                GrBitmapTextureMaker tileProducer(context, tmpB, GrBitmapTextureMaker::Cached::kYes,
-                                                  SkBackingFit::kExact);
+                GrBitmapTextureMaker tileProducer(context, tmpB, GrImageTexGenPolicy::kDraw);
 
                 GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
                 if (aa == GrAA::kYes) {
@@ -719,8 +718,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
+        GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
                               &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
         return;
@@ -728,9 +727,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes,
-                                   SkBackingFit::kExact);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, ctm, paint,
+        GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm, paint,
                               &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
     }

@@ -7,6 +7,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 83
 
 <Insert new notes here- top is most recent.>
+  * SkImage::makeTextureImage() takes an optional SkBudgeted param
 
   * 
 
