@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c311f578_ec97f3aa",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T17:59:42Z",
+      "side": 1,
+      "message": "Replace with:\n    // Although this Op implements its own onPrePrepareDraws it calls GrMeshDrawOps\u0027 version\n    // so this entry point will be called.\n    return fDesc-\u003efProgramInfo;",
+      "range": {
+        "startLine": 621,
+        "startChar": 0,
+        "endLine": 623,
+        "endChar": 23
+      },
+      "revId": "0720664df8198d05df7516d3840dd5319b1ad01f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19d6489e_b097d0d1",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T17:59:42Z",
+      "side": 1,
+      "message": "Insert this here:\n\n// This will call onCreateProgramInfo and register the created program with the DDL.\nthis-\u003eINHERITED::onPrePrepareDraws(context, outputView, clip, dstProxyView);",
+      "revId": "0720664df8198d05df7516d3840dd5319b1ad01f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
