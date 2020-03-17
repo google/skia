@@ -54,6 +54,16 @@ struct SkPDFNamedDestination {
     SkPDFIndirectReference fPage;
 };
 
+
+struct SkPDFLink {
+    // Only one of |fUrl| or |fNamedDestination| should be set.
+    SkString fUrl;
+    SkString fNamedDestination;
+    SkRect fRect;
+    int fNodeId;
+};
+
+
 /** Concrete implementation of SkDocument that creates PDF files. This
     class does not produced linearized or optimized PDFs; instead it
     it attempts to use a minimum amount of RAM. */
@@ -98,6 +108,8 @@ public:
     // Returns -1 if no mark ID.
     int getMarkIdForNodeId(int nodeId);
 
+    std::unique_ptr<SkPDFArray> getAnnotations();
+
     SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
 
     SkExecutor* executor() const { return fExecutor; }
@@ -123,9 +135,7 @@ public:
     SkTHashMap<SkPDFFillGraphicState, SkPDFIndirectReference> fFillGSMap;
     SkPDFIndirectReference fInvertFunction;
     SkPDFIndirectReference fNoSmaskGraphicState;
-
-    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToURLs;
-    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToDestinations;
+    std::vector<std::unique_ptr<SkPDFLink>> fCurrentPageLinks;
     std::vector<SkPDFNamedDestination> fNamedDestinations;
 
 private:

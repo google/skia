@@ -271,40 +271,6 @@ static void populate_link_annotation(SkPDFDict* annotation, const SkRect& r) {
     annotation->insertObject("Rect", SkPDFMakeArray(r.fLeft, r.fTop, r.fRight, r.fBottom));
 }
 
-static SkString to_string(const SkData& d) {
-    return SkString(static_cast<const char*>(d.data()), d.size() - 1);
-}
-
-static std::unique_ptr<SkPDFArray> get_annotations(
-        SkPDFDocument* doc,
-        const std::vector<std::pair<sk_sp<SkData>, SkRect>>& linkToURLs,
-        const std::vector<std::pair<sk_sp<SkData>, SkRect>>& linkToDestinations)
-{
-    std::unique_ptr<SkPDFArray> array;
-    size_t count = linkToURLs.size() + linkToDestinations.size();
-    if (0 == count) {
-        return array;  // is nullptr
-    }
-    array = SkPDFMakeArray();
-    array->reserve(count);
-    for (const auto& rectWithURL : linkToURLs) {
-        SkPDFDict annotation("Annot");
-        populate_link_annotation(&annotation, rectWithURL.second);
-        std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
-        action->insertName("S", "URI");
-        action->insertString("URI", to_string(*rectWithURL.first));
-        annotation.insertObject("A", std::move(action));
-        array->appendRef(doc->emit(annotation));
-    }
-    for (const auto& linkToDestination : linkToDestinations) {
-        SkPDFDict annotation("Annot");
-        populate_link_annotation(&annotation, linkToDestination.second);
-        annotation.insertName("Dest", to_string(*linkToDestination.first));
-        array->appendRef(doc->emit(annotation));
-    }
-    return array;
-}
-
 static SkPDFIndirectReference append_destinations(
         SkPDFDocument* doc,
         const std::vector<SkPDFNamedDestination>& namedDestinations)
@@ -323,6 +289,35 @@ static SkPDFIndirectReference append_destinations(
     return doc->emit(destinations);
 }
 
+std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
+    std::unique_ptr<SkPDFArray> array;
+    size_t count = fCurrentPageLinks.size();
+    if (0 == count) {
+        return array;  // is nullptr
+    }
+    array = SkPDFMakeArray();
+    array->reserve(count);
+    for (const auto& link : fCurrentPageLinks) {
+        SkPDFDict annotation("Annot");
+        populate_link_annotation(&annotation, link->fRect);
+        if (!link->fUrl.isEmpty()) {
+            std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
+            action->insertName("S", "URI");
+            action->insertString("URI", link->fUrl.c_str());
+            annotation.insertObject("A", std::move(action));
+        } else {
+            annotation.insertName("Dest", link->fNamedDestination);
+        }
+
+        SkPDFIndirectReference annotationRef = emit(annotation);
+        array->appendRef(annotationRef);
+        if (link->fNodeId) {
+            fTagTree.addNodeAnnotation(link->fNodeId, annotationRef);
+        }
+    }
+    return array;
+}
+
 void SkPDFDocument::onEndPage() {
     SkASSERT(!fCanvas.imageInfo().dimensions().isZero());
     reset_object(&fCanvas);
@@ -339,11 +334,9 @@ void SkPDFDocument::onEndPage() {
     page->insertObject("Resources", std::move(resourceDict));
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
 
-    if (std::unique_ptr<SkPDFArray> annotations =
-            get_annotations(this, fCurrentPageLinkToURLs, fCurrentPageLinkToDestinations)) {
+    if (std::unique_ptr<SkPDFArray> annotations = getAnnotations()) {
         page->insertObject("Annots", std::move(annotations));
-        fCurrentPageLinkToURLs.clear();
-        fCurrentPageLinkToDestinations.clear();
+        fCurrentPageLinks.clear();
     }
 
     page->insertRef("Contents", SkPDFStreamOut(nullptr, std::move(pageContent), this));
@@ -590,4 +583,3 @@ sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& 
     }
     return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
 }
-
