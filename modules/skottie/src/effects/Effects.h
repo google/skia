@@ -8,8 +8,8 @@
 #ifndef SkottieEffects_DEFINED
 #define SkottieEffects_DEFINED
 
-#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/animator/Animator.h"
 
 class SkMaskFilter;
 

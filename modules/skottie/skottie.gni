@@ -14,8 +14,6 @@ skia_skottie_public = [
 
 skia_skottie_sources = [
   "$_src/Adapter.h",
-  "$_src/Animator.cpp",
-  "$_src/Animator.h",
   "$_src/Camera.cpp",
   "$_src/Camera.h",
   "$_src/Composition.cpp",
@@ -32,6 +30,12 @@ skia_skottie_sources = [
   "$_src/SkottieValue.h",
   "$_src/Transform.cpp",
   "$_src/Transform.h",
+  "$_src/animator/Animator.cpp",
+  "$_src/animator/Animator.h",
+  "$_src/animator/Keyframe.cpp",
+  "$_src/animator/Keyframe.h",
+  "$_src/animator/Scalar.cpp",
+  "$_src/animator/Vec2.cpp",
   "$_src/effects/DropShadowEffect.cpp",
   "$_src/effects/Effects.cpp",
   "$_src/effects/Effects.h",
