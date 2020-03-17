@@ -22,6 +22,30 @@
       "revId": "a48a26d623f792850d954573df412f6da57e92ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6509b8b2_5cee5c2a",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-17T20:37:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b9cab41_dbabf0e6",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 0
+      },
+      "revId": "a48a26d623f792850d954573df412f6da57e92ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
