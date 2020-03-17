@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39cfb8ee_2b3a0596",
+        "filename": "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-17T17:53:43Z",
+      "side": 1,
+      "message": "There are two params on the first line, so this should be 3. (This is the tryjob failure.)",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 44
+      },
+      "revId": "5507d0105de79726d46255e04a60f4cf2728624f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
