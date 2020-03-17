@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "989d5625_c3a8da95",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T18:03:19Z",
+      "side": 1,
+      "message": "Replace this with:\n\n// This will call onCreateProgramInfo and register the created program with the DDL.\nthis-\u003eINHERITED::onPrePrepareDraws(context, outputView, clip, dstProxyView);",
+      "range": {
+        "startLine": 673,
+        "startChar": 0,
+        "endLine": 679,
+        "endChar": 63
+      },
+      "revId": "0720664df8198d05df7516d3840dd5319b1ad01f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19d6489e_b097d0d1",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
@@ -36,6 +59,24 @@
       "writtenOn": "2020-03-17T17:59:42Z",
       "side": 1,
       "message": "Insert this here:\n\n// This will call onCreateProgramInfo and register the created program with the DDL.\nthis-\u003eINHERITED::onPrePrepareDraws(context, outputView, clip, dstProxyView);",
+      "revId": "0720664df8198d05df7516d3840dd5319b1ad01f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0021c3ed_1c033a5e",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T18:03:19Z",
+      "side": 1,
+      "message": "Doh - not here.",
+      "parentUuid": "19d6489e_b097d0d1",
       "revId": "0720664df8198d05df7516d3840dd5319b1ad01f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
