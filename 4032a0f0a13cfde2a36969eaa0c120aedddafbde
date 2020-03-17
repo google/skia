@@ -22,6 +22,30 @@
       "revId": "4032a0f0a13cfde2a36969eaa0c120aedddafbde",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c029de5f_cc89f49d",
+        "filename": "src/gpu/GrOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-17T18:06:45Z",
+      "side": 1,
+      "message": "I think we were concerned about doing that check in some case and we want to remote texture type from backend format anyway. I don\u0027t recall the specific concern though.",
+      "parentUuid": "dd5fa61e_609b855d",
+      "range": {
+        "startLine": 129,
+        "startChar": 17,
+        "endLine": 129,
+        "endChar": 94
+      },
+      "revId": "4032a0f0a13cfde2a36969eaa0c120aedddafbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
