@@ -208,6 +208,7 @@
 #include "../../docs/examples/Canvas_saveLayerPreserveLCDTextRequests.cpp"
 #include "../../docs/examples/Canvas_saveLayer_2.cpp"
 #include "../../docs/examples/Canvas_saveLayer_3.cpp"
+#include "../../docs/examples/Canvas_saveLayer_4.cpp"
 #include "../../docs/examples/Canvas_scale.cpp"
 #include "../../docs/examples/Canvas_setMatrix.cpp"
 #include "../../docs/examples/Canvas_skew.cpp"

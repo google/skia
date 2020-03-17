@@ -568,6 +568,7 @@ public:
         @return        depth of saved stack
 
         example: https://fiddle.skia.org/c/@Canvas_saveLayer
+        example: https://fiddle.skia.org/c/@Canvas_saveLayer_4
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
 
