@@ -9,7 +9,7 @@
 #define SkottieShapeLayer_DEFINED
 
 #include "include/private/SkNoncopyable.h"
-#include "modules/skottie/src/Animator.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGMerge.h"
 
 #include <vector>
