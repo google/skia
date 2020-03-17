@@ -160,7 +160,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                                const SkMatrix& viewMatrix)
         : INHERITED(ClassID())
-        , fHelper(helperArgs, aaType)
+        , fHelper(helperArgs, aaType, true)
         , fPrimitiveType(primitiveType)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(vertices);

@@ -386,7 +386,7 @@ public:
                   GrAAType aaType, const SkRect& devBounds,
                   const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
+            , fHelper(helperArgs, aaType, stencilSettings, false) //$$2
             , fColor(color)
             , fCoverage(coverage)
             , fViewMatrix(viewMatrix)

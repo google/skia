@@ -151,7 +151,7 @@ public:
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kNone)
+            , fHelper(helperArgs, GrAAType::kNone, true)
             , fView(std::move(view))
             , fAlphaType(alphaType)
             , fColorSpaceXform(std::move(colorSpaceXform))
