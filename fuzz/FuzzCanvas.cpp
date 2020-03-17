@@ -48,7 +48,7 @@
 #include "src/utils/SkUTF.h"
 #include "tools/flags/CommandLineFlags.h"
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -1607,7 +1607,7 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
     canvas.restore();
 }
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 
 static void dump_GPU_info(GrContext* context) {
     const GrGLInterface* gl = static_cast<GrGLGpu*>(context->priv().getGpu())
