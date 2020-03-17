@@ -99,6 +99,11 @@ protected:
                                              : GrResourceProvider::MaxNumNonAAQuads());
     }
 
+    virtual void onPrePrepareDraws(GrRecordingContext*,
+                                   const GrSurfaceProxyView* outputView,
+                                   GrAppliedClip*,
+                                   const GrXferProcessor::DstProxyView&);
+
 private:
     virtual GrProgramInfo* programInfo() = 0;
     // This method is responsible for creating all the programInfos required
@@ -116,11 +121,6 @@ private:
         this->onPrePrepareDraws(context, outputView, clip, dstProxyView);
     }
     void onPrepare(GrOpFlushState* state) final;
-
-    virtual void onPrePrepareDraws(GrRecordingContext*,
-                                   const GrSurfaceProxyView* outputView,
-                                   GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&);
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;

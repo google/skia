@@ -291,14 +291,11 @@ private:
         // local coords.
         SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
-        sk_sp<const GrBuffer> vertexBuffer;
-        int vertexOffsetInBuffer = 0;
-
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
 
         // Fill the allocated vertex data
         void* vdata = target->makeVertexSpace(vertexSpec.vertexSize(), totalNumVertices,
-                                              &vertexBuffer, &vertexOffsetInBuffer);
+                                              &fVertexBuffer, &fBaseVertex);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -312,24 +309,23 @@ private:
             this->tessellate(vertexSpec, (char*) vdata);
         }
 
-        sk_sp<const GrBuffer> indexBuffer;
         if (vertexSpec.needsIndexBuffer()) {
-            indexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(target, vertexSpec.indexBufferOption());
-            if (!indexBuffer) {
+            fIndexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(target, vertexSpec.indexBufferOption());
+            if (!fIndexBuffer) {
                 SkDebugf("Could not allocate indices\n");
                 return;
             }
         }
-
-        // Configure the mesh for the vertex data
-        fMesh = target->allocMeshes(1);
-        GrQuadPerEdgeAA::ConfigureMesh(target->caps(), fMesh, vertexSpec, 0, fQuads.count(),
-                                       totalNumVertices, std::move(vertexBuffer),
-                                       std::move(indexBuffer), vertexOffsetInBuffer);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fMesh) {
+        if (!fVertexBuffer) {
+            return;
+        }
+
+        const VertexSpec vertexSpec = this->vertexSpec();
+
+        if (vertexSpec.needsIndexBuffer() && !fIndexBuffer) {
             return;
         }
 
@@ -337,9 +333,13 @@ private:
             this->createProgramInfo(flushState);
         }
 
+        const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
+
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindBuffers(fIndexBuffer.get(), nullptr, fVertexBuffer.get());
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(), vertexSpec, 0,
+                                   fQuads.count(), totalNumVertices, fBaseVertex);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -451,9 +451,12 @@ private:
     GrQuadBuffer<ColorAndAA> fQuads;
     char* fPrePreparedVertices = nullptr;
 
-    GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
     ColorType      fColorType;
+
+    sk_sp<const GrBuffer> fVertexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    int fBaseVertex;
 
     typedef GrMeshDrawOp INHERITED;
 };
