@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64c0dd28_b5f51afe",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T16:22:00Z",
+      "side": 1,
+      "message": "This should be updated too.",
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b60e65e7_b0b21fbf",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T16:22:00Z",
+      "side": 1,
+      "message": "Surface the created programInfo via: context-\u003epriv().recordProgramInfo(...) ?",
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
