@@ -70,7 +70,11 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        fProcessorSet.visitProxies(func);
+        if (fProgramInfo) {
+            fProgramInfo->visitFPProxies(func);
+        } else {
+            fProcessorSet.visitProxies(func);
+        }
     }
 
 protected:
