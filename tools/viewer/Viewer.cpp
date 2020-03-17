@@ -131,6 +131,10 @@ static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 
+#ifndef SK_GL
+static_assert(false, "viewer requires GL backend for raster.")
+#endif
+
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
