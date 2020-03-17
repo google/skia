@@ -34,3 +34,7 @@ GrDawnRingBuffer::Slice GrDawnRingBuffer::allocate(int size) {
     fOffset = GrDawnRoundRowBytes(fOffset);
     return Slice(fBuffer, offset);
 }
+
+void GrDawnRingBuffer::disconnect() {
+    fBuffer = nullptr;
+}

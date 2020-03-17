@@ -32,6 +32,7 @@ public:
         int fOffset;
     };
     Slice allocate(int size);
+    void disconnect();
 
 private:
     GrDawnGpu*            fGpu;
