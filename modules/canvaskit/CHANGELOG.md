@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkShader.MakeSweepGradient`
+ - `SkCanvas.saveLayer` can now be called with 1 argument (the paint). In this case the current
+   effective clip will be used, as the current rect is assumed to be null.
+ - `SkPaint.setAlphaf`
+
 ### Deprecated
  - `MakeSkDashPathEffect` will be renamed soon. Calls can be replaced with
    `SkPathEffect.MakeDash`.

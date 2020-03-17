@@ -1070,6 +1070,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("restoreToCount", &SkCanvas::restoreToCount)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
+         // 1 param (only the paint)
+        .function("saveLayer", optional_override([](SkCanvas& self, const SkPaint* p) {
+            return self.saveLayer(nullptr, p);
+        }), allow_raw_pointers())
          // 2 params
         .function("saveLayer", select_overload<int (const SkRect&, const SkPaint*)>(&SkCanvas::saveLayer),
                                allow_raw_pointers())
@@ -1313,6 +1317,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
+        .function("setAlphaf", &SkPaint::setAlphaf)
         .function("setBlendMode", &SkPaint::setBlendMode)
         .function("setColor", optional_override([](SkPaint& self, SkColor c) {
             self.setColor(c);

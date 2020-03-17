@@ -394,6 +394,145 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    // inspired by https://fiddle.skia.org/c/feb2a08bb09ede5309678d6a0ab3f981
+    it('can save layers with rect and paint', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.WHITE);
+            const redPaint = new CanvasKit.SkPaint();
+            redPaint.setColor(CanvasKit.RED);
+            const solidBluePaint = new CanvasKit.SkPaint();
+            solidBluePaint.setColor(CanvasKit.BLUE);
+
+            const thirtyBluePaint = new CanvasKit.SkPaint();
+            thirtyBluePaint.setColor(CanvasKit.BLUE);
+            thirtyBluePaint.setAlphaf(0.3);
+
+            const alpha = new CanvasKit.SkPaint();
+            alpha.setAlphaf(0.3);
+
+            // Draw 4 solid red rectangles on the 0th layer.
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, 60, 60), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(150, 10, 200, 60), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(10, 70, 60, 120), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(150, 70, 200, 120), redPaint);
+
+            // Draw 2 blue rectangles that overlap. One is solid, the other
+            // is 30% transparent. We should see purple from the right one,
+            // the left one overlaps the red because it is opaque.
+            canvas.drawRect(CanvasKit.LTRBRect(30, 10, 80, 60), solidBluePaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 10, 220, 60), thirtyBluePaint);
+
+            // Save a new layer. When the 1st layer gets merged onto the
+            // 0th layer (i.e. when restore() is called), it will use the provided
+            // paint to do so. The provided paint is set to have 30% opacity, but
+            // it could also have things set like blend modes or image filters.
+            // The rectangle is just a hint, so I've set it to be the area that
+            // we actually draw in before restore is called. It could also be omitted.
+            canvas.saveLayer(CanvasKit.LTRBRect(10, 10, 220, 180), alpha);
+
+            // Draw the same blue overlapping rectangles as before. Notice in the
+            // final output, we have two different shades of purple instead of the
+            // solid blue overwriting the red. This proves the opacity was applied.
+            canvas.drawRect(CanvasKit.LTRBRect(30, 70, 80, 120), solidBluePaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 70, 220, 120), thirtyBluePaint);
+
+            // We draw two more sets of overlapping red and blue rectangles. Notice
+            // the solid blue overwrites the red. This proves that the opacity from
+            // the alpha paint isn't available when the drawing happens - it only
+            // matters when restore() is called.
+            canvas.drawRect(CanvasKit.LTRBRect(10, 130, 60, 180), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(30, 130, 80, 180), solidBluePaint);
+
+            canvas.drawRect(CanvasKit.LTRBRect(150, 130, 200, 180), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 130, 220, 180), thirtyBluePaint);
+
+            canvas.restore();
+
+            surface.flush();
+            redPaint.delete();
+            solidBluePaint.delete();
+            thirtyBluePaint.delete();
+            alpha.delete();
+
+            reportSurface(surface, 'savelayer_rect_paint_canvas', done);
+        }));
+    });
+
+    it('can save layers with just paint', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.WHITE);
+            const redPaint = new CanvasKit.SkPaint();
+            redPaint.setColor(CanvasKit.RED);
+            const solidBluePaint = new CanvasKit.SkPaint();
+            solidBluePaint.setColor(CanvasKit.BLUE);
+
+            const thirtyBluePaint = new CanvasKit.SkPaint();
+            thirtyBluePaint.setColor(CanvasKit.BLUE);
+            thirtyBluePaint.setAlphaf(0.3);
+
+            const alpha = new CanvasKit.SkPaint();
+            alpha.setAlphaf(0.3);
+
+            // Draw 4 solid red rectangles on the 0th layer.
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, 60, 60), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(150, 10, 200, 60), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(10, 70, 60, 120), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(150, 70, 200, 120), redPaint);
+
+            // Draw 2 blue rectangles that overlap. One is solid, the other
+            // is 30% transparent. We should see purple from the right one,
+            // the left one overlaps the red because it is opaque.
+            canvas.drawRect(CanvasKit.LTRBRect(30, 10, 80, 60), solidBluePaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 10, 220, 60), thirtyBluePaint);
+
+            // Save a new layer. When the 1st layer gets merged onto the
+            // 0th layer (i.e. when restore() is called), it will use the provided
+            // paint to do so. The provided paint is set to have 30% opacity, but
+            // it could also have things set like blend modes or image filters.
+            canvas.saveLayer(alpha);
+
+            // Draw the same blue overlapping rectangles as before. Notice in the
+            // final output, we have two different shades of purple instead of the
+            // solid blue overwriting the red. This proves the opacity was applied.
+            canvas.drawRect(CanvasKit.LTRBRect(30, 70, 80, 120), solidBluePaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 70, 220, 120), thirtyBluePaint);
+
+            // We draw two more sets of overlapping red and blue rectangles. Notice
+            // the solid blue overwrites the red. This proves that the opacity from
+            // the alpha paint isn't available when the drawing happens - it only
+            // matters when restore() is called.
+            canvas.drawRect(CanvasKit.LTRBRect(10, 130, 60, 180), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(30, 130, 80, 180), solidBluePaint);
+
+            canvas.drawRect(CanvasKit.LTRBRect(150, 130, 200, 180), redPaint);
+            canvas.drawRect(CanvasKit.LTRBRect(170, 130, 220, 180), thirtyBluePaint);
+
+            canvas.restore();
+
+            surface.flush();
+            redPaint.delete();
+            solidBluePaint.delete();
+            thirtyBluePaint.delete();
+            alpha.delete();
+
+            reportSurface(surface, 'savelayer_paint_canvas', done);
+        }));
+    });
+
     it('can save layer with SaveLayerRec-like things', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
