@@ -22,7 +22,6 @@ public:
                   GrSurfaceOrigin origin,
                   const GrPipeline* pipeline,
                   const GrPrimitiveProcessor* primProc,
-                  const GrPipeline::FixedDynamicState* fixedDynamicState,
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount = 0)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
@@ -31,7 +30,6 @@ public:
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
-            , fFixedDynamicState(fixedDynamicState)
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
         SkASSERT(fNumRasterSamples > 0);
@@ -55,25 +53,6 @@ public:
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return *fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return *fPrimProc; }
-    const GrPipeline::FixedDynamicState* fixedDynamicState() const { return fFixedDynamicState; }
-
-    bool hasFixedScissor() const { return fPipeline->isScissorTestEnabled() && fFixedDynamicState; }
-
-    const SkIRect& fixedScissor() const {
-        SkASSERT(this->hasFixedScissor());
-
-        return fFixedDynamicState->fScissorRect;
-    }
-
-    bool hasFixedPrimProcTextures() const {
-        return fFixedDynamicState && fFixedDynamicState->fPrimitiveProcessorTextures;
-    }
-
-    const GrSurfaceProxy* const* fixedPrimProcTextures() const {
-        SkASSERT(this->hasFixedPrimProcTextures());
-
-        return fFixedDynamicState->fPrimitiveProcessorTextures;
-    }
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     uint8_t tessellationPatchVertexCount() const {
@@ -111,7 +90,6 @@ private:
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline*                     fPipeline;
     const GrPrimitiveProcessor*           fPrimProc;
-    const GrPipeline::FixedDynamicState*  fFixedDynamicState;
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.

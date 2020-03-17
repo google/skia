@@ -61,5 +61,5 @@ void GrPathRendering::drawPath(GrRenderTarget* renderTarget,
                                                                   *fGpu->caps())) {
         fGpu->xferBarrier(renderTarget, barrierType);
     }
-    this->onDrawPath(renderTarget, programInfo, stencilPassSettings, path);
+    this->onDrawPath(stencilPassSettings, path);
 }
