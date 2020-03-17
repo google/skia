@@ -329,7 +329,7 @@ private:
 
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->outputView()->origin(),
-                                  &pipeline, shader.get(), &fixedDynamicState, nullptr, 0,
+                                  &pipeline, shader.get(), &fixedDynamicState,
                                   GrPrimitiveType::kPatches, tessellationPatchVertexCount);
 
         state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));

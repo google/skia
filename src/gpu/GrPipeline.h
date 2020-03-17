@@ -76,29 +76,14 @@ public:
 
     /**
      * Some state can be changed between GrMeshes without changing GrPipelines. This is generally
-     * less expensive then using multiple pipelines. Such state is called "dynamic state". It can
-     * be specified in two ways:
-     * 1) FixedDynamicState - use this to specify state that does not vary between GrMeshes.
-     * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
+     * less expensive then using multiple pipelines. Such state is called "dynamic state".
+     * Use this to specify state that does not vary between GrMeshes.
      **/
     struct FixedDynamicState {
         explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
         FixedDynamicState() = default;
         SkIRect fScissorRect = SkIRect::MakeEmpty();
-        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
-        // or textures are passed using DynamicStateArrays.
-        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
-    };
-
-    /**
-     * Any non-null array overrides the FixedDynamicState on a mesh-by-mesh basis. Arrays must
-     * have one entry for each GrSimpleMesh.
-     */
-    struct DynamicStateArrays {
-        const SkIRect* fScissorRects = nullptr;
-        // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries.
-        // Can be null if no samplers or to use the same textures for all meshes via'
-        // FixedDynamicState.
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
         GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
     };
 

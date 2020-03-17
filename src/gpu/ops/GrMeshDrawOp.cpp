@@ -86,7 +86,7 @@ void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target,
         const GrGeometryProcessor* gp,
         const GrPipeline::FixedDynamicState* fixedDynamicState) const {
-    target->recordDraw(gp, fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
+    target->recordDraw(gp, fMesh, 1, fixedDynamicState, fPrimitiveType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -104,24 +104,6 @@ GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int qu
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::AllocDynamicStateArrays(
-        SkArenaAlloc* arena, int numMeshes, int numPrimitiveProcessorTextures,
-        bool allocScissors) {
-
-    auto result = arena->make<GrPipeline::DynamicStateArrays>();
-
-    if (allocScissors) {
-        result->fScissorRects = arena->makeArray<SkIRect>(numMeshes);
-    }
-
-    if (numPrimitiveProcessorTextures) {
-        result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrSurfaceProxy*>(
-                        numPrimitiveProcessorTextures * numMeshes);
-    }
-
-    return result;
-}
 
 GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::MakeFixedDynamicState(
         SkArenaAlloc* arena, const GrAppliedClip* clip, int numPrimProcTextures) {

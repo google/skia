@@ -138,7 +138,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
     GrRenderTargetProxy* rtProxy = flushState->proxy();
     GrProgramInfo programInfo(rtProxy->numSamples(), rtProxy->numStencilSamples(),
                               rtProxy->backendFormat(), flushState->outputView()->origin(),
-                              &pipeline, this, nullptr, nullptr, 0, primitiveType);
+                              &pipeline, this, nullptr, primitiveType);
 
     flushState->bindPipelineAndScissorClip(programInfo, bounds);
     flushState->bindTextures(*this, atlasProxy, pipeline);

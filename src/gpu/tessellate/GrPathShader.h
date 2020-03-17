@@ -40,8 +40,8 @@ public:
         ProgramInfo(const GrRenderTargetProxy* proxy, GrSurfaceOrigin origin,
                     const GrPipeline* pipeline, const GrPathShader* shader)
                 : GrProgramInfo(proxy->numSamples(), proxy->numStencilSamples(),
-                                proxy->backendFormat(), origin, pipeline, shader, nullptr, nullptr,
-                                0, shader->fPrimitiveType, shader->fTessellationPatchVertexCount) {
+                                proxy->backendFormat(), origin, pipeline, shader, nullptr,
+                                shader->fPrimitiveType, shader->fTessellationPatchVertexCount) {
         }
     };
 

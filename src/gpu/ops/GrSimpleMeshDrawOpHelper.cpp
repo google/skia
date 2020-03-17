@@ -183,7 +183,6 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
 
     GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
 
-    static constexpr int kOneMesh = 1;
     auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
                                           outputProxy->numStencilSamples(),
                                           outputProxy->backendFormat(),
@@ -191,8 +190,6 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                           pipeline,
                                           geometryProcessor,
                                           fixedDynamicState,
-                                          nullptr,
-                                          kOneMesh,
                                           primitiveType);
     return tmp;
 }

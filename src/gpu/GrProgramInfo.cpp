@@ -29,51 +29,12 @@ void GrProgramInfo::validate(bool flushTime) const {
         SkASSERT(fPipeline->allProxiesInstantiated());
     }
 
-    if (this->hasDynamicPrimProcTextures()) {
-        SkASSERT(!this->hasFixedPrimProcTextures());
+    if (this->hasFixedPrimProcTextures()) {
         SkASSERT(fPrimProc->numTextureSamplers());
-    } else if (this->hasFixedPrimProcTextures()) {
-        SkASSERT(fPrimProc->numTextureSamplers());
-    // TODO: We will soon remove dynamic state from GrProgramInfo. But while migrating to the new
-    // bind/draw API on GrOpsRenderPass, some code will not set the dynamic state because it calls
-    // bindTextures() directly. Once dynamic state (including this validation code) is moved out of
-    // GrProgramInfo, we can restore this assert.
-    // } else {
-    //     SkASSERT(!fPrimProc->numTextureSamplers());
     }
 
-
-    // TODO: We will soon remove dynamic state from GrProgramInfo. But while migrating to the new
-    // bind/draw API on GrOpsRenderPass, some code will not set the dynamic state because it calls
-    // setScissorRect() directly. Once dynamic state (including this validation code) is moved out
-    // of GrProgramInfo, we can restore this assert.
-#if 0
-    SkASSERT((fPipeline->isScissorTestEnabled()) ==
-             (this->hasFixedScissor() || this->hasDynamicScissors()));
-#else
     if (!fPipeline->isScissorTestEnabled()) {
-         SkASSERT(!this->hasFixedScissor() && !this->hasDynamicScissors());
-    }
-#endif
-
-    if (this->hasDynamicPrimProcTextures()) {
-        // Check that, for a given sampler, the properties of the dynamic textures remain
-        // the same for all the meshes
-        for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
-            auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(0);
-
-            const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
-            GrTextureType type = dynamicPrimProcTextures[s]->backendFormat().textureType();
-
-            for (int m = 1; m < fNumDynamicStateArrays; ++m) {
-                dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
-
-                auto testProxy = dynamicPrimProcTextures[s];
-                SkASSERT(testProxy->asTextureProxy());
-                SkASSERT(testProxy->backendFormat() == format);
-                SkASSERT(testProxy->backendFormat().textureType() == type);
-            }
-        }
+         SkASSERT(!this->hasFixedScissor());
     }
 }
 
@@ -84,14 +45,8 @@ void GrProgramInfo::checkAllInstantiated() const {
             SkASSERT(fixedPrimProcTextures[s]->isInstantiated());
         }
     }
-
-    if (this->hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < fNumDynamicStateArrays; ++m) {
-            auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
-            for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
-                SkASSERT(dynamicPrimProcTextures[s]->isInstantiated());
-            }
-        }
+    for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(this->pipeline())) {
+        SkASSERT(sampler.proxy()->isInstantiated());
     }
 }
 
@@ -109,16 +64,7 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
         }
     };
 
-    if (this->hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < fNumDynamicStateArrays; ++m) {
-            auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
-
-            for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
-                auto* tex = dynamicPrimProcTextures[s]->peekTexture();
-                assertResolved(tex, this->primProc().textureSampler(s).samplerState());
-            }
-        }
-    } else if (this->hasFixedPrimProcTextures()) {
+    if (this->hasFixedPrimProcTextures()) {
         auto fixedPrimProcTextures = this->fixedPrimProcTextures();
 
         for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {

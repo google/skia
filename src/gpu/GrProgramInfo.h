@@ -23,8 +23,6 @@ public:
                   const GrPipeline* pipeline,
                   const GrPrimitiveProcessor* primProc,
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
-                  const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                  int numDynamicStateArrays,
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount = 0)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
@@ -34,8 +32,6 @@ public:
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fFixedDynamicState(fixedDynamicState)
-            , fDynamicStateArrays(dynamicStateArrays)
-            , fNumDynamicStateArrays(numDynamicStateArrays)
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
         SkASSERT(fNumRasterSamples > 0);
@@ -48,7 +44,6 @@ public:
         fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
 
         SkDEBUGCODE(this->validate(false);)
-        (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
     }
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
@@ -61,18 +56,6 @@ public:
     const GrPipeline& pipeline() const { return *fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return *fPrimProc; }
     const GrPipeline::FixedDynamicState* fixedDynamicState() const { return fFixedDynamicState; }
-    int numDynamicStateArrays() const { return fNumDynamicStateArrays; }
-
-    bool hasDynamicScissors() const {
-        return fPipeline->isScissorTestEnabled() &&
-               fDynamicStateArrays && fDynamicStateArrays->fScissorRects;
-    }
-
-    const SkIRect& dynamicScissor(int i) const {
-        SkASSERT(this->hasDynamicScissors());
-
-        return fDynamicStateArrays->fScissorRects[i];
-    }
 
     bool hasFixedScissor() const { return fPipeline->isScissorTestEnabled() && fFixedDynamicState; }
 
@@ -80,18 +63,6 @@ public:
         SkASSERT(this->hasFixedScissor());
 
         return fFixedDynamicState->fScissorRect;
-    }
-
-    bool hasDynamicPrimProcTextures() const {
-        return fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures;
-    }
-
-    const GrSurfaceProxy* const* dynamicPrimProcTextures(int i) const {
-        SkASSERT(this->hasDynamicPrimProcTextures());
-        SkASSERT(i < fNumDynamicStateArrays);
-
-        return fDynamicStateArrays->fPrimitiveProcessorTextures +
-                                                                i * fPrimProc->numTextureSamplers();
     }
 
     bool hasFixedPrimProcTextures() const {
@@ -141,8 +112,6 @@ private:
     const GrPipeline*                     fPipeline;
     const GrPrimitiveProcessor*           fPrimProc;
     const GrPipeline::FixedDynamicState*  fFixedDynamicState;
-    const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
-    const int                             fNumDynamicStateArrays;
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.

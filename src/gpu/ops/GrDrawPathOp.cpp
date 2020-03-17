@@ -105,7 +105,6 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
                               pipeline,
                               pathProc.get(),
                               fixedDynamicState,
-                              nullptr, 0,
                               GrPrimitiveType::kPath);
 
     GrStencilSettings stencil;
