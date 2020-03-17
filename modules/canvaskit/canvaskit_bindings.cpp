@@ -1313,6 +1313,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
+        .function("setAlphaf", &SkPaint::setAlphaf)
         .function("setBlendMode", &SkPaint::setBlendMode)
         .function("setColor", optional_override([](SkPaint& self, SkColor c) {
             self.setColor(c);
