@@ -122,6 +122,24 @@
     },
     {
       "key": {
+        "uuid": "3d8ba991_c5499d77",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T18:32:18Z",
+      "side": 1,
+      "message": "Maybe something like this?\n\n// This comparison operator orders instructions from least (likely negative) register pressure to most\n// register pressure,  breaking ties arbitrarily using original program order comparing the instruction\n// index itself.\n//\n// We\u0027ll use this operator with std::{make,push,pop}_heap() to maintain a max heap frontier of\n// instructions that are ready to schedule.  We iterate backwards through the program, scheduling \n// later instruction slots before earlier ones, and that means an instruction becomes ready to \n// schedule once all instructions using its result have been scheduled (in later slots).\n//\n// All together that means we\u0027ll be issuing the instructions that hurt register pressure as late as\n// possible, and issuing the instructions that help register pressure as soon as possible.\n// \n// This heuristic of greedily issuing the instruction that most immediately decreases register\n// pressure approximates a more expensive search to find a schedule that minimizes the high-water \n// maximum register pressure, the number of registers we\u0027ll need to run this program.",
+      "parentUuid": "51581afa_20ea811e",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "02265b1d_7d1b1532",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 12
@@ -150,6 +168,24 @@
       "writtenOn": "2020-03-17T17:57:53Z",
       "side": 1,
       "message": "I think pop_heap() preserves the heap invariant?",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a74677c3_335c5e21",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T18:32:18Z",
+      "side": 1,
+      "message": "Ah, I was confused.  we\u0027re using push_back() to push.\n\nCan\u0027t we keep this O(N lg N) by using make_heap() just once costing O(N), and from then maintain the heap using std::pop_heap() and std::push_heap(), performing O(N) operations costing O(lg N)?",
+      "parentUuid": "cfc27bda_c9309ee2",
       "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
