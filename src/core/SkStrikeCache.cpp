@@ -247,8 +247,6 @@ void SkStrikeCache::forEachStrike(std::function<void(const Strike&)> visitor) co
 }
 
 size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
-    this->validate();
-
     size_t bytesNeeded = 0;
     if (fTotalMemoryUsed > fCacheSizeLimit) {
         bytesNeeded = fTotalMemoryUsed - fCacheSizeLimit;
