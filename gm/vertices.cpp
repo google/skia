@@ -22,9 +22,11 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/shaders/SkLocalMatrixShader.h"
+#include "tools/Resources.h"
 
 #include <initializer_list>
 #include <utility>
@@ -292,6 +294,25 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
 
     auto vert = builder.detach();
     SkPaint paint;
+    const char* gProg = R"(
+        in fragmentProcessor c0;
+        in fragmentProcessor c1;
+        float4 vtx_color();
+        void main(float2 p, inout half4 color) {
+            half4 col0 = sample(c0, p);
+            half4 col1 = sample(c1, p);
+            color = mix(col0, col1, half(vtx_color().g));
+        }
+    )";
+    if (canvas->getGrContext()) {
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+        sk_sp<SkShader> children[] = {
+          GetResourceAsImage("images/mandrill_256.png")->makeShader(),
+          GetResourceAsImage("images/color_wheel.png")->makeShader(),
+        };
+
+        paint.setShader(effect->makeShader(nullptr, children, 2, nullptr, false));
+    }
     // paint.setShader(sksl_shader);
     canvas->drawVertices(vert, paint);
 }
