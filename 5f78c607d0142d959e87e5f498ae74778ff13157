@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "33b47d25_4f40e9e3",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-17T16:22:46Z",
+      "side": 1,
+      "message": "We eventually want replayable DDLS, which means replayable OpsTasks. I think we either need to avoid having members or be sure they get reset after we\u0027re done. Rob, do you have thoughts on this?",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c0dd28_b5f51afe",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
