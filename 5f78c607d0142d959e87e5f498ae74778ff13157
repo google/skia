@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "438d7e1a_3dc66ff9",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T16:36:08Z",
+      "side": 1,
+      "message": "How do other ops ensure their buffers get reset? I know GrFillRRectOp and the tessellate/* ones don\u0027t, for example.\n\nShould we add a \"reset\" method?",
+      "parentUuid": "33b47d25_4f40e9e3",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c0dd28_b5f51afe",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "88558d45_51e640d5",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T16:36:08Z",
+      "side": 1,
+      "message": "Oops! Good catch.",
+      "parentUuid": "64c0dd28_b5f51afe",
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b60e65e7_b0b21fbf",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15356d82_45e1414d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T16:36:08Z",
+      "side": 1,
+      "message": "Ah. I didn\u0027t know about this method. What does it do?",
+      "parentUuid": "b60e65e7_b0b21fbf",
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
