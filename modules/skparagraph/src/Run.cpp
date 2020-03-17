@@ -159,7 +159,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
         size_t cluster = this->clusterIndex(start);
         for (size_t glyph = 1; glyph <= this->size(); ++glyph) {
             auto nextCluster = this->clusterIndex(glyph);
-            if (nextCluster == cluster) {
+            if (nextCluster <= cluster) {
                 continue;
             }
 
@@ -179,7 +179,7 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
         for (int32_t start = this->size() - 1; start >= 0; --start) {
             size_t nextCluster =
                     start == 0 ? this->fUtf8Range.end() : this->clusterIndex(start - 1);
-            if (nextCluster == cluster) {
+            if (nextCluster <= cluster) {
                 continue;
             }
 
