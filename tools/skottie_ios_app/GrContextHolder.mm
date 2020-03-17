@@ -11,9 +11,11 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 
+#ifdef SK_GL
 GrContextHolder SkMakeGLContext() {
     return GrContextHolder(GrContext::MakeGL(nullptr, GrContextOptions()).release());
 }
+#endif
 
 void GrContextRelease::operator()(GrContext* ptr) { SkSafeUnref(ptr); }
 
