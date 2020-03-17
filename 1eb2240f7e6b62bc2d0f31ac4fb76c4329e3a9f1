@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d134c8d_a8ef35a6",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "This can go away.",
+      "range": {
+        "startLine": 275,
+        "startChar": 3,
+        "endLine": 276,
+        "endChar": 52
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17222887_cb9c79fc",
+        "filename": "tools/sk_app/android/Window_android.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "Include in GL as well?",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61f3f560_c64b04ad",
+        "filename": "tools/sk_app/ios/Window_ios.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be in GL as well?",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 18
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cf2e21f_c300100a",
+        "filename": "tools/sk_app/mac/Window_mac.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "Include in GL as well?",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 18
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "521d428f_6752a1bf",
+        "filename": "tools/sk_app/unix/Window_unix.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be in GL as well?",
+      "range": {
+        "startLine": 379,
+        "startChar": 0,
+        "endLine": 382,
+        "endChar": 18
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87c92303_42025bc1",
+        "filename": "tools/sk_app/win/Window_win.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-17T21:45:37Z",
+      "side": 1,
+      "message": "Include in GL as well?",
+      "range": {
+        "startLine": 370,
+        "startChar": 0,
+        "endLine": 373,
+        "endChar": 18
+      },
+      "revId": "1eb2240f7e6b62bc2d0f31ac4fb76c4329e3a9f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
