@@ -388,7 +388,7 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
 
     // Ensures 'offset' and 'end' calculations will be valid
     static_assert((kMaxAllocationSize + GrAlignTo(MaxBlockSize(Align, Padding), Align))
-                        <= std::numeric_limits<int32_t>::max());
+                        <= (size_t) std::numeric_limits<int32_t>::max());
     // Ensures size + blockOverhead + addBlock's alignment operations will be valid
     static_assert(kMaxAllocationSize + kBlockOverhead + ((1 << 12) - 1) // 4K align for large blocks
                         <= std::numeric_limits<int32_t>::max());
@@ -444,7 +444,7 @@ int GrBlockAllocator::Block::cursor() const {
     static_assert(SkIsPow2(Align));
     // Aligning adds (Padding + Align - 1) as an intermediate step, so ensure that can't overflow
     static_assert(MaxBlockSize(Align, Padding) + Padding + Align - 1
-                        <= std::numeric_limits<int32_t>::max());
+                        <= (size_t) std::numeric_limits<int32_t>::max());
 
     if /* constexpr */ (Align <= alignof(std::max_align_t)) {
         // Same as GrAlignTo, but operates on ints instead of size_t
