@@ -38,6 +38,7 @@ public:
     };
     Slice allocate(int size);
     void flush();
+    void disconnect();
 
 private:
     GrDawnGpu*            fGpu;

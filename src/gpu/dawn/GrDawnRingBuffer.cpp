@@ -53,3 +53,7 @@ void GrDawnRingBuffer::flush() {
         fData = nullptr;
     }
 }
+
+void GrDawnRingBuffer::disconnect() {
+    fBuffer = nullptr;
+}

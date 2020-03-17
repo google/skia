@@ -8,6 +8,8 @@
 #ifndef GrDawnGpu_DEFINED
 #define GrDawnGpu_DEFINED
 
+#include <list>
+
 #include "src/gpu/GrGpu.h"
 
 #include "dawn/webgpu_cpp.h"
@@ -196,6 +198,16 @@ private:
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
     std::unordered_map<GrSamplerState, wgpu::Sampler, SamplerHash> fSamplers;
     GrDawnStagingManager fStagingManager;
+
+    struct FinishCallback {
+        GrGpuFinishedProc fCallback;
+        GrGpuFinishedContext fContext;
+        GrFence fFence;
+    };
+
+
+    std::list<FinishCallback> fFinishCallbacks;
+    std::vector<wgpu::Buffer> fFenceBuffers;
 
     typedef GrGpu INHERITED;
 };
