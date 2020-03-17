@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa7de900_3ad1f4aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-17T16:31:10Z",
+      "side": 1,
+      "message": "... or discrete GPU",
+      "range": {
+        "startLine": 11,
+        "startChar": 31,
+        "endLine": 11,
+        "endChar": 35
+      },
+      "revId": "b72eaf27a8d7a6531272851c4defe12b2deab8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67a37c3b_4408e8a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-17T16:31:10Z",
+      "side": 1,
+      "message": "Is this what you meant? Maybe reword.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 15
+      },
+      "revId": "b72eaf27a8d7a6531272851c4defe12b2deab8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cb8b711_bea59a07",
+        "filename": "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-03-17T16:31:10Z",
+      "side": 1,
+      "message": "IMO, this needs more explanation.",
+      "revId": "b72eaf27a8d7a6531272851c4defe12b2deab8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
