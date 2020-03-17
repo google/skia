@@ -52,7 +52,7 @@ public:
              const SkMatrix& viewMatrix, const SkRegion& region, GrAAType aaType,
              const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
+            , fHelper(helperArgs, aaType, stencilSettings, true)
             , fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;

@@ -146,7 +146,7 @@ public:
                              SkPaint::Join join,
                              SkScalar miterLimit,
                              const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings, true) {
         fPaths.emplace_back(
                 PathData{color, viewMatrix, path, strokeWidth, style, join, miterLimit});
 

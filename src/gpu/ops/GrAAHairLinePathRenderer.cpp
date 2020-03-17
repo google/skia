@@ -811,7 +811,7 @@ public:
                  SkScalar capLength,
                  const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
+            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings, true)
             , fColor(color)
             , fCoverage(coverage) {
         fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});

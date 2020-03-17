@@ -106,7 +106,7 @@ static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
 DrawAtlasOp::DrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                          const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
                          const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
-        : INHERITED(ClassID()), fHelper(helperArgs, aaType), fColor(color) {
+        : INHERITED(ClassID()), fHelper(helperArgs, aaType, true), fColor(color) {
     SkASSERT(xforms);
     SkASSERT(rects);
 

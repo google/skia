@@ -138,7 +138,7 @@ public:
                       Helper::InputFlags inputFlags, const SkMatrix& viewMatrix, const SkRect& rect,
                       const SkStrokeRec& stroke, GrAAType aaType)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, inputFlags) {
+            , fHelper(helperArgs, aaType, true, inputFlags) {
         fColor = color;
         fViewMatrix = viewMatrix;
         fRect = rect;
@@ -371,7 +371,7 @@ public:
                    const SkMatrix& viewMatrix, const SkRect& devOutside, const SkRect& devInside,
                    const SkVector& devHalfStrokeSize)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(helperArgs, GrAAType::kCoverage, true)
             , fViewMatrix(viewMatrix) {
         SkASSERT(!devOutside.isEmpty());
         SkASSERT(!devInside.isEmpty());
@@ -398,7 +398,7 @@ public:
                    const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec& stroke,
                    bool isMiter)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(helperArgs, GrAAType::kCoverage, true)
             , fViewMatrix(viewMatrix) {
         fMiterStroke = isMiter;
         RectInfo& info = fRects.push_back();

@@ -58,7 +58,7 @@ public:
             , fColor(color)
             , fHasLocalRect(SkToBool(localRect))
             , fRect(r)
-            , fHelper(helperArgs, GrAAType::kNone) {
+            , fHelper(helperArgs, GrAAType::kNone, true) {
         if (fHasLocalRect) {
             fLocalQuad = GrQuad(*localRect);
         }
