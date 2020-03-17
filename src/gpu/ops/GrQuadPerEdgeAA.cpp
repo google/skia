@@ -392,23 +392,17 @@ int QuadLimit(IndexBufferOption option) {
     SkUNREACHABLE;
 }
 
-void ConfigureMesh(const GrCaps& caps, GrSimpleMesh* mesh, const VertexSpec& spec,
-                   int runningQuadCount, int quadsInDraw, int maxVerts,
-                   sk_sp<const GrBuffer> vertexBuffer,
-                   sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset) {
-    SkASSERT(vertexBuffer);
-
+void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec& spec,
+               int runningQuadCount, int quadsInDraw, int maxVerts, int absVertBufferOffset) {
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
-        SkASSERT(!indexBuffer);
         int offset = absVertBufferOffset +
                                     runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
-        mesh->set(std::move(vertexBuffer), 4, offset);
+        renderPass->draw(4, offset);
         return;
     }
 
     SkASSERT(spec.indexBufferOption() == IndexBufferOption::kPictureFramed ||
              spec.indexBufferOption() == IndexBufferOption::kIndexedRects);
-    SkASSERT(indexBuffer);
 
     int maxNumQuads, numIndicesPerQuad, numVertsPerQuad;
 
@@ -432,8 +426,8 @@ void ConfigureMesh(const GrCaps& caps, GrSimpleMesh* mesh, const VertexSpec& spe
         // preferred.
         int offset = absVertBufferOffset + runningQuadCount * numVertsPerQuad;
 
-        mesh->setIndexedPatterned(std::move(indexBuffer), numIndicesPerQuad, quadsInDraw,
-                                  maxNumQuads, std::move(vertexBuffer), numVertsPerQuad, offset);
+        renderPass->drawIndexPattern(numIndicesPerQuad, quadsInDraw, maxNumQuads, numVertsPerQuad,
+                                     offset);
     } else {
         int baseIndex = runningQuadCount * numIndicesPerQuad;
         int numIndicesToDraw = quadsInDraw * numIndicesPerQuad;
@@ -441,9 +435,8 @@ void ConfigureMesh(const GrCaps& caps, GrSimpleMesh* mesh, const VertexSpec& spe
         int minVertex = runningQuadCount * numVertsPerQuad;
         int maxVertex = (runningQuadCount + quadsInDraw) * numVertsPerQuad;
 
-        mesh->setIndexed(std::move(indexBuffer), numIndicesToDraw,
-                         baseIndex, minVertex, maxVertex, GrPrimitiveRestart::kNo,
-                         std::move(vertexBuffer), absVertBufferOffset);
+        renderPass->drawIndexed(numIndicesToDraw, baseIndex, minVertex, maxVertex,
+                                absVertBufferOffset);
     }
 }
 
