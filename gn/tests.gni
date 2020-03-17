@@ -95,6 +95,7 @@ tests_sources = [
   "$_tests/GpuRectanizerTest.cpp",
   "$_tests/GrAHardwareBufferTest.cpp",
   "$_tests/GrAllocatorTest.cpp",
+  "$_tests/GrBlockAllocatorTest.cpp",
   "$_tests/GrCCPRTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
