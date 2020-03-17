@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4013209c_e3d2e115",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-17T17:37:13Z",
+      "side": 1,
+      "message": "The callback won\u0027t be called until this command has been executed on the GPU.\n\nNote that this code is essentially copied unchanged from DawnTestContext prior to https://skia-review.googlesource.com/c/skia/+/272456.",
+      "parentUuid": "74591c38_7ff51297",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 28
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4c4d3c24_dfc84ac1",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-16T16:30:26Z",
       "side": 1,
       "message": "shouldn\u0027t you need to check if something is finished here?",
+      "range": {
+        "startLine": 479,
+        "startChar": 6,
+        "endLine": 479,
+        "endChar": 34
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce98c2e6_4e7e6074",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-17T17:37:13Z",
+      "side": 1,
+      "message": "Indeed, I\u0027m not sure this is correct. Perhaps this should be blocking on the fence, but the other backends didn\u0027t seem to do that, so I\u0027m not sure.\n\n(It also seems like there\u0027s a lot of cut-n-paste code in the backends here that could be refactored. It seems like this could be written at the Ganesh in terms of the fence primitives implemented by the backends.)\n\nAt any rate, I\u0027ve made a first stab at what I *think* this should be. Comments welcome.",
+      "parentUuid": "4c4d3c24_dfc84ac1",
       "range": {
         "startLine": 479,
         "startChar": 6,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b943ede9_0dee319a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-17T17:37:13Z",
+      "side": 1,
+      "message": "A buffer you can\u0027t copy into and can only read out of didn\u0027t seem that useful, but since we never read it anyway it\u0027s probably fine. Will try.",
+      "parentUuid": "28bcf7a6_a3da2343",
+      "range": {
+        "startLine": 594,
+        "startChar": 50,
+        "endLine": 594,
+        "endChar": 77
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4233fe30_b537bfab",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "acfd5e24_9850351a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-17T17:37:13Z",
+      "side": 1,
+      "message": "It needed to at one point, but perhaps it\u0027s no longer necessary. Removed.",
+      "parentUuid": "4233fe30_b537bfab",
+      "range": {
+        "startLine": 605,
+        "startChar": 5,
+        "endLine": 605,
+        "endChar": 49
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2d0b90d7_7f1923e5",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2020-03-16T16:30:26Z",
       "side": 1,
       "message": "does anything ever get pushed on this guy?",
+      "range": {
+        "startLine": 636,
+        "startChar": 12,
+        "endLine": 636,
+        "endChar": 28
+      },
+      "revId": "ac6020856633c3236b9a115e2aea8b847a25154a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "845fc792_5429a73e",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-17T17:37:13Z",
+      "side": 1,
+      "message": "It does now. Thanks.",
+      "parentUuid": "2d0b90d7_7f1923e5",
       "range": {
         "startLine": 636,
         "startChar": 12,
