@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da551f73_3f39ff13",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-17T11:43:25Z",
+      "side": 1,
+      "message": "Looking at this closer, I don\u0027t anticipate this to work. Our rectangle helpers at the moment return objects\nhttps://github.com/google/skia/blob/a17558c9f70262eace249a4546aff2375d738050/modules/canvaskit/interface.js#L1189\n\nWhat\u0027s probably best is to just add a 4th variant of _saveLayer and do a check for null here in the JS code.",
+      "range": {
+        "startLine": 970,
+        "startChar": 52,
+        "endLine": 970,
+        "endChar": 53
+      },
+      "revId": "8593254376f3d3725fea11088e0814fc0133bfbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
