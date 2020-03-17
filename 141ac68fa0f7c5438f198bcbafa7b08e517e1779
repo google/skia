@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbf19c66_3bb20c2c",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-17T19:39:55Z",
+      "side": 0,
+      "message": "Can we live with this validation only?",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 292,
+        "endChar": 21
+      },
+      "revId": "141ac68fa0f7c5438f198bcbafa7b08e517e1779",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
