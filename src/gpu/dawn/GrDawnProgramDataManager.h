@@ -56,7 +56,7 @@ public:
         SK_ABORT("Only supported in NVPR, which is not in Dawn");
     }
 
-    void uploadUniformBuffers(GrDawnGpu* gpu, GrDawnRingBuffer::Slice uniformBuffer) const;
+    void uploadUniformBuffers(void* dest) const;
 
     uint32_t uniformBufferSize() const { return fUniformBufferSize; }
 private:

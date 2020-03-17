@@ -527,7 +527,9 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    fDataManager.uploadUniformBuffers(gpu, slice);
+    if (0 != uniformBufferSize) {
+        fDataManager.uploadUniformBuffers(slice.fData);
+    }
     wgpu::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayouts[0];
     descriptor.bindingCount = bindings.size();

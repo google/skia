@@ -11,7 +11,7 @@
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 namespace {
-    const int kDefaultSize = 512 * 1024;
+    const int kDefaultSize = 32 * 1024;
 }
 
 GrDawnRingBuffer::GrDawnRingBuffer(GrDawnGpu* gpu, wgpu::BufferUsage usage)
@@ -23,14 +23,33 @@ GrDawnRingBuffer::~GrDawnRingBuffer() {
 
 GrDawnRingBuffer::Slice GrDawnRingBuffer::allocate(int size) {
     if (!fBuffer || fOffset + size > kDefaultSize) {
+        flush();
         wgpu::BufferDescriptor desc;
         desc.usage = fUsage | wgpu::BufferUsage::CopyDst;
         desc.size = kDefaultSize;
         fBuffer = fGpu->device().CreateBuffer(&desc);
         fOffset = 0;
     }
+
+    if (!fStagingBuffer) {
+        wgpu::BufferDescriptor desc;
+        desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
+        desc.size = kDefaultSize;
+        wgpu::CreateBufferMappedResult result = fGpu->device().CreateBufferMapped(&desc);
+        fStagingBuffer = result.buffer;
+        fData = result.data;
+    }
     int offset = fOffset;
     fOffset += size;
     fOffset = GrDawnRoundRowBytes(fOffset);
-    return Slice(fBuffer, offset);
+    fGpu->getCopyEncoder().CopyBufferToBuffer(fStagingBuffer, offset, fBuffer, offset, size);
+    return Slice(fBuffer, offset, static_cast<uint8_t*>(fData) + offset);
+}
+
+void GrDawnRingBuffer::flush() {
+    if (fStagingBuffer) {
+        fStagingBuffer.Unmap();
+        fStagingBuffer = nullptr;   // FIXME: reuse staging buffer
+        fData = nullptr;
+    }
 }
