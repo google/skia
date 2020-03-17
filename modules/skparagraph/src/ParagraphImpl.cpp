@@ -260,7 +260,7 @@ void ParagraphImpl::buildClusterTable() {
         } else {
             fClusters.reserve(fClusters.size() + run.size());
             // Walk through the glyph in the direction of input text
-            run.iterateThroughClustersInTextOrder([runIndex, this](size_t glyphStart,
+            run.iterateThroughClustersInTextOrder([runIndex, run, this](size_t glyphStart,
                                                                    size_t glyphEnd,
                                                                    size_t charStart,
                                                                    size_t charEnd,

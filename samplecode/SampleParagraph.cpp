@@ -2492,38 +2492,25 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        const char* text = "PESTO";
-        canvas->drawColor(SK_ColorWHITE);
+        const char* text = "ছোৈূোঌ";
+         canvas->drawColor(SK_ColorWHITE);
 
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(1);
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextAlign(TextAlign::kCenter);
-        auto collection = getFontCollection();
-        ParagraphBuilderImpl builder(paragraph_style, collection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(48);
-        text_style.setFontStyle(SkFontStyle::Bold());
-        text_style.setLetterSpacing(3);
+        text_style.setFontSize(20);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
         auto w = width() / 2;
         paragraph->layout(w);
         paragraph->paint(canvas, 0, 0);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth() / 2, paragraph->getHeight()), paint);
-        SkDebugf("widths: %f %f %f %f\n",
-                paragraph->getMaxWidth(),
-                paragraph->getMinIntrinsicWidth(),
-                paragraph->getMaxIntrinsicWidth(),
-                paragraph->getLongestLine()
-                );
     }
 
 private:
