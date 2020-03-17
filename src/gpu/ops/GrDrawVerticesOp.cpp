@@ -5,18 +5,209 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawVerticesOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
+
+enum class LocalCoordsType {
+    kUnused,
+    kUsePosition,
+    kExplicit,
+};
+
+enum GPFlag {
+    kColorAttribute_GPFlag          = 0x1,
+    kColorAttributeIsSkColor_GPFlag = 0x2,
+    kLocalCoordAttribute_GPFlag     = 0x4,
+};
+
+class VerticesGP : public GrGeometryProcessor {
+public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     uint32_t gpTypeFlags,
+                                     const SkPMColor4f& color,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                     const SkMatrix& viewMatrix) {
+        return arena->make<VerticesGP>(gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix);
+    }
+
+    const char* name() const override { return "VerticesGP"; }
+
+    const SkPMColor4f& color() const { return fColor; }
+    bool hasVertexColor() const { return fInColor.isInitialized(); }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+
+    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    public:
+        GLSLProcessor()
+            : fViewMatrix(SkMatrix::InvalidMatrix())
+            , fColor(SK_PMColor4fILLEGAL) {}
+
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+            const VerticesGP& gp = args.fGP.cast<VerticesGP>();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+            // emit attributes
+            varyingHandler->emitAttributes(gp);
+
+            // Setup pass through color
+            if (gp.hasVertexColor()) {
+                GrGLSLVarying varying(kHalf4_GrSLType);
+                varyingHandler->addVarying("color", &varying);
+                vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
+
+                // For SkColor, do a red/blue swap, possible color space conversion, and premul
+                if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
+                    vertBuilder->codeAppend("color = color.bgra;");
+
+                    if (gp.fColorSpaceXform) {
+                        fColorSpaceHelper.emitCode(uniformHandler, gp.fColorSpaceXform.get(),
+                                                   kVertex_GrShaderFlag);
+                        SkString xformedColor;
+                        vertBuilder->appendColorGamutXform(&xformedColor, "color",
+                                                           &fColorSpaceHelper);
+                        vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
+                    }
+
+                    vertBuilder->codeAppend("color = half4(color.rgb * color.a, color.a);");
+                }
+
+                vertBuilder->codeAppendf("%s = color;\n", varying.vsOut());
+                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
+            } else {
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
+            }
+
+            // Setup position
+            this->writeOutputPosition(vertBuilder,
+                                      uniformHandler,
+                                      gpArgs,
+                                      gp.fInPosition.name(),
+                                      gp.viewMatrix(),
+                                      &fViewMatrixUniform);
+
+            if (gp.fInLocalCoords.isInitialized()) {
+                // emit transforms with explicit local coords
+                this->emitTransforms(vertBuilder,
+                                     varyingHandler,
+                                     uniformHandler,
+                                     gp.fInLocalCoords.asShaderVar(),
+                                     SkMatrix::I(),
+                                     args.fFPCoordTransformHandler);
+            } else {
+                // emit transforms with position
+                this->emitTransforms(vertBuilder,
+                                     varyingHandler,
+                                     uniformHandler,
+                                     gp.fInPosition.asShaderVar(),
+                                     SkMatrix::I(),
+                                     args.fFPCoordTransformHandler);
+            }
+
+            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        }
+
+        static inline void GenKey(const GrGeometryProcessor& gp,
+                                  const GrShaderCaps&,
+                                  GrProcessorKeyBuilder* b) {
+            const VerticesGP& vgp = gp.cast<VerticesGP>();
+            uint32_t key = vgp.fFlags;
+            key |= ComputePosKey(vgp.viewMatrix()) << 20;
+            b->add32(key);
+            b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
+        }
+
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp,
+                     const CoordTransformRange& transformRange) override {
+            const VerticesGP& vgp = gp.cast<VerticesGP>();
+
+            if (!vgp.viewMatrix().isIdentity() &&
+                !SkMatrixPriv::CheapEqual(fViewMatrix, vgp.viewMatrix())) {
+                fViewMatrix = vgp.viewMatrix();
+                pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
+            }
+
+            if (!vgp.hasVertexColor() && vgp.color() != fColor) {
+                pdman.set4fv(fColorUniform, 1, vgp.color().vec());
+                fColor = vgp.color();
+            }
+
+            this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
+
+            fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
+        }
+
+    private:
+        SkMatrix fViewMatrix;
+        SkPMColor4f fColor;
+        UniformHandle fViewMatrixUniform;
+        UniformHandle fColorUniform;
+        GrGLSLColorSpaceXformHelper fColorSpaceHelper;
+
+        typedef GrGLSLGeometryProcessor INHERITED;
+    };
+
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+        return new GLSLProcessor();
+    }
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    VerticesGP(uint32_t gpTypeFlags,
+               const SkPMColor4f& color,
+               sk_sp<GrColorSpaceXform> colorSpaceXform,
+               const SkMatrix& viewMatrix)
+            : INHERITED(kVerticesGP_ClassID)
+            , fColor(color)
+            , fViewMatrix(viewMatrix)
+            , fFlags(gpTypeFlags)
+            , fColorSpaceXform(std::move(colorSpaceXform)) {
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        if (fFlags & kColorAttribute_GPFlag) {
+            constexpr bool wideColor = false;
+            fInColor = MakeColorAttribute("inColor", wideColor);
+        }
+        if (fFlags & kLocalCoordAttribute_GPFlag) {
+            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
+                                              kFloat2_GrSLType};
+        }
+        this->setVertexAttributes(&fInPosition, 3);
+    }
+
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInLocalCoords;
+    SkPMColor4f fColor;
+    SkMatrix fViewMatrix;
+    uint32_t fFlags;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+
+    typedef GrGeometryProcessor INHERITED;
+};
 
 class DrawVerticesOp final : public GrMeshDrawOp {
 private:
@@ -104,22 +295,22 @@ private:
         return SkToBool(kAnyMeshHasExplicitLocalCoords_Flag & fFlags);
     }
 
-    GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType() const {
+    LocalCoordsType localCoordsType() const {
         if (fHelper.usesLocalCoords()) {
             // If we have multiple view matrices we will transform the positions into device space.
             // We must then also provide untransformed positions as local coords.
             if (this->anyMeshHasExplicitLocalCoords() || this->hasMultipleViewMatrices()) {
-                return GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type;
+                return LocalCoordsType::kExplicit;
             } else {
-                return GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type;
+                return LocalCoordsType::kUsePosition;
             }
         } else {
-            return GrDefaultGeoProcFactory::LocalCoords::kUnused_Type;
+            return LocalCoordsType::kUnused;
         }
     }
 
     bool requiresPerVertexLocalCoords() const {
-        return this->localCoordsType() == GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type;
+        return this->localCoordsType() == LocalCoordsType::kExplicit;
     }
 
     bool hasMultipleViewMatrices() const {
@@ -240,22 +431,25 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
 }
 
 GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
-    using namespace GrDefaultGeoProcFactory;
+    uint32_t flags = 0;
+    sk_sp<GrColorSpaceXform> csxform = nullptr;
 
-    Color color(fMeshes[0].fColor);
     if (this->requiresPerVertexColors()) {
         if (fColorArrayType == ColorArrayType::kPremulGrColor) {
-            color.fType = Color::kPremulGrColorAttribute_Type;
+            flags |= kColorAttribute_GPFlag;
         } else {
-            color.fType = Color::kUnpremulSkColorAttribute_Type;
-            color.fColorSpaceXform = fColorSpaceXform;
+            flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
+            csxform = fColorSpaceXform;
         }
+    }
+
+    if (this->requiresPerVertexLocalCoords()) {
+        flags |= kLocalCoordAttribute_GPFlag;
     }
 
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
-    auto gp = GrDefaultGeoProcFactory::Make(arena, color, Coverage::kSolid_Type,
-                                            this->localCoordsType(), vm);
+    auto gp = VerticesGP::Make(arena, flags, fMeshes[0].fColor, std::move(csxform), vm);
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
