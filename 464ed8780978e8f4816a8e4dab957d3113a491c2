@@ -46,6 +46,30 @@
       "revId": "464ed8780978e8f4816a8e4dab957d3113a491c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a40fe55_574ef40c",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T20:17:46Z",
+      "side": 1,
+      "message": "Oh, derp. Correct :-)",
+      "parentUuid": "db7c9e07_e1cfd2cb",
+      "range": {
+        "startLine": 1265,
+        "startChar": 12,
+        "endLine": 1267,
+        "endChar": 67
+      },
+      "revId": "464ed8780978e8f4816a8e4dab957d3113a491c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
