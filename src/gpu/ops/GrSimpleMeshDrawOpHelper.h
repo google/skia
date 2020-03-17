@@ -143,7 +143,6 @@ public:
     // Create a programInfo with the following properties:
     //     its primitive processor uses no textures
     //     it has no dynamic state besides the scissor clip
-    //     it is only applied to a single mesh
     static GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                             SkArenaAlloc*,
                                             const GrSurfaceProxyView* outputView,

@@ -113,8 +113,6 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
                                    const GrProgramInfo& programInfo,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
-    SkASSERT(!programInfo.hasDynamicScissors());
-    SkASSERT(!programInfo.hasDynamicPrimProcTextures());
     if (!this->gpu()->flushGLState(renderTarget, programInfo)) {
         return;
     }

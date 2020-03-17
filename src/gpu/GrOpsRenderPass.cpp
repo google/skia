@@ -122,8 +122,21 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
 #ifdef SK_DEBUG
     SkASSERT((primProc.numTextureSamplers() > 0) == SkToBool(primProcTextures));
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        SkASSERT(primProcTextures[i]->backendFormat() ==
-                 primProc.textureSampler(i).backendFormat());
+        const auto& sampler = primProc.textureSampler(i);
+        const GrSurfaceProxy* proxy = primProcTextures[i];
+        SkASSERT(proxy);
+        SkASSERT(proxy->backendFormat() == sampler.backendFormat());
+        SkASSERT(proxy->backendFormat().textureType() == sampler.backendFormat().textureType());
+
+        const GrTexture* tex = proxy->peekTexture();
+        SkASSERT(tex);
+        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter() &&
+            (tex->width() != 1 || tex->height() != 1)) {
+            // There are some cases where we might be given a non-mipmapped texture with a mipmap
+            // filter. See skbug.com/7094.
+            SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
+                     !tex->texturePriv().mipMapsAreDirty());
+        }
     }
 #endif
 
