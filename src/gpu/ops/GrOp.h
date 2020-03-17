@@ -299,7 +299,7 @@ private:
     virtual void onPrePrepare(GrRecordingContext*,
                               const GrSurfaceProxyView* outputView,
                               GrAppliedClip*,
-                              const GrXferProcessor::DstProxyView&) {}
+                              const GrXferProcessor::DstProxyView&) = 0;
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.
