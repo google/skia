@@ -109,20 +109,8 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
-                                   const GrProgramInfo& programInfo,
-                                   const GrStencilSettings& stencilPassSettings,
+void GrGLPathRendering::onDrawPath(const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
-    if (!this->gpu()->flushGLState(renderTarget, programInfo)) {
-        return;
-    }
-    if (programInfo.hasFixedScissor()) {
-        this->gpu()->flushScissorRect(programInfo.fixedScissor(), renderTarget->width(),
-                                      renderTarget->height(), programInfo.origin());
-    }
-    this->gpu()->currentProgram()->bindTextures(programInfo.primProc(), nullptr,
-                                                programInfo.pipeline());
-
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
     this->flushPathStencilSettings(stencilPassSettings);

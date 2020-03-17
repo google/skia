@@ -42,10 +42,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix&, const SkISize&, GrS
 
 sk_sp<GrPath> GrGLPathRendering::createPath(const SkPath&, const GrStyle&) { return nullptr; }
 
-void GrGLPathRendering::onDrawPath(GrRenderTarget*,
-                                   const GrProgramInfo&,
-                                   const GrStencilSettings&,
-                                   const GrPath*) {}
+void GrGLPathRendering::onDrawPath(const GrStencilSettings&, const GrPath*) {}
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs&, const GrPath*) {}
 

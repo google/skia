@@ -85,8 +85,8 @@ void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryPro
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target,
         const GrGeometryProcessor* gp,
-        const GrPipeline::FixedDynamicState* fixedDynamicState) const {
-    target->recordDraw(gp, fMesh, 1, fixedDynamicState, fPrimitiveType);
+        const GrSurfaceProxy* const primProcProxies[]) const {
+    target->recordDraw(gp, fMesh, 1, primProcProxies, fPrimitiveType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,27 +101,4 @@ GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int qu
                GrResourceProvider::NumVertsPerNonAAQuad(),
                GrResourceProvider::NumIndicesPerNonAAQuad(), quadsToDraw,
                GrResourceProvider::MaxNumNonAAQuads());
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::MakeFixedDynamicState(
-        SkArenaAlloc* arena, const GrAppliedClip* clip, int numPrimProcTextures) {
-
-    bool haveScissor = clip && clip->scissorState().enabled();
-
-    if (haveScissor || numPrimProcTextures) {
-        auto result = arena->make<GrPipeline::FixedDynamicState>();
-
-        if (haveScissor) {
-            result->fScissorRect = clip->scissorState().rect();
-        }
-
-        if (numPrimProcTextures) {
-            result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrSurfaceProxy*>(
-                        numPrimProcTextures);
-        }
-        return result;
-    }
-    return nullptr;
 }
