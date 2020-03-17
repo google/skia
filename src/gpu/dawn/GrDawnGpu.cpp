@@ -428,6 +428,7 @@ void GrDawnGpu::testingOnly_flushGpuAndSync() {
 #endif
 
 void GrDawnGpu::flush() {
+    fUniformRingBuffer.flush();
     this->flushCopyEncoder();
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
