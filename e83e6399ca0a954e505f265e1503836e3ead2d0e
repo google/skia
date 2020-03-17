@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb900be4_05fc01d5",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "remaining?",
+      "range": {
+        "startLine": 485,
+        "startChar": 16,
+        "endLine": 485,
+        "endChar": 20
+      },
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f93b31_fa1ac3f2",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "Am I thinking right that live \u003d\u003d total \u003e 0?  or is that only true for non-sink instructions?  Is it sensible to seed those non-sink instructions with total \u003d 1 to maintain that invariant?  No so much trying to save bytes as make sure I\u0027ve got the logic clear and minimally redundant.",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cff0ea60_aa2509cc",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "Seeing how little and how locally this is used, and how do also use use_counts[inst.{x,y,z}], it might be clearer to just leave this unnamed as use_counts[id]?",
+      "range": {
+        "startLine": 494,
+        "startChar": 22,
+        "endLine": 494,
+        "endChar": 31
+      },
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54e61e6d_7a7f7068",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "Let\u0027s replace these comments with how we\u0027re doing this now?\n\nIn particular, I think it\u0027s difficult to track the relationship between std::pop_heap(), our compare functor, the order that we iterate, and what exactly is the criterion for a value to be part of the frontier.",
+      "range": {
+        "startLine": 522,
+        "startChar": 0,
+        "endLine": 525,
+        "endChar": 91
+      },
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5d7b661_93f15f81",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "Probably makes sense to move this down further to where we start writing into it?",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51581afa_20ea811e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "This part is tough to grasp, especially when we\u0027re working with a max heap and filling in instructions backwards.  Probably also important to note if the tie-breaking is arbitrary or not.",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02265b1d_7d1b1532",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "Might note these are the old indices, and we\u0027ll fix them up after this loop?",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfc27bda_c9309ee2",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-17T17:57:53Z",
+      "side": 1,
+      "message": "I think pop_heap() preserves the heap invariant?",
+      "revId": "e83e6399ca0a954e505f265e1503836e3ead2d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
