@@ -454,7 +454,7 @@ int GrBlockAllocator::Block::cursor() const {
         // larger alignment request, so must align the entire pointer, not just offset
         uintptr_t blockPtr = reinterpret_cast<uintptr_t>(this);
         uintptr_t alignedPtr = (blockPtr + fCursor + Padding + Align - 1) & ~(Align - 1);
-        SkASSERT(alignedPtr - blockPtr <= std::numeric_limits<int32_t>::max());
+        SkASSERT(alignedPtr - blockPtr <= (uintptr_t) std::numeric_limits<int32_t>::max());
         return (int) (alignedPtr - blockPtr);
     }
 }
