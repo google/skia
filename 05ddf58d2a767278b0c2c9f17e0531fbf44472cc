@@ -46,6 +46,30 @@
       "revId": "05ddf58d2a767278b0c2c9f17e0531fbf44472cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a33fc4db_23395a7e",
+        "filename": "src/gpu/GrPersistentCacheUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-17T02:30:15Z",
+      "side": 1,
+      "message": "Gotcha. It seems like it addresses 1 class of problems (we change the format of what\u0027s stored) but leaves open the another class (we change what data a key corresponds to).",
+      "parentUuid": "cdc4e38b_615cb059",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 41
+      },
+      "revId": "05ddf58d2a767278b0c2c9f17e0531fbf44472cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
