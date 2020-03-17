@@ -101,6 +101,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
         fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
 
+#ifdef SK_ENABLE_DUMP_GPU
+    SkString contextInfo = this->dump();
+    SkDebugf("%s\n", contextInfo.c_str());
+#endif
     return true;
 }
 

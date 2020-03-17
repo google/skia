@@ -45,6 +45,10 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         kCGLPFADoubleBuffer,
+        kCGLPFAAllowOfflineRenderers,  // Enables e-GPU.
+        kCGLPFANoRecovery,  // Disallows software rendering.
+        kCGLPFARendererID, (CGLPixelFormatAttribute)kCGLRendererATIRadeonX4000ID, // Select Radeon
+
         (CGLPixelFormatAttribute)0
     };
     CGLPixelFormatObj pixFormat;
@@ -53,8 +57,14 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     CGLChoosePixelFormat(attributes, &pixFormat, &npix);
 
     if (nullptr == pixFormat) {
-        SkDebugf("CGLChoosePixelFormat failed.");
-        return;
+        // Try fallback -- disable eGPU request
+        attributes[2] = (CGLPixelFormatAttribute)0;
+        CGLChoosePixelFormat(attributes, &pixFormat, &npix);
+
+        if (nullptr == pixFormat) {
+            SkDebugf("CGLChoosePixelFormat failed.");
+            return;
+        }
     }
 
     CGLCreateContext(pixFormat, shareContext ? shareContext->fContext : nullptr, &fContext);

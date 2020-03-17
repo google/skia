@@ -1104,3 +1104,43 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
     return combos;
 }
 #endif
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+void GrMtlCaps::onDumpJSON(SkJSONWriter* writer) const {
+
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("Metal caps");
+
+    writer->beginObject("Preferred Stencil Format");
+    writer->appendS32("stencil bits", fPreferredStencilFormat.fStencilBits);
+    writer->appendS32("total bits", fPreferredStencilFormat.fTotalBits);
+    writer->endObject();
+
+    switch (fPlatform) {
+        case Platform::kMac:
+            writer->appendString("Platform", "Mac");
+            break;
+        case Platform::kIOS:
+            writer->appendString("Platform", "iOS");
+            break;
+        default:
+            writer->appendString("Platform", "unknown");
+            break;
+    }
+
+    writer->appendS32("Family Group", fFamilyGroup);
+    writer->appendS32("Version", fVersion);
+
+    writer->beginArray("Sample Counts");
+    for (int v : fSampleCounts) {
+        writer->appendS32(nullptr, v);
+    }
+    writer->endArray();
+
+    writer->endObject();
+}
+#else
+void GrMtlCaps::onDumpJSON(SkJSONWriter* writer) const { }
+#endif
