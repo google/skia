@@ -1080,6 +1080,27 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     this->addDrawOp(clip, std::move(op));
 }
 
+void GrRenderTargetContext::drawCustomVertices(const GrClip& clip,
+                                               GrPaint&& paint,
+                                               const SkMatrix& viewMatrix,
+                                               sk_sp<SkVertices> vertices,
+                                               const SkRuntimeEffect* effect,
+                                               GrPrimitiveType* overridePrimType) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawCustomVertices", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkASSERT(vertices && effect);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
+    std::unique_ptr<GrDrawOp> op =
+            GrDrawVerticesOp::MakeCustom(fContext, std::move(paint), std::move(vertices), effect,
+                                         viewMatrix, aaType, overridePrimType);
+    this->addDrawOp(clip, std::move(op));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrRenderTargetContext::drawAtlas(const GrClip& clip,
