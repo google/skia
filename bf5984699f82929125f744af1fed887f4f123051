@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "92b3d6e7_d17a97b1",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Unfortunately yes :(",
+      "parentUuid": "551945d6_f51b92e7",
+      "range": {
+        "startLine": 21,
+        "startChar": 24,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78ff8e6d_631f49e7",
         "filename": "src/gpu/GrBlockAllocator.cpp",
         "patchSetId": 29
@@ -39,6 +63,24 @@
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cbf4fcb_3d5ab22e",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "If at the end of the flush, then yes, that difference represents all the excess space we needn\u0027t have allocated.\n\nThere may possibly be other wasted space from alignment padding, or allocations that were released but not recoverable (because they weren\u0027t at the end). In these cases, those bytes are still counted as space in use and we can\u0027t detect that type of waste.",
+      "parentUuid": "78ff8e6d_631f49e7",
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "cdab61bb_ba3d213d",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "256b3a87_94c688c1",
+      "range": {
+        "startLine": 43,
+        "startChar": 13,
+        "endLine": 43,
+        "endChar": 15
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf726a20_adc32f40",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 29
@@ -85,6 +151,30 @@
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44f4e6a6_3ff3bdda",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "It didn\u0027t seem necessary to me for it to be uint32_t; an int keeps it the same type as the block offset/ranges, which I found nice.",
+      "parentUuid": "cf726a20_adc32f40",
+      "range": {
+        "startLine": 89,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 11
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "8bc4eedf_12c67020",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "I updated it to an assert, since that should be an error on the client code incorrectly tracking how big its allocations were.",
+      "parentUuid": "b4462c47_6c1b314c",
+      "range": {
+        "startLine": 106,
+        "startChar": 53,
+        "endLine": 106,
+        "endChar": 61
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b3f7edb_7ca8eff7",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 29
@@ -131,6 +245,30 @@
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49d16be8_c337f802",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b3f7edb_7ca8eff7",
+      "range": {
+        "startLine": 122,
+        "startChar": 36,
+        "endLine": 122,
+        "endChar": 39
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "5c4f1bc0_713b1a0e",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "296beb66_aa686c0f",
+      "range": {
+        "startLine": 158,
+        "startChar": 40,
+        "endLine": 158,
+        "endChar": 43
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15e9fae1_c4af1cda",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 29
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "d9c220cf_94f68bf0",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15e9fae1_c4af1cda",
+      "range": {
+        "startLine": 312,
+        "startChar": 73,
+        "endLine": 312,
+        "endChar": 84
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9159bab3_74271296",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 29
@@ -194,6 +380,24 @@
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52f28aef_138f6aae",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9159bab3_74271296",
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -220,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "fd1313de_53a571c1",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Nope",
+      "parentUuid": "a499e06c_8d213380",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 9
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec3dcb94_6d3bee10",
         "filename": "tests/GrBlockAllocatorTest.cpp",
         "patchSetId": 29
@@ -240,6 +468,30 @@
       "revId": "bf5984699f82929125f744af1fed887f4f123051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf1261a_655129aa",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T14:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec3dcb94_6d3bee10",
+      "range": {
+        "startLine": 26,
+        "startChar": 14,
+        "endLine": 26,
+        "endChar": 19
+      },
+      "revId": "bf5984699f82929125f744af1fed887f4f123051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
