@@ -52,6 +52,24 @@
       "revId": "c1035926a22eb1b4a38b7aa534008b57655eafd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46116b80_0191fac6",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-17T13:20:29Z",
+      "side": 1,
+      "message": "The tl;dr is that yep, it all works out. \n\nThe longer story is that, although each call site handles the visitProxies call correctly, it varies from call site to call site. For example, GrOpsRenderPass::bindPipeline calls visitProxies on the programInfo - so all is well. At the other extreme, GrOpsTask::OpChain::visitProxies has the op, dstProxyView and appliedClip to hand (bc of the OpChain) so just visits them separately. Part of the problem is that visitProxies is used for a lot of different things at different stages w/in Ganesh. So, GrOpsTask::addDrawOp is called at record time and uses visitProxies to add DAG dependencies while GrOpsTask::gatherProxyIntervals is called at flush time to set up allocation. Ideally this could be simplified/unified but that would take some doing.",
+      "parentUuid": "92cd14d5_3473f431",
+      "revId": "c1035926a22eb1b4a38b7aa534008b57655eafd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
