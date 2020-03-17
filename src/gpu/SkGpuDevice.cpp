@@ -881,10 +881,10 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes);
+            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }
@@ -932,10 +932,10 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes);
+            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
             this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }

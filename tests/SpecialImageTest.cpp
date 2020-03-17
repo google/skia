@@ -223,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 
     {
         // gpu
-        GrBitmapTextureMaker maker(context, bm);
+        GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
         auto view = maker.view(GrMipMapped::kNo);
         if (!view) {
             return;
@@ -254,7 +254,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
-    GrBitmapTextureMaker maker(context, bm);
+    GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
     auto view = maker.view(GrMipMapped::kNo);
     if (!view.proxy()) {
         return;
