@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59ad5821_0558c19a",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-17T18:29:33Z",
+      "side": 1,
+      "message": "These can go outside the loop",
+      "range": {
+        "startLine": 1265,
+        "startChar": 12,
+        "endLine": 1267,
+        "endChar": 67
+      },
+      "revId": "464ed8780978e8f4816a8e4dab957d3113a491c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
