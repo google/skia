@@ -118,17 +118,9 @@ public:
     // create the stencil settings here.
     GrStencilSettings nonGLStencilSettings() const;
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const {
-        if (this->hasFixedPrimProcTextures()) {
-            for (int i = 0; i < fPrimProc->numTextureSamplers(); ++i) {
-                GrSamplerState samplerState = fPrimProc->textureSampler(i).samplerState();
-
-                func(fFixedDynamicState->fPrimitiveProcessorTextures[i],
-                     GrMipMapped(samplerState == GrSamplerState::Filter::kMipMap));
-            }
-        }
-        fPipeline->visitProxies(func);
-    }
+    // Invokes the visitor function on all FP proxies in the pipeline. The caller is responsible
+    // to call the visitor on its own primProc proxies.
+    void visitFPProxies(const GrOp::VisitProxyFunc& func) const { fPipeline->visitProxies(func); }
 
 #ifdef SK_DEBUG
     void validate(bool flushTime) const;

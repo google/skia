@@ -46,7 +46,7 @@ public:
     CombineResult onCombineIfPossible(GrOp*, GrRecordingContext::Arenas*, const GrCaps&) final;
     void visitProxies(const VisitProxyFunc& fn) const override {
         if (fProgramInfo) {
-            fProgramInfo->visitProxies(fn);
+            fProgramInfo->visitFPProxies(fn);
         } else {
             fProcessors.visitProxies(fn);
         }
