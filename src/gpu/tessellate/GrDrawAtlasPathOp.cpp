@@ -173,7 +173,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
 
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                               state->proxy()->backendFormat(), state->outputView()->origin(),
-                              &pipeline, &shader, nullptr, GrPrimitiveType::kTriangleStrip);
+                              &pipeline, &shader, GrPrimitiveType::kTriangleStrip);
 
     state->bindPipelineAndScissorClip(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);

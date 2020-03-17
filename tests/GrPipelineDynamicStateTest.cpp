@@ -163,7 +163,6 @@ private:
                                   flushState->outputView()->origin(),
                                   &pipeline,
                                   geomProc,
-                                  nullptr,
                                   GrPrimitiveType::kTriangleStrip);
 
         flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));

@@ -306,7 +306,7 @@ private:
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         GrGeometryProcessor*  fGeometryProcessor;
-        GrPipeline::FixedDynamicState* fFixedDynamicState;
+        const GrSurfaceProxy** fPrimProcProxies;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -338,13 +338,13 @@ private:
         static_assert(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
 
         FlushInfo flushInfo;
-        flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
+        flushInfo.fPrimProcProxies = target->allocPrimProcProxyPtrs(kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
         const auto views = fAtlas->getViews();
         for (int i = 0; i < numActiveProxies; ++i) {
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
-            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
+            flushInfo.fPrimProcProxies[i] = views[i].proxy();
             target->sampledProxyArray()->push_back(views[i].proxy());
         }
 
@@ -798,7 +798,7 @@ private:
         const auto views = fAtlas->getViews();
         if (gp->numTextureSamplers() != numAtlasTextures) {
             for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
-                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
+                flushInfo->fPrimProcProxies[i] = views[i].proxy();
                 // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
                 target->sampledProxyArray()->push_back(views[i].proxy());
@@ -825,8 +825,8 @@ private:
                                       flushInfo->fVertexBuffer,
                                       GrResourceProvider::NumVertsPerNonAAQuad(),
                                       flushInfo->fVertexOffset);
-            target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1,
-                               flushInfo->fFixedDynamicState, GrPrimitiveType::kTriangles);
+            target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fPrimProcProxies,
+                               GrPrimitiveType::kTriangles);
             flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *
                                         flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;

@@ -75,19 +75,6 @@ public:
     };
 
     /**
-     * Some state can be changed between GrMeshes without changing GrPipelines. This is generally
-     * less expensive then using multiple pipelines. Such state is called "dynamic state".
-     * Use this to specify state that does not vary between GrMeshes.
-     **/
-    struct FixedDynamicState {
-        explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
-        FixedDynamicState() = default;
-        SkIRect fScissorRect = SkIRect::MakeEmpty();
-        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
-        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
-    };
-
-    /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
      * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.

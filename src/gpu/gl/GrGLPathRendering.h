@@ -65,8 +65,7 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(GrRenderTarget*, const GrProgramInfo&, const GrStencilSettings&,
-                    const GrPath*) override;
+    void onDrawPath(const GrStencilSettings&, const GrPath*) override;
 
 private:
     /**

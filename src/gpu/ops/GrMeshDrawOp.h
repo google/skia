@@ -57,7 +57,7 @@ protected:
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, const GrGeometryProcessor*) const;
         void recordDraw(Target*, const GrGeometryProcessor*,
-                        const GrPipeline::FixedDynamicState*) const;
+                        const GrSurfaceProxy* const primProcProxies[]) const;
 
         void* vertices() const { return fVertices; }
         GrSimpleMesh* mesh() { return fMesh; }
@@ -130,24 +130,23 @@ class GrMeshDrawOp::Target {
 public:
     virtual ~Target() {}
 
-    /** Adds a draw of a mesh. */
+    /** Adds a draw of a mesh. 'primProcProxies' must have
+     * GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+     */
     virtual void recordDraw(const GrGeometryProcessor*,
                             const GrSimpleMesh[],
                             int meshCnt,
-                            const GrPipeline::FixedDynamicState*,
+                            const GrSurfaceProxy* const primProcProxies[],
                             GrPrimitiveType) = 0;
 
     /**
-     * Helper for drawing GrSimpleMesh(es) with zero primProc textures and no dynamic state besides
-     * the scissor clip.
+     * Helper for drawing GrSimpleMesh(es) with zero primProc textures.
      */
     void recordDraw(const GrGeometryProcessor* gp,
                     const GrSimpleMesh meshes[],
                     int meshCnt,
                     GrPrimitiveType primitiveType) {
-        static constexpr int kZeroPrimProcTextures = 0;
-        auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(gp, meshes, meshCnt, fixedDynamicState, primitiveType);
+        this->recordDraw(gp, meshes, meshCnt, nullptr, primitiveType);
     }
 
     /**
@@ -191,15 +190,8 @@ public:
 
     GrSimpleMesh* allocMesh() { return this->allocator()->make<GrSimpleMesh>(); }
     GrSimpleMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrSimpleMesh>(n); }
-
-    static GrPipeline::FixedDynamicState* MakeFixedDynamicState(SkArenaAlloc*,
-                                                                const GrAppliedClip* clip,
-                                                                int numPrimitiveProcessorTextures);
-
-
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures) {
-        return MakeFixedDynamicState(this->allocator(), this->appliedClip(),
-                                     numPrimitiveProcessorTextures);
+    const GrSurfaceProxy** allocPrimProcProxyPtrs(int n) {
+        return this->allocator()->makeArray<const GrSurfaceProxy*>(n);
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;

@@ -124,10 +124,7 @@ protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(GrRenderTarget*,
-                            const GrProgramInfo&,
-                            const GrStencilSettings&,
-                            const GrPath*) = 0;
+    virtual void onDrawPath(const GrStencilSettings&, const GrPath*) = 0;
 
     GrGpu* fGpu;
 private:

@@ -310,8 +310,6 @@ private:
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             state->drawOpArgs().outputSwizzle());
-        GrPipeline::FixedDynamicState fixedDynamicState;
-
         int tessellationPatchVertexCount;
         std::unique_ptr<GrGeometryProcessor> shader;
         if (fTriPositions) {
@@ -329,8 +327,8 @@ private:
 
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                                   state->proxy()->backendFormat(), state->outputView()->origin(),
-                                  &pipeline, shader.get(), &fixedDynamicState,
-                                  GrPrimitiveType::kPatches, tessellationPatchVertexCount);
+                                  &pipeline, shader.get(), GrPrimitiveType::kPatches,
+                                  tessellationPatchVertexCount);
 
         state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
         state->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
