@@ -92,7 +92,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         if (fProgramInfo) {
-            fProgramInfo->visitProxies(func);
+            fProgramInfo->visitFPProxies(func);
         } else {
             fHelper.visitProxies(func);
         }
@@ -421,7 +421,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         if (fProgramInfo) {
-            fProgramInfo->visitProxies(func);
+            fProgramInfo->visitFPProxies(func);
         } else {
             fHelper.visitProxies(func);
         }
