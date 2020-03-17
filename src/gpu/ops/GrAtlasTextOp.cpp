@@ -279,6 +279,29 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
     }
 }
 
+GrProgramInfo* GrAtlasTextOp::programInfo() {
+    // TODO [PI]: implement
+    return nullptr;
+}
+
+void GrAtlasTextOp::onCreateProgramInfo(const GrCaps*,
+                                        SkArenaAlloc*,
+                                        const GrSurfaceProxyView* outputView,
+                                        GrAppliedClip&&,
+                                        const GrXferProcessor::DstProxyView&) {
+    // TODO [PI]: implement
+}
+
+void GrAtlasTextOp::onPrePrepareDraws(GrRecordingContext*,
+                                      const GrSurfaceProxyView* outputView,
+                                      GrAppliedClip*,
+                                      const GrXferProcessor::DstProxyView&) {
+    // We cannot surface the GrAtlasTextOp's programInfo at record time. As currently
+    // implemented, the GP is modified at flush time based on the number of pages in the
+    // atlas.
+    // TODO [PI]: implement
+}
+
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto resourceProvider = target->resourceProvider();
 

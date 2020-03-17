@@ -111,25 +111,18 @@ private:
         int fNumDraws = 0;
     };
 
-    GrProgramInfo* programInfo() override {
-        // TODO [PI]: implement
-        return nullptr;
-    }
+    GrProgramInfo* programInfo() override;
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
-    }
+                             const GrXferProcessor::DstProxyView&) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView* outputView,
                            GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override {
-        // TODO [PI]: implement
-    }
+                           const GrXferProcessor::DstProxyView&) override;
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
