@@ -71,6 +71,7 @@ public:
         kComposeTwoFragmentProcessor_ClassID,
         kCoverageSetOpXP_ClassID,
         kCubicStrokeProcessor_ClassID,
+        kCustomVerticesGeometryProcessor_ClassID,
         kCustomXP_ClassID,
         kDashingCircleEffect_ClassID,
         kDashingLineEffect_ClassID,
