@@ -53,6 +53,10 @@ private:
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override;
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override;
     void onPrepare(GrOpFlushState* state) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
