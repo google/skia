@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "00ce0a1c_d570098f",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-17T16:43:21Z",
+      "side": 1,
+      "message": "At the moment ops have their destructors called when they are returned to the GrOpMemoryPool, once they are executed. So these will get deleted. Having pointer tracking in ops right now is okay, but in the future I think we can get to the point where all resources an op may depend on has ownership tracked elsewhere (e.g. the opstask owns all proxies that will be sampled from by any op), and with ownership moved externally, the members can be raw pointers making it feasible to just reset the entire arena at the end of the frame w/o running destructors.",
+      "parentUuid": "8a9fcaa6_a9b5cc6d",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c0dd28_b5f51afe",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
