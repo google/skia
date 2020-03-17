@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8a9fcaa6_a9b5cc6d",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-17T16:39:46Z",
+      "side": 1,
+      "message": "I didn\u0027t realize those ops were keeping buffers as members. Maybe a reset()? Maybe do nothing for now? I don\u0027t know what Rob\u0027s plan is WRT replayability.",
+      "parentUuid": "438d7e1a_3dc66ff9",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "5f78c607d0142d959e87e5f498ae74778ff13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c0dd28_b5f51afe",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 1
