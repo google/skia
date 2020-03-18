@@ -476,21 +476,21 @@ static void create_vertices(const SegmentArray& segments,
 
             verts.write(qpts[0] + segb.fNorms[0],
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        -1.0f,
+                        -1.0f);
 
             verts.write(qpts[2] + segb.fNorms[1],
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        -1.0f,
+                        -1.0f);
 
             SkVector midVec = segb.fNorms[0] + segb.fNorms[1];
             midVec.normalize();
 
             verts.write(qpts[1] + midVec,
                         color, skipUVs,
-                        -SK_ScalarMax/100,
-                        -SK_ScalarMax/100);
+                        -1.0f,
+                        -1.0f);
 
             GrPathUtils::QuadUVMatrix toUV(qpts);
             toUV.apply(quadVertsBegin, 6, vertexStride, uvOffset);
