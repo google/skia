@@ -619,6 +619,15 @@ optional("gpu") {
     libs += [ "MetalKit.framework" ]
     libs += [ "Foundation.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
+
+    # Some older versions of the Clang toolchain change the visibility of
+    # symbols decorated with API_AVAILABLE macro to be visible. Users of such
+    # toolchains suppress the use of this macro till toolchain updates are made.
+    if (skia_enable_metal_api_available_macro) {
+      public_defines += [ "SK_ENABLE_MTL_API_AVAILABLE" ]
+    } else {
+      cflags_objcc += [ "-Wno-unguarded-availability" ]
+    }
   }
 
   if (skia_enable_atlas_text) {

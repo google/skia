@@ -11,6 +11,12 @@
 #include "include/gpu/GrTypes.h"
 #include "include/ports/SkCFObject.h"
 
+#ifdef SK_ENABLE_MTL_API_AVAILABLE
+#define SK_MTL_API_AVAILABLE API_AVAILABLE
+#else
+#define SK_MTL_API_AVAILABLE(...)
+#endif
+
 /**
  * Declares typedefs for Metal types used in Ganesh cpp code
  */
