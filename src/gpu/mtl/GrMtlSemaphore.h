@@ -25,17 +25,17 @@ public:
 
     ~GrMtlSemaphore() override {}
 
-    id<MTLEvent> event() const API_AVAILABLE(macos(10.14), ios(12.0)) { return fEvent; }
+    id<MTLEvent> event() const SK_API_AVAILABLE(macos(10.14), ios(12.0)) { return fEvent; }
     uint64_t value() const { return fValue; }
 
     GrBackendSemaphore backendSemaphore() const override;
 
 private:
-    GrMtlSemaphore(id<MTLEvent> event, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
+    GrMtlSemaphore(id<MTLEvent> event, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
     void setIsOwned() override {}
 
-    id<MTLEvent> fEvent API_AVAILABLE(macos(10.14), ios(12.0));
+    id<MTLEvent> fEvent SK_API_AVAILABLE(macos(10.14), ios(12.0));
     uint64_t     fValue;
 
     typedef GrSemaphore INHERITED;
