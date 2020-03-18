@@ -12,6 +12,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkTLazy.h"
+#include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Base.h"
 
 class SkPictureImageGenerator : public SkImageGenerator {
@@ -25,7 +26,7 @@ protected:
 
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
-                                         GrMipMapped) override;
+                                         GrMipMapped, GrImageTexGenPolicy) override;
 #endif
 
 private:
@@ -96,13 +97,17 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,
                                                               const SkIPoint& origin,
-                                                              GrMipMapped mipMapped) {
+                                                              GrMipMapped mipMapped,
+                                                              GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(ctx);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 
+    SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                  ? SkBudgeted::kNo
+                                  : SkBudgeted::kYes;
     // CONTEXT TODO: remove this use of 'backdoor' to create an SkSkSurface
-    auto surface = SkSurface::MakeRenderTarget(ctx->priv().backdoor(), SkBudgeted::kYes, info, 0,
+    auto surface = SkSurface::MakeRenderTarget(ctx->priv().backdoor(), budgeted, info, 0,
                                                kTopLeft_GrSurfaceOrigin, &props,
                                                mipMapped == GrMipMapped::kYes);
     if (!surface) {
