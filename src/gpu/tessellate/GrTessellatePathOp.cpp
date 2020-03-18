@@ -23,6 +23,12 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
     return flags;
 }
 
+void GrTessellatePathOp::onPrePrepare(GrRecordingContext*,
+                                      const GrSurfaceProxyView* outputView,
+                                      GrAppliedClip*,
+                                      const GrXferProcessor::DstProxyView&) {
+}
+
 void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     GrEagerDynamicVertexAllocator pathVertexAllocator(state, &fPathVertexBuffer, &fBasePathVertex);
     GrEagerDynamicVertexAllocator cubicInstanceAllocator(state, &fCubicInstanceBuffer,
