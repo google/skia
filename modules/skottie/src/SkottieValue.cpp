@@ -15,7 +15,37 @@
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 
+#include <algorithm>
+
 namespace  skottie {
+
+VectorValue::VectorValue(std::initializer_list<float> l) {
+    *this = l;
+}
+
+VectorValue& VectorValue::operator=(std::initializer_list<float> l) {
+    this->realloc(l.size());
+    std::copy(l.begin(), l.end(), this->data());
+
+    return *this;
+}
+
+void VectorValue::do_realloc(size_t sz) {
+    SkASSERT(sz != fSize);
+    fSize = sz;
+    fStorage.reset(new float[sz]);
+}
+
+template <>
+bool ValueTraits<VectorValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
+                                        VectorValue* v) {
+    if (const skjson::ArrayValue* ja = jv) {
+        const auto size = ja->size();
+        return ParseArray(ja, v->realloc(size), size);
+    }
+
+    return false;
+}
 
 template <>
 bool ValueTraits<ScalarValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
@@ -44,29 +74,6 @@ template <>
 template <>
 SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
     return v;
-}
-
-template <>
-bool ValueTraits<VectorValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
-                                        VectorValue* v) {
-    return Parse(jv, v);
-}
-
-template <>
-bool ValueTraits<VectorValue>::CanLerp(const VectorValue& v1, const VectorValue& v2) {
-    return v1.size() == v2.size();
-}
-
-template <>
-void ValueTraits<VectorValue>::Lerp(const VectorValue& v0, const VectorValue& v1, float t,
-                                    VectorValue* result) {
-    SkASSERT(v0.size() == v1.size());
-
-    result->resize(v0.size());
-
-    for (size_t i = 0; i < v0.size(); ++i) {
-        ValueTraits<ScalarValue>::Lerp(v0[i], v1[i], t, &(*result)[i]);
-    }
 }
 
 // DEPRECATED: remove after converting everything to SkColor4f
