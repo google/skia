@@ -350,11 +350,9 @@ bool Window_win::attach(BackendType attachType) {
     fBackend = attachType;
 
     switch (attachType) {
-#ifdef SK_GL
         case kNativeGL_BackendType:
             fWindowContext = window_context_factory::MakeGLForWin(fHWnd, fRequestedDisplayParams);
             break;
-#endif
 #if SK_ANGLE
         case kANGLE_BackendType:
             fWindowContext =
