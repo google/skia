@@ -46,16 +46,20 @@ public:
         // TODO: make use of texture chaining.
         return CombineResult::kCannotCombine;
     }
-    void onPrepare(GrOpFlushState*) override {}
 
     static std::unique_ptr<GrDrawOp> Make(
             GrRecordingContext*, sk_sp<const GrCCPerFlushResources>, FillBatchID, StrokeBatchID,
             int baseStencilResolveInstance, int endStencilResolveInstance,
             const SkISize& drawBounds);
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override;
-
 private:
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
     friend class ::GrOpMemoryPool; // for ctor
 
     GrStencilAtlasOp(sk_sp<const GrCCPerFlushResources> resources, FillBatchID fillBatchID,

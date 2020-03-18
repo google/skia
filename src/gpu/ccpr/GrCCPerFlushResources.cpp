@@ -45,7 +45,6 @@ public:
         // TODO: make use of texture chaining.
         return CombineResult::kCannotCombine;
     }
-    void onPrepare(GrOpFlushState*) override {}
 
 protected:
     AtlasOp(uint32_t classID, sk_sp<const GrCCPerFlushResources> resources,
@@ -57,6 +56,13 @@ protected:
     }
 
     const sk_sp<const GrCCPerFlushResources> fResources;
+
+private:
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) final {}
+    void onPrepare(GrOpFlushState*) final {}
 };
 
 // Copies paths from a cached coverage count or msaa atlas into an 8-bit literal-coverage atlas.

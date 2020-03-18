@@ -54,6 +54,11 @@ protected:
     }
 
 private:
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) final {}
+
     void onPrepare(GrOpFlushState*) final {}
 
     SkMatrix fViewMatrix;

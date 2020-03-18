@@ -140,6 +140,12 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
     return CombineResult::kMerged;
 }
 
+void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,
+                                     const GrSurfaceProxyView* outputView,
+                                     GrAppliedClip*,
+                                     const GrXferProcessor::DstProxyView&) {
+}
+
 void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* state) {
     size_t instanceStride = Instance::Stride(fUsesLocalCoords);
     if (char* instanceData = (char*)state->makeVertexSpace(

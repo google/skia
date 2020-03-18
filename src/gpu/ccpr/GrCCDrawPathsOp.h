@@ -71,6 +71,11 @@ public:
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 private:
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
+
     friend class GrOpMemoryPool;
 
     static std::unique_ptr<GrCCDrawPathsOp> InternalMake(GrRecordingContext*,
