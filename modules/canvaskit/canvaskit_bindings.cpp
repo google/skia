@@ -780,12 +780,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
     function("MakePathFromSVGString", &MakePathFromSVGString);
 
-    // These won't be called directly, there's a JS helper to deal with typed arrays.
-    function("_MakeSkDashPathEffect", optional_override([](uintptr_t /* float* */ cptr, int count, SkScalar phase)->sk_sp<SkPathEffect> {
-        // See comment above for uintptr_t explanation
-        const float* intervals = reinterpret_cast<const float*>(cptr);
-        return SkDashPathEffect::Make(intervals, count, phase);
-    }), allow_raw_pointers());
+    // These won't be called directly, there are corresponding JS helpers to deal with arrays.
     function("_MakeImage", optional_override([](SimpleImageInfo ii,
                                                 uintptr_t /* uint8_t*  */ pPtr, int plen,
                                                 size_t rowBytes)->sk_sp<SkImage> {
@@ -1341,6 +1336,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkPathEffect>("SkPathEffect")
         .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>")
         .class_function("MakeCorner", &SkCornerPathEffect::Make)
+        .class_function("_MakeDash", optional_override([](uintptr_t /* float* */ cptr, int count,
+                                                          SkScalar phase)->sk_sp<SkPathEffect> {
+            // See comment above for uintptr_t explanation
+            const float* intervals = reinterpret_cast<const float*>(cptr);
+            return SkDashPathEffect::Make(intervals, count, phase);
+        }), allow_raw_pointers())
         .class_function("MakeDiscrete", &SkDiscretePathEffect::Make);
 
     class_<SkPath>("SkPath")

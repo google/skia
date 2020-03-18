@@ -13,13 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkPaint.setAlphaf`
 
 ### Deprecated
- - `MakeSkDashPathEffect` will be renamed soon. Calls can be replaced with
+ - `MakeSkDashPathEffect` will be removed soon. Calls can be replaced with
    `SkPathEffect.MakeDash`.
- - `MakeLinearGradientShader` will be renamed soon. Calls can be replaced with
+ - `MakeLinearGradientShader` will be removed soon. Calls can be replaced with
    `SkShader.MakeLinearGradient`.
- - `MakeRadialGradientShader` will be renamed soon. Calls can be replaced with
+ - `MakeRadialGradientShader` will be removed soon. Calls can be replaced with
    `SkShader.MakeRadialGradient`.
- - `MakeTwoPointConicalGradientShader` will be renamed soon. Calls can be replaced with
+ - `MakeTwoPointConicalGradientShader` will be removed soon. Calls can be replaced with
    `SkShader.MakeTwoPointConicalGradient`.
 
 ### Fixed
@@ -37,9 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.13.0] - 2020-02-28
 
 ### Deprecated
- - `MakeSkCornerPathEffect` will be renamed soon. Calls can be replaced with
+ - `MakeSkCornerPathEffect` will be removed soon. Calls can be replaced with
    `SkPathEffect.MakeCorner`.
- - `MakeSkDiscretePathEffect` will be renamed soon. Calls can be replaced with
+ - `MakeSkDiscretePathEffect` will be removed soon. Calls can be replaced with
    `SkPathEffect.MakeDiscrete`.
 
 ### Added
