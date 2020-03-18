@@ -16,6 +16,24 @@
       "revId": "1fd855761cdf936b96ca36d924275c0ec4953661",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "082636e2_fb27be1f",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:27:12Z",
+      "side": 1,
+      "message": "I am still learning c++17... I think you can even write\n\n   for (const auto\u0026 [offset, colors, localMatrix, flags] : params) {\n      ...\n   }",
+      "parentUuid": "a644a5b6_3110ea06",
+      "revId": "1fd855761cdf936b96ca36d924275c0ec4953661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
