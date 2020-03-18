@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
@@ -593,6 +594,38 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+    };
+
+    class Liveness {
+    public:
+        Liveness(const std::vector<Builder::Instruction>&);
+        bool live(Val id) const { return fLive[id]; }
+
+    private:
+        std::vector<bool> fLive;
+    };
+
+    class Uses {
+    public:
+        Uses(const std::vector<Builder::Instruction>&, const Liveness&);
+
+        // The number of uses of Val id.
+        int uses(Val id) const {
+            return fEdgeIndex[id + 1] - fEdgeIndex[id];
+        }
+
+        SkSpan<const Val> edges(Val id) const {
+            return SkMakeSpan(&fEdgeIndex[id], this->uses(id));
+        }
+
+    private:
+        // The start of use edges for each instruction
+        std::vector<int> fEdgeIndex;
+        // The uses of Val id to edges where the heads of the edge are
+        // edges[edge_index[id]] to edges[edge_index[id+1]-1].
+        // This has an additional entry end which is the total number of edges to make the uses
+        // calculation simpler.
+        std::vector<int> fEdges;
     };
 
     // Helper to streamline allocating and working with uniforms.
