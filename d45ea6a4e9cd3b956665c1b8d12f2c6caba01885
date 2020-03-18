@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7875f835_37fbb45e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T13:15:56Z",
+      "side": 1,
+      "message": "s/now/not/",
+      "range": {
+        "startLine": 18,
+        "startChar": 35,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "d45ea6a4e9cd3b956665c1b8d12f2c6caba01885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f2660ae_5485e364",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T13:15:56Z",
+      "side": 1,
+      "message": "This shows up several times. Worth adding ImageTexGenPolicyToBudgeted() in SkGr.h ?",
+      "range": {
+        "startLine": 210,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 53
+      },
+      "revId": "d45ea6a4e9cd3b956665c1b8d12f2c6caba01885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fe8a724_f3572f05",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T13:15:56Z",
+      "side": 1,
+      "message": "Unrelated to your CL, but this comment is documenting code that no longer lives here.",
+      "range": {
+        "startLine": 221,
+        "startChar": 59,
+        "endLine": 223,
+        "endChar": 86
+      },
+      "revId": "d45ea6a4e9cd3b956665c1b8d12f2c6caba01885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06585bb0_816130fa",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T13:15:56Z",
+      "side": 1,
+      "message": "Any reason you changed these? The local copy of the clip is used throughout the code above.",
+      "range": {
+        "startLine": 722,
+        "startChar": 74,
+        "endLine": 722,
+        "endChar": 86
+      },
+      "revId": "d45ea6a4e9cd3b956665c1b8d12f2c6caba01885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

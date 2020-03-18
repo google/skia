@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfac6b76_630aeb65",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T13:15:56Z",
+      "side": 0,
+      "message": "Did you mean to remove this?",
+      "revId": "141ac68fa0f7c5438f198bcbafa7b08e517e1779",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
