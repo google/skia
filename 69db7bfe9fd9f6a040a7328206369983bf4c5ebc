@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3dfca5f_5d273f8a",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-18T16:47:51Z",
+      "side": 1,
+      "message": "Before doing any of the rest of this (and I know this was done later before) but I\u0027m not sure it\u0027s right. SkString really does want only utf-8 and PDF does too (PDF32000_2008 7.3.5) and we\u0027re not checking for that here. At the very least in debug we should assert valid utf-8 here. Even after doing so, I\u0027m not sure why this is being copied into a SkString, the original data ref has the same stuff in it and is just as good. If it\u0027s just about creating the name in the SkPDFUnion later, we can add another SkPDFUnion::Type::kSkDataName or something like that.",
+      "range": {
+        "startLine": 378,
+        "startChar": 21,
+        "endLine": 378,
+        "endChar": 30
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "047cbe39_2ca13622",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-18T16:47:51Z",
+      "side": 1,
+      "message": "This is super awkward to read for a human, seems there should be a clearer way to state that if an annotation was created it should be added.",
+      "range": {
+        "startLine": 382,
+        "startChar": 8,
+        "endLine": 382,
+        "endChar": 15
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ded40353_cffb487f",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-18T16:47:51Z",
+      "side": 1,
+      "message": "Once created these never seem to change, so everything in here should be const and set by the constructor. It\u0027s quite awkward to have this type here and the make drawAnnotation responsible for its internal state.",
+      "range": {
+        "startLine": 58,
+        "startChar": 7,
+        "endLine": 58,
+        "endChar": 16
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7f1bcbd_de406d2c",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-18T16:47:51Z",
+      "side": 1,
+      "message": "If these are really disjoint that should be more explicit, either by having two different types with a common base type or making this more obviously a variant.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 31
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
