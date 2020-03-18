@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "68ef002a_4ffc79e3",
+        "filename": "modules/skottie/src/SkottieJson.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Maybe some comments or parameter names to suggest what happens here?\n\n  bool ParseArray(const skjson::ArrayValue*, float out[], size_t nout);\n\nEven with that, it\u0027s still a little unclear what\u0027ll happen when the ArrayValue size is \u003e or \u003c the buffer size.  It strikes me that maybe the desired behavior there is use-case specific, and it might be clearer to just inline/lambda ParseArray() where needed?",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8393ea4_4d6e6d94",
+        "filename": "modules/skottie/src/SkottieValue.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Ah, I fell for a trap here.  I don\u0027t think you want \"realloc\" anywhere in the name of a function that does not preserve the old data.",
+      "range": {
+        "startLine": 33,
+        "startChar": 18,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df0618ed_50f37479",
         "filename": "modules/skottie/src/SkottieValue.h",
         "patchSetId": 9
@@ -18,6 +58,179 @@
         "startChar": 6,
         "endLine": 43,
         "endChar": 17
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89c12c83_0a335c5a",
+        "filename": "modules/skottie/src/SkottieValue.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Since you\u0027ve got the other constructors and such declared already, might be clearer to \u003d delete the ones you don\u0027t support?",
+      "range": {
+        "startLine": 43,
+        "startChar": 26,
+        "endLine": 43,
+        "endChar": 39
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d06ac49_b9022341",
+        "filename": "modules/skottie/src/SkottieValue.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Yeah, though except for realloc() and its awkward lack of constructors, std::intializer_list is actually a pretty good fit.\n\nWhy is it we can\u0027t just keep using std::vector\u003cfloat\u003e?  Isn\u0027t all the data stored long term in VectorKeyFrameAnimator?  I don\u0027t think I understand the relationship between the two.",
+      "parentUuid": "df0618ed_50f37479",
+      "range": {
+        "startLine": 43,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 17
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7af87bef_d1dbdd48",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Kind of tough to follow vec_size vs fVecSize, v.idx vs. fVIndex, etc.  Anything we can do to clear that up?",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 25
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac8430f_a886af57",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "If it helps ambiguity about what \"size\" is and what its units are, this is often called \"vector width\", \"vector length\", or even sometimes \"vector depth\".",
+      "range": {
+        "startLine": 41,
+        "startChar": 66,
+        "endLine": 41,
+        "endChar": 77
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f257d247_1e9aa0b8",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Maybe a comment about what we\u0027re multiplying here?  Is it \u0027elements per vector\u0027 times \u0027number of vectors\u0027 producing \u0027total elements\u0027?",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e47fec4e_25a3883d",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Don\u0027t you hold a size_t size?",
+      "range": {
+        "startLine": 54,
+        "startChar": 36,
+        "endLine": 54,
+        "endChar": 44
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eb4a5d3_fcf05c5b",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Not exactly following what\u0027s happening here.",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45df3740_e6e9e9c7",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:07:50Z",
+      "side": 1,
+      "message": "Is this a macro somewhere?  If so, why?",
+      "range": {
+        "startLine": 154,
+        "startChar": 12,
+        "endLine": 154,
+        "endChar": 16
       },
       "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
