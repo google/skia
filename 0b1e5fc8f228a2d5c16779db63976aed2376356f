@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bc4d201_d217a559",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T18:10:58Z",
+      "side": 0,
+      "message": "Subtle change - this was never needed. We can only batch things with compatible mesh helpers, which implies that either both need local coords, or neither does. We were setting this flag when the helper told us we didn\u0027t need them, but in that case we\u0027re not going to include them in the verts anyway. (This is unlike colors, where the processor analysis can cause us to ignore the vertex colors as an optimization - replacing them with the uniform analysis result).",
+      "revId": "0b1e5fc8f228a2d5c16779db63976aed2376356f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
