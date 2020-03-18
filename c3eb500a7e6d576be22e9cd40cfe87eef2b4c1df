@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa10144d_9ab73c6f",
+        "filename": "tools/gpu/GrContextFactory.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-18T17:19:25Z",
+      "side": 1,
+      "message": "future work: we should see if this is still needed. I believe we added it cause early nvidia had an issue creating or destorying a vulkan context if there wasn\u0027t a GL one also alive.",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 55
+      },
+      "revId": "c3eb500a7e6d576be22e9cd40cfe87eef2b4c1df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
