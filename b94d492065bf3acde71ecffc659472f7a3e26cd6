@@ -481,6 +481,30 @@
       "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8b688b_379a1562",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:26:28Z",
+      "side": 1,
+      "message": "Oh, true, that\u0027s kinda yelly... renamed to something more chill :)",
+      "parentUuid": "2c836eb8_0efebbe5",
+      "range": {
+        "startLine": 154,
+        "startChar": 12,
+        "endLine": 154,
+        "endChar": 16
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
