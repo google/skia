@@ -242,6 +242,86 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    // Inspired by https://fiddle.skia.org/c/b29ce50a341510784ac7d5281586d076
+    it('draws linear gradients', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.WHITE);
+            canvas.scale(2, 2);
+            const strokePaint = new CanvasKit.SkPaint();
+            strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
+            strokePaint.setColor(CanvasKit.BLACK);
+
+            const paint = new CanvasKit.SkPaint();
+            paint.setStyle(CanvasKit.PaintStyle.Fill);
+            const transparentGreen = CanvasKit.Color(0, 255, 255, 0);
+
+            const lgs = CanvasKit.SkShader.MakeLinearGradient(
+                [0, 0], [50, 100], // start and stop points
+                [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+                [0, 0.65, 1.0],
+                CanvasKit.TileMode.Mirror
+            );
+            paint.setShader(lgs);
+            let r = CanvasKit.LTRBRect(0, 0, 100, 100);
+            canvas.drawRect(r, paint);
+            canvas.drawRect(r, strokePaint);
+
+            const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
+                [100, 0], [150, 100], // start and stop points
+                [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+                [0, 0.65, 1.0],
+                CanvasKit.TileMode.Mirror,
+                null,
+                1 // interpolate colors in premul
+            );
+            paint.setShader(lgsPremul);
+            r = CanvasKit.LTRBRect(100, 0, 200, 100);
+            canvas.drawRect(r, paint);
+            canvas.drawRect(r, strokePaint);
+
+            const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
+                [0, 100], [50, 200], // start and stop points
+                [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+                [0, 0.65, 1.0],
+                CanvasKit.TileMode.Mirror,
+                CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
+            );
+            paint.setShader(lgs45);
+            r = CanvasKit.LTRBRect(0, 100, 100, 200);
+            canvas.drawRect(r, paint);
+            canvas.drawRect(r, strokePaint);
+
+            const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
+                [100, 100], [150, 200], // start and stop points
+                [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+                [0, 0.65, 1.0],
+                CanvasKit.TileMode.Mirror,
+                CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
+                1 // interpolate colors in premul
+            );
+            paint.setShader(lgs45Premul);
+            r = CanvasKit.LTRBRect(100, 100, 200, 200);
+            canvas.drawRect(r, paint);
+            canvas.drawRect(r, strokePaint);
+
+            surface.flush();
+
+            lgs.delete();
+            lgs45.delete();
+            lgsPremul.delete();
+            strokePaint.delete();
+            paint.delete();
+            reportSurface(surface, 'linear_gradients', done);
+        }));
+    });
+
     it('can blur using ImageFilter or MaskFilter', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
