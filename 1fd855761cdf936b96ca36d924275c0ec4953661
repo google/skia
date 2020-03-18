@@ -34,6 +34,24 @@
       "revId": "1fd855761cdf936b96ca36d924275c0ec4953661",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9287d65_56cb1253",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-18T15:30:12Z",
+      "side": 1,
+      "message": "that last for (...) is wicked-cool",
+      "parentUuid": "082636e2_fb27be1f",
+      "revId": "1fd855761cdf936b96ca36d924275c0ec4953661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
