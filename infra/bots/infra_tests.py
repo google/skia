@@ -29,13 +29,14 @@ def python_unit_tests(train):
   if train:
     return None
   return test(
-      ['python', '-m', 'unittest', 'discover', '-s', '.', '-p', '*_test.py'],
+      ['python', '-u', '-m', 'unittest', 'discover', '-s', '.', '-p',
+       '*_test.py'],
       INFRA_BOTS_DIR)
 
 
 def recipe_test(train):
   cmd = [
-      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
+      'python', '-u', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
   if train:
     cmd.append('train')
   else:
