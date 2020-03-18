@@ -22,6 +22,30 @@
       "revId": "ef63c63153541f9e8a9b5194900f6a0adf4ca45b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "794f7eee_1214f66b",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-18T18:28:57Z",
+      "side": 1,
+      "message": "Oops, was commenting out headers that seemed unnecessary to test compilation. Screwed up with the actual removal.",
+      "parentUuid": "b5399cba_e6718b2d",
+      "range": {
+        "startLine": 9,
+        "startChar": 36,
+        "endLine": 9,
+        "endChar": 65
+      },
+      "revId": "ef63c63153541f9e8a9b5194900f6a0adf4ca45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
