@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2cf5696_70439304",
+        "filename": "modules/canvaskit/WasmAliases.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "We should rename the file to be WasmCommon.h with this addition.",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 20
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3201b39_7976374c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "I would probably change this to be a SimpleColorf - that way a user could directly pass us the tonal colors w/o having to compute them or convert them to an int.",
+      "range": {
+        "startLine": 679,
+        "startChar": 4,
+        "endLine": 679,
+        "endChar": 11
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d74258a9_bd481c68",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "TODO here for eventually supporting the color spaces? One TODO should be sufficient for all the gradient shaders.",
+      "range": {
+        "startLine": 850,
+        "startChar": 82,
+        "endLine": 850,
+        "endChar": 90
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbd280aa_7f56c42c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "This is one long sentence, which is hard to parse. Please break it up into at least two.\nPlease also mention *what* it was preconverted into (a 32 bit int, right?)",
+      "range": {
+        "startLine": 982,
+        "startChar": 11,
+        "endLine": 984,
+        "endChar": 87
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adf9474b_121e960f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "I\u0027m surprised this compiles. Shouldn\u0027t this be\n\n[](SkPaint\u0026 self) -\u003e SimpleColor4f {",
+      "range": {
+        "startLine": 1333,
+        "startChar": 51,
+        "endLine": 1333,
+        "endChar": 65
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0486244b_a85502f0",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 1493,
+        "startChar": 14,
+        "endLine": 1493,
+        "endChar": 29
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57d07a38_aa69a918",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "nit: colorspace should not...\n\nAlso wrap comments to 100 chars wide.",
+      "range": {
+        "startLine": 1495,
+        "startChar": 33,
+        "endLine": 1495,
+        "endChar": 39
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96acf9b9_525ad6db",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1878,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "Delete these",
+      "range": {
+        "startLine": 1869,
+        "startChar": 7,
+        "endLine": 1878,
+        "endChar": 14
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d382723_51cae3ec",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "unpremultiplied",
+      "range": {
+        "startLine": 10,
+        "startChar": 47,
+        "endLine": 10,
+        "endChar": 58
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e53d8a5_bc93c8fc",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "I would prefer to regenerate the color map to have TypedArrays as values instead of converting them like this.",
+      "range": {
+        "startLine": 103,
+        "startChar": 13,
+        "endLine": 103,
+        "endChar": 38
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbad5746_977a5712",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "!ob also catches null",
+      "range": {
+        "startLine": 111,
+        "startChar": 6,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f76ba6b8_534ffeff",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "Didn\u0027t we identify this as a bug?",
+      "range": {
+        "startLine": 143,
+        "startChar": 2,
+        "endLine": 143,
+        "endChar": 7
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b77e3aa5_49c49d71",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "nit: semicolon",
+      "range": {
+        "startLine": 144,
+        "startChar": 13,
+        "endLine": 144,
+        "endChar": 14
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e363daf6_8022927e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "Should we also return null here in this error?",
+      "range": {
+        "startLine": 899,
+        "startChar": 48,
+        "endLine": 899,
+        "endChar": 54
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "951a6a2f_3d8ad1a7",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "You can omit this check since isCanvasKitColor does it",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 38
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcd28690_87618473",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T20:01:57Z",
+      "side": 1,
+      "message": "remove logging",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 23
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
