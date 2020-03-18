@@ -596,9 +596,18 @@ namespace skvm {
         std::vector<int>                              fStrides;
     };
 
+    class Liveness {
+    public:
+        Liveness(const std::vector<Builder::Instruction>&);
+        bool live(Val id) const { return fLive[id]; }
+
+    private:
+        std::vector<bool> fLive;
+    };
+
     class Uses {
     public:
-        Uses(const std::vector<Builder::Instruction>&);
+        Uses(const std::vector<Builder::Instruction>&, const Liveness&);
 
         // The number of uses of Val id.
         int uses(Val id) const {

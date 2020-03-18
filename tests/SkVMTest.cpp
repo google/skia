@@ -273,22 +273,46 @@ DEF_TEST(SkVM, r) {
 }
 
 DEF_TEST(SkVM_Uses, r) {
-    skvm::Builder b;
     {
-        skvm::Arg arg = b.varying<int>();
-        skvm::I32 l = b.load32(arg);
-        skvm::I32 a = b.add(l, l);
-        b.add(a, b.splat(7));
+        skvm::Builder b;
+        {
+            skvm::Arg arg = b.varying<int>(),
+                      buf = b.varying<int>();
+            skvm::I32 l = b.load32(arg);
+            skvm::I32 a = b.add(l, l);
+            skvm::I32 s = b.add(a, b.splat(7));
+            b.store32(buf, s);
+        }
+        skvm::Liveness l{b.program()};
+        skvm::Uses u{b.program(), l};
+        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+        REPORTER_ASSERT(r, u.uses(0) == 2);
+        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.uses(1) == 1);
+        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+        REPORTER_ASSERT(r, u.uses(2) == 1);
+        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.uses(3) == 1);
     }
-    skvm::Uses u{b.program()};
-    REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
-    REPORTER_ASSERT(r, u.uses(0) == 2);
-    REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, u.uses(1) == 1);
-    REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
-    REPORTER_ASSERT(r, u.uses(2) == 1);
-    REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, u.uses(3) == 0);
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg arg = b.varying<int>();
+            skvm::I32 l = b.load32(arg);
+            skvm::I32 a = b.add(l, l);
+            b.add(a, b.splat(7));
+        }
+        skvm::Liveness l{b.program()};
+        skvm::Uses u{b.program(), l};
+        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+        REPORTER_ASSERT(r, u.uses(0) == 0);
+        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.uses(1) == 0);
+        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+        REPORTER_ASSERT(r, u.uses(2) == 0);
+        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.uses(3) == 0);
+    }
 }
 
 DEF_TEST(SkVM_Pointless, r) {

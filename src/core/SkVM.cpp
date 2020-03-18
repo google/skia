@@ -1090,22 +1090,44 @@ namespace skvm {
         };
     }
 
-    Uses::Uses(const std::vector<Builder::Instruction>& instructions) {
+    Liveness::Liveness(const std::vector<Builder::Instruction> &instructions) {
+        int instruction_count = instructions.size();
+        fLive.resize(instruction_count, false);
+        auto trace = [&](Val id, auto& recurse) -> void {
+            if (!fLive[id]) {
+                fLive[id] = true;
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) { recurse(inst.x, recurse); }
+                if (inst.y != NA) { recurse(inst.y, recurse); }
+                if (inst.z != NA) { recurse(inst.z, recurse); }
+            }
+        };
+
+        for (Val id = 0; id < instruction_count; id++) {
+            if (instructions[id].op <= skvm::Op::store32) {
+                trace(id, trace);
+            }
+        }
+    }
+
+    Uses::Uses(const std::vector<Builder::Instruction>& instructions, const Liveness& liveness) {
         int instruction_count = instructions.size();
 
         // Count up all the uses.
         std::vector<int> out_edge_count;
         out_edge_count.resize(instruction_count);
         for (Val id = 0; id < instruction_count; id++) {
-            Builder::Instruction inst = instructions[id];
-            if (inst.x != NA) {
-                out_edge_count[inst.x] += 1;
-            }
-            if (inst.y != NA) {
-                out_edge_count[inst.y] += 1;
-            }
-            if (inst.z != NA) {
-                out_edge_count[inst.z] += 1;
+            if (liveness.live(id)) {
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) {
+                    out_edge_count[inst.x] += 1;
+                }
+                if (inst.y != NA) {
+                    out_edge_count[inst.y] += 1;
+                }
+                if (inst.z != NA) {
+                    out_edge_count[inst.z] += 1;
+                }
             }
         }
 
@@ -1125,18 +1147,20 @@ namespace skvm {
         // Use a copy of edge_index as the cursor into edges of each Val.
         std::vector<int> edge_cursor{fEdgeIndex};
         for (Val id = 0; id < instruction_count; id++) {
-            Builder::Instruction inst = instructions[id];
-            if (inst.x != NA) {
-                fEdges[edge_cursor[inst.x]] = id;
-                edge_cursor[inst.x] += 1;
-            }
-            if (inst.y != NA) {
-                fEdges[edge_cursor[inst.y]] = id;
-                edge_cursor[inst.y] += 1;
-            }
-            if (inst.z != NA) {
-                fEdges[edge_cursor[inst.z]] = id;
-                edge_cursor[inst.z] += 1;
+            if (liveness.live(id)) {
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) {
+                    fEdges[edge_cursor[inst.x]] = id;
+                    edge_cursor[inst.x] += 1;
+                }
+                if (inst.y != NA) {
+                    fEdges[edge_cursor[inst.y]] = id;
+                    edge_cursor[inst.y] += 1;
+                }
+                if (inst.z != NA) {
+                    fEdges[edge_cursor[inst.z]] = id;
+                    edge_cursor[inst.z] += 1;
+                }
             }
         }
         #ifdef SK_DEBUG
