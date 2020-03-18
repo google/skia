@@ -22,7 +22,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
@@ -369,7 +369,7 @@ class SkpDebugPlayer {
       int fInspectedLayer = -1;
 };
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
@@ -507,7 +507,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
       self.clear(SkColor(color));
     }));
 
-  #if SK_SUPPORT_GPU
+  #ifdef SK_GL
     class_<GrContext>("GrContext")
         .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>");
     function("currentContext", &emscripten_webgl_get_current_context);
