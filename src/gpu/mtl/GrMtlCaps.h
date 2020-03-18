@@ -96,7 +96,6 @@ public:
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
-    void onDumpJSON(SkJSONWriter*) const override;
 
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
