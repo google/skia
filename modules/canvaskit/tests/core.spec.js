@@ -49,19 +49,18 @@ describe('Core canvas behavior', function() {
 
     it('can compute tonal colors', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
-            const input = {
-                ambient: CanvasKit.BLUE,
-                spot: CanvasKit.RED,
-            };
-            const out = CanvasKit.computeTonalColors(input);
+            const out = CanvasKit.computeTonalColors(CanvasKit.BLUE, CanvasKit.RED);
 
-            expect(out.ambient).toEqual(CanvasKit.Color(0,0,0,1));
-
-            const [r,g,b,a] = CanvasKit.getColorComponents(out.spot);
-            expect(r).toEqual(44);
-            expect(g).toEqual(0);
-            expect(b).toEqual(0);
-            expect(a).toBeCloseTo(0.969, 2);
+            console.log(uIntColorToCanvasKitColor(out.ambient));
+            console.log(uIntColorToCanvasKitColor(out.spot));
+            // tonal colors use SkColor, not SimpleColor4f
+            expect(uIntColorToCanvasKitColor(out.ambient)).toEqual(CanvasKit.BLACK);
+            const spot = uIntColorToCanvasKitColor(out.spot);
+            const expectedSpot = {0.173, 0, 0, 0.969};
+            expect(spot[0]).toBeCloseTo(expectedSpot[0], 3);
+            expect(spot[1]).toBeCloseTo(expectedSpot[1], 3);
+            expect(spot[2]).toBeCloseTo(expectedSpot[2], 3);
+            expect(spot[3]).toBeCloseTo(expectedSpot[3], 3);
             done();
         }));
     });
@@ -486,8 +485,6 @@ describe('Core canvas behavior', function() {
 
     it('exports consts correctly', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
-            expect(CanvasKit.TRANSPARENT).toEqual(0);
-            expect(CanvasKit.RED).toEqual(4294901760);
 
             expect(CanvasKit.QUAD_VERB).toEqual(2);
             expect(CanvasKit.CONIC_VERB).toEqual(3);
