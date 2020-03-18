@@ -65,7 +65,7 @@ public:
     sk_sp<const GrBuffer> fVertBuffer;
     sk_sp<const GrBuffer> fVertBuffer2;
 
-    GrOpsRenderPass* bindPipeline(GrPrimitiveType, bool isInstanced, bool hasVertexBuffer);
+    GrOpsRenderPass* bindPipeline1(GrPrimitiveType, bool isInstanced, bool hasVertexBuffer);
 
 private:
     GrOpFlushState* fState;
@@ -164,7 +164,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
              },
              [&](DrawMeshHelper* helper) {
                  for (int y = 0; y < kBoxCountY; ++y) {
-                     auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
+                     auto pass = helper->bindPipeline1(GrPrimitiveType::kTriangles, false, true);
                      pass->bindBuffers(nullptr, nullptr, helper->fVertBuffer.get());
                      pass->draw(kBoxCountX * 6, y * kBoxCountX * 6);
                  }
@@ -186,7 +186,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                     static_assert(kIndexPatternRepeatCount >= 3);
                     int repetitionCount = std::min(3 - baseRepetition, kBoxCount - i);
 
-                    auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
+                    auto pass = helper->bindPipeline1(GrPrimitiveType::kTriangles, false, true);
                     pass->bindBuffers(helper->fIndexBuffer.get(), nullptr,
                                       helper->fVertBuffer.get());
                     pass->drawIndexed(repetitionCount * 6, baseRepetition * 6, baseRepetition * 4,
@@ -209,7 +209,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 // Draw boxes one line at a time to exercise base vertex. drawIndexPattern does
                 // not support a base index.
                 for (int y = 0; y < kBoxCountY; ++y) {
-                    auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
+                    auto pass = helper->bindPipeline1(GrPrimitiveType::kTriangles, false, true);
                     pass->bindBuffers(helper->fIndexBuffer.get(), nullptr,
                                       helper->fVertBuffer.get());
                     pass->drawIndexPattern(6, kBoxCountX, kIndexPatternRepeatCount, 4,
@@ -268,7 +268,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
                          GrPrimitiveType primitiveType = indexed ? GrPrimitiveType::kTriangles
                                                                  : GrPrimitiveType::kTriangleStrip;
-                         auto pass = helper->bindPipeline(primitiveType, true,
+                         auto pass = helper->bindPipeline1(primitiveType, true,
                                                           SkToBool(vertexBuffer));
                          if (indexed) {
                              const GrBuffer* indexBuffer = (y % 2) ?
@@ -442,7 +442,7 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
             kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
 }
 
-GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, bool isInstanced,
+GrOpsRenderPass* DrawMeshHelper::bindPipeline1(GrPrimitiveType primitiveType, bool isInstanced,
                                               bool hasVertexBuffer) {
     GrProcessorSet processorSet(SkBlendMode::kSrc);
 
@@ -466,7 +466,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(), fState->proxy()->numStencilSamples(),
                               fState->proxy()->backendFormat(), fState->outputView()->origin(),
-                              pipeline, mtp, primitiveType);
+                              pipeline, mtp, primitiveType, 0, false);
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
     return fState->opsRenderPass();

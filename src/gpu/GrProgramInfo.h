@@ -23,7 +23,8 @@ public:
                   const GrPipeline* pipeline,
                   const GrPrimitiveProcessor* primProc,
                   GrPrimitiveType primitiveType,
-                  uint8_t tessellationPatchVertexCount = 0)
+                  uint8_t tessellationPatchVertexCount,
+                  bool foo)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
             , fIsMixedSampled(fNumRasterSamples > numSamples)
             , fBackendFormat(backendFormat)

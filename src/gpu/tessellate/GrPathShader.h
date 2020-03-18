@@ -41,7 +41,7 @@ public:
                     const GrPipeline* pipeline, const GrPathShader* shader)
                 : GrProgramInfo(proxy->numSamples(), proxy->numStencilSamples(),
                                 proxy->backendFormat(), origin, pipeline, shader,
-                                shader->fPrimitiveType, shader->fTessellationPatchVertexCount) {
+                                shader->fPrimitiveType, shader->fTessellationPatchVertexCount, false) {
         }
     };
 

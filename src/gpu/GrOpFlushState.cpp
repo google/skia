@@ -49,7 +49,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->outputView()->origin(),
                                   pipeline,
                                   fCurrDraw->fGeometryProcessor,
-                                  fCurrDraw->fPrimitiveType);
+                                  fCurrDraw->fPrimitiveType, 0, false);
 
         this->bindPipelineAndScissorClip(programInfo, chainBounds);
         this->bindTextures(programInfo.primProc(), fCurrDraw->fPrimProcProxies,

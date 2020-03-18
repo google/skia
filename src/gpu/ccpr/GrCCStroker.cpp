@@ -739,7 +739,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
                               flushState->outputView()->origin(), &pipeline, &processor,
-                              GrPrimitiveType::kTriangleStrip);
+                              GrPrimitiveType::kTriangleStrip, 0, false);
 
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
     flushState->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
