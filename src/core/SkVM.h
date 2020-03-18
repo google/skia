@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
@@ -690,6 +691,27 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+    };
+
+    // Fill live and sinks each if non-null:
+    //    - (*live)[id]: notes whether each input instruction is live
+    //    - *sinks:      an unsorted set of live instructions with side effects (stores, assert_true)
+    // Returns the number of live instructions.
+    int liveness_analysis(const std::vector<Builder::Instruction>&,
+                          std::vector<bool>* live,
+                          std::vector<Val>*  sinks);
+
+    class Uses {
+    public:
+        Uses(const std::vector<Builder::Instruction>&, const std::vector<bool>&);
+
+        // Return an unordered span of Vals which use result of Instruction id.
+        SkSpan<const Val> users(Val id) const;
+
+    private:
+        // The start of use edges for each instruction
+        std::vector<int> fIndex;
+        std::vector<Val> fTable;
     };
 
     // Helper to streamline allocating and working with uniforms.
