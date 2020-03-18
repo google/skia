@@ -2540,6 +2540,9 @@ protected:
     virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
     virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
                                   SkCanvas::SrcRectConstraint) {}
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
+    virtual void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
+                                     const SkPaint*) {}
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
