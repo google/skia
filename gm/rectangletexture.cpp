@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-// This test only works with the GL backend.
+// This test only works with the GPU backend.
 
 #include "gm/gm.h"
-
-#ifdef SK_GL
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -272,4 +270,3 @@ private:
 
 DEF_GM(return new RectangleTexture;)
 }
-#endif
