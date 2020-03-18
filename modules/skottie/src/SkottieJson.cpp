@@ -122,4 +122,19 @@ bool Parse<std::vector<float>>(const Value& v, std::vector<float>* vec) {
     return true;
 }
 
+bool ParseArray(const Value& jv, float* a, size_t count) {
+    const ArrayValue* ja = jv;
+    if (!ja || ja->size() != count) {
+        return false;
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        if (!Parse((*ja)[i], a + i)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 } // namespace skottie
