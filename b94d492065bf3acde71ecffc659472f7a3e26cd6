@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df0618ed_50f37479",
+        "filename": "modules/skottie/src/SkottieValue.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T14:28:15Z",
+      "side": 1,
+      "message": "Could prolly use one of the existing types instead, but none is a \"perfect\" match.",
+      "range": {
+        "startLine": 43,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 17
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
