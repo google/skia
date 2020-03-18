@@ -147,7 +147,7 @@ private:
         }
 
         const auto& v1 = fValues[lerp_info.vrec1.idx];
-        *fTarget = LERP(v0.v2, v1.v2, lerp_info.weight);
+        *fTarget = Lerp(v0.v2, v1.v2, lerp_info.weight);
     }
 
     const std::vector<SpatialValue> fValues;

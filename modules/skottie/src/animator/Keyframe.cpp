@@ -307,27 +307,6 @@ private:
 } // namespace
 
 template <>
-bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abuilder,
-                                                    const skjson::ObjectValue* jprop,
-                                                    VectorValue* v) {
-    if (!jprop) {
-        return false;
-    }
-
-    if (!ParseDefault<bool>((*jprop)["s"], false)) {
-        // Regular (static or keyframed) vector value.
-        KeyframeAnimator<VectorValue>::Builder builder;
-        return this->bindImpl(abuilder, jprop, builder, v);
-    }
-
-    // Separate-dimensions vector value: each component is animated independently.
-    v->resize(3ul, 0);
-    return this->bind(abuilder, (*jprop)["x"], v->data() + 0)
-         | this->bind(abuilder, (*jprop)["y"], v->data() + 1)
-         | this->bind(abuilder, (*jprop)["z"], v->data() + 2);
-}
-
-template <>
 bool AnimatablePropertyContainer::bind<ShapeValue>(const AnimationBuilder& abuilder,
                                                    const skjson::ObjectValue* jprop,
                                                    ShapeValue* v) {

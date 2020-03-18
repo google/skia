@@ -15,6 +15,8 @@
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 
+#include <algorithm>
+
 namespace  skottie {
 
 template <>
@@ -44,29 +46,6 @@ template <>
 template <>
 SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
     return v;
-}
-
-template <>
-bool ValueTraits<VectorValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
-                                        VectorValue* v) {
-    return Parse(jv, v);
-}
-
-template <>
-bool ValueTraits<VectorValue>::CanLerp(const VectorValue& v1, const VectorValue& v2) {
-    return v1.size() == v2.size();
-}
-
-template <>
-void ValueTraits<VectorValue>::Lerp(const VectorValue& v0, const VectorValue& v1, float t,
-                                    VectorValue* result) {
-    SkASSERT(v0.size() == v1.size());
-
-    result->resize(v0.size());
-
-    for (size_t i = 0; i < v0.size(); ++i) {
-        ValueTraits<ScalarValue>::Lerp(v0[i], v1[i], t, &(*result)[i]);
-    }
 }
 
 // DEPRECATED: remove after converting everything to SkColor4f

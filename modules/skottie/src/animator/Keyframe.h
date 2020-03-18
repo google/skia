@@ -134,7 +134,7 @@ private:
 };
 
 template <typename T>
-T LERP(const T& a, const T& b, float t) { return a + (b - a) * t; }
+T Lerp(const T& a, const T& b, float t) { return a + (b - a) * t; }
 
 } // namespace skottie::internal
 

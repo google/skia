@@ -23,7 +23,7 @@ public:
         sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder& abuilder,
                                          const skjson::ArrayValue& jkfs,
                                          void* target_value) override {
-            SkASSERT(jkfs.size() >= 1);
+            SkASSERT(jkfs.size() > 0);
             if (!this->parseKeyframes(abuilder, jkfs)) {
                 return nullptr;
             }
@@ -48,16 +48,16 @@ public:
     };
 
 private:
-    explicit ScalarKeyframeAnimator(std::vector<Keyframe> kfs,
-                                    std::vector<SkCubicMap> cms,
-                                    ScalarValue* target_value)
+    ScalarKeyframeAnimator(std::vector<Keyframe> kfs,
+                           std::vector<SkCubicMap> cms,
+                           ScalarValue* target_value)
         : INHERITED(std::move(kfs), std::move(cms))
         , fTarget(target_value) {}
 
     void onTick(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
-        *fTarget = LERP(lerp_info.vrec0.flt, lerp_info.vrec1.flt, lerp_info.weight);
+        *fTarget = Lerp(lerp_info.vrec0.flt, lerp_info.vrec1.flt, lerp_info.weight);
     }
 
     ScalarValue* fTarget;
