@@ -75,7 +75,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 expect(colorToString(CanvasKit.Color(102, 51, 153, 1.0))).toEqual('#663399');
 
                 expect(colorToString(CanvasKit.Color(255, 235, 205, 0.5))).toEqual(
-                                               'rgba(255, 235, 205, 0.50196078)');
+                                               'rgba(255, 235, 205, 0.50000000)');
 
                 done();
             }));
@@ -111,7 +111,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 for (let tc of testCases) {
                     // Print out the test case if the two don't match.
                     expect(multiplyByAlpha(tc.inColor, tc.inAlpha))
-                          .toBe(tc.outColor, JSON.stringify(tc));
+                          .toEqual(tc.outColor, JSON.stringify(tc));
                 }
 
                 done();
@@ -270,7 +270,9 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         if (!done) {
             console.log('debugging canvaskit');
             test(realCanvas);
+            const ss = skcanvas._canvasStateStack.length;
             test(skcanvas);
+            expect(skcanvas._canvasStateStack.length).toEqual(ss);_
             const png = skcanvas.toDataURL();
             const img = document.createElement('img');
             document.body.appendChild(img);
@@ -293,7 +295,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         }).catch(reportError(done));
     }
 
-    describe('CanvasContext2D API', function() {
+    fdescribe('CanvasContext2D API', function() {
         it('supports all the line types', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 multipleCanvasTest('all_line_drawing_operations', done, (canvas) => {
@@ -836,8 +838,9 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 });
             }));
         });
-        it('can read default properties', function(done) {
+        it('initializes skcanvas context with the same defaults as html canvas', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
+                console.log("BLACK IS THE NEW "+CanvasKit.BLACK)
                 const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
                 const realCanvas = document.getElementById('test');
                 realCanvas.width = CANVAS_WIDTH;
@@ -861,7 +864,6 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 for(let attr of toTest) {
                     expect(skcontext[attr]).toBe(realContext[attr], attr);
                 }
-
                 skcanvas.dispose();
                 done();
             }));
