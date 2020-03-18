@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2020-03-18
+
 ### Added
  - `SkShader.MakeSweepGradient`
  - `SkCanvas.saveLayer` can now be called with 1 argument (the paint). In this case the current
