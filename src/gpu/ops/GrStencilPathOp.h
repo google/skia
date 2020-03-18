@@ -56,6 +56,11 @@ private:
         this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsHairline::kNo);
     }
 
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
+
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
