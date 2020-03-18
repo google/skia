@@ -1,9 +1,9 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-REG_FIDDLE(GradientShader_MakeLinear, 201, 201, false, 0) {
+REG_FIDDLE(GradientShader_MakeRadial, 201, 201, false, 0) {
 void draw(SkCanvas* canvas) {
-    // This fiddle draws 4 instances of a LinearGradient, demonstrating
+    // This fiddle draws 4 instances of a RadialGradient, demonstrating
     // how the local matrix affects the gradient as well as the flag
     // which controls unpremul vs premul color interpolation.
 
@@ -17,11 +17,12 @@ void draw(SkCanvas* canvas) {
     SkColor transparentGreen = SkColorSetARGB(0, 0, 255, 255);
     SkColor colors[] = { transparentGreen, SK_ColorBLUE, SK_ColorRED };
     SkScalar positions[] = { 0.0, 0.65, 1.0 };
+    SkScalar radius = 50;
 
     for (int i = 0; i < 4; i++) {
         SkScalar blockX = (i % 2) * 100;
         SkScalar blockY = (i / 2) * 100;
-        SkPoint pts[] = { {blockX, blockY}, {blockX + 50, blockY + 100} };
+        SkPoint center = {blockX + 50, blockY + 50};
 
         int flags = 0; // interpolate colors in unpremul
         if (i % 2 == 1) {
@@ -31,17 +32,17 @@ void draw(SkCanvas* canvas) {
 
         SkMatrix* matr = nullptr;
         if (i / 2 == 1) {
-            // bottom row will be rotated 45 degrees.
+            // bottom row will be skewed a little.
             SkMatrix m;
-            m.setRotate(45, blockX, blockY);
+            m.setSkew(0.5, 0, 100, 100);
             matr = &m;
         }
 
-        auto lgs = SkGradientShader::MakeLinear(
-        pts, colors, positions, 3, SkTileMode::kMirror,
-        flags, matr);
+        auto rgs = SkGradientShader::MakeRadial(
+            center, radius, colors, positions, 3, SkTileMode::kMirror,
+            flags, matr);
 
-        p.setShader(lgs);
+        p.setShader(rgs);
         auto r = SkRect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
         canvas->drawRect(r, p);
         canvas->drawRect(r, strokePaint);
