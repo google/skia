@@ -272,6 +272,54 @@ DEF_TEST(SkVM, r) {
     });
 }
 
+DEF_TEST(SkVM_UsesAndLiveness, r) {
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg arg = b.varying<int>(),
+                      buf = b.varying<int>();
+            skvm::I32 l = b.load32(arg);
+            skvm::I32 a = b.add(l, l);
+            skvm::I32 s = b.add(a, b.splat(7));
+            b.store32(buf, s);
+        }
+
+        std::vector<bool> live;
+        std::vector<skvm::Val> sinks;
+        skvm::liveness_analysis(b.program(), &live, &sinks);
+        skvm::Uses u{b.program(), live};
+        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+        REPORTER_ASSERT(r, u.users(0).size() == 2);
+        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.users(1).size() == 1);
+        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+        REPORTER_ASSERT(r, u.users(2).size() == 1);
+        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.users(3).size() == 1);
+    }
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg arg = b.varying<int>();
+            skvm::I32 l = b.load32(arg);
+            skvm::I32 a = b.add(l, l);
+            b.add(a, b.splat(7));
+        }
+        std::vector<bool> live;
+        std::vector<skvm::Val> sinks;
+        skvm::liveness_analysis(b.program(), &live, &sinks);
+        skvm::Uses u{b.program(), live};
+        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+        REPORTER_ASSERT(r, u.users(0).size() == 0);
+        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.users(1).size() == 0);
+        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+        REPORTER_ASSERT(r, u.users(2).size() == 0);
+        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+        REPORTER_ASSERT(r, u.users(3).size() == 0);
+    }
+}
+
 DEF_TEST(SkVM_Pointless, r) {
     // Let's build a program with no memory arguments.
     // It should all be pegged as dead code, but we should be able to "run" it.
