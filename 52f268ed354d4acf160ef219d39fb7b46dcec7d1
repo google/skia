@@ -22,6 +22,30 @@
       "revId": "52f268ed354d4acf160ef219d39fb7b46dcec7d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77af30b1_294fc9dd",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-18T19:33:38Z",
+      "side": 1,
+      "message": "Yes - the 0 flags is implied since it was omitted here.",
+      "parentUuid": "72c3b6a7_6b1baed4",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 62
+      },
+      "revId": "52f268ed354d4acf160ef219d39fb7b46dcec7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
