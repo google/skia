@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.saveLayer` can now be called with 1 argument (the paint). In this case the current
    effective clip will be used, as the current rect is assumed to be null.
  - `SkPaint.setAlphaf`
+ - Clients can supply `no_codecs` to compile.sh to remove all codec encoding and decoded code.
+   This can save over 100 kb compressed if codecs are not needed.
 
 ### Deprecated
  - `MakeSkDashPathEffect` will be renamed soon. Calls can be replaced with
@@ -27,11 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Shadow offsets properly ignore the CTM in the canvas2d emulation layer.
 
 ### Changed
- - Stop compiling jpeg and webp encoders, for a smaller binary.
+ - Stop compiling jpeg and webp encoders by default. This results in a 100kb binary size reduction.
+   Clients that need these encoders can supply `force_encode_webp` or `force_encode_jpeg` to
+   compile.sh.
 
 ### Removed
- - Removed inverse filltypes
- - Removed StrokeAndFill paint style
+ - Removed inverse filltypes.
+ - Removed StrokeAndFill paint style.
  - Removed TextEncoding enum (it was only used internally). All functions assume UTF-8.
 
 ## [0.13.0] - 2020-02-28

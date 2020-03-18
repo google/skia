@@ -1681,9 +1681,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("High",   SkFilterQuality::kHigh_SkFilterQuality);
 
     // Only used to control the encode function.
+    // TODO(kjlubick): compile these out when the appropriate encoder is disabled.
     enum_<SkEncodedImageFormat>("ImageFormat")
         .value("PNG",  SkEncodedImageFormat::kPNG)
-        .value("JPEG", SkEncodedImageFormat::kJPEG);
+        .value("JPEG",  SkEncodedImageFormat::kJPEG)
+        .value("WEBP",  SkEncodedImageFormat::kWEBP);
 
     enum_<SkPaint::Style>("PaintStyle")
         .value("Fill",            SkPaint::Style::kFill_Style)
