@@ -160,7 +160,9 @@ private:
         bool              fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
+#ifdef SK_GL
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
+#endif
     const GrContextOptions          fGlobalOptions;
 };
 
@@ -176,10 +178,12 @@ public:
 
     TestContext* testContext() const { return fTestContext; }
 
+#ifdef SK_GL
     GLTestContext* glContext() const {
         SkASSERT(GrBackendApi::kOpenGL == this->backend());
         return static_cast<GLTestContext*>(fTestContext);
     }
+#endif
 
     const GrContextOptions& options() const { return fOptions; }
 

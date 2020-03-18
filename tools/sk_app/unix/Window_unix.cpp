@@ -370,10 +370,12 @@ bool Window_unix::attach(BackendType attachType) {
                     window_context_factory::MakeVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
+#ifdef SK_GL
         case kNativeGL_BackendType:
             fWindowContext =
                     window_context_factory::MakeGLForXlib(winInfo, fRequestedDisplayParams);
             break;
+#endif
         case kRaster_BackendType:
             fWindowContext =
                     window_context_factory::MakeRasterForXlib(winInfo, fRequestedDisplayParams);
