@@ -166,16 +166,13 @@ SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
     return uuid;
 }
 
-std::unique_ptr<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
-                                            const SkUUID& instance) {
+std::unique_ptr<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc, const SkUUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
     auto array = SkPDFMakeArray();
     static_assert(sizeof(SkUUID) == 16, "uuid_size");
-    array->appendString(
-            SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)));
-    array->appendString(
-            SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
+    array->appendString(SkString(reinterpret_cast<const char*>(&doc     ), sizeof(SkUUID)));
+    array->appendString(SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
     return std::move(array);
 }
 
