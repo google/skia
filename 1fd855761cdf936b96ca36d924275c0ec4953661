@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a644a5b6_3110ea06",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T15:25:33Z",
+      "side": 1,
+      "message": "Might be clearer to write the four instances as a loop, separating out the parameters that vary across loop iterations?  Something like,\n\nstruct Params {\n   SkPoint  offset;\n   SkColor  colors[3];\n   SkMatrix localMatrix;  \n   uint32_t flags;\n} params[] \u003d {\n\n   { {0,0}, {0x0000ffff, 0xff00ff00, 0xffff0000}, SkMatrix::I(), 0 },\n   { ... },\n   { ... },\n   { ... },\n\n};\n\nfor (const Params\u0026 p : params) {\n    const auto\u0026 [offset, colors, localMatrix, flags] \u003d p;\n    SkPoint  pts[] \u003d { {0,0}, {50,100} };\n    SkScalar positions[] \u003d { 0.0f, 0.65f, 1.0f };\n\n   canvas-\u003esave();\n       canvas-\u003etranslate(offset.x(), offset.y());\n       SkPaint p;\n       p.setShader(SkGradientShader::MakeLinear(pts, colors, positions, 3, \n                                                SkTileMode::kMirror, flags, \u0026localMatrix));\n       canvas-\u003edrawRect(SkRect{0,0,100,100}, p);\n       ...\n   canvas-\u003erestore();\n}",
+      "revId": "1fd855761cdf936b96ca36d924275c0ec4953661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
