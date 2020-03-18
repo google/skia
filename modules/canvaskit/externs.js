@@ -86,7 +86,6 @@ var CanvasKit = {
   _MakeSweepGradientShader: function() {},
   _MakeManagedAnimation: function() {},
   _MakeParticles: function() {},
-  _MakeSkDashPathEffect: function() {},
   _MakeSkPicture: function() {},
   _MakeSkVertices: function() {},
   _MakeTwoPointConicalGradientShader: function() {},
@@ -346,7 +345,12 @@ var CanvasKit = {
   },
 
   SkPathEffect: {
+    MakeCorner: function() {},
     MakeDash: function() {},
+    MakeDiscrete: function() {},
+
+    // Private C++ API
+    _MakeDash: function() {},
   },
 
   SkParticleEffect: {

@@ -96,6 +96,43 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    it('supports multiple path effects', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.WHITE);
+            const path = starPath(CanvasKit, 100, 100, 100);
+            const paint = new CanvasKit.SkPaint();
+
+            const cornerEffect = CanvasKit.SkPathEffect.MakeCorner(10);
+            const discreteEffect = CanvasKit.SkPathEffect.MakeDiscrete(5, 10, 0);
+
+            paint.setPathEffect(cornerEffect);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setStrokeWidth(5.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
+            canvas.drawPath(path, paint);
+
+            canvas.translate(200, 0);
+
+            paint.setPathEffect(discreteEffect);
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+
+            cornerEffect.delete();
+            path.delete();
+            paint.delete();
+            reportSurface(surface, 'patheffects_canvas', done);
+        }));
+    });
+
     it('returns the depth of the save state stack', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');

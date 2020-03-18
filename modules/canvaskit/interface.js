@@ -1071,7 +1071,7 @@ CanvasKit.onRuntimeInitialized = function() {
       throw 'Intervals array must have even length';
     }
     var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
-    var dpe = CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
+    var dpe = CanvasKit.SkPathEffect._MakeDash(ptr, intervals.length, phase);
     CanvasKit._free(ptr);
     return dpe;
   }
