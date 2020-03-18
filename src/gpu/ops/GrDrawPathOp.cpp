@@ -96,7 +96,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
                               flushState->outputView()->origin(),
                               pipeline,
                               pathProc.get(),
-                              GrPrimitiveType::kPath);
+                              GrPrimitiveType::kPath, 0, false);
 
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
     flushState->bindTextures(programInfo.primProc(), nullptr, programInfo.pipeline());

@@ -160,7 +160,8 @@ public:
                                             GrPipeline::InputFlags pipelineFlags
                                                                 = GrPipeline::InputFlags::kNone,
                                             const GrUserStencilSettings*
-                                                                = &GrUserStencilSettings::kUnused);
+                                                                = &GrUserStencilSettings::kUnused,
+                                            uint8_t tessellationPatchVertexCount = 0);
 
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,

@@ -164,7 +164,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             GrProcessorSet&& processorSet,
             GrPrimitiveType primitiveType,
             GrPipeline::InputFlags pipelineFlags,
-            const GrUserStencilSettings* stencilSettings) {
+            const GrUserStencilSettings* stencilSettings,
+            uint8_t tessellationPatchVertexCount) {
     auto pipeline = CreatePipeline(caps,
                                    arena,
                                    outputView->swizzle(),
@@ -190,7 +191,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                           outputView->origin(),
                                           pipeline,
                                           geometryProcessor,
-                                          primitiveType);
+                                          primitiveType,
+                                          tessellationPatchVertexCount, true);
     return tmp;
 }
 

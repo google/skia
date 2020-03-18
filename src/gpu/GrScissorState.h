@@ -14,6 +14,7 @@ class GrScissorState {
 public:
     GrScissorState() : fEnabled(false) {}
     GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
+    void setEnabled() { fEnabled = true; }
     void setDisabled() { fEnabled = false; }
     void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
