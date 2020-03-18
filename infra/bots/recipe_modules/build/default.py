@@ -82,7 +82,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
-  moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -272,8 +271,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_vulkan'] = 'true'
     args['skia_enable_vulkan_debug_layers'] = 'true'
     args['skia_use_gl'] = 'false'
-    if 'MoltenVK' in extra_tokens:
-      args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Direct3D' in extra_tokens:
     args['skia_use_direct3d'] = 'true'
     args['skia_use_gl'] = 'false'
