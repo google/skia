@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4636c2bd_9e77580a",
+        "filename": "modules/skottie/src/SkottieJson.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Ack, relocated to Vector.cpp.",
+      "parentUuid": "68ef002a_4ffc79e3",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8393ea4_4d6e6d94",
         "filename": "modules/skottie/src/SkottieValue.cpp",
         "patchSetId": 9
@@ -39,6 +57,30 @@
       "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37fac1cb_4dc925ea",
+        "filename": "modules/skottie/src/SkottieValue.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a8393ea4_4d6e6d94",
+      "range": {
+        "startLine": 33,
+        "startChar": 18,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -112,6 +154,54 @@
     },
     {
       "key": {
+        "uuid": "36adc482_fa7a0c5c",
+        "filename": "modules/skottie/src/SkottieValue.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "89c12c83_0a335c5a",
+      "range": {
+        "startLine": 43,
+        "startChar": 26,
+        "endLine": 43,
+        "endChar": 39
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c09c5aed_b83a2538",
+        "filename": "modules/skottie/src/SkottieValue.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Each animatable property is always stored as a FooValue (inline in some container).  Additionally, if the property is animated, there\u0027s a FooKeyframeAnimator which stores all the keyframes and points-to/updates the FooValue.\n\nSo for vector properties (currently colors and 3d stuff), we always store a VectorValue long term, and VectorKeyFrameAnimator is optional.\n\nstd::vector\u003cfloat\u003e would work, there\u0027s just a couple of wrinkles which make me hesitate: a) lack of uninitialized allocation (we know we\u0027re going to initialize later, no need to zero-initialize on resize) and b) extra/unneeded semantics take up storage space (e.g. capacity-related internals)\n\nThey\u0027re minor issues though, and come to think of it we resize exactly once per value so it matters even less.\n\nLet\u0027s switch to std::vector and see how it looks.  We can do the same for storage.",
+      "parentUuid": "9d06ac49_b9022341",
+      "range": {
+        "startLine": 43,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 17
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7af87bef_d1dbdd48",
         "filename": "modules/skottie/src/animator/Vector.cpp",
         "patchSetId": 9
@@ -123,6 +213,30 @@
       "writtenOn": "2020-03-18T15:07:50Z",
       "side": 1,
       "message": "Kind of tough to follow vec_size vs fVecSize, v.idx vs. fVIndex, etc.  Anything we can do to clear that up?",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 25
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a82735b_f289e428",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Ack.  Shuffled the naming a bit, let me know if better.",
+      "parentUuid": "7af87bef_d1dbdd48",
       "range": {
         "startLine": 27,
         "startChar": 17,
@@ -158,6 +272,30 @@
     },
     {
       "key": {
+        "uuid": "da84034c_70578cb5",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "ok, let\u0027s go with \"length\"",
+      "parentUuid": "fac8430f_a886af57",
+      "range": {
+        "startLine": 41,
+        "startChar": 66,
+        "endLine": 41,
+        "endChar": 77
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f257d247_1e9aa0b8",
         "filename": "modules/skottie/src/animator/Vector.cpp",
         "patchSetId": 9
@@ -175,6 +313,24 @@
     },
     {
       "key": {
+        "uuid": "d610ec89_1bc2c620",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f257d247_1e9aa0b8",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e47fec4e_25a3883d",
         "filename": "modules/skottie/src/animator/Vector.cpp",
         "patchSetId": 9
@@ -186,6 +342,30 @@
       "writtenOn": "2020-03-18T15:07:50Z",
       "side": 1,
       "message": "Don\u0027t you hold a size_t size?",
+      "range": {
+        "startLine": 54,
+        "startChar": 36,
+        "endLine": 54,
+        "endChar": 44
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "354c4f75_17763657",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "Type-independent keyframe records store a {float, uint32_t} union.  I\u0027m kind of bending over backwards to avoid specialization just because Skottie is under object code size pressure :(",
+      "parentUuid": "e47fec4e_25a3883d",
       "range": {
         "startLine": 54,
         "startChar": 36,
@@ -215,6 +395,24 @@
     },
     {
       "key": {
+        "uuid": "6779f664_58db904e",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "We may store fewer vectors than anticipated, thanks to tail-deduping.  In that case, adjust the storage size (essentially shrink-to-fit).\n\n(hopefully it\u0027s more readable now with std::vector)",
+      "parentUuid": "7eb4a5d3_fcf05c5b",
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45df3740_e6e9e9c7",
         "filename": "modules/skottie/src/animator/Vector.cpp",
         "patchSetId": 9
@@ -226,6 +424,30 @@
       "writtenOn": "2020-03-18T15:07:50Z",
       "side": 1,
       "message": "Is this a macro somewhere?  If so, why?",
+      "range": {
+        "startLine": 154,
+        "startChar": 12,
+        "endLine": 154,
+        "endChar": 16
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5428240a_335466a3",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-18T17:07:32Z",
+      "side": 1,
+      "message": "It\u0027s a template in Keyframe.h.  Not critical, just consistent lerp approach everywhere - e.g. a+(b-a)*t vs. a*(1-t)+b*t\n\n(also comes in handy for the terseness below, which may not be a good thing :)\n\nI could certainly drop it if you think it doesn\u0027t add much value.",
+      "parentUuid": "45df3740_e6e9e9c7",
       "range": {
         "startLine": 154,
         "startChar": 12,
