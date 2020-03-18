@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -40,16 +41,22 @@ public:
                                      ColorArrayType colorArrayType,
                                      const SkPMColor4f& color,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                     const SkMatrix& viewMatrix) {
+                                     const SkMatrix& viewMatrix,
+                                     int attrWidths[],
+                                     int attrCount) {
         return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
-                                       std::move(colorSpaceXform), viewMatrix);
+                                       std::move(colorSpaceXform), viewMatrix, attrWidths,
+                                       attrCount);
     }
 
     const char* name() const override { return "VerticesGP"; }
 
     const SkPMColor4f& color() const { return fColor; }
-    bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+
+    const Attribute& positionAttr() const { return fAttributes[kPositionIndex]; }
+    const Attribute& colorAttr() const { return fAttributes[kColorIndex]; }
+    const Attribute& localCoordsAttr() const { return fAttributes[kLocalCoordsIndex]; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -68,10 +75,10 @@ public:
             varyingHandler->emitAttributes(gp);
 
             // Setup pass through color
-            if (gp.hasVertexColor()) {
+            if (gp.colorAttr().isInitialized()) {
                 GrGLSLVarying varying(kHalf4_GrSLType);
                 varyingHandler->addVarying("color", &varying);
-                vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
+                vertBuilder->codeAppendf("half4 color = %s;", gp.colorAttr().name());
 
                 // For SkColor, do a red/blue swap, possible color space conversion, and premul
                 if (gp.fColorArrayType == ColorArrayType::kSkColor) {
@@ -100,13 +107,13 @@ public:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      gp.fInPosition.name(),
+                                      gp.positionAttr().name(),
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
-            const auto& coordsAttr = gp.fInLocalCoords.isInitialized() ? gp.fInLocalCoords
-                                                                       : gp.fInPosition;
+            const auto& coordsAttr = gp.localCoordsAttr().isInitialized() ? gp.localCoordsAttr()
+                                                                          : gp.positionAttr();
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
@@ -114,11 +121,23 @@ public:
                                  SkMatrix::I(),
                                  args.fFPCoordTransformHandler);
 
+            // Add varyings and globals for all custom attributes
+            for (size_t i = kFirstCustomIndex; i < gp.fAttributes.size(); ++i) {
+                const auto& attr(gp.fAttributes[i]);
+                GrGLSLVarying varying(attr.gpuType());
+                args.fVaryingHandler->addVarying(attr.name(), &varying);
+                args.fVertBuilder->codeAppendf("%s = %s;", varying.vsOut(), attr.name());
+
+                GrShaderVar var(SkStringPrintf("_vtx_attr_%d", int(i - kFirstCustomIndex)),
+                                attr.gpuType());
+                args.fFragBuilder->declareGlobal(var);
+                args.fFragBuilder->codeAppendf("%s = %s;", var.c_str(), varying.fsIn());
+            }
+
             fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const VerticesGP& vgp = gp.cast<VerticesGP>();
             uint32_t key = 0;
@@ -139,7 +158,7 @@ public:
                 pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
             }
 
-            if (!vgp.hasVertexColor() && vgp.color() != fColor) {
+            if (!vgp.colorAttr().isInitialized() && vgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, vgp.color().vec());
                 fColor = vgp.color();
             }
@@ -160,7 +179,7 @@ public:
     };
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        GLSLProcessor::GenKey(*this, b);
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
@@ -174,27 +193,45 @@ private:
                ColorArrayType colorArrayType,
                const SkPMColor4f& color,
                sk_sp<GrColorSpaceXform> colorSpaceXform,
-               const SkMatrix& viewMatrix)
+               const SkMatrix& viewMatrix,
+               int attrWidths[],
+               int attrCount)
             : INHERITED(kVerticesGP_ClassID)
             , fColorArrayType(colorArrayType)
             , fColor(color)
             , fViewMatrix(viewMatrix)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        if (fColorArrayType != ColorArrayType::kUnused) {
-            constexpr bool wideColor = false;
-            fInColor = MakeColorAttribute("inColor", wideColor);
+        constexpr Attribute missingAttr;
+        fAttributes.push_back({"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
+        fAttributes.push_back(fColorArrayType != ColorArrayType::kUnused
+                                      ? MakeColorAttribute("inColor", false)
+                                      : missingAttr);
+        fAttributes.push_back(localCoordsType == LocalCoordsType::kExplicit
+                        ? Attribute{"inLocalCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType}
+                        : missingAttr);
+
+        for (int i = 0; i < attrCount; ++i) {
+            SkASSERT(attrWidths[i] >= 1 && attrWidths[i] <= 4);
+            int ofs = attrWidths[i] - 1;
+            // Attributes store char*, so allocate long-lived storage for the (dynamic) names
+            fAttrNames.push_back(SkStringPrintf("_vtx_attr%d", i));
+            fAttributes.push_back({ fAttrNames.back().c_str(),
+                                    (GrVertexAttribType)(kFloat_GrVertexAttribType + ofs),
+                                    (GrSLType)(kFloat_GrSLType + ofs) });
         }
-        if (localCoordsType == LocalCoordsType::kExplicit) {
-            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
-                                              kFloat2_GrSLType};
-        }
-        this->setVertexAttributes(&fInPosition, 3);
+
+        this->setVertexAttributes(fAttributes.data(), fAttributes.size());
     }
 
-    Attribute fInPosition;
-    Attribute fInColor;
-    Attribute fInLocalCoords;
+    enum {
+        kPositionIndex    = 0,
+        kColorIndex       = 1,
+        kLocalCoordsIndex = 2,
+        kFirstCustomIndex = 3,
+    };
+
+    std::vector<SkString> fAttrNames;
+    std::vector<Attribute> fAttributes;
     ColorArrayType fColorArrayType;
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
@@ -202,6 +239,301 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
+
+class DrawCustomVerticesOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+public:
+    DEFINE_OP_CLASS_ID
+
+    DrawCustomVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
+                         const SkRuntimeEffect*, GrPrimitiveType, GrAAType,
+                         const SkMatrix& viewMatrix);
+
+    const char* name() const override { return "DrawCustomVerticesOp"; }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        if (fProgramInfo) {
+            fProgramInfo->visitFPProxies(func);
+        } else {
+            fHelper.visitProxies(func);
+        }
+    }
+
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override;
+
+private:
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
+
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) override;
+
+    void onPrePrepareDraws(GrRecordingContext*,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override;
+    void onPrepareDraws(Target*) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+    GrGeometryProcessor* makeGP(SkArenaAlloc*);
+
+    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+    bool combinablePrimitive() const {
+        return GrPrimitiveType::kTriangles == fPrimitiveType ||
+               GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kPoints == fPrimitiveType;
+    }
+
+    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*, const GrCaps&) override;
+
+    struct Mesh {
+        sk_sp<SkVertices> fVertices;
+    };
+
+    bool isIndexed() const {
+        return SkVerticesPriv::HasIndices(fMeshes[0].fVertices.get());
+    }
+
+    size_t vertexStride() const {
+        SkVertices::Info info;
+        fMeshes[0].fVertices->getInfo(&info);
+        return sizeof(SkPoint) + info.fPerVertexDataCount * sizeof(float);
+    }
+
+    Helper fHelper;
+    std::vector<int> fAttrWidths;
+    SkMatrix fViewMatrix;
+    SkSTArray<1, Mesh, true> fMeshes;
+    // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
+    // the SkVertices mode (though fPrimitiveType may have been inferred from it).
+    GrPrimitiveType fPrimitiveType;
+    int fVertexCount;
+    int fIndexCount;
+
+    GrSimpleMesh*  fMesh = nullptr;
+    GrProgramInfo* fProgramInfo = nullptr;
+
+    typedef GrMeshDrawOp INHERITED;
+};
+
+// Need to get description of attr counts here. Going to have to get that from shader in RTC,
+// pass it to constructor!
+
+// TODO: Deal with color!
+
+DrawCustomVerticesOp::DrawCustomVerticesOp(const Helper::MakeArgs& helperArgs,
+                                           const SkPMColor4f& color, sk_sp<SkVertices> vertices,
+                                           const SkRuntimeEffect* effect,
+                                           GrPrimitiveType primitiveType, GrAAType aaType,
+                                           const SkMatrix& viewMatrix)
+        : INHERITED(ClassID())
+        , fHelper(helperArgs, aaType)
+        , fViewMatrix(viewMatrix)
+        , fPrimitiveType(primitiveType) {
+    SkASSERT(vertices && effect);
+
+    SkVertices::Info info;
+    vertices->getInfo(&info);
+    SkASSERT(!info.hasColors() && !info.hasTexCoords());
+    SkASSERT(info.fPerVertexDataCount == effect->varyingCount());
+
+    fVertexCount = info.fVertexCount;
+    fIndexCount = info.fIndexCount;
+
+    Mesh& mesh = fMeshes.push_back();
+    mesh.fVertices = std::move(vertices);
+
+    IsHairline zeroArea;
+    if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
+        zeroArea = IsHairline::kYes;
+    } else {
+        zeroArea = IsHairline::kNo;
+    }
+
+    this->setTransformedBounds(mesh.fVertices->bounds(), fViewMatrix, HasAABloat::kNo, zeroArea);
+
+    for (const auto& v : effect->varyings()) {
+        fAttrWidths.push_back(v.fWidth);
+    }
+}
+
+#ifdef SK_DEBUG
+SkString DrawCustomVerticesOp::dumpInfo() const {
+    SkString string;
+    string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", (int)fPrimitiveType,
+                   fMeshes.count(), fVertexCount, fIndexCount);
+    string += fHelper.dumpInfo();
+    string += INHERITED::dumpInfo();
+    return string;
+}
+#endif
+
+GrProcessorSet::Analysis DrawCustomVerticesOp::finalize(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType) {
+    GrProcessorAnalysisColor gpColor;
+    gpColor.setToUnknown();
+    auto result = fHelper.finalizeProcessors(caps, clip, hasMixedSampledCoverage, clampType,
+                                             GrProcessorAnalysisCoverage::kNone, &gpColor);
+    // Might need to plumb this into the GP otherwise? Seems impossible for this to happen?
+    SkASSERT(!gpColor.isConstant());
+    return result;
+}
+
+GrGeometryProcessor* DrawCustomVerticesOp::makeGP(SkArenaAlloc* arena) {
+    auto gp =
+            VerticesGP::Make(arena, LocalCoordsType::kUnused, ColorArrayType::kUnused, {1, 1, 1, 1},
+                             nullptr, fViewMatrix, fAttrWidths.data(), fAttrWidths.size());
+    SkASSERT(this->vertexStride() == gp->vertexStride());
+    return gp;
+}
+
+void DrawCustomVerticesOp::onCreateProgramInfo(const GrCaps* caps,
+                                               SkArenaAlloc* arena,
+                                               const GrSurfaceProxyView* outputView,
+                                               GrAppliedClip&& appliedClip,
+                                               const GrXferProcessor::DstProxyView& dstProxyView) {
+    GrGeometryProcessor* gp = this->makeGP(arena);
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+                                             dstProxyView, gp, this->primitiveType());
+}
+
+void DrawCustomVerticesOp::onPrePrepareDraws(GrRecordingContext* context,
+                                             const GrSurfaceProxyView* outputView,
+                                             GrAppliedClip* clip,
+                                             const GrXferProcessor::DstProxyView& dstProxyView) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // This is equivalent to a GrOpFlushState::detachAppliedClip
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+    this->createProgramInfo(context->priv().caps(), arena, outputView,
+                            std::move(appliedClip), dstProxyView);
+
+    context->priv().recordProgramInfo(fProgramInfo);
+}
+
+void DrawCustomVerticesOp::onPrepareDraws(Target* target) {
+    // Allocate buffers.
+    size_t vertexStride = this->vertexStride();
+    sk_sp<const GrBuffer> vertexBuffer;
+    int firstVertex = 0;
+    GrVertexWriter verts{
+            target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex)};
+    if (!verts.fPtr) {
+        SkDebugf("Could not allocate vertices\n");
+        return;
+    }
+
+    sk_sp<const GrBuffer> indexBuffer;
+    int firstIndex = 0;
+    uint16_t* indices = nullptr;
+    if (this->isIndexed()) {
+        indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        if (!indices) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+    }
+
+    // Copy data into the buffers.
+    int vertexOffset = 0;
+
+    for (const auto& mesh : fMeshes) {
+        SkVertices::Info info;
+        mesh.fVertices->getInfo(&info);
+
+        // Copy data into the index buffer.
+        if (indices) {
+            for (int i = 0; i < info.fIndexCount; ++i) {
+                *indices++ = info.fIndices[i] + vertexOffset;
+            }
+        }
+
+        // Copy data into the vertex buffer.
+        const float* custom = info.fPerVertexData;
+
+        for (int i = 0; i < info.fVertexCount; ++i) {
+            verts.write(info.fPositions[i]);
+            for (int j = 0; j < info.fPerVertexDataCount; ++j) {
+                verts.write(*custom++);
+            }
+        }
+
+        vertexOffset += info.fVertexCount;
+    }
+
+    SkASSERT(!fMesh);
+    fMesh = target->allocMesh();
+    if (this->isIndexed()) {
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+                          GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
+    } else {
+        fMesh->set(std::move(vertexBuffer), fVertexCount, firstVertex);
+    }
+}
+
+void DrawCustomVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (!fProgramInfo) {
+        this->createProgramInfo(flushState);
+    }
+
+    if (!fProgramInfo || !fMesh) {
+        return;
+    }
+
+    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->drawMesh(*fMesh);
+}
+
+GrOp::CombineResult DrawCustomVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
+                                                              const GrCaps& caps) {
+    DrawCustomVerticesOp* that = t->cast<DrawCustomVerticesOp>();
+
+    if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (!this->combinablePrimitive() || this->primitiveType() != that->primitiveType()) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (this->isIndexed() != that->isIndexed()) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (fVertexCount + that->fVertexCount > SkTo<int>(UINT16_MAX)) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (!SkMatrixPriv::CheapEqual(this->fViewMatrix, that->fViewMatrix)) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (fAttrWidths != that->fAttrWidths) {
+        return CombineResult::kCannotCombine;
+    }
+
+    fMeshes.push_back_n(that->fMeshes.count(), that->fMeshes.begin());
+    fVertexCount += that->fVertexCount;
+    fIndexCount += that->fIndexCount;
+
+    return CombineResult::kMerged;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class DrawVerticesOp final : public GrMeshDrawOp {
 private:
@@ -227,7 +559,7 @@ public:
     SkString dumpInfo() const override;
 #endif
 
-    FixedFunctionFlags fixedFunctionFlags() const override;
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
@@ -354,10 +686,6 @@ SkString DrawVerticesOp::dumpInfo() const {
 }
 #endif
 
-GrDrawOp::FixedFunctionFlags DrawVerticesOp::fixedFunctionFlags() const {
-    return fHelper.fixedFunctionFlags();
-}
-
 GrProcessorSet::Analysis DrawVerticesOp::finalize(
         const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
         GrClampType clampType) {
@@ -386,7 +714,7 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
     const SkMatrix& vm = fMultipleViewMatrices ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
-                               std::move(csxform), vm);
+                               std::move(csxform), vm, nullptr, 0);
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
@@ -561,6 +889,21 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
 }
 
 } // anonymous namespace
+
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::MakeCustom(GrRecordingContext* context,
+                                                       GrPaint&& paint,
+                                                       sk_sp<SkVertices> vertices,
+                                                       const SkRuntimeEffect* effect,
+                                                       const SkMatrix& viewMatrix,
+                                                       GrAAType aaType,
+                                                       GrPrimitiveType* overridePrimType) {
+    SkASSERT(vertices);
+    GrPrimitiveType primType =
+            overridePrimType ? *overridePrimType
+                             : SkVertexModeToGrPrimitiveType(SkVerticesPriv::Mode(vertices.get()));
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawCustomVerticesOp>(
+            context, std::move(paint), std::move(vertices), effect, primType, aaType, viewMatrix);
+}
 
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
