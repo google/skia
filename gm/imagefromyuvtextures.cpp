@@ -31,18 +31,14 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkYUVMath.h"
 
 class GrRenderTargetContext;
 
 static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
-    static const float kJPEGConversionMatrix[20] = {
-        1.0f,  0.0f,       1.402f,    0.0f, -180.0f/255,
-        1.0f, -0.344136f, -0.714136f, 0.0f,  136.0f/255,
-        1.0f,  1.772f,     0.0f,      0.0f, -227.6f/255,
-        0.0f,  0.0f,       0.0f,      1.0f,    0.0f
-    };
-
-    return SkColorFilters::Matrix(kJPEGConversionMatrix);
+    float m[20];
+    SkColorMatrix_YUV2RGB(kJPEG_SkYUVColorSpace, m);
+    return SkColorFilters::Matrix(m);
 }
 
 namespace skiagm {
@@ -73,7 +69,9 @@ protected:
                                                      nullptr, SK_ARRAY_COUNT(kColors),
                                                      SkTileMode::kMirror));
         SkBitmap rgbBmp;
-        rgbBmp.allocN32Pixels(kBmpSize, kBmpSize, true);
+        auto ii =
+                SkImageInfo::Make(kBmpSize, kBmpSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        rgbBmp.allocPixels(ii);
         SkCanvas canvas(rgbBmp);
         canvas.drawPaint(paint);
         SkPMColor* rgbColors = static_cast<SkPMColor*>(rgbBmp.getPixels());
@@ -93,33 +91,38 @@ protected:
         uvPixels[0] = static_cast<signed char*>(fYUVBmps[1].getPixels());
         uvPixels[1] = static_cast<signed char*>(fYUVBmps[2].getPixels());
 
+        float m[20];
+        SkColorMatrix_RGB2YUV(kJPEG_SkYUVColorSpace, m);
         // Here we encode using the kJPEG_SkYUVColorSpace (i.e., full-swing Rec 601) even though
         // we will draw it with all the supported yuv color spaces when converted back to RGB
         for (int i = 0; i < kBmpSize * kBmpSize; ++i) {
-            yPixels[i] = static_cast<unsigned char>(0.299f * SkGetPackedR32(rgbColors[i]) +
-                                                    0.587f * SkGetPackedG32(rgbColors[i]) +
-                                                    0.114f * SkGetPackedB32(rgbColors[i]));
+            auto r = (rgbColors[i] & 0x000000ff) >>  0;
+            auto g = (rgbColors[i] & 0x0000ff00) >>  8;
+            auto b = (rgbColors[i] & 0x00ff0000) >> 16;
+            auto a = (rgbColors[i] & 0xff000000) >> 24;
+            yPixels[i] = SkToU8(sk_float_round2int(m[0]*r + m[1]*g + m[2]*b + m[3]*a + 255*m[4]));
         }
         for (int j = 0; j < kBmpSize / 2; ++j) {
             for (int i = 0; i < kBmpSize / 2; ++i) {
                 // Average together 4 pixels of RGB.
-                int rgb[] = { 0, 0, 0 };
+                int rgba[] = {0, 0, 0, 0};
                 for (int y = 0; y < 2; ++y) {
                     for (int x = 0; x < 2; ++x) {
                         int rgbIndex = (2 * j + y) * kBmpSize + 2 * i + x;
-                        rgb[0] += SkGetPackedR32(rgbColors[rgbIndex]);
-                        rgb[1] += SkGetPackedG32(rgbColors[rgbIndex]);
-                        rgb[2] += SkGetPackedB32(rgbColors[rgbIndex]);
+                        rgba[0] += (rgbColors[rgbIndex] & 0x000000ff) >>  0;
+                        rgba[1] += (rgbColors[rgbIndex] & 0x0000ff00) >>  8;
+                        rgba[2] += (rgbColors[rgbIndex] & 0x00ff0000) >> 16;
+                        rgba[3] += (rgbColors[rgbIndex] & 0xff000000) >> 24;
                     }
                 }
-                for (int c = 0; c < 3; ++c) {
-                    rgb[c] /= 4;
+                for (int c = 0; c < 4; ++c) {
+                    rgba[c] /= 4;
                 }
                 int uvIndex = j * kBmpSize / 2 + i;
-                uvPixels[0][uvIndex] = static_cast<signed char>(
-                    ((-38 * rgb[0] -  74 * rgb[1] + 112 * rgb[2] + 128) >> 8) + 128);
-                uvPixels[1][uvIndex] = static_cast<signed char>(
-                    ((112 * rgb[0] -  94 * rgb[1] -  18 * rgb[2] + 128) >> 8) + 128);
+                uvPixels[0][uvIndex] = SkToU8(sk_float_round2int(
+                        m[5]*rgba[0] + m[6]*rgba[1] + m[7]*rgba[2] + m[8]*rgba[3] + 255*m[9]));
+                uvPixels[1][uvIndex] = SkToU8(sk_float_round2int(
+                        m[10]*rgba[0] + m[11]*rgba[1] + m[12]*rgba[2] + m[13]*rgba[3] + 255*m[14]));
             }
         }
         fRGBImage = SkImage::MakeRasterCopy(SkPixmap(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
