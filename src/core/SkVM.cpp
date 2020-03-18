@@ -540,6 +540,118 @@ namespace skvm {
         const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
                                                                    : fProgram;
 
+#if 1
+        skvm::Liveness liveness{program};
+        skvm::Uses uses{program, liveness};
+
+        std::vector<Val> frontier;
+        int instruction_count = program.size();
+        std::vector<Val> waiting_inputs(instruction_count);
+        for (Val id = 0; id < instruction_count; id++) {
+            if (liveness.live(id)) {
+                Builder::Instruction inst = program[id];
+                int inputs = 0;
+                if (inst.x != NA) { inputs++; }
+                if (inst.y != NA) { inputs++; }
+                if (inst.z != NA) { inputs++; }
+                waiting_inputs[id] = inputs;
+                if (inputs == 0) {
+                    // Found a source, sources form the starting frontier.
+                    frontier.push_back(id);
+                }
+            }
+        }
+
+        std::vector<int> remaining_uses = uses.useCounts();
+
+        auto pressure_change = [&](Val id) -> int {
+          int pressure = 0;
+          Builder::Instruction inst = program[id];
+
+          // If this is not a sink, then it takes up a register
+          if (inst.op > Op::store32) { pressure += 1; }
+
+          // If this is the last use of the value, then that register will be free.
+          if (inst.x != NA && remaining_uses[inst.x] == 1) { pressure -= 1; }
+          if (inst.y != NA && remaining_uses[inst.y] == 1) { pressure -= 1; }
+          if (inst.z != NA && remaining_uses[inst.z] == 1) { pressure -= 1; }
+          return pressure;
+        };
+
+        auto compare = [&](const Val& lhs, const Val& rhs) {
+          SkASSERT(lhs != rhs);
+          int lhs_change = pressure_change(lhs);
+          int rhs_change = pressure_change(rhs);
+
+          // This comparison operator orders instructions from least (likely negative) register
+          // pressure to most register pressure,  breaking ties arbitrarily using original
+          // program order comparing the instruction index itself.
+          //
+          // We'll use this operator with std::{make,push,pop}_heap() to maintain a max heap
+          // frontier of instructions that are ready to schedule.  We iterate backwards through
+          // the program, scheduling later instruction slots before earlier ones, and that means
+          // an instruction becomes ready to schedule once all instructions using its result have
+          // been scheduled (in later slots).
+          //
+          // All together that means we'll be issuing the instructions that hurt register pressure
+          // as late as possible, and issuing the instructions that help register pressure as soon
+          // as possible.
+          //
+          // This heuristic of greedily issuing the instruction that most immediately decreases
+          // register pressure approximates a more expensive search to find a schedule that
+          // minimizes the high-water maximum register pressure, the number of registers we'll
+          // need to run this program.
+          //
+          // The tie-breaker heuristic was found through experimentation.
+          return lhs_change > rhs_change;
+        };
+
+        // Order the instructions.
+        std::make_heap(frontier.begin(), frontier.end(), compare);
+
+        // Schedule the instructions last to first from the DAG. Produce a schedule that executes
+        // instructions that reduce register pressure before ones that increase register
+        // pressure.
+        std::vector<OptimizedInstruction> optimized;
+        optimized.reserve(liveness.liveCount());
+        // Map old Val index to rewritten index in optimized.
+        std::vector<Val> new_index(program.size(), NA);
+        while(!frontier.empty()) {
+            std::pop_heap(frontier.begin(), frontier.end(), compare);
+            Val id = frontier.back();
+            frontier.pop_back();
+            new_index[id] = optimized.size();
+            Builder::Instruction inst = program[id];
+
+            // Use the old indices, and fix them up later.
+            optimized.push_back(skvm::OptimizedInstruction{
+                    inst.op, inst.x, inst.y, inst.z, inst.immy, inst.immz,
+                    /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false});
+
+            for(int use : uses.edges(id)) {
+                waiting_inputs[use]--;
+                if (waiting_inputs[use] == 0) {
+                    frontier.push_back(use);
+                    std::push_heap(frontier.begin(), frontier.end(), compare);
+                }
+            }
+
+            if (inst.x != NA) { remaining_uses[inst.x]--; }
+            if (inst.y != NA) { remaining_uses[inst.y]--; }
+            if (inst.z != NA) { remaining_uses[inst.z]--; }
+        }
+
+        SkASSERT(optimized.size() == liveness.liveCount());
+
+        // Fix up the optimized program to use the optimized indices.
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
+            if (inst.x != NA ) { inst.x = new_index[inst.x]; }
+            if (inst.y != NA ) { inst.y = new_index[inst.y]; }
+            if (inst.z != NA ) { inst.z = new_index[inst.z]; }
+        }
+
+#else
         struct UseCount {
             int total = 0;
             int remaining_uses = 0;
@@ -685,6 +797,7 @@ namespace skvm {
         }
 
         SkASSERT(frontier.empty());
+#endif
 
         // We're done with `program` now... everything below will analyze `optimized`.
 
@@ -1381,6 +1494,88 @@ namespace skvm {
                 return non_sep(R, G, B);
             }
         }
+    }
+
+    Liveness::Liveness(const std::vector<Builder::Instruction> &instructions) {
+        int instruction_count = instructions.size();
+        fLive.resize(instruction_count, false);
+        auto trace = [&](Val id, auto& recurse) -> void {
+            if (!fLive[id]) {
+                fLive[id] = true;
+                fLiveCount++;
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) { recurse(inst.x, recurse); }
+                if (inst.y != NA) { recurse(inst.y, recurse); }
+                if (inst.z != NA) { recurse(inst.z, recurse); }
+            }
+        };
+
+        // For all the sink instructions.
+        for (Val id = 0; id < instruction_count; id++) {
+            if (instructions[id].op <= skvm::Op::store32) {
+                trace(id, trace);
+            }
+        }
+    }
+
+    Uses::Uses(const std::vector<Builder::Instruction>& instructions, const Liveness& liveness) {
+        int instruction_count = instructions.size();
+
+        // Count up all the uses.
+        std::vector<int> out_edge_count;
+        out_edge_count.resize(instruction_count);
+        for (Val id = 0; id < instruction_count; id++) {
+            if (liveness.live(id)) {
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) {
+                    out_edge_count[inst.x] += 1;
+                }
+                if (inst.y != NA) {
+                    out_edge_count[inst.y] += 1;
+                }
+                if (inst.z != NA) {
+                    out_edge_count[inst.z] += 1;
+                }
+            }
+        }
+
+        // Create index into the edge vector.
+        fEdgeIndex.resize(instruction_count + 1);
+        int total_edge_count = 0;
+        for (int i = 0; i < instruction_count; i++) {
+            fEdgeIndex[i] = total_edge_count;
+            total_edge_count += out_edge_count[i];
+        }
+        // Total number of edges.
+        fEdgeIndex.back() = total_edge_count;
+
+        // Create all the edges
+        fEdges.resize(total_edge_count);
+
+        // Use a copy of edge_index as the cursor into edges of each Val.
+        std::vector<int> edge_cursor{fEdgeIndex};
+        for (Val id = 0; id < instruction_count; id++) {
+            if (liveness.live(id)) {
+                Builder::Instruction inst = instructions[id];
+                if (inst.x != NA) {
+                    fEdges[edge_cursor[inst.x]] = id;
+                    edge_cursor[inst.x] += 1;
+                }
+                if (inst.y != NA) {
+                    fEdges[edge_cursor[inst.y]] = id;
+                    edge_cursor[inst.y] += 1;
+                }
+                if (inst.z != NA) {
+                    fEdges[edge_cursor[inst.z]] = id;
+                    edge_cursor[inst.z] += 1;
+                }
+            }
+        }
+        #ifdef SK_DEBUG
+            for (int i = 0; i < instruction_count; i++) {
+                SkASSERT(edge_cursor[i] == fEdgeIndex[i+1]);
+            }
+        #endif
     }
 
     // ~~~~ Program::eval() and co. ~~~~ //
