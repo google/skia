@@ -432,6 +432,12 @@
 #define SK_ENABLE_LEGACY_SHADERCONTEXT
 #endif
 
+#ifdef SK_ENABLE_API_AVAILABLE
+#define SK_API_AVAILABLE API_AVAILABLE
+#else
+#define SK_API_AVAILABLE(...)
+#endif
+
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.

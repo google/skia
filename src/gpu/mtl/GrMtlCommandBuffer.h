@@ -33,8 +33,8 @@ public:
         [fCmdBuffer addCompletedHandler:block];
     }
 
-    void encodeSignalEvent(id<MTLEvent>, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
-    void encodeWaitForEvent(id<MTLEvent>, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
+    void encodeSignalEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
+    void encodeWaitForEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)

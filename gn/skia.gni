@@ -11,6 +11,7 @@ is_skia_dev_build = is_skia_standalone && !is_official_build
 declare_args() {
   skia_android_serial = ""
   skia_compile_processors = false
+  skia_enable_api_available_macro = true
   skia_enable_ccpr = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
