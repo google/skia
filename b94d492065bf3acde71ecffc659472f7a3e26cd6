@@ -457,6 +457,30 @@
       "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c836eb8_0efebbe5",
+        "filename": "modules/skottie/src/animator/Vector.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-18T17:15:08Z",
+      "side": 1,
+      "message": "I think I was just thrown off by the ALL CAPS NAME.  :)",
+      "parentUuid": "5428240a_335466a3",
+      "range": {
+        "startLine": 154,
+        "startChar": 12,
+        "endLine": 154,
+        "endChar": 16
+      },
+      "revId": "b94d492065bf3acde71ecffc659472f7a3e26cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
