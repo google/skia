@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 
+#include <initializer_list>
 #include <vector>
 
 namespace skjson { class Value; }
@@ -37,7 +38,35 @@ struct ValueTraits {
 
 using ScalarValue = SkScalar;
 using   Vec2Value = SkV2;
-using VectorValue = std::vector<ScalarValue>;
+
+class VectorValue {
+public:
+    VectorValue() = default;
+    VectorValue(std::initializer_list<float>);
+    VectorValue& operator=(std::initializer_list<float>);
+
+    size_t size() const { return  fSize; }
+    bool  empty() const { return !fSize; }
+
+    const float* data() const { return fStorage.get(); }
+          float* data()       { return fStorage.get(); }
+
+    float  operator[](size_t i) const { return fStorage[i]; }
+    float& operator[](size_t i)       { return fStorage[i]; }
+
+    float* realloc(size_t sz) {
+        if (sz != fSize) {
+            this->do_realloc(sz);
+        }
+        return this->data();
+    }
+
+private:
+    void do_realloc(size_t);
+
+    std::unique_ptr<float[]> fStorage;
+    size_t                   fSize = 0ul;
+};
 
 struct BezierVertex {
     SkPoint fInPoint,  // "in" control point, relative to the vertex
