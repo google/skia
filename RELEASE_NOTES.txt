@@ -12,7 +12,8 @@ Milestone 83
   * Made non-GL builds of GPU backend more robust.
     https://review.skia.org/277456
 
-  * 
+  * MoltenVK support removed. Use Metal backend instead.
+    https://review.skia.org/277612
 
 * * *
 
