@@ -22,6 +22,12 @@ public:
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
 
+    const GrPipeline* createPipelineWithStencil(const GrCaps*,
+                                                SkArenaAlloc*,
+                                                GrSwizzle outputViewSwizzle,
+                                                GrAppliedClip&&,
+                                                const GrXferProcessor::DstProxyView&);
+
     const GrPipeline* createPipelineWithStencil(GrOpFlushState* flushState);
 
     GrProgramInfo* createProgramInfoWithStencil(const GrCaps*,
