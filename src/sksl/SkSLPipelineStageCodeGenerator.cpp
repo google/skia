@@ -95,26 +95,37 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin) {
         INHERITED::writeFunctionCall(c);
     } else {
+        auto funcIsVarying = [](const FunctionDeclaration& decl) {
+            return decl.fName.fLength > 4 && strncmp(decl.fName.fChars, "vtx_", 4) == 0;
+        };
+        bool callIsVarying = funcIsVarying(c.fFunction);
         this->write("%s");
         int index = 0;
         for (const auto& e : fProgram) {
             if (e.fKind == ProgramElement::kFunction_Kind) {
-                if (&((FunctionDefinition&) e).fDeclaration == &c.fFunction) {
+                const FunctionDeclaration& decl = ((FunctionDefinition&)e).fDeclaration;
+                if (&decl == &c.fFunction) {
                     break;
                 }
-                ++index;
+                if (funcIsVarying(decl) == callIsVarying) {
+                    ++index;
+                }
             }
         }
-        fArgs->fFormatArgs.push_back(
-                Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName, index));
-        this->write("(");
-        const char* separator = "";
-        for (const auto& arg : c.fArguments) {
-            this->write(separator);
-            separator = ", ";
-            this->writeExpression(*arg, kSequence_Precedence);
+        Compiler::FormatArg::Kind argKind = callIsVarying
+                                                    ? Compiler::FormatArg::Kind::kVarying
+                                                    : Compiler::FormatArg::Kind::kFunctionName;
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(argKind, index));
+        if (!callIsVarying) {
+            this->write("(");
+            const char* separator = "";
+            for (const auto& arg : c.fArguments) {
+                this->write(separator);
+                separator = ", ";
+                this->writeExpression(*arg, kSequence_Precedence);
+            }
+            this->write(")");
         }
-        this->write(")");
     }
 }
 

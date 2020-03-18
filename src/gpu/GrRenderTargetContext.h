@@ -49,6 +49,7 @@ struct SkRect;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+class SkRuntimeEffect;
 class SkTextBlob;
 class SkVertices;
 
@@ -417,6 +418,22 @@ public:
                       const SkMatrix& viewMatrix,
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr);
+
+    /**
+     * Draws "custom" vertices with a paint and runtime effect.
+     *
+     * @param   paint            describes how to color pixels.
+     * @param   viewMatrix       transformation matrix
+     * @param   vertices         specifies the mesh to draw.
+     * @param   effect           runtime effect that will handle custom vertex attributes
+     * @param   overridePrimType primitive type to draw. If NULL, derive prim type from vertices.
+     */
+    void drawCustomVertices(const GrClip&,
+                            GrPaint&& paint,
+                            const SkMatrix& viewMatrix,
+                            sk_sp<SkVertices> vertices,
+                            const SkRuntimeEffect* effect,
+                            GrPrimitiveType* overridePrimType = nullptr);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the
