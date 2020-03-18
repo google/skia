@@ -478,8 +478,6 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLShaderBuilder.cpp",
   "$_src/gpu/glsl/GrGLSLShaderBuilder.h",
   "$_src/gpu/glsl/GrGLSLUniformHandler.h",
-  "$_src/gpu/glsl/GrGLSLUtil.cpp",
-  "$_src/gpu/glsl/GrGLSLUtil.h",
   "$_src/gpu/glsl/GrGLSLVarying.cpp",
   "$_src/gpu/glsl/GrGLSLVarying.h",
   "$_src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
