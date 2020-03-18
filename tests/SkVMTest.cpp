@@ -272,6 +272,25 @@ DEF_TEST(SkVM, r) {
     });
 }
 
+DEF_TEST(SkVM_Uses, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.varying<int>();
+        skvm::I32 l = b.load32(arg);
+        skvm::I32 a = b.add(l, l);
+        b.add(a, b.splat(7));
+    }
+    skvm::Uses u{b.program()};
+    REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+    REPORTER_ASSERT(r, u.uses(0) == 2);
+    REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+    REPORTER_ASSERT(r, u.uses(1) == 1);
+    REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+    REPORTER_ASSERT(r, u.uses(2) == 1);
+    REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+    REPORTER_ASSERT(r, u.uses(3) == 0);
+}
+
 DEF_TEST(SkVM_Pointless, r) {
     // Let's build a program with no memory arguments.
     // It should all be pegged as dead code, but we should be able to "run" it.
