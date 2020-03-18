@@ -14,6 +14,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
+#include "include/private/SkNoncopyable.h"
 
 #include <vector>
 
@@ -37,7 +38,7 @@ struct ValueTraits {
 
 using ScalarValue = SkScalar;
 using   Vec2Value = SkV2;
-using VectorValue = std::vector<ScalarValue>;
+using VectorValue = std::vector<float>;
 
 struct BezierVertex {
     SkPoint fInPoint,  // "in" control point, relative to the vertex
