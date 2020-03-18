@@ -64,18 +64,20 @@ bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
 GrSurfaceProxyView SkImageGenerator::generateTexture(GrRecordingContext* ctx,
                                                      const SkImageInfo& info,
                                                      const SkIPoint& origin,
-                                                     GrMipMapped mipMapped) {
+                                                     GrMipMapped mipMapped,
+                                                     GrImageTexGenPolicy texGenPolicy) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return {};
     }
-    return this->onGenerateTexture(ctx, info, origin, mipMapped);
+    return this->onGenerateTexture(ctx, info, origin, mipMapped, texGenPolicy);
 }
 
 GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
                                                        const SkImageInfo&,
                                                        const SkIPoint&,
-                                                       GrMipMapped) {
+                                                       GrMipMapped,
+                                                       GrImageTexGenPolicy) {
     return {};
 }
 #endif

@@ -184,7 +184,8 @@ public:
     }
 protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
-                                         const SkIPoint& origin, GrMipMapped mipMapped) override {
+                                         const SkIPoint& origin, GrMipMapped mipMapped,
+                                         GrImageTexGenPolicy) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 

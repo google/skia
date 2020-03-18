@@ -93,10 +93,12 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     refHelper->unref();
 }
 
-GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(GrRecordingContext* context,
-                                                                     const SkImageInfo& info,
-                                                                     const SkIPoint& origin,
-                                                                     GrMipMapped mipMapped) {
+GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
+        GrRecordingContext* context,
+        const SkImageInfo& info,
+        const SkIPoint& origin,
+        GrMipMapped mipMapped,
+        GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(context);
 
     if (context->backend() != fBackendTexture.backend()) {
@@ -210,18 +212,19 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(GrRecording
         return {};
     }
 
-    if (origin.isZero() && info.dimensions() == fBackendTexture.dimensions() &&
+    if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
+        info.dimensions() == fBackendTexture.dimensions() &&
         (mipMapped == GrMipMapped::kNo || proxy->mipMapped() == GrMipMapped::kYes)) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {
-        // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
-        // because Vulkan will want to do the copy as a draw. All other copies would require a
-        // layout change in Vulkan and we do not change the layout of borrowed images.
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        return GrSurfaceProxy::Copy(
-                context, proxy.get(), fSurfaceOrigin, grColorType, mipMapped, subset,
-                SkBackingFit::kExact, SkBudgeted::kYes);
+        SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                      ? SkBudgeted::kNo
+                                      : SkBudgeted::kYes;
+
+        return GrSurfaceProxy::Copy(context, proxy.get(), fSurfaceOrigin, grColorType, mipMapped,
+                                    subset, SkBackingFit::kExact, budgeted);
     }
 }
