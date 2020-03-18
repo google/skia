@@ -191,6 +191,31 @@ if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_
   PARAGRAPH_BINDINGS=""
 fi
 
+DO_DECODE="true"
+if [[ $@ == *no_codecs* ]]; then
+  echo "Omitting codecs"
+  DO_DECODE="false"
+  ENCODE_PNG="false"
+  ENCODE_JPEG="false"
+  ENCODE_WEBP="false"
+else
+
+  ENCODE_PNG="true"
+  if [[ $@ == *no_encode_png* ]]; then
+    ENCODE_PNG="false"
+  fi
+
+  ENCODE_JPEG="false"
+  if [[ $@ == *force_encode_jpeg* ]]; then
+    ENCODE_JPEG="true"
+  fi
+
+  ENCODE_WEBP="false"
+  if [[ $@ == *force_encode_webp* ]]; then
+    ENCODE_WEBP="true"
+  fi
+
+fi # no_codecs
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -233,12 +258,12 @@ echo "Compiling bitcode"
   skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_libheif=false \
-  skia_use_libjpeg_turbo_decode=true \
-  skia_use_libjpeg_turbo_encode=false \
-  skia_use_libpng_decode=true \
-  skia_use_libpng_encode=true \
-  skia_use_libwebp_decode=true \
-  skia_use_libwebp_encode=false \
+  skia_use_libjpeg_turbo_decode=${DO_DECODE} \
+  skia_use_libjpeg_turbo_encode=${ENCODE_JPEG} \
+  skia_use_libpng_decode=${DO_DECODE} \
+  skia_use_libpng_encode=${ENCODE_PNG} \
+  skia_use_libwebp_decode=${DO_DECODE} \
+  skia_use_libwebp_encode=${ENCODE_WEBP} \
   skia_use_lua=false \
   skia_use_piex=false \
   skia_use_system_freetype2=false \
