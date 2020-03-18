@@ -118,6 +118,7 @@ static SkCanvas* prepare_canvas(SkCanvas * canvas) {
     return canvas;
 }
 
+#ifdef SK_GL
 static bool setup_backend_objects(GrContext* context,
                                   const SkBitmap& bm,
                                   const DrawOptions& options) {
@@ -243,6 +244,7 @@ static bool setup_backend_objects(GrContext* context,
 
     return true;
 }
+#endif
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
@@ -289,6 +291,7 @@ int main(int argc, char** argv) {
         draw(prepare_canvas(rasterSurface->getCanvas()));
         rasterData = encode_snapshot(rasterSurface);
     }
+#ifdef SK_GL
     if (options.gpu) {
         std::unique_ptr<sk_gpu_test::GLTestContext> glContext;
         sk_sp<GrContext> grContext = create_grcontext(gGLDriverInfo, &glContext);
@@ -310,6 +313,7 @@ int main(int argc, char** argv) {
             gpuData = encode_snapshot(surface);
         }
     }
+#endif
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
         auto document = SkPDF::MakeDocument(&pdfStream);

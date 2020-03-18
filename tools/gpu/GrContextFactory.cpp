@@ -10,11 +10,11 @@
 #include "tools/gpu/GrContextFactory.h"
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#   if SK_ANGLE
+#   include "tools/gpu/gl/angle/GLTestContext_angle.h"
+#   endif
 #endif
 
-#if SK_ANGLE
-#include "tools/gpu/gl/angle/GLTestContext_angle.h"
-#endif
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 #ifdef SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
