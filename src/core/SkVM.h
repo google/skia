@@ -11,6 +11,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
@@ -594,6 +595,51 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+    };
+
+    class Liveness {
+    public:
+        Liveness(const std::vector<Builder::Instruction>&);
+        bool live(Val id) const { return fLive[id]; }
+        int liveCount() const { return fLiveCount; }
+
+    private:
+        std::vector<bool> fLive;
+        int fLiveCount = 0;
+    };
+
+    class Uses {
+    public:
+        Uses(const std::vector<Builder::Instruction>&, const Liveness&);
+
+        // The number of uses of Val id.
+        int uses(Val id) const {
+            return fEdgeIndex[id + 1] - fEdgeIndex[id];
+        }
+
+        // List of values that use Val id.
+        SkSpan<const Val> edges(Val id) const {
+            return SkMakeSpan(&fEdges[fEdgeIndex[id]], this->uses(id));
+        }
+
+        std::vector<int> useCounts() const {
+            std::vector<int> use_counts(fEdgeIndex.size() - 1);
+            for (int i = 0; i < (int)use_counts.size(); i++) {
+                use_counts[i] = this->uses(i);
+            }
+            return use_counts;
+        }
+
+        void graph(SkWStream* o, const std::vector<Builder::Instruction>& instructions) const;
+
+    private:
+        // The start of use edges for each instruction
+        std::vector<int> fEdgeIndex;
+        // The uses of Val id to edges where the heads of the edge are
+        // edges[edge_index[id]] to edges[edge_index[id+1]-1].
+        // This has an additional entry end which is the total number of edges to make the uses
+        // calculation simpler.
+        std::vector<int> fEdges;
     };
 
     // Helper to streamline allocating and working with uniforms.
