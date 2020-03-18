@@ -116,6 +116,8 @@ public:
                         intermediate values must be strictly increasing.
         @param  count   Must be >= 2. The number of colors (and pos if not NULL) entries
         @param  mode    The tiling mode
+
+        example: https://fiddle.skia.org/c/@GradientShader_MakeRadial
     */
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor colors[], const SkScalar pos[], int count,
@@ -139,6 +141,8 @@ public:
                         intermediate values must be strictly increasing.
         @param  count   Must be >= 2. The number of colors (and pos if not NULL) entries
         @param  mode    The tiling mode
+
+        example: https://fiddle.skia.org/c/@GradientShader_MakeRadial
     */
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
@@ -156,6 +160,8 @@ public:
      *  returns NULL if the inputs are invalid. The gradient interprets the
      *  two circles according to the following HTML spec.
      *  http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
+
+     *  example: https://fiddle.skia.org/c/@GradientShader_MakeTwoPointConical
      */
     static sk_sp<SkShader> MakeTwoPointConical(const SkPoint& start, SkScalar startRadius,
                                                const SkPoint& end, SkScalar endRadius,
@@ -175,6 +181,8 @@ public:
      *  returns NULL if the inputs are invalid. The gradient interprets the
      *  two circles according to the following HTML spec.
      *  http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
+
+     *  example: https://fiddle.skia.org/c/@GradientShader_MakeTwoPointConical
      */
     static sk_sp<SkShader> MakeTwoPointConical(const SkPoint& start, SkScalar startRadius,
                                                const SkPoint& end, SkScalar endRadius,

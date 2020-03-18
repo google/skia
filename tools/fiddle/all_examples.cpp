@@ -272,6 +272,8 @@
 #include "../../docs/examples/Filter_Quality_Methods.cpp"
 #include "../../docs/examples/Font_breakText.cpp"
 #include "../../docs/examples/GradientShader_MakeLinear.cpp"
+#include "../../docs/examples/GradientShader_MakeRadial.cpp"
+#include "../../docs/examples/GradientShader_MakeTwoPointConical.cpp"
 #include "../../docs/examples/HSVToColor.cpp"
 #include "../../docs/examples/HSVToColor_2.cpp"
 #include "../../docs/examples/Hard_Light.cpp"
