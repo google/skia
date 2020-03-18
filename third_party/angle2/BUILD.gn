@@ -120,7 +120,8 @@ shared_library("libGLESv2") {
       "Xi",
       "Xext",
     ]
-    sources += rebase_path(libangle_gl_glx_sources, ".", angle_root) +
+    sources += rebase_path(libangle_gl_glx_sources + libangle_gl_egl_sources +
+                               libangle_gl_egl_dl_sources, ".", angle_root) +
                [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
   } else if (is_win) {
     defines += [
