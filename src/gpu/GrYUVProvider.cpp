@@ -108,7 +108,8 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
                                                         SkISize dimensions,
                                                         GrColorType colorType,
                                                         SkColorSpace* srcColorSpace,
-                                                        SkColorSpace* dstColorSpace) {
+                                                        SkColorSpace* dstColorSpace,
+                                                        SkBudgeted budgeted) {
     SkYUVASizeInfo yuvSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
@@ -152,7 +153,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
                                             YUVGen_DataReleaseProc, dataStoragePtr));
         bitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
+        GrBitmapTextureMaker maker(ctx, bitmap, fit);
         yuvViews[i] = maker.view(GrMipMapped::kNo);
 
         if (!yuvViews[i]) {
@@ -165,7 +166,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
     // TODO: investigate preallocating mip maps here
     auto renderTargetContext = GrRenderTargetContext::Make(
             ctx, colorType, nullptr, SkBackingFit::kExact, dimensions, 1, GrMipMapped::kNo,
-            GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            GrProtected::kNo, kTopLeft_GrSurfaceOrigin, budgeted);
     if (!renderTargetContext) {
         return {};
     }

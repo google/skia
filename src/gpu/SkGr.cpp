@@ -134,32 +134,37 @@ sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
 GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                   GrSurfaceProxy* baseProxy,
                                                   GrSurfaceOrigin origin,
-                                                  GrColorType srcColorType) {
+                                                  GrColorType srcColorType,
+                                                  SkBudgeted budgeted) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return {};
     }
-    GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx, baseProxy, origin, srcColorType,
-                                                   GrMipMapped::kYes, SkBackingFit::kExact,
-                                                   SkBudgeted::kYes);
+    GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx,
+                                                   baseProxy,
+                                                   origin,
+                                                   srcColorType,
+                                                   GrMipMapped::kYes,
+                                                   SkBackingFit::kExact,
+                                                   budgeted);
     SkASSERT(!view.proxy() || view.asTextureProxy());
     return view;
 }
 
 GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
                                          GrMipMapped mipMapped) {
-    GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
+    GrBitmapTextureMaker maker(ctx, bitmap, GrImageTexGenPolicy::kDraw);
     return maker.view(mipMapped);
 }
 
-GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,
-                                               SkBackingFit fit) {
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context,
+                                               const SkBitmap& bitmap) {
     if (!bitmap.peekPixels(nullptr)) {
         return {};
     }
 
-    GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
+    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kDraw);
     return maker.view(GrMipMapped::kNo);
 }
 

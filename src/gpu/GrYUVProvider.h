@@ -44,7 +44,8 @@ public:
                                              SkISize,
                                              GrColorType colorType,
                                              SkColorSpace* srcColorSpace,
-                                             SkColorSpace* dstColorSpace);
+                                             SkColorSpace* dstColorSpace,
+                                             SkBudgeted budgeted);
 
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
                                   SkYUVColorSpace*, const void* planes[SkYUVASizeInfo::kMaxCount]);

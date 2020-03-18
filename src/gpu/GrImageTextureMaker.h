@@ -10,6 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "src/gpu/GrTextureMaker.h"
+#include "src/gpu/SkGr.h"
 
 class SkImage_Lazy;
 class SkImage_GpuYUVA;
@@ -18,14 +19,13 @@ class SkImage_GpuYUVA;
     is kAllow the image's ID is used for the cache key. */
 class GrImageTextureMaker final : public GrTextureMaker {
 public:
-    GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                        SkImage::CachingHint chint);
+    GrImageTextureMaker(GrRecordingContext*, const SkImage* client, GrImageTexGenPolicy);
 
 private:
     GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
 
     const SkImage_Lazy*     fImage;
-    SkImage::CachingHint    fCachingHint;
+    GrImageTexGenPolicy     fTexGenPolicy;
 
     typedef GrTextureMaker INHERITED;
 };

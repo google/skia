@@ -229,7 +229,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     }
 
     sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(context);
-    REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
+    REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     rasterImg = nullptr;        // this invalidates the uniqueKey

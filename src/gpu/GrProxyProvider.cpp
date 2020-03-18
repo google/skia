@@ -240,7 +240,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
                                                              GrMipMapped mipMapped,
-                                                             SkBackingFit fit) {
+                                                             SkBackingFit fit,
+                                                             SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
     SkASSERT(fit == SkBackingFit::kExact || mipMapped == GrMipMapped::kNo);
 
@@ -277,9 +278,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     sk_sp<GrTextureProxy> proxy;
     if (mipMapped == GrMipMapped::kNo ||
         0 == SkMipMap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
-        proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, format, grCT);
+        proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, format, grCT, budgeted);
     } else {
-        proxy = this->createMippedProxyFromBitmap(copyBitmap, format, grCT);
+        proxy = this->createMippedProxyFromBitmap(copyBitmap, format, grCT, budgeted);
     }
 
     if (!proxy) {
@@ -302,20 +303,21 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
 sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBitmap& bitmap,
                                                                       SkBackingFit fit,
                                                                       const GrBackendFormat& format,
-                                                                      GrColorType colorType) {
+                                                                      GrColorType colorType,
+                                                                      SkBudgeted budgeted) {
     GrSwizzle swizzle = this->caps()->getReadSwizzle(format, colorType);
     auto dims = bitmap.dimensions();
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [dims, format, bitmap, fit, colorType](GrResourceProvider* resourceProvider) {
+            [dims, format, bitmap, fit, colorType, budgeted](GrResourceProvider* resourceProvider) {
                 GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
 
                 return LazyCallbackResult(resourceProvider->createTexture(
-                        dims, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes, fit,
+                        dims, format, colorType, GrRenderable::kNo, 1, budgeted, fit,
                         GrProtected::kNo, mipLevel));
             },
             format, dims, swizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
-            GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, fit, SkBudgeted::kYes,
+            GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, fit, budgeted,
             GrProtected::kNo, UseAllocator::kYes);
 
     if (!proxy) {
@@ -327,7 +329,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitmap& bitmap,
                                                                    const GrBackendFormat& format,
-                                                                   GrColorType colorType) {
+                                                                   GrColorType colorType,
+                                                                   SkBudgeted budgeted) {
     SkASSERT(this->caps()->mipMapSupport());
 
 
@@ -340,7 +343,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
     auto dims = bitmap.dimensions();
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [dims, format, bitmap, mipmaps](GrResourceProvider* resourceProvider) {
+            [dims, format, bitmap, mipmaps, budgeted](GrResourceProvider* resourceProvider) {
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
@@ -357,12 +360,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                     SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
-                        dims, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes,
-                        GrProtected::kNo, texels.get(), mipLevelCount));
+                        dims, format, colorType, GrRenderable::kNo, 1, budgeted, GrProtected::kNo,
+                        texels.get(), mipLevelCount));
             },
             format, dims, readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kYes,
-            GrMipMapsStatus::kValid, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
-            SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes);
+            GrMipMapsStatus::kValid, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, budgeted,
+            GrProtected::kNo, UseAllocator::kYes);
 
     if (!proxy) {
         return nullptr;
