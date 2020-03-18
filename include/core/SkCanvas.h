@@ -2535,14 +2535,15 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    // REMOVE ME - SkCanvasVirtualEnforcer no longer requires the on DrawBitmapX functions
-    // to be implemented and these will be removed from SkCanvas at a later date.
+#ifdef SK_SUPPORT_LEGACY_ONDRAWBITMAP_VIRTUALS
+    // these are no longer called, so clients should stop overriding them
     virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
     virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
                                   SkCanvas::SrcRectConstraint) {}
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
     virtual void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
                                      const SkPaint*) {}
+#endif
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
