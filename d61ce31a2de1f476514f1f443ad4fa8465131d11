@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e609d2d_cdf20a7a",
+        "filename": "gm/verifiers/utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-03-18T18:12:09Z",
+      "side": 1,
+      "message": "I would consider moving this into a static variable so that you don\u0027t need to recreate it every call into a function that is likely to be called very frequently.",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 86
+      },
+      "revId": "d61ce31a2de1f476514f1f443ad4fa8465131d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
