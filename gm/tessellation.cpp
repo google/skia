@@ -298,6 +298,11 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
 
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* outputView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
+
     void onPrepare(GrOpFlushState* flushState) override {
         if (fTriPositions) {
             if (void* vertexData = flushState->makeVertexSpace(sizeof(float) * 3, 3, &fVertexBuffer,
