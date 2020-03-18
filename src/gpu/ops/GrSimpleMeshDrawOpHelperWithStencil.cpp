@@ -8,15 +8,28 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil(
-        GrOpFlushState* flushState) {
-    return GrSimpleMeshDrawOpHelper::CreatePipeline(&flushState->caps(),
-                                                    flushState->allocator(),
-                                                    flushState->outputView(),
-                                                    flushState->detachAppliedClip(),
-                                                    flushState->dstProxyView(),
+                                            const GrCaps* caps,
+                                            SkArenaAlloc* arena,
+                                            GrSwizzle outputViewSwizzle,
+                                            GrAppliedClip&& appliedClip,
+                                            const GrXferProcessor::DstProxyView& dstProxyView) {
+    return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,
+                                                    arena,
+                                                    outputViewSwizzle,
+                                                    std::move(appliedClip),
+                                                    dstProxyView,
                                                     this->detachProcessorSet(),
                                                     this->pipelineFlags(),
                                                     this->stencilSettings());
+}
+
+const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil(
+        GrOpFlushState* flushState) {
+    return this->createPipelineWithStencil(&flushState->caps(),
+                                           flushState->allocator(),
+                                           flushState->outputView()->swizzle(),
+                                           flushState->detachAppliedClip(),
+                                           flushState->dstProxyView());
 }
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
