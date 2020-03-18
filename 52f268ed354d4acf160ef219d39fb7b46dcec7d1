@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72c3b6a7_6b1baed4",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-18T19:05:25Z",
+      "side": 1,
+      "message": "is this one also testing unpremul interpolation?",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 62
+      },
+      "revId": "52f268ed354d4acf160ef219d39fb7b46dcec7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
