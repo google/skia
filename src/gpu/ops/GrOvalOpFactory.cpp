@@ -21,7 +21,6 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-#include "src/gpu/glsl/GrGLSLUtil.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -876,9 +875,7 @@ private:
                 !SkMatrixPriv::CheapEqual(fViewMatrix, diegp.fViewMatrix))
             {
                 fViewMatrix = diegp.fViewMatrix;
-                float viewMatrix[3 * 3];
-                GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
-                pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+                pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
             }
             this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
         }

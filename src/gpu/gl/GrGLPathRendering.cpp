@@ -174,7 +174,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
     fHWProjectionMatrixState.fRenderTargetOrigin = renderTargetOrigin;
 
     float glMatrix[4 * 4];
-    fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
+    fHWProjectionMatrixState.getRTAdjustedGLMatrix(glMatrix);
     SkDEBUGCODE(verify_floats(glMatrix, SK_ARRAY_COUNT(glMatrix)));
     GL_CALL(MatrixLoadf(GR_GL_PATH_PROJECTION, glMatrix));
 }
