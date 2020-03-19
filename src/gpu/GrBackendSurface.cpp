@@ -92,7 +92,6 @@ GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
             SK_ABORT("Unexpected texture target");
     }
 }
-#endif
 
 GrGLFormat GrBackendFormat::asGLFormat() const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
@@ -100,6 +99,7 @@ GrGLFormat GrBackendFormat::asGLFormat() const {
     }
     return GrGLFormat::kUnknown;
 }
+#endif
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
     SkASSERT(ycbcrInfo.isValid());

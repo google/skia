@@ -119,6 +119,9 @@ bool Window_mac::attach(BackendType attachType) {
     window_context_factory::MacWindowInfo info;
     info.fMainView = [fWindow contentView];
     switch (attachType) {
+        case kRaster_BackendType:
+            fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
+            break;
 #ifdef SK_DAWN
         case kDawn_BackendType:
             fWindowContext = MakeDawnMTLForMac(info, fRequestedDisplayParams);
@@ -134,16 +137,9 @@ bool Window_mac::attach(BackendType attachType) {
             fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
             break;
 #endif
-#ifdef SK_GL
         case kNativeGL_BackendType:
         default:
             fWindowContext = MakeGLForMac(info, fRequestedDisplayParams);
-            break;
-#else
-        default:
-#endif
-        case kRaster_BackendType:
-            fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
             break;
     }
     this->onBackendCreated();

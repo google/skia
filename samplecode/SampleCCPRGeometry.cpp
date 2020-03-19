@@ -16,7 +16,6 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -27,12 +26,9 @@
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
-
-#ifdef SK_GL
-#include "src/gpu/gl/GrGLGpu.h"
-#endif
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
@@ -333,7 +329,6 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                                       const SkRect& chainBounds) {
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
-#ifdef SK_GL
     GrGLGpu* glGpu = GrBackendApi::kOpenGL == context->backend()
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
@@ -342,7 +337,6 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
         // GR_GL_CALL(glGpu->glInterface(), PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_LINE));
         GR_GL_CALL(glGpu->glInterface(), Enable(GR_GL_LINE_SMOOTH));
     }
-#endif
 
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
                         state->drawOpArgs().outputSwizzle());
@@ -405,11 +399,9 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
         stroker.drawStrokes(state, proc.get(), batchID, ibounds);
     }
 
-#ifdef SK_GL
     if (glGpu) {
         context->resetContext(kMisc_GrGLBackendState);
     }
-#endif
 }
 
 class CCPRGeometryView::Click : public Sample::Click {

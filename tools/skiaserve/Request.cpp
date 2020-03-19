@@ -49,7 +49,6 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 }
 
 SkCanvas* Request::getCanvas() {
-#ifdef SK_GL
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kGL_ContextType,
             GrContextFactory::ContextOverrides::kNone).glContext();
@@ -60,7 +59,6 @@ SkCanvas* Request::getCanvas() {
     if (gl) {
         gl->makeCurrent();
     }
-#endif
     SkASSERT(fDebugCanvas);
 
     // create the appropriate surface if necessary
