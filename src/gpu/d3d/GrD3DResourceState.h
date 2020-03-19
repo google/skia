@@ -9,7 +9,8 @@
 #define GrD3DResourceState_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/d3d/GrD3D12.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
+#include "src/gpu/d3d/GrD3D12.h"
 
 class GrD3DResourceState : public SkRefCnt {
 public:
