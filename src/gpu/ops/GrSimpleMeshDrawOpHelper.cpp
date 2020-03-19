@@ -164,7 +164,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             GrProcessorSet&& processorSet,
             GrPrimitiveType primitiveType,
             GrPipeline::InputFlags pipelineFlags,
-            const GrUserStencilSettings* stencilSettings) {
+            const GrUserStencilSettings* stencilSettings,
+            uint8_t tessellationPatchVertexCount) {
     auto pipeline = CreatePipeline(caps,
                                    arena,
                                    outputView->swizzle(),
@@ -174,14 +175,16 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                    pipelineFlags,
                                    stencilSettings);
 
-    return CreateProgramInfo(arena, pipeline, outputView, geometryProcessor, primitiveType);
+    return CreateProgramInfo(arena, pipeline, outputView, geometryProcessor, primitiveType,
+                             tessellationPatchVertexCount);
 }
 
 GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                                            const GrPipeline* pipeline,
                                                            const GrSurfaceProxyView* outputView,
                                                            GrGeometryProcessor* geometryProcessor,
-                                                           GrPrimitiveType primitiveType) {
+                                                           GrPrimitiveType primitiveType,
+                                                           uint8_t tessellationPatchVertexCount) {
     GrRenderTargetProxy* outputProxy = outputView->asRenderTargetProxy();
 
     auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
@@ -190,7 +193,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                           outputView->origin(),
                                           pipeline,
                                           geometryProcessor,
-                                          primitiveType);
+                                          primitiveType,
+                                          tessellationPatchVertexCount);
     return tmp;
 }
 
