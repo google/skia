@@ -266,15 +266,15 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftRTC = GrRenderTargetContext::Make(
+    if (auto bottomLeftRTC = GrRenderTargetContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
                 GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
-        topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
-                          GrRenderTargetContext::CanClearFullscreen::kYes);
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+        bottomLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                            GrRenderTargetContext::CanClearFullscreen::kYes);
+        bottomLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
+        bottomLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+        rtc->drawTexture(GrNoClip(), bottomLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
                          {0, 0, 100, 200}, {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),

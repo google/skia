@@ -193,7 +193,7 @@ static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEn
     auto surfaceContext = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
             SkBackingFit::kExact, {kW, kH}, 1, GrMipMapped::kNo, GrProtected::kNo,
-            kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
+            kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo);
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

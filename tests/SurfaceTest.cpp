@@ -925,7 +925,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
         sk_sp<SkSurface> surface;
 
         ReleaseChecker releaseChecker;
-        GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
+        GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
 
         if (useTexture) {
             SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
