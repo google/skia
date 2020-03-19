@@ -12,6 +12,7 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -247,9 +248,10 @@ size_t SkRuntimeEffect::inputSize() const {
                                                 fInAndUniformVars.back().sizeInBytes());
 }
 
-SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
-                                                              const void* inputs,
-                                                              const SkSL::SharedCompiler& compiler) {
+SkRuntimeEffect::SpecializeResult
+SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
+                            const void* inputs,
+                            const SkSL::SharedCompiler& compiler) const {
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     for (const auto& v : fInAndUniformVars) {
         if (v.fQualifier != Variable::Qualifier::kIn) {
@@ -322,7 +324,7 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 }
 #endif
 
-SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) {
+SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) const {
     SkSL::SharedCompiler compiler;
 
     auto [specialized, errorText] = this->specialize(*fBaseProgram, inputs, compiler);
@@ -501,6 +503,78 @@ public:
         rec.fPipeline->append_matrix(rec.fAlloc, inverse);
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality /*quality*/, SkColorSpace* /*dstCS*/,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        SkDebugf("%s\n", fEffect->source().c_str());
+
+        // Seems easiest to work from the ByteCode representation of the program.
+        auto [byteCode, err] = fEffect->toByteCode(fInputs->data());
+        if (!byteCode) {
+            SkDebugf("%s\n", err.c_str());
+            return {};
+        }
+        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
+        if (!main) {
+            return {};
+        }
+
+        // Main implementation idea: unroll the ByteCode stack here into skvm::Builder values.
+        std::vector<skvm::I32> stack;
+
+        // Use uniform[i] to access the i'th 4-byte uniform.
+        std::vector<skvm::I32> uniform;
+        SkDebugf("uniforms\n");
+        for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
+            int bits;
+            memcpy(&bits, (const char*)fInputs->data() + 4*i, 4);
+            SkDebugf("%d\t%08x\n", i, bits);
+
+            uniform.push_back(p->uniform32(uniforms->push(bits)));
+        }
+
+        // Our parameters ought to be a 2-slot xy pair and a 4-slot inout color.
+        // I'm not sure what to do about seeding that paint color...  we don't
+        // normally let shaders see the paint color.  May need to thread it through.
+        SkDebugf("parameters\n");
+        for (int i = 0; i < main->getParameterCount(); i++) {
+            auto [slots,out] = main->getParameter(i);
+            SkDebugf("%d\t%d slots\t%s\n", i, slots, out? "out" : "");
+
+            SkASSERT(i < 2);
+            if (i == 0) { SkASSERT(slots == 2 && !out); }
+            if (i == 1) { SkASSERT(slots == 4 &&  out); }
+        }
+
+        // Translate from dst pixel centers to src pixel centers generically.
+        SkMatrix inv;
+        if (!this->computeTotalInverse(ctm, localM, &inv)) {
+            return {};
+        }
+        SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+        // TODO: what's the convention here?  Do we push x and y on the stack now?
+
+        SkDebugf("byte code\n");
+        for (int i = 0; i < main->bytes(); i++) {
+            SkDebugf("%d\t%3d\n", i, main->byte(i));
+        }
+
+        int i = 0;
+        while (i < main->bytes()) {
+            auto next = [&]{ return main->byte(i++); };
+
+            switch (uint8_t byte = next(); (SkSL::ByteCode::Instruction)byte) {
+                default:
+                    SkDebugf("unhandled instruction %d\n", byte);
+                    return {};
+            }
+        }
+
+        SkDebugf("ok\n");
+        return {};  // Presumably, our final color is on the top of the stack?
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

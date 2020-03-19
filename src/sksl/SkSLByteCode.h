@@ -42,6 +42,9 @@ public:
 
     void disassemble() const { }
 
+    uint8_t byte(int i) const { return fCode[i]; }
+    int     bytes()     const { return fCode.size(); }
+
 private:
     ByteCodeFunction(const FunctionDeclaration* declaration)
         : fName(declaration->fName) {}

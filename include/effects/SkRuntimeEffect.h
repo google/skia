@@ -127,7 +127,7 @@ public:
     // If successful, ByteCode != nullptr, otherwise, ErrorText contains the reason for failure.
     using ByteCodeResult = std::tuple<std::unique_ptr<SkSL::ByteCode>, SkString>;
 
-    ByteCodeResult toByteCode(const void* inputs);
+    ByteCodeResult toByteCode(const void* inputs) const;
 
     static void RegisterFlattenables();
 
@@ -139,8 +139,9 @@ private:
                     size_t uniformSize);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
-    SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
-                                const SkSL::SharedCompiler&);
+    SpecializeResult specialize(SkSL::Program& baseProgram,
+                                const void* inputs,
+                                const SkSL::SharedCompiler&) const;
 
     uint32_t fHash;
     SkString fSkSL;
