@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba4bcebe_83fb1168",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-19T18:39:36Z",
+      "side": 1,
+      "message": "While deconstructing the program, col0, col1, and vtx_lerp all have fReadCount drop to -1.",
+      "revId": "e368c5d98bb04ceedf58d241e7030469b503da82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4567b31d_cd6281fa",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 2439,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-19T18:39:36Z",
+      "side": 1,
+      "message": "Making sure you can\u0027t try to write to a varying.",
+      "revId": "e368c5d98bb04ceedf58d241e7030469b503da82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5697ff22_c776259f",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-19T18:39:36Z",
+      "side": 1,
+      "message": "I figured that kVarying_Flag should behave largely like kUniform_Flag. I didn\u0027t see any other places that seemed relevant, though.",
+      "revId": "e368c5d98bb04ceedf58d241e7030469b503da82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbf6083c_b9dd0103",
+        "filename": "src/sksl/ir/SkSLVariableReference.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-19T18:39:36Z",
+      "side": 1,
+      "message": "I was trying to understand the logic here. Do I need to do anything special?",
+      "revId": "e368c5d98bb04ceedf58d241e7030469b503da82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
