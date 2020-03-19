@@ -16,6 +16,7 @@ class GrColorSpaceXform;
 class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
+class SkRuntimeEffect;
 
 namespace GrDrawVerticesOp {
 
@@ -23,7 +24,8 @@ namespace GrDrawVerticesOp {
      * Draw a SkVertices. The GrPaint param's color is used if the vertices lack per-vertex color.
      * If the vertices lack local coords then the vertex positions are used as local coords. The
      * primitive type drawn is derived from the SkVertices object, unless overridePrimType is
-     * specified.
+     * specified. If an SkRuntimeEffect is provided, it may expect some number of input varyings,
+     * which should match the number of extra per-vertex values in the SkVertices.
      */
     std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                    GrPaint&&,
@@ -31,7 +33,9 @@ namespace GrDrawVerticesOp {
                                    const SkMatrix& viewMatrix,
                                    GrAAType,
                                    sk_sp<GrColorSpaceXform>,
-                                   GrPrimitiveType* overridePrimType = nullptr);
+                                   GrPrimitiveType* overridePrimType = nullptr,
+                                   const SkRuntimeEffect* = nullptr);
+
 };
 
 #endif

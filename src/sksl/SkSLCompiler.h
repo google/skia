@@ -79,7 +79,8 @@ public:
             kCoords,
             kUniform,
             kChildProcessor,
-            kFunctionName
+            kFunctionName,
+            kVarying
         };
 
         FormatArg(Kind kind)
