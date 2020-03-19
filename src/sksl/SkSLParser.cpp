@@ -924,7 +924,7 @@ Layout Parser::layout() {
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
             READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER | PLS | PLSIN |
-            PLSOUT)* */
+            PLSOUT | VARYING)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
@@ -999,6 +999,10 @@ Modifiers Parser::modifiers() {
             case Token::PLSOUT:
                 this->nextToken();
                 flags |= Modifiers::kPLSOut_Flag;
+                break;
+            case Token::VARYING:
+                this->nextToken();
+                flags |= Modifiers::kVarying_Flag;
                 break;
             default:
                 return Modifiers(layout, flags);

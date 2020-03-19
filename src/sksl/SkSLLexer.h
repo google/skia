@@ -89,6 +89,8 @@ struct Token {
         PLSIN,
 #undef PLSOUT
         PLSOUT,
+#undef VARYING
+        VARYING,
 #undef STRUCT
         STRUCT,
 #undef LAYOUT
@@ -241,5 +243,5 @@ private:
     int32_t fOffset;
 };
 
-}  // namespace
+}  // namespace SkSL
 #endif
