@@ -224,17 +224,17 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 return ContextInfo();
             }
 
-#ifdef SK_GL
-            // There is some bug (either in Skia or the NV Vulkan driver) where VkDevice
-            // destruction will hang occaisonally. For some reason having an existing GL
-            // context fixes this.
+            // We previously had an issue where the VkDevice destruction would occasionally hang
+            // on systems with NVIDIA GPUs and having an existing GL context fixed it. Now (March
+            // 2020) we still need the GL context to keep Vulkan/TSAN bots from running incredibly
+            // slow. Perhaps this prevents repeated driver loading/unloading? Note that keeping
+            // a persistent VkTestContext around instead was tried and did not work.
             if (!fSentinelGLContext) {
                 fSentinelGLContext.reset(CreatePlatformGLTestContext(kGL_GrGLStandard));
                 if (!fSentinelGLContext) {
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
-#endif
             break;
         }
 #endif

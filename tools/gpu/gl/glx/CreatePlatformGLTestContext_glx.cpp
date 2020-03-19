@@ -239,6 +239,7 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
+#ifdef SK_GL
     auto gl = GrGLMakeNativeInterface();
     if (!gl) {
         SkDebugf("Failed to create gl interface");
@@ -253,6 +254,12 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     }
 
     this->init(std::move(gl));
+#else
+    // Allow the GLTestContext creation to succeed without a GrGLInterface to support
+    // GrContextFactory's persistent GL context workaround for Vulkan. We won't need the
+    // GrGLInterface since we're not running the GL backend.
+    this->init(nullptr);
+#endif
 }
 
 
