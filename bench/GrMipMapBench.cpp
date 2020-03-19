@@ -40,7 +40,7 @@ protected:
             // We're benching the regeneration of the mip levels not the need to allocate them every
             // frame. Thus we create the surface with mips to begin with.
             fSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
-                                                   kBottomLeft_GrSurfaceOrigin, nullptr, true);
+                                                   kTopLeft_GrSurfaceOrigin, nullptr, true);
 
         }
 

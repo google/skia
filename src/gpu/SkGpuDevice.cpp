@@ -1165,7 +1165,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fRenderTargetContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(),
             fRenderTargetContext->numSamples(), GrMipMapped::kNo,
-            fRenderTargetContext->asSurfaceProxy()->isProtected(), kBottomLeft_GrSurfaceOrigin,
+            fRenderTargetContext->asSurfaceProxy()->isProtected(), kTopLeft_GrSurfaceOrigin,
             SkBudgeted::kYes, &props);
     if (!rtc) {
         return nullptr;

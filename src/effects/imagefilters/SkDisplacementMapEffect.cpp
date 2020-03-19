@@ -365,7 +365,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
 
         auto renderTargetContext = GrRenderTargetContext::Make(
                 context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
-                bounds.size(), 1, GrMipMapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
+                bounds.size(), 1, GrMipMapped::kNo, isProtected, kTopLeft_GrSurfaceOrigin);
         if (!renderTargetContext) {
             return nullptr;
         }
