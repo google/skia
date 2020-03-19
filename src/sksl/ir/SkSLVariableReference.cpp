@@ -12,6 +12,8 @@
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLSetting.h"
 
+#include <cstdio>
+
 namespace SkSL {
 
 VariableReference::VariableReference(int offset, const Variable& variable, RefKind refKind)
