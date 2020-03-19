@@ -55,6 +55,7 @@ private:
 };
 
 std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+#ifdef SK_GL
     std::unique_ptr<GLGpuTimer> ret;
     const GrGLInterface* gl = ctx->gl();
     if (gl->fExtensions.has("GL_EXT_disjoint_timer_query")) {
@@ -69,6 +70,9 @@ std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTes
         ret = nullptr;
     }
     return ret;
+#else
+    return nullptr;
+#endif
 }
 
 GLGpuTimer::GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext* ctx, const char* ext)
@@ -155,7 +159,16 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
+bool GLTestContext::isValid() const {
+#ifdef SK_GL
+    return SkToBool(this->gl());
+#else
+    return fWasInitialized;
+#endif
+}
+
 static bool fence_is_supported(const GLTestContext* ctx) {
+#ifdef SK_GL
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3, 2) &&
             !ctx->gl()->hasExtension("GL_ARB_sync")) {
@@ -173,12 +186,18 @@ static bool fence_is_supported(const GLTestContext* ctx) {
             return false;
         }
     }
+#else
+    return false;
+#endif
 }
 
 void GLTestContext::init(sk_sp<const GrGLInterface> gl) {
     fGL = std::move(gl);
     fFenceSupport = fence_is_supported(this);
     fGpuTimer = GLGpuTimer::MakeIfSupported(this);
+#ifndef SK_GL
+    fWasInitialized = true;
+#endif
 }
 
 void GLTestContext::teardown() {
@@ -188,20 +207,25 @@ void GLTestContext::teardown() {
 
 void GLTestContext::testAbandon() {
     INHERITED::testAbandon();
+#ifdef SK_GL
     if (fGL) {
         fGL->abandon();
     }
+#endif
 }
 
 void GLTestContext::finish() {
+#ifdef SK_GL
     if (fGL) {
         GR_GL_CALL(fGL.get(), Finish());
     }
+#endif
 }
 
 GrGLuint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
                                                GrGLenum externalFormat, GrGLenum externalType,
                                                GrGLvoid* data) {
+#ifdef SK_GL
     // Should match GrGLCaps check for fRectangleTextureSupport.
     if (kGL_GrGLStandard != fGL->fStandard ||
         (GrGLGetVersion(fGL.get()) < GR_GL_VER(3, 1) &&
@@ -228,10 +252,17 @@ GrGLuint GLTestContext::createTextureRectangle(int width, int height, GrGLenum i
     GR_GL_CALL(fGL.get(), TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
                                      externalFormat, externalType, data));
     return id;
+#else
+    return 0;
+#endif
 }
 
 sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
+#ifdef SK_GL
     return GrContext::MakeGL(fGL, options);
+#else
+    return nullptr;
+#endif
 }
 
 }  // namespace sk_gpu_test
