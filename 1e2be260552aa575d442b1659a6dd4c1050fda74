@@ -22,6 +22,30 @@
       "revId": "1e2be260552aa575d442b1659a6dd4c1050fda74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7ddea83_70dd3abf",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-19T21:57:10Z",
+      "side": 1,
+      "message": "Update onCreateDevice to match the origin.",
+      "parentUuid": "e3997c39_85e15154",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 81
+      },
+      "revId": "1e2be260552aa575d442b1659a6dd4c1050fda74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
