@@ -41,7 +41,7 @@ public:
 
     SkSurfaceCharacterization()
             : fCacheMaxResourceBytes(0)
-            , fOrigin(kBottomLeft_GrSurfaceOrigin)
+            , fOrigin(kTopLeft_GrSurfaceOrigin)
             , fSampleCnt(0)
             , fIsTextureable(Textureable::kYes)
             , fIsMipMapped(MipMapped::kYes)

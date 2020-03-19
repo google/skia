@@ -129,7 +129,7 @@ public:
                 , fTest(test)
                 , fAtlas(atlas) {
             static const GrColorType kColorType = GrColorType::kAlpha_F16;
-            static const GrSurfaceOrigin kOrigin = kBottomLeft_GrSurfaceOrigin;
+            static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
             const GrBackendFormat format =
                 ctx->priv().caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
             GrSwizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);

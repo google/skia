@@ -8,7 +8,11 @@ Milestone 83
 
 <Insert new notes here- top is most recent.>
 
-  * 
+  * Changed default origin of gpu backed surfaces to be TopLeft instead of BottomLeft. This matches
+    Skia's canvas logical origin as well as most newer GPU APIs. This should only effect clients
+    who were letting Skia create the GPU backend surfaces, but then were grabbing the
+    GrBackendTexture/RenderTargets to use in their own code, and were assuming a BottomLeft origin.
+    Additionally cause of GPU snapping some draws may now shift a row up or down.
 
 * * *
 
