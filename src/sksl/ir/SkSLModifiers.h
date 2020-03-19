@@ -34,6 +34,7 @@ struct Modifiers {
         kPLS_Flag            = 1 << 13,
         kPLSIn_Flag          = 1 << 14,
         kPLSOut_Flag         = 1 << 15,
+        kVarying_Flag        = 1 << 16,
     };
 
     Modifiers()
@@ -87,6 +88,9 @@ struct Modifiers {
         }
         if (fFlags & kPLSOut_Flag) {
             result += "__pixel_local_outEXT ";
+        }
+        if (fFlags & kVarying_Flag) {
+            result += "varying ";
         }
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
