@@ -239,6 +239,7 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
+#ifdef SK_GL
     auto gl = GrGLMakeNativeInterface();
     if (!gl) {
         SkDebugf("Failed to create gl interface");
@@ -253,6 +254,9 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     }
 
     this->init(std::move(gl));
+#else
+    this->init(nullptr);
+#endif
 }
 
 
