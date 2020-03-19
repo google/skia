@@ -37,7 +37,6 @@ public:
 private:
     GrGpu* gpu() override;
 
-    void setScissorState(const GrProgramInfo&);
     void applyState(GrDawnProgram*, const GrProgramInfo& programInfo);
 
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;

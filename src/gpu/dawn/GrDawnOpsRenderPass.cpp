@@ -117,21 +117,6 @@ void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDawnOpsRenderPass::setScissorState(const GrProgramInfo& programInfo) {
-    SkIRect rect;
-    if (programInfo.pipeline().isScissorTestEnabled()) {
-        constexpr SkIRect kBogusScissor{0, 0, 1, 1};
-        rect = programInfo.hasFixedScissor() ? programInfo.fixedScissor() : kBogusScissor;
-        if (kBottomLeft_GrSurfaceOrigin == fOrigin) {
-            rect.setXYWH(rect.x(), fRenderTarget->height() - rect.bottom(),
-                         rect.width(), rect.height());
-        }
-    } else {
-        rect = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
-    }
-    fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
-}
-
 void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo& programInfo) {
     auto bindGroup = program->setUniformData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
@@ -144,7 +129,11 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
     const float* c = blendInfo.fBlendConstant.vec();
     wgpu::Color color{c[0], c[1], c[2], c[3]};
     fPassEncoder.SetBlendColor(&color);
-    this->setScissorState(programInfo);
+    if (!programInfo.pipeline().isScissorTestEnabled()) {
+        // "Disable" scissor by setting it to the full pipeline bounds.
+        SkIRect rect = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
+        fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
+    }
 }
 
 bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
@@ -154,7 +143,14 @@ bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return true;
 }
 
-void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect&) {
+void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+    SkIRect rect;
+    SkIRect currentPipelineBounds =
+            SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
+    if (!rect.intersect(currentPipelineBounds, scissor)) {
+        rect = SkIRect::MakeEmpty();
+    }
+    fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
