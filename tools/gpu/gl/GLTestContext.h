@@ -15,6 +15,7 @@ namespace sk_gpu_test {
 /**
  * An offscreen OpenGL context. Provides a GrGLInterface struct of function pointers for the context
  * This class is intended for Skia's internal testing needs and not for general use.
+ * When SK_GL is not defined the GrGLInterface will always be nullptr.
  */
 class GLTestContext : public TestContext {
 public:
@@ -22,7 +23,8 @@ public:
 
     virtual GrBackendApi backend() override { return GrBackendApi::kOpenGL; }
 
-    bool isValid() const { return SkToBool(this->gl()); }
+    /** Does this represent a successfully created GL context? */
+    bool isValid() const;
 
     const GrGLInterface* gl() const { return fGL.get(); }
 
@@ -86,6 +88,9 @@ private:
     /** Subclass provides the gl interface object if construction was
      *  successful. */
     sk_sp<const GrGLInterface> fGL;
+#ifndef SK_GL
+    bool fWasInitialized = false;
+#endif
 
     typedef TestContext INHERITED;
 };

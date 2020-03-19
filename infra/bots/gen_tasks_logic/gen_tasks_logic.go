@@ -1068,9 +1068,6 @@ func (b *jobBuilder) compile() string {
 			if b.extraConfig("CommandBuffer") {
 				b.timeout(2 * time.Hour)
 			}
-			if b.extraConfig("MoltenVK") {
-				b.asset("moltenvk")
-			}
 			if b.extraConfig("iOS") {
 				b.asset("provisioning_profile_ios")
 			}

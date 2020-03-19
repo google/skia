@@ -137,6 +137,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         return;
     }
 
+#ifdef SK_GL
     auto gl = GrGLMakeNativeInterface();
     if (!gl) {
         SkDebugf("Could not create GL interface.\n");
@@ -150,6 +151,9 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
     }
 
     this->init(std::move(gl));
+#else
+    this->init(nullptr);
+#endif
 }
 
 WinGLTestContext::~WinGLTestContext() {
