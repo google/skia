@@ -84,7 +84,7 @@ public:
             int sampleCnt = 1,
             GrMipMapped = GrMipMapped::kNo,
             GrProtected = GrProtected::kNo,
-            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes,
             const SkSurfaceProps* = nullptr);
 
@@ -101,7 +101,7 @@ public:
             int sampleCnt = 1,
             GrMipMapped = GrMipMapped::kNo,
             GrProtected = GrProtected::kNo,
-            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes,
             const SkSurfaceProps* = nullptr);
 

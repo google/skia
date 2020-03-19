@@ -391,7 +391,7 @@ public:
         up to the next supported count, or rounded down if it is larger than the
         maximum supported count.
 
-        SkSurface bottom-left corner is pinned to the origin.
+        SkSurface top-left corner is pinned to the origin.
 
         @param context      GPU context
         @param imageInfo    width, height, SkColorType, SkAlphaType, SkColorSpace,
@@ -405,7 +405,7 @@ public:
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* surfaceProps) {
         return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
-                                kBottomLeft_GrSurfaceOrigin, surfaceProps);
+                                kTopLeft_GrSurfaceOrigin, surfaceProps);
     }
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
@@ -414,7 +414,7 @@ public:
         describes the pixel format in SkColorType, and transparency in
         SkAlphaType, and color matching in SkColorSpace.
 
-        SkSurface bottom-left corner is pinned to the origin.
+        SkSurface top-left corner is pinned to the origin.
 
         @param context    GPU context
         @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
@@ -426,7 +426,7 @@ public:
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
         }
-        return MakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
+        return MakeRenderTarget(context, budgeted, imageInfo, 0, kTopLeft_GrSurfaceOrigin,
                                 nullptr);
     }
 

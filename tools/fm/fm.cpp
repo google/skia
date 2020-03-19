@@ -330,7 +330,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
                                                        SkColorTypeToGrColorType(info.colorType()));
             surface = SkSurface::MakeFromBackendRenderTarget(context,
                                                              backendRT,
-                                                             kBottomLeft_GrSurfaceOrigin,
+                                                             kTopLeft_GrSurfaceOrigin,
                                                              info.colorType(),
                                                              info.refColorSpace(),
                                                              &props);

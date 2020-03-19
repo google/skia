@@ -108,6 +108,7 @@ tests_sources = [
   "$_tests/GrPorterDuffTest.cpp",
   "$_tests/GrQuadBufferTest.cpp",
   "$_tests/GrQuadCropTest.cpp",
+  "$_tests/GrSaveLayerOriginTest.cpp",
   "$_tests/GrShapeTest.cpp",
   "$_tests/GrSurfaceTest.cpp",
   "$_tests/GrTRecorderTest.cpp",
