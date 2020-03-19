@@ -56,7 +56,7 @@ npm:
 local-example:
 	rm -rf node_modules/canvaskit
 	mkdir -p node_modules
-	ln -s -T ../canvaskit node_modules/canvaskit
+	ln -s ../canvaskit node_modules/canvaskit
 	echo "Go check out http://localhost:8000/canvaskit/example.html"
 	python serve.py
 
