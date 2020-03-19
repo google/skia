@@ -125,6 +125,7 @@ bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
     auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
+   // SkDebugf("%s\n", shaderString.c_str());
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
             vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
     if (!program) {

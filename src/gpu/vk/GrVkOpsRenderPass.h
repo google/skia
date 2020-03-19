@@ -86,11 +86,14 @@ private:
 
     void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
 
+    bool bindRTAdjustUniform();
+
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
     SkIRect                                     fCurrentPipelineBounds;
     GrVkPipelineState*                          fCurrentPipelineState = nullptr;
     bool                                        fCurrentCBIsEmpty = true;
+    const GrVkUniformBuffer*                    fCurrentRTAdjustBuffer = nullptr;
     SkIRect                                     fBounds;
     GrVkGpu*                                    fGpu;
 

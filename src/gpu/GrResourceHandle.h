@@ -14,6 +14,8 @@
 // template instantiation of GrResourceHandle.
 template <typename kind> class GrResourceHandle {
 public:
+    static const int kInvalid_ResourceHandle = -1;
+
     GrResourceHandle(int value) : fValue(value) {
         SkASSERT(this->isValid());
     }
@@ -25,7 +27,6 @@ public:
     int toIndex() const { SkASSERT(this->isValid()); return fValue; }
 
 private:
-    static const int kInvalid_ResourceHandle = -1;
     int fValue;
 };
 

@@ -101,7 +101,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
     if (fUniformBuffer) {
         fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get());
         static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
-        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kUniformDSIdx, 1,
+        commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, 1,
                                           fUniformBuffer->descriptorSet(), 0, nullptr);
         commandBuffer->addRecycledResource(fUniformBuffer->resource());
     }
@@ -158,7 +158,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                 commandBuffer->addResource(texture->textureView());
                 commandBuffer->addResource(texture->resource());
                 commandBuffer->addRecycledResource(descriptorSet);
-                commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kSamplerDSIdx, 1,
+                commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kSamplerDSIdx, 1,
                                                   descriptorSet->descriptorSet(), 0, nullptr);
                 return true;
             }
@@ -218,7 +218,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             texture->addDescriptorSetToCache(descriptorSet, state);
         }
 
-        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kSamplerDSIdx, 1,
+        commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kSamplerDSIdx, 1,
                                           descriptorSet->descriptorSet(), 0, nullptr);
         commandBuffer->addRecycledResource(descriptorSet);
         descriptorSet->recycle();
@@ -256,7 +256,7 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurface
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
         fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
     }
-
+#if 0
     // set RT adjustment
     SkISize dimensions = rt->dimensions();
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
@@ -269,6 +269,7 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurface
         fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
         fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
+#endif
 }
 
 void GrVkPipelineState::bindPipeline(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer) {

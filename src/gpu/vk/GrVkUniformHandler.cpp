@@ -12,6 +12,25 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"
 #include "src/gpu/vk/GrVkTexture.h"
+#include "src/sksl/SkSLCompiler.h"
+
+GrVkUniformHandler::GrVkUniformHandler(GrGLSLProgramBuilder* program)
+        : INHERITED(program)
+        , fUniforms(kUniformsPerBlock)
+        , fSamplers(kUniformsPerBlock)
+        , fCurrentUBOOffset(0) {
+
+    fRTAdjustUniform.fVariable.setType(kFloat4_GrSLType);
+    fProgramBuilder->nameVariable(fRTAdjustUniform.fVariable.accessName(), '\0',
+        SkSL::Compiler::RTADJUST_NAME, false);
+    fRTAdjustUniform.fVariable.setArrayCount(0);
+    fRTAdjustUniform.fVisibility = 0; // We set this when getRTAdjustUniform is called
+    fRTAdjustUniform.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
+    fRTAdjustUniform.fUBOffset = 0;
+    SkString layoutQualifier;
+    layoutQualifier.appendf("offset=%d", fRTAdjustUniform.fUBOffset);
+    fRTAdjustUniform.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+}
 
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
@@ -300,6 +319,15 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
+    if (visibility & fRTAdjustUniform.fVisibility) {
+        out->appendf("layout (set=%d, binding=%d) uniform adjUniformBuffer\n{\n",
+                     kRTAdjustUniformBufferDescSet, kUniformBinding);
+        SkString rtString;
+        fRTAdjustUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &rtString);
+        rtString.append(";\n");
+        out->appendf("%s};\n", rtString.c_str());
+    }
+
 #ifdef SK_DEBUG
     bool firstOffsetCheck = false;
     for (int i = 0; i < fUniforms.count(); ++i) {
@@ -312,7 +340,6 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 #endif
-
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         const UniformInfo& localUniform = fUniforms[i];

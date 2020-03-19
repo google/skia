@@ -11,6 +11,7 @@
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/sksl/SkSLCompiler.h"
 
 // variable names beginning with this prefix will not be mangled
 #define GR_NO_MANGLE_PREFIX "sk_"
@@ -62,6 +63,10 @@ public:
     }
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
+
+    virtual UniformHandle getRTAdjustUniform(uint32_t visibility) {
+        return this->addUniform(visibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
+    }
 
     /**
      * 'Or's the visibility parameter with the current uniform visibililty.

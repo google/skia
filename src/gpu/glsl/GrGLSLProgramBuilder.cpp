@@ -78,10 +78,9 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     } else {
         rtAdjustVisibility = kVertex_GrShaderFlag;
     }
-    fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
-            rtAdjustVisibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
-    const char* rtAdjustName =
-        this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
+    fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->getRTAdjustUniform(
+            rtAdjustVisibility);
+    const char* rtAdjustName = SkSL::Compiler::RTADJUST_NAME;
 
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
