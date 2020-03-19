@@ -30,6 +30,7 @@ declare_args() {
   clang_win = ""
   clang_win_version = ""
 
+  skia_moltenvk_path = ""
   werror = false
 }
 declare_args() {

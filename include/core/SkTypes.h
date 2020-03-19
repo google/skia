@@ -248,15 +248,9 @@
  * and opting in to additional backends. TODO: Require explicit opt in for GL.
  */
 #if SK_SUPPORT_GPU
-#  if !defined(SK_GL) && !defined(SK_VULKAN) && !defined(SK_METAL) && !defined(SK_DAWN) && !defined(SK_DIRECT3D)
+#  if !defined(SK_GL) && !defined(SK_VULKAN) && !defined(SK_METAL)
 #    define SK_GL
 #  endif
-#else
-#  undef SK_GL
-#  undef SK_VULKAN
-#  undef SK_METAL
-#  undef SK_DAWN
-#  undef SK_DIRECT3D
 #endif
 
 #if !defined(SK_SUPPORT_ATLAS_TEXT)
