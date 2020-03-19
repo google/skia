@@ -35,6 +35,9 @@ struct VariableReference : public Expression {
 
     ~VariableReference() override;
 
+    VariableReference(const VariableReference&) = delete;
+    VariableReference& operator=(const VariableReference&) = delete;
+
     RefKind refKind() const {
         return fRefKind;
     }
