@@ -18,19 +18,19 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrXferProcessor.h"
-#include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
-
-#include "src/gpu/ops/GrDrawOp.h"
-
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"
-
-#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#ifdef SK_GL
+#include "src/gpu/gl/GrGLGpu.h"
+#endif
 
 /*
  * A dummy processor which just tries to insert a massive key and verify that it can retrieve the
@@ -343,8 +343,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 #endif
 
 static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
     int maxStages = 6;
+#ifdef SK_GL
+    GrContext* context = ctxInfo.grContext();
     if (skiatest::IsGLContextType(ctxInfo.type())) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
         if (kGLES_GrGLStandard == gpu->glStandard()) {
@@ -367,6 +368,7 @@ static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
             maxStages = 3;
         }
     }
+#endif
     return maxStages;
 }
 

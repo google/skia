@@ -137,6 +137,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         return;
     }
 
+#ifdef SK_GL
     auto gl = GrGLMakeNativeInterface();
     if (!gl) {
         SkDebugf("Could not create GL interface.\n");
@@ -150,6 +151,12 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
     }
 
     this->init(std::move(gl));
+#else
+    // Allow the GLTestContext creation to succeed without a GrGLInterface to support
+    // GrContextFactory's persistent GL context workaround for Vulkan. We won't need the
+    // GrGLInterface since we're not running the GL backend.
+    this->init(nullptr);
+#endif
 }
 
 WinGLTestContext::~WinGLTestContext() {

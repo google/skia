@@ -85,7 +85,7 @@ declare_args() {
   } else if (is_fuchsia) {
     skia_use_vulkan = true
   } else {
-    skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
+    skia_use_vulkan = false
   }
 }
 

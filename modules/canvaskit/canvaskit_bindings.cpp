@@ -59,7 +59,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
@@ -147,7 +147,7 @@ SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
     return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
 }
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
@@ -722,7 +722,7 @@ namespace emscripten {
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
 EMSCRIPTEN_BINDINGS(Skia) {
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
     function("MakeGrContext", &MakeGrContext);
@@ -913,7 +913,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      flags, &localMatrix);
     }), allow_raw_pointers());
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
     class_<GrContext>("GrContext")
         .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>")
         .function("getResourceCacheLimitBytes", optional_override([](GrContext& self)->size_t {

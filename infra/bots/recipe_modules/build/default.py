@@ -82,7 +82,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
-  moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -213,6 +212,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
     args['skia_use_dawn'] = 'true'
+    args['skia_use_gl'] = 'false'
     # Dawn imports jinja2, which imports markupsafe. Along with DEPS, make it
     # importable.
     env['PYTHONPATH'] = api.path.pathsep.join([
@@ -270,12 +270,13 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
     args['skia_use_vulkan'] = 'true'
     args['skia_enable_vulkan_debug_layers'] = 'true'
-    if 'MoltenVK' in extra_tokens:
-      args['skia_moltenvk_path'] = '"%s"' % moltenvk
+    args['skia_use_gl'] = 'false'
   if 'Direct3D' in extra_tokens:
     args['skia_use_direct3d'] = 'true'
+    args['skia_use_gl'] = 'false'
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
+    args['skia_use_gl'] = 'false'
   if 'OpenCL' in extra_tokens:
     args['skia_use_opencl'] = 'true'
     if api.vars.is_linux:
