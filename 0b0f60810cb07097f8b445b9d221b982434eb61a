@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c9d3506_dcdb9429",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "Think it would help to move this to be a method on skvm::Builder?\nThat way you could leave out all the p-\u003e when writing these.",
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aca6517_105d45bd",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "Maybe update mma and inv to close over [p] for consistency, or just change this to [\u0026]?",
+      "range": {
+        "startLine": 754,
+        "startChar": 16,
+        "endLine": 754,
+        "endChar": 17
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c5e152f_9df002d6",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "I think these have become mostly unreadable from about this line and below.  I\u0027ve marked some ideas that might help, that should apply to all of them generally.",
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe75cd6c_c3248cda",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "Given how often we use src.a, dst.a written as src.a, dst.a, I think it might help readability to not name these and instead always refer to them by inv(src.a) and inv(dst.a).",
+      "range": {
+        "startLine": 857,
+        "startChar": 23,
+        "endLine": 857,
+        "endChar": 33
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809b754c_bd64b7f4",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "tmp here is the expected normal case for color burn, (as opposed to the other edge-case values we might return) so I think we should probably give it a name more fitting, like burn or colorburn.",
+      "range": {
+        "startLine": 860,
+        "startChar": 16,
+        "endLine": 861,
+        "endChar": 81
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac389e04_f906f71c",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T17:37:52Z",
+      "side": 1,
+      "message": "I think it does really help readability to group nested selects differently,\n\n  return p-\u003eselect(p-\u003eeq(d, dst.a)        , p-\u003emad(s, ida, d),\n         p-\u003eselect(p-\u003eeq(s, p-\u003esplat(0.0f), p-\u003emul(d, isa   ),\n                   tmp));\n\nor perhaps even this to emphasize the parallel nature of the two special cases,\n\n  skvm::F32 z \u003d p-\u003esplat(0.0f);\n  return p-\u003eselect(p-\u003eeq(d, dst.a), p-\u003emad(s,ida, d),\n         p-\u003eselect(p-\u003eeq(s, z    ), p-\u003emad(d,isa, z),\n                   tmp));",
+      "range": {
+        "startLine": 862,
+        "startChar": 16,
+        "endLine": 864,
+        "endChar": 91
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
