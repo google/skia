@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - CanvasKit colors are now represented with an array of four floats.
+ - computeTonalColors now takes two color arguments, and produces a tonalColors object.
+ - drawShadow accepts a tonalColors in lieu of two color arguments. 
+
+### Removed
+ - SkPaint.setColorf is obsolete and removed. setColor accepts a CanvasKit color which is always
+   composed of floats. 
+
+## [0.14.0] - 2020-03-18
+
 ### Added
  - `SkShader.MakeSweepGradient`
  - `SkCanvas.saveLayer` can now be called with 1 argument (the paint). In this case the current
