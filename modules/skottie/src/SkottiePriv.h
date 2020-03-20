@@ -118,16 +118,19 @@ public:
         }
     }
 
-    template <typename T,  typename NodeType = sk_sp<sksg::RenderNode>, typename... Args>
-    NodeType attachDiscardableAdapter(Args&&... args) const {
+    template <typename T, typename... Args>
+    auto attachDiscardableAdapter(Args&&... args) const ->
+        typename std::decay<decltype(T::Make(std::forward<Args>(args)...)->node())>::type
+    {
+        using NodeType =
+        typename std::decay<decltype(T::Make(std::forward<Args>(args)...)->node())>::type;
+
+        NodeType node;
         if (auto adapter = T::Make(std::forward<Args>(args)...)) {
-            auto node = adapter->node();
+            node = adapter->node();
             this->attachDiscardableAdapter(std::move(adapter));
-
-            return std::move(node);
         }
-
-        return nullptr;
+        return node;
     }
 
     class AutoPropertyTracker {
