@@ -166,10 +166,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
-        const GrGLSLProgramDataManager::UniformHandle& mat =
-                                                          args.fTransformedCoords[0].fUniformMatrix;
-        if (mat.isValid()) {
-            args.fUniformHandler->updateUniformVisibility(mat, kFragment_GrShaderFlag);
+        if (args.fTransformedCoords[0].fUniformMatrix.isValid()) {
             this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
                               args.fTransformedCoords[0].fMatrixCode.c_str());
         }
