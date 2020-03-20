@@ -51,11 +51,14 @@ static void check_allocator_helper(GrTAllocator<C>* allocator, int cnt, int popC
     REPORTER_ASSERT(reporter, cnt == allocator->count());
     REPORTER_ASSERT(reporter, cnt == C::gInstCnt);
 
-    GrTAllocator<C>::Iter iter(allocator);
-    for (int i = 0; i < cnt; ++i) {
-        REPORTER_ASSERT(reporter, iter.next() && i == iter.get()->fID);
+    int i = 0;
+    for (const C& c : allocator->items()) {
+        REPORTER_ASSERT(reporter, i == c.fID);
+        REPORTER_ASSERT(reporter, allocator->item(i).fID == i);
+        ++i;
     }
-    REPORTER_ASSERT(reporter, !iter.next());
+    REPORTER_ASSERT(reporter, i == cnt);
+
     if (cnt > 0) {
         REPORTER_ASSERT(reporter, cnt-1 == allocator->back().fID);
     }

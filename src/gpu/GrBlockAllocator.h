@@ -134,6 +134,10 @@ public:
         int             fMetadata;
     };
 
+    // Smallest value of fCursor, this will automatically repurpose any alignment padding that
+    // the compiler introduced if the first allocation is aligned less than max_align_t.
+    static constexpr int kDataStart = offsetof(Block, fMetadata) + sizeof(int);
+
     // The size of the head block is determined by 'additionalPreallocBytes'. Subsequent heap blocks
     // are determined by 'policy' and 'blockIncrementBytes', although 'blockIncrementBytes' will be
     // aligned to std::max_align_t.
@@ -219,6 +223,9 @@ public:
     const Block* currentBlock() const { return fTail; }
     Block* currentBlock() { return fTail; }
 
+    const Block* headBlock() const { return &fHead; }
+    Block* headBlock() { return &fHead; }
+
     /**
      * Return the block that owns the allocated 'ptr'. Assuming that earlier, an allocation was
      * returned as {b, start, alignedOffset, end}, and 'p = b->ptr(alignedOffset)', then a call
@@ -288,9 +295,6 @@ public:
 #endif
 
 private:
-    // Smallest value of fCursor, this will automatically repurpose any alignment padding that
-    // the compiler introduced if the first allocation is aligned less than max_align_t.
-    static constexpr int kDataStart = offsetof(Block, fMetadata) + sizeof(int);
     static constexpr int kBlockIncrementUnits = alignof(std::max_align_t);
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the
@@ -301,12 +305,11 @@ private:
         return sizeof(GrBlockAllocator) - offsetof(GrBlockAllocator, fHead);
     }
 
-    // Append a new block to the end of the block linked list, updating fTail. 'minSize' must
     // have enough room for sizeof(Block). 'maxSize' is the upper limit of fSize for the new block
     // that will preserve the static guarantees GrBlockAllocator makes.
     void addBlock(int minSize, int maxSize);
 
-    Block* fTail; // All non-head blocks are heap allocated; tail will never be null.
+    Block* fTail;
 
     // All remaining state is packed into 64 bits to keep GrBlockAllocator at 16 bytes + head block
     // (on a 64-bit system).

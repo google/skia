@@ -84,15 +84,15 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 }
 
 void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
-    for (int i = 0; i < fUniforms.count(); ++i) {
-        if (fUniforms[i].fVisibility & visibility) {
-            fUniforms[i].fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
+    for (const UniformInfo& uniform : fUniforms.items()) {
+        if (uniform.fVisibility & visibility) {
+            uniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";");
         }
     }
-    for (int i = 0; i < fSamplers.count(); ++i) {
-        if (fSamplers[i].fVisibility & visibility) {
-            fSamplers[i].fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
+    for (const UniformInfo& sampler : fSamplers.items()) {
+        if (sampler.fVisibility & visibility) {
+            sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }
@@ -101,29 +101,30 @@ void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps& caps) {
     if (caps.bindUniformLocationSupport()) {
         int currUniform = 0;
-        for (int i = 0; i < fUniforms.count(); ++i, ++currUniform) {
-            GL_CALL(BindUniformLocation(programID, currUniform, fUniforms[i].fVariable.c_str()));
-            fUniforms[i].fLocation = currUniform;
+        for (UniformInfo& uniform : fUniforms.items()) {
+            GL_CALL(BindUniformLocation(programID, currUniform, uniform.fVariable.c_str()));
+            uniform.fLocation = currUniform;
+            ++currUniform;
         }
-        for (int i = 0; i < fSamplers.count(); ++i, ++currUniform) {
-            GL_CALL(BindUniformLocation(programID, currUniform, fSamplers[i].fVariable.c_str()));
-            fSamplers[i].fLocation = currUniform;
+        for (UniformInfo& sampler : fSamplers.items()) {
+            GL_CALL(BindUniformLocation(programID, currUniform, sampler.fVariable.c_str()));
+            sampler.fLocation = currUniform;
+            ++currUniform;
         }
     }
 }
 
 void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps& caps, bool force) {
     if (!caps.bindUniformLocationSupport() || force) {
-        int count = fUniforms.count();
-        for (int i = 0; i < count; ++i) {
+        for (UniformInfo& uniform : fUniforms.items()) {
             GrGLint location;
-            GL_CALL_RET(location, GetUniformLocation(programID, fUniforms[i].fVariable.c_str()));
-            fUniforms[i].fLocation = location;
+            GL_CALL_RET(location, GetUniformLocation(programID, uniform.fVariable.c_str()));
+            uniform.fLocation = location;
         }
-        for (int i = 0; i < fSamplers.count(); ++i) {
+        for (UniformInfo& sampler : fSamplers.items()) {
             GrGLint location;
-            GL_CALL_RET(location, GetUniformLocation(programID, fSamplers[i].fVariable.c_str()));
-            fSamplers[i].fLocation = location;
+            GL_CALL_RET(location, GetUniformLocation(programID, sampler.fVariable.c_str()));
+            sampler.fLocation = location;
         }
     }
 }
