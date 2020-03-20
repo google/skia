@@ -63,6 +63,7 @@ private:
     static constexpr BatchID kEmptyBatchID = -1;
     using Verb = GrCCStrokeGeometry::Verb;
     using InstanceTallies = GrCCStrokeGeometry::InstanceTallies;
+    using InstanceTalliesList = GrTAllocator<InstanceTallies, 128>;
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
     struct PathInfo {
@@ -74,7 +75,7 @@ private:
     // Defines a sub-batch of stroke instances that have a scissor test and the same scissor rect.
     // Start indices are deduced by looking at the previous ScissorSubBatch.
     struct ScissorSubBatch {
-        ScissorSubBatch(GrTAllocator<InstanceTallies>* alloc, const InstanceTallies& startIndices,
+        ScissorSubBatch(InstanceTalliesList* alloc, const InstanceTallies& startIndices,
                         const SkIRect& scissor)
                 : fEndInstances(&alloc->emplace_back(startIndices)), fScissor(scissor) {}
         InstanceTallies* fEndInstances;
@@ -84,7 +85,7 @@ private:
     // Defines a batch of stroke instances that can be drawn with drawStrokes(). Start indices are
     // deduced by looking at the previous Batch in the list.
     struct Batch {
-        Batch(GrTAllocator<InstanceTallies>* alloc, const InstanceTallies& startNonScissorIndices,
+        Batch(InstanceTalliesList* alloc, const InstanceTallies& startNonScissorIndices,
               int startScissorSubBatch)
                 : fNonScissorEndInstances(&alloc->emplace_back(startNonScissorIndices))
                 , fEndScissorSubBatch(startScissorSubBatch) {}
@@ -113,7 +114,7 @@ private:
     bool fHasOpenBatch = false;
 
     const InstanceTallies fZeroTallies = InstanceTallies();
-    GrSTAllocator<128, InstanceTallies> fTalliesAllocator;
+    InstanceTalliesList fTalliesAllocator;
     const InstanceTallies* fInstanceCounts[kNumScissorModes] = {&fZeroTallies, &fZeroTallies};
 
     sk_sp<GrGpuBuffer> fInstanceBuffer;
