@@ -8,7 +8,7 @@
 #ifndef SkVM_DEFINED
 #define SkVM_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkBlendMode.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
@@ -566,6 +566,7 @@ namespace skvm {
         Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
         Color lerp(Color lo, Color hi, F32 t);
+        Color blend(SkBlendMode, Color src, Color dst);
 
         void dump(SkWStream* = nullptr) const;
         void dot (SkWStream* = nullptr, bool for_jit=false) const;
@@ -688,6 +689,8 @@ namespace skvm {
         struct Impl;
         std::unique_ptr<Impl> fImpl;
     };
+
+    bool BlendModeSupported(SkBlendMode);
 
     // TODO: control flow
     // TODO: 64-bit values?
