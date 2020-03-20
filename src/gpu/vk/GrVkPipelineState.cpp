@@ -49,11 +49,10 @@ GrVkPipelineState::GrVkPipelineState(
     fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
 
     fNumSamplers = samplers.count();
-
-    for (int i = 0; i < fNumSamplers; ++i) {
+    for (const auto& sampler : samplers.items()) {
         // We store the immutable samplers here and take ownership of the ref from the
         // GrVkUnformHandler.
-        fImmutableSamplers.push_back(samplers[i].fImmutableSampler);
+        fImmutableSamplers.push_back(sampler.fImmutableSampler);
     }
 }
 

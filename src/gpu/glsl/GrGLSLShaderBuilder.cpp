@@ -235,8 +235,8 @@ bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionN
 }
 
 void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
-    for (int i = 0; i < vars.count(); ++i) {
-        vars[i].appendDecl(fProgramBuilder->shaderCaps(), out);
+    for (const auto& v : vars.items()) {
+        v.appendDecl(fProgramBuilder->shaderCaps(), out);
         out->append(";\n");
     }
 }

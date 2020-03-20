@@ -153,7 +153,7 @@ public:
     void forceHighPrecision() override { fForceHighPrecision = true; }
 
     // GrGLSLXPFragmentBuilder interface.
-    bool hasCustomColorOutput() const override { return fHasCustomColorOutput; }
+    bool hasCustomColorOutput() const override { return !!fCustomColorOutput; }
     bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
     const char* dstColor() override;
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
@@ -210,9 +210,9 @@ private:
      */
     SkString fMangleString;
 
+    GrShaderVar* fCustomColorOutput = nullptr;
+
     bool fSetupFragPosition = false;
-    bool fHasCustomColorOutput = false;
-    int fCustomColorOutputIndex = -1;
     bool fHasSecondaryOutput = false;
     bool fHasModifiedSampleMask = false;
     bool fForceHighPrecision = false;
