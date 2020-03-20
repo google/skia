@@ -8,7 +8,7 @@
 #ifndef GrD3DResourceProvider_DEFINED
 #define GrD3DResourceProvider_DEFINED
 
-#include "include/gpu/d3d/GrD3D12.h"
+#include "src/gpu/d3d/GrD3D12.h"
 
 class GrD3DGpu;
 

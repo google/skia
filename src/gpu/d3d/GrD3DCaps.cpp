@@ -6,12 +6,12 @@
  */
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/d3d/GrD3D12.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/d3d/GrD3D12.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DUtil.h"

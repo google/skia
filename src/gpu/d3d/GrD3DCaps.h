@@ -8,8 +8,8 @@
 #ifndef GrD3DCaps_DEFINED
 #define GrD3DCaps_DEFINED
 
-#include "include/gpu/d3d/GrD3D12.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/d3d/GrD3D12.h"
 
 class GrShaderCaps;
 
