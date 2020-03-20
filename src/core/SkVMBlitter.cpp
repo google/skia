@@ -729,7 +729,16 @@ namespace {
 }  // namespace
 
 bool skvm::BlendModeSupported(SkBlendMode mode) {
-    return mode <= SkBlendMode::kScreen;
+    switch (mode) {
+        default: break;
+        // our todo list
+        case SkBlendMode::kHue:
+        case SkBlendMode::kSaturation:
+        case SkBlendMode::kColor:
+        case SkBlendMode::kLuminosity:
+            return false;
+    }
+    return true;
 }
 
 skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
@@ -741,6 +750,12 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
     auto inv = [&](skvm::F32 x) {
         return p->sub(p->splat(1.0f), x);
     };
+
+    auto srcover = [&](auto s, auto d, auto sa) {
+        return p->mad(d, inv(sa), s);
+    };
+
+    auto two = [p](auto value) { return p->add(value, value); };
 
     switch (mode) {
         default: SkASSERT(false); /*but also, for safety, fallthrough*/
@@ -757,10 +772,10 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
 
         case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
         case SkBlendMode::kSrcOver: return {
-            p->mad(dst.r, inv(src.a), src.r),
-            p->mad(dst.g, inv(src.a), src.g),
-            p->mad(dst.b, inv(src.a), src.b),
-            p->mad(dst.a, inv(src.a), src.a),
+            srcover(src.r, dst.r, src.a),
+            srcover(src.g, dst.g, src.a),
+            srcover(src.b, dst.b, src.a),
+            srcover(src.a, dst.a, src.a),
         };
 
         case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
@@ -816,6 +831,139 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
             p->add(src.b, p->sub(dst.b, p->mul(src.b, dst.b))),
             p->add(src.a, p->sub(dst.a, p->mul(src.a, dst.a))),
         };
+
+#define APPLY_RGBA(proc) {      \
+            proc(src.r, dst.r), \
+            proc(src.g, dst.g), \
+            proc(src.b, dst.b), \
+            proc(src.a, dst.a), \
+        }
+
+#define APPLY_RGB_SRCOVER_A(proc) {         \
+               proc(src.r, dst.r),          \
+               proc(src.g, dst.g),          \
+               proc(src.b, dst.b),          \
+            srcover(src.a, dst.a, src.a),   \
+        }
+
+        case SkBlendMode::kDarken: {
+            auto darken = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, p->max(p->mul(s, dst.a),
+                                                  p->mul(d, src.a))));
+            };
+            return APPLY_RGB_SRCOVER_A(darken);
+        }
+
+        case SkBlendMode::kLighten: {
+            auto lighten = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, p->min(p->mul(s, dst.a),
+                                                  p->mul(d, src.a))));
+            };
+            return APPLY_RGB_SRCOVER_A(lighten);
+        }
+
+        case SkBlendMode::kDifference: {
+            auto difference = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, two(p->min(p->mul(s, dst.a),
+                                                      p->mul(d, src.a)))));
+            };
+            return APPLY_RGB_SRCOVER_A(difference);
+        }
+
+        case SkBlendMode::kExclusion: {
+            auto exclusion = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, two(p->mul(s, d))));
+            };
+            return APPLY_RGB_SRCOVER_A(exclusion);
+        }
+
+        case SkBlendMode::kColorBurn: {
+            auto isa = inv(src.a),
+                 ida = inv(dst.a);
+            auto color_burn = [&](auto s, auto d) {
+                auto mn  = p->min(dst.a, p->div(p->mul(p->sub(dst.a, d), src.a), s)),
+                     tmp = p->mad(src.a, p->sub(dst.a, mn), mma(s, ida, d, isa));
+                return p->select(p->eq(d, dst.a),
+                                 p->mad(s, ida, d),
+                                 p->select(p->eq(s, p->splat(0.0f)), p->mul(d, isa), tmp));
+            };
+            return APPLY_RGB_SRCOVER_A(color_burn);
+        }
+
+        case SkBlendMode::kColorDodge: {
+            auto isa = inv(src.a),
+                 ida = inv(dst.a);
+            auto color_dodge = [&](auto s, auto d) {
+                auto tmp = p->mad(src.a, p->min(dst.a,
+                                                p->div(p->mul(d, src.a), p->sub(src.a, s))),
+                                  mma(s, ida, d, isa));
+                return p->select(p->eq(d, p->splat(0.0f)),
+                                 p->mul(s, ida),
+                                 p->select(p->eq(s, src.a), p->mad(d, isa, s), tmp));
+            };
+            return APPLY_RGB_SRCOVER_A(color_dodge);
+        }
+
+        case SkBlendMode::kHardLight: {
+            auto hard_light = [&](auto s, auto d) {
+                return p->add(mma(s, inv(dst.a), d, inv(src.a)),
+                              p->select(p->lte(two(s), src.a),
+                                        two(p->mul(s, d)),
+                                        p->sub(p->mul(src.a, dst.a),
+                                               two(p->mul(p->sub(dst.a, d),
+                                                          p->sub(src.a, s))))));
+            };
+            return APPLY_RGB_SRCOVER_A(hard_light);
+        }
+
+        case SkBlendMode::kOverlay: {
+            auto overlay = [&](auto s, auto d) {
+                return p->add(mma(s, inv(dst.a), d, inv(src.a)),
+                              p->select(p->lte(two(d), dst.a),
+                                        two(p->mul(s, d)),
+                                        p->sub(p->mul(src.a, dst.a),
+                                               two(p->mul(p->sub(dst.a, d),
+                                                          p->sub(src.a, s))))));
+            };
+            return APPLY_RGB_SRCOVER_A(overlay);
+        }
+
+        case SkBlendMode::kMultiply: {
+            auto multiply = [&](auto s, auto d) {
+                return p->add(mma(s, inv(dst.a), d, inv(src.a)),
+                              p->mul(s, d));
+            };
+            return APPLY_RGBA(multiply);
+        }
+
+        case SkBlendMode::kSoftLight: {
+            auto soft_light = [&](auto s, auto d) {
+                auto  m  = p->select(p->gt(dst.a, p->splat(0.0f)), p->div(d, dst.a), p->splat(0.0f)),
+                     s2 = two(s),
+                     m4 = two(two(m));
+
+                // The logic forks three ways:
+                //    1. dark src?
+                //    2. light src, dark dst?
+                //    3. light src, light dst?
+                auto darkSrc = p->mul(d, p->mad(p->sub(s2, src.a), inv(m), src.a)), // Used in case 1.
+                     darkDst = p->mad(p->mad(m4, m4, m4),
+                                      p->sub(m, p->splat(1.0f)),
+                                      p->mul(p->splat(7.0f), m)),                // Used in case 2.
+                     liteDst = p->sub(p->sqrt(m), m),                            // Used in case 3.
+                     liteSrc = p->mad(p->mul(dst.a, p->sub(s2, src.a)),
+                                      p->select(p->lte(two(two(d)), dst.a), darkDst, liteDst),
+                                      p->mul(d, src.a));                         // Used in 2 or 3?
+                return p->mad(s,
+                              inv(dst.a),
+                              p->mad(d,
+                                     inv(src.a),
+                                     p->select(p->lte(s2, src.a), darkSrc, liteSrc)));
+
+
+            };
+            return APPLY_RGB_SRCOVER_A(soft_light);
+        }
     }
 }
 
