@@ -358,7 +358,7 @@ public:
                 *proxyProvider->caps(),
                 GrSurfaceProxy::UseAllocator::kNo);
 
-        fAtlasView = {std::move(proxy), kBottomLeft_GrSurfaceOrigin, readSwizzle};
+        fAtlasView = {std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle};
         return fAtlasView;
     }
 

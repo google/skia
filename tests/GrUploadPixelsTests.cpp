@@ -60,12 +60,12 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
     }
 
     proxy = sk_gpu_test::MakeTextureProxyFromData(
-            context, renderable, kBottomLeft_GrSurfaceOrigin,
+            context, renderable, kTopLeft_GrSurfaceOrigin,
             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), grCT);
-        GrSurfaceProxyView view(proxy, kBottomLeft_GrSurfaceOrigin, swizzle);
+        GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
         auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
                                                nullptr);
 

@@ -27,7 +27,7 @@ static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {
 static sk_sp<SkSurface> make_surface(GrContext* context) {
     SkImageInfo info = SkImageInfo::Make(50, 50, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 4,
-                                       kBottomLeft_GrSurfaceOrigin, nullptr);
+                                       kTopLeft_GrSurfaceOrigin, nullptr);
 }
 
 static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter, const char* label) {

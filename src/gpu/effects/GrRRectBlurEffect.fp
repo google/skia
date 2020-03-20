@@ -53,7 +53,7 @@ uniform half blurRadius;
                 key, GrColorType::kAlpha_8)) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mask->backendFormat(),
                                                                        GrColorType::kAlpha_8);
-            return {std::move(mask), kBottomLeft_GrSurfaceOrigin, swizzle};
+            return {std::move(mask), kTopLeft_GrSurfaceOrigin, swizzle};
         }
 
         auto rtc = GrRenderTargetContext::MakeWithFallback(
@@ -94,7 +94,7 @@ uniform half blurRadius;
             return {};
         }
         SkASSERT(mask.asTextureProxy());
-        SkASSERT(mask.origin() == kBottomLeft_GrSurfaceOrigin);
+        SkASSERT(mask.origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
 
         return mask;

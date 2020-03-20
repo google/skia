@@ -55,7 +55,7 @@ public:
                     proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8)) {
             GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mask->backendFormat(),
                                                                        GrColorType::kAlpha_8);
-            return {std::move(mask), kBottomLeft_GrSurfaceOrigin, swizzle};
+            return {std::move(mask), kTopLeft_GrSurfaceOrigin, swizzle};
         }
 
         auto rtc = GrRenderTargetContext::MakeWithFallback(context, GrColorType::kAlpha_8, nullptr,
@@ -96,7 +96,7 @@ public:
             return {};
         }
         SkASSERT(mask.asTextureProxy());
-        SkASSERT(mask.origin() == kBottomLeft_GrSurfaceOrigin);
+        SkASSERT(mask.origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
 
         return mask;
