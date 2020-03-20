@@ -1484,11 +1484,13 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         writer->appendU64("maxThreadgroupMemoryLength", fDevice.maxThreadgroupMemoryLength);
     }
 
-    writer->beginObject("maxThreadsPerThreadgroup");
-    writer->appendU64("width", fDevice.maxThreadsPerThreadgroup.width);
-    writer->appendU64("height", fDevice.maxThreadsPerThreadgroup.height);
-    writer->appendU64("depth", fDevice.maxThreadsPerThreadgroup.depth);
-    writer->endObject();
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        writer->beginObject("maxThreadsPerThreadgroup");
+        writer->appendU64("width", fDevice.maxThreadsPerThreadgroup.width);
+        writer->appendU64("height", fDevice.maxThreadsPerThreadgroup.height);
+        writer->appendU64("depth", fDevice.maxThreadsPerThreadgroup.depth);
+        writer->endObject();
+    }
 
     if (@available(macOS 10.13, iOS 11.0, *)) {
         writer->appendBool("areProgrammableSamplePositionsSupported",
