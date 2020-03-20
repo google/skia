@@ -90,10 +90,6 @@ GrDawnOpsRenderPass::~GrDawnOpsRenderPass() {
 
 GrGpu* GrDawnOpsRenderPass::gpu() { return fGpu; }
 
-void GrDawnOpsRenderPass::end() {
-    fPassEncoder.EndPass();
-}
-
 void GrDawnOpsRenderPass::submit() {
     fGpu->appendCommandBuffer(fEncoder.Finish());
 }
@@ -134,6 +130,10 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
         SkIRect rect = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
         fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
     }
+}
+
+void GrDawnOpsRenderPass::onEnd() {
+    fPassEncoder.EndPass();
 }
 
 bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
