@@ -169,7 +169,6 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
         const GrGLSLProgramDataManager::UniformHandle& mat =
                                                           args.fTransformedCoords[0].fUniformMatrix;
         if (mat.isValid()) {
-            args.fUniformHandler->updateUniformVisibility(mat, kFragment_GrShaderFlag);
             this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
                               args.fTransformedCoords[0].fMatrixCode.c_str());
         }
