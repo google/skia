@@ -25,9 +25,6 @@ public:
 
     ~GrDawnOpsRenderPass() override;
 
-    void begin() override { }
-    void end() override;
-
     wgpu::RenderPassEncoder beginRenderPass(wgpu::LoadOp colorOp, wgpu::LoadOp stencilOp);
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
@@ -39,6 +36,7 @@ private:
 
     void applyState(GrDawnProgram*, const GrProgramInfo& programInfo);
 
+    void onEnd() override;
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],

@@ -28,9 +28,6 @@ public:
 
     ~GrVkOpsRenderPass() override;
 
-    void begin() override { }
-    void end() override;
-
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
@@ -61,6 +58,8 @@ private:
     GrGpu* gpu() override;
 
     GrVkCommandBuffer* currentCommandBuffer();
+
+    void onEnd() override;
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
     void onSetScissorRect(const SkIRect&) override;

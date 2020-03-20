@@ -27,9 +27,6 @@ public:
 
     ~GrMtlOpsRenderPass() override;
 
-    void begin() override {}
-    void end() override {}
-
     void initRenderState(id<MTLRenderCommandEncoder>);
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
@@ -59,7 +56,7 @@ private:
     void setupRenderPass(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                          const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
-    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t offset,
+    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrBuffer*, size_t offset,
                          size_t inputBufferIndex);
     void resetBufferBindings();
     void precreateCmdEncoder();
@@ -71,12 +68,6 @@ private:
     MTLPrimitiveType            fActivePrimitiveType;
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
-
-    // The index buffer in metal is an argument to the draw call, rather than a stateful binding.
-    sk_sp<const GrMtlBuffer>    fIndexBuffer;
-
-    // We defer binding of the vertex buffer because Metal doesn't have baseVertex for drawIndexed.
-    sk_sp<const GrMtlBuffer>    fDeferredVertexBuffer;
     size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;

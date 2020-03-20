@@ -45,9 +45,9 @@ public:
         GrStoreOp fStoreOp;
     };
 
-    virtual void begin() = 0;
+    void begin();
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
-    virtual void end() = 0;
+    void end();
 
     // Updates the internal pipeline state for drawing with the provided GrProgramInfo. Enters an
     // internal "bad" state if the pipeline could not be set.
@@ -128,12 +128,20 @@ protected:
     GrSurfaceOrigin fOrigin;
     GrRenderTarget* fRenderTarget;
 
+    // Backends may defer binding of certain buffers if their draw API requires a buffer, or if
+    // their bind methods don't support base values.
+    sk_sp<const GrBuffer> fActiveIndexBuffer;
+    sk_sp<const GrBuffer> fActiveVertexBuffer;
+    sk_sp<const GrBuffer> fActiveInstanceBuffer;
+
 private:
     virtual GrGpu* gpu() = 0;
 
     bool prepareToDraw();
 
     // overridden by backend-specific derived class to perform the rendering command.
+    virtual void onBegin() {}
+    virtual void onEnd() {}
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
     virtual void onSetScissorRect(const SkIRect&) = 0;
     virtual bool onBindTextures(const GrPrimitiveProcessor&,
@@ -168,11 +176,11 @@ private:
         kConfigured
     };
 
-    DynamicStateStatus fScissorStatus = DynamicStateStatus::kDisabled;
-    DynamicStateStatus fTextureBindingStatus = DynamicStateStatus::kDisabled;
-    bool fHasIndexBuffer = false;
-    DynamicStateStatus fInstanceBufferStatus = DynamicStateStatus::kDisabled;
-    DynamicStateStatus fVertexBufferStatus = DynamicStateStatus::kDisabled;
+    DynamicStateStatus fScissorStatus;
+    DynamicStateStatus fTextureBindingStatus;
+    bool fHasIndexBuffer;
+    DynamicStateStatus fInstanceBufferStatus;
+    DynamicStateStatus fVertexBufferStatus;
 #endif
 
     typedef GrOpsRenderPass INHERITED;
