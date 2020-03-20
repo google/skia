@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0bbd14a0_cfcefebe",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "great suggestion -- bought us a lot of room per-line, and (related) brought us closer to the action",
+      "parentUuid": "9c9d3506_dcdb9429",
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2aca6517_105d45bd",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "e8465355_4f395ea1",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2aca6517_105d45bd",
+      "range": {
+        "startLine": 754,
+        "startChar": 16,
+        "endLine": 754,
+        "endChar": 17
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c5e152f_9df002d6",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 5
@@ -56,6 +98,24 @@
       "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbc0cb8f_25daf6ca",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "Ack\n\nAs pretty as we make it, nothing really beats infix notation for a string of calculations",
+      "parentUuid": "5c5e152f_9df002d6",
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "dda82bcf_1c595cde",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe75cd6c_c3248cda",
+      "range": {
+        "startLine": 857,
+        "startChar": 23,
+        "endLine": 857,
+        "endChar": 33
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "809b754c_bd64b7f4",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 5
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "3b2981f2_736b4b93",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "809b754c_bd64b7f4",
+      "range": {
+        "startLine": 860,
+        "startChar": 16,
+        "endLine": 861,
+        "endChar": 81
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac389e04_f906f71c",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 5
@@ -125,6 +233,30 @@
       "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8747a551_ba6500dc",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-20T18:26:26Z",
+      "side": 1,
+      "message": "I\u0027ll try it. (the select suggestion).\n\nIt really is helpful to have a 2nd pair of eyes on this formatting.\n\nHere\u0027s where I think I am w.r.t line-breaking\n\n- min/max, to emphasize the choice/parallel nature\n- really long lines (usually involving mad or outer-most ops like add)",
+      "parentUuid": "ac389e04_f906f71c",
+      "range": {
+        "startLine": 862,
+        "startChar": 16,
+        "endLine": 864,
+        "endChar": 91
+      },
+      "revId": "0b0f60810cb07097f8b445b9d221b982434eb61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
