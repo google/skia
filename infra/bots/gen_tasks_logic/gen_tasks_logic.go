@@ -112,8 +112,9 @@ var (
 	}
 
 	// TODO(borenet): This hacky and bad.
-	CIPD_PKGS_KITCHEN = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
-	CIPD_PKG_CPYTHON  = specs.CIPD_PKGS_PYTHON[0]
+	CIPD_PKG_LUCI_AUTH = specs.CIPD_PKGS_KITCHEN[1]
+	CIPD_PKGS_KITCHEN  = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
+	CIPD_PKG_CPYTHON   = specs.CIPD_PKGS_PYTHON[0]
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -371,26 +372,17 @@ func marshalJson(data interface{}) string {
 // recipe bundle.
 func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.cipd(CIPD_PKGS_KITCHEN...)
-	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	} else if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	}
+	b.usesPython()
 	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
-	b.cache(&specs.Cache{
-		Name: "vpython",
-		Path: "cache/vpython",
-	})
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.isolate("swarm_recipe.isolate")
 	b.timeout(time.Hour)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
-	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
 	b.Spec.ExtraTags = map[string]string{
 		"log_location": fmt.Sprintf("logdog://logs.chromium.org/%s/${SWARMING_TASK_ID}/+/annotations", b.cfg.Project),
 	}
@@ -1175,16 +1167,29 @@ func (b *jobBuilder) infra() {
 		} else {
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		}
-		b.recipeProp("repository", specs.PLACEHOLDER_REPO)
-		b.kitchenTask("infra", OUTPUT_NONE)
 		b.isolate("infra_tests.isolate")
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		// b.asset("gcloud_linux")
+		b.usesGo()
+		b.usesPython()
+		b.cmd(
+			"./infra-tests",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--workdir", ".",
+			"--alsologtostderr",
+		)
 		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.dep(b.buildTaskDrivers())
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.idempotent()
+		b.attempts(2)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		// Repos which call into Skia's gen_tasks.go should define their own
 		// infra_tests.isolate and therefore should not use relpath().
 		b.Spec.Isolate = "infra_tests.isolate"
-		b.usesGo()
+		b.timeout(time.Hour)
 	})
 }
 
