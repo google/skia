@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d5f096c_5c07720a",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-20T16:28:48Z",
+      "side": 1,
+      "message": "I think factoring these is a great idea, but I think I\u0027d do it with lambdas, e.g.\n\n    auto apply_rgba \u003d [\u0026](auto fn) {\n        return skvm::Color {\n           fn(s.r, d.r),\n           fn(s.g, d.g),\n           fn(s.b, d.b),\n           fn(s.a, d.a),\n        };\n    };\n\n    auto apply_rgb \u003d [\u0026](auto fn) {\n        return skvm::Color {\n           fn(s.r, d.r),\n           fn(s.g, d.g),\n           fn(s.b, d.b),\n           p-\u003emad(d, inv(s), s),  // srcover\n        };\n    };\n\n    return apply_rgb([\u0026](auto s, auto d) {\n        return p-\u003eadd(s, p-\u003esub(...));\n    });\n\nAnd yeah, I\u0027d refactor the existing modes too.",
+      "revId": "d4be70634751197d030d97bcdb7cbd52a8c2feb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
