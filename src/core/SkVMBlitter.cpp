@@ -729,7 +729,13 @@ namespace {
 }  // namespace
 
 bool skvm::BlendModeSupported(SkBlendMode mode) {
-    return mode <= SkBlendMode::kScreen;
+    if (mode <= SkBlendMode::kScreen) {
+        return true;
+    }
+    if (mode == SkBlendMode::kOverlay) {
+        return false;
+    }
+    return mode <= SkBlendMode::kLighten;
 }
 
 skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
@@ -741,6 +747,12 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
     auto inv = [&](skvm::F32 x) {
         return p->sub(p->splat(1.0f), x);
     };
+
+    auto srcover = [&](auto s, auto d, auto sa) {
+        return p->mad(d, inv(sa), s);
+    };
+
+    auto two = [p](auto value) { return p->add(value, value); };
 
     switch (mode) {
         default: SkASSERT(false); /*but also, for safety, fallthrough*/
@@ -757,10 +769,10 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
 
         case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
         case SkBlendMode::kSrcOver: return {
-            p->mad(dst.r, inv(src.a), src.r),
-            p->mad(dst.g, inv(src.a), src.g),
-            p->mad(dst.b, inv(src.a), src.b),
-            p->mad(dst.a, inv(src.a), src.a),
+            srcover(dst.r, src.r, src.a),
+            srcover(dst.g, src.g, src.a),
+            srcover(dst.b, src.b, src.a),
+            srcover(dst.a, src.a, src.a),
         };
 
         case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
@@ -816,6 +828,53 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
             p->add(src.b, p->sub(dst.b, p->mul(src.b, dst.b))),
             p->add(src.a, p->sub(dst.a, p->mul(src.a, dst.a))),
         };
+
+#define APPLY_MODE(proc) {                  \
+               proc(src.r, dst.r),          \
+               proc(src.g, dst.g),          \
+               proc(src.b, dst.b),          \
+            srcover(src.a, dst.a, src.a),   \
+        }
+
+        case SkBlendMode::kDarken: {
+            auto darken = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, p->max(p->mul(s, dst.a),
+                                                  p->mul(d, src.a))));
+            };
+            return APPLY_MODE(darken);
+        }
+
+        case SkBlendMode::kLighten: {
+            auto lighten = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, p->min(p->mul(s, dst.a),
+                                                  p->mul(d, src.a))));
+            };
+            return APPLY_MODE(lighten);
+        }
+
+        case SkBlendMode::kDifference: {
+            auto difference = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, two(p->min(p->mul(s, dst.a),
+                                                      p->mul(d, src.a)))));
+            };
+            return APPLY_MODE(difference);
+        }
+
+        case SkBlendMode::kExclusion: {
+            auto exclusion = [&](auto s, auto d) {
+                return p->add(s, p->sub(d, two(p->mul(s, d))));
+            };
+            return APPLY_MODE(exclusion);
+        }
+
+        case SkBlendMode::kMultiply: {
+            auto multiply = [&](auto s, auto d) {
+                return p->add(p->add(p->mul(s, inv(dst.a)),
+                                     p->mul(d, inv(src.a))),
+                                     p->mul(s, d));
+            };
+            return APPLY_MODE(multiply);
+        }
     }
 }
 
