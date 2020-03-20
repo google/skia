@@ -19,7 +19,7 @@ public:
     static const int kUniformsPerBlock = 8;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
-        return fUniforms[u.toIndex()].fVariable;
+        return fUniforms.item(u.toIndex()).fVariable;
     }
 
     const char* getUniformCStr(UniformHandle u) const override {
@@ -42,7 +42,7 @@ private:
                              const char* name, const GrShaderCaps*) override;
 
     const char* samplerVariable(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()].fVariable.c_str();
+        return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
