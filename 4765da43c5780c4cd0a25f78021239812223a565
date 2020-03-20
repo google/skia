@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "850f9249_4732e5a4",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-03-20T12:54:33Z",
+      "side": 1,
+      "message": "We need to move this declaration of \u0027m\u0027 up to line 32 or so, outside of this scope.  As it is, we declared \u0027m\u0027 within this scope...",
+      "revId": "4765da43c5780c4cd0a25f78021239812223a565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efa32eec_d63f542e",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-03-20T12:54:33Z",
+      "side": 1,
+      "message": "...set \u0027matr\u0027 to point at \u0027m\u0027...",
+      "revId": "4765da43c5780c4cd0a25f78021239812223a565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b02bcd4_f5c54843",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-03-20T12:54:33Z",
+      "side": 1,
+      "message": "...and then \u0027m\u0027 goes out of scope here...",
+      "revId": "4765da43c5780c4cd0a25f78021239812223a565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92774319_30c28e43",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-03-20T12:54:33Z",
+      "side": 1,
+      "message": "...and yet we use \u0027matr\u0027 here, pointing to out-of-scope contents.",
+      "revId": "4765da43c5780c4cd0a25f78021239812223a565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
