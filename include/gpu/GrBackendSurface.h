@@ -31,7 +31,9 @@ class GrGLTextureParameters;
 #endif
 
 #ifdef SK_DIRECT3D
-#include <dxgiformat.h>
+#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/private/GrD3DTypesPriv.h"
+class GrD3DResourceState;
 #endif
 
 #if GR_TEST_UTILS
@@ -235,6 +237,12 @@ public:
                      const GrMtlTextureInfo& mtlInfo);
 #endif
 
+#ifdef SK_DIRECT3D
+    GrBackendTexture(int width,
+                     int height,
+                     const GrD3DTextureInfo& d3dInfo);
+#endif
+
 #ifdef SK_DAWN
     GrBackendTexture(int width,
                      int height,
@@ -287,6 +295,17 @@ public:
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
 #endif
 
+#ifdef SK_DIRECT3D
+    // If the backend API is Direct3D, copies a snapshot of the GrD3DTextureInfo struct into the
+    // passed in pointer and returns true. This snapshot will set the fResourceState to the current
+    // resource state. Otherwise returns false if the backend API is not D3D.
+    bool getD3DTextureInfo(GrD3DTextureInfo*) const;
+
+    // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
+    // GrBackendTexture, they must call this function to notify Skia of the changed layout.
+    void setD3DResourceState(GrD3DResourceStateEnum);
+#endif
+
     // Get the GrBackendFormat for this texture (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
 
@@ -330,6 +349,16 @@ private:
     sk_sp<GrVkImageLayout> getGrVkImageLayout() const;
 #endif
 
+#ifdef SK_DIRECT3D
+    friend class GrD3DTexture;
+    friend class GrD3DGpu;     // for getGrD3DResourceState
+    GrBackendTexture(int width,
+                     int height,
+                     const GrD3DTextureInfo& vkInfo,
+                     sk_sp<GrD3DResourceState> state);
+    sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
+#endif
+
     // Free and release and resources being held by the GrBackendTexture.
     void cleanup();
 
@@ -345,6 +374,9 @@ private:
 #endif
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockTextureInfo fMockInfo;
+#ifdef SK_DIRECT3D
+        GrD3DBackendSurfaceInfo fD3DInfo;
+#endif
     };
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
@@ -387,6 +419,13 @@ public:
                           int height,
                           int sampleCnt,
                           const GrMtlTextureInfo& mtlInfo);
+#endif
+
+#ifdef SK_DIRECT3D
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          const GrD3DTextureInfo& d3dInfo);
 #endif
 
     GrBackendRenderTarget(int width,
@@ -433,6 +472,16 @@ public:
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
 #endif
 
+#ifdef SK_DIRECT3D
+    // If the backend API is Direct3D, copies a snapshot of the GrMtlTextureInfo struct into the
+    // passed in pointer and returns true. Otherwise returns false if the backend API is not D3D.
+    bool getD3DTextureInfo(GrD3DTextureInfo*) const;
+
+    // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
+    // GrBackendTexture, they must call this function to notify Skia of the changed layout.
+    void setD3DResourceState(GrD3DResourceStateEnum);
+#endif
+
     // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
 
@@ -458,6 +507,11 @@ private:
     friend class GrVkRenderTarget;
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
                           sk_sp<GrVkImageLayout> layout);
+#ifdef SK_DIRECT3D
+    GrBackendRenderTarget(int width, int height, int sampleCnt, const GrD3DTextureInfo& d3dInfo,
+                          sk_sp<GrD3DResourceState> state);
+    sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
+#endif
 
     // Free and release and resources being held by the GrBackendTexture.
     void cleanup();
@@ -478,6 +532,9 @@ private:
 #endif
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockRenderTargetInfo fMockInfo;
+#ifdef SK_DIRECT3D
+        GrD3DBackendSurfaceInfo fD3DInfo;
+#endif
     };
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;

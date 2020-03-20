@@ -10,8 +10,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/d3d/GrD3D12.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/d3d/GrD3D12.h"
 #include "src/gpu/d3d/GrD3DResourceState.h"
 
 class GrD3DGpu;

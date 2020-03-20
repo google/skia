@@ -8,7 +8,7 @@
 #ifndef GrD3DBackendContext_DEFINED
 #define GrD3DBackendContext_DEFINED
 
-#include "include/gpu/d3d/GrD3D12.h"
+#include "src/gpu/d3d/GrD3D12.h"
 
 #include "include/gpu/GrTypes.h"
 

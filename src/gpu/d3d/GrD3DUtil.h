@@ -10,8 +10,8 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/d3d/GrD3D12.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/d3d/GrD3D12.h"
 
 /**
  * Returns true if the format is compressed.

@@ -6,7 +6,8 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 83
 
-<Insert new notes here- top is most recent.>
+  * Fill out Direct3D parameters for backend textures and backend rendertargets.
+
   * SkImage::makeTextureImage() takes an optional SkBudgeted param
 
   * Made non-GL builds of GPU backend more robust.
