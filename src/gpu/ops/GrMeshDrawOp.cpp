@@ -38,6 +38,10 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
     this->createProgramInfo(context->priv().caps(), arena, outputView,
                             std::move(appliedClip), dstProxyView);
 
+    // TODO: at this point we've created both the program info and desc in the recording context's
+    // arena. In the DDL case, it would be cool if 'recordProgramInfo' could return the
+    // pre-existing versions if the program has already been seen. We could then return the
+    // memory for the current copy to the arena.
     context->priv().recordProgramInfo(this->programInfo());
 }
 

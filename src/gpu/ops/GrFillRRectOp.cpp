@@ -19,12 +19,12 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 
-class FillRRectOp : public GrDrawOp {
+class FillRRectOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -52,12 +52,7 @@ public:
         }
     }
 
-    void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
-                      GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) final;
-
-    void onPrepare(GrOpFlushState*) final;
+    void onPrepareDraws(Target*) final;
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) final;
 
@@ -93,19 +88,14 @@ private:
 
     void writeInstanceData() {}  // Halt condition.
 
+    GrProgramInfo* programInfo() final { return fProgramInfo; }
+
     // Create a GrProgramInfo object in the provided arena
-    GrProgramInfo* createProgramInfo(const GrCaps*,
-                                     SkArenaAlloc*,
-                                     const GrSurfaceProxyView* outputView,
-                                     GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&);
-    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) {
-        return this->createProgramInfo(&flushState->caps(),
-                                       flushState->allocator(),
-                                       flushState->outputView(),
-                                       flushState->detachAppliedClip(),
-                                       flushState->dstProxyView());
-    }
+    void onCreateProgramInfo(const GrCaps*,
+                             SkArenaAlloc*,
+                             const GrSurfaceProxyView* outputView,
+                             GrAppliedClip&&,
+                             const GrXferProcessor::DstProxyView&) final;
 
     const GrAAType fAAType;
     const SkPMColor4f fOriginalColor;
@@ -128,6 +118,8 @@ private:
     GrProgramInfo* fProgramInfo = nullptr;
 
     friend class ::GrOpMemoryPool;
+
+    typedef GrMeshDrawOp INHERITED;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOp::Flags)
@@ -212,7 +204,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
 FillRRectOp::FillRRectOp(GrAAType aaType, const SkRRect& rrect, Flags flags,
                          const SkMatrix& totalShapeMatrix, GrPaint&& paint,
                          const SkRect& devBounds)
-        : GrDrawOp(ClassID())
+        : INHERITED(ClassID())
         , fAAType(aaType)
         , fOriginalColor(paint.getColor4f())
         , fLocalRect(rrect.rect())
@@ -564,29 +556,9 @@ static constexpr uint16_t kMSAAIndexData[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
 
-void FillRRectOp::onPrePrepare(GrRecordingContext* context,
-                               const GrSurfaceProxyView* outputView,
-                               GrAppliedClip* clip,
-                               const GrXferProcessor::DstProxyView& dstProxyView) {
-    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-    // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-    // TODO: it would be cool if, right here, we created both the program info and desc
-    // in the record-time arena. Then, if the program info had already been seen, we could
-    // get pointers back to the prior versions and be able to return the allocated space
-    // back to the arena. Note that this would require separating the portions of the
-    // ProgramInfo that represent state from those that are just definitional.
-    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                           std::move(appliedClip), dstProxyView);
-
-    context->priv().recordProgramInfo(fProgramInfo);
-}
-
-void FillRRectOp::onPrepare(GrOpFlushState* flushState) {
-    if (void* instanceData = flushState->makeVertexSpace(fInstanceStride, fInstanceCount,
-                                                         &fInstanceBuffer, &fBaseInstance)) {
+void FillRRectOp::onPrepareDraws(Target* target) {
+    if (void* instanceData = target->makeVertexSpace(fInstanceStride, fInstanceCount,
+                                                     &fInstanceBuffer, &fBaseInstance)) {
         SkASSERT(fInstanceStride * fInstanceCount == fInstanceData.count());
         memcpy(instanceData, fInstanceData.begin(), fInstanceData.count());
     }
@@ -594,13 +566,13 @@ void FillRRectOp::onPrepare(GrOpFlushState* flushState) {
     if (GrAAType::kCoverage == fAAType) {
         GR_DEFINE_STATIC_UNIQUE_KEY(gCoverageIndexBufferKey);
 
-        fIndexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+        fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kIndex, sizeof(kCoverageIndexData), kCoverageIndexData,
                 gCoverageIndexBufferKey);
 
         GR_DEFINE_STATIC_UNIQUE_KEY(gCoverageVertexBufferKey);
 
-        fVertexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+        fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex, sizeof(kCoverageVertexData), kCoverageVertexData,
                 gCoverageVertexBufferKey);
 
@@ -608,13 +580,13 @@ void FillRRectOp::onPrepare(GrOpFlushState* flushState) {
     } else {
         GR_DEFINE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
 
-        fIndexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+        fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kIndex, sizeof(kMSAAIndexData), kMSAAIndexData,
                 gMSAAIndexBufferKey);
 
         GR_DEFINE_STATIC_UNIQUE_KEY(gMSAAVertexBufferKey);
 
-        fVertexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+        fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex, sizeof(kMSAAVertexData), kMSAAVertexData,
                 gMSAAVertexBufferKey);
 
@@ -872,11 +844,11 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
     return new CoverageImpl();
 }
 
-GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
-                                              SkArenaAlloc* arena,
-                                              const GrSurfaceProxyView* outputView,
-                                              GrAppliedClip&& appliedClip,
-                                              const GrXferProcessor::DstProxyView& dstProxyView) {
+void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
+                                      SkArenaAlloc* arena,
+                                      const GrSurfaceProxyView* outputView,
+                                      GrAppliedClip&& appliedClip,
+                                      const GrXferProcessor::DstProxyView& dstProxyView) {
     GrGeometryProcessor* gp = Processor::Make(arena, fAAType, fFlags);
     SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
 
@@ -885,10 +857,10 @@ GrProgramInfo* FillRRectOp::createProgramInfo(const GrCaps* caps,
         flags = GrPipeline::InputFlags::kHWAntialias;
     }
 
-    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
-                                                       std::move(appliedClip), dstProxyView,
-                                                       gp, std::move(fProcessors),
-                                                       GrPrimitiveType::kTriangles, flags);
+    fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                               std::move(appliedClip), dstProxyView,
+                                                               gp, std::move(fProcessors),
+                                                               GrPrimitiveType::kTriangles, flags);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -897,7 +869,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     if (!fProgramInfo) {
-        fProgramInfo = this->createProgramInfo(flushState);
+        this->createProgramInfo(flushState);
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
