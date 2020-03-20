@@ -277,6 +277,7 @@ void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
     [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
                                 vertexStart:baseVertex
                                 vertexCount:vertexCount];
+    fGpu->stats()->incNumDraws();
 }
 
 void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
@@ -312,6 +313,7 @@ void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, in
     } else {
         SkASSERT(false);
     }
+    fGpu->stats()->incNumDraws();
 }
 
 void GrMtlOpsRenderPass::onDrawIndexedInstanced(
