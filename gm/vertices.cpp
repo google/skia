@@ -25,6 +25,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/shaders/SkLocalMatrixShader.h"
+#include "tools/ToolUtils.h"
 
 #include <initializer_list>
 #include <utility>
@@ -294,4 +295,43 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
     SkPaint paint;
     // paint.setShader(sksl_shader);
     canvas->drawVertices(vert, paint);
+}
+
+// Test case for skbug.com/10069. We need to draw the vertices twice (with different matrices) to
+// trigger the bug.
+DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setShader(ToolUtils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 32));
+
+    SkRect r = SkRect::MakeWH(128, 128);
+
+    SkPoint pos[4];
+    r.toQuad(pos);
+    auto verts = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pos, pos, nullptr);
+
+    SkMatrix persp;
+    persp.setPerspY(SK_Scalar1 / 100);
+
+    canvas->save();
+    canvas->concat(persp);
+    canvas->drawRect(r, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(r.width(), 0);
+    canvas->concat(persp);
+    canvas->drawRect(r, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(0, r.height());
+    canvas->concat(persp);
+    canvas->drawVertices(verts, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(r.width(), r.height());
+    canvas->concat(persp);
+    canvas->drawVertices(verts, paint);
+    canvas->restore();
 }
