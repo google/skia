@@ -20,6 +20,25 @@
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
+void GrOpsRenderPass::begin() {
+    fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
+#ifdef SK_DEBUG
+    fScissorStatus = DynamicStateStatus::kDisabled;
+    fTextureBindingStatus = DynamicStateStatus::kDisabled;
+    fHasIndexBuffer = false;
+    fInstanceBufferStatus = DynamicStateStatus::kDisabled;
+    fVertexBufferStatus = DynamicStateStatus::kDisabled;
+#endif
+    this->onBegin();
+}
+
+void GrOpsRenderPass::end() {
+    this->onEnd();
+    fActiveIndexBuffer.reset();
+    fActiveInstanceBuffer.reset();
+    fActiveVertexBuffer.reset();
+}
+
 void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
     // A clear at this level will always be a true clear, so make sure clears were not supposed to
