@@ -42,7 +42,7 @@ private:
 } // namespace
 
 sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
-    return this->attachDiscardableAdapter<PathAdapter, sk_sp<sksg::Path>>(jpath, *this);
+    return this->attachDiscardableAdapter<PathAdapter>(jpath, *this);
 }
 
 } // namespace internal

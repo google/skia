@@ -48,8 +48,7 @@ private:
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
                                                               const AnimationBuilder* abuilder) {
-    return abuilder->attachDiscardableAdapter<EllipseGeometryAdapter, sk_sp<sksg::GeometryNode>>
-                (jellipse, abuilder);
+    return abuilder->attachDiscardableAdapter<EllipseGeometryAdapter>(jellipse, abuilder);
 }
 
 } // namespace internal
