@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "506b2acd_98085685",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-20T15:15:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e2342073_f9656500",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 33
+      },
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d6823df_3accf910",
         "filename": "include/gpu/d3d/GrD3DTypes.h",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1da2b94b_fdf992d5",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-20T15:15:30Z",
+      "side": 1,
+      "message": "The TextureInfo is more than just the texture -- we at least need to know if the resource state is the same as well. That said, the rest feels more like validation checks. If the texture is the same, then the format, level count, and protected should be the same.\n\nVulkan has the same style of operator\u003d\u003d, and it\u0027s only used in the GrVkBackendSurfaceInfo as well. I can put this into a GR_TEST_UTILS block to be safe, and do the same for Vulkan.",
+      "parentUuid": "5d6823df_3accf910",
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "66bb5b93_3e7a4d18",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2020-03-20T14:29:34Z",
       "side": 1,
       "message": "If you\u0027re doing this to prevent accidental assignment, we do get warnings if you accidentally typed \"fBackend \u003d GrBackedApi::kDirect3D\"",
+      "range": {
+        "startLine": 473,
+        "startChar": 27,
+        "endLine": 473,
+        "endChar": 63
+      },
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18383fc_adbe4071",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-20T15:15:30Z",
+      "side": 1,
+      "message": "Just matching the rest of the code.",
+      "parentUuid": "66bb5b93_3e7a4d18",
       "range": {
         "startLine": 473,
         "startChar": 27,
