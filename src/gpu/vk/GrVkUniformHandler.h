@@ -73,10 +73,6 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    void updateUniformVisibility(UniformHandle u, uint32_t visibility) override {
-        fUniforms[u.toIndex()].fVisibility |= visibility;
-    }
-
     SamplerHandle addSampler(const GrBackendFormat&,
                              GrSamplerState,
                              const GrSwizzle&,
