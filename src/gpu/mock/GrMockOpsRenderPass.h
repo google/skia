@@ -24,16 +24,15 @@ public:
 
     GrGpu* gpu() override { return fGpu; }
     void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override {}
-    void begin() override {
-        if (GrLoadOp::kClear == fColorLoadOp) {
-            this->markRenderTargetDirty();
-        }
-    }
-    void end() override {}
 
     int numDraws() const { return fNumDraws; }
 
 private:
+    void onBegin() override {
+        if (GrLoadOp::kClear == fColorLoadOp) {
+            this->markRenderTargetDirty();
+        }
+    }
     bool onBindPipeline(const GrProgramInfo&, const SkRect&) override { return true; }
     void onSetScissorRect(const SkIRect&) override {}
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],

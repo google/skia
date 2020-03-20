@@ -21,9 +21,6 @@ public:
 
     ~GrD3DOpsRenderPass() override;
 
-    void begin() override {}
-    void end() override {}
-
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {}
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override {}

@@ -171,12 +171,6 @@ GrVkCommandBuffer* GrVkOpsRenderPass::currentCommandBuffer() {
     return fGpu->currentCommandBuffer();
 }
 
-void GrVkOpsRenderPass::end() {
-    if (fCurrentSecondaryCommandBuffer) {
-        fCurrentSecondaryCommandBuffer->end(fGpu);
-    }
-}
-
 void GrVkOpsRenderPass::submit() {
     if (!fRenderTarget) {
         return;
@@ -441,6 +435,12 @@ void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUpl
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void GrVkOpsRenderPass::onEnd() {
+    if (fCurrentSecondaryCommandBuffer) {
+        fCurrentSecondaryCommandBuffer->end(fGpu);
+    }
+}
 
 bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
     if (!fCurrentRenderPass) {
