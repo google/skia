@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6962e0fc_00ace831",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-20T17:01:38Z",
+      "side": 1,
+      "message": "nit, but now that we don\u0027t need mat a second time, this code would format nicer if you just wrote:\nif (args.fTransformedCoords[0].fUniformMatrix.isValid()) {",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 0
+      },
+      "revId": "914addb4f8238b0735f913ecbac243a3377b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
