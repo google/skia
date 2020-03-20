@@ -24,7 +24,6 @@ namespace SkSL {
 #endif
 
 #ifdef SKSL_THREADED_CODE
-    using instruction = void*;
     #define LABEL(name) name:
     #ifdef TRACE
         #define NEXT()                                   \
@@ -38,7 +37,6 @@ namespace SkSL {
         #define NEXT() goto *labels[(int) read<ByteCode::Instruction>(&ip)]
     #endif
 #else
-    using instruction = uint16_t;
     #define LABEL(name) case ByteCode::Instruction::name:
     #define NEXT() continue
 #endif
