@@ -87,12 +87,12 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         if (!fp.isSampledWithExplicitCoords() || !coordTransform.isNoOp()) {
             SkString strUniName;
             strUniName.printf("CoordTransformMatrix_%d", i);
-            fInstalledTransforms.push_back().fHandle = uniformHandler
-                                                               ->addUniform(kVertex_GrShaderFlag,
-                                                                            kFloat3x3_GrSLType,
-                                                                            strUniName.c_str(),
-                                                                            &matrixName)
-                                                               .toIndex();
+            auto flag = fp.isSampledWithExplicitCoords() ? kFragment_GrShaderFlag
+                                                         : kVertex_GrShaderFlag;
+            fInstalledTransforms.push_back().fHandle =
+                    uniformHandler
+                            ->addUniform(flag, kFloat3x3_GrSLType, strUniName.c_str(), &matrixName)
+                            .toIndex();
         } else {
             // Install a coord transform that will be skipped.
             fInstalledTransforms.push_back();
