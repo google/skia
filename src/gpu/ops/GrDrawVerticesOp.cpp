@@ -462,6 +462,7 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
         }
 
         if (fMultipleViewMatrices) {
+            SkASSERT(!mesh.fViewMatrix.hasPerspective());
             SkMatrixPriv::MapPointsWithStride(mesh.fViewMatrix, posBase, vertexStride, vertexCount);
         }
 
@@ -519,6 +520,21 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
+    // If we're acquiring a mesh with a different view matrix, or an op that needed multiple view
+    // matrices, we need multiple view matrices.
+    bool needMultipleViewMatrices =
+            fMultipleViewMatrices || that->fMultipleViewMatrices ||
+            !SkMatrixPriv::CheapEqual(this->fMeshes[0].fViewMatrix, that->fMeshes[0].fViewMatrix);
+
+    // ... but we can't enable multiple view matrices if any of them have perspective, or our other
+    // varyings won't be interpolated correctly.
+    if (needMultipleViewMatrices && (this->fMeshes[0].fViewMatrix.hasPerspective() ||
+                                     that->fMeshes[0].fViewMatrix.hasPerspective())) {
+        return CombineResult::kCannotCombine;
+    } else {
+        fMultipleViewMatrices = needMultipleViewMatrices;
+    }
+
     // If the other op already required per-vertex colors, the combined mesh does.
     if (that->fColorArrayType == ColorArrayType::kPremulGrColor) {
         fColorArrayType = ColorArrayType::kPremulGrColor;
@@ -535,12 +551,6 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
     // NOTE: For SkColor vertex colors, the source color space is always sRGB, and the destination
     // gamut is determined by the render target context. A mis-match should be impossible.
     SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
-
-    // If we're acquiring a mesh with a different view matrix, or an op that needed multiple view
-    // matrices, we need multiple view matrices.
-    fMultipleViewMatrices =
-            fMultipleViewMatrices || that->fMultipleViewMatrices ||
-            !SkMatrixPriv::CheapEqual(this->fMeshes[0].fViewMatrix, that->fMeshes[0].fViewMatrix);
 
     // If the other op already required explicit local coords the combined mesh does.
     if (that->fLocalCoordsType == LocalCoordsType::kExplicit) {
