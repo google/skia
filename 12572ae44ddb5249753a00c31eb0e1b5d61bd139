@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2342073_f9656500",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-20T14:29:34Z",
+      "side": 1,
+      "message": "FWIW GrTypes.h includes SkTypes.h and always will.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 33
+      },
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d6823df_3accf910",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-20T14:29:34Z",
+      "side": 1,
+      "message": "This makes me a little nervous because it seems like there can be two ideas of equality. \"Is it the same texture\" and \"are all the fields the same\". Is it used outside of the test code in GrD3DBackendSurfaceInfo\u0027s op\u003d\u003d? I\u0027m wondering if we could just inline the relevant parts into that function.",
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66bb5b93_3e7a4d18",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-20T14:29:34Z",
+      "side": 1,
+      "message": "If you\u0027re doing this to prevent accidental assignment, we do get warnings if you accidentally typed \"fBackend \u003d GrBackedApi::kDirect3D\"",
+      "range": {
+        "startLine": 473,
+        "startChar": 27,
+        "endLine": 473,
+        "endChar": 63
+      },
+      "revId": "12572ae44ddb5249753a00c31eb0e1b5d61bd139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
