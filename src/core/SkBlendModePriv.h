@@ -11,7 +11,6 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkVM.h"
 
 class SkRasterPipeline;
 
@@ -30,10 +29,5 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode, const SkPMColor4f& src, const SkPMCol
 #include "src/gpu/GrXferProcessor.h"
 const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode);
 #endif
-
-namespace skvm {
-    bool BlendModeSupported(SkBlendMode);
-    Color BlendModeProgram(Builder*, SkBlendMode, Color src, Color dst);
-}
 
 #endif
