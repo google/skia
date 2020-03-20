@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "592a8ad8_57b7a073",
+        "filename": "modules/canvaskit/WasmAliases.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2cf5696_70439304",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 20
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3201b39_7976374c",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e706dd16_a2c14192",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "I\u0027ve been working on it, but can\u0027t make the test pass yet.",
+      "parentUuid": "a3201b39_7976374c",
+      "range": {
+        "startLine": 679,
+        "startChar": 4,
+        "endLine": 679,
+        "endChar": 11
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fd36fac6_ec4ebfeb",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d74258a9_bd481c68",
+      "range": {
+        "startLine": 850,
+        "startChar": 82,
+        "endLine": 850,
+        "endChar": 90
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbd280aa_7f56c42c",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 9
@@ -91,6 +163,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "180f0c00_06bceaf9",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbd280aa_7f56c42c",
+      "range": {
+        "startLine": 982,
+        "startChar": 11,
+        "endLine": 984,
+        "endChar": 87
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "3bdf4232_431fb3ae",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "That is interesting. Apparently it can sometimes be deduced. https://en.cppreference.com/w/cpp/language/lambda\nI\u0027ve added it for clarity though.",
+      "parentUuid": "adf9474b_121e960f",
+      "range": {
+        "startLine": 1333,
+        "startChar": 51,
+        "endLine": 1333,
+        "endChar": 65
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0486244b_a85502f0",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 9
@@ -137,6 +257,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16170693_cefc79c7",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0486244b_a85502f0",
+      "range": {
+        "startLine": 1493,
+        "startChar": 14,
+        "endLine": 1493,
+        "endChar": 29
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "3d3b46e5_fd70527f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "The other TODO covers this.",
+      "parentUuid": "57d07a38_aa69a918",
+      "range": {
+        "startLine": 1495,
+        "startChar": 33,
+        "endLine": 1495,
+        "endChar": 39
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96acf9b9_525ad6db",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 9
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "8323dcdb_bc86ccfa",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1878,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96acf9b9_525ad6db",
+      "range": {
+        "startLine": 1869,
+        "startChar": 7,
+        "endLine": 1878,
+        "endChar": 14
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d382723_51cae3ec",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 9
@@ -206,6 +398,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "977bcca1_aac7a4cc",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d382723_51cae3ec",
+      "range": {
+        "startLine": 10,
+        "startChar": 47,
+        "endLine": 10,
+        "endChar": 58
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "34f68a62_84cac4fa",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbad5746_977a5712",
+      "range": {
+        "startLine": 111,
+        "startChar": 6,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f76ba6b8_534ffeff",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 9
@@ -275,6 +515,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea152c93_ce6b43d8",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f76ba6b8_534ffeff",
+      "range": {
+        "startLine": 143,
+        "startChar": 2,
+        "endLine": 143,
+        "endChar": 7
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -301,6 +565,30 @@
     },
     {
       "key": {
+        "uuid": "10daddf3_15274dd3",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b77e3aa5_49c49d71",
+      "range": {
+        "startLine": 144,
+        "startChar": 13,
+        "endLine": 144,
+        "endChar": 14
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e363daf6_8022927e",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 9
@@ -321,6 +609,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0ecfd07_dad0bf43",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "We don\u0027t return null in the other errors. One of them returned undefined. I\u0027m copying that and doing it for all three.",
+      "parentUuid": "e363daf6_8022927e",
+      "range": {
+        "startLine": 899,
+        "startChar": 48,
+        "endLine": 899,
+        "endChar": 54
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -347,6 +659,30 @@
     },
     {
       "key": {
+        "uuid": "6ce38cde_046958f0",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "951a6a2f_3d8ad1a7",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 38
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcd28690_87618473",
         "filename": "modules/canvaskit/tests/core.spec.js",
         "patchSetId": 9
@@ -367,6 +703,30 @@
       "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bea96e3_1606c3de",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-03-20T19:30:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcd28690_87618473",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 23
+      },
+      "revId": "1938038798c49623c6fc10fd73dab967ffb2221d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
