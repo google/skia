@@ -93,7 +93,7 @@ sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPolystarGeometry(const skjson::Obj
         return nullptr;
     }
 
-    return abuilder->attachDiscardableAdapter<PolystarGeometryAdapter, sk_sp<sksg::GeometryNode>>
+    return abuilder->attachDiscardableAdapter<PolystarGeometryAdapter>
                 (jstar, abuilder, gTypes[type]);
 }
 
