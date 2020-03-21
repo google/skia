@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c7dc2c7_5a539cbf",
+        "filename": "gm/hsl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-21T14:12:24Z",
+      "side": 1,
+      "message": "ducky.png",
+      "range": {
+        "startLine": 211,
+        "startChar": 35,
+        "endLine": 211,
+        "endChar": 57
+      },
+      "revId": "f7430f1d2976a1cc75d1b91212880305f29f34b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
