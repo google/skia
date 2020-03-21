@@ -130,6 +130,7 @@ static DEFINE_int_2(threads, j, -1,
 static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
+static DEFINE_bool(skvm, false, "Try to use skvm blitters for raster.");
 
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
@@ -251,6 +252,8 @@ const char* kON = "ON";
 const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
 
+extern bool gUseSkVMBlitter;
+
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
     , fRefresh(false)
@@ -298,6 +301,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #ifdef SK_BUILD_FOR_ANDROID
     SetResourcePath("/data/local/tmp/resources");
 #endif
+
+    gUseSkVMBlitter = FLAGS_skvm;
 
     ToolUtils::SetDefaultFontMgr();
 
@@ -607,6 +612,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+    fCommands.addCommand('!', "SkVM", "Toggle SkVM", [this]() {
+        gUseSkVMBlitter = !gUseSkVMBlitter;
+        this->updateTitle();
+        fWindow->inval();
+    });
 
     // set up slides
     this->initSlides();
@@ -822,6 +832,9 @@ void Viewer::updateTitle() {
     }
     if (fDrawViaSerialize) {
         title.append(" <serialize>");
+    }
+    if (gUseSkVMBlitter) {
+        title.append(" <skvm>");
     }
 
     SkPaintTitleUpdater paintTitle(&title);
