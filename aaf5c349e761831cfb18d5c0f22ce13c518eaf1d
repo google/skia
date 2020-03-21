@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6519e8ca_3d0e3387",
+        "filename": "gm/hsl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-21T17:21:48Z",
+      "side": 1,
+      "message": "I don\u0027t think this matches the reference gradient.",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 79
+      },
+      "revId": "aaf5c349e761831cfb18d5c0f22ce13c518eaf1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
