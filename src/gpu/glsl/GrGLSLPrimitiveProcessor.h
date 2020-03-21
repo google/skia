@@ -28,21 +28,12 @@ public:
     using CoordTransformRange   = GrFragmentProcessor::PipelineCoordTransformRange;
 
     struct TransformVar {
-        TransformVar() = default;
-
-        TransformVar(SkString matrixCode,
-                     UniformHandle uniformMatrix,
-                     GrShaderVar varyingPoint = {})
-                : fMatrixCode(std::move(matrixCode))
-                , fUniformMatrix(uniformMatrix)
-                , fVaryingPoint(varyingPoint) {}
-
-        // a string of SkSL code which resolves to the transformation matrix
-        SkString fMatrixCode;
-        // the variable containing the matrix, if any, otherwise an invalid handle
-        UniformHandle fUniformMatrix;
-        // the transformed coordinate output by the vertex shader and consumed by the fragment
-        // shader
+        // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
+        // {scaleX, transX, scaleY, transY}. For explicitly sampled FPs this is visible in the
+        // FS. This is not available for NV_path_rendering with non-explicitly sampled FPs.
+        GrShaderVar fTransform;
+        // The transformed coordinate output by the vertex shader and consumed by the fragment
+        // shader. Only valid for non-explicitly sampled FPs.
         GrShaderVar fVaryingPoint;
     };
 
@@ -69,10 +60,9 @@ public:
         FPCoordTransformHandler& operator++();
 
         // 'args' are constructor params to GrShaderVar.
-        template<typename... Args>
-        void specifyCoordsForCurrCoordTransform(Args&&... args) {
+        void specifyCoordsForCurrCoordTransform(GrShaderVar transformVar, GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->emplace_back(std::forward<Args>(args)...);
+            fTransformedCoordVars->push_back({transformVar, varyingVar});
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
