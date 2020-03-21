@@ -15,6 +15,7 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkImageShader.h"
 #include <atomic>
@@ -269,6 +270,23 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
 
     return as_SB(bitmapShader)->appendStages(localRec);
+}
+
+skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
+                                       skvm::F32 x, skvm::F32 y, skvm::Color paint,
+                                       const SkMatrix& ctm, const SkMatrix* localM,
+                                       SkFilterQuality quality, const SkColorInfo& dst,
+                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    auto lm = this->totalLocalMatrix(localM);
+
+    // Keep bitmapShader alive by using alloc instead of stack memory
+    auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
+    bitmapShader = this->refBitmapShader(ctm, &lm, dst.colorType(), dst.colorSpace());
+    if (!bitmapShader) {
+        return {};
+    }
+
+    return as_SB(bitmapShader)->program(p, x,y, paint, ctm, lm, quality, dst, uniforms, alloc);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
