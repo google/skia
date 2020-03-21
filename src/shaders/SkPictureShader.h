@@ -37,6 +37,11 @@ protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
+
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
