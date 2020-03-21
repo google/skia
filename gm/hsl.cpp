@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.
@@ -189,5 +190,50 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
         canvas->drawString(SkBlendMode_Name(test.mode), 20, 90, font, paint);
 
         canvas->translate(100,0);
+    }
+}
+
+#include "include/effects/SkGradientShader.h"
+
+// Trying to match sample images on https://www.w3.org/TR/compositing-1/#blendingnonseparable
+//
+static sk_sp<SkShader> make_grad(SkScalar width) {
+    SkColor colors[] = {
+        0xFF00CCCC, 0xFF0000CC, 0xFFCC00CC, 0xFFCC0000, 0xFFCCCC00, 0xFF00CC00,
+    };
+    SkPoint pts[] = {{0, 0}, {width, 0}};
+
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkTileMode::kClamp);
+}
+
+DEF_SIMPLE_GM(HSL_duck, canvas, 1020, 570) {
+    auto src = GetResourceAsImage("images/rubber_duck.png");
+    auto dst = make_grad(src->width());
+    SkRect r = SkRect::MakeIWH(src->width(), src->height());
+
+    canvas->translate(10, 10);
+    canvas->scale(0.5f, 0.5f);
+
+    const SkBlendMode modes[] = {
+        SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor, SkBlendMode::kLuminosity,
+    };
+
+    for (SkScalar src_a : {1.0f, 0.5f}) {
+        canvas->save();
+        for (auto mode : modes) {
+            SkPaint p;
+            p.setShader(dst);
+            canvas->drawRect(r, p); // bg
+
+            p.setShader(nullptr);
+            p.setBlendMode(mode);
+            p.setAlphaf(src_a);
+            canvas->drawImageRect(src, r, &p);
+
+            canvas->translate(r.width() + 10, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() + 10);
     }
 }
