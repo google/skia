@@ -22,6 +22,30 @@
       "revId": "aaf5c349e761831cfb18d5c0f22ce13c518eaf1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06e29540_de02158a",
+        "filename": "gm/hsl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-21T18:08:06Z",
+      "side": 1,
+      "message": "In conversation, now we think it might match after all.",
+      "parentUuid": "6519e8ca_3d0e3387",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 79
+      },
+      "revId": "aaf5c349e761831cfb18d5c0f22ce13c518eaf1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
