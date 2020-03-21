@@ -80,6 +80,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         return std::make_tuple(localCoords, localCoordLength);
     };
 
+    GrShaderVar transformVar;
     for (int i = 0; *handler; ++*handler, ++i) {
         auto [coordTransform, fp] = handler->get();
         // Add uniform for coord transform matrix.
@@ -89,10 +90,16 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             strUniName.printf("CoordTransformMatrix_%d", i);
             auto flag = fp.isSampledWithExplicitCoords() ? kFragment_GrShaderFlag
                                                          : kVertex_GrShaderFlag;
-            fInstalledTransforms.push_back().fHandle =
-                    uniformHandler
-                            ->addUniform(flag, kFloat3x3_GrSLType, strUniName.c_str(), &matrixName)
-                            .toIndex();
+            auto& uni = fInstalledTransforms.push_back();
+            if (fp.isSampledWithExplicitCoords() && coordTransform.matrix().isScaleTranslate() &&
+                localMatrix.isScaleTranslate()) {
+                uni.fType = kFloat4_GrSLType;
+            } else {
+                uni.fType = kFloat3x3_GrSLType;
+            }
+            uni.fHandle =
+                    uniformHandler->addUniform(flag, uni.fType, strUniName.c_str(), &matrixName);
+            transformVar = uniformHandler->getUniformVariable(uni.fHandle);
         } else {
             // Install a coord transform that will be skipped.
             fInstalledTransforms.push_back();
@@ -100,6 +107,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             continue;
         }
 
+        GrShaderVar fsVar;
         // Add varying if required and register varying and matrix uniform.
         if (!fp.isSampledWithExplicitCoords()) {
             auto [localCoordsStr, localCoordLength] = getLocalCoords();
@@ -112,19 +120,16 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             strVaryingName.printf("TransformedCoords_%d", i);
             varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
+            SkASSERT(fInstalledTransforms.back().fType == kFloat3x3_GrSLType);
             if (v.type() == kFloat2_GrSLType) {
                 vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrixName,
                                 localCoordsStr.c_str());
             } else {
                 vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrixName, localCoordsStr.c_str());
             }
-            GrShaderVar fsVar(SkString(v.fsIn()), v.type(), GrShaderVar::kIn_TypeModifier);
-            handler->specifyCoordsForCurrCoordTransform(SkString(matrixName),
-                                                        fInstalledTransforms.back().fHandle, fsVar);
-        } else {
-            handler->specifyCoordsForCurrCoordTransform(SkString(matrixName),
-                                                        fInstalledTransforms.back().fHandle);
+            fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::kIn_TypeModifier);
         }
+        handler->specifyCoordsForCurrCoordTransform(transformVar, fsVar);
     }
 }
 
@@ -141,7 +146,14 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
                 m = GetTransformMatrix(transform, localMatrix);
             }
             if (!SkMatrixPriv::CheapEqual(fInstalledTransforms[i].fCurrentValue, m)) {
-                pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
+                if (fInstalledTransforms[i].fType == kFloat4_GrSLType) {
+                    float values[4] = {m.getScaleX(), m.getTranslateX(),
+                                       m.getScaleY(), m.getTranslateY()};
+                    pdman.set4fv(fInstalledTransforms[i].fHandle.toIndex(), 1, values);
+                } else {
+                    SkASSERT(fInstalledTransforms[i].fType == kFloat3x3_GrSLType);
+                    pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
+                }
                 fInstalledTransforms[i].fCurrentValue = m;
             }
         }
