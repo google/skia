@@ -29,7 +29,7 @@ public:
     };
 
     /**
-     * Values for array count that have special meaning. We allow 1-sized arrays.git
+     * Values for array count that have special meaning. We allow 1-sized arrays.
      */
     enum {
         kNonArray     =  0, // not an array
@@ -37,63 +37,50 @@ public:
     };
 
     /**
-     * Defaults to a non-arry half with no type modifier or layout qualifier.
+     * Defaults to a void with no type modifier or layout qualifier.
      */
     GrShaderVar()
-        : fType(kHalf_GrSLType)
-        , fTypeModifier(kNone_TypeModifier)
-        , fCount(kNonArray)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
-    }
+            : fType(kVoid_GrSLType)
+            , fTypeModifier(kNone_TypeModifier)
+            , fCount(kNonArray)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {}
 
     GrShaderVar(const SkString& name, GrSLType type, int arrayCount = kNonArray)
-        : fType(type)
-        , fTypeModifier(kNone_TypeModifier)
-        , fCount(arrayCount)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
-        , fName(name) {
-        SkASSERT(kVoid_GrSLType != type);
-        fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
-    }
+            : fType(type)
+            , fTypeModifier(kNone_TypeModifier)
+            , fCount(arrayCount)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
+            , fName(name) {}
 
     GrShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray)
-        : fType(type)
-        , fTypeModifier(kNone_TypeModifier)
-        , fCount(arrayCount)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
-        , fName(name) {
-        SkASSERT(kVoid_GrSLType != type);
-        fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
-    }
+            : fType(type)
+            , fTypeModifier(kNone_TypeModifier)
+            , fCount(arrayCount)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
+            , fName(name) {}
 
     GrShaderVar(const char* name, GrSLType type, TypeModifier typeModifier)
-        : fType(type)
-        , fTypeModifier(typeModifier)
-        , fCount(kNonArray)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
-        , fName(name) {
-        SkASSERT(kVoid_GrSLType != type);
-    }
+            : fType(type)
+            , fTypeModifier(typeModifier)
+            , fCount(kNonArray)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
+            , fName(name) {}
 
     GrShaderVar(const char* name, GrSLType type, TypeModifier typeModifier, int arrayCount)
-        : fType(type)
-        , fTypeModifier(typeModifier)
-        , fCount(arrayCount)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
-        , fName(name) {
-        SkASSERT(kVoid_GrSLType != type);
-    }
+            : fType(type)
+            , fTypeModifier(typeModifier)
+            , fCount(arrayCount)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
+            , fName(name) {}
 
     GrShaderVar(const GrShaderVar& that)
-        : fType(that.fType)
-        , fTypeModifier(that.fTypeModifier)
-        , fCount(that.fCount)
-        , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
-        , fName(that.fName)
-        , fLayoutQualifier(that.fLayoutQualifier)
-        , fExtraModifiers(that.fExtraModifiers) {
-        SkASSERT(kVoid_GrSLType != that.getType());
-    }
+            : fType(that.fType)
+            , fTypeModifier(that.fTypeModifier)
+            , fCount(that.fCount)
+            , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
+            , fName(that.fName)
+            , fLayoutQualifier(that.fLayoutQualifier)
+            , fExtraModifiers(that.fExtraModifiers) {}
 
     /**
      * Sets as a non-array.

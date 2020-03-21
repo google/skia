@@ -84,6 +84,7 @@ private:
 
     struct TransformUniform {
         UniformHandle  fHandle;
+        GrSLType       fType = kVoid_GrSLType;
         SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
     };
 

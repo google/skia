@@ -166,9 +166,18 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
-        if (args.fTransformedCoords[0].fUniformMatrix.isValid()) {
-            this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
-                              args.fTransformedCoords[0].fMatrixCode.c_str());
+        const GrShaderVar& transform = args.fTransformedCoords[0].fTransform;
+        switch (transform.getType()) {
+            case kFloat4_GrSLType:
+                this->codeAppendf("_coords = _coords * %s.xz + %s.yw;\n", transform.c_str(),
+                                  transform.c_str());
+                break;
+            case kFloat3x3_GrSLType:
+                this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n", transform.c_str());
+                break;
+            default:
+                SkASSERT(transform.getType() == kVoid_GrSLType);
+                break;
         }
     }
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
