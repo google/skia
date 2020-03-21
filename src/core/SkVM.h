@@ -690,8 +690,6 @@ namespace skvm {
         std::unique_ptr<Impl> fImpl;
     };
 
-    bool BlendModeSupported(SkBlendMode);
-
     // TODO: control flow
     // TODO: 64-bit values?
     // TODO: SSE2/SSE4.1, AVX-512F, ARMv8.2 JITs?

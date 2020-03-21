@@ -138,8 +138,7 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y
                                       SkFilterQuality q, SkColorSpace* cs,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color dst, src;
-    if (skvm::BlendModeSupported(fMode) &&
-        (dst = as_SB(fDst)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)) &&
+    if ((dst = as_SB(fDst)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)) &&
         (src = as_SB(fSrc)->program(p, x,y, ctm,localM, q, cs, uniforms, alloc)))
     {
         return p->blend(fMode, src, dst);
