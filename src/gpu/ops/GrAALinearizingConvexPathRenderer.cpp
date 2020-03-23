@@ -146,9 +146,10 @@ public:
                              SkPaint::Join join,
                              SkScalar miterLimit,
                              const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
-        fPaths.emplace_back(
-                PathData{color, viewMatrix, path, strokeWidth, style, join, miterLimit});
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
+            , fViewMatrix(viewMatrix) {
+        fPaths.emplace_back(PathData{color, path, strokeWidth, style, join, miterLimit});
 
         // compute bounds
         SkRect bounds = path.getBounds();
@@ -212,7 +213,7 @@ private:
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp = create_lines_only_gp(arena,
                                                        fHelper.compatibleWithCoverageAsAlpha(),
-                                                       this->viewMatrix(),
+                                                       fViewMatrix,
                                                        fHelper.usesLocalCoords(),
                                                        fWideColor);
         if (!gp) {
@@ -277,7 +278,7 @@ private:
             GrAAConvexTessellator tess(args.fStyle, args.fStrokeWidth,
                                        args.fJoin, args.fMiterLimit);
 
-            if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
+            if (!tess.tessellate(fViewMatrix, args.fPath)) {
                 continue;
             }
 
@@ -340,17 +341,18 @@ private:
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return CombineResult::kCannotCombine;
         }
+        if (fViewMatrix != that->fViewMatrix) {
+            return CombineResult::kCannotCombine;
+        }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
 
-    const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
     struct PathData {
         SkPMColor4f fColor;
-        SkMatrix fViewMatrix;
         SkPath fPath;
         SkScalar fStrokeWidth;
         SkStrokeRec::Style fStyle;
@@ -360,6 +362,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
+    SkMatrix fViewMatrix;
     bool fWideColor;
 
     SkTDArray<GrSimpleMesh*> fMeshes;
