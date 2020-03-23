@@ -171,6 +171,28 @@ void GrTextureProxy::clearUniqueKey() {
     fProxyProvider = nullptr;
 }
 
+GrSurfaceProxy::LazySurfaceDesc GrTextureProxy::callbackDesc() const {
+    SkISize dims;
+    SkBackingFit fit;
+    if (this->isFullyLazy()) {
+        fit = SkBackingFit::kApprox;
+        dims = {-1, -1};
+    } else {
+        fit = this->isFunctionallyExact() ? SkBackingFit::kExact : SkBackingFit::kApprox;
+        dims = this->dimensions();
+    }
+    return {
+            dims,
+            fit,
+            GrRenderable::kNo,
+            fMipMapped,
+            1,
+            this->backendFormat(),
+            this->isProtected(),
+            this->isBudgeted(),
+    };
+}
+
 #ifdef SK_DEBUG
 void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(!surface->asRenderTarget());

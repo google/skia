@@ -391,7 +391,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     bool syncKey = true;
     bool releaseCallback = false;
     if (!surface) {
-        auto result = fProxy->fLazyInstantiateCallback(resourceProvider);
+        auto result = fProxy->fLazyInstantiateCallback(resourceProvider, fProxy->callbackDesc());
         surface = std::move(result.fSurface);
         syncKey = result.fKeyMode == GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
         releaseCallback = surface && result.fReleaseCallback;

@@ -143,6 +143,28 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
     return surface;
 }
 
+GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const {
+    SkISize dims;
+    SkBackingFit fit;
+    if (this->isFullyLazy()) {
+        fit = SkBackingFit::kApprox;
+        dims = {-1, -1};
+    } else {
+        fit = this->isFunctionallyExact() ? SkBackingFit::kExact : SkBackingFit::kApprox;
+        dims = this->dimensions();
+    }
+    return {
+            dims,
+            fit,
+            GrRenderable::kYes,
+            this->mipMapped(),
+            this->numSamples(),
+            this->backendFormat(),
+            this->isProtected(),
+            this->isBudgeted(),
+    };
+}
+
 #ifdef SK_DEBUG
 void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version

@@ -62,6 +62,21 @@ public:
         kSynced
     };
 
+    /**
+     * Specifies the expected properties of the GrSurface returned by a lazy instantiation
+     * callback. The dimensions will be negative in the case of a fully lazy proxy.
+     */
+    struct LazySurfaceDesc {
+        SkISize fDimensions;
+        SkBackingFit fFit;
+        GrRenderable fRenderable;
+        GrMipMapped fMipMapped;
+        int fSampleCnt;
+        const GrBackendFormat& fFormat;
+        GrProtected fProtected;
+        SkBudgeted fBudgeted;
+    };
+
     struct LazyCallbackResult {
         LazyCallbackResult() = default;
         LazyCallbackResult(const LazyCallbackResult&) = default;
@@ -85,7 +100,8 @@ public:
         bool fReleaseCallback = true;
     };
 
-    using LazyInstantiateCallback = std::function<LazyCallbackResult(GrResourceProvider*)>;
+    using LazyInstantiateCallback =
+            std::function<LazyCallbackResult(GrResourceProvider*, const LazySurfaceDesc&)>;
 
     enum class UseAllocator {
         /**
@@ -409,6 +425,8 @@ private:
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
 
     virtual size_t onUninstantiatedGpuMemorySize(const GrCaps&) const = 0;
+
+    virtual LazySurfaceDesc callbackDesc() const = 0;
 
     bool                   fIgnoredByResourceAllocator = false;
     GrProtected            fIsProtected;
