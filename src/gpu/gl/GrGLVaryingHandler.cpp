@@ -28,7 +28,9 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
 
 void GrGLVaryingHandler::onFinalize() {
     SkASSERT(fPathProcVaryingInfos.empty() || fPathProcVaryingInfos.count() == fFragInputs.count());
-    for (int i = 0; i < fPathProcVaryingInfos.count(); ++i) {
-        fPathProcVaryingInfos[i].fVariable = fFragInputs[i];
+    auto fragInput = fFragInputs.items().begin();
+    for (auto& varyingInfo : fPathProcVaryingInfos.items()) {
+        varyingInfo.fVariable = *fragInput;
+        ++fragInput;
     }
 }
