@@ -104,6 +104,15 @@ public:
     virtual const SkString& getMangleString() const = 0;
 
     virtual void forceHighPrecision() = 0;
+
+private:
+    // WARNING: LIke GrRenderTargetProxy, changes to this can cause issues in ASAN. THis is caused
+    // by GrGLSLProgramBuilder's GrAllocators requiring 16 byte alignment, but since
+    // GrGLSLFragmentShaderBuilder has a virtual diamond hierarchy, ASAN requires all this pointers
+    // to start aligned, even though clang is already correctly offsetting the individual fields
+    // that require the larger alignment. In the current world, this extra padding is sufficient to
+    // correctly initialize GrGLSLXPFragmentBuilder second.
+    char fDummyPadding[4];
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags);
@@ -153,7 +162,7 @@ public:
     void forceHighPrecision() override { fForceHighPrecision = true; }
 
     // GrGLSLXPFragmentBuilder interface.
-    bool hasCustomColorOutput() const override { return fHasCustomColorOutput; }
+    bool hasCustomColorOutput() const override { return !!fCustomColorOutput; }
     bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
     const char* dstColor() override;
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
@@ -210,9 +219,9 @@ private:
      */
     SkString fMangleString;
 
+    GrShaderVar* fCustomColorOutput = nullptr;
+
     bool fSetupFragPosition = false;
-    bool fHasCustomColorOutput = false;
-    int fCustomColorOutputIndex = -1;
     bool fHasSecondaryOutput = false;
     bool fHasModifiedSampleMask = false;
     bool fForceHighPrecision = false;

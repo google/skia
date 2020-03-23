@@ -80,8 +80,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
 
 static void finalize_helper(GrDawnVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
-    for (int i = 0; i < vars.count(); ++i) {
-        GrShaderVar& var = vars[i];
+    for (GrShaderVar& var : vars.items()) {
         SkString location;
         location.appendf("location = %d", locationIndex);
         var.addLayoutQualifier(location.c_str());
