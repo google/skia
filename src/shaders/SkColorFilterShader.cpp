@@ -61,12 +61,13 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
+skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
+                                           skvm::F32 x, skvm::F32 y, skvm::Color paint,
                                            const SkMatrix& ctm, const SkMatrix* localM,
-                                           SkFilterQuality quality, SkColorSpace* dstCS,
+                                           SkFilterQuality quality, const SkColorInfo& dst,
                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     // Run the shader.
-    skvm::Color c = as_SB(fShader)->program(p,x,y, ctm,localM, quality,dstCS, uniforms,alloc);
+    skvm::Color c = as_SB(fShader)->program(p, x,y, paint, ctm,localM, quality,dst, uniforms,alloc);
     if (!c) {
         return {};
     }
@@ -80,7 +81,7 @@ skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::
     }
 
     // Finally run that through the color filter.
-    return fFilter->program(p,c, dstCS, uniforms,alloc);
+    return fFilter->program(p,c, dst.colorSpace(), uniforms,alloc);
 }
 
 #if SK_SUPPORT_GPU

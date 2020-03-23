@@ -9,6 +9,7 @@
 #define SkVM_DEFINED
 
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
@@ -413,6 +414,10 @@ namespace skvm {
         I32 uniform16(Arg ptr, int offset);
         I32 uniform32(Arg ptr, int offset);
         F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
+
+        // Load this color as a uniform, premultiplied and converted to dst SkColorSpace.
+        Color uniformPremul(SkColor4f, SkColorSpace* src,
+                            Uniforms*, SkColorSpace* dst);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
         I32 gather8 (Arg ptr, int offset, I32 index);
