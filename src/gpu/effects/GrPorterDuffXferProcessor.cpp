@@ -41,8 +41,6 @@ public:
         kLast_OutputType = kISCModulate_OutputType
     };
 
-    BlendFormula() = default;
-
     constexpr BlendFormula(OutputType primaryOut, OutputType secondaryOut, GrBlendEquation equation,
                            GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff)
             : fPrimaryOutputType(primaryOut)
@@ -52,61 +50,51 @@ public:
             , fDstCoeff(dstCoeff)
             , fProps(GetProperties(primaryOut, secondaryOut, equation, srcCoeff, dstCoeff)) {}
 
-    BlendFormula& operator=(const BlendFormula& other) {
-        SkDEBUGCODE(other.validatePreoptimized());
-        fData = other.fData;
-        return *this;
-    }
+    BlendFormula(const BlendFormula&) = default;
+    BlendFormula& operator=(const BlendFormula&) = default;
 
-    bool operator==(const BlendFormula& other) const {
-        SkDEBUGCODE(this->validatePreoptimized());
-        SkDEBUGCODE(other.validatePreoptimized());
-        return fData == other.fData;
+    bool operator==(const BlendFormula& that) const {
+        return fPrimaryOutputType == that.fPrimaryOutputType &&
+               fSecondaryOutputType == that. fSecondaryOutputType &&
+               fBlendEquation == that.fBlendEquation &&
+               fSrcCoeff == that.fSrcCoeff &&
+               fDstCoeff == that.fDstCoeff &&
+               fProps == that.fProps;
     }
 
     bool hasSecondaryOutput() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return kNone_OutputType != fSecondaryOutputType;
     }
     bool modifiesDst() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return SkToBool(fProps & kModifiesDst_Property);
     }
     bool usesDstColor() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return SkToBool(fProps & kUsesDstColor_Property);
     }
     bool usesInputColor() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return SkToBool(fProps & kUsesInputColor_Property);
     }
     bool canTweakAlphaForCoverage() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return SkToBool(fProps & kCanTweakAlphaForCoverage_Property);
     }
 
     GrBlendEquation equation() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return fBlendEquation;
     }
 
     GrBlendCoeff srcCoeff() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return fSrcCoeff;
     }
 
     GrBlendCoeff dstCoeff() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return fDstCoeff;
     }
 
     OutputType primaryOutput() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return fPrimaryOutputType;
     }
 
     OutputType secondaryOutput() const {
-        SkDEBUGCODE(this->validatePreoptimized());
         return fSecondaryOutputType;
     }
 
@@ -121,22 +109,6 @@ private:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(Properties)
 
-#ifdef SK_DEBUG
-    void validatePreoptimized() const {
-        // The provided formula should already be optimized before a BlendFormula is constructed.
-        // Preferably these asserts would be done statically in the constexpr constructor, but this
-        // is not allowed in C++11.
-        SkASSERT((kNone_OutputType == fPrimaryOutputType) ==
-                 !GrBlendCoeffsUseSrcColor(fSrcCoeff, fDstCoeff));
-        SkASSERT(!GrBlendCoeffRefsSrc2(fSrcCoeff));
-        SkASSERT((kNone_OutputType == fSecondaryOutputType) == !GrBlendCoeffRefsSrc2(fDstCoeff));
-        SkASSERT(fPrimaryOutputType != fSecondaryOutputType ||
-                 kNone_OutputType == fPrimaryOutputType);
-        SkASSERT(kNone_OutputType != fPrimaryOutputType ||
-                 kNone_OutputType == fSecondaryOutputType);
-    }
-#endif
-
     /**
      * Deduce the properties of a BlendFormula.
      */
@@ -144,18 +116,15 @@ private:
                                               GrBlendEquation BlendEquation, GrBlendCoeff SrcCoeff,
                                               GrBlendCoeff DstCoeff);
 
-    union {
-        struct {
-            // We allot the enums one more bit than they require because MSVC seems to sign-extend
-            // them when the top bit is set. (This is in violation of the C++03 standard 9.6/4)
-            OutputType        fPrimaryOutputType    : 4;
-            OutputType        fSecondaryOutputType  : 4;
-            GrBlendEquation   fBlendEquation        : 6;
-            GrBlendCoeff      fSrcCoeff             : 6;
-            GrBlendCoeff      fDstCoeff             : 6;
-            Properties        fProps                : 32 - (4 + 4 + 6 + 6 + 6);
-        };
-        uint32_t fData;
+    struct {
+        // We allot the enums one more bit than they require because MSVC seems to sign-extend
+        // them when the top bit is set. (This is in violation of the C++03 standard 9.6/4)
+        OutputType        fPrimaryOutputType    : 4;
+        OutputType        fSecondaryOutputType  : 4;
+        GrBlendEquation   fBlendEquation        : 6;
+        GrBlendCoeff      fSrcCoeff             : 6;
+        GrBlendCoeff      fDstCoeff             : 6;
+        Properties        fProps                : 32 - (4 + 4 + 6 + 6 + 6);
     };
 
     static_assert(kLast_OutputType      < (1 << 3));
@@ -173,19 +142,28 @@ constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType Primar
                                                                GrBlendEquation BlendEquation,
                                                                GrBlendCoeff SrcCoeff,
                                                                GrBlendCoeff DstCoeff) {
-    return static_cast<Properties>(
-            (GrBlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
-            (GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff) ? kUsesDstColor_Property : 0) |
-            ((PrimaryOut >= kModulate_OutputType && GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)) ||
-                             (SecondaryOut >= kModulate_OutputType &&
-                              GrBlendCoeffRefsSrc2(DstCoeff))
-                     ? kUsesInputColor_Property
-                     : 0) |  // We assert later that SrcCoeff doesn't ref src2.
-            ((kModulate_OutputType == PrimaryOut || kNone_OutputType == PrimaryOut) &&
-                             kNone_OutputType == SecondaryOut &&
-                             GrBlendAllowsCoverageAsAlpha(BlendEquation, SrcCoeff, DstCoeff)
-                     ? kCanTweakAlphaForCoverage_Property
-                     : 0));
+    return
+    // The provided formula should already be optimized before a BlendFormula is constructed.
+    // Assert that here while setting up the properties in the constexpr constructor.
+    SkASSERT((kNone_OutputType == PrimaryOut) == !GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)),
+    SkASSERT(!GrBlendCoeffRefsSrc2(SrcCoeff)),
+    SkASSERT((kNone_OutputType == SecondaryOut) == !GrBlendCoeffRefsSrc2(DstCoeff)),
+    SkASSERT(PrimaryOut != SecondaryOut || kNone_OutputType == PrimaryOut),
+    SkASSERT(kNone_OutputType != PrimaryOut || kNone_OutputType == SecondaryOut),
+
+    static_cast<Properties>(
+        (GrBlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
+        (GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff) ? kUsesDstColor_Property : 0) |
+        ((PrimaryOut >= kModulate_OutputType && GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)) ||
+                            (SecondaryOut >= kModulate_OutputType &&
+                            GrBlendCoeffRefsSrc2(DstCoeff))
+                    ? kUsesInputColor_Property
+                    : 0) |  // We assert later that SrcCoeff doesn't ref src2.
+        ((kModulate_OutputType == PrimaryOut || kNone_OutputType == PrimaryOut) &&
+                            kNone_OutputType == SecondaryOut &&
+                            GrBlendAllowsCoverageAsAlpha(BlendEquation, SrcCoeff, DstCoeff)
+                    ? kCanTweakAlphaForCoverage_Property
+                    : 0));
 }
 
 /**
@@ -759,29 +737,29 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
 sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples, const GrCaps& caps, GrClampType clampType) const {
-    BlendFormula blendFormula;
     bool isLCD = coverage == GrProcessorAnalysisCoverage::kLCD;
-    if (isLCD) {
-        // See comment in MakeSrcOverXferProcessor about color.isOpaque here
-        if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() && /*color.isOpaque() &&*/
-            !caps.shaderCaps()->dualSourceBlendingSupport() &&
-            !caps.shaderCaps()->dstReadInShaderSupport()) {
-            // If we don't have dual source blending or in shader dst reads, we fall back to this
-            // trick for rendering SrcOver LCD text instead of doing a dst copy.
-            return PDLCDXferProcessor::Make(fBlendMode, color);
+    // See comment in MakeSrcOverXferProcessor about color.isOpaque here
+    if (isLCD &&
+        SkBlendMode::kSrcOver == fBlendMode && color.isConstant() && /*color.isOpaque() &&*/
+        !caps.shaderCaps()->dualSourceBlendingSupport() &&
+        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        // If we don't have dual source blending or in shader dst reads, we fall back to this
+        // trick for rendering SrcOver LCD text instead of doing a dst copy.
+        return PDLCDXferProcessor::Make(fBlendMode, color);
+    }
+    BlendFormula blendFormula = [&](){
+        if (isLCD) {
+            return get_lcd_blend_formula(fBlendMode);
         }
-        blendFormula = get_lcd_blend_formula(fBlendMode);
-    } else {
         if (fBlendMode == SkBlendMode::kSrcOver && color.isOpaque() &&
             coverage == GrProcessorAnalysisCoverage::kNone && !hasMixedSamples &&
-            caps.shouldCollapseSrcOverToSrcWhenAble()) {
-            blendFormula = get_blend_formula(true, false, false, SkBlendMode::kSrc);
-        } else {
-            blendFormula =
-                get_blend_formula(color.isOpaque(), GrProcessorAnalysisCoverage::kNone != coverage,
-                                  hasMixedSamples, fBlendMode);
+            caps.shouldCollapseSrcOverToSrcWhenAble())
+        {
+            return get_blend_formula(true, false, false, SkBlendMode::kSrc);
         }
-    }
+        return get_blend_formula(color.isOpaque(), GrProcessorAnalysisCoverage::kNone != coverage,
+                                 hasMixedSamples, fBlendMode);
+    }();
 
     // Skia always saturates after the kPlus blend mode, so it requires shader-based blending when
     // pixels aren't guaranteed to automatically be normalized (i.e. any floating point config).
@@ -801,12 +779,12 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     AnalysisProperties props = AnalysisProperties::kNone;
     bool hasCoverage = GrProcessorAnalysisCoverage::kNone != coverage;
     bool isLCD = GrProcessorAnalysisCoverage::kLCD == coverage;
-    BlendFormula formula;
-    if (isLCD) {
-        formula = gLCDBlendTable[(int)mode];
-    } else {
-        formula = gBlendTable[color.isOpaque()][hasCoverage][(int)mode];
-    }
+    BlendFormula formula = [&](){
+        if (isLCD) {
+            return gLCDBlendTable[(int)mode];
+        }
+        return gBlendTable[color.isOpaque()][hasCoverage][(int)mode];
+    }();
 
     if (formula.canTweakAlphaForCoverage() && !isLCD) {
         props |= AnalysisProperties::kCompatibleWithCoverageAsAlpha;
@@ -931,8 +909,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
         return PDLCDXferProcessor::Make(SkBlendMode::kSrcOver, color);
     }
 
-    BlendFormula blendFormula;
-    blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
+    BlendFormula blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
     // See comment above regarding why the opaque check is commented out here.
     if (/*!color.isOpaque() ||*/
         (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport())) {
