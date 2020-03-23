@@ -144,8 +144,7 @@ public:
                                             const GrPipeline*,
                                             const GrSurfaceProxyView* outputView,
                                             GrGeometryProcessor*,
-                                            GrPrimitiveType,
-                                            uint8_t tessellationPatchVertexCount = 0);
+                                            GrPrimitiveType);
 
     // Create a programInfo with the following properties:
     //     its primitive processor uses no textures
@@ -161,8 +160,7 @@ public:
                                             GrPipeline::InputFlags pipelineFlags
                                                                 = GrPipeline::InputFlags::kNone,
                                             const GrUserStencilSettings*
-                                                                = &GrUserStencilSettings::kUnused,
-                                            uint8_t tessellationPatchVertexCount = 0);
+                                                                = &GrUserStencilSettings::kUnused);
 
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
