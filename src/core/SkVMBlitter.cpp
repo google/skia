@@ -458,7 +458,6 @@ namespace {
             c.g = p->add(c.g, dither);
             c.b = p->add(c.b, dither);
 
-            // TODO: this is consistent with the old code but doesn't make sense for unpremul.
             c.r = p->clamp(c.r, p->splat(0.0f), c.a);
             c.g = p->clamp(c.g, p->splat(0.0f), c.a);
             c.b = p->clamp(c.b, p->splat(0.0f), c.a);
