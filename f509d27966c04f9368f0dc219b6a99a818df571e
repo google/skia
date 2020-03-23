@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c59fbe6_e6c31422",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1850,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T21:01:51Z",
+      "side": 1,
+      "message": "I sometimes find these read better as 1/9.0f, 1/3.0f, etc.",
+      "range": {
+        "startLine": 1850,
+        "startChar": 34,
+        "endLine": 1850,
+        "endChar": 40
+      },
+      "revId": "f509d27966c04f9368f0dc219b6a99a818df571e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
