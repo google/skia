@@ -66,6 +66,16 @@ public:
                                                            const SkRect& subset,
                                                            Direction,
                                                            const GrCaps&);
+
+    /**
+     * Make a Mitchell filter of a another fragment processor. The discrete samples in the passed
+     * processor that the bicubic should interpolate are assumed to be at half-integer coords.
+     */
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
+                                                     SkAlphaType,
+                                                     const SkMatrix&,
+                                                     Direction);
+
     /**
      * Determines whether the bicubic effect should be used based on the transformation from the
      * local coords to the device. Returns true if the bicubic effect should be used. filterMode
@@ -84,7 +94,8 @@ private:
         kPremul,    // clamps a to 0..1 and rgb to 0..a
     };
 
-    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp, Direction direction, Clamp clamp);
+    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>, const SkMatrix&, Direction, Clamp);
+
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
