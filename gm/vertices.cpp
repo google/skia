@@ -22,9 +22,13 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkLocalMatrixShader.h"
+#include "src/utils/SkPatchUtils.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
@@ -334,4 +338,47 @@ DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
     canvas->concat(persp);
     canvas->drawVertices(verts, paint);
     canvas->restore();
+}
+
+DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
+    SkPoint pts[12] = {{0, 0},     {85, 0},    {171, 0},  {256, 0}, {256, 85}, {256, 171},
+                       {256, 256}, {171, 256}, {85, 256}, {0, 256}, {0, 171},  {0, 85}};
+
+    auto patchVerts = SkPatchUtils::MakeVertices(pts, nullptr, nullptr, 12, 12);
+    SkVertices::Info info;
+    patchVerts->getInfo(&info);
+
+    SkVertices::CustomLayout customLayout { 1 };
+    SkVertices::Builder builder(info.fMode, info.fVertexCount, info.fIndexCount, customLayout);
+
+    memcpy(builder.positions(), info.fPositions, info.fVertexCount * sizeof(SkPoint));
+    memcpy(builder.indices(), info.fIndices, info.fIndexCount * sizeof(uint16_t));
+
+    SkRandom rnd;
+    for (int i = 0; i < info.fVertexCount; ++i) {
+        builder.perVertexData()[i] = rnd.nextBool() ? 1.0f : 0.0f;
+    }
+
+    auto verts = builder.detach();
+
+    SkPaint paint;
+    const char* gProg = R"(
+        in fragmentProcessor c0;
+        in fragmentProcessor c1;
+        varying float vtx_lerp;
+        void main(float2 p, inout half4 color) {
+            half4 col0 = sample(c0, p);
+            half4 col1 = sample(c1, p);
+            color = mix(col0, col1, half(vtx_lerp));
+        }
+    )";
+    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+    SkMatrix scale = SkMatrix::MakeScale(2);
+    sk_sp<SkShader> children[] = {
+        GetResourceAsImage("images/mandrill_256.png")->makeShader(),
+        GetResourceAsImage("images/color_wheel.png")->makeShader(scale),
+    };
+    paint.setShader(effect->makeShader(nullptr, children, 2, nullptr, false));
+
+    canvas->drawVertices(verts, paint);
 }
