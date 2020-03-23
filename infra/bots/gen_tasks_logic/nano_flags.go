@@ -258,6 +258,26 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--verbose")
 	}
 
+	// Add properties indicating which assets the task should use.
+	b.recipeProp("do_upload", fmt.Sprintf("%t", doUpload))
+	if !b.gpu() {
+		b.asset("skimage")
+		b.recipeProp("images", "true")
+	}
+	b.recipeProp("resources", "true")
+	if !b.os("iOS") {
+		b.asset("skp")
+		b.recipeProp("skps", "true")
+	}
+	if !b.extraConfig("Valgrind") {
+		b.asset("svg")
+		b.recipeProp("svgs", "true")
+	}
+	if b.cpu() && b.os("Android") {
+		// TODO(borenet): Where do these come from?
+		b.recipeProp("textTraces", "true")
+	}
+
 	// These properties are plumbed through nanobench and into Perf results.
 	nanoProps := map[string]string{
 		"gitHash":          specs.PLACEHOLDER_REVISION,
