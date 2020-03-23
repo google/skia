@@ -31,6 +31,8 @@ protected:
     bool onAsAColorMode(SkColor*, SkBlendMode*) const override;
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkModeColorFilter)
