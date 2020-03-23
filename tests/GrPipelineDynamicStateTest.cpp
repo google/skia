@@ -26,7 +26,6 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 /**
  * This is a GPU-backend specific test for dynamic pipeline state. It draws boxes using dynamic
@@ -133,83 +132,45 @@ private:
     friend class GrOpMemoryPool;
 
     GrPipelineDynamicStateTestOp(GrScissorTest scissorTest, sk_sp<const GrBuffer> vbuff)
-            : INHERITED(ClassID())
-            , fScissorTest(scissorTest)
-            , fVertexBuffer(std::move(vbuff))
-            , fProcessorSet(SkBlendMode::kSrc) {
+        : INHERITED(ClassID())
+        , fScissorTest(scissorTest)
+        , fVertexBuffer(std::move(vbuff)) {
         this->setBounds(SkRect::MakeIWH(kScreenSize, kScreenSize),
                         HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                      bool hasMixedSampledCoverage,
-                                      GrClampType clampType) override {
-        static constexpr GrProcessorAnalysisColor kUnknownColor;
-        SkPMColor4f overrideColor;
-        return fProcessorSet.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kSingleChannel,
-                                      clip, &GrUserStencilSettings::kUnused,
-                                      hasMixedSampledCoverage, caps, clampType, &overrideColor);
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
+        return GrProcessorSet::EmptySetAnalysis();
     }
-
-    void createProgramInfo(const GrCaps* caps,
-                           SkArenaAlloc* arena,
-                           const GrSurfaceProxyView* outputView,
-                           GrAppliedClip&&,
-                           const GrXferProcessor::DstProxyView& dstProxyView) {
-        auto geomProc = GrPipelineDynamicStateTestProcessor::Make(arena);
-
-        // Here we ignore the supplied appliedClip and generate our own
-        GrAppliedClip appliedClip;
-        if (fScissorTest == GrScissorTest::kEnabled) {
-            appliedClip.hardClip().enableScissor();
-        }
-
-        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
-                                                                   std::move(appliedClip),
-                                                                   dstProxyView, geomProc,
-                                                                   std::move(fProcessorSet),
-                                                                   GrPrimitiveType::kTriangleStrip);
-    }
-
-    void createProgramInfo(GrOpFlushState* state) {
-        this->createProgramInfo(&state->caps(),
-                                state->allocator(),
-                                state->outputView(),
-                                state->detachAppliedClip(),
-                                state->dstProxyView());
-    }
-
-    void onPrePrepare(GrRecordingContext* context,
+    void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* outputView,
-                      GrAppliedClip* clip,
-                      const GrXferProcessor::DstProxyView& dstProxyView) override {
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
-
-        this->createProgramInfo(context->priv().caps(), arena, outputView,
-                                std::move(appliedClip), dstProxyView);
-
-        context->priv().recordProgramInfo(fProgramInfo);
-    }
-
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo) {
-            this->createProgramInfo(flushState);
-        }
-
+        GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
+                            flushState->drawOpArgs().outputSwizzle());
         SkSTArray<kNumMeshes, GrSimpleMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrSimpleMesh& mesh = meshes.push_back();
             mesh.set(fVertexBuffer, 4, 4 * i);
         }
 
-        flushState->bindPipeline(*fProgramInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
-        for (int i = 0; i < kNumMeshes; ++i) {
+        auto geomProc = GrPipelineDynamicStateTestProcessor::Make(flushState->allocator());
+
+        GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                                  flushState->proxy()->numStencilSamples(),
+                                  flushState->proxy()->backendFormat(),
+                                  flushState->outputView()->origin(),
+                                  &pipeline,
+                                  geomProc,
+                                  GrPrimitiveType::kTriangleStrip);
+
+        flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
+        for (int i = 0; i < 4; ++i) {
             if (fScissorTest == GrScissorTest::kEnabled) {
                 flushState->setScissorRect(kDynamicScissors[i]);
             }
@@ -219,9 +180,6 @@ private:
 
     GrScissorTest               fScissorTest;
     const sk_sp<const GrBuffer> fVertexBuffer;
-
-    GrProcessorSet              fProcessorSet;
-    GrProgramInfo*              fProgramInfo = nullptr;
 
     typedef GrDrawOp INHERITED;
 };
