@@ -75,7 +75,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 expect(colorToString(CanvasKit.Color(102, 51, 153, 1.0))).toEqual('#663399');
 
                 expect(colorToString(CanvasKit.Color(255, 235, 205, 0.5))).toEqual(
-                                               'rgba(255, 235, 205, 0.50196078)');
+                                               'rgba(255, 235, 205, 0.50000000)');
 
                 done();
             }));
@@ -111,7 +111,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 for (let tc of testCases) {
                     // Print out the test case if the two don't match.
                     expect(multiplyByAlpha(tc.inColor, tc.inAlpha))
-                          .toBe(tc.outColor, JSON.stringify(tc));
+                          .toEqual(tc.outColor, JSON.stringify(tc));
                 }
 
                 done();
