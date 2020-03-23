@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27dc9c25_797c14fb",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:06:31Z",
+      "side": 0,
+      "message": "I\u0027ve got a fair preference to keep SkColorShader doing this conversion from SkColor to SkColor4f / SkColorSpace, keeping skvm::Builder a little dumber about convention and intention.  I could see it becoming a little ambiguous what we want to expand an SkColor into once we start working with 16-bit colors.\n\nAnd I think I\u0027d prefer places still working with SkColors to stand out as weird, rather than blend in with the crowd converted over to SkColor4f... now that I\u0027m looking at it, I\u0027m not convinced SkColorShader should exist any more.",
+      "range": {
+        "startLine": 113,
+        "startChar": 26,
+        "endLine": 113,
+        "endChar": 75
+      },
+      "revId": "538e358b0d82bcf155943cfe34ef5f924b39ef7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

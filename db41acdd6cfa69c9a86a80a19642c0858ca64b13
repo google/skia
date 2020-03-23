@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87faff7c_e1427b05",
+        "filename": "src/core/SkModeColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:06:31Z",
+      "side": 1,
+      "message": "Obviously not in this CL, but this is the sort of thing I\u0027d prefer to stand out as very weird.  We\u0027re long overdue to convert this effect to use SkColor4f/SkColorSpace, unless it\u0027s only used with grayscale colors in practice.",
+      "range": {
+        "startLine": 76,
+        "startChar": 43,
+        "endLine": 76,
+        "endChar": 49
+      },
+      "revId": "db41acdd6cfa69c9a86a80a19642c0858ca64b13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f43aeeb4_8e918b31",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:06:31Z",
+      "side": 1,
+      "message": "Might make more semantic sense to line break between srcCS and uniforms.",
+      "range": {
+        "startLine": 1155,
+        "startChar": 69,
+        "endLine": 1155,
+        "endChar": 70
+      },
+      "revId": "db41acdd6cfa69c9a86a80a19642c0858ca64b13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55c0955d_dc283a21",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:06:31Z",
+      "side": 1,
+      "message": "I\u0027m fairly uncomfortable with the premul step here going unmentioned in the name.  Seems like a pretty easy trap to fall into.  Let\u0027s call it premulUniform()?",
+      "range": {
+        "startLine": 1157,
+        "startChar": 0,
+        "endLine": 1158,
+        "endChar": 80
+      },
+      "revId": "db41acdd6cfa69c9a86a80a19642c0858ca64b13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
