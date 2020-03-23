@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06e1f13c_294128ea",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T17:55:15Z",
+      "side": 1,
+      "message": "I might have a slight preference to name this \"AtlasAllocator\". That keeps us closer to the \"GrTAllocator\" name, de-emphasizes the ordered properties of a list, which aren\u0027t relevant here, and emphasizes the fact that this is a faster-than-malloc allocator.",
+      "range": {
+        "startLine": 109,
+        "startChar": 10,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20864a0f_dff9ad01",
+        "filename": "src/gpu/ccpr/GrCCStroker.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T17:55:15Z",
+      "side": 1,
+      "message": "Ditto here",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
