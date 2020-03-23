@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae4fffc5_f003f533",
+        "filename": "tests/SkVMTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1805,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T21:03:28Z",
+      "side": 1,
+      "message": "I think you could take these as std::vector\u003cfloat\u003e or std::initializer_list\u003cfloat\u003e to avoid having to name them?",
+      "range": {
+        "startLine": 1805,
+        "startChar": 52,
+        "endLine": 1805,
+        "endChar": 74
+      },
+      "revId": "afbd794b247d4cb0effa77ba274995a01ceb2b79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
