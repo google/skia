@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "66e5d257_76d1a025",
+        "filename": "src/gpu/GrPathProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T14:41:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf679649_a9ba16cb",
+      "range": {
+        "startLine": 68,
+        "startChar": 24,
+        "endLine": 68,
+        "endChar": 35
+      },
+      "revId": "e7575ecc9cc837b4dcfa0eea47539ec051cf9d86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6cb1299_f2ac3451",
         "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "b5cb56c6_becdba2a",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T14:41:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6cb1299_f2ac3451",
+      "range": {
+        "startLine": 31,
+        "startChar": 84,
+        "endLine": 31,
+        "endChar": 97
+      },
+      "revId": "e7575ecc9cc837b4dcfa0eea47539ec051cf9d86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "377153da_eba18052",
         "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
         "patchSetId": 2
@@ -82,6 +130,30 @@
       "writtenOn": "2020-03-21T18:43:13Z",
       "side": 1,
       "message": "I see that you put the same logic in GrPathProcessor, but is this comment over-specified? My read of the CL is that the 4-float version only works for explicitly sampled FPs, regardless of GP (or anything else).",
+      "range": {
+        "startLine": 33,
+        "startChar": 15,
+        "endLine": 33,
+        "endChar": 91
+      },
+      "revId": "e7575ecc9cc837b4dcfa0eea47539ec051cf9d86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9cfff46_cd58ceb0",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T14:41:11Z",
+      "side": 1,
+      "message": "fTransform is the matrix var (either as a matrix or as a vector). It exists in either the VS (implicit) or FS (explicit) in all cases except NV_PR with non-explicit coords. There is no VS with NV_PR and instead you use a GL API to specify a matrix and it produces a varying (available as fVaryingPoint) in the FS.",
+      "parentUuid": "377153da_eba18052",
       "range": {
         "startLine": 33,
         "startChar": 15,
