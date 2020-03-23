@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f827b44a_b4108dee",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T17:20:08Z",
+      "side": 1,
+      "message": "I think we can structure this to read more clearly.  Maybe,\n\n    // e - 127 is a fair approximation of log2(x) in its own right...\n    F32 e \u003d ...;\n\n    // ... but using the mantissa to refine its error is _much_ better.\n    F32 m \u003d ...;\n\n    F32 approx \u003d sub(     e,     splat(124.22...));\n    approx     \u003d sub(approx, mul(splat(  1.49...), m));\n    approx     \u003d sub(approx, div(splat(  1.72...), add(splat(0.352...), m)));\n    return approx;\n\nIt is not important to use mad().  We\u0027ll pick up all of those as appropriate.",
+      "range": {
+        "startLine": 935,
+        "startChar": 53,
+        "endLine": 935,
+        "endChar": 74
+      },
+      "revId": "8133ed53c0bd475f088cd009e0c0796408a03b28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a97ed92_5eae06e2",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T17:20:08Z",
+      "side": 1,
+      "message": "Same here maybe,\n\n    F32 approx \u003d add(     x,     splat(121.27...));\n    approx     \u003d sub(approx, mul(splat(  1.49...), f));\n    approx     \u003d add(approx, div(splat( 27.72...), sub(splat(4.84...), f)));",
+      "revId": "8133ed53c0bd475f088cd009e0c0796408a03b28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91427b95_d9f8a30b",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T17:20:08Z",
+      "side": 1,
+      "message": "Probably clearer to break a line,\n\n   I32 is_x \u003d bit_or(eq(x, splat(0.0f)),\n                     eq(x, splat(1.0f)));",
+      "range": {
+        "startLine": 948,
+        "startChar": 20,
+        "endLine": 948,
+        "endChar": 67
+      },
+      "revId": "8133ed53c0bd475f088cd009e0c0796408a03b28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
