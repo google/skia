@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a392a0f_8ac05d91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:21:48Z",
+      "side": 1,
+      "message": "Yep, we should definitely have that available for this sort of use case.  We can either thread through both or, my preference, just jump up to `const SkColorInfo\u0026 dst`.\n\n(Having the dst alpha type available might look dicey, perhaps leading you to do something different for opaque or unpremul destinations, but I\u0027m not too worried about that... I think we can prevent that by just faking it out to always report premul as an enforced reminder that no shader should care about the dst alpha type.)",
+      "revId": "4c89444ba9ed3db050db8a5b42e4966a46e98629",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae2954be_f7e9f2be",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T12:21:48Z",
+      "side": 1,
+      "message": "I think the full type would be clearer here.  Is it SkMatrix, SkMatrix*, const SkMatrix\u0026, etc?",
+      "range": {
+        "startLine": 282,
+        "startChar": 4,
+        "endLine": 282,
+        "endChar": 8
+      },
+      "revId": "4c89444ba9ed3db050db8a5b42e4966a46e98629",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
