@@ -29,11 +29,10 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                          GrAAType,
+                                          GrPaint&&,
                                           const SkMatrix& viewMatrix,
                                           const SkRRect&,
-                                          const GrCaps&,
-                                          GrPaint&&);
+                                          GrAAType);
 
     const char* name() const final { return "GrFillRRectOp"; }
 
@@ -69,7 +68,8 @@ private:
 
     class Processor;
 
-    FillRRectOp(GrAAType, const SkRRect&, Flags, const SkMatrix& totalShapeMatrix,
+    FillRRectOp(const GrSimpleMeshDrawOpHelper::MakeArgs&,
+                GrAAType, const SkRRect&, Flags, const SkMatrix& totalShapeMatrix,
                 GrPaint&&, const SkRect& devBounds);
 
     // These methods are used to append data of various POD types to our internal array of instance
@@ -96,6 +96,8 @@ private:
                              const GrSurfaceProxyView* outputView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) final;
+
+    GrSimpleMeshDrawOpHelper fHelper;
 
     const GrAAType fAAType;
     const SkPMColor4f fOriginalColor;
@@ -126,16 +128,19 @@ GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOp::Flags)
 
 // Hardware derivatives are not always accurate enough for highly elliptical corners. This method
 // checks to make sure the corners will still all look good if we use HW derivatives.
-static bool can_use_hw_derivatives_with_coverage(
-        const GrShaderCaps&, const SkMatrix&, const SkRRect&);
+static bool can_use_hw_derivatives_with_coverage(const GrShaderCaps&, const SkMatrix&,
+                                                 const SkRRect&);
 
 std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
-                                            GrAAType aaType,
+                                            GrPaint&& paint,
                                             const SkMatrix& viewMatrix,
                                             const SkRRect& rrect,
-                                            const GrCaps& caps,
-                                            GrPaint&& paint) {
-    if (!caps.instanceAttribSupport()) {
+                                            GrAAType aaType) {
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+    const GrCaps* caps = ctx->priv().caps();
+
+    if (!caps->instanceAttribSupport()) {
         return nullptr;
     }
 
@@ -147,15 +152,15 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         if (viewMatrix.hasPerspective()) {
             return nullptr;
         }
-        if (can_use_hw_derivatives_with_coverage(*caps.shaderCaps(), viewMatrix, rrect)) {
+        if (can_use_hw_derivatives_with_coverage(*caps->shaderCaps(), viewMatrix, rrect)) {
             // HW derivatives (more specifically, fwidth()) are consistently faster on all platforms
             // in coverage mode. We use them as long as the approximation will be accurate enough.
             flags |= Flags::kUseHWDerivatives;
         }
     } else {
         if (GrAAType::kMSAA == aaType) {
-            if (!caps.sampleLocationsSupport() || !caps.shaderCaps()->sampleMaskSupport() ||
-                caps.shaderCaps()->canOnlyUseSampleMaskWithStencil()) {
+            if (!caps->sampleLocationsSupport() || !caps->shaderCaps()->sampleMaskSupport() ||
+                caps->shaderCaps()->canOnlyUseSampleMaskWithStencil()) {
                 return nullptr;
             }
         }
@@ -187,7 +192,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         viewMatrix.mapRect(&devBounds, rrect.rect());
     }
 
-    if (GrAAType::kMSAA == aaType && caps.preferTrianglesOverSampleMask()) {
+    if (GrAAType::kMSAA == aaType && caps->preferTrianglesOverSampleMask()) {
         // We are on a platform that prefers fine triangles instead of using the sample mask. See if
         // the round rect is large enough that it will be faster for us to send it off to the
         // default path renderer instead. The 200x200 threshold was arrived at using the
@@ -197,14 +202,18 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         }
     }
 
-    GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-    return pool->allocate<FillRRectOp>(aaType, rrect, flags, m, std::move(paint), devBounds);
+    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), viewMatrix, rrect, aaType);
+
+//    GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
+//    return pool->allocate<FillRRectOp>(aaType, rrect, flags, m, std::move(paint), devBounds);
 }
 
-FillRRectOp::FillRRectOp(GrAAType aaType, const SkRRect& rrect, Flags flags,
+FillRRectOp::FillRRectOp(const GrSimpleMeshDrawOpHelper::MakeArgs& helperArgs,
+                         GrAAType aaType, const SkRRect& rrect, Flags flags,
                          const SkMatrix& totalShapeMatrix, GrPaint&& paint,
                          const SkRect& devBounds)
         : INHERITED(ClassID())
+        , fHelper(helperArgs)
         , fAAType(aaType)
         , fOriginalColor(paint.getColor4f())
         , fLocalRect(rrect.rect())
