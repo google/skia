@@ -71,8 +71,8 @@ class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
     GrBackendFormat() {}
-
-    GrBackendFormat(const GrBackendFormat& src);
+    GrBackendFormat(const GrBackendFormat&);
+    GrBackendFormat& operator=(const GrBackendFormat&);
 
     static GrBackendFormat MakeGL(GrGLenum format, GrGLenum target) {
         return GrBackendFormat(format, target);
