@@ -22,8 +22,9 @@ namespace {
     // Uniforms set by the Blitter itself,
     // rather than by the Shader, which follow this struct in the skvm::Uniforms buffer.
     struct BlitterUniforms {
-        int right;  // First device x + blit run length n, used to get device x coordiate.
-        int y;      // Device y coordiate.
+        int         right;  // First device x + blit run length n, used to get device x coordinate.
+        int         y;      // Device y coordinate.
+        SkPMColor4f paint;  // In device color space.
     };
     static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
     static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
@@ -31,15 +32,13 @@ namespace {
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
     struct Params {
-        sk_sp<SkColorSpace> colorSpace;
-        sk_sp<SkShader>     shader;
-        sk_sp<SkShader>     clip;
-        SkColorType         colorType;
-        SkAlphaType         alphaType;
-        SkBlendMode         blendMode;
-        Coverage            coverage;
-        SkFilterQuality     quality;
-        SkMatrix            ctm;
+        sk_sp<SkShader> shader;
+        sk_sp<SkShader> clip;
+        SkColorInfo     dst;
+        SkBlendMode     blendMode;
+        Coverage        coverage;
+        SkFilterQuality quality;
+        SkMatrix        ctm;
 
         Params withCoverage(Coverage c) const {
             Params p = *this;
@@ -50,9 +49,9 @@ namespace {
 
     SK_BEGIN_REQUIRE_DENSE;
     struct Key {
-        uint64_t colorSpace;
-        uint64_t shader;
-        uint64_t clip;
+        uint64_t shader,
+                 clip,
+                 colorSpace;
         uint8_t  colorType,
                  alphaType,
                  blendMode,
@@ -63,9 +62,9 @@ namespace {
         // they'll be folded into the shader key if used.
 
         bool operator==(const Key& that) const {
-            return this->colorSpace == that.colorSpace
-                && this->shader     == that.shader
+            return this->shader     == that.shader
                 && this->clip       == that.clip
+                && this->colorSpace == that.colorSpace
                 && this->colorType  == that.colorType
                 && this->alphaType  == that.alphaType
                 && this->blendMode  == that.blendMode
@@ -81,14 +80,14 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx-Clip%llx",
+        return SkStringPrintf("Shader-%llx_Clip-%llx_CS-%llx_CT-%d_AT-%d_Blend-%d_Cov-%d",
+                              key.shader,
+                              key.clip,
+                              key.colorSpace,
                               key.colorType,
                               key.alphaType,
-                              key.coverage,
                               key.blendMode,
-                              key.colorSpace,
-                              key.shader,
-                              key.clip);
+                              key.coverage);
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
@@ -124,10 +123,18 @@ namespace {
                 skvm::F32 x = p.add(p.to_f32(dx), p.splat(0.5f)),
                           y = p.add(p.to_f32(dy), p.splat(0.5f));
 
+                skvm::Color paint = {
+                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+                };
+
                 uint64_t hash = 0;
-                if (auto c = sb->program(&p, x,y,
+                if (auto c = sb->program(&p,
+                                         x,y, paint,
                                          params.ctm, /*localM=*/nullptr,
-                                         params.quality, params.colorSpace.get(),
+                                         params.quality, params.dst,
                                          uniforms,alloc)) {
                     hash = p.hash();
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
@@ -152,7 +159,7 @@ namespace {
                 }
             }
 
-            switch (params.colorType) {
+            switch (params.dst.colorType()) {
                 default: *ok = false;
                          break;
 
@@ -167,11 +174,11 @@ namespace {
             }
 
             return {
-                params.colorSpace ? params.colorSpace->hash() : 0,
                 shaderHash,
                   clipHash,
-                SkToU8(params.colorType),
-                SkToU8(params.alphaType),
+                params.dst.colorSpace() ? params.dst.colorSpace()->hash() : 0,
+                SkToU8(params.dst.colorType()),
+                SkToU8(params.dst.alphaType()),
                 SkToU8(params.blendMode),
                 SkToU8(params.coverage),
             };
@@ -180,7 +187,7 @@ namespace {
         Builder(const Params& params, skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
             // First two arguments are always uniforms and the destination buffer.
             uniforms->base    = uniform();
-            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.colorType));
+            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
             // Other arguments depend on params.coverage:
             //    - Full:      (no more arguments)
             //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
@@ -194,9 +201,16 @@ namespace {
             skvm::F32 x = add(to_f32(dx), splat(0.5f)),
                       y = add(to_f32(dy), splat(0.5f));
 
-            skvm::Color src = as_SB(params.shader)->program(this, x,y,
+            skvm::Color paint = {
+                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+            };
+
+            skvm::Color src = as_SB(params.shader)->program(this, x,y, paint,
                                                             params.ctm, /*localM=*/nullptr,
-                                                            params.quality, params.colorSpace.get(),
+                                                            params.quality, params.dst,
                                                             uniforms, alloc);
             SkASSERT(src);
             if (params.coverage == Coverage::Mask3D) {
@@ -220,8 +234,8 @@ namespace {
             // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
             // [0,1] too, just in case someone gave us a crazy alpha.
             if (!src_in_gamut
-                    && params.alphaType == kPremul_SkAlphaType
-                    && SkColorTypeIsNormalized(params.colorType)) {
+                    && params.dst.alphaType() == kPremul_SkAlphaType
+                    && SkColorTypeIsNormalized(params.dst.colorType())) {
                 src.a = clamp(src.a, splat(0.0f), splat(1.0f));
                 src.r = clamp(src.r, splat(0.0f), src.a);
                 src.g = clamp(src.g, splat(0.0f), src.a);
@@ -261,10 +275,9 @@ namespace {
                 }
 
                 if (params.clip) {
-                    skvm::Color clip = as_SB(params.clip)->program(this, x,y,
+                    skvm::Color clip = as_SB(params.clip)->program(this, x,y, paint,
                                                                    params.ctm, /*localM=*/nullptr,
-                                                                   params.quality,
-                                                                   params.colorSpace.get(),
+                                                                   params.quality, params.dst,
                                                                    uniforms, alloc);
                     SkAssertResult(clip);
                     cov->r = mul(cov->r, clip.a);  // We use the alpha channel of clip for all four.
@@ -295,7 +308,7 @@ namespace {
 
             // Load up the destination color.
             SkDEBUGCODE(dst_loaded = true;)
-            switch (params.colorType) {
+            switch (params.dst.colorType()) {
                 default: SkUNREACHABLE;
                 case kRGB_565_SkColorType: dst = unpack_565(load16(dst_ptr));
                                            break;
@@ -320,11 +333,9 @@ namespace {
 
             // When a destination is known opaque, we may assume it both starts and stays fully
             // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
-            const bool dst_is_opaque = SkAlphaTypeIsOpaque(params.alphaType)
-                                    || SkColorTypeIsAlwaysOpaque(params.colorType);
-            if (dst_is_opaque) {
+            if (params.dst.isOpaque()) {
                 dst.a = splat(1.0f);
-            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+            } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 premul(&dst.r, &dst.g, &dst.b, dst.a);
             }
 
@@ -338,9 +349,9 @@ namespace {
                 src.a = mad(sub(src.a, dst.a), cov.a, dst.a);
             }
 
-            if (dst_is_opaque) {
+            if (params.dst.isOpaque()) {
                 src.a = splat(1.0f);
-            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+            } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
 
@@ -355,7 +366,7 @@ namespace {
                 assert_true(eq(src.g, clamp(src.g, lo, hi)), src.g);
                 assert_true(eq(src.b, clamp(src.b, lo, hi)), src.b);
                 assert_true(eq(src.a, clamp(src.a, lo, hi)), src.a);
-            } else if (SkColorTypeIsNormalized(params.colorType)) {
+            } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));
                 src.b = clamp(src.b, splat(0.0f), splat(1.0f));
@@ -363,7 +374,7 @@ namespace {
             }
 
             // Store back to the destination.
-            switch (params.colorType) {
+            switch (params.dst.colorType()) {
                 default: SkUNREACHABLE;
 
                 case kRGB_565_SkColorType:
@@ -408,11 +419,9 @@ namespace {
     };
 
     struct DitherShader : public SkShaderBase {
-        DitherShader(sk_sp<SkShader> shader, float rate)
-            : fShader(std::move(shader)), fRate(rate) {}
+        explicit DitherShader(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
         sk_sp<SkShader> fShader;
-        float           fRate;
 
         // Only created here temporarily... never serialized.
         Factory      getFactory() const override { return nullptr; }
@@ -420,16 +429,43 @@ namespace {
 
         bool isOpaque() const override { return fShader->isOpaque(); }
 
-        skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
+        skvm::Color onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
                               const SkMatrix& ctm, const SkMatrix* localM,
-                              SkFilterQuality quality, SkColorSpace* dstCS,
+                              SkFilterQuality quality, const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
-            skvm::Color c = as_SB(fShader)->program(p, x,y,
-                                                    ctm,localM, quality,dstCS, uniforms,alloc);
+            skvm::Color c = as_SB(fShader)->program(p, x,y, paint,
+                                                    ctm,localM, quality,dst, uniforms,alloc);
             if (!c) {
                 return {};
             }
+
+            float rate = 0.0f;
+            switch (dst.colorType()) {
+                case kARGB_4444_SkColorType:    rate =   1/15.0f; break;
+                case   kRGB_565_SkColorType:    rate =   1/63.0f; break;
+                case    kGray_8_SkColorType:
+                case  kRGB_888x_SkColorType:
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType:    rate =  1/255.0f; break;
+                case kRGB_101010x_SkColorType:
+                case kRGBA_1010102_SkColorType:
+                case kBGR_101010x_SkColorType:
+                case kBGRA_1010102_SkColorType: rate = 1/1023.0f; break;
+
+                case kUnknown_SkColorType:
+                case kAlpha_8_SkColorType:
+                case kRGBA_F16_SkColorType:
+                case kRGBA_F16Norm_SkColorType:
+                case kRGBA_F32_SkColorType:
+                case kR8G8_unorm_SkColorType:
+                case kA16_float_SkColorType:
+                case kA16_unorm_SkColorType:
+                case kR16G16_float_SkColorType:
+                case kR16G16_unorm_SkColorType:
+                case kR16G16B16A16_unorm_SkColorType: return c;
+            }
+
             // See SkRasterPipeline dither stage.
             // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
             skvm::I32 X =               p->trunc(p->sub(x, p->splat(0.5f))),
@@ -445,13 +481,13 @@ namespace {
                                     p->shr(p->bit_and(X, p->splat(4)), 2))))));
 
             // Scale to [0,1) by /64, then to (-0.5,0.5) using 63/128 (~0.492) as 0.5-ε,
-            // and finally scale all that by fRate.  We keep dither strength strictly
+            // and finally scale all that by rate.  We keep dither strength strictly
             // within ±0.5 to not change exact values like 0 or 1.
 
-            // fRate could be a uniform, but since it's based on the destination SkColorType,
+            // rate could be a uniform, but since it's based on the destination SkColorType,
             // we can bake it in without hurting the cache hit rate.
-            float scale = fRate * (  2/128.0f),
-                  bias  = fRate * (-63/128.0f);
+            float scale = rate * (  2/128.0f),
+                  bias  = rate * (-63/128.0f);
             skvm::F32 dither = p->mad(p->to_f32(M), p->splat(scale), p->splat(bias));
 
             c.r = p->add(c.r, dither);
@@ -485,35 +521,7 @@ namespace {
 
         // Add dither to the end of the shader pipeline if requested and needed.
         if (paint.isDither() && !as_SB(shader)->isConstant()) {
-            float dither_rate = 0.0f;
-            switch (device.colorType()) {
-                case kARGB_4444_SkColorType:    dither_rate =   1/15.0f; break;
-                case   kRGB_565_SkColorType:    dither_rate =   1/63.0f; break;
-                case    kGray_8_SkColorType:
-                case  kRGB_888x_SkColorType:
-                case kRGBA_8888_SkColorType:
-                case kBGRA_8888_SkColorType:    dither_rate =  1/255.0f; break;
-                case kRGB_101010x_SkColorType:
-                case kRGBA_1010102_SkColorType:
-                case kBGR_101010x_SkColorType:
-                case kBGRA_1010102_SkColorType: dither_rate = 1/1023.0f; break;
-
-                case kUnknown_SkColorType:
-                case kAlpha_8_SkColorType:
-                case kRGBA_F16_SkColorType:
-                case kRGBA_F16Norm_SkColorType:
-                case kRGBA_F32_SkColorType:
-                case kR8G8_unorm_SkColorType:
-                case kA16_float_SkColorType:
-                case kA16_unorm_SkColorType:
-                case kR16G16_float_SkColorType:
-                case kR16G16_unorm_SkColorType:
-                case kR16G16B16A16_unorm_SkColorType: dither_rate = 0.0f; break;
-            }
-
-            if (dither_rate > 0) {
-                shader = sk_make_sp<DitherShader>(std::move(shader), dither_rate);
-            }
+            shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
@@ -535,11 +543,9 @@ namespace {
         }
 
         return {
-            device.refColorSpace(),
             std::move(shader),
             std::move(clip),
-            device.colorType(),
-            device.alphaType(),
+            { device.colorType(), device.alphaType(), device.refColorSpace() },
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paint.getFilterQuality(),
@@ -558,7 +564,13 @@ namespace {
             , fUniforms(kBlitterUniformsCount)
             , fParams(effective_params(device, paint, ctm, std::move(clip)))
             , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
-        {}
+            , fPaint([&]{
+                SkColor4f color = paint.getColor4f();
+                SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                       device.colorSpace(), kUnpremul_SkAlphaType}
+                    .apply(color.vec());
+                return color.premul();
+            }()) {}
 
         ~Blitter() override {
             if (SkLRUCache<Key, skvm::Program>* cache = try_acquire_program_cache()) {
@@ -583,16 +595,17 @@ namespace {
         }
 
     private:
-        SkPixmap       fDevice;
-        skvm::Uniforms fUniforms;                // Most data is copied directly into fUniforms,
-        SkArenaAlloc   fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
-        const Params   fParams;
-        const Key      fKey;
-        skvm::Program  fBlitH,
-                       fBlitAntiH,
-                       fBlitMaskA8,
-                       fBlitMask3D,
-                       fBlitMaskLCD16;
+        SkPixmap          fDevice;
+        skvm::Uniforms    fUniforms;                // Most data is copied directly into fUniforms,
+        SkArenaAlloc      fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
+        const Params      fParams;
+        const Key         fKey;
+        const SkPMColor4f fPaint;
+        skvm::Program     fBlitH,
+                          fBlitAntiH,
+                          fBlitMaskA8,
+                          fBlitMask3D,
+                          fBlitMaskLCD16;
 
         skvm::Program buildProgram(Coverage coverage) {
             Key key = fKey.withCoverage(coverage);
@@ -642,7 +655,7 @@ namespace {
         }
 
         void updateUniforms(int right, int y) {
-            BlitterUniforms uniforms{right, y};
+            BlitterUniforms uniforms{right, y, fPaint};
             memcpy(fUniforms.buf.data(), &uniforms, sizeof(BlitterUniforms));
         }
 

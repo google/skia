@@ -48,9 +48,9 @@ protected:
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y,
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
                           const SkMatrix& ctm, const SkMatrix* localM,
-                          SkFilterQuality quality, SkColorSpace* dstCS,
+                          SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
 private:
