@@ -478,11 +478,11 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
         !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
         return;
     }
-    int count = fVaryingHandler.fPathProcVaryingInfos.count();
-    for (int i = 0; i < count; ++i) {
-        GL_CALL(BindFragmentInputLocation(programID, i,
-                                       fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
-        fVaryingHandler.fPathProcVaryingInfos[i].fLocation = i;
+    int i = 0;
+    for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
+        GL_CALL(BindFragmentInputLocation(programID, i, varying.fVariable.c_str()));
+        varying.fLocation = i;
+        ++i;
     }
 }
 
@@ -529,14 +529,13 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
         fGpu->glPathRendering()->shouldBindFragmentInputs()) {
         return;
     }
-    int count = fVaryingHandler.fPathProcVaryingInfos.count();
-    for (int i = 0; i < count; ++i) {
+    for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
         GrGLint location;
         GL_CALL_RET(location, GetProgramResourceLocation(
                                        programID,
                                        GR_GL_FRAGMENT_INPUT,
-                                       fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
-        fVaryingHandler.fPathProcVaryingInfos[i].fLocation = location;
+                                       varying.fVariable.c_str()));
+        varying.fLocation = location;
     }
 }
 
