@@ -400,6 +400,7 @@ namespace skvm {
         void store8 (Arg ptr, I32 val);
         void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
+        void storeF (Arg ptr, F32 val) { store32(ptr, bit_cast(val)); }
 
         // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
         I32 index();
@@ -408,6 +409,7 @@ namespace skvm {
         I32 load8 (Arg ptr);
         I32 load16(Arg ptr);
         I32 load32(Arg ptr);
+        F32 loadF (Arg ptr) { return bit_cast(load32(ptr)); }
 
         // Load u8,u16,i32 uniform with byte-count offset.
         I32 uniform8 (Arg ptr, int offset);
