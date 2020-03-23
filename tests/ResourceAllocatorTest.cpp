@@ -256,21 +256,22 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
                                 const ProxyParams& p) {
     const auto format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
 
-    SkBackingFit fit = p.fFit;
-    SkISize dims = {p.fSize, p.fSize};
-    auto callback = [fit, dims, format, p](GrResourceProvider* resourceProvider) {
+    auto callback = [](GrResourceProvider* resourceProvider,
+                       const GrSurfaceProxy::LazySurfaceSpec& spec) {
         sk_sp<GrTexture> texture;
-        if (fit == SkBackingFit::kApprox) {
-            texture = resourceProvider->createApproxTexture(dims, format, p.fRenderable,
-                                                            p.fSampleCnt, GrProtected::kNo);
+        if (spec.fFit == SkBackingFit::kApprox) {
+            texture = resourceProvider->createApproxTexture(spec.fDimensions, spec.fFormat,
+                                                            spec.fRenderable, spec.fSampleCnt,
+                                                            spec.fProtected);
         } else {
-            texture = resourceProvider->createTexture(dims, format, p.fRenderable, p.fSampleCnt,
-                                                      GrMipMapped::kNo, SkBudgeted::kNo,
-                                                      GrProtected::kNo);
+            texture = resourceProvider->createTexture(
+                    spec.fDimensions, spec.fFormat, spec.fRenderable, spec.fSampleCnt,
+                    spec.fMipMapped, spec.fBudgeted, spec.fProtected);
         }
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
+    SkISize dims = {p.fSize, p.fSize};
     return proxyProvider->createLazyProxy(callback, format, dims, p.fRenderable, p.fSampleCnt,
                                           GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags,
                                           p.fFit, p.fBudgeted, GrProtected::kNo,
