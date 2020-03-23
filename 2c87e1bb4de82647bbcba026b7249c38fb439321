@@ -22,6 +22,30 @@
       "revId": "2c87e1bb4de82647bbcba026b7249c38fb439321",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "286ccbbc_c77efc4a",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-23T13:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10998ddc_c9ac46cc",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "2c87e1bb4de82647bbcba026b7249c38fb439321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
