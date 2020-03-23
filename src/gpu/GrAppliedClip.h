@@ -44,6 +44,8 @@ public:
         return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
+    void enableScissor() { fScissorState.setEnabled(); }
+
     void addWindowRectangles(const GrWindowRectsState& windowState) {
         SkASSERT(!fWindowRectsState.enabled());
         fWindowRectsState = windowState;

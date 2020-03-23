@@ -26,6 +26,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace skiagm {
 
@@ -55,15 +56,22 @@ class TessellationGM : public GpuGM {
 
 class TessellationTestTriShader : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
+        return arena->make<TessellationTestTriShader>(viewMatrix);
+    }
+
+    const char* name() const final { return "TessellationTestTriShader"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     TessellationTestTriShader(const SkMatrix& viewMatrix)
             : GrGeometryProcessor(kTessellationTestTriShader_ClassID), fViewMatrix(viewMatrix) {
         this->setVertexAttributes(&kPositionAttrib, 1);
         this->setWillUseTessellationShaders();
     }
-
-private:
-    const char* name() const final { return "TessellationTestTriShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
 
     class Impl : public GrGLSLGeometryProcessor {
         void onEmitCode(EmitArgs& args, GrGPArgs*) override {
@@ -171,14 +179,21 @@ void TessellationTestTriShader::Impl::writeFragmentShader(
 
 class TessellationTestRectShader : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
+        return arena->make<TessellationTestRectShader>(viewMatrix);
+    }
+
+    const char* name() const final { return "TessellationTestRectShader"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     TessellationTestRectShader(const SkMatrix& viewMatrix)
             : GrGeometryProcessor(kTessellationTestTriShader_ClassID), fViewMatrix(viewMatrix) {
         this->setWillUseTessellationShaders();
     }
-
-private:
-    const char* name() const final { return "TessellationTestRectShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
 
     class Impl : public GrGLSLGeometryProcessor {
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
@@ -286,22 +301,75 @@ class TessellationTestOp : public GrDrawOp {
 
 public:
     TessellationTestOp(const SkMatrix& viewMatrix, const std::array<float, 3>* triPositions)
-            : GrDrawOp(ClassID()), fViewMatrix(viewMatrix), fTriPositions(triPositions) {
+            : GrDrawOp(ClassID())
+            , fViewMatrix(viewMatrix)
+            , fTriPositions(triPositions)
+            , fProcessorSet(SkBlendMode::kSrc) {
         this->setBounds(SkRect::MakeIWH(kWidth, kHeight), HasAABloat::kNo, IsHairline::kNo);
     }
 
 private:
     const char* name() const override { return "TessellationTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage, GrClampType) override {
-        return GrProcessorSet::EmptySetAnalysis();
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      bool hasMixedSampledCoverage,
+                                      GrClampType clampType) override {
+        static constexpr GrProcessorAnalysisColor kUnknownColor;
+        SkPMColor4f overrideColor;
+        return fProcessorSet.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kSingleChannel,
+                                      clip, &GrUserStencilSettings::kUnused,
+                                      hasMixedSampledCoverage, caps, clampType, &overrideColor);
     }
 
-    void onPrePrepare(GrRecordingContext*,
+    void createProgramInfo(const GrCaps* caps,
+                           SkArenaAlloc* arena,
+                           const GrSurfaceProxyView* outputView,
+                           GrAppliedClip&& appliedClip,
+                           const GrXferProcessor::DstProxyView& dstProxyView) {
+        int tessellationPatchVertexCount;
+        GrGeometryProcessor* gp;
+        if (fTriPositions) {
+            tessellationPatchVertexCount = 3;
+            gp = TessellationTestTriShader::Make(arena, fViewMatrix);
+        } else {
+            // Use a mismatched number of vertices in the input patch vs output.
+            // (The tessellation control shader will output one vertex per patch.)
+            tessellationPatchVertexCount = 5;
+            gp = TessellationTestRectShader::Make(arena, fViewMatrix);
+        }
+
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+                                                                   std::move(appliedClip),
+                                                                   dstProxyView, gp,
+                                                                   std::move(fProcessorSet),
+                                                                   GrPrimitiveType::kPatches,
+                                                                   GrPipeline::InputFlags::kNone,
+                                                                   &GrUserStencilSettings::kUnused,
+                                                                   tessellationPatchVertexCount);
+    }
+
+    void createProgramInfo(GrOpFlushState* state) {
+        return createProgramInfo(&state->caps(),
+                                 state->allocator(),
+                                 state->outputView(),
+                                 state->detachAppliedClip(),
+                                 state->dstProxyView());
+    }
+
+    void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* outputView,
-                      GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override {}
+                      GrAppliedClip* clip,
+                      const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        this->createProgramInfo(context->priv().caps(), arena, outputView,
+                                std::move(appliedClip), dstProxyView);
+
+        context->priv().recordProgramInfo(fProgramInfo);
+    }
 
     void onPrepare(GrOpFlushState* flushState) override {
         if (fTriPositions) {
@@ -313,37 +381,26 @@ private:
     }
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            state->drawOpArgs().outputSwizzle());
-        int tessellationPatchVertexCount;
-        std::unique_ptr<GrGeometryProcessor> shader;
-        if (fTriPositions) {
-            if (!fVertexBuffer) {
-                return;
-            }
-            tessellationPatchVertexCount = 3;
-            shader = std::make_unique<TessellationTestTriShader>(fViewMatrix);
-        } else {
-            // Use a mismatched number of vertices in the input patch vs output.
-            // (The tessellation control shader will output one vertex per patch.)
-            tessellationPatchVertexCount = 5;
-            shader = std::make_unique<TessellationTestRectShader>(fViewMatrix);
+        if (fTriPositions && !fVertexBuffer) {
+             return; // Something went awry in onPrepare
         }
 
-        GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->outputView()->origin(),
-                                  &pipeline, shader.get(), GrPrimitiveType::kPatches,
-                                  tessellationPatchVertexCount);
+        if (!fProgramInfo) {
+            this->createProgramInfo(state);
+        }
 
-        state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
+        state->bindPipeline(*fProgramInfo, SkRect::MakeIWH(kWidth, kHeight));
         state->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
-        state->draw(tessellationPatchVertexCount, fBaseVertex);
+        state->draw(fProgramInfo->tessellationPatchVertexCount(), fBaseVertex);
     }
 
     const SkMatrix fViewMatrix;
     const std::array<float, 3>* const fTriPositions;
     sk_sp<const GrBuffer> fVertexBuffer;
     int fBaseVertex = 0;
+
+    GrProcessorSet fProcessorSet;
+    GrProgramInfo* fProgramInfo = nullptr;
 };
 
 
