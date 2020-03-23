@@ -102,9 +102,9 @@ class ThresholdRT : public skiagm::GM {
         fAfter = make_shader(GetResourceAsImage("images/dog.jpg"), size);
 
         const char code[] = R"(
-            in fragmentProcessor before_map;
-            in fragmentProcessor after_map;
-            in fragmentProcessor threshold_map;
+            in effect before_map;
+            in effect after_map;
+            in effect threshold_map;
 
             uniform float cutoff;
             uniform float slope;
