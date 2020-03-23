@@ -155,3 +155,98 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
+#include "src/core/SkVM.h"
+
+static skvm::F32 strip_sign(skvm::Builder* p, skvm::F32 x, skvm::I32* sign) {
+    skvm::I32 bits = p->bit_cast(x);
+    *sign = p->bit_and(bits, p->splat(0x80000000));
+    return p->bit_cast(p->bit_xor(bits, *sign));
+}
+
+static skvm::F32 apply_sign(skvm::Builder* p, skvm::F32 x, skvm::I32 sign) {
+    return p->bit_cast(p->bit_or(sign, p->bit_cast(x)));
+}
+
+static skvm::Color from_srgb(skvm::Builder* p, skvm::Color c) {
+    auto fn = [p](skvm::F32 s) {
+        skvm::I32 sign;
+        s = strip_sign(p, s, &sign);
+
+        auto lo = p->mul(s, p->splat(1/12.92f));
+        auto hi = p->mad(p->mul(s,s),
+                         p->mad(s, p->splat(0.3000f), p->splat(0.6975f)),
+                         p->splat(0.0025f));
+
+        return apply_sign(p, p->select(p->lt(s, p->splat(0.055f)), lo, hi), sign);
+    };
+    return {fn(c.r), fn(c.g), fn(c.b), c.a};
+}
+
+static skvm::Color to_srgb(skvm::Builder* p, skvm::Color c) {
+    auto fn = [](F l) {
+        U32 sign;
+        l = strip_sign(l, &sign);
+        // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
+    #if defined(JUMPER_IS_AVX512)
+        const float c = 1.130026340485f,
+                    d = 0.141387879848f;
+    #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
+          defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW )
+        const float c = 1.130048394203f,
+                    d = 0.141357362270f;
+    #elif defined(JUMPER_IS_NEON)
+        const float c = 1.129999995232f,
+                    d = 0.141381442547f;
+    #else
+        const float c = 1.129999995232f,
+                    d = 0.141377761960f;
+    #endif
+        auto  t = p->div(p->splat(1.0f), p->sqrt(l));
+        auto lo = p->mul(l, p->splat(12.92f));
+        auto hi = p->div(p->mad(t, p->mad(t, p->splat(-0.0024542345f), p->splat(0.013832027f)), c),
+                         p->add(d, t));
+
+        return apply_sign(p, p->select(p->lt(l, p->splat(0.00465985f)), lo, hi), sign);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
+}
+
+static skvm::Color transfer_function(skvm::Builder* p, skvm::Color c, func) {
+}
+
+skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Color c,
+                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                            bool src_is_normalized) const {
+#if defined(SK_LEGACY_SRGB_STAGE_CHOICE)
+    src_is_normalized = true;
+#endif
+    if (flags.unpremul) { c = p->unpremul(c); }
+    if (flags.linearize) {
+        if (src_is_normalized && srcTF_is_sRGB) {
+            c = from_srgb(p, c);
+        } else {
+            p->append_transfer_function(srcTF);
+        }
+    }
+    if (flags.gamut_transform) {
+        skvm::F32 m[9];
+        for (int i = 0; i < 9; ++i) {
+            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
+        }
+        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
+             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
+             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
+        c = {R, G, B, c.a};
+    }
+    if (flags.encode) {
+        if (src_is_normalized && dstTF_is_sRGB) {
+            c = to_srgb(p, c);
+        } else {
+            p->append_transfer_function(dstTFInv);
+        }
+    }
+    if (flags.premul) { c = p->premul(c); }
+    return c;
+}
