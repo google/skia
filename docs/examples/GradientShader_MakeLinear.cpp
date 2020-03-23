@@ -19,8 +19,8 @@ void draw(SkCanvas* canvas) {
     SkScalar positions[] = { 0.0, 0.65, 1.0 };
 
     for (int i = 0; i < 4; i++) {
-        SkScalar blockX = (i / 2) * 100;
-        SkScalar blockY = (i % 2) * 100;
+        SkScalar blockX = (i % 2) * 100;
+        SkScalar blockY = (i / 2) * 100;
         SkPoint pts[] = { {blockX, blockY}, {blockX + 50, blockY + 100} };
 
         int flags = 0; // interpolate colors in unpremul
@@ -29,17 +29,15 @@ void draw(SkCanvas* canvas) {
             flags = SkGradientShader::Flags::kInterpolateColorsInPremul_Flag;
         }
 
-        SkMatrix* matr = nullptr;
+        SkMatrix matr = SkMatrix::I();
         if (i / 2 == 1) {
             // bottom row will be rotated 45 degrees.
-            SkMatrix m;
-            m.setRotate(45, blockX, blockY);
-            matr = &m;
+            matr.setRotate(45, blockX, blockY);
         }
 
         auto lgs = SkGradientShader::MakeLinear(
-        pts, colors, positions, 3, SkTileMode::kMirror,
-        flags, matr);
+            pts, colors, positions, 3, SkTileMode::kMirror,
+            flags, &matr);
 
         p.setShader(lgs);
         auto r = SkRect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
