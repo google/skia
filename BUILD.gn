@@ -1212,7 +1212,6 @@ if (skia_enable_tools) {
     "include/svg",
     "include/utils",
     "include/utils/mac",
-    "modules/sksg/include",
     "modules/skshaper/include",
     "modules/skottie/include",
   ]
@@ -1621,7 +1620,6 @@ if (skia_enable_tools) {
       ":tool_utils",
       "modules/skottie",
       "modules/skottie:gm",
-      "modules/sksg",
       "modules/skshaper",
     ]
     if (is_skia_dev_build) {
@@ -1807,7 +1805,6 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":xml",
         "modules/skparagraph:samples",
-        "modules/sksg",
         "modules/skshaper",
       ]
 
@@ -1883,7 +1880,6 @@ if (skia_enable_tools) {
         ":trace",
         "modules/skottie",
         "modules/skottie:utils",
-        "modules/sksg",
       ]
     }
   }
@@ -1928,7 +1924,6 @@ if (skia_enable_tools) {
       ":tool_utils",
       ":trace",
       "modules/skparagraph:bench",
-      "modules/sksg",
       "modules/skshaper",
     ]
   }
@@ -2435,7 +2430,6 @@ if (skia_enable_tools) {
         "modules/particles",
         "modules/skottie",
         "modules/skottie:utils",
-        "modules/sksg",
         "modules/sksg:samples",
         "//third_party/imgui",
       ]
