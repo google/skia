@@ -986,4 +986,19 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	// Finalize the DM flags and properties.
 	b.recipeProp("dm_flags", marshalJson(args))
 	b.recipeProp("dm_properties", marshalJson(properties))
+
+	// Add properties indicating which assets the task should use.
+	if b.matchExtraConfig("Lottie") {
+		b.asset("lottie")
+		b.recipeProp("lotties", "true")
+	} else {
+		b.asset("skimage")
+		b.recipeProp("images", "true")
+		b.asset("skp")
+		b.recipeProp("skps", "true")
+		b.asset("svg")
+		b.recipeProp("svgs", "true")
+	}
+	b.recipeProp("do_upload", fmt.Sprintf("%t", b.doUpload()))
+	b.recipeProp("resources", "true")
 }
