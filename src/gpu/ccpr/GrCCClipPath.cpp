@@ -19,8 +19,7 @@ void GrCCClipPath::init(
     SkASSERT(!this->isInitialized());
 
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
-            [this](GrResourceProvider* resourceProvider, const GrBackendFormat& format,
-                   int sampleCount) {
+            [this](GrResourceProvider* resourceProvider, const GrCCAtlas::LazyAtlasSpec& spec) {
                 SkASSERT(fHasAtlas);
                 SkASSERT(!fHasAtlasTransform);
 
@@ -34,8 +33,8 @@ void GrCCClipPath::init(
 
                 sk_sp<GrTexture> texture = sk_ref_sp(textureProxy->peekTexture());
                 SkASSERT(texture);
-                SkASSERT(texture->backendFormat() == format);
-                SkASSERT(texture->asRenderTarget()->numSamples() == sampleCount);
+                SkASSERT(texture->backendFormat() == spec.fFormat);
+                SkASSERT(texture->asRenderTarget()->numSamples() == spec.fSampleCnt);
 
                 fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
                 fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
