@@ -74,6 +74,11 @@ public:
         size_t sizeInBytes() const;
     };
 
+    struct Varying {
+        SkString fName;
+        int      fWidth;  // 1 - 4 (floats)
+    };
+
     // [Effect, ErrorText]
     // If successful, Effect != nullptr, otherwise, ErrorText contains the reason for failure.
     using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
@@ -112,8 +117,12 @@ public:
     // Combined size of just the 'uniform' variables.
     size_t uniformSize() const { return fUniformSize; }
 
+    // Total number of channels across all varyings, combined.
+    int varyingCount() const;
+
     ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInAndUniformVars); }
     ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
+    ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fVaryings); }
 
 #if SK_SUPPORT_GPU
     // This re-compiles the program from scratch, using the supplied shader caps.
@@ -136,7 +145,7 @@ public:
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Program> baseProgram,
                     std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
-                    size_t uniformSize);
+                    std::vector<Varying>&& varyings, size_t uniformSize);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
@@ -148,6 +157,7 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
+    std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;
 };

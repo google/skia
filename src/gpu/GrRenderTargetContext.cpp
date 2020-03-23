@@ -1064,7 +1064,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
                                          sk_sp<SkVertices> vertices,
-                                         GrPrimitiveType* overridePrimType) {
+                                         GrPrimitiveType* overridePrimType,
+                                         const SkRuntimeEffect* effect) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1076,7 +1077,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             fContext, std::move(paint), std::move(vertices), viewMatrix, aaType,
-            this->colorInfo().refColorSpaceXformFromSRGB(), overridePrimType);
+            this->colorInfo().refColorSpaceXformFromSRGB(), overridePrimType, effect);
     this->addDrawOp(clip, std::move(op));
 }
 
