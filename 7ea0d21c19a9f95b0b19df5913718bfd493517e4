@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "deb85aaf_c5b663e8",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 1,
+      "message": "I like that better too",
+      "parentUuid": "06e1f13c_294128ea",
+      "range": {
+        "startLine": 109,
+        "startChar": 10,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20864a0f_dff9ad01",
         "filename": "src/gpu/ccpr/GrCCStroker.h",
         "patchSetId": 12
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "88764564_e93eae82",
+        "filename": "src/gpu/ccpr/GrCCStroker.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20864a0f_dff9ad01",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f9faa9f_0bc3aed9",
         "filename": "src/gpu/gl/GrGLVaryingHandler.cpp",
         "patchSetId": 12
@@ -56,6 +98,24 @@
       "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3925a9f8_0994e7f4",
+        "filename": "src/gpu/gl/GrGLVaryingHandler.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 1,
+      "message": "Both fFragInputs and fPathProcVaryingInfos are GrTAllocator types, so this incrementing the iterator and getting the current item. Since the allocator type doesn\u0027t really like random access (purely for performance reasons), this just advances the two iterators concurrently.\n\nThis was the main case where the for-range loops was less clean than the earlier approach, the other iterators all got better IMO. I added a comment to clarify what this is doing.",
+      "parentUuid": "6f9faa9f_0bc3aed9",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -79,6 +139,30 @@
       "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd4431f5_d27b5ea9",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 1,
+      "message": "Very true!",
+      "parentUuid": "08be195d_e2dd937e",
+      "range": {
+        "startLine": 168,
+        "startChar": 57,
+        "endLine": 168,
+        "endChar": 58
+      },
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b8a231b2_77929809",
+        "filename": "src/gpu/GrAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 0,
+      "message": "Yes, that\u0027s a good point.",
+      "parentUuid": "b61ec30a_2c0cd682",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 17
+      },
+      "revId": "71903bd48d25d2980434a62feab01e88d84d02ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a651eba_213195f1",
         "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "71903bd48d25d2980434a62feab01e88d84d02ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dec14b3c_16427d33",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T21:44:09Z",
+      "side": 0,
+      "message": "It was semi-related because this got rid of a random-access back into the allocator. It used to just get the GrShaderVar by index every time it needed it, but saving the original address works just fine. I\u0027d rather not split it into a smaller CL since it\u0027s relatively minor/mundane.",
+      "parentUuid": "2a651eba_213195f1",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 37
+      },
+      "revId": "71903bd48d25d2980434a62feab01e88d84d02ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
