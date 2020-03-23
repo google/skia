@@ -1791,3 +1791,41 @@ DEF_TEST(SkVM_Assembler, r) {
         0x20,0x00,0x02,0x4e,
     });
 }
+
+DEF_TEST(SkVM_approx_pow, r) {
+    auto eval = [](int N, const float inputs[], float outputs[], auto fn) {
+        skvm::Builder b;
+        skvm::Arg in_arg  = b.varying<float>();
+        skvm::Arg out_arg = b.varying<float>();
+
+        b.storeF(out_arg, fn(&b, b.loadF(in_arg)));
+
+        b.done().eval(N, inputs, outputs);
+    };
+
+    auto compare = [r](int N, const float values[], const float expected[]) {
+        for (int i = 0; i < N; ++i) {
+            SkDebugf("[%d] %g %g\n", i, values[i], expected[i]);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(values[i], expected[i], 0.0001f));
+        }
+    };
+
+    {
+        float values[] = {0.25f, 0.5f, 1, 2, 4, 8};
+        constexpr int N = SK_ARRAY_COUNT(values);
+        eval(N, values, values, [](skvm::Builder* b, skvm::F32 v) {
+            return b->approx_log2(v);
+        });
+        compare(N, values, (const float[]){-2, -1, 0, 1, 2, 3});
+    }
+
+
+    {
+        float values[] = {-2, -1, 0, 1, 2, 3};
+        constexpr int N = SK_ARRAY_COUNT(values);
+        eval(N, values, values, [](skvm::Builder* b, skvm::F32 v) {
+            return b->approx_pow2(v);
+        });
+        compare(N, values, (const float[]){0.25f, 0.5f, 1, 2, 4, 8});
+    }
+}
