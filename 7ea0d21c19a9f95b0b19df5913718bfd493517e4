@@ -39,6 +39,46 @@
       "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f9faa9f_0bc3aed9",
+        "filename": "src/gpu/gl/GrGLVaryingHandler.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T21:04:33Z",
+      "side": 1,
+      "message": "I\u0027m simply curious why you chose to increment a pointer rather than an index?",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08be195d_e2dd937e",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T21:04:33Z",
+      "side": 1,
+      "message": "SkToBool(fCustomColorOutput) might be easier to grok than !!",
+      "range": {
+        "startLine": 168,
+        "startChar": 57,
+        "endLine": 168,
+        "endChar": 58
+      },
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

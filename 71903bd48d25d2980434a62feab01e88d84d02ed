@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b61ec30a_2c0cd682",
+        "filename": "src/gpu/GrAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T21:04:33Z",
+      "side": 0,
+      "message": "Should the header file be renamed to GrTAllocator?",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 17
+      },
+      "revId": "71903bd48d25d2980434a62feab01e88d84d02ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a651eba_213195f1",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T21:04:33Z",
+      "side": 0,
+      "message": "This looks like a good change, but is it related to the GrTAllocator stuff? Can it go in a separate CL?",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 37
+      },
+      "revId": "71903bd48d25d2980434a62feab01e88d84d02ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
