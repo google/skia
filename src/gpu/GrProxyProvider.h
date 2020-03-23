@@ -148,6 +148,7 @@ public:
                                                                    const GrVkDrawableInfo&);
 
     using LazyInstantiationKeyMode = GrSurfaceProxy::LazyInstantiationKeyMode;
+    using LazySurfaceDesc = GrSurfaceProxy::LazySurfaceDesc;
     using LazyCallbackResult = GrSurfaceProxy::LazyCallbackResult;
     using LazyInstantiateCallback = GrSurfaceProxy::LazyInstantiateCallback;
 

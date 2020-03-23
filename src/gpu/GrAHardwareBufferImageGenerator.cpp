@@ -117,8 +117,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
     AHardwareBuffer_acquire(hardwareBuffer);
 
-    const bool isProtectedContent = fIsProtectedContent;
-
     class AutoAHBRelease {
     public:
         AutoAHBRelease(AHardwareBuffer* ahb) : fAhb(ahb) {}
@@ -140,21 +138,25 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     };
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, isProtectedContent,
-             backendFormat](
-                    GrResourceProvider* resourceProvider) -> GrSurfaceProxy::LazyCallbackResult {
+            [direct, buffer = AutoAHBRelease(hardwareBuffer)](
+                    GrResourceProvider* resourceProvider,
+                    const GrSurfaceProxy::LazySurfaceDesc& desc)
+                    -> GrSurfaceProxy::LazyCallbackResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
                 GrAHardwareBufferUtils::TexImageCtx texImageCtx = nullptr;
 
+                bool isProtected = desc.fProtected == GrProtected::kYes;
                 GrBackendTexture backendTex =
-                        GrAHardwareBufferUtils::MakeBackendTexture(direct, buffer.get(),
-                                                                   width, height,
+                        GrAHardwareBufferUtils::MakeBackendTexture(direct,
+                                                                   buffer.get(),
+                                                                   desc.fDimensions.width(),
+                                                                   desc.fDimensions.height(),
                                                                    &deleteImageProc,
                                                                    &updateImageProc,
                                                                    &texImageCtx,
-                                                                   isProtectedContent,
-                                                                   backendFormat,
+                                                                   isProtected,
+                                                                   desc.fFormat,
                                                                    false);
                 if (!backendTex.isValid()) {
                     return {};
@@ -179,7 +181,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
             },
             backendFormat, {width, height}, GrRenderable::kNo, 1, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+            SkBudgeted::kNo, GrProtected(fIsProtectedContent), GrSurfaceProxy::UseAllocator::kYes);
 
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
 
