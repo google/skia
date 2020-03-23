@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "59037275_d9b3ab3c",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-23T12:46:32Z",
+      "side": 1,
+      "message": "Good catch - I let my golang knowledge pollute my C++ knowledge here. I\u0027ll address in a followup CL.",
+      "parentUuid": "850f9249_4732e5a4",
+      "revId": "4765da43c5780c4cd0a25f78021239812223a565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "efa32eec_d63f542e",
         "filename": "docs/examples/GradientShader_MakeLinear.cpp",
         "patchSetId": 4
