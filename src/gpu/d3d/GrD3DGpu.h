@@ -13,6 +13,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
+#include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
 class GrD3DOpsRenderPass;
@@ -171,12 +172,14 @@ private:
                                                       GrProtected,
                                                       const BackendTextureData*) override;
 
+    void submitDirectCommandList();
+
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
 
     GrD3DResourceProvider fResourceProvider;
 
-    gr_cp<ID3D12CommandList> fCurrentDirectCommandList;
+    std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 

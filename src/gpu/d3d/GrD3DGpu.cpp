@@ -27,7 +27,7 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                               backendContext.fDevice.Get()));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
-    SkASSERT(fCurrentDirectCommandList.Get());
+    SkASSERT(fCurrentDirectCommandList);
 }
 
 GrD3DGpu::~GrD3DGpu() {}

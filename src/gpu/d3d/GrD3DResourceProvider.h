@@ -10,13 +10,16 @@
 
 #include "src/gpu/d3d/GrD3D12.h"
 
+#include <memory>
+
+class GrD3DDirectCommandList;
 class GrD3DGpu;
 
 class GrD3DResourceProvider {
 public:
     GrD3DResourceProvider(GrD3DGpu*);
 
-    gr_cp<ID3D12GraphicsCommandList> findOrCreateDirectCommandList();
+    std::unique_ptr<GrD3DDirectCommandList> findOrCreateDirectCommandList();
 
 private:
     gr_cp<ID3D12CommandAllocator> fDirectCommandAllocator;
