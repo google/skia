@@ -454,6 +454,10 @@ namespace skvm {
         F32 mad(F32 x, F32 y, F32 z) { return this->add(this->mul(x,y), z); }
         F32 sqrt(F32 x);
 
+        F32 approx_log2(F32);
+        F32 approx_pow2(F32);
+        F32 approx_powf(F32 base, F32 exp);
+
         F32 negate(F32 x) {
             return sub(splat(0.0f), x);
         }
