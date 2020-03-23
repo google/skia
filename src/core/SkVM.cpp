@@ -12,6 +12,7 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
@@ -1139,6 +1140,18 @@ namespace skvm {
         *r = mul(*r, a);
         *g = mul(*g, a);
         *b = mul(*b, a);
+    }
+
+    Color Builder::uniformPremul(SkColor4f color,    SkColorSpace* src,
+                                 Uniforms* uniforms, SkColorSpace* dst) {
+        SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType,
+                               dst,   kPremul_SkAlphaType).apply(color.vec());
+        return {
+            uniformF(uniforms->pushF(color.fR)),
+            uniformF(uniforms->pushF(color.fG)),
+            uniformF(uniforms->pushF(color.fB)),
+            uniformF(uniforms->pushF(color.fA)),
+        };
     }
 
     Color Builder::lerp(Color lo, Color hi, F32 t) {
