@@ -417,9 +417,10 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
+skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
+                                            skvm::F32 x, skvm::F32 y, skvm::Color /*paint*/,
                                             const SkMatrix& ctm, const SkMatrix* localM,
-                                            SkFilterQuality quality, SkColorSpace* dstCS,
+                                            SkFilterQuality quality, const SkColorInfo& dstInfo,
                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     SkMatrix inv;
     if (!this->computeTotalInverse(ctm, localM, &inv)) {
@@ -462,8 +463,8 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p, skvm::F32 x, skvm:
     // Transform our colors as we want them interpolated, in dst color space, possibly premul.
     SkImageInfo common = SkImageInfo::Make(fColorCount,1, kRGBA_F32_SkColorType
                                                         , kUnpremul_SkAlphaType),
-                src  = common.makeColorSpace(fColorSpace),
-                dst  = common.makeColorSpace(sk_ref_sp(dstCS));
+                src    = common.makeColorSpace(fColorSpace),
+                dst    = common.makeColorSpace(dstInfo.refColorSpace());
     if (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
         dst = dst.makeAlphaType(kPremul_SkAlphaType);
     }

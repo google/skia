@@ -91,32 +91,21 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-static skvm::Color common_program(SkColor4f color, SkColorSpace* cs,
-                                  skvm::Builder* p,
-                                  SkColorSpace* dstCS,
-                                  skvm::Uniforms* uniforms) {
-    SkColorSpaceXformSteps(   cs, kUnpremul_SkAlphaType,
-                           dstCS,   kPremul_SkAlphaType).apply(color.vec());
-
-    return {
-        p->uniformF(uniforms->pushF(color.fR)),
-        p->uniformF(uniforms->pushF(color.fG)),
-        p->uniformF(uniforms->pushF(color.fB)),
-        p->uniformF(uniforms->pushF(color.fA)),
-    };
-}
-
-skvm::Color SkColorShader::onProgram(skvm::Builder* p, skvm::F32 /*x*/, skvm::F32 /*y*/,
+skvm::Color SkColorShader::onProgram(skvm::Builder* p,
+                                     skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
                                      const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                                     SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                                     SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(), p, dstCS, uniforms);
+    return p->uniformPremul(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
+                            uniforms, dst.colorSpace());
 }
-skvm::Color SkColor4Shader::onProgram(skvm::Builder* p, skvm::F32 /*x*/, skvm::F32 /*y*/,
+skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
+                                      skvm::F32 /*x*/, skvm::F32 /*y*/, skvm::Color /*paint*/,
                                       const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                                      SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    return common_program(fColor, fColorSpace.get(), p, dstCS, uniforms);
+    return p->uniformPremul(fColor, fColorSpace.get(),
+                            uniforms, dst.colorSpace());
 }
 
 #if SK_SUPPORT_GPU
