@@ -77,6 +77,13 @@ public:
         template <size_t Align = 1, size_t Padding = 0>
         int avail() const { return std::max(0, fSize - this->cursor<Align, Padding>()); }
 
+        // Return the aligned offset of the first allocation, assuming it was made with the
+        // specified Align, and Padding. The returned offset does not mean a valid allocation
+        // starts at that offset, this is a utility function for classes built on top to manage
+        // indexing into a block effectively.
+        template <size_t Align = 1, size_t Padding = 0>
+        int firstAlignedOffset() const { return this->alignedOffset<Align, Padding>(kDataStart); }
+
         // Convert an offset into this block's storage into a usable pointer.
         void* ptr(int offset) {
             SkASSERT(offset >= kDataStart && offset < fSize);
@@ -120,7 +127,10 @@ public:
 
         // Get fCursor, but aligned such that ptr(rval) satisfies Align.
         template <size_t Align, size_t Padding>
-        int cursor() const;
+        int cursor() const { return this->alignedOffset<Align, Padding>(fCursor); }
+
+        template <size_t Align, size_t Padding>
+        int alignedOffset(int offset) const;
 
         SkDEBUGCODE(int fSentinel;) // known value to check for bad back pointers to blocks
 
@@ -218,6 +228,9 @@ public:
      */
     const Block* currentBlock() const { return fTail; }
     Block* currentBlock() { return fTail; }
+
+    const Block* headBlock() const { return &fHead; }
+    Block* headBlock() { return &fHead; }
 
     /**
      * Return the block that owns the allocated 'ptr'. Assuming that earlier, an allocation was
@@ -369,6 +382,14 @@ private:
     alignas(GrBlockAllocator) char fStorage[N];
 };
 
+// Convenience wrapper around GrSBlockAllocator to calculate the appropriate amount of starting
+// storage to hold the block allocator and N instances of T.
+template<size_t N, typename T>
+using GrNTBlockAllocator = GrSBlockAllocator<
+        N * sizeof(T) +                                          // the N items of T
+        sizeof(GrBlockAllocator) +                               // the actual allocator
+        std::max(0, ((int) GrAlignTo(GrBlockAllocator::kDataStart, alignof(T))
+                     - (int) sizeof(GrBlockAllocator::Block)))>; // extra initial alignment padding
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Template and inline implementations
@@ -440,7 +461,7 @@ GrBlockAllocator::Block* GrBlockAllocator::owningBlock(const void* p, int start)
 }
 
 template <size_t Align, size_t Padding>
-int GrBlockAllocator::Block::cursor() const {
+int GrBlockAllocator::Block::alignedOffset(int offset) const {
     static_assert(SkIsPow2(Align));
     // Aligning adds (Padding + Align - 1) as an intermediate step, so ensure that can't overflow
     static_assert(MaxBlockSize(Align, Padding) + Padding + Align - 1
@@ -448,12 +469,12 @@ int GrBlockAllocator::Block::cursor() const {
 
     if /* constexpr */ (Align <= alignof(std::max_align_t)) {
         // Same as GrAlignTo, but operates on ints instead of size_t
-        return (fCursor + Padding + Align - 1) & ~(Align - 1);
+        return (offset + Padding + Align - 1) & ~(Align - 1);
     } else {
         // Must take into account that 'this' may be starting at a pointer that doesn't satisfy the
         // larger alignment request, so must align the entire pointer, not just offset
         uintptr_t blockPtr = reinterpret_cast<uintptr_t>(this);
-        uintptr_t alignedPtr = (blockPtr + fCursor + Padding + Align - 1) & ~(Align - 1);
+        uintptr_t alignedPtr = (blockPtr + offset + Padding + Align - 1) & ~(Align - 1);
         SkASSERT(alignedPtr - blockPtr <= (uintptr_t) std::numeric_limits<int32_t>::max());
         return (int) (alignedPtr - blockPtr);
     }
