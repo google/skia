@@ -197,7 +197,10 @@ public:
     SkColorType colorType() const { return fColorType; }
     SkAlphaType alphaType() const { return fAlphaType; }
 
-    bool isOpaque() const { return SkAlphaTypeIsOpaque(fAlphaType); }
+    bool isOpaque() const {
+        return SkAlphaTypeIsOpaque(fAlphaType)
+            || SkColorTypeIsAlwaysOpaque(fColorType);
+    }
 
     bool gammaCloseToSRGB() const { return fColorSpace && fColorSpace->gammaCloseToSRGB(); }
 
