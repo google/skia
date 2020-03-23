@@ -28,7 +28,11 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
 
 void GrGLVaryingHandler::onFinalize() {
     SkASSERT(fPathProcVaryingInfos.empty() || fPathProcVaryingInfos.count() == fFragInputs.count());
-    for (int i = 0; i < fPathProcVaryingInfos.count(); ++i) {
-        fPathProcVaryingInfos[i].fVariable = fFragInputs[i];
+    // Both fFragInputs and fPathProcVaryingInfos are GrTAllocator types, but have a consistent
+    // allocation order. Instead of N random accesses, walk both item iterators in parallel.
+    auto fragInput = fFragInputs.items().begin();
+    for (auto& varyingInfo : fPathProcVaryingInfos.items()) {
+        varyingInfo.fVariable = *fragInput;
+        ++fragInput;
     }
 }

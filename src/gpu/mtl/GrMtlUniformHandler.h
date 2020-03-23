@@ -8,8 +8,8 @@
 #ifndef GrMtlUniformHandler_DEFINED
 #define GrMtlUniformHandler_DEFINED
 
-#include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 // TODO: this class is basically copy and pasted from GrVkUniformHandler so that we can have
@@ -34,7 +34,7 @@ public:
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
-        return fUniforms[u.toIndex()].fVariable;
+        return fUniforms.item(u.toIndex()).fVariable;
     }
 
     const char* getUniformCStr(UniformHandle u) const override {
@@ -65,19 +65,19 @@ private:
 
     int numSamplers() const { return fSamplers.count(); }
     const char* samplerVariable(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()].fVariable.c_str();
+        return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
     }
     uint32_t samplerVisibility(SamplerHandle handle) const {
-        return fSamplers[handle.toIndex()].fVisibility;
+        return fSamplers.item(handle.toIndex()).fVisibility;
     }
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     const UniformInfo& getUniformInfo(UniformHandle u) const {
-        return fUniforms[u.toIndex()];
+        return fUniforms.item(u.toIndex());
     }
 
     UniformInfoArray    fUniforms;
