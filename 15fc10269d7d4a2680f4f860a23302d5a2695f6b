@@ -22,6 +22,30 @@
       "revId": "15fc10269d7d4a2680f4f860a23302d5a2695f6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0633b2d_14dd1642",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T20:40:08Z",
+      "side": 0,
+      "message": "So the YUV-\u003eRGB effect actually has no coord transforms because it winds up with n TextureEffect children each with its own transform. The TextureEffect children may have scale \nfactors their transforms.\n\nThe longer term plan is get rid of the whole idea of coord transforms, Bicubic no longer takes a matrix. You wrap it in a MatrixEffect if you want one. That also makes the order of operations very obvious (i.e. should the bicubic offsetting happen before or after the matrix? it\u0027s implicit in the layering of the effects. matrix(bicubic(texture)) vs bicubic(matrix(texture))).",
+      "parentUuid": "28c80bd0_ce2dbd0b",
+      "range": {
+        "startLine": 197,
+        "startChar": 4,
+        "endLine": 197,
+        "endChar": 43
+      },
+      "revId": "15fc10269d7d4a2680f4f860a23302d5a2695f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

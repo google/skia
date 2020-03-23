@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6d6ef45a_512de791",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T20:40:08Z",
+      "side": 1,
+      "message": "Done. Like that better.",
+      "parentUuid": "35a9378d_792471b5",
+      "range": {
+        "startLine": 96,
+        "startChar": 4,
+        "endLine": 96,
+        "endChar": 81
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ad5bdef_46a0f156",
         "filename": "src/gpu/effects/GrBicubicEffect.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e445e01_486aad7f",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T20:40:08Z",
+      "side": 1,
+      "message": "I suppose it could now that you ask... Done.",
+      "parentUuid": "7ad5bdef_46a0f156",
+      "range": {
+        "startLine": 175,
+        "startChar": 29,
+        "endLine": 175,
+        "endChar": 77
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -91,6 +139,30 @@
       "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0b9acfc_829e81af",
+        "filename": "src/gpu/effects/GrBicubicEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T20:40:08Z",
+      "side": 1,
+      "message": "Done (chose the second suggestion).",
+      "parentUuid": "818c800b_1ce3531a",
+      "range": {
+        "startLine": 71,
+        "startChar": 63,
+        "endLine": 72,
+        "endChar": 33
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
