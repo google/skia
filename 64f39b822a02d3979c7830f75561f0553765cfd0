@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85989099_08124dda",
+        "filename": "src/gpu/effects/GrBicubicEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-23T19:53:52Z",
+      "side": 1,
+      "message": "I think this and all factories other than the new one can go away now but deferring that for future CL.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 74
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
