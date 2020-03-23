@@ -17,6 +17,7 @@
 #include "src/core/SkModeColorFilter.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -68,6 +69,11 @@ bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
     rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
+}
+
+skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    return p->blend(fMode, p->uniformColor(fColor, uniforms, dstCS), c);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
