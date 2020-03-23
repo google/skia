@@ -163,6 +163,30 @@
       "revId": "e7575ecc9cc837b4dcfa0eea47539ec051cf9d86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b59d3f96_579fa205",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-23T14:52:43Z",
+      "side": 1,
+      "message": "Ah, ok. I was parsing the comment wrong. That makes sense.",
+      "parentUuid": "b9cfff46_cd58ceb0",
+      "range": {
+        "startLine": 33,
+        "startChar": 15,
+        "endLine": 33,
+        "endChar": 91
+      },
+      "revId": "e7575ecc9cc837b4dcfa0eea47539ec051cf9d86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
