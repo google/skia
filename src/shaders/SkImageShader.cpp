@@ -638,9 +638,9 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
+skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
                                      const SkMatrix& ctm, const SkMatrix* localM,
-                                     SkFilterQuality quality, SkColorSpace* dstCS,
+                                     SkFilterQuality quality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     SkMatrix inv;
     if (!this->computeTotalInverse(ctm, localM, &inv)) {
@@ -865,10 +865,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
         c.b = p->clamp(c.b, p->splat(0.0f), limit);
     }
 
-    // Follow SkColorSpaceXformSteps to match shader output convention (dstCS, premul).
+    // Follow SkColorSpaceXformSteps to match shader output convention (dst.colorSpace(), premul).
     // TODO: may need to extend lifetime once doing actual transforms?  maybe all in uniforms.
-    auto flags = SkColorSpaceXformSteps{pm.colorSpace(), pm.alphaType(),
-                                        dstCS, kPremul_SkAlphaType}.flags;
+    auto flags = SkColorSpaceXformSteps{ pm.colorSpace(), pm.alphaType(),
+                                        dst.colorSpace(), kPremul_SkAlphaType}.flags;
 
     // TODO: once this all works, move it to SkColorSpaceXformSteps
     if (flags.unpremul)        { c = p->unpremul(c); }
