@@ -12,7 +12,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -20,26 +19,18 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkYUVMath.h"
+#include "tools/Resources.h"
 
 class GrRenderTargetContext;
-
-static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
-    float m[20];
-    SkColorMatrix_YUV2RGB(kJPEG_SkYUVColorSpace, m);
-    return SkColorFilters::Matrix(m);
-}
 
 namespace skiagm {
 class ImageFromYUVTextures : public GpuGM {
@@ -53,93 +44,93 @@ protected:
         return SkString("image_from_yuv_textures");
     }
 
-    SkISize onISize() override {
-        // Original image, plus each color space drawn twice
-        int numBitmaps = 2 * (kLastEnum_SkYUVColorSpace + 1) + 1;
-        return SkISize::Make(kBmpSize + 2 * kPad, numBitmaps * (kBmpSize + kPad) + kPad);
-    }
+    SkISize onISize() override { return {1420, 610}; }
 
     void onOnceBeforeDraw() override {
-        // We create an RGB bitmap and then extract YUV bmps where the U and V bitmaps are
-        // subsampled by 2 in both dimensions.
-        SkPaint paint;
-        constexpr SkColor kColors[] =
-            { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
-        paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
-                                                     nullptr, SK_ARRAY_COUNT(kColors),
-                                                     SkTileMode::kMirror));
-        SkBitmap rgbBmp;
-        auto ii =
-                SkImageInfo::Make(kBmpSize, kBmpSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        rgbBmp.allocPixels(ii);
-        SkCanvas canvas(rgbBmp);
-        canvas.drawPaint(paint);
-        SkPMColor* rgbColors = static_cast<SkPMColor*>(rgbBmp.getPixels());
+        fRGBABmp = this->createBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
+    }
 
-        SkImageInfo yinfo = SkImageInfo::Make(kBmpSize, kBmpSize, kGray_8_SkColorType,
-                                              kUnpremul_SkAlphaType);
-        fYUVBmps[0].allocPixels(yinfo);
-        SkImageInfo uinfo = SkImageInfo::Make(kBmpSize / 2, kBmpSize / 2, kGray_8_SkColorType,
-                                              kUnpremul_SkAlphaType);
-        fYUVBmps[1].allocPixels(uinfo);
-        SkImageInfo vinfo = SkImageInfo::Make(kBmpSize / 2, kBmpSize / 2, kGray_8_SkColorType,
-                                              kUnpremul_SkAlphaType);
-        fYUVBmps[2].allocPixels(vinfo);
-        unsigned char* yPixels;
-        signed char* uvPixels[2];
-        yPixels = static_cast<unsigned char*>(fYUVBmps[0].getPixels());
-        uvPixels[0] = static_cast<signed char*>(fYUVBmps[1].getPixels());
-        uvPixels[1] = static_cast<signed char*>(fYUVBmps[2].getPixels());
+    SkBitmap createBmpAndPlanes(const char* name, SkBitmap yuvaBmps[4]) {
+        SkBitmap bmp;
+        if (!GetResourceAsBitmap(name, &bmp)) {
+            return {};
+        }
+        auto ii = SkImageInfo::Make(bmp.dimensions(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+        SkBitmap rgbaBmp;
+        rgbaBmp.allocPixels(ii);
+        bmp.readPixels(rgbaBmp.pixmap(), 0, 0);
+
+        SkImageInfo yaInfo = SkImageInfo::Make(rgbaBmp.dimensions(), kAlpha_8_SkColorType,
+                                               kUnpremul_SkAlphaType);
+        yuvaBmps[0].allocPixels(yaInfo);
+        SkISize uvSize = {rgbaBmp.width()/2, rgbaBmp.height()/2};
+        SkImageInfo uvInfo = SkImageInfo::Make(uvSize, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);
+        yuvaBmps[1].allocPixels(uvInfo);
+        yuvaBmps[2].allocPixels(uvInfo);
+        yuvaBmps[3].allocPixels(yaInfo);
+
+        unsigned char* yuvPixels[] = {
+                static_cast<unsigned char*>(yuvaBmps[0].getPixels()),
+                static_cast<unsigned char*>(yuvaBmps[1].getPixels()),
+                static_cast<unsigned char*>(yuvaBmps[2].getPixels()),
+                static_cast<unsigned char*>(yuvaBmps[3].getPixels()),
+        };
 
         float m[20];
         SkColorMatrix_RGB2YUV(kJPEG_SkYUVColorSpace, m);
         // Here we encode using the kJPEG_SkYUVColorSpace (i.e., full-swing Rec 601) even though
         // we will draw it with all the supported yuv color spaces when converted back to RGB
-        for (int i = 0; i < kBmpSize * kBmpSize; ++i) {
-            auto r = (rgbColors[i] & 0x000000ff) >>  0;
-            auto g = (rgbColors[i] & 0x0000ff00) >>  8;
-            auto b = (rgbColors[i] & 0x00ff0000) >> 16;
-            auto a = (rgbColors[i] & 0xff000000) >> 24;
-            yPixels[i] = SkToU8(sk_float_round2int(m[0]*r + m[1]*g + m[2]*b + m[3]*a + 255*m[4]));
+        for (int j = 0; j < yaInfo.height(); ++j) {
+            for (int i = 0; i < yaInfo.width(); ++i) {
+                auto rgba = *rgbaBmp.getAddr32(i, j);
+                auto r = (rgba & 0x000000ff) >>  0;
+                auto g = (rgba & 0x0000ff00) >>  8;
+                auto b = (rgba & 0x00ff0000) >> 16;
+                auto a = (rgba & 0xff000000) >> 24;
+                yuvPixels[0][j*yaInfo.width() + i] = SkToU8(
+                        sk_float_round2int(m[0]*r + m[1]*g + m[2]*b + m[3]*a + 255*m[4]));
+                yuvPixels[3][j*yaInfo.width() + i] = SkToU8(sk_float_round2int(
+                        m[15]*r + m[16]*g + m[17]*b + m[18]*a + 255*m[19]));
+            }
         }
-        for (int j = 0; j < kBmpSize / 2; ++j) {
-            for (int i = 0; i < kBmpSize / 2; ++i) {
+        for (int j = 0; j < uvInfo.height(); ++j) {
+            for (int i = 0; i < uvInfo.width(); ++i) {
                 // Average together 4 pixels of RGB.
                 int rgba[] = {0, 0, 0, 0};
                 for (int y = 0; y < 2; ++y) {
                     for (int x = 0; x < 2; ++x) {
-                        int rgbIndex = (2 * j + y) * kBmpSize + 2 * i + x;
-                        rgba[0] += (rgbColors[rgbIndex] & 0x000000ff) >>  0;
-                        rgba[1] += (rgbColors[rgbIndex] & 0x0000ff00) >>  8;
-                        rgba[2] += (rgbColors[rgbIndex] & 0x00ff0000) >> 16;
-                        rgba[3] += (rgbColors[rgbIndex] & 0xff000000) >> 24;
+                        auto src = *rgbaBmp.getAddr32(2 * i + x, 2 * j + y);
+                        rgba[0] += (src & 0x000000ff) >> 0;
+                        rgba[1] += (src & 0x0000ff00) >> 8;
+                        rgba[2] += (src & 0x00ff0000) >> 16;
+                        rgba[3] += (src & 0xff000000) >> 24;
                     }
                 }
                 for (int c = 0; c < 4; ++c) {
                     rgba[c] /= 4;
                 }
-                int uvIndex = j * kBmpSize / 2 + i;
-                uvPixels[0][uvIndex] = SkToU8(sk_float_round2int(
+                int uvIndex = j*uvInfo.width() + i;
+                yuvPixels[1][uvIndex] = SkToU8(sk_float_round2int(
                         m[5]*rgba[0] + m[6]*rgba[1] + m[7]*rgba[2] + m[8]*rgba[3] + 255*m[9]));
-                uvPixels[1][uvIndex] = SkToU8(sk_float_round2int(
+                yuvPixels[2][uvIndex] = SkToU8(sk_float_round2int(
                         m[10]*rgba[0] + m[11]*rgba[1] + m[12]*rgba[2] + m[13]*rgba[3] + 255*m[14]));
             }
         }
-        fRGBImage = SkImage::MakeRasterCopy(SkPixmap(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
+        return rgbaBmp;
     }
 
-    void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
-        for (int i = 0; i < 3; ++i) {
-            SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvTextures[i] = context->createBackendTexture(&fYUVBmps[i].pixmap(), 1,
-                                                           GrRenderable::kNo, GrProtected::kNo);
+    void createYUVTextures(SkBitmap bmps[4], GrContext* context, GrBackendTexture textures[4]) {
+        for (int i = 0; i < 4; ++i) {
+            SkASSERT(bmps[i].width() == SkToInt(bmps[i].rowBytes()));
+            textures[i] = context->createBackendTexture(&bmps[i].pixmap(), 1, GrRenderable::kNo,
+                                                        GrProtected::kNo);
         }
     }
 
-    void createResultTexture(GrContext* context, int width, int height,
-                             GrBackendTexture* resultTexture) {
+    void createResultTexture(GrContext* context, SkISize size, GrBackendTexture* resultTexture) {
         *resultTexture = context->createBackendTexture(
-                width, height, kRGBA_8888_SkColorType, SkColors::kTransparent,
+                size.width(), size.height(), kRGBA_8888_SkColorType, SkColors::kTransparent,
                 GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     }
 
@@ -158,67 +149,93 @@ protected:
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        // draw the original
-        SkScalar yOffset = kPad;
-        canvas->drawImage(fRGBImage.get(), kPad, yOffset);
-        yOffset += kBmpSize + kPad;
+        GrBackendTexture yuvaTextures[4];
+        static constexpr SkYUVAIndex kIndices[] = {
+                {0, SkColorChannel::kR},
+                {1, SkColorChannel::kR},
+                {2, SkColorChannel::kR},
+                {3, SkColorChannel::kR},
+        };
+        this->createYUVTextures(fYUVABmps, context, yuvaTextures);
+        auto image1 = SkImage::MakeFromYUVATextures(context,
+                                                    kJPEG_SkYUVColorSpace,
+                                                    yuvaTextures,
+                                                    kIndices,
+                                                    fRGBABmp.dimensions(),
+                                                    kTopLeft_GrSurfaceOrigin);
 
-        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            GrBackendTexture yuvTextures[3];
-            this->createYUVTextures(context, yuvTextures);
-            auto image = SkImage::MakeFromYUVTexturesCopy(context,
-                                                          static_cast<SkYUVColorSpace>(space),
-                                                          yuvTextures,
-                                                          kTopLeft_GrSurfaceOrigin);
-            this->deleteBackendTextures(context, yuvTextures, 3);
+        GrBackendTexture resultTexture;
+        this->createResultTexture(context, fRGBABmp.dimensions(), &resultTexture);
+        auto image2 = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(context,
+                                                                          kJPEG_SkYUVColorSpace,
+                                                                          yuvaTextures,
+                                                                          kTopLeft_GrSurfaceOrigin,
+                                                                          resultTexture);
 
+        auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
             SkPaint paint;
-            if (kIdentity_SkYUVColorSpace == space) {
-                // The identity color space needs post-processing to appear correct
-                paint.setColorFilter(yuv_to_rgb_colorfilter());
-            }
+            paint.setFilterQuality(fq);
+            canvas->drawImage(image, 0, 0, &paint);
+            return {SkIntToScalar(image->width()), SkIntToScalar(image->height())};
+        };
 
-            canvas->drawImage(image.get(), kPad, yOffset, &paint);
-            yOffset += kBmpSize + kPad;
+        auto draw_image_rect = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
+            SkPaint paint;
+            paint.setFilterQuality(fq);
+            auto subset = SkRect::Make(image->dimensions());
+            subset.inset(subset.width() * .05f, subset.height() * .1f);
+            auto dst = SkRect::MakeWH(subset.width(), subset.height());
+            canvas->drawImageRect(image, subset, dst, &paint);
+            return {dst.width(), dst.height()};
+        };
+
+        auto draw_image_shader = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
+            SkMatrix m;
+            m.setRotate(45, image->width()/2.f, image->height()/2.f);
+            auto shader = image->makeShader(SkTileMode::kMirror, SkTileMode::kDecal, m);
+            SkPaint paint;
+            paint.setFilterQuality(fq);
+            paint.setShader(std::move(shader));
+            auto rect = SkRect::MakeWH(image->width() * 1.3f, image->height());
+            canvas->drawRect(rect, paint);
+            return {rect.width(), rect.height()};
+        };
+
+        canvas->translate(kPad, kPad);
+        using DrawSig = SkSize(SkImage* image, SkFilterQuality fq);
+        using DF = std::function<DrawSig>;
+        for (const auto& draw : {DF(draw_image), DF(draw_image_rect), DF(draw_image_shader)}) {
+            for (auto scale : {1.f, 4.f, 0.75f}) {
+                SkScalar h = 0;
+                canvas->save();
+                for (auto fq : {kNone_SkFilterQuality, kLow_SkFilterQuality,
+                                kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
+                    canvas->save();
+                        canvas->scale(scale, scale);
+                        auto s1 = draw(image1.get(), fq);
+                    canvas->restore();
+                    canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
+                    canvas->save();
+                        canvas->scale(scale, scale);
+                        auto s2 = draw(image2.get(), fq);
+                    canvas->restore();
+                    canvas->translate(kPad + SkScalarCeilToScalar(scale*s2.width()), 0);
+                    h = std::max({h, s1.height(), s2.height()});
+                }
+                canvas->restore();
+                canvas->translate(0, kPad + SkScalarCeilToScalar(scale*h));
+            }
         }
 
-        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            GrBackendTexture yuvTextures[3];
-            GrBackendTexture resultTexture;
-            this->createYUVTextures(context, yuvTextures);
-            this->createResultTexture(
-                    context, yuvTextures[0].width(), yuvTextures[0].height(), &resultTexture);
-            auto image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-                                                          context,
-                                                          static_cast<SkYUVColorSpace>(space),
-                                                          yuvTextures,
-                                                          kTopLeft_GrSurfaceOrigin,
-                                                          resultTexture);
-
-            SkPaint paint;
-            if (kIdentity_SkYUVColorSpace == space) {
-                // The identity color space needs post-processing to appear correct
-                paint.setColorFilter(yuv_to_rgb_colorfilter());
-            }
-            canvas->drawImage(image.get(), kPad, yOffset, &paint);
-            yOffset += kBmpSize + kPad;
-
-            GrBackendTexture texturesToDelete[4]{
-                    yuvTextures[0],
-                    yuvTextures[1],
-                    yuvTextures[2],
-                    resultTexture,
-            };
-            this->deleteBackendTextures(context, texturesToDelete, 4);
-        }
+        this->deleteBackendTextures(context, &resultTexture, 1);
+        this->deleteBackendTextures(context, yuvaTextures, 4);
      }
 
 private:
-    sk_sp<SkImage>  fRGBImage;
-    SkBitmap        fYUVBmps[3];
+    SkBitmap fRGBABmp;
+    SkBitmap fYUVABmps[4];
 
     static constexpr SkScalar kPad = 10.0f;
-    static constexpr int kBmpSize  = 32;
 
     typedef GM INHERITED;
 };
