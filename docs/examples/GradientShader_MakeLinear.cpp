@@ -29,17 +29,15 @@ void draw(SkCanvas* canvas) {
             flags = SkGradientShader::Flags::kInterpolateColorsInPremul_Flag;
         }
 
-        SkMatrix* matr = nullptr;
+        SkMatrix matr; // defaults to the identity
         if (i / 2 == 1) {
             // bottom row will be rotated 45 degrees.
-            SkMatrix m;
-            m.setRotate(45, blockX, blockY);
-            matr = &m;
+            matr.setRotate(45, blockX, blockY);
         }
 
         auto lgs = SkGradientShader::MakeLinear(
         pts, colors, positions, 3, SkTileMode::kMirror,
-        flags, matr);
+        flags, &matr);
 
         p.setShader(lgs);
         auto r = SkRect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
