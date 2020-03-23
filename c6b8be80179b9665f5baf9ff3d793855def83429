@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07901c1b_a6b97bfc",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-23T13:05:28Z",
+      "side": 1,
+      "message": "if doUpload returns a boolean, %t should yield true or false",
+      "range": {
+        "startLine": 1002,
+        "startChar": 41,
+        "endLine": 1002,
+        "endChar": 42
+      },
+      "revId": "c6b8be80179b9665f5baf9ff3d793855def83429",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a1c5d4d_af457c61",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-23T13:05:28Z",
+      "side": 1,
+      "message": "%t",
+      "range": {
+        "startLine": 262,
+        "startChar": 40,
+        "endLine": 262,
+        "endChar": 43
+      },
+      "revId": "c6b8be80179b9665f5baf9ff3d793855def83429",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
