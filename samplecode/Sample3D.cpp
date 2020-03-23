@@ -368,8 +368,8 @@ public:
         fBmpShader = img->makeShader(SkMatrix::MakeScale(2, 2));
 
         const char code[] = R"(
-            in fragmentProcessor color_map;
-            in fragmentProcessor normal_map;
+            in shader color_map;
+            in shader normal_map;
 
             layout (marker=local_to_world)          uniform float4x4 localToWorld;
             layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;

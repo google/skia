@@ -78,9 +78,9 @@ void main(float2 p, inout half4 color) {
         .then((response) => response.arrayBuffer());
 
     const thresholdSkSL = `
-in fragmentProcessor before_map;
-in fragmentProcessor after_map;
-in fragmentProcessor threshold_map;
+in shader before_map;
+in shader after_map;
+in shader threshold_map;
 
 uniform float cutoff;
 uniform float slope;

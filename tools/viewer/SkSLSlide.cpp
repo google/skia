@@ -41,10 +41,10 @@ SkSLSlide::SkSLSlide() {
 
     fSkSL =
 
-        "in fragmentProcessor fp;\n"
+        "in shader child;\n"
         "\n"
         "void main(float2 p, inout half4 color) {\n"
-        "    color = sample(fp, p);\n"
+        "    color = sample(child, p);\n"
         "}\n";
 
     fCodeIsDirty = true;
