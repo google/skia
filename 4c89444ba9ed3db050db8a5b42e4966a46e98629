@@ -39,6 +39,30 @@
       "revId": "4c89444ba9ed3db050db8a5b42e4966a46e98629",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0dd2b63_3282c771",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T17:35:06Z",
+      "side": 1,
+      "message": "Ah, this is paralleling the old impl.  That\u0027s cool by me.",
+      "parentUuid": "ae2954be_f7e9f2be",
+      "range": {
+        "startLine": 282,
+        "startChar": 4,
+        "endLine": 282,
+        "endChar": 8
+      },
+      "revId": "4c89444ba9ed3db050db8a5b42e4966a46e98629",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
