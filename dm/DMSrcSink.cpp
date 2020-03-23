@@ -1539,9 +1539,6 @@ Result GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStr
     if (fCacheType == 2) {
         contextOptions.fShaderCacheStrategy = GrContextOptions::ShaderCacheStrategy::kBackendSource;
     }
-    // anglebug.com/3619
-    contextOptions.fGpuPathRenderers =
-            contextOptions.fGpuPathRenderers & ~GpuPathRenderers::kStencilAndCover;
 
     Result result = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!result.isOk() || !dst) {
@@ -1578,10 +1575,6 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     GrContextOptions contextOptions = this->baseContextOptions();
     contextOptions.fPersistentCache = &memoryCache;
     contextOptions.fShaderCacheStrategy = GrContextOptions::ShaderCacheStrategy::kSkSL;
-    // anglebug.com/3619 means that we don't cache shaders when we're using NVPR. That prevents
-    // the precompile from working, so we'll trigger the assert at the end of this test.
-    contextOptions.fGpuPathRenderers =
-            contextOptions.fGpuPathRenderers & ~GpuPathRenderers::kStencilAndCover;
 
     Result result = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!result.isOk() || !dst) {
@@ -1599,9 +1592,6 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     // Ensure that the runtime cache is large enough to hold all of the shaders we pre-compile
     replayOptions.fRuntimeProgramCacheSize = memoryCache.numCacheMisses();
     replayOptions.fPersistentCache = &replayCache;
-    // anglebug.com/3619
-    replayOptions.fGpuPathRenderers =
-            replayOptions.fGpuPathRenderers & ~GpuPathRenderers::kStencilAndCover;
 
     SkBitmap reference;
     SkString refLog;

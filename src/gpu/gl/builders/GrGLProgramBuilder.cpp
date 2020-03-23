@@ -433,17 +433,11 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     cleanup_shaders(fGpu, shadersToDelete);
 
-    // With ANGLE, we can't cache path-rendering programs. We use ProgramPathFragmentInputGen,
-    // and ANGLE's deserialized program state doesn't restore enough state to handle that.
-    // The native NVIDIA drivers do, but this is such an edge case that it's easier to just
-    // black-list caching these programs in all cases. See: anglebug.com/3619
-    //
     // We temporarily can't cache tessellation shaders while using back door GLSL.
     //
     // We also can't cache SkSL or GLSL if we were given a precompiled program, but there's not
     // much point in doing so.
-    if (!cached && !primProc.isPathRendering() && !primProc.willUseTessellationShaders() &&
-        !precompiledProgram) {
+    if (!cached && !primProc.willUseTessellationShaders() && !precompiledProgram) {
         // FIXME: Remove the check for tessellation shaders in the above 'if' once the back door
         // GLSL mechanism is removed.
         (void)&GrPrimitiveProcessor::getTessControlShaderGLSL;
