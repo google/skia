@@ -72,6 +72,14 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
     }
 }
 
+GrBackendFormat& GrBackendFormat::operator=(const GrBackendFormat& that) {
+    if (this != &that) {
+        this->~GrBackendFormat();
+        new (this) GrBackendFormat(that);
+    }
+    return *this;
+}
+
 #ifdef SK_GL
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)

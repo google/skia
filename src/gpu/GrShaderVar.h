@@ -82,6 +82,18 @@ public:
             , fLayoutQualifier(that.fLayoutQualifier)
             , fExtraModifiers(that.fExtraModifiers) {}
 
+    GrShaderVar& operator=(const GrShaderVar& that) {
+        fType = that.fType;
+        fTypeModifier = that.fTypeModifier;
+        fCount = that.fCount;
+        fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
+        fName = that.fName;
+        fLayoutQualifier = that.fLayoutQualifier;
+        fExtraModifiers = that.fExtraModifiers;
+        SkASSERT(kVoid_GrSLType != that.getType());
+        return *this;
+    }
+
     /**
      * Sets as a non-array.
      */

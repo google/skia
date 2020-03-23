@@ -63,6 +63,7 @@ public:
     SkRasterClip(const SkIRect&);
     SkRasterClip(const SkRegion&);
     SkRasterClip(const SkRasterClip&);
+    SkRasterClip& operator=(const SkRasterClip&);
     ~SkRasterClip();
 
     // Only compares the current state. Does not compare isForceConservativeRects(), so that field

@@ -452,6 +452,29 @@ config("warnings") {
       "-Wno-direct-ivar-access",
       "-Wno-objcc-interface-ivars",
     ]
+
+    # Wno-deprecated turns off the whole group, but also has its own warnings like
+    # out-of-line definition of constexpr static data member is redundant in C++17 and is deprecated [-Werror,-Wdeprecated]
+    # but we would like others. Created from clang/include/clang/Basic/DiagnosticGroups.td
+    cflags += [
+      "-Wdeprecated-anon-enum-enum-conversion",
+      "-Wdeprecated-array-compare",
+      "-Wdeprecated-attributes",
+      "-Wdeprecated-comma-subscript",
+      "-Wdeprecated-copy",
+      #"-Wdeprecated-copy-dtor",
+      #"-Wdeprecated-declarations",
+      "-Wdeprecated-dynamic-exception-spec",
+      "-Wdeprecated-enum-compare",
+      "-Wdeprecated-enum-compare-conditional",
+      "-Wdeprecated-enum-enum-conversion",
+      "-Wdeprecated-enum-float-conversion",
+      "-Wdeprecated-increment-bool",
+      "-Wdeprecated-register",
+      "-Wdeprecated-this-capture",
+      "-Wdeprecated-volatile",
+      "-Wdeprecated-writable-str",
+    ]
   }
   if (!is_win || is_clang) {
     cflags += [ "-Wno-implicit-fallthrough" ]

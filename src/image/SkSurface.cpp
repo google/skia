@@ -51,10 +51,8 @@ SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg)
     : fFlags(flags), fPixelGeometry(pg)
 {}
 
-SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
-    : fFlags(other.fFlags)
-    , fPixelGeometry(other.fPixelGeometry)
-{}
+SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps&) = default;
+SkSurfaceProps& SkSurfaceProps::operator=(const SkSurfaceProps&) = default;
 
 ///////////////////////////////////////////////////////////////////////////////
 
