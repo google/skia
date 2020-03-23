@@ -374,8 +374,8 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
 
     SkPaint paint;
     const char* gProg = R"(
-        in fragmentProcessor c0;
-        in fragmentProcessor c1;
+        in shader c0;
+        in shader c1;
         varying float vtx_lerp;
         void main(float2 p, inout half4 color) {
             half4 col0 = sample(c0, p);

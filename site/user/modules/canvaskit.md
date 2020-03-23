@@ -577,8 +577,8 @@ void main(float2 p, inout half4 color) {
     const children = [textureShader, normalShader];
 
     const prog = `
-      in fragmentProcessor color_map;
-      in fragmentProcessor normal_map;
+      in shader color_map;
+      in shader normal_map;
 
       uniform float3   lightPos;
       layout (marker=local_to_world)          uniform float4x4 localToWorld;

@@ -95,9 +95,6 @@ public:
                                const SkMatrix* localMatrix,
                                bool isOpaque);
 
-    sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> inputs,
-                                         sk_sp<SkColorFilter> children[],
-                                         size_t childCount);
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> inputs);
 
     const SkString& source() const { return fSkSL; }

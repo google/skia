@@ -253,6 +253,9 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Sampler);
     ADD_TYPE(Texture2D);
 
+    StringFragment fpAliasName("shader");
+    fTypes->addWithoutOwnership(fpAliasName, fContext->fFragmentProcessor_Type.get());
+
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
                                     *fContext->fSkCaps_Type, Variable::kGlobal_Storage);
