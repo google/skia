@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28c80bd0_ce2dbd0b",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T20:16:03Z",
+      "side": 0,
+      "message": "The current use cases all effectively construct or use the identity matrix for the child FP\u0027s matrix, and the logical coord transform goes to the bicubic. Should we keep this assert and go further to verify that the child FP\u0027s transform is in factor identity? Or are we relaxing this and allowing the child to have non-identity if it wanted it (and we just happen to need identity for bicubic filtering a texture?)",
+      "range": {
+        "startLine": 197,
+        "startChar": 4,
+        "endLine": 197,
+        "endChar": 43
+      },
+      "revId": "15fc10269d7d4a2680f4f860a23302d5a2695f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

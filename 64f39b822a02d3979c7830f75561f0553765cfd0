@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "35a9378d_792471b5",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T20:16:03Z",
+      "side": 1,
+      "message": "Could this be \"const SkMatrix\u0026 m \u003d filterOrNullForBicubic ? textureMatrix : SkMatrix::I()\"? I() returns a const\u0026",
+      "range": {
+        "startLine": 96,
+        "startChar": 4,
+        "endLine": 96,
+        "endChar": 81
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ad5bdef_46a0f156",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T20:16:03Z",
+      "side": 1,
+      "message": "Could the constantOutput function just pass through to its child FP if the child FP had constant output? Or does the bicubic filter not behave as the identity when all sampled texels have the same color?",
+      "range": {
+        "startLine": 175,
+        "startChar": 29,
+        "endLine": 175,
+        "endChar": 77
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85989099_08124dda",
         "filename": "src/gpu/effects/GrBicubicEffect.h",
         "patchSetId": 6
@@ -18,6 +64,29 @@
         "startChar": 0,
         "endLine": 68,
         "endChar": 74
+      },
+      "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "818c800b_1ce3531a",
+        "filename": "src/gpu/effects/GrBicubicEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-23T20:16:03Z",
+      "side": 1,
+      "message": "\"The discrete samples of the passed-in processor that the bicubic filter...\" or \"The bicubic filter assumes that the discrete samples of the provided processor are at half-integer coords\"?",
+      "range": {
+        "startLine": 71,
+        "startChar": 63,
+        "endLine": 72,
+        "endChar": 33
       },
       "revId": "64f39b822a02d3979c7830f75561f0553765cfd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
