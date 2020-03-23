@@ -22,6 +22,30 @@
       "revId": "ecaf802b7cb8613f92e37b53f8ef61e4b47a7ca7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f215564_e2d09dcc",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-23T13:17:44Z",
+      "side": 1,
+      "message": "I like being explicit, just in case someone accidentally writes \"false\" or something else.",
+      "parentUuid": "120edb2f_49d4047f",
+      "range": {
+        "startLine": 33,
+        "startChar": 40,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "ecaf802b7cb8613f92e37b53f8ef61e4b47a7ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

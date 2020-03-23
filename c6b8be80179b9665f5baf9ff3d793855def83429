@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b34ad931_14471746",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-23T13:17:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07901c1b_a6b97bfc",
+      "range": {
+        "startLine": 1002,
+        "startChar": 41,
+        "endLine": 1002,
+        "endChar": 42
+      },
+      "revId": "c6b8be80179b9665f5baf9ff3d793855def83429",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a1c5d4d_af457c61",
         "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "c6b8be80179b9665f5baf9ff3d793855def83429",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5492033_5d2db5aa",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-03-23T13:17:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a1c5d4d_af457c61",
+      "range": {
+        "startLine": 262,
+        "startChar": 40,
+        "endLine": 262,
+        "endChar": 43
+      },
+      "revId": "c6b8be80179b9665f5baf9ff3d793855def83429",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
