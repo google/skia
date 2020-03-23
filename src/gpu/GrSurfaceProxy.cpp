@@ -391,7 +391,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     bool syncKey = true;
     bool releaseCallback = false;
     if (!surface) {
-        auto result = fProxy->fLazyInstantiateCallback(resourceProvider);
+        auto result = fProxy->fLazyInstantiateCallback(resourceProvider, fProxy->callbackSpec());
         surface = std::move(result.fSurface);
         syncKey = result.fKeyMode == GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
         releaseCallback = surface && result.fReleaseCallback;
@@ -410,7 +410,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     SkASSERT(fProxy->width() <= surface->width());
     SkASSERT(fProxy->height() <= surface->height());
-
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
         texProxy->setTargetKeySync(syncKey);
         if (syncKey) {

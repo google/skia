@@ -402,7 +402,9 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
         }
 
-        GrSurfaceProxy::LazyCallbackResult operator()(GrResourceProvider* resourceProvider) {
+        GrSurfaceProxy::LazyCallbackResult operator()(
+                GrResourceProvider* resourceProvider,
+                const GrSurfaceProxy::LazyCallbackSpec& spec) {
             // We use the unique key in a way that is unrelated to the SkImage-based key that the
             // proxy may receive, hence kUnsynced.
             static constexpr auto kKeySyncMode =

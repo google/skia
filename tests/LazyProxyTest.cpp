@@ -83,8 +83,9 @@ public:
                 ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kBGR_565,
                                                             GrRenderable::kNo);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
-                    [this, format,
-                     nullTexture](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
+                    [this, nullTexture](GrResourceProvider* rp,
+                                        const GrSurfaceProxy::LazyCallbackSpec& spec)
+                            -> GrSurfaceProxy::LazyCallbackResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                         fTest->fHasOpTexture = true;
                         if (nullTexture) {
@@ -92,8 +93,8 @@ public:
                         } else {
                             static constexpr SkISize kDimensions = {1234, 567};
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    kDimensions, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
-                                    SkBudgeted::kYes, GrProtected::kNo);
+                                    kDimensions, spec.fFormat, spec.fRenderable, spec.fSampleCnt,
+                                    spec.fMipMapped, spec.fBudgeted, spec.fProtected);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return texture;
                         }
@@ -137,7 +138,8 @@ public:
                 ctx->priv().caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
             GrSwizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
-                    [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
+                    [this](GrResourceProvider* rp, const GrSurfaceProxy::LazyCallbackSpec&)
+                            -> GrSurfaceProxy::LazyCallbackResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
                         fTest->fHasClipTexture = true;
                         fAtlas->instantiate(rp);
@@ -264,7 +266,8 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 }
                 TestCallback& operator=(const TestCallback& that) = delete;
 
-                LazyInstantiationResult operator()(GrResourceProvider* resourceProvider) const {
+                LazyInstantiationResult operator()(GrResourceProvider*,
+                                                   const GrSurfaceProxy::LazyCallbackSpec&) const {
                     *fValue = 1;
                     return {fTexture, fReleaseCallback};
                 }
@@ -336,14 +339,16 @@ private:
                                                         GrRenderable::kNo);
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation, desc,
-                 format](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
+                [testExecuteValue, shouldFailInstantiation](
+                        GrResourceProvider* rp, const GrSurfaceProxy::LazyCallbackSpec& spec)
+                        -> GrSurfaceProxy::LazyCallbackResult {
                     if (shouldFailInstantiation) {
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
-                                              SkBudgeted::kNo, GrProtected::kNo),
+                    return {rp->createTexture(spec.fDimensions, spec.fFormat, spec.fRenderable,
+                                              spec.fSampleCnt, spec.fMipMapped, spec.fBudgeted,
+                                              spec.fProtected),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
                 format, desc, GrRenderable::kNo, 1, GrMipMapped::kNo,

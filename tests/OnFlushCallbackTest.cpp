@@ -336,17 +336,19 @@ public:
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kYes);
         auto proxy = GrProxyProvider::MakeFullyLazyProxy(
-                [format](GrResourceProvider* resourceProvider)
+                [](GrResourceProvider* resourceProvider,
+                   const GrSurfaceProxy::LazyCallbackSpec& spec)
                         -> GrSurfaceProxy::LazyCallbackResult {
+                    SkASSERT(spec.fDimensions.width() < 0 && spec.fDimensions.height() < 0);
                     SkISize dims;
                     // TODO: until partial flushes in MDB lands we're stuck having
                     // all 9 atlas draws occur
                     dims.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
                     dims.fHeight = kAtlasTileSize;
 
-                    return resourceProvider->createTexture(dims, format, GrRenderable::kYes, 1,
-                                                           GrMipMapped::kNo, SkBudgeted::kYes,
-                                                           GrProtected::kNo);
+                    return resourceProvider->createTexture(dims, spec.fFormat, spec.fRenderable,
+                                                           spec.fSampleCnt, spec.fMipMapped,
+                                                           spec.fBudgeted, spec.fProtected);
                 },
                 format,
                 GrRenderable::kYes,

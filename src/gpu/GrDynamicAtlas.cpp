@@ -56,8 +56,9 @@ sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
         sampleCount = caps.internalMultisampleCount(format);
     }
 
-    auto instantiate = [cb = std::move(callback), format, sampleCount](GrResourceProvider* rp) {
-        return cb(rp, format, sampleCount);
+    auto instantiate = [cb = std::move(callback)](GrResourceProvider* rp,
+                                                  const GrSurfaceProxy::LazyCallbackSpec& spec) {
+        return cb(rp, spec.fFormat, spec.fSampleCnt);
     };
 
     sk_sp<GrTextureProxy> proxy =
