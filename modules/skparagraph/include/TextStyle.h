@@ -107,9 +107,8 @@ enum class PlaceholderAlignment {
 
 struct FontFeature {
     FontFeature(const SkString name, int value) : fName(name), fValue(value) { }
-    FontFeature(const FontFeature& other) : fName(other.fName), fValue(other.fValue) { }
-    bool operator==(const FontFeature& other) const {
-        return fName == other.fName && fValue == other.fValue;
+    bool operator==(const FontFeature& that) const {
+        return fName == that.fName && fValue == that.fValue;
     }
     SkString fName;
     int fValue;
@@ -131,7 +130,7 @@ struct PlaceholderStyle {
             , fBaseline(baseline)
             , fBaselineOffset(offset) {}
 
-    bool equals(const PlaceholderStyle& other) const;
+    bool equals(const PlaceholderStyle&) const;
 
     SkScalar fWidth;
     SkScalar fHeight;

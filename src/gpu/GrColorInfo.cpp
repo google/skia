@@ -18,10 +18,8 @@ GrColorInfo::GrColorInfo(const SkColorInfo& ci)
                       ci.alphaType(),
                       ci.refColorSpace()) {}
 
-GrColorInfo::GrColorInfo(const GrColorInfo& ci)
-        : GrColorInfo(ci.colorType(),
-                      ci.alphaType(),
-                      ci.refColorSpace()) {}
+GrColorInfo::GrColorInfo(const GrColorInfo&) = default;
+GrColorInfo& GrColorInfo::operator=(const GrColorInfo&) = default;
 
 GrColorSpaceXform* GrColorInfo::colorSpaceXformFromSRGB() const {
     // TODO: Make this atomic if we start accessing this on multiple threads.
