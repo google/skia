@@ -544,7 +544,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                 auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
                 auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
-                auto singleUseLazyCB = [&texture](GrResourceProvider* rp) {
+                auto singleUseLazyCB = [&texture](GrResourceProvider*,
+                                                  const GrSurfaceProxy::LazySurfaceDesc&) {
                     auto mode = GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
                     if (texture->getUniqueKey().isValid()) {
                         mode = GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;

@@ -27,23 +27,25 @@ public:
     static constexpr GrSurfaceOrigin kTextureOrigin = kTopLeft_GrSurfaceOrigin;
     static constexpr int kPadding = 1;  // Amount of padding below and to the right of each path.
 
-    using LazyInstantiateAtlasCallback = std::function<GrSurfaceProxy::LazyCallbackResult(
-            GrResourceProvider*, const GrBackendFormat&, int sampleCount)>;
+    using LazyAtlasDesc = GrSurfaceProxy::LazySurfaceDesc;
+    using LazyInstantiateAtlasCallback = GrSurfaceProxy::LazyInstantiateCallback;
 
     enum class InternalMultisample : bool {
         kNo = false,
         kYes = true
     };
 
-    static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(const LazyInstantiateAtlasCallback&,
-                                                    GrColorType colorType, InternalMultisample,
-                                                    const GrCaps&, GrSurfaceProxy::UseAllocator);
+    static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(LazyInstantiateAtlasCallback&&,
+                                                    GrColorType colorType,
+                                                    InternalMultisample,
+                                                    const GrCaps&,
+                                                    GrSurfaceProxy::UseAllocator);
 
     GrDynamicAtlas(GrColorType colorType, InternalMultisample, SkISize initialSize,
                    int maxAtlasSize, const GrCaps&);
     virtual ~GrDynamicAtlas();
 
-    void reset(SkISize initialSize, const GrCaps& caps);
+    void reset(SkISize initialSize, const GrCaps& desc);
 
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
     bool isInstantiated() const { return fTextureProxy->isInstantiated(); }

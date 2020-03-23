@@ -143,6 +143,8 @@ private:
     size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
+            LazySurfaceDesc callbackDesc() const override;
+
     // WARNING: Be careful when adding or removing fields here. ASAN is likely to trigger warnings
     // when instantiating GrTextureRenderTargetProxy. The std::function in GrSurfaceProxy makes
     // each class in the diamond require 16 byte alignment. Clang appears to layout the fields for

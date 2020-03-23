@@ -37,8 +37,10 @@ public:
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
-    void init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
-              GrCCAtlas::CoverageType atlasCoverageType, const GrCaps&);
+    void init(const SkPath& deviceSpacePath,
+              const SkIRect& desc,
+              GrCCAtlas::CoverageType atlasCoverageType,
+              const GrCaps&);
 
     void addAccess(const SkIRect& accessRect) {
         SkASSERT(this->isInitialized());

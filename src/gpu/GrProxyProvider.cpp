@@ -317,12 +317,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [dims, format, bitmap, fit, colorType, budgeted](GrResourceProvider* resourceProvider) {
+            [bitmap](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
+                SkASSERT(desc.fMipMapped == GrMipMapped::kNo);
                 GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
-
+                auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 return LazyCallbackResult(resourceProvider->createTexture(
-                        dims, format, colorType, GrRenderable::kNo, 1, budgeted, fit,
-                        GrProtected::kNo, mipLevel));
+                        desc.fDimensions, desc.fFormat, colorType, desc.fRenderable,
+                        desc.fSampleCnt, desc.fBudgeted, desc.fFit, desc.fProtected, mipLevel));
             },
             format, dims, GrRenderable::kNo, 1, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
             GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes);
@@ -352,14 +353,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
     auto dims = bitmap.dimensions();
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [dims, format, bitmap, mipmaps, budgeted](GrResourceProvider* resourceProvider) {
+            [bitmap, mipmaps](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+                auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
 
                 texels[0].fPixels = bitmap.getPixels();
                 texels[0].fRowBytes = bitmap.rowBytes();
 
-                auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 for (int i = 1; i < mipLevelCount; ++i) {
                     SkMipMap::Level generatedMipLevel;
                     mipmaps->getLevel(i - 1, &generatedMipLevel);
@@ -369,8 +370,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                     SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
-                        dims, format, colorType, GrRenderable::kNo, 1, budgeted, GrProtected::kNo,
-                        texels.get(), mipLevelCount));
+                        desc.fDimensions, desc.fFormat, colorType, GrRenderable::kNo, 1,
+                        desc.fBudgeted, GrProtected::kNo, texels.get(), mipLevelCount));
             },
             format, dims, GrRenderable::kNo, 1, GrMipMapped::kYes, GrMipMapsStatus::kValid,
             GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, budgeted, GrProtected::kNo,
@@ -457,10 +458,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
                                                                 : GrMipMapsStatus::kNotAllocated;
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [dimensions, format, budgeted, mipMapped, isProtected,
-             data](GrResourceProvider* resourceProvider) {
+            [data](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
                 return LazyCallbackResult(resourceProvider->createCompressedTexture(
-                    dimensions, format, budgeted, mipMapped, isProtected, data.get()));
+                        desc.fDimensions, desc.fFormat, desc.fBudgeted, desc.fMipMapped,
+                        desc.fProtected, data.get()));
             },
             format, dimensions, GrRenderable::kNo, 1, mipMapped, mipMapsStatus,
             GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kYes,

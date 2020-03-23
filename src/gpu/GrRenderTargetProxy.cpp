@@ -127,6 +127,22 @@ bool GrRenderTargetProxy::refsWrappedObjects() const {
     return surface->resourcePriv().refsWrappedObjects();
 }
 
+GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
+    // We only expect exactly sized lazy RT proxies.
+    SkASSERT(!this->isFullyLazy());
+    SkASSERT(this->isFunctionallyExact());
+    return {
+            this->dimensions(),
+            SkBackingFit::kExact,
+            GrRenderable::kYes,
+            GrMipMapped::kNo,
+            this->numSamples(),
+            this->backendFormat(),
+            this->isProtected(),
+            this->isBudgeted(),
+    };
+}
+
 #ifdef SK_DEBUG
 void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // We do not check that surface->asTexture returns null since, when replaying DDLs we

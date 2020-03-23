@@ -176,6 +176,8 @@ private:
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
 
+    LazySurfaceDesc callbackDesc() const override;
+
     // Only used for proxies whose contents are being prepared on a worker thread. This object
     // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
     // point, the proxy is instantiated, and this data is used to perform an ASAP upload.
