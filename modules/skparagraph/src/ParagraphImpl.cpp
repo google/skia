@@ -271,6 +271,9 @@ void ParagraphImpl::buildClusterTable() {
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
                 cluster.setIsWhiteSpaces();
+                if (fGraphemes.find(cluster.fTextRange.end) != nullptr) {
+                    cluster.setBreakType(Cluster::BreakType::GraphemeBreak);
+                }
             });
         }
 
@@ -288,6 +291,8 @@ void ParagraphImpl::markLineBreaks() {
         return;
     }
 
+    // Mark all soft line breaks
+    // Remove soft line breaks that are not on grapheme cluster edge
     Cluster* current = fClusters.begin();
     while (!breaker.eof() && current < fClusters.end()) {
         size_t currentPos = breaker.next();
@@ -295,16 +300,21 @@ void ParagraphImpl::markLineBreaks() {
             if (current->textRange().end > currentPos) {
                 break;
             } else if (current->textRange().end == currentPos) {
-                current->setBreakType(breaker.status() == UBRK_LINE_HARD
-                                      ? Cluster::BreakType::HardLineBreak
-                                      : Cluster::BreakType::SoftLineBreak);
+                if (breaker.status() == UBRK_LINE_HARD) {
+                    // Hard line break stronger than anything
+                    current->setBreakType(Cluster::BreakType::HardLineBreak);
+                } else if (current->isGraphemeBreak()) {
+                    // Only allow soft line break if it's grapheme break
+                    current->setBreakType(Cluster::BreakType::SoftLineBreak);
+                } else {
+                    // Leave it as is (either it's no break or a placeholder)
+                }
                 ++current;
                 break;
             }
             ++current;
         }
     }
-
 
     // Walk through all the clusters in the direction of shaped text
     // (we have to walk through the styles in the same order, too)
