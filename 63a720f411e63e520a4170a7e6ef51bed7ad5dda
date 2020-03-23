@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "324e2eda_6c2a83fb",
+        "filename": "docs/examples/GradientShader_MakeLinear.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-23T13:04:58Z",
+      "side": 1,
+      "message": "another way to write this is\n\n   SkMatrix matr \u003d SkMatrix::I();\n\nwhich won\u0027t need a comment.",
+      "revId": "63a720f411e63e520a4170a7e6ef51bed7ad5dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
