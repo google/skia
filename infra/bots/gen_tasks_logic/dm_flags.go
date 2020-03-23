@@ -989,7 +989,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// Add properties indicating which assets the task should use.
 	if b.matchExtraConfig("Lottie") {
-		b.asset("lottie")
+		b.asset("lottie-samples")
 		b.recipeProp("lotties", "true")
 	} else {
 		b.asset("skimage")
