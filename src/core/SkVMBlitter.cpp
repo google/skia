@@ -22,9 +22,9 @@ namespace {
     // Uniforms set by the Blitter itself,
     // rather than by the Shader, which follow this struct in the skvm::Uniforms buffer.
     struct BlitterUniforms {
-        int         right;  // First device x + blit run length n, used to get device x coordinate.
-        int         y;      // Device y coordinate.
-        SkPMColor4f paint;  // In device color space.
+        int       right;  // First device x + blit run length n, used to get device x coordinate.
+        int       y;      // Device y coordinate.
+        SkColor4f paint;  // In device color space.
     };
     static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
     static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
@@ -569,7 +569,7 @@ namespace {
                 SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                        device.colorSpace(), kUnpremul_SkAlphaType}
                     .apply(color.vec());
-                return color.premul();
+                return color;
             }()) {}
 
         ~Blitter() override {
@@ -595,17 +595,17 @@ namespace {
         }
 
     private:
-        SkPixmap          fDevice;
-        skvm::Uniforms    fUniforms;                // Most data is copied directly into fUniforms,
-        SkArenaAlloc      fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
-        const Params      fParams;
-        const Key         fKey;
-        const SkPMColor4f fPaint;
-        skvm::Program     fBlitH,
-                          fBlitAntiH,
-                          fBlitMaskA8,
-                          fBlitMask3D,
-                          fBlitMaskLCD16;
+        SkPixmap        fDevice;
+        skvm::Uniforms  fUniforms;                // Most data is copied directly into fUniforms,
+        SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
+        const Params    fParams;
+        const Key       fKey;
+        const SkColor4f fPaint;
+        skvm::Program   fBlitH,
+                        fBlitAntiH,
+                        fBlitMaskA8,
+                        fBlitMask3D,
+                        fBlitMaskLCD16;
 
         skvm::Program buildProgram(Coverage coverage) {
             Key key = fKey.withCoverage(coverage);
