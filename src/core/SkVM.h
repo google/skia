@@ -9,6 +9,7 @@
 #define SkVM_DEFINED
 
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
@@ -566,6 +567,9 @@ namespace skvm {
         Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
         Color lerp(Color lo, Color hi, F32 t);
+
+        Color uniformColor(SkColor4f, SkColorSpace* src, skvm::Uniforms*, SkColorSpace* dst);
+        Color uniformColor(SkColor, skvm::Uniforms*, SkColorSpace* dstCS);
         Color blend(SkBlendMode, Color src, Color dst);
 
         void dump(SkWStream* = nullptr) const;

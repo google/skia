@@ -12,6 +12,8 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
@@ -1148,6 +1150,23 @@ namespace skvm {
             lerp(lo.b, hi.b, t),
             lerp(lo.a, hi.a, t),
         };
+    }
+
+    Color Builder::uniformColor(SkColor4f color, SkColorSpace* srcCS, Uniforms* uniforms,
+                                SkColorSpace* dstCS) {
+        SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
+                               dstCS,   kPremul_SkAlphaType).apply(color.vec());
+
+        return {
+            this->uniformF(uniforms->pushF(color.fR)),
+            this->uniformF(uniforms->pushF(color.fG)),
+            this->uniformF(uniforms->pushF(color.fB)),
+            this->uniformF(uniforms->pushF(color.fA)),
+        };
+    }
+
+    Color Builder::uniformColor(SkColor c, Uniforms* uniforms, SkColorSpace* dstCS) {
+        return this->uniformColor(SkColor4f::FromColor(c), sk_srgb_singleton(), uniforms, dstCS);
     }
 
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {
