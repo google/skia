@@ -119,6 +119,24 @@
     },
     {
       "key": {
+        "uuid": "7d8ed6c1_0deea46b",
+        "filename": "src/gpu/gl/GrGLVaryingHandler.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-23T22:13:11Z",
+      "side": 1,
+      "message": "Ah, I was guessing that fragInput was a raw pointer. I think this might be an instance where \u0027auto\u0027 hurts readability. Is the full type of fragInput too gnarly to write explicitly?",
+      "parentUuid": "3925a9f8_0994e7f4",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08be195d_e2dd937e",
         "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
         "patchSetId": 12
