@@ -2491,8 +2491,8 @@ protected:
     SkString name() override { return SkString("Paragraph37"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-
-        const char* text = "ছোৈূোঌ";
+        const char* text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaয়ৠঝোণ৺ঢ়মৈবৗৗঘথফড়৭২খসঢ়ৃঢ়ঁ৷থডঈঽলবনদ২ৢৃঀজঝ৩ঠ৪৫৯০ঌয়্মওৗ৲গখদ৹ঈ৴৹ঢ়ৄএৡফণহলঈ৲থজোৱেঀকৰঀষজঝঃাখশঽএমংি";
+                //"ৎৣ়ৎঽতঃ৳্ৱব৴ৣঈ৷ূঁঢঢ়শটডৎ৵৵ৰৃ্দংঊাথৗদঊউদ৯ঐৃধা৬হওধি়৭ঽম৯স০ঢফৈঢ়কষঁছফীআে৶ৰ৶ঌৌঊ্ঊঝএঀঃদঞ৮তব৬ৄঊঙঢ়ৡগ৶৹৹ঌড়ঘৄ৷লপ১ভড়৶েঢ়৯ৎকনংট২ংএঢৌৌঐনো০টঽুৠগআ৷৭৩৬তো৻ঈ০ূসষঅঝআমণঔা১ণৈো৵চঽ৩বমৎঙঘ২ঠৠৈী৫তঌণচ৲ঔী৮ঘৰঔ";
          canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -2510,12 +2510,38 @@ protected:
         auto paragraph = builder.Build();
         auto w = width() / 2;
         paragraph->layout(w);
+
+        auto draw = [&](std::vector<TextBox> res, SkColor color) {
+            SkPaint paint;
+            paint.setColor(color);
+            for (auto& r : res) {
+                canvas->drawRect(r.rect, paint);
+                SkDebugf("%f:%f ", r.rect.fLeft, r.rect.fRight);
+            }
+        };
+        std::vector<size_t> colors = {SK_ColorBLUE, SK_ColorCYAN,  SK_ColorGRAY, SK_ColorGREEN,
+                              SK_ColorRED, SK_ColorYELLOW, SK_ColorMAGENTA};
+        for (size_t i = 0; i < 25; ++i) {
+            auto result =
+                    paragraph->getRectsForRange(i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight );
+            SkDebugf("[%d:%d): ", i, i + 1);
+            draw(result, colors[i % 7]);
+            SkDebugf("\n");
+        }
+
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
+
+/*
+ *
+থ৴সৢ৭ঙ৫তা৶ঘ৻ঊপওছু৵লু
+থ৴সৢ৭ঙ৫তা৶ঘ৻ঊপওছু৵লুঋৗপঠউঁ
+থ৴সৢ৭ঙ৫তা৶ঘ৻ঊপওছু৵লুঋৗপঠউঁৈঈি৮ৌ৯৷হ৻ঢ়ৣ
+ */
 
 //"\U0001f469\u200D\U0001f469\u200D\U0001f466\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467\U0001f1fa\U0001f1f8"
 //////////////////////////////////////////////////////////////////////////////

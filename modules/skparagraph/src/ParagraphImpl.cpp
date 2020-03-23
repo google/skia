@@ -288,12 +288,16 @@ void ParagraphImpl::markLineBreaks() {
         return;
     }
 
+    // Mark all soft line breaks
+    // Remove soft line breaks that are not on grapheme cluster edge
     Cluster* current = fClusters.begin();
     while (!breaker.eof() && current < fClusters.end()) {
         size_t currentPos = breaker.next();
         while (current < fClusters.end()) {
             if (current->textRange().end > currentPos) {
                 break;
+            } else if (fGraphemes.find(current->textRange().end) == nullptr) {
+                // Skip this soft line break - it's not on the grapheme cluster edge
             } else if (current->textRange().end == currentPos) {
                 current->setBreakType(breaker.status() == UBRK_LINE_HARD
                                       ? Cluster::BreakType::HardLineBreak
@@ -304,7 +308,6 @@ void ParagraphImpl::markLineBreaks() {
             ++current;
         }
     }
-
 
     // Walk through all the clusters in the direction of shaped text
     // (we have to walk through the styles in the same order, too)
