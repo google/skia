@@ -271,6 +271,9 @@ void ParagraphImpl::buildClusterTable() {
                 auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
                                                        width, height);
                 cluster.setIsWhiteSpaces();
+                if (fGraphemes.find(cluster.fTextRange.end) != nullptr) {
+                    cluster.setBreakType(Cluster::BreakType::GraphemeBreak);
+                }
             });
         }
 
@@ -288,6 +291,8 @@ void ParagraphImpl::markLineBreaks() {
         return;
     }
 
+    // Mark all soft line breaks
+    // Remove soft line breaks that are not on grapheme cluster edge
     Cluster* current = fClusters.begin();
     while (!breaker.eof() && current < fClusters.end()) {
         size_t currentPos = breaker.next();
@@ -297,14 +302,15 @@ void ParagraphImpl::markLineBreaks() {
             } else if (current->textRange().end == currentPos) {
                 current->setBreakType(breaker.status() == UBRK_LINE_HARD
                                       ? Cluster::BreakType::HardLineBreak
-                                      : Cluster::BreakType::SoftLineBreak);
+                                      : current->isGraphemeBreak()
+                                      ? Cluster::BreakType::SoftLineBreak
+                                      : Cluster::BreakType::None);
                 ++current;
                 break;
             }
             ++current;
         }
     }
-
 
     // Walk through all the clusters in the direction of shaped text
     // (we have to walk through the styles in the same order, too)
