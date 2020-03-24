@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "40d1c559_3aab8499",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-03-24T05:27:17Z",
+      "side": 1,
+      "message": "Good call. I moved the string conversion downstream as suggested and added\nvalidation.",
+      "parentUuid": "b3dfca5f_5d273f8a",
+      "range": {
+        "startLine": 378,
+        "startChar": 21,
+        "endLine": 378,
+        "endChar": 30
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "047cbe39_2ca13622",
         "filename": "src/pdf/SkPDFDevice.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-18T16:47:51Z",
       "side": 1,
       "message": "This is super awkward to read for a human, seems there should be a clearer way to state that if an annotation was created it should be added.",
+      "range": {
+        "startLine": 382,
+        "startChar": 8,
+        "endLine": 382,
+        "endChar": 15
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfc30cab_4f89c5e1",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-03-24T05:27:17Z",
+      "side": 1,
+      "message": "Switched to a type enum.",
+      "parentUuid": "047cbe39_2ca13622",
       "range": {
         "startLine": 382,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "26f187fa_a186f9ab",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-03-24T05:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ded40353_cffb487f",
+      "range": {
+        "startLine": 58,
+        "startChar": 7,
+        "endLine": 58,
+        "endChar": 16
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7f1bcbd_de406d2c",
         "filename": "src/pdf/SkPDFDocumentPriv.h",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff3ddfd9_70522d28",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-03-24T05:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7f1bcbd_de406d2c",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 31
+      },
+      "revId": "69db7bfe9fd9f6a040a7328206369983bf4c5ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
