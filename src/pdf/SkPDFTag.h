@@ -24,6 +24,7 @@ public:
     void init(SkPDF::StructureElementNode*);
     void reset();
     int getMarkIdForNodeId(int nodeId, unsigned pageIndex);
+    void addNodeAnnotation(int nodeId, SkPDFIndirectReference annotationRef);
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
 
 private:
