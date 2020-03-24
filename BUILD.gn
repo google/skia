@@ -724,6 +724,7 @@ optional("pdf") {
   if (skia_use_libjpeg_turbo_encode) {
     deps += [ ":jpeg_encode" ]
   }
+  public = skia_pdf_public
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
   if (skia_use_icu && skia_use_harfbuzz && skia_pdf_subset_harfbuzz) {
@@ -733,6 +734,13 @@ optional("pdf") {
     deps += [ "//third_party/sfntly" ]
     defines = [ "SK_PDF_USE_SFNTLY" ]
   }
+}
+
+optional("xps") {
+  enabled = skia_use_xps && is_win
+  public_defines = [ "SK_SUPPORT_XPS" ]
+  public = skia_xps_public
+  sources = skia_xps_sources
 }
 
 optional("png_decode") {
@@ -904,6 +912,7 @@ component("skia") {
     ":gpu",
     ":pdf",
     ":skcms",
+    ":xps",
   ]
 
   deps = [
@@ -951,14 +960,10 @@ component("skia") {
   public += skia_utils_public
   public += skia_effects_public
   public += skia_effects_imagefilter_public
-  public += skia_xps_public
 
   sources = []
   sources += skia_core_sources
   sources += skia_utils_sources
-  if (skia_use_xps) {
-    sources += skia_xps_sources
-  }
   sources += skia_effects_sources
   sources += skia_effects_imagefilter_sources
   sources += skia_sksl_sources

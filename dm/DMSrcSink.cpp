@@ -1814,7 +1814,7 @@ Result PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 
 XPSSink::XPSSink() {}
 
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_SUPPORT_XPS)
 static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
     IXpsOMObjectFactory* factory;
     HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
