@@ -24,7 +24,6 @@ samples_sources = [
   "$_samplecode/SampleAtlas.cpp",
   "$_samplecode/SampleBackdropBounds.cpp",
   "$_samplecode/SampleBitmapRect.cpp",
-  "$_samplecode/SampleCCPRGeometry.cpp",
   "$_samplecode/SampleCamera.cpp",
   "$_samplecode/SampleChart.cpp",
   "$_samplecode/SampleChineseFling.cpp",
@@ -97,3 +96,5 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
+
+samples_sources_ccpr = [ "$_samplecode/SampleCCPRGeometry.cpp" ]
