@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b4a2475e_291739b7",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T17:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cc8e1bb_f00a6982",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 8
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7843ec52_1eb51071",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db22642c_a512a58a",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T17:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7843ec52_1eb51071",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 8
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8ccb10d4_a5a3cfa6",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T17:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184359a6_082d8071",
+      "range": {
+        "startLine": 39,
+        "startChar": 52,
+        "endLine": 39,
+        "endChar": 53
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f304256c_653eafbb",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c01e461e_f35cb47e",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T17:16:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f304256c_653eafbb",
+      "range": {
+        "startLine": 107,
+        "startChar": 7,
+        "endLine": 107,
+        "endChar": 12
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99b41193_77e84ffa",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 4
@@ -105,6 +201,30 @@
       "writtenOn": "2020-03-24T16:49:25Z",
       "side": 1,
       "message": "It\u0027s not clear to me why we use front here and back above. A comment might help.",
+      "range": {
+        "startLine": 121,
+        "startChar": 90,
+        "endLine": 121,
+        "endChar": 95
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "863fec7c_89c417f4",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T17:16:31Z",
+      "side": 1,
+      "message": "Add comment above. Does that clear things up?",
+      "parentUuid": "99b41193_77e84ffa",
       "range": {
         "startLine": 121,
         "startChar": 90,
