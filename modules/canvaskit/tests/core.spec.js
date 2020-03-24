@@ -47,15 +47,6 @@ describe('Core canvas behavior', function() {
         }));
     });
 
-    function uIntColorToCanvasKitColor(c) {
-        return CanvasKit.Color(
-         (c >> 16) & 0xFF,
-         (c >>  8) & 0xFF,
-         (c >>  0) & 0xFF,
-        ((c >> 24) & 0xFF) / 255
-      );
-    }
-
     it('can compute tonal colors', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const input = {
@@ -63,12 +54,14 @@ describe('Core canvas behavior', function() {
                 spot: CanvasKit.RED,
             };
             const out = CanvasKit.computeTonalColors(input);
-            expect(new Float32Array(out.ambient)).toEqual(CanvasKit.BLACK);
-            const expectedSpot = [0.173, 0, 0, 0.969];
-            expect(out.spot[0]).toBeCloseTo(expectedSpot[0], 3);
-            expect(out.spot[1]).toBeCloseTo(expectedSpot[1], 3);
-            expect(out.spot[2]).toBeCloseTo(expectedSpot[2], 3);
-            expect(out.spot[3]).toBeCloseTo(expectedSpot[3], 3);
+
+            expect(out.ambient).toEqual(CanvasKit.Color(0,0,0,1));
+
+            const [r,g,b,a] = CanvasKit.getColorComponents(out.spot);
+            expect(r).toEqual(44);
+            expect(g).toEqual(0);
+            expect(b).toEqual(0);
+            expect(a).toBeCloseTo(0.969, 2);
             done();
         }));
     });
@@ -738,25 +731,14 @@ describe('Core canvas behavior', function() {
 
     it('exports consts correctly', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
-            expect(CanvasKit.TRANSPARENT).toEqual(Float32Array.of(0, 0, 0, 0));
-            expect(CanvasKit.RED).toEqual(Float32Array.of(1, 0, 0, 1));
+            expect(CanvasKit.TRANSPARENT).toEqual(0);
+            expect(CanvasKit.RED).toEqual(4294901760);
 
             expect(CanvasKit.QUAD_VERB).toEqual(2);
             expect(CanvasKit.CONIC_VERB).toEqual(3);
 
             expect(CanvasKit.SaveLayerInitWithPrevious).toEqual(4);
             expect(CanvasKit.SaveLayerF16ColorType).toEqual(16);
-
-            done();
-        }));
-    });
-
-    it('can set and get a 4f color on a paint', function(done) {
-        LoadCanvasKit.then(catchException(done, () => {
-
-            const paint = new CanvasKit.SkPaint();
-            paint.setColor(CanvasKit.Color4f(3.3, 2.2, 1.1, 0.5));
-            expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
 
             done();
         }));

@@ -21,7 +21,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmCommon.h"
+#include "modules/canvaskit/WasmAliases.h"
 
 using namespace emscripten;
 
@@ -34,13 +34,13 @@ struct SimpleFontStyle {
 };
 
 struct SimpleTextStyle {
-    SimpleColor4f backgroundColor;
-    SimpleColor4f color;
+    SkColor backgroundColor;
+    SkColor color;
     uint8_t decoration;
     SkScalar decorationThickness;
     SkScalar fontSize;
     SimpleFontStyle fontStyle;
-    SimpleColor4f foregroundColor;
+    SkColor foregroundColor;
 
     uintptr_t /* const char** */ fontFamilies;
     int numFontFamilies;
@@ -48,20 +48,21 @@ struct SimpleTextStyle {
 
 para::TextStyle toTextStyle(const SimpleTextStyle& s) {
     para::TextStyle ts;
+    if (s.color != 0) {
+        ts.setColor(s.color);
+    }
 
-    // textstype doesn't support a 4f color
-    //SkColor4f({s.color.r, s.color.g, s.color.b, s.color.a}
-    ts.setColor(s.color.toSkColor());
+    if (s.foregroundColor != 0) {
+        SkPaint p;
+        p.setColor(s.foregroundColor);
+        ts.setForegroundColor(p);
+    }
 
-    // TODO(nifong): when color was a uint, these were left unset if the color was white, was that
-    // important?
-    SkPaint p1;
-    p1.setColor4f(s.foregroundColor.toSkColor4f());
-    ts.setForegroundColor(p1);
-
-    SkPaint p2;
-    p2.setColor4f(s.backgroundColor.toSkColor4f());
-    ts.setBackgroundColor(p2);
+    if (s.backgroundColor != 0) {
+        SkPaint p;
+        p.setColor(s.backgroundColor);
+        ts.setBackgroundColor(p);
+    }
 
     if (s.fontSize != 0) {
         ts.setFontSize(s.fontSize);

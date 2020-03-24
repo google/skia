@@ -861,7 +861,8 @@ CanvasKit.onRuntimeInitialized = function() {
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.
-  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of Canvaskit.SimpleColor4f
+  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of SkColor
+  // (from CanvasKit.Color)
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
@@ -870,7 +871,6 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
       SkDebug('Doing nothing since input arrays length mismatches');
-      return;
     }
     if (!blendMode) {
       blendMode = CanvasKit.BlendMode.SrcOver;
@@ -895,13 +895,6 @@ CanvasKit.onRuntimeInitialized = function() {
       if (colors.build) {
         colorPtr = colors.build();
       } else {
-        if (!isCanvasKitColor(colors[0])) {
-          SkDebug('DrawAtlas color argument expected to be CanvasKit.SkRectBuilder or array of ' +
-            'Canvaskit.SimpleColor4f, but got '+colors);
-          return;
-        }
-        // convert here
-        colors = colors.map(toUint32Color);
         colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
       }
     }
@@ -1084,7 +1077,7 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1106,7 +1099,7 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1156,7 +1149,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                          colors, pos, mode, localMatrix, flags) {
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
@@ -1278,7 +1271,6 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
-// colors is an array of SimpleColor4f
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     indices, isVolatile) {
   // Default isVolitile to true if not set
@@ -1304,8 +1296,7 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
     copy2dArray(textureCoordinates, CanvasKit.HEAPF32, builder.texCoords());
   }
   if (builder.colors()) {
-    // Convert from canvaskit 4f colors to 32 bit uint colors which builder supports.
-    copy1dArray(colors.map(toUint32Color), CanvasKit.HEAPU32, builder.colors());
+    copy1dArray(colors,             CanvasKit.HEAPU32, builder.colors());
   }
   if (builder.indices()) {
     copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());
