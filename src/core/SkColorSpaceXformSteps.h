@@ -14,6 +14,12 @@
 
 class SkRasterPipeline;
 
+namespace skvm {
+    class Builder;
+    struct Uniforms;
+    struct Color;
+}
+
 struct SkColorSpaceXformSteps {
 
     struct Flags {
@@ -40,8 +46,9 @@ struct SkColorSpaceXformSteps {
         : SkColorSpaceXformSteps(src.colorSpace(), src.alphaType(),
                                  dst.colorSpace(), dst.alphaType()) {}
 
-    void apply(float rgba[4]) const;
-    void apply(SkRasterPipeline*, bool src_is_normalized) const;
+    void        apply(float rgba[4]) const;
+    void        apply(SkRasterPipeline*, bool src_is_normalized) const;
+    skvm::Color apply(skvm::Builder*, skvm::Uniforms*, skvm::Color, bool src_is_normalized) const;
 
     void apply(SkRasterPipeline* p, SkColorType srcCT) const {
         return this->apply(p, SkColorTypeIsNormalized(srcCT));
