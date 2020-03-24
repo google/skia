@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c58ea38_4a21a4a3",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T19:54:58Z",
+      "side": 1,
+      "message": "At this point, this might as well be a method on TransferFunction too.",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 0
+      },
+      "revId": "defbf90061d02c84114db007b47d3aa9e711e2c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
