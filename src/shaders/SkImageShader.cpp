@@ -888,16 +888,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
         c.b = p->clamp(c.b, p->splat(0.0f), limit);
     }
 
-    // Follow SkColorSpaceXformSteps to match shader output convention (dst.colorSpace(), premul).
-    // TODO: may need to extend lifetime once doing actual transforms?  maybe all in uniforms.
-    auto flags = SkColorSpaceXformSteps{cs,at, dst.colorSpace(),kPremul_SkAlphaType}.flags;
-
-    // TODO: once this all works, move it to SkColorSpaceXformSteps
-    if (flags.unpremul)        { c = p->unpremul(c); }
-    if (flags.linearize)       { return {}; }
-    if (flags.gamut_transform) { return {}; }
-    if (flags.encode)          { return {}; }
-    if (flags.premul)          { c = p->premul(c); }
-    return c;
+    SkColorSpaceXformSteps steps{cs,at, dst.colorSpace(),kPremul_SkAlphaType};
+    return steps.program(p, uniforms, c);
 }
 

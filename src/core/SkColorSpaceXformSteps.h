@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkVM_fwd.h"
 
 class SkRasterPipeline;
 
@@ -42,6 +43,7 @@ struct SkColorSpaceXformSteps {
 
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*, bool src_is_normalized) const;
+    skvm::Color program(skvm::Builder*, skvm::Uniforms*, skvm::Color) const;
 
     void apply(SkRasterPipeline* p, SkColorType srcCT) const {
         return this->apply(p, SkColorTypeIsNormalized(srcCT));

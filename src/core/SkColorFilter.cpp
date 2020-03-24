@@ -248,6 +248,11 @@ public:
         return true;
     }
 
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        return p->premul(fSteps.program(p, uniforms, p->unpremul(c)));
+    }
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.write32(static_cast<uint32_t>(fDir));
