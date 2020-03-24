@@ -1,0 +1,221 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e401f2b7_6953625f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "No need to worry about this (ever again).  skvm can see this and will constant-fold both unpremul() and premul() into no-ops when their inputs are opaque.",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20bf6cc0_882635c5",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "I think I\u0027d prefer to leave this out, and see if we can avoid ever implementing those sRGB fast paths at all.  I\u0027ll add this is-normalized plumbing all back when we do implement those.",
+      "range": {
+        "startLine": 257,
+        "startChar": 41,
+        "endLine": 257,
+        "endChar": 59
+      },
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a370c4e9_0bf7c7ac",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "I think this one reads just fine chained normally if you like,\n\n   return p-\u003epremul(fSteps.apply(p, uniforms, p-\u003eunpremul(c));",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3583b31f_04c542c0",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "Another possible impl if you like...\n\n   skvm::I32 bits \u003d p-\u003ebit_cast(x),\n             mask \u003d p-\u003esplat(0x8000\u00270000);\n  \n   *sign \u003d p-\u003ebit_and  (bits, mask);\n   return  p-\u003ebit_clear(bits, mask);",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79423213_8426992b",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "This function was specifically tuned for the particular hardware implementations of rsqrt and rcp.  I\u0027m not sure that it\u0027ll be correct or fast with sqrt and div.  And from_srgb was tuned specifically to work well with to_srgb, though from_srgb is somewhat more likely to be correct as-is.\n\nLet\u0027s leave both out for now until we have explicit tests for its correctness and speed?",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 1
+      },
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dee0dab_8a1b59cc",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "Let\u0027s save this special case for later if we find it\u0027s useful for speed?  This will be correct, but I\u0027m not sure it\u0027s important.",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a73449ba_8dc517d1",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "Try\n\n    namespace skvm {\n        struct TransferFunction { ... };\n    }\n\n?",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 30
+      },
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7313438e_f537f6b7",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "I don\u0027t think we have any tests for these in Skia.  Probably makes sense to port over skcms\u0027 unit tests for these curves before we add support for these.  (The four tests starting https://skia.googlesource.com/skcms/+/refs/heads/master/tests.c#1414 to the end of the file.)",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 6
+      },
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6cfb2e6_fb755846",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "Might be clearer to\n\n   switch (...) {\n       default:\n       case Bad_TF: break;\n\n       case srgbish:  return apply_parametric(...);\n   }\n\n   SkUNREACHABLE;\n   return c;\n\nProbably no reason to mess with {} colors here.  This function should never actually fail and no one is ever expected to test if it did.",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4b3495a_dc51b9e4",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "We generally have been calling these functions \"program\".",
+      "range": {
+        "startLine": 334,
+        "startChar": 36,
+        "endLine": 334,
+        "endChar": 41
+      },
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3db78984_e8a7f114",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T15:11:01Z",
+      "side": 1,
+      "message": "#include \"src/core/SkVM_fwd.h\" ?",
+      "revId": "4d59c0a4a50b5240c2f14799e0712a507fe6c1f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
