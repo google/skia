@@ -9,6 +9,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkVM.h"
 
 // TODO(mtklein): explain the logic of this file
 
@@ -155,3 +156,104 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static skvm::F32 strip_sign(skvm::Builder* p, skvm::F32 x, skvm::I32* sign) {
+    skvm::I32 bits = p->bit_cast(x);
+    *sign = p->bit_and(bits, p->splat(0x80000000));
+    return p->bit_cast(p->bit_xor(bits, *sign));
+}
+
+static skvm::F32 apply_sign(skvm::Builder* p, skvm::F32 x, skvm::I32 sign) {
+    return p->bit_cast(p->bit_or(sign, p->bit_cast(x)));
+}
+
+namespace skvm {
+    struct TransferFunction {
+        F32 g, a,b,c,d,e,f;
+
+        TransferFunction(Builder* p, Uniforms* u, const skcms_TransferFunction& tf)
+            : g(p->uniformF(u->pushF(tf.g)))
+            , a(p->uniformF(u->pushF(tf.a)))
+            , b(p->uniformF(u->pushF(tf.b)))
+            , c(p->uniformF(u->pushF(tf.c)))
+            , d(p->uniformF(u->pushF(tf.d)))
+            , e(p->uniformF(u->pushF(tf.e)))
+            , f(p->uniformF(u->pushF(tf.f)))
+        {}
+
+        F32 noop(Builder* p, F32 v) const { return v; }
+
+        F32 parametric(Builder* p, F32 v) const {
+            return p->select(p->lte(v,d), p->mad(c, v, f)
+                                        , p->add(p->approx_powf(p->mad(a, v, b), g), e));
+        }
+
+        F32 PQish(Builder* p, F32 v) const {
+            return p->approx_powf(p->div(p->max(p->mad(b, p->approx_powf(v, c), a), p->splat(0.0f)),
+                                                p->mad(e, p->approx_powf(v, c), d)),
+                                  f);
+        }
+
+        F32 HLGish(Builder* p, F32 v) const {
+            auto va = p->mul(v,a);
+            return p->select(p->lte(va,p->splat(1.0f)), p->approx_powf(va, b)
+                                                      , p->approx_exp(p->mad(p->sub(v,e),c, d)));
+        }
+
+        F32 HLGinvish(Builder* p, F32 v) const {
+            return p->select(p->lte(v,p->splat(1.0f)), p->mul(a, p->approx_powf(v, b))
+                                                     , p->mad(c, p->approx_log(p->sub(v,d)), e));
+        }
+    };
+}
+
+static skvm::Color apply_transfer_function(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                           const skcms_TransferFunction& tf, skvm::Color c) {
+    skvm::TransferFunction vtf(p, uniforms, tf);
+
+    auto fn = &skvm::TransferFunction::noop;
+
+    switch (classify_transfer_fn(tf)) {
+        case sRGBish_TF:   fn = &skvm::TransferFunction::parametric; break;
+        case PQish_TF:     fn = &skvm::TransferFunction::PQish;      break;
+        case HLGish_TF:    fn = &skvm::TransferFunction::HLGish;     break;
+        case HLGinvish_TF: fn = &skvm::TransferFunction::HLGinvish;  break;
+        case Bad_TF: break;
+    }
+
+    auto apply = [&](skvm::F32 v) {
+        skvm::I32 sign;
+        v = strip_sign(p, v, &sign);
+        v = (vtf.*fn)(p, v);
+        return apply_sign(p, v, sign);
+    };
+    return {apply(c.r), apply(c.g), apply(c.b), c.a};
+}
+
+skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                            skvm::Color c) const {
+    if (flags.unpremul) {
+        c = p->unpremul(c);
+    }
+    if (flags.linearize) {
+        c = apply_transfer_function(p, uniforms, srcTF, c);
+    }
+    if (flags.gamut_transform) {
+        skvm::F32 m[9];
+        for (int i = 0; i < 9; ++i) {
+            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
+        }
+        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
+             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
+             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
+        c = {R, G, B, c.a};
+    }
+    if (flags.encode) {
+        c = apply_transfer_function(p, uniforms, dstTFInv, c);
+    }
+    if (flags.premul) {
+        c = p->premul(c);
+    }
+    return c;
+}
