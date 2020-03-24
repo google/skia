@@ -61,11 +61,11 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::TestCreate(GrProcessorTestData* d) {
     std::unique_ptr<GrFragmentProcessor> fp;
-    // We have a restriction that explicit coords only work for FPs with exactly one
+    // We have a restriction that explicit coords only work for FPs with zero or one
     // coord transform.
     do {
         fp = GrProcessorUnitTest::MakeChildFP(d);
-    } while (fp->numCoordTransforms() != 1);
+    } while (fp->numCoordTransforms() > 1);
     return GrDeviceSpaceEffect::Make(std::move(fp));
 }
 #endif
