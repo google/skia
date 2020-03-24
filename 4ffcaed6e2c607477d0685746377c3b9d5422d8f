@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fd5f69bf_bbca9543",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T19:04:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06daa2f7_944a7ad8",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 50
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64a318a1_748f2eb1",
         "filename": "src/gpu/d3d/GrD3DTextureBase.h",
         "patchSetId": 2
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "e31aaa22_b706e65f",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T19:04:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "612c8710_09a639da",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 23
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d863d45_b496073c",
         "filename": "src/gpu/d3d/GrD3DTextureBase.h",
         "patchSetId": 2
@@ -92,6 +140,30 @@
       "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a83e5d4_fb27509f",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T19:04:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d863d45_b496073c",
+      "range": {
+        "startLine": 104,
+        "startChar": 25,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
