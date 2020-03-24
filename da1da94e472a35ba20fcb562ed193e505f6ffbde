@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cc8e1bb_f00a6982",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T16:49:25Z",
+      "side": 1,
+      "message": "nit: indent",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 8
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7843ec52_1eb51071",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T16:49:25Z",
+      "side": 1,
+      "message": "nit: indent",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 8
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "184359a6_082d8071",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T16:49:25Z",
+      "side": 1,
+      "message": "fCurrentFenceValue?",
+      "range": {
+        "startLine": 39,
+        "startChar": 52,
+        "endLine": 39,
+        "endChar": 53
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f304256c_653eafbb",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T16:49:25Z",
+      "side": 1,
+      "message": "held",
+      "range": {
+        "startLine": 107,
+        "startChar": 7,
+        "endLine": 107,
+        "endChar": 12
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99b41193_77e84ffa",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T16:49:25Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why we use front here and back above. A comment might help.",
+      "range": {
+        "startLine": 121,
+        "startChar": 90,
+        "endLine": 121,
+        "endChar": 95
+      },
+      "revId": "da1da94e472a35ba20fcb562ed193e505f6ffbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
