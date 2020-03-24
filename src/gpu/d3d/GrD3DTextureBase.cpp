@@ -1,0 +1,94 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DTextureBase.h"
+
+void GrD3DTextureBase::setResourceState(const GrD3DGpu* gpu,
+                                        D3D12_RESOURCE_STATES newResourceState) {
+    SkASSERT(fStateExplicitlySet);
+/* TODO
+ * Something like:
+    D3D12_RESOURCE_STATES currentState = this->currentState();
+    gpu->addResourceTransitionBarrier(this->resource(), currentState, newResourceState);
+*/
+    this->updateResourceState(newResourceState, true);
+}
+
+bool GrD3DTextureBase::InitTextureInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
+                                       GrProtected isProtected, GrD3DTextureInfo* info) {
+    if (0 == desc.Width || 0 == desc.Height) {
+        return false;
+    }
+    // TODO: We don't support protected memory at the moment
+    if (isProtected == GrProtected::kYes) {
+        return false;
+    }
+    // TODO: If MipLevels is 0, for some formats the API will automatically
+    //       calculate the maximum supported and use that.
+    //       Do we want to take advantage of that?
+    SkASSERT(desc.MipLevels > 0);
+
+    ID3D12Resource* resource = nullptr;
+
+    // TODO: incorporate D3Dx12.h and use CD3DX12_HEAP_PROPERTIES instead?
+    D3D12_HEAP_PROPERTIES heapProperties = {
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+        D3D12_MEMORY_POOL_UNKNOWN,
+        1, // CreationNodeMask
+        1  // VisibleNodeMask
+    };
+    SkDEBUGCODE(HRESULT hr = ) gpu->device()->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &desc,
+        D3D12_RESOURCE_STATE_COMMON,
+        nullptr,
+        IID_PPV_ARGS(&resource));
+    if (!SUCCEEDED(hr)) {
+        return false;
+    }
+
+    info->fTexture = resource;
+    info->fResourceState = D3D12_RESOURCE_STATE_COMMON;
+    info->fFormat = desc.Format;
+    info->fLevelCount = desc.MipLevels;
+    info->fProtected = isProtected;
+
+    return true;
+}
+
+void GrD3DTextureBase::DestroyTextureInfo(GrD3DTextureInfo* info) {
+    info->fTexture->Release();
+}
+
+GrD3DTextureBase::~GrD3DTextureBase() {
+    // should have been released first
+    SkASSERT(!fResource);
+}
+
+void GrD3DTextureBase::releaseTexture(GrD3DGpu* gpu) {
+    // TODO: do we need to migrate resource state if we change queues?
+    if (fResource) {
+        fResource->removeOwningTexture();
+        fResource->unref();
+        fResource = nullptr;
+    }
+}
+
+void GrD3DTextureBase::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
+    SkASSERT(fResource);
+    // Forward the release proc on to GrD3DTextureBase::Resource
+    fResource->setRelease(std::move(releaseHelper));
+}
+
+void GrD3DTextureBase::Resource::freeGPUData() const {
+    this->invokeReleaseProc();
+    fTexture->Release();
+}
