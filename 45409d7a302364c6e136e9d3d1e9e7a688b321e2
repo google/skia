@@ -70,6 +70,30 @@
       "revId": "45409d7a302364c6e136e9d3d1e9e7a688b321e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe53a834_4873dd8a",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-24T17:15:59Z",
+      "side": 1,
+      "message": "I asked Heather, she\u0027s still trying to get some sort of confirmation. Afaik, the user is targeting sometime this fall to be able to use C++14 on all platforms, currently has a hacked up C++11 build, but it isn\u0027t entirely clear what the actual timeline is. Note that we can get away with some of C++14 anyway because some stuff was implemented early in some compilers, but without any actual bots it\u0027s really hard to tell what parts.",
+      "parentUuid": "3d5d9db6_6fd6c464",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 81
+      },
+      "revId": "45409d7a302364c6e136e9d3d1e9e7a688b321e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
