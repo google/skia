@@ -11,25 +11,55 @@
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                    gr_cp<ID3D12GraphicsCommandList> commandList)
-    : fAllocator(std::move(allocator))
-    , fCommandList(std::move(commandList)) {
+    : fCommandList(std::move(commandList))
+    , fAllocator(std::move(allocator)) {
 }
 
 void GrD3DCommandList::close() {
+    SkASSERT(fIsActive);
     SkDEBUGCODE(HRESULT hr = ) fCommandList->Close();
     SkASSERT(SUCCEEDED(hr));
+    SkDEBUGCODE(fIsActive = false;)
 }
 
 void GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
+    SkASSERT(!fIsActive);
     ID3D12CommandList* ppCommandLists[] = { fCommandList.Get() };
     queue->ExecuteCommandLists(1, ppCommandLists);
-    SkDEBUGCODE(HRESULT hr = ) fCommandList->Reset(fAllocator.Get(), nullptr);
-    SkASSERT(SUCCEEDED(hr));
 }
 
 void GrD3DCommandList::reset() {
+    SkASSERT(!fIsActive);
     SkDEBUGCODE(HRESULT hr = ) fAllocator->Reset();
     SkASSERT(SUCCEEDED(hr));
+    SkDEBUGCODE(hr = ) fCommandList->Reset(fAllocator.Get(), nullptr);
+    SkASSERT(SUCCEEDED(hr));
+
+    SkDEBUGCODE(fIsActive = true;)
+}
+
+void GrD3DCommandList::releaseResources() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    SkASSERT(!fIsActive);
+    for (int i = 0; i < fTrackedResources.count(); ++i) {
+        fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
+        fTrackedResources[i]->unref();
+    }
+    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
+        fTrackedRecycledResources[i]->recycle();
+    }
+
+    if (++fNumResets > kNumRewindResetsBeforeFullReset) {
+        fTrackedResources.reset();
+        fTrackedRecycledResources.reset();
+        fTrackedResources.setReserve(kInitialTrackedResourcesCount);
+        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
+        fNumResets = 0;
+    } else {
+        fTrackedResources.rewind();
+        fTrackedRecycledResources.rewind();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
