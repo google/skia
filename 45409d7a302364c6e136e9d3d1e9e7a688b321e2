@@ -22,6 +22,30 @@
       "revId": "45409d7a302364c6e136e9d3d1e9e7a688b321e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d7f6536_d426a0bc",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-24T14:20:04Z",
+      "side": 1,
+      "message": "This is how SkASSERT works with C++11 constexpr (there is a conditional in there which can\u0027t be done outside the return statement). It seemed best not to break C++11 compatibility due to certain users (though now that I look, it seems that one is marked as not updating due to compiler limitations, I\u0027ll see if Heather can ask them more questions, we need a bot if we\u0027re going to support any of that really). While the commas and doing it a return are a bit artful, it scans fine to me (the intent is at least obvious, even if the syntax isn\u0027t).",
+      "parentUuid": "40a611e9_18f8063d",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 81
+      },
+      "revId": "45409d7a302364c6e136e9d3d1e9e7a688b321e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
