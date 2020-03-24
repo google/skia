@@ -11,11 +11,8 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu) : fGpu(gpu) {
-    SkDEBUGCODE(HRESULT hr = ) gpu->device()->CreateCommandAllocator(
-        D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&fDirectCommandAllocator));
-    SkASSERT(SUCCEEDED(hr));
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
-    return GrD3DDirectCommandList::Make(fGpu->device(), fDirectCommandAllocator.Get());
+    return GrD3DDirectCommandList::Make(fGpu->device());
 }

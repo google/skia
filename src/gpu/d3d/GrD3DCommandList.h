@@ -17,29 +17,36 @@ class GrD3DGpu;
 
 class GrD3DCommandList {
 public:
+    void close();
+
+    void submit(ID3D12CommandQueue* queue);
+
+    void reset();
 
 protected:
-    GrD3DCommandList(gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
+                     gr_cp<ID3D12GraphicsCommandList> commandList);
 
 private:
-    gr_cp<ID3D12CommandList> fCommandList;
+    gr_cp<ID3D12CommandAllocator> fAllocator;
+    gr_cp<ID3D12GraphicsCommandList> fCommandList;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {
 public:
-    static std::unique_ptr<GrD3DDirectCommandList> Make(ID3D12Device* device,
-                                                        ID3D12CommandAllocator* cmdAllocator);
+    static std::unique_ptr<GrD3DDirectCommandList> Make(ID3D12Device* device);
 
 private:
-    GrD3DDirectCommandList(gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
+                           gr_cp<ID3D12GraphicsCommandList> commandList);
 };
 
 class GrD3DCopyCommandList : public GrD3DCommandList {
 public:
-    static std::unique_ptr<GrD3DCopyCommandList> Make(ID3D12Device* device,
-                                                      ID3D12CommandAllocator* cmdAllocator);
+    static std::unique_ptr<GrD3DCopyCommandList> Make(ID3D12Device* device);
 
 private:
-    GrD3DCopyCommandList(gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DCopyCommandList(gr_cp<ID3D12CommandAllocator> allocator,
+                         gr_cp<ID3D12GraphicsCommandList> commandList);
 };
 #endif

@@ -22,8 +22,6 @@ public:
     std::unique_ptr<GrD3DDirectCommandList> findOrCreateDirectCommandList();
 
 private:
-    gr_cp<ID3D12CommandAllocator> fDirectCommandAllocator;
-
     GrD3DGpu* fGpu;
 };
 
