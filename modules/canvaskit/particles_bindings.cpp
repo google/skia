@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "modules/canvaskit/WasmAliases.h"
+#include "modules/canvaskit/WasmCommon.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>

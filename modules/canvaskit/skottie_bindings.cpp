@@ -17,7 +17,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmAliases.h"
+#include "modules/canvaskit/WasmCommon.h"
 
 #if SK_INCLUDE_MANAGED_SKOTTIE
 #include "modules/skottie/include/SkottieProperty.h"
@@ -220,7 +220,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
         .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
                                     (&ManagedAnimation::render), allow_raw_pointers())
-        .function("setColor"  , &ManagedAnimation::setColor)
+        .function("setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, SimpleColor4f c) {
+            self.setColor(key, c.toSkColor());
+        }))
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
