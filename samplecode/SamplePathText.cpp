@@ -424,6 +424,8 @@ SkPoint WavyPathText::Waves::apply(float tsec, const Sk2f matrix[3], const SkPoi
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new WavyPathText; )
-DEF_SAMPLE( return new MovingPathText; )
 DEF_SAMPLE( return new PathText; )
+DEF_SAMPLE( return new MovingPathText; )
+
+Sample* MakeWavyPathTextSample() { return new WavyPathText; }
+static SampleRegistry WavyPathText(MakeWavyPathTextSample);

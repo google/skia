@@ -28,6 +28,7 @@ EMAR=`which emar`
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+IS_OFFICIAL_BUILD="true"
 
 # Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
 # be on debug builds always.
@@ -87,6 +88,16 @@ if [[ $@ == *no_skottie* ]]; then
   SKOTTIE_JS=""
   SKOTTIE_LIB=""
   SKOTTIE_BINDINGS=""
+fi
+
+VIEWER_BINDINGS=""
+VIEWER_LIB=""
+
+if [[ $@ == *viewer* ]]; then
+  echo "Including viewer"
+  VIEWER_BINDINGS="$BASE_DIR/viewer_bindings.cpp"
+  VIEWER_LIB="$BUILD_DIR/libviewer_wasm.a"
+  IS_OFFICIAL_BUILD="false"
 fi
 
 MANAGED_SKOTTIE_BINDINGS="\
@@ -246,14 +257,14 @@ echo "Compiling bitcode"
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
-  is_official_build=true \
+  is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
   \
   skia_use_angle=false \
   skia_use_dng_sdk=false \
-  skia_use_egl=true \
+  skia_use_egl=false \
   skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
@@ -286,9 +297,10 @@ echo "Compiling bitcode"
   skia_enable_skparagraph=true \
   skia_enable_pdf=false"
 
-# Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
-    libskparagraph.a libskshaper.a libparticles.a $SHAPER_TARGETS
+# Build all the libs we will need below
+${NINJA} -C ${BUILD_DIR} libskia.a $(basename $VIEWER_LIB) $(basename $PARAGRAPH_LIB) \
+    libskshaper.a $(basename $PARTICLES_LIB) $SHAPER_TARGETS \
+    $(for LIB in $SKOTTIE_LIB; do basename $LIB; done)
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -328,9 +340,11 @@ ${EMCXX} \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
+    $VIEWER_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
     $PARAGRAPH_BINDINGS \
     $SKOTTIE_LIB \
+    $VIEWER_LIB \
     $PARTICLES_LIB \
     $PARAGRAPH_LIB \
     $BUILD_DIR/libskshaper.a \
