@@ -283,6 +283,8 @@ static_library("libdawn_native") {
                       "src/dawn_native/d3d12/QueueD3D12.h",
                       "src/dawn_native/d3d12/RenderPipelineD3D12.cpp",
                       "src/dawn_native/d3d12/RenderPipelineD3D12.h",
+                      "src/dawn_native/d3d12/RenderPassBuilderD3D12.cpp",
+                      "src/dawn_native/d3d12/RenderPassBuilderD3D12.h",
                       "src/dawn_native/d3d12/ResourceAllocatorManagerD3D12.cpp",
                       "src/dawn_native/d3d12/ResourceAllocatorManagerD3D12.h",
                       "src/dawn_native/d3d12/ResourceHeapAllocationD3D12.cpp",
