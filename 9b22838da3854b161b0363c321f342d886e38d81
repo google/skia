@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9bbb131_66785596",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T20:07:20Z",
+      "side": 1,
+      "message": "When you reland this, you need to check of the images passed in here are valid since you are directly accessing them. Before we just passed them into drawImage calls which handled null images fine.\n\nSpecifically this is for d3d backend so we can run through all the GMs without crashing (even if we aren\u0027t actually drawing things yet).",
+      "range": {
+        "startLine": 175,
+        "startChar": 7,
+        "endLine": 202,
+        "endChar": 10
+      },
+      "revId": "9b22838da3854b161b0363c321f342d886e38d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
