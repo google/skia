@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "868e2622_723080f0",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T19:22:32Z",
+      "side": 1,
+      "message": "This guy can be a temporary if you like,\n\n    return SkColorSpaceXformSteps{cs,at, dst.colorSpace(),kPremul_SkAlphaType}\n            .program(p, uniforms, c);",
+      "range": {
+        "startLine": 892,
+        "startChar": 11,
+        "endLine": 892,
+        "endChar": 16
+      },
+      "revId": "2e2effbe8035e0a20ba97c2ad032f7caa1d93284",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
