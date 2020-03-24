@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "612c8710_09a639da",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-24T18:36:32Z",
+      "side": 1,
+      "message": "I like GrD3DSurfaceResource. GrD3DBufferResource won\u0027t have much in common with it, so I don\u0027t think we need a base class.",
+      "parentUuid": "64a318a1_748f2eb1",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 23
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d863d45_b496073c",
         "filename": "src/gpu/d3d/GrD3DTextureBase.h",
         "patchSetId": 2
