@@ -125,8 +125,7 @@ void GrD3DGpu::checkForFinishedCommandLists() {
     while (curList && curList->fFenceValue <= currentFenceValue) {
         curList = (const OutstandingCommandList*)iter.next();
         OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
-        // TODO: Recycle the command list back to the GrD3DResourceProvider.
-        front->fCommandList->reset();
+        fResourceProvider.recycleDirectCommandList(std::move(front->fCommandList));
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingCommandList();
         fOutstandingCommandLists.pop_front();
