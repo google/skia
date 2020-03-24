@@ -17,11 +17,11 @@ GrDawnUniformHandler::GrDawnUniformHandler(GrGLSLProgramBuilder* program)
 }
 
 const GrShaderVar& GrDawnUniformHandler::getUniformVariable(UniformHandle u) const {
-    return fUniforms[u.toIndex()].fVar;
+    return fUniforms.item(u.toIndex()).fVar;
 }
 
 const char* GrDawnUniformHandler::getUniformCStr(UniformHandle u) const {
-    return fUniforms[u.toIndex()].fVar.getName().c_str();
+    return fUniforms.item(u.toIndex()).fVar.getName().c_str();
 }
 
 // FIXME: this code was ripped from GrVkUniformHandler; should be refactored.
@@ -280,18 +280,20 @@ GrSwizzle GrDawnUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHand
 }
 
 void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
-    for (int i = 0; i < fSamplers.count(); ++i) {
-        if (fSamplers[i].fVisibility & visibility) {
-            fSamplers[i].fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
+    auto textures = fTextures.items().begin();
+    for (const UniformInfo& sampler : fSamplers.items()) {
+        if (sampler.fVisibility & visibility) {
+            sampler.fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
-            fTextures[i].fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
+            (*textures).fVar.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
+        ++textures;
     }
     SkString uniformsString;
-    for (int i = 0; i < fUniforms.count(); ++i) {
-        if (fUniforms[i].fVisibility & visibility) {
-            fUniforms[i].fVar.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
+    for (const UniformInfo& uniform : fUniforms.items()) {
+        if (uniform.fVisibility & visibility) {
+            uniform.fVar.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
             uniformsString.append(";\n");
         }
     }

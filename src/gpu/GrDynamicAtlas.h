@@ -8,7 +8,6 @@
 #ifndef GrDynamicAtlas_DEFINED
 #define GrDynamicAtlas_DEFINED
 
-#include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;

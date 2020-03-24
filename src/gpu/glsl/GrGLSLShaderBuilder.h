@@ -9,8 +9,8 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "include/private/SkTDArray.h"
-#include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/sksl/SkSLString.h"
 
