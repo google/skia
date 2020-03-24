@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4d571144_ab340308",
+        "filename": "src/gpu/GrColorInfo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T22:10:29Z",
+      "side": 1,
+      "message": "I get that this is just doing what the copy ctor does, but without knowing exactly how these are used I\u0027m surprised we don\u0027t copy the fColorXformFromSRGB ref over.",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 31,
+        "endChar": 48
+      },
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "52627fa8_5345aba3",
         "filename": "src/gpu/GrShaderVar.h",
         "patchSetId": 2
@@ -13,6 +36,24 @@
       "writtenOn": "2020-03-24T21:58:44Z",
       "side": 1,
       "message": "can `*this \u003d that;`?",
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1985d348_0cc403ad",
+        "filename": "src/gpu/GrShaderVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T22:10:29Z",
+      "side": 1,
+      "message": "fUseUniformFloatArrays always starts as USE_UNIFORM_FLOAT_ARRAY in ctors but is sometimes changed using set calls on the object.",
+      "parentUuid": "52627fa8_5345aba3",
       "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
