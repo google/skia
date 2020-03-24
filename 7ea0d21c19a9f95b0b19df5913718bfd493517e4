@@ -137,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "7508fef8_ed689732",
+        "filename": "src/gpu/gl/GrGLVaryingHandler.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-24T16:29:53Z",
+      "side": 1,
+      "message": "It\u0027s not so gnarly anymore, I just switched to that instead and it definitely helps avoid the appearance of a raw pointer.",
+      "parentUuid": "7d8ed6c1_0deea46b",
+      "revId": "7ea0d21c19a9f95b0b19df5913718bfd493517e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08be195d_e2dd937e",
         "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
         "patchSetId": 12
