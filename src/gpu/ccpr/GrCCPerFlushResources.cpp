@@ -534,18 +534,18 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
     // Draw the copies from coverage count or msaa atlas(es) into 8-bit cached atlas(es).
     int copyRangeIdx = 0;
     int baseCopyInstance = 0;
-    for (GrCCAtlasStack::Iter atlas(fCopyAtlasStack); atlas.next();) {
-        int endCopyRange = atlas->getFillBatchID();
+    for (GrCCAtlas& atlas : fCopyAtlasStack.atlases()) {
+        int endCopyRange = atlas.getFillBatchID();
         SkASSERT(endCopyRange > copyRangeIdx);
 
-        auto rtc = atlas->instantiate(onFlushRP);
+        auto rtc = atlas.instantiate(onFlushRP);
         for (; copyRangeIdx < endCopyRange; ++copyRangeIdx) {
             const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
             int endCopyInstance = baseCopyInstance + copyRange.fCount;
             if (rtc) {
                 auto op = CopyAtlasOp::Make(
                         rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcProxy,
-                        baseCopyInstance, endCopyInstance, atlas->drawBounds());
+                        baseCopyInstance, endCopyInstance, atlas.drawBounds());
                 rtc->addDrawOp(GrNoClip(), std::move(op));
             }
             baseCopyInstance = endCopyInstance;
@@ -557,33 +557,33 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
 
     // Render the coverage count atlas(es).
     int baseStencilResolveInstance = 0;
-    for (GrCCAtlasStack::Iter atlas(fRenderedAtlasStack); atlas.next();) {
+    for (GrCCAtlas& atlas : fRenderedAtlasStack.atlases()) {
         // Copies will be finished by the time we get to rendering new atlases. See if we can
         // recycle any previous invalidated atlas textures instead of creating new ones.
         sk_sp<GrTexture> backingTexture;
         for (sk_sp<GrTexture>& texture : fRecyclableAtlasTextures) {
-            if (texture && atlas->currentHeight() == texture->height() &&
-                    atlas->currentWidth() == texture->width()) {
+            if (texture && atlas.currentHeight() == texture->height() &&
+                    atlas.currentWidth() == texture->width()) {
                 backingTexture = skstd::exchange(texture, nullptr);
                 break;
             }
         }
 
-        if (auto rtc = atlas->instantiate(onFlushRP, std::move(backingTexture))) {
+        if (auto rtc = atlas.instantiate(onFlushRP, std::move(backingTexture))) {
             std::unique_ptr<GrDrawOp> op;
             if (CoverageType::kA8_Multisample == fRenderedAtlasStack.coverageType()) {
                 op = GrStencilAtlasOp::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas->getFillBatchID(),
-                        atlas->getStrokeBatchID(), baseStencilResolveInstance,
-                        atlas->getEndStencilResolveInstance(), atlas->drawBounds());
+                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        atlas.getStrokeBatchID(), baseStencilResolveInstance,
+                        atlas.getEndStencilResolveInstance(), atlas.drawBounds());
             } else if (onFlushRP->caps()->shaderCaps()->geometryShaderSupport()) {
                 op = RenderAtlasOp<GrGSCoverageProcessor>::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas->getFillBatchID(),
-                        atlas->getStrokeBatchID(), atlas->drawBounds());
+                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        atlas.getStrokeBatchID(), atlas.drawBounds());
             } else {
                 op = RenderAtlasOp<GrVSCoverageProcessor>::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas->getFillBatchID(),
-                        atlas->getStrokeBatchID(), atlas->drawBounds());
+                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        atlas.getStrokeBatchID(), atlas.drawBounds());
             }
             rtc->addDrawOp(GrNoClip(), std::move(op));
             if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
@@ -592,8 +592,8 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
             }
         }
 
-        SkASSERT(atlas->getEndStencilResolveInstance() >= baseStencilResolveInstance);
-        baseStencilResolveInstance = atlas->getEndStencilResolveInstance();
+        SkASSERT(atlas.getEndStencilResolveInstance() >= baseStencilResolveInstance);
+        baseStencilResolveInstance = atlas.getEndStencilResolveInstance();
     }
     SkASSERT(GrCCAtlas::CoverageType::kA8_Multisample != this->renderedPathCoverageType() ||
              baseStencilResolveInstance == fEndStencilResolveInstance);

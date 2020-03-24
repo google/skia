@@ -150,7 +150,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
     const TextureSampler& onTextureSampler(int i) const override { return fSamplers[i]; }
 
-    GrTAllocator<TextureSampler> fSamplers;
+    SkSTArray<4, TextureSampler> fSamplers;
     typedef GrFragmentProcessor INHERITED;
 };
 }

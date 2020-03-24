@@ -19,13 +19,12 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
         : fUniformSize(uniformSize)
         , fUniformsDirty(false) {
     fUniformData.reset(uniformSize);
-    int count = uniforms.count();
-    fUniforms.push_back_n(count);
+    fUniforms.push_back_n(uniforms.count());
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
-    for (int i = 0; i < count; i++) {
+    int i = 0;
+    for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
-        const GrMtlUniformHandler::UniformInfo uniformInfo = uniforms[i];
         SkASSERT(GrShaderVar::kNonArray == uniformInfo.fVariable.getArrayCount() ||
                  uniformInfo.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
@@ -33,6 +32,7 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
             uniform.fType = uniformInfo.fVariable.getType();
         )
         uniform.fOffset = uniformInfo.fUBOffset;
+        ++i;
     }
 }
 

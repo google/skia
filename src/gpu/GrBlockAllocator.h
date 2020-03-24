@@ -77,6 +77,13 @@ public:
         template <size_t Align = 1, size_t Padding = 0>
         int avail() const { return std::max(0, fSize - this->cursor<Align, Padding>()); }
 
+        // Return the aligned offset of the first allocation, assuming it was made with the
+        // specified Align, and Padding. The returned offset does not mean a valid allocation
+        // starts at that offset, this is a utility function for classes built on top to manage
+        // indexing into a block effectively.
+        template <size_t Align = 1, size_t Padding = 0>
+        int firstAlignedOffset() const { return this->alignedOffset<Align, Padding>(kDataStart); }
+
         // Convert an offset into this block's storage into a usable pointer.
         void* ptr(int offset) {
             SkASSERT(offset >= kDataStart && offset < fSize);
@@ -120,7 +127,10 @@ public:
 
         // Get fCursor, but aligned such that ptr(rval) satisfies Align.
         template <size_t Align, size_t Padding>
-        int cursor() const;
+        int cursor() const { return this->alignedOffset<Align, Padding>(fCursor); }
+
+        template <size_t Align, size_t Padding>
+        int alignedOffset(int offset) const;
 
         SkDEBUGCODE(int fSentinel;) // known value to check for bad back pointers to blocks
 
@@ -147,6 +157,24 @@ public:
 
     ~GrBlockAllocator() { this->reset(); }
     void operator delete(void* p) { ::operator delete(p); }
+
+    /**
+     * Helper to calculate the minimum number of bytes needed for heap block size, under the
+     * assumption that Align will be the requested alignment of the first call to allocate().
+     * Ex. To store N instances of T in a heap block, the 'blockIncrementBytes' should be set to
+     *   BlockOverhead<alignof(T)>() + N * sizeof(T) when making the GrBlockAllocator.
+     */
+    template<size_t Align = 1, size_t Padding = 0>
+    static constexpr size_t BlockOverhead();
+
+    /**
+     * Helper to calculate the minimum number of bytes needed for a preallocation, under the
+     * assumption that Align will be the requested alignment of the first call to allocate().
+     * Ex. To preallocate a GrSBlockAllocator to hold N instances of T, its arge should be
+     *   Overhead<alignof(T)>() + N * sizeof(T)
+     */
+    template<size_t Align = 1, size_t Padding = 0>
+    static constexpr size_t Overhead();
 
     /**
      * Return the total number of bytes of the allocator, including its instance overhead, per-block
@@ -218,6 +246,9 @@ public:
      */
     const Block* currentBlock() const { return fTail; }
     Block* currentBlock() { return fTail; }
+
+    const Block* headBlock() const { return &fHead; }
+    Block* headBlock() { return &fHead; }
 
     /**
      * Return the block that owns the allocated 'ptr'. Assuming that earlier, an allocation was
@@ -295,7 +326,8 @@ private:
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the
     // given alignment and padding bytes. Also represents maximum valid fCursor value in a Block.
-    static constexpr size_t MaxBlockSize(size_t align, size_t padding);
+    template<size_t Align, size_t Padding>
+    static constexpr size_t MaxBlockSize();
 
     static constexpr int BaseHeadBlockSize() {
         return sizeof(GrBlockAllocator) - offsetof(GrBlockAllocator, fHead);
@@ -369,25 +401,35 @@ private:
     alignas(GrBlockAllocator) char fStorage[N];
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Template and inline implementations
 
-constexpr size_t GrBlockAllocator::MaxBlockSize(size_t align, size_t padding) {
+template<size_t Align, size_t Padding>
+constexpr size_t GrBlockAllocator::BlockOverhead() {
+    return std::max(sizeof(Block), GrAlignTo(kDataStart + Padding, Align));
+}
+
+template<size_t Align, size_t Padding>
+constexpr size_t GrBlockAllocator::Overhead() {
+    return std::max(sizeof(GrBlockAllocator),
+                    offsetof(GrBlockAllocator, fHead) + BlockOverhead<Align, Padding>());
+}
+
+template<size_t Align, size_t Padding>
+constexpr size_t GrBlockAllocator::MaxBlockSize() {
     // Without loss of generality, assumes 'align' will be the largest encountered alignment for the
     // allocator (if it's not, the largest align will be encountered by the compiler and pass/fail
     // the same set of static asserts).
-    return GrAlignTo(kDataStart + padding, align) + kMaxAllocationSize;
+    return BlockOverhead<Align, Padding>() + kMaxAllocationSize;
 }
 
 template <size_t Align, size_t Padding>
 GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
     // Amount of extra space for a new block to make sure the allocation can succeed.
-    static constexpr int kBlockOverhead =
-            std::max(sizeof(Block), GrAlignTo(kDataStart + Padding, Align));
+    static constexpr int kBlockOverhead = (int) BlockOverhead<Align, Padding>();
 
     // Ensures 'offset' and 'end' calculations will be valid
-    static_assert((kMaxAllocationSize + GrAlignTo(MaxBlockSize(Align, Padding), Align))
+    static_assert((kMaxAllocationSize + GrAlignTo(MaxBlockSize<Align, Padding>(), Align))
                         <= (size_t) std::numeric_limits<int32_t>::max());
     // Ensures size + blockOverhead + addBlock's alignment operations will be valid
     static_assert(kMaxAllocationSize + kBlockOverhead + ((1 << 12) - 1) // 4K align for large blocks
@@ -401,7 +443,7 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
     int offset = fTail->cursor<Align, Padding>();
     int end = offset + iSize;
     if (end > fTail->fSize) {
-        this->addBlock(iSize + kBlockOverhead, MaxBlockSize(Align, Padding));
+        this->addBlock(iSize + kBlockOverhead, MaxBlockSize<Align, Padding>());
         offset = fTail->cursor<Align, Padding>();
         end = offset + iSize;
     }
@@ -440,20 +482,20 @@ GrBlockAllocator::Block* GrBlockAllocator::owningBlock(const void* p, int start)
 }
 
 template <size_t Align, size_t Padding>
-int GrBlockAllocator::Block::cursor() const {
+int GrBlockAllocator::Block::alignedOffset(int offset) const {
     static_assert(SkIsPow2(Align));
     // Aligning adds (Padding + Align - 1) as an intermediate step, so ensure that can't overflow
-    static_assert(MaxBlockSize(Align, Padding) + Padding + Align - 1
+    static_assert(MaxBlockSize<Align, Padding>() + Padding + Align - 1
                         <= (size_t) std::numeric_limits<int32_t>::max());
 
     if /* constexpr */ (Align <= alignof(std::max_align_t)) {
         // Same as GrAlignTo, but operates on ints instead of size_t
-        return (fCursor + Padding + Align - 1) & ~(Align - 1);
+        return (offset + Padding + Align - 1) & ~(Align - 1);
     } else {
         // Must take into account that 'this' may be starting at a pointer that doesn't satisfy the
         // larger alignment request, so must align the entire pointer, not just offset
         uintptr_t blockPtr = reinterpret_cast<uintptr_t>(this);
-        uintptr_t alignedPtr = (blockPtr + fCursor + Padding + Align - 1) & ~(Align - 1);
+        uintptr_t alignedPtr = (blockPtr + offset + Padding + Align - 1) & ~(Align - 1);
         SkASSERT(alignedPtr - blockPtr <= (uintptr_t) std::numeric_limits<int32_t>::max());
         return (int) (alignedPtr - blockPtr);
     }

@@ -209,7 +209,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
         const char* fbFetchColorName = "sk_LastFragColor";
         if (shaderCaps->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
-            fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
+            fCustomColorOutput->setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
             this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
@@ -238,11 +238,10 @@ void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEqu
 }
 
 void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
-    if (!fHasCustomColorOutput) {
-        fHasCustomColorOutput = true;
-        fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kHalf4_GrSLType, DeclaredColorOutputName(),
-                                 GrShaderVar::kOut_TypeModifier);
+    if (!fCustomColorOutput) {
+        fCustomColorOutput = &fOutputs.push_back();
+        fCustomColorOutput->set(kHalf4_GrSLType, DeclaredColorOutputName(),
+                                GrShaderVar::kOut_TypeModifier);
         fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
@@ -267,12 +266,12 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
-    return fHasCustomColorOutput ? DeclaredColorOutputName() : "sk_FragColor";
+    return this->hasCustomColorOutput() ? DeclaredColorOutputName() : "sk_FragColor";
 }
 
 bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
-    return fHasCustomColorOutput &&
-           fOutputs[fCustomColorOutputIndex].getTypeModifier() == GrShaderVar::kInOut_TypeModifier;
+    return fCustomColorOutput &&
+           fCustomColorOutput->getTypeModifier() == GrShaderVar::kInOut_TypeModifier;
 }
 
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {

@@ -8,7 +8,7 @@
 #ifndef GrDawnUniformHandler_DEFINED
 #define GrDawnUniformHandler_DEFINED
 
-#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrDawnGpu;
