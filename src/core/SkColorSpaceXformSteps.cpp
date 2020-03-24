@@ -156,78 +156,52 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static skvm::F32 strip_sign(skvm::Builder* p, skvm::F32 x, skvm::I32* sign) {
-    skvm::I32 bits = p->bit_cast(x);
-    *sign = p->bit_and(bits, p->splat(0x80000000));
-    return p->bit_cast(p->bit_xor(bits, *sign));
-}
-
-static skvm::F32 apply_sign(skvm::Builder* p, skvm::F32 x, skvm::I32 sign) {
-    return p->bit_cast(p->bit_or(sign, p->bit_cast(x)));
-}
-
-namespace skvm {
-    struct TransferFunction {
-        F32 g, a,b,c,d,e,f;
-
-        TransferFunction(Builder* p, Uniforms* u, const skcms_TransferFunction& tf)
-            : g(p->uniformF(u->pushF(tf.g)))
-            , a(p->uniformF(u->pushF(tf.a)))
-            , b(p->uniformF(u->pushF(tf.b)))
-            , c(p->uniformF(u->pushF(tf.c)))
-            , d(p->uniformF(u->pushF(tf.d)))
-            , e(p->uniformF(u->pushF(tf.e)))
-            , f(p->uniformF(u->pushF(tf.f)))
-        {}
-
-        F32 noop(Builder* p, F32 v) const { return v; }
-
-        F32 parametric(Builder* p, F32 v) const {
-            return p->select(p->lte(v,d), p->mad(c, v, f)
-                                        , p->add(p->approx_powf(p->mad(a, v, b), g), e));
-        }
-
-        F32 PQish(Builder* p, F32 v) const {
-            return p->approx_powf(p->div(p->max(p->mad(b, p->approx_powf(v, c), a), p->splat(0.0f)),
-                                                p->mad(e, p->approx_powf(v, c), d)),
-                                  f);
-        }
-
-        F32 HLGish(Builder* p, F32 v) const {
-            auto va = p->mul(v,a);
-            return p->select(p->lte(va,p->splat(1.0f)), p->approx_powf(va, b)
-                                                      , p->approx_exp(p->mad(p->sub(v,e),c, d)));
-        }
-
-        F32 HLGinvish(Builder* p, F32 v) const {
-            return p->select(p->lte(v,p->splat(1.0f)), p->mul(a, p->approx_powf(v, b))
-                                                     , p->mad(c, p->approx_log(p->sub(v,d)), e));
-        }
-    };
-}
-
 static skvm::Color apply_transfer_function(skvm::Builder* p, skvm::Uniforms* uniforms,
                                            const skcms_TransferFunction& tf, skvm::Color c) {
-    skvm::TransferFunction vtf(p, uniforms, tf);
+    skvm::F32 G = p->uniformF(uniforms->pushF(tf.g)),
+              A = p->uniformF(uniforms->pushF(tf.a)),
+              B = p->uniformF(uniforms->pushF(tf.b)),
+              C = p->uniformF(uniforms->pushF(tf.c)),
+              D = p->uniformF(uniforms->pushF(tf.d)),
+              E = p->uniformF(uniforms->pushF(tf.e)),
+              F = p->uniformF(uniforms->pushF(tf.f));
 
-    auto fn = &skvm::TransferFunction::noop;
+    auto apply = [&](skvm::F32 v) -> skvm::F32 {
+        // Strip off the sign bit and save it for later.
+        skvm::I32 bits = p->bit_cast(v),
+                  sign = p->bit_and(bits,p->splat(0x80000000));
+        v = p->bit_cast(p->bit_xor(bits, sign));
 
-    switch (classify_transfer_fn(tf)) {
-        case sRGBish_TF:   fn = &skvm::TransferFunction::parametric; break;
-        case PQish_TF:     fn = &skvm::TransferFunction::PQish;      break;
-        case HLGish_TF:    fn = &skvm::TransferFunction::HLGish;     break;
-        case HLGinvish_TF: fn = &skvm::TransferFunction::HLGinvish;  break;
-        case Bad_TF: break;
-    }
+        switch (classify_transfer_fn(tf)) {
+            case Bad_TF: SkASSERT(false); break;
 
-    auto apply = [&](skvm::F32 v) {
-        skvm::I32 sign;
-        v = strip_sign(p, v, &sign);
-        v = (vtf.*fn)(p, v);
-        return apply_sign(p, v, sign);
+            case sRGBish_TF:
+                v = p->select(p->lte(v,D), p->mad(C, v, F)
+                                         , p->add(p->approx_powf(p->mad(A, v, B), G), E));
+                break;
+
+            case PQish_TF:
+                v = p->approx_powf(p->div(p->max(p->mad(B, p->approx_powf(v, C), A), p->splat(0.f)),
+                                                 p->mad(E, p->approx_powf(v, C), D)),
+                                   F);
+                break;
+
+            case HLGish_TF: {
+                auto vA = p->mul(v,A);
+                v = p->select(p->lte(vA,p->splat(1.0f)), p->approx_powf(vA, B)
+                                                       , p->approx_exp(p->mad(p->sub(v,E),C, D)));
+            } break;
+
+            case HLGinvish_TF:
+                v = p->select(p->lte(v,p->splat(1.0f)), p->mul(A, p->approx_powf(v, B))
+                                                      , p->mad(C, p->approx_log(p->sub(v,D)), E));
+                break;
+        }
+
+        // Re-apply the original sign bit on our way out the door.
+        return p->bit_cast(p->bit_or(sign, p->bit_cast(v)));
     };
+
     return {apply(c.r), apply(c.g), apply(c.b), c.a};
 }
 
