@@ -19,11 +19,21 @@ public:
     void emitCode(EmitArgs&) override;
 
 private:
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
+    UniformHandle fDimensions;
+    GrTextureDomain::GLDomain   fDomain;
+
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
+
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    fDimensions = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "Dimensions");
+
+    const char* dims = uniformHandler->getUniformCStr(fDimensions);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
@@ -51,15 +61,14 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
                             "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
-    fragBuilder->codeAppendf("float2 coord = %s - float2(0.5);", coords2D.c_str());
-    // We determine our fractional offset (f) within the texel. We then snap coord to a texel
-    // center. The snap prevents cases where the starting coords are near a texel boundary and
-    // offsets with imperfect precision would cause us to skip/double hit a texel.
-    // The use of "texel" above is somewhat abstract as we're sampling a child processor. It is
-    // assumed the child processor represents something akin to a nearest neighbor sampled texture.
+    fragBuilder->codeAppendf("float2 coord = %s - %s.xy * float2(0.5);", coords2D.c_str(), dims);
+    // We unnormalize the coord in order to determine our fractional offset (f) within the texel
+    // We then snap coord to a texel center and renormalize. The snap prevents cases where the
+    // starting coords are near a texel boundary and accumulations of dims would cause us to skip/
+    // double hit a texel.
+    fragBuilder->codeAppendf("half2 f = half2(fract(coord * %s.zw));", dims);
+    fragBuilder->codeAppendf("coord = coord + (half2(0.5) - f) * %s.xy;", dims);
     if (bicubicEffect.fDirection == GrBicubicEffect::Direction::kXY) {
-        fragBuilder->codeAppend("half2 f = half2(fract(coord));");
-        fragBuilder->codeAppend("coord = coord + (half2(0.5) - f);");
         fragBuilder->codeAppend(
                 "half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
         fragBuilder->codeAppend(
@@ -68,7 +77,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         for (int y = 0; y < 4; ++y) {
             for (int x = 0; x < 4; ++x) {
                 SkString coord;
-                coord.printf("coord + float2(%d, %d)", x - 1, y - 1);
+                coord.printf("coord + %s.xy * float2(%d, %d)", dims, x - 1, y - 1);
                 auto childStr =
                         this->invokeChild(0, args, SkSL::String(coord.c_str(), coord.size()));
                 fragBuilder->codeAppendf("rowColors[%d] = %s;", x, childStr.c_str());
@@ -81,19 +90,14 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend(
                 "half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     } else {
-        const char* d = bicubicEffect.fDirection == Direction::kX ? "x" : "y";
-        fragBuilder->codeAppendf("half f = half(fract(coord.%s));", d);
-        fragBuilder->codeAppendf("coord.%s = coord.%s + (0.5 - f);", d, d);
-        fragBuilder->codeAppend("half f2 = f * f;");
-        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, f, f2, f2 * f);");
+        // One of the dims.xy values will be zero. So v here selects the nonzero value of f.
+        fragBuilder->codeAppend("half v = f.x + f.y;");
+        fragBuilder->codeAppend("half v2 = v * v;");
+        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, v, v2, v2 * v);");
         fragBuilder->codeAppend("half4 c[4];");
         for (int i = 0; i < 4; ++i) {
             SkString coord;
-            if (bicubicEffect.fDirection == Direction::kX) {
-                coord.printf("float2(coord.x + %d, 0)", i - 1);
-            } else {
-                coord.printf("float2(0, coord.y + %d)", i - 1);
-            }
+            coord.printf("coord + %s.xy * half(%d)", dims, i - 1);
             auto childStr = this->invokeChild(0, args, SkSL::String(coord.c_str(), coord.size()));
             fragBuilder->codeAppendf("c[%d] = %s;", i, childStr.c_str());
         }
@@ -114,14 +118,42 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = bicubicColor * %s;", args.fOutputColor, args.fInputColor);
 }
 
+void GrBicubicEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
+                                      const GrFragmentProcessor& processor) {
+    const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
+    // Currently we only ever construct with GrTextureEffect and always take its
+    // coord transform as our own.
+    SkASSERT(bicubicEffect.fCoordTransform.peekTexture());
+    SkISize textureDims = bicubicEffect.fCoordTransform.peekTexture()->dimensions();
+
+    float dims[4] = {0, 0, 0, 0};
+    if (bicubicEffect.fDirection != GrBicubicEffect::Direction::kY) {
+        if (bicubicEffect.fCoordTransform.normalize()) {
+            dims[0] = 1.f / textureDims.width();
+            dims[2] = textureDims.width();
+        } else {
+            dims[0] = dims[2] = 1.f;
+        }
+    }
+    if (bicubicEffect.fDirection != GrBicubicEffect::Direction::kX) {
+        if (bicubicEffect.fCoordTransform.normalize()) {
+            dims[1] = 1.f / textureDims.height();
+            dims[3] = textureDims.height();
+        } else {
+            dims[1] = dims[3] = 1.f;
+        }
+    }
+    pdman.set4fv(fDimensions, 1, dims);
+}
+
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
                                                            Direction direction) {
-    auto fp = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I());
+    auto fp = GrTextureEffect::Make(std::move(view), alphaType, matrix);
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+            new GrBicubicEffect(std::move(fp), direction, clamp));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView view,
@@ -133,10 +165,10 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView vi
                                                            const GrCaps& caps) {
     GrSamplerState sampler(wrapX, wrapY, GrSamplerState::Filter::kNearest);
     std::unique_ptr<GrFragmentProcessor> fp;
-    fp = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I(), sampler, caps);
+    fp = GrTextureEffect::Make(std::move(view), alphaType, matrix, sampler, caps);
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+            new GrBicubicEffect(std::move(fp), direction, clamp));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
@@ -150,32 +182,23 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
         const GrCaps& caps) {
     GrSamplerState sampler(wrapX, wrapY, GrSamplerState::Filter::kNearest);
     std::unique_ptr<GrFragmentProcessor> fp;
-    fp = GrTextureEffect::MakeSubset(
-            std::move(view), alphaType, SkMatrix::I(), sampler, subset, caps);
+    fp = GrTextureEffect::MakeSubset(std::move(view), alphaType, matrix, sampler, subset, caps);
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
-}
-
-std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
-                                                           SkAlphaType alphaType,
-                                                           const SkMatrix& matrix,
-                                                           Direction direction) {
-    auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrBicubicEffect(std::move(fp), matrix, direction, clamp));
+            new GrBicubicEffect(std::move(fp), direction, clamp));
 }
 
 GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
-                                 const SkMatrix& matrix,
                                  Direction direction,
                                  Clamp clamp)
         : INHERITED(kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))
-        , fCoordTransform(matrix)
         , fDirection(direction)
         , fClamp(clamp) {
-    fp->setSampledWithExplicitCoords(true);
+    SkASSERT(fp->numCoordTransforms() == 1);
+    fCoordTransform = fp->coordTransform(0);
     this->addCoordTransform(&fCoordTransform);
+    fp->coordTransform(0) = {};
+    fp->setSampledWithExplicitCoords(true);
     this->registerChildProcessor(std::move(fp));
 }
 
@@ -192,7 +215,8 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
-    uint32_t key = static_cast<uint32_t>(fDirection) | (static_cast<uint32_t>(fClamp) << 2);
+    uint32_t key = (fDirection == GrBicubicEffect::Direction::kXY)
+                 | (static_cast<uint32_t>(fClamp) << 1);
     b->add32(key);
 }
 
@@ -201,10 +225,6 @@ GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const { return 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const auto& that = other.cast<GrBicubicEffect>();
     return fDirection == that.fDirection && fClamp == that.fClamp;
-}
-
-SkPMColor4f GrBicubicEffect::constantOutputForConstantInput(const SkPMColor4f& input) const {
-    return GrFragmentProcessor::ConstantOutputForConstantInput(this->childProcessor(0), input);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
@@ -223,42 +243,24 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             direction = Direction::kXY;
             break;
     }
+    auto [view, ct, at] = d->randomView();
     auto m = GrTest::TestMatrix(d->fRandom);
-    switch (d->fRandom->nextULessThan(3)) {
-        case 0: {
-            auto [view, ct, at] = d->randomView();
-            GrSamplerState::WrapMode wm[2];
-            GrTest::TestWrapModes(d->fRandom, wm);
+    if (d->fRandom->nextBool()) {
+        GrSamplerState::WrapMode wm[2];
+        GrTest::TestWrapModes(d->fRandom, wm);
 
-            if (d->fRandom->nextBool()) {
-                SkRect subset;
-                subset.fLeft = d->fRandom->nextSScalar1() * view.width();
-                subset.fTop = d->fRandom->nextSScalar1() * view.height();
-                subset.fRight = d->fRandom->nextSScalar1() * view.width();
-                subset.fBottom = d->fRandom->nextSScalar1() * view.height();
-                subset.sort();
-                return MakeSubset(
-                        std::move(view), at, m, wm[0], wm[1], subset, direction, *d->caps());
-            }
-            return Make(std::move(view), at, m, wm[0], wm[1], direction, *d->caps());
+        if (d->fRandom->nextBool()) {
+            SkRect subset;
+            subset.fLeft   = d->fRandom->nextSScalar1() * view.width();
+            subset.fTop    = d->fRandom->nextSScalar1() * view.height();
+            subset.fRight  = d->fRandom->nextSScalar1() * view.width();
+            subset.fBottom = d->fRandom->nextSScalar1() * view.height();
+            subset.sort();
+            return MakeSubset(std::move(view), at, m, wm[0], wm[1], subset, direction, *d->caps());
         }
-        case 1: {
-            auto [view, ct, at] = d->randomView();
-            return Make(std::move(view), at, m, direction);
-        }
-        default: {
-            SkAlphaType at;
-            do {
-                at = static_cast<SkAlphaType>(d->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
-            } while (at != kUnknown_SkAlphaType);
-            std::unique_ptr<GrFragmentProcessor> fp;
-            // We have a restriction that explicit coords only work for FPs with zero or one
-            // coord transform.
-            do {
-                fp = GrProcessorUnitTest::MakeChildFP(d);
-            } while (fp->numCoordTransforms() > 1);
-            return Make(std::move(fp), at, m, direction);
-        }
+        return Make(std::move(view), at, m, wm[0], wm[1], direction, *d->caps());
+    } else {
+        return Make(std::move(view), at, m, direction);
     }
 }
 #endif
