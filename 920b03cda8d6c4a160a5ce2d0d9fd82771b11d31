@@ -75,6 +75,24 @@
       "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4deb99e3_d50897c1",
+        "filename": "src/gpu/GrShaderVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T22:40:34Z",
+      "side": 1,
+      "message": "Okay from what I can tell nothing sets useUniformFloatArrays to anything but USE_UNIFORM_FLOAT_ARRAY. So I say we delete it from the set calls and then change the ctor and \u003d here to be default?",
+      "parentUuid": "81eb10a6_521f97ff",
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
