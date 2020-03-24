@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40a611e9_18f8063d",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-24T12:52:05Z",
+      "side": 1,
+      "message": "Clever. Do we actually need to do it this way (w/ commas in the return statement)? I thought SkASSERT now worked fine in most cases in constexpr functions.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 81
+      },
+      "revId": "45409d7a302364c6e136e9d3d1e9e7a688b321e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
