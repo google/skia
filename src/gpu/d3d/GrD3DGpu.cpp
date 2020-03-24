@@ -15,22 +15,66 @@ sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
     return sk_sp<GrGpu>(new GrD3DGpu(context, contextOptions, backendContext));
 }
 
+// This constant determines how many OutstandingCommandLists are allocated together as a block in
+// the deque. As such it needs to balance allocating too much memory vs. incurring
+// allocation/deallocation thrashing. It should roughly correspond to the max number of outstanding
+// command lists we expect to see.
+static const int kDefaultOutstandingAllocCnt = 8;
+
 GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
         : INHERITED(context)
         , fDevice(backendContext.fDevice)
 
         , fQueue(backendContext.fQueue)
-        , fResourceProvider(this) {
+        , fResourceProvider(this)
+        , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt) {
     fCaps.reset(new GrD3DCaps(contextOptions,
                               backendContext.fAdapter.Get(),
                               backendContext.fDevice.Get()));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
     SkASSERT(fCurrentDirectCommandList);
+
+    SkASSERT(fCurrentFenceValue == 0);
+    SkDEBUGCODE(HRESULT hr = ) fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
+                                                    IID_PPV_ARGS(&fFence));
+    SkASSERT(SUCCEEDED(hr));
 }
 
-GrD3DGpu::~GrD3DGpu() {}
+GrD3DGpu::~GrD3DGpu() {
+    this->destroyResources();
+}
+
+void GrD3DGpu::destroyResources() {
+    if (fCurrentDirectCommandList) {
+        fCurrentDirectCommandList->close();
+        fCurrentDirectCommandList.reset();
+    }
+
+    // We need to make sure everything has finished on the queue.
+    if (fFence->GetCompletedValue() < fCurrentFenceValue) {
+        HANDLE fenceEvent;
+        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        SkASSERT(fenceEvent);
+        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent);
+        SkASSERT(SUCCEEDED(hr));
+        WaitForSingleObject(fenceEvent, INFINITE);
+        CloseHandle(fenceEvent);
+    }
+
+    SkDEBUGCODE(uint64_t fenceValue = fFence->GetCompletedValue();)
+
+    // We used a placement new for each object in fOutstandingCommandLists, so we're responsible
+    // for calling the destructor on each of them as well.
+    while (!fOutstandingCommandLists.empty()) {
+        OutstandingCommandList* list = (OutstandingCommandList*)fOutstandingCommandLists.back();
+        SkASSERT(list->fFenceValue <= fenceValue);
+        // No reason to recycle the command lists since we are destroying all resources anyways.
+        list->~OutstandingCommandList();
+        fOutstandingCommandLists.pop_back();
+    }
+}
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
     GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
@@ -45,6 +89,48 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
+}
+
+void GrD3DGpu::submitDirectCommandList() {
+    SkASSERT(fCurrentDirectCommandList);
+
+    fCurrentDirectCommandList->submit(fQueue.Get());
+
+    new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
+            std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
+
+    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.Get(), fCurrentFenceValue);
+    SkASSERT(SUCCEEDED(hr));
+
+    fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
+
+    // This should be done after we have a new command list in case the freeing of any resources
+    // held by a finished command list causes us send a new command to the gpu (like changing the
+    // resource state.
+    this->checkForFinishedCommandLists();
+
+    SkASSERT(fCurrentDirectCommandList);
+}
+
+void GrD3DGpu::checkForFinishedCommandLists() {
+    uint64_t currentFenceValue = fFence->GetCompletedValue();
+
+    // Iterate over all the outstanding command lists to see if any have finished. The commands
+    // lists are in order from oldest to newest, so we start at the front to check if their fence
+    // value is less than the last signaled value. If so we pop it off and move onto the next.
+    // Repeat till we find a command list that has not finished yet (and all others afterwards are
+    // also guaranteed to not have finished).
+    SkDeque::F2BIter iter(fOutstandingCommandLists);
+    const OutstandingCommandList* curList = (const OutstandingCommandList*)iter.next();
+    while (curList && curList->fFenceValue <= currentFenceValue) {
+        curList = (const OutstandingCommandList*)iter.next();
+        OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
+        // TODO: Recycle the command list back to the GrD3DResourceProvider.
+        front->fCommandList->reset();
+        // Since we used placement new we are responsible for calling the destructor manually.
+        front->~OutstandingCommandList();
+        fOutstandingCommandLists.pop_front();
+    }
 }
 
 void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
