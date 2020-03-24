@@ -297,7 +297,14 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
 
     auto vert = builder.detach();
     SkPaint paint;
-    // paint.setShader(sksl_shader);
+    const char* gProg = R"(
+        varying float4 vtx_color;
+        void main(float2 p, inout half4 color) {
+            color = half4(vtx_color);
+        }
+    )";
+    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+    paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, true));
     canvas->drawVertices(vert, paint);
 }
 

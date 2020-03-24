@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNoDrawCanvas.h"
@@ -1984,8 +1985,20 @@ void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
 void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
+
+    SkVertices::Info info;
+    vertices->getInfo(&info);
+
     // We expect fans to be converted to triangles when building or deserializing SkVertices.
-    SkASSERT(SkVerticesPriv::Mode(vertices) != SkVertices::kTriangleFan_VertexMode);
+    SkASSERT(info.fMode != SkVertices::kTriangleFan_VertexMode);
+
+    // If the vertices contain custom attributes, ensure they line up with the paint's shader
+    const SkRuntimeEffect* effect =
+            paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
+    if (info.fPerVertexDataCount != (effect ? effect->varyingCount() : 0)) {
+        return;
+    }
+
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 
