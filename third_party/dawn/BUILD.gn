@@ -48,7 +48,10 @@ config("libdawn_native_internal") {
   if (is_mac) {
     cflags_objcc = [ "-Wno-unguarded-availability" ]
   }
-  cflags_cc = [ "-Wno-deprecated-declarations" ]
+  cflags_cc = [
+    "-Wno-deprecated-declarations",
+    "-Wno-narrowing",
+  ]
 }
 
 dawn_json_generator("libdawn_native_utils_gen") {
@@ -281,6 +284,8 @@ static_library("libdawn_native") {
                       "src/dawn_native/d3d12/PlatformFunctions.h",
                       "src/dawn_native/d3d12/QueueD3D12.cpp",
                       "src/dawn_native/d3d12/QueueD3D12.h",
+                      "src/dawn_native/d3d12/RenderPassBuilderD3D12.cpp",
+                      "src/dawn_native/d3d12/RenderPassBuilderD3D12.h",
                       "src/dawn_native/d3d12/RenderPipelineD3D12.cpp",
                       "src/dawn_native/d3d12/RenderPipelineD3D12.h",
                       "src/dawn_native/d3d12/ResourceAllocatorManagerD3D12.cpp",
