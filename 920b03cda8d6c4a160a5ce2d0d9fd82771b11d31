@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52627fa8_5345aba3",
+        "filename": "src/gpu/GrShaderVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T21:58:44Z",
+      "side": 1,
+      "message": "can `*this \u003d that;`?",
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
