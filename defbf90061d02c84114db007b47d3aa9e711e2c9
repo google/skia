@@ -22,6 +22,30 @@
       "revId": "defbf90061d02c84114db007b47d3aa9e711e2c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98790ed0_69d7ab13",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-24T20:00:12Z",
+      "side": 1,
+      "message": "You know, the more I\u0027m thinking about this, the more I think all of this would be a lot simpler folded all together into apply_transfer_function()... upload the uniforms, strip the sign, switch over type to apply the math, or back in the sign, then finally return the value.\n\nWe\u0027re obeying the constraints of SkRasterPipeline here but they don\u0027t apply to skvm.",
+      "parentUuid": "4c58ea38_4a21a4a3",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 0
+      },
+      "revId": "defbf90061d02c84114db007b47d3aa9e711e2c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
