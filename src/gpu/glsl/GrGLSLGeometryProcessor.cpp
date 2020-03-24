@@ -91,8 +91,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             auto flag = fp.isSampledWithExplicitCoords() ? kFragment_GrShaderFlag
                                                          : kVertex_GrShaderFlag;
             auto& uni = fInstalledTransforms.push_back();
-            if (fp.isSampledWithExplicitCoords() && coordTransform.matrix().isScaleTranslate() &&
-                localMatrix.isScaleTranslate()) {
+            if (fp.isSampledWithExplicitCoords() && coordTransform.matrix().isScaleTranslate()) {
                 uni.fType = kFloat4_GrSLType;
             } else {
                 uni.fType = kFloat3x3_GrSLType;
@@ -149,8 +148,10 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
                 if (fInstalledTransforms[i].fType == kFloat4_GrSLType) {
                     float values[4] = {m.getScaleX(), m.getTranslateX(),
                                        m.getScaleY(), m.getTranslateY()};
+                    SkASSERT(m.isScaleTranslate());
                     pdman.set4fv(fInstalledTransforms[i].fHandle.toIndex(), 1, values);
                 } else {
+                    SkASSERT(!m.isScaleTranslate() || !fp.isSampledWithExplicitCoords());
                     SkASSERT(fInstalledTransforms[i].fType == kFloat3x3_GrSLType);
                     pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
                 }
