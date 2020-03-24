@@ -9,6 +9,7 @@
 #define GrD3DGpu_DEFINED
 
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "include/private/SkDeque.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
@@ -81,6 +82,8 @@ public:
 
 private:
     GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
+
+    void destroyResources();
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -174,12 +177,28 @@ private:
 
     void submitDirectCommandList();
 
+    void checkForFinishedCommandLists();
+
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
 
     GrD3DResourceProvider fResourceProvider;
 
+    gr_cp<ID3D12Fence> fFence;
+    uint64_t fCurrentFenceValue = 0;
+
     std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;
+
+    struct OutstandingCommandList {
+        OutstandingCommandList(std::unique_ptr<GrD3DDirectCommandList> commandList,
+                               uint64_t fenceValue)
+            : fCommandList(std::move(commandList)), fFenceValue(fenceValue) {
+        }
+        std::unique_ptr<GrD3DDirectCommandList> fCommandList;
+        uint64_t fFenceValue;
+    };
+
+    SkDeque fOutstandingCommandLists;
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
