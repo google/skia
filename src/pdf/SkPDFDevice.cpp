@@ -367,12 +367,18 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (transformedRect.isEmpty()) {
         return;
     }
+
+    SkPDFLinkType linkType = SkPDFLinkType::kNone;
     if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        fDocument->fCurrentPageLinkToURLs.push_back(
-                std::make_pair(sk_ref_sp(value), transformedRect));
+        linkType = SkPDFLinkType::kUrl;
     } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        fDocument->fCurrentPageLinkToDestinations.emplace_back(
-                std::make_pair(sk_ref_sp(value), transformedRect));
+        linkType = SkPDFLinkType::kNamedDestination;
+    }
+
+    if (linkType != SkPDFLinkType::kNone) {
+        std::unique_ptr<SkPDFLink> link = std::make_unique<SkPDFLink>(
+            linkType, value, transformedRect, fNodeId);
+        fDocument->fCurrentPageLinks.push_back(std::move(link));
     }
 }
 
