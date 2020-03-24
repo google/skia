@@ -18,6 +18,7 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkUTF.h"
 
 #include <utility>
 
@@ -25,6 +26,28 @@
 const char* SkPDFGetNodeIdKey() {
     static constexpr char key[] = "PDF_Node_Key";
     return key;
+}
+
+static SkString ToValidUtf8String(const SkData& d) {
+    if (d.size() == 0) {
+        SkDEBUGFAIL("Not a valid string, data length is zero.");
+        return SkString();
+    }
+
+    const char* c_str = static_cast<const char*>(d.data());
+    if (c_str[d.size() - 1] != 0) {
+        SkDEBUGFAIL("Not a valid string, not null-terminated.");
+        return SkString();
+    }
+
+    // CountUTF8 returns -1 if there's an invalid UTF-8 byte sequence.
+    int valid_utf8_chars_count = SkUTF::CountUTF8(c_str, d.size() - 1);
+    if (valid_utf8_chars_count == -1) {
+        SkDEBUGFAIL("Not a valid UTF-8 string.");
+        return SkString();
+    }
+
+    return SkString(c_str, d.size() - 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,40 +294,6 @@ static void populate_link_annotation(SkPDFDict* annotation, const SkRect& r) {
     annotation->insertObject("Rect", SkPDFMakeArray(r.fLeft, r.fTop, r.fRight, r.fBottom));
 }
 
-static SkString to_string(const SkData& d) {
-    return SkString(static_cast<const char*>(d.data()), d.size() - 1);
-}
-
-static std::unique_ptr<SkPDFArray> get_annotations(
-        SkPDFDocument* doc,
-        const std::vector<std::pair<sk_sp<SkData>, SkRect>>& linkToURLs,
-        const std::vector<std::pair<sk_sp<SkData>, SkRect>>& linkToDestinations)
-{
-    std::unique_ptr<SkPDFArray> array;
-    size_t count = linkToURLs.size() + linkToDestinations.size();
-    if (0 == count) {
-        return array;  // is nullptr
-    }
-    array = SkPDFMakeArray();
-    array->reserve(count);
-    for (const auto& rectWithURL : linkToURLs) {
-        SkPDFDict annotation("Annot");
-        populate_link_annotation(&annotation, rectWithURL.second);
-        std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
-        action->insertName("S", "URI");
-        action->insertString("URI", to_string(*rectWithURL.first));
-        annotation.insertObject("A", std::move(action));
-        array->appendRef(doc->emit(annotation));
-    }
-    for (const auto& linkToDestination : linkToDestinations) {
-        SkPDFDict annotation("Annot");
-        populate_link_annotation(&annotation, linkToDestination.second);
-        annotation.insertName("Dest", to_string(*linkToDestination.first));
-        array->appendRef(doc->emit(annotation));
-    }
-    return array;
-}
-
 static SkPDFIndirectReference append_destinations(
         SkPDFDocument* doc,
         const std::vector<SkPDFNamedDestination>& namedDestinations)
@@ -318,9 +307,40 @@ static SkPDFIndirectReference append_destinations(
         pdfDest->appendScalar(dest.fPoint.x());
         pdfDest->appendScalar(dest.fPoint.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
-        destinations.insertObject(SkString((const char*)dest.fName->data()), std::move(pdfDest));
+        destinations.insertObject(ToValidUtf8String(*dest.fName), std::move(pdfDest));
     }
     return doc->emit(destinations);
+}
+
+std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
+    std::unique_ptr<SkPDFArray> array;
+    size_t count = fCurrentPageLinks.size();
+    if (0 == count) {
+        return array;  // is nullptr
+    }
+    array = SkPDFMakeArray();
+    array->reserve(count);
+    for (const auto& link : fCurrentPageLinks) {
+        SkPDFDict annotation("Annot");
+        populate_link_annotation(&annotation, link->fRect);
+        if (link->fType == SkPDFLink::Type::kUrl) {
+            std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
+            action->insertName("S", "URI");
+            action->insertString("URI", ToValidUtf8String(*link->fData));
+            annotation.insertObject("A", std::move(action));
+        } else if (link->fType == SkPDFLink::Type::kNamedDestination) {
+            annotation.insertName("Dest", ToValidUtf8String(*link->fData));
+        } else {
+            SkDEBUGFAIL("Unknown link type.");
+        }
+
+        SkPDFIndirectReference annotationRef = emit(annotation);
+        array->appendRef(annotationRef);
+        if (link->fNodeId) {
+            fTagTree.addNodeAnnotation(link->fNodeId, annotationRef);
+        }
+    }
+    return array;
 }
 
 void SkPDFDocument::onEndPage() {
@@ -339,11 +359,9 @@ void SkPDFDocument::onEndPage() {
     page->insertObject("Resources", std::move(resourceDict));
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
 
-    if (std::unique_ptr<SkPDFArray> annotations =
-            get_annotations(this, fCurrentPageLinkToURLs, fCurrentPageLinkToDestinations)) {
+    if (std::unique_ptr<SkPDFArray> annotations = getAnnotations()) {
         page->insertObject("Annots", std::move(annotations));
-        fCurrentPageLinkToURLs.clear();
-        fCurrentPageLinkToDestinations.clear();
+        fCurrentPageLinks.clear();
     }
 
     page->insertRef("Contents", SkPDFStreamOut(nullptr, std::move(pageContent), this));
@@ -590,4 +608,3 @@ sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& 
     }
     return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
 }
-
