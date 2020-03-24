@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fa1e513_cc9653bf",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-24T14:03:21Z",
+      "side": 1,
+      "message": "This global name is fine, but if this is really only used with SkPDFLink, it may be more obvious to just put this inside SkPDFLink as SkPDFLink::Type. I suppose it makes the name a bit longer, but makes it more obvious that the two are linked. (\"git grep \u0027::Type\u0027\" shows Skia does this quite a bit).",
+      "range": {
+        "startLine": 58,
+        "startChar": 11,
+        "endLine": 58,
+        "endChar": 24
+      },
+      "revId": "b85e624afc9e21c6deaa39885e6276b9b7e031b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
