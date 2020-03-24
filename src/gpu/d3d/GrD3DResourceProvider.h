@@ -8,6 +8,7 @@
 #ifndef GrD3DResourceProvider_DEFINED
 #define GrD3DResourceProvider_DEFINED
 
+#include "include/private/SkTArray.h"
 #include "src/gpu/d3d/GrD3D12.h"
 
 #include <memory>
@@ -21,8 +22,12 @@ public:
 
     std::unique_ptr<GrD3DDirectCommandList> findOrCreateDirectCommandList();
 
+    void recycleDirectCommandList(std::unique_ptr<GrD3DDirectCommandList>);
+
 private:
     GrD3DGpu* fGpu;
+
+    SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
 };
 
 #endif
