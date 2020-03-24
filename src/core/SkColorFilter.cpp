@@ -248,6 +248,17 @@ public:
         return true;
     }
 
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        // Is this knowable by our caller
+        bool shaderIsNormalized = false;
+        // Does our caller know if c is always opaque? (no need to unpremul)
+        c = p->unpremul(c);
+        c = fSteps.apply(p, uniforms, c, shaderIsNormalized);
+        c = p->premul(c);
+        return c;
+    }
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.write32(static_cast<uint32_t>(fDir));
