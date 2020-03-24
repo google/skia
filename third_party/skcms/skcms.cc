@@ -2236,6 +2236,7 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
         case skcms_PixelFormat_RGB_565            >> 1: return  2;
         case skcms_PixelFormat_RGB_888            >> 1: return  3;
         case skcms_PixelFormat_RGBA_8888          >> 1: return  4;
+        case skcms_PixelFormat_RGBA_8888_sRGB     >> 1: return  4;
         case skcms_PixelFormat_RGBA_1010102       >> 1: return  4;
         case skcms_PixelFormat_RGB_161616LE       >> 1: return  6;
         case skcms_PixelFormat_RGBA_16161616LE    >> 1: return  8;
@@ -2357,6 +2358,12 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_8888_Palette8 >> 1: *ops++  = Op_load_8888_palette8;
                                                         *args++ = palette;
                                                         break;
+        case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
+            *ops++ = Op_load_8888;
+            *ops++ = Op_tf_r;       *args++ = skcms_sRGB_TransferFunction();
+            *ops++ = Op_tf_g;       *args++ = skcms_sRGB_TransferFunction();
+            *ops++ = Op_tf_b;       *args++ = skcms_sRGB_TransferFunction();
+            break;
     }
     if (srcFmt == skcms_PixelFormat_RGB_hhh_Norm ||
         srcFmt == skcms_PixelFormat_RGBA_hhhh_Norm) {
@@ -2529,6 +2536,13 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_store_hhhh;       break;
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_store_fff;        break;
         case skcms_PixelFormat_RGBA_ffff       >> 1: *ops++ = Op_store_ffff;       break;
+
+        case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
+            *ops++ = Op_tf_r;       *args++ = skcms_sRGB_Inverse_TransferFunction();
+            *ops++ = Op_tf_g;       *args++ = skcms_sRGB_Inverse_TransferFunction();
+            *ops++ = Op_tf_b;       *args++ = skcms_sRGB_Inverse_TransferFunction();
+            *ops++ = Op_store_8888;
+            break;
     }
 
     auto run = baseline::run_program;

@@ -209,6 +209,8 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_BGR_888,
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
+    skcms_PixelFormat_RGBA_8888_sRGB,   // Automatic sRGB encoding / decoding.
+    skcms_PixelFormat_BGRA_8888_sRGB,   // (Generally used with linear transfer functions.)
 
     skcms_PixelFormat_RGBA_1010102,
     skcms_PixelFormat_BGRA_1010102,
