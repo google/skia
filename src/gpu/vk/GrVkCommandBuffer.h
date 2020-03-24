@@ -170,9 +170,6 @@ private:
     VkRect2D   fCachedScissor;
     float      fCachedBlendConstant[4];
 
-#ifdef SK_DEBUG
-    mutable bool fResourcesReleased = false;
-#endif
     // Tracking of memory barriers so that we can submit them all in a batch together.
     SkSTArray<4, VkBufferMemoryBarrier> fBufferBarriers;
     SkSTArray<1, VkImageMemoryBarrier> fImageBarriers;
