@@ -458,6 +458,13 @@ namespace skvm {
         F32 approx_pow2(F32);
         F32 approx_powf(F32 base, F32 exp);
 
+        F32 approx_log(F32 x) { // return ln(2) * log2(x)
+            return mul(splat(0.69314718f), approx_log2(x));
+        }
+        F32 approx_exp(F32 x) { // 2^(x * log2(e))
+            return approx_pow2(mul(splat(1.4426950408889634074f), x));
+        }
+
         F32 negate(F32 x) {
             return sub(splat(0.0f), x);
         }
