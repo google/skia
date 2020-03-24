@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06daa2f7_944a7ad8",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T18:31:39Z",
+      "side": 1,
+      "message": "The calculation is very easy for us to do and I think I rather keep the move to being more explicit at the higher level and that\u0027s what you get.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 50
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64a318a1_748f2eb1",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T18:31:39Z",
+      "side": 1,
+      "message": "I\u0027m not sure I like texture base here. What this class wraps is a d3d resource. Additionally within ganesh this will be used for textures and RTs (which in the future will just be surface). If we want to distinguish from buffers, whey not call this GrD3DSurfaceResource? Then we can have a GrD3DBufferResource and maybe both of those derive from a GrD3DResource?",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 23
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d863d45_b496073c",
+        "filename": "src/gpu/d3d/GrD3DTextureBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-24T18:31:39Z",
+      "side": 1,
+      "message": "I think I would call this fResource. I mean that is what is in d3d and we should talk in d3d terms down in here.",
+      "range": {
+        "startLine": 104,
+        "startChar": 25,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "4ffcaed6e2c607477d0685746377c3b9d5422d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
