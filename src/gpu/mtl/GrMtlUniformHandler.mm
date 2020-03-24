@@ -268,8 +268,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
 }
 
 void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
-    for (int i = 0; i < fSamplers.count(); ++i) {
-        const UniformInfo& sampler = fSamplers[i];
+    for (const UniformInfo& sampler : fSamplers.items()) {
         SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
         if (visibility == sampler.fVisibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
@@ -279,8 +278,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
 
 #ifdef SK_DEBUG
     bool firstOffsetCheck = false;
-    for (int i = 0; i < fUniforms.count(); ++i) {
-        const UniformInfo& localUniform = fUniforms[i];
+    for (const UniformInfo& localUniform : fUniforms.items()) {
         if (!firstOffsetCheck) {
             // Check to make sure we are starting our offset at 0 so the offset qualifier we
             // set on each variable in the uniform block is valid.
@@ -291,8 +289,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
 #endif
 
     SkString uniformsString;
-    for (int i = 0; i < fUniforms.count(); ++i) {
-        const UniformInfo& localUniform = fUniforms[i];
+    for (const UniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);

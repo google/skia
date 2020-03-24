@@ -15,18 +15,18 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
     , fUniformsDirty(false) {
     fUniformData.reset(uniformBufferSize);
     memset(fUniformData.get(), 0, fUniformBufferSize);
-    int count = uniforms.count();
-    fUniforms.push_back_n(count);
+    fUniforms.push_back_n(uniforms.count());
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
-    for (int i = 0; i < count; i++) {
+    int i = 0;
+    for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
-        const GrDawnUniformHandler::UniformInfo uniformInfo = uniforms[i];
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVar.getArrayCount();
             uniform.fType = uniformInfo.fVar.getType();
         )
         uniform.fOffset = uniformInfo.fUBOOffset;
+        ++i;
     }
 }
 
