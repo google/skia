@@ -596,6 +596,7 @@ optional("gpu") {
     deps += [
       "//third_party/dawn:dawncpp",
       "//third_party/dawn:libdawn_native",
+      "//third_party/dawn:libdawn_native_sources",
       "//third_party/dawn:libdawn_proc",
     ]
     if (dawn_enable_d3d12) {
