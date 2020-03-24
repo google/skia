@@ -57,9 +57,9 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     // offsets with imperfect precision would cause us to skip/double hit a texel.
     // The use of "texel" above is somewhat abstract as we're sampling a child processor. It is
     // assumed the child processor represents something akin to a nearest neighbor sampled texture.
+    fragBuilder->codeAppend("half2 f = half2(fract(coord));");
+    fragBuilder->codeAppend("coord = coord + (half2(0.5) - f);");
     if (bicubicEffect.fDirection == GrBicubicEffect::Direction::kXY) {
-        fragBuilder->codeAppend("half2 f = half2(fract(coord));");
-        fragBuilder->codeAppend("coord = coord + (half2(0.5) - f);");
         fragBuilder->codeAppend(
                 "half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
         fragBuilder->codeAppend(
@@ -82,10 +82,9 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
                 "half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     } else {
         const char* d = bicubicEffect.fDirection == Direction::kX ? "x" : "y";
-        fragBuilder->codeAppendf("half f = half(fract(coord.%s));", d);
-        fragBuilder->codeAppendf("coord.%s = coord.%s + (0.5 - f);", d, d);
-        fragBuilder->codeAppend("half f2 = f * f;");
-        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, f, f2, f2 * f);");
+        fragBuilder->codeAppendf("half v = f.%s;", d);
+        fragBuilder->codeAppend("half v2 = v * v;");
+        fragBuilder->codeAppend("half4 w = kMitchellCoefficients * half4(1.0, v, v2, v2 * f);");
         fragBuilder->codeAppend("half4 c[4];");
         for (int i = 0; i < 4; ++i) {
             SkString coord;
