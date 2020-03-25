@@ -12,8 +12,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
-#if defined(SK_USE_LEGACY_SRGB_COLOR_FILTER)
-
 class GrGLSRGBEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
@@ -136,4 +134,3 @@ GrGLSLFragmentProcessor* GrSRGBEffect::onCreateGLSLInstance() const {
     return new GrGLSRGBEffect;
 }
 
-#endif
