@@ -16,6 +16,24 @@
       "revId": "d4bf9e7b02dbad5e494bf56eeddd36abe58454da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97029ad9_563ca0a2",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-25T14:51:37Z",
+      "side": 1,
+      "message": "Possibly could be a Bifrost issue. I have no recollection of the linked CL. I wonder if there could be difference on how vendors handle the precision of intermediate values that don\u0027t have an explicit precision modifier.",
+      "parentUuid": "bab6a837_85ad01ae",
+      "revId": "d4bf9e7b02dbad5e494bf56eeddd36abe58454da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
