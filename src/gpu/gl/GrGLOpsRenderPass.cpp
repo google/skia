@@ -134,10 +134,10 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
     this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, nullptr, 0);
     if (fGpu->glCaps().drawRangeElementsSupport()) {
         fGpu->drawRangeElements(fPrimitiveType, minIndexValue, maxIndexValue, indexCount,
-                                GR_GL_UNSIGNED_SHORT, fIndexPointer + baseIndex);
+                                GR_GL_UNSIGNED_SHORT, this->offsetForBaseIndex(baseIndex));
     } else {
         fGpu->drawElements(fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
-                           fIndexPointer + baseIndex);
+                           this->offsetForBaseIndex(baseIndex));
     }
 }
 
@@ -159,7 +159,7 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
         this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, fActiveInstanceBuffer.get(),
                             baseInstance + i);
         fGpu->drawElementsInstanced(fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
-                                    fIndexPointer + baseIndex,
+                                    this->offsetForBaseIndex(baseIndex),
                                     std::min(instanceCount - i, maxInstances));
     }
 }

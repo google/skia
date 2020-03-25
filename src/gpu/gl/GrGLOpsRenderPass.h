@@ -43,6 +43,14 @@ private:
     void setupGeometry(const GrBuffer* vertexBuffer, int baseVertex, const GrBuffer* instanceBuffer,
                        int baseInstance);
 
+    const void* offsetForBaseIndex(int baseIndex) const {
+        if (!fIndexPointer) {
+            // nullptr != 0. Adding an offset to a nullptr is undefined.
+            return (void*)(baseIndex * sizeof(uint16_t));
+        }
+        return fIndexPointer + baseIndex;
+    }
+
     void onBegin() override;
     void onEnd() override;
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
