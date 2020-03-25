@@ -11,7 +11,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkVM.h"
 
-// TODO(mtklein): explain the logic of this file
+// See skia.org/user/color  (== site/user/color.md).
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
