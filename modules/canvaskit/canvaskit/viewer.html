@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<title>CanvasKit Viewer (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<canvas id=viewer_canvas></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+  var CanvasKit = null;
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
+  }).ready().then((CK) => {
+    CanvasKit = CK;
+    ViewerMain(CanvasKit);
+  });
+
+  function ViewerMain(CanvasKit) {
+    if (!CanvasKit) {
+      console.error('CanvasKit not available.');
+      return;
+    }
+    if (!CanvasKit.MakeSlide) {
+      console.error('Not compiled with Viewer.');
+      return;
+    }
+
+    const htmlCanvas = document.getElementById('viewer_canvas');
+    htmlCanvas.width = window.innerWidth;
+    htmlCanvas.height = window.innerHeight;
+
+    const surface = CanvasKit.MakeCanvasSurface(htmlCanvas);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const slideName = 'WavyPathText';
+    const slide = CanvasKit.MakeSlide(slideName);
+    if (!slide) {
+      console.error('Could not make slide ' + slideName);
+      return;
+    }
+
+    slide.load(htmlCanvas.width, htmlCanvas.height);
+    const now0 = Date.now();
+
+    surface.requestAnimationFrame(function(canvas) {
+      const nanos = (Date.now() - now0) * 1e6;
+      if (slide.animate(nanos)) {
+        surface.requestAnimationFrame(arguments.callee);
+      }
+      slide.draw(canvas);
+    });
+  }
+</script>

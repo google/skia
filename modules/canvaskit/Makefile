@@ -17,6 +17,13 @@ release_cpu:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
 
+release_viewer:
+	# Does an incremental build where possible.
+	./compile.sh viewer
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
 debug:
 	# Does an incremental build where possible.
 	./compile.sh debug
@@ -28,6 +35,14 @@ debug:
 debug_cpu:
 	# Does an incremental build where possible.
 	./compile.sh debug cpu_only
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+
+debug_viewer:
+	# Does an incremental build where possible.
+	./compile.sh debug viewer
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin

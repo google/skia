@@ -28,6 +28,7 @@ EMAR=`which emar`
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+IS_OFFICIAL_BUILD="true"
 
 # Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
 # be on debug builds always.
@@ -87,6 +88,16 @@ if [[ $@ == *no_skottie* ]]; then
   SKOTTIE_JS=""
   SKOTTIE_LIB=""
   SKOTTIE_BINDINGS=""
+fi
+
+VIEWER_BINDINGS=""
+VIEWER_LIB=""
+
+if [[ $@ == *viewer* ]]; then
+  echo "Including viewer"
+  VIEWER_BINDINGS="$BASE_DIR/viewer_bindings.cpp"
+  VIEWER_LIB="$BUILD_DIR/libviewer_wasm.a"
+  IS_OFFICIAL_BUILD="false"
 fi
 
 MANAGED_SKOTTIE_BINDINGS="\
@@ -171,12 +182,10 @@ fi
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
-SHAPER_TARGETS="libharfbuzz.a libicu.a"
 if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
   GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
   SHAPER_LIB=""
-  SHAPER_TARGETS=""
 fi
 
 PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
@@ -246,7 +255,7 @@ echo "Compiling bitcode"
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
-  is_official_build=true \
+  is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
@@ -286,9 +295,14 @@ echo "Compiling bitcode"
   skia_enable_skparagraph=true \
   skia_enable_pdf=false"
 
-# Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
-    libskparagraph.a libskshaper.a libparticles.a $SHAPER_TARGETS
+# Build all the libs we will need below
+parse_targets() {
+  for LIBPATH in $@; do
+    basename $LIBPATH
+  done
+}
+${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a \
+  $(parse_targets $SKOTTIE_LIB $VIEWER_LIB $PARTICLES_LIB $SHAPER_LIB $PARAGRAPH_LIB)
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -328,9 +342,11 @@ ${EMCXX} \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
+    $VIEWER_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
     $PARAGRAPH_BINDINGS \
     $SKOTTIE_LIB \
+    $VIEWER_LIB \
     $PARTICLES_LIB \
     $PARAGRAPH_LIB \
     $BUILD_DIR/libskshaper.a \
