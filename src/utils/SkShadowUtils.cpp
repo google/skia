@@ -24,6 +24,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
@@ -54,6 +55,10 @@ protected:
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
         return true;
+    }
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const override {
+        return {};  // TODO
     }
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)

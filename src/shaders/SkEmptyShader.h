@@ -8,9 +8,8 @@
 #ifndef SkEmptyShader_DEFINED
 #define SkEmptyShader_DEFINED
 
+#include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
-
-// TODO: move this to private, as there is a public factory on SkShader
 
 /**
  *  \class SkEmptyShader
@@ -35,6 +34,13 @@ protected:
 
     bool onAppendStages(const SkStageRec&) const override {
         return false;
+    }
+
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        return {};
     }
 
 private:

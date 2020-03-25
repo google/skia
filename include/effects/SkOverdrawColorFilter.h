@@ -46,6 +46,9 @@ private:
 
     bool onAppendStages(const SkStageRec&, bool) const override;
 
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const override;
+
     SkColor fColors[kNumColors];
 
     typedef SkColorFilter INHERITED;

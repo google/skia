@@ -12,6 +12,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -41,6 +42,11 @@ public:
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const override {
+        return {};  // TODO
+    }
 
 protected:
     void flatten(SkWriteBuffer&) const override;

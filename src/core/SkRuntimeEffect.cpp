@@ -12,6 +12,7 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -413,6 +414,11 @@ public:
         return true;
     }
 
+    skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                          SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const override {
+        return {};  // TODO
+    }
+
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
         if (fInputs) {
@@ -530,6 +536,13 @@ public:
         rec.fPipeline->append_matrix(rec.fAlloc, inverse);
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
+                          const SkMatrix& ctm, const SkMatrix* localM,
+                          SkFilterQuality quality, const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        return {};  // TODO
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

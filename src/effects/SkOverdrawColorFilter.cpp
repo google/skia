@@ -11,6 +11,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
@@ -70,6 +71,12 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     return true;
+}
+
+skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder*, skvm::Color,
+                                            SkColorSpace* dstCS,
+                                            skvm::Uniforms*, SkArenaAlloc*) const {
+    return {};  // TODO
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
