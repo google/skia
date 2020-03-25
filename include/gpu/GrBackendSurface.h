@@ -508,6 +508,8 @@ private:
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
                           sk_sp<GrVkImageLayout> layout);
 #ifdef SK_DIRECT3D
+    friend class GrD3DRenderTarget;
+    friend class GrD3DGpu; // for getGrD3DResourceState
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrD3DTextureInfo& d3dInfo,
                           sk_sp<GrD3DResourceState> state);
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;

@@ -237,7 +237,9 @@ void GrVkTexture::willRemoveLastRef() {
     if (callFinishProcs) {
         // Everything must go!
         fIdleProcs.reset();
-        resource->resetIdleProcs();
+        if (resource) {
+            resource->resetIdleProcs();
+        }
     } else {
         // The procs that should be called on flush but not finish are those that are owned
         // by the GrVkTexture and not the Resource. We do this by copying the resource's array
