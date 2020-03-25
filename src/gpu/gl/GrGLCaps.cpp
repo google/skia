@@ -397,6 +397,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
                                                ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
+        shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
     }
 
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
