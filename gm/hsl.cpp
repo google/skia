@@ -208,7 +208,7 @@ static sk_sp<SkShader> make_grad(SkScalar width) {
 }
 
 DEF_SIMPLE_GM(HSL_duck, canvas, 1110, 620) {
-    auto src = GetResourceAsImage("ducky.png");
+    auto src = GetResourceAsImage("images/ducky.png");
     auto dst = make_grad(src->width());
     SkRect r = SkRect::MakeIWH(src->width(), src->height());
 
