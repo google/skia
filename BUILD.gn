@@ -1423,7 +1423,7 @@ if (skia_enable_tools) {
 
     # We need the GLTestContext on Vulkan-only builds for the persistent GL context workaround in
     # in GrContextFactory. This only matters for OSes that can run Vulkan.
-    if (skia_use_gl || skia_use_vulkan) {
+    if ((skia_use_gl || skia_use_vulkan) && target_cpu != "wasm") {
       if (is_android || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
@@ -1531,7 +1531,6 @@ if (skia_enable_tools) {
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/AutoreleasePool.h",
-      "tools/CrashHandler.cpp",
       "tools/DDLPromiseImageHelper.cpp",
       "tools/DDLTileHelper.cpp",
       "tools/LsanSuppressions.cpp",
@@ -1559,6 +1558,9 @@ if (skia_enable_tools) {
       "tools/timer/TimeUtils.h",
       "tools/timer/Timer.cpp",
     ]
+    if (target_cpu != "wasm") {
+      sources += [ "tools/CrashHandler.cpp" ]
+    }
     libs = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
@@ -1797,30 +1799,33 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (target_cpu != "wasm") {
-    import("gn/samples.gni")
-    test_lib("samples") {
-      sources = samples_sources
-      public_deps = [
-        ":tool_utils",
-      ]
-      deps = [
-        ":experimental_svg_model",
-        ":flags",
-        ":gpu_tool_utils",
-        ":xml",
-        "modules/skparagraph:samples",
-        "modules/skshaper",
-      ]
-
-      if (skia_use_lua) {
-        sources += [ "samplecode/SampleLua.cpp" ]
-        deps += [
-          ":lua",
-          "//third_party/lua",
-        ]
-      }
+  import("gn/samples.gni")
+  test_lib("samples") {
+    sources = samples_sources
+    if (skia_enable_ccpr) {
+      sources += samples_sources_ccpr
     }
+    public_deps = [
+      ":tool_utils",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      ":flags",
+      ":gpu_tool_utils",
+      ":xml",
+      "modules/skparagraph:samples",
+      "modules/skshaper",
+    ]
+
+    if (skia_use_lua) {
+      sources += [ "samplecode/SampleLua.cpp" ]
+      deps += [
+        ":lua",
+        "//third_party/lua",
+      ]
+    }
+  }
+  if (target_cpu != "wasm") {
     test_app("imgcvt") {
       sources = [
         "tools/imgcvt.cpp",
@@ -2594,6 +2599,14 @@ if (skia_enable_tools) {
     deps = [
       ":skia",
     ]
+  }
+
+  group("modules_testonly") {
+    testonly = true
+    deps = []
+    if (target_cpu == "wasm") {
+      deps += [ "modules/canvaskit:viewer_wasm" ]
+    }
   }
 }
 
