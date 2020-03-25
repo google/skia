@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b19e569_1a85ee39",
+        "filename": "src/gpu/ccpr/GrAutoMapVertexBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-25T18:32:36Z",
+      "side": 1,
+      "message": "Think these methods are long enough to merit a separate CPP file?",
+      "revId": "5ae6a7e700d289cef20332614302445921c447bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
