@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "7f549f67_81cafbbf",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-25T21:07:56Z",
+      "side": 1,
+      "message": "Also I am fine if some renamings happen in a follow on CL if it makes things easier and we go that route.",
+      "parentUuid": "64d0078c_d3ad9133",
+      "range": {
+        "startLine": 112,
+        "startChar": 39,
+        "endLine": 112,
+        "endChar": 46
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d2c337f_cf6152ab",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
