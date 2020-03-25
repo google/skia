@@ -25,6 +25,7 @@
 var CanvasKit = {
   // public API (i.e. things we declare in the pre-js file or in the cpp bindings)
   Color: function() {},
+  Color4f: function() {},
   /** @return {CanvasKit.SkRect} */
   LTRBRect: function() {},
   /** @return {CanvasKit.SkRect} */
@@ -537,12 +538,14 @@ var CanvasKit = {
   skottie: {},
 
   TRANSPARENT: {},
+  BLACK: {},
+  WHITE: {},
   RED: {},
+  GREEN: {},
   BLUE: {},
   YELLOW: {},
   CYAN: {},
-  BLACK: {},
-  WHITE: {},
+  MAGENTA: {},
 
   MOVE_VERB: {},
   LINE_VERB: {},
