@@ -11,7 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrTessellator.h"
+#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/ccpr/GrAutoMapVertexBuffer.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
@@ -72,7 +72,7 @@ private:
             SkASSERT(this->hasFanTessellation());
             return fFanTessellationCount;
         }
-        const GrTessellator::WindingVertex* fanTessellation() const {
+        const GrTriangulator::WindingVertex* fanTessellation() const {
             SkASSERT(this->hasFanTessellation());
             return fFanTessellation.get();
         }
@@ -84,7 +84,7 @@ private:
         GrScissorTest fScissorTest;
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         int fFanTessellationCount = -1;
-        std::unique_ptr<const GrTessellator::WindingVertex[]> fFanTessellation;
+        std::unique_ptr<const GrTriangulator::WindingVertex[]> fFanTessellation;
     };
 
     // Defines a batch of CCPR primitives. Start indices are deduced by looking at the previous
@@ -103,7 +103,7 @@ private:
     };
 
     void emitTessellatedFan(
-            const GrTessellator::WindingVertex*, int numVertices, const Sk2f& devToAtlasOffset,
+            const GrTriangulator::WindingVertex*, int numVertices, const Sk2f& devToAtlasOffset,
             GrCCCoverageProcessor::TriPointInstance::Ordering,
             GrCCCoverageProcessor::TriPointInstance*, GrCCCoverageProcessor::QuadPointInstance*,
             GrCCFillGeometry::PrimitiveTallies*);

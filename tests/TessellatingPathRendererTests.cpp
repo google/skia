@@ -15,7 +15,7 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrShape.h"
-#include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/shaders/SkShaderBase.h"
 
 /*
@@ -704,8 +704,8 @@ static void test_path(GrContext* ctx,
                       const SkMatrix& matrix = SkMatrix::I(),
                       GrAAType aaType = GrAAType::kNone,
                       std::unique_ptr<GrFragmentProcessor> fp = nullptr) {
-    GrTessellatingPathRenderer tess;
-    tess.setMaxVerbCount(100);
+    GrTriangulatingPathRenderer pr;
+    pr.setMaxVerbCount(100);
 
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -728,10 +728,10 @@ static void test_path(GrContext* ctx,
                                       &shape,
                                       aaType,
                                       false};
-    tess.drawPath(args);
+    pr.drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     auto rtc = GrRenderTargetContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrTessellator.h"
+#include "src/gpu/GrTriangulator.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrVertexWriter.h"
@@ -96,7 +96,7 @@
 
 namespace {
 
-using GrTessellator::Mode;
+using GrTriangulator::Mode;
 
 const int kArenaChunkSize = 16 * 1024;
 const float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14 degrees.
@@ -2421,7 +2421,7 @@ int64_t count_points(Poly* polys, SkPathFillType fillType) {
     int64_t count = 0;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly) && poly->fCount >= 3) {
-            count += (poly->fCount - 2) * (TESSELLATOR_WIREFRAME ? 6 : 3);
+            count += (poly->fCount - 2) * (TRIANGULATOR_WIREFRAME ? 6 : 3);
         }
     }
     return count;
@@ -2431,7 +2431,7 @@ int64_t count_outer_mesh_points(const VertexList& outerMesh) {
     int64_t count = 0;
     for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
-            count += TESSELLATOR_WIREFRAME ? 12 : 6;
+            count += TRIANGULATOR_WIREFRAME ? 12 : 6;
         }
     }
     return count;
@@ -2453,7 +2453,7 @@ void* outer_mesh_to_triangles(const VertexList& outerMesh, bool emitCoverage, vo
 
 } // namespace
 
-namespace GrTessellator {
+namespace GrTriangulator {
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
@@ -2498,7 +2498,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 }
 
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                   GrTessellator::WindingVertex** verts) {
+                   WindingVertex** verts) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *verts = nullptr;
@@ -2516,8 +2516,8 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     }
     int count = count64;
 
-    *verts = new GrTessellator::WindingVertex[count];
-    GrTessellator::WindingVertex* vertsEnd = *verts;
+    *verts = new WindingVertex[count];
+    WindingVertex* vertsEnd = *verts;
     SkPoint* points = new SkPoint[count];
     SkPoint* pointsEnd = points;
     for (Poly* poly = polys; poly; poly = poly->fNext) {

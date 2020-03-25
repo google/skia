@@ -10,7 +10,7 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrTessellator.h"
+#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
 #include "src/gpu/tessellate/GrPathParser.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
@@ -50,9 +50,9 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
         bool pathIsLinear;
         // PathToTriangles(..kSimpleInnerPolygon..) will fail if the inner polygon is not simple.
-        if ((fPathVertexCount = GrTessellator::PathToTriangles(
+        if ((fPathVertexCount = GrTriangulator::PathToTriangles(
                 fPath, 0, SkRect::MakeEmpty(), &pathVertexAllocator,
-                GrTessellator::Mode::kSimpleInnerPolygons, &pathIsLinear))) {
+                GrTriangulator::Mode::kSimpleInnerPolygons, &pathIsLinear))) {
             if (((Flags::kStencilOnly | Flags::kWireframe) & fFlags) ||
                 GrAAType::kCoverage == fAAType ||
                 (state->appliedClip() && state->appliedClip()->hasStencilClip())) {

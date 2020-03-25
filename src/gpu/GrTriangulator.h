@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellator_DEFINED
-#define GrTessellator_DEFINED
+#ifndef GrTriangulator_DEFINED
+#define GrTriangulator_DEFINED
 
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
@@ -20,9 +20,9 @@ struct SkRect;
  * Provides utility functions for converting paths to a collection of triangles.
  */
 
-#define TESSELLATOR_WIREFRAME 0
+#define TRIANGULATOR_WIREFRAME 0
 
-namespace GrTessellator {
+namespace GrTriangulator {
 
 struct WindingVertex {
     SkPoint fPos;
@@ -42,7 +42,7 @@ enum class Mode {
     // Surround path edges with coverage ramps for antialiasing.
     kEdgeAntialias,
 
-    // Tessellate only each contour's inner polygon. The inner polygons connect the endpoints of
+    // Triangulate only each contour's inner polygon. The inner polygons connect the endpoints of
     // each verb. (i.e., they are the path that would result from collapsing all curves to single
     // lines.)
     //

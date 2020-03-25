@@ -23,7 +23,7 @@
 #include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrSmallPathRenderer.h"
 #include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
-#include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/gpu/tessellate/GrGpuTessellationPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
@@ -74,8 +74,8 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
             }
         }
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
-        fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
+        fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path

@@ -175,9 +175,9 @@ void GrCCFiller::PathInfo::tessellateFan(
         }
     }
 
-    GrTessellator::WindingVertex* vertices = nullptr;
+    GrTriangulator::WindingVertex* vertices = nullptr;
     SkASSERT(!fan.isInverseFillType());
-    fFanTessellationCount = GrTessellator::PathToVertices(
+    fFanTessellationCount = GrTriangulator::PathToVertices(
             fan, std::numeric_limits<float>::infinity(), SkRect::Make(clippedDevIBounds),
             &vertices);
     if (fFanTessellationCount <= 0) {
@@ -272,9 +272,10 @@ static TriPointInstance* emit_recursive_fan(
 }
 
 void GrCCFiller::emitTessellatedFan(
-        const GrTessellator::WindingVertex* vertices, int numVertices, const Sk2f& devToAtlasOffset,
-        TriPointInstance::Ordering ordering, TriPointInstance* triPointInstanceData,
-        QuadPointInstance* quadPointInstanceData, GrCCFillGeometry::PrimitiveTallies* indices) {
+        const GrTriangulator::WindingVertex* vertices, int numVertices,
+        const Sk2f& devToAtlasOffset, TriPointInstance::Ordering ordering,
+        TriPointInstance* triPointInstanceData, QuadPointInstance* quadPointInstanceData,
+        GrCCFillGeometry::PrimitiveTallies* indices) {
     for (int i = 0; i < numVertices; i += 3) {
         int weight = vertices[i].fWinding;
         SkASSERT(weight >= 1);

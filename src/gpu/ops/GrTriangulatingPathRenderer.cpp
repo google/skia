@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
@@ -21,22 +21,22 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrTessellator.h"
+#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #ifndef GR_AA_TESSELLATOR_MAX_VERB_COUNT
 #define GR_AA_TESSELLATOR_MAX_VERB_COUNT 10
 #endif
 
 /*
- * This path renderer tessellates the path into triangles using GrTessellator, uploads the
- * triangles to a vertex buffer, and renders them with a single draw call. It can do screenspace
- * antialiasing with a one-pixel coverage ramp.
+ * This path renderer linearizes and decomposes the path into triangles using GrTriangulator,
+ * uploads the triangles to a vertex buffer, and renders them with a single draw call. It can do
+ * screenspace antialiasing with a one-pixel coverage ramp.
  */
 namespace {
 
@@ -123,12 +123,12 @@ private:
 
 }  // namespace
 
-GrTessellatingPathRenderer::GrTessellatingPathRenderer()
+GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
   : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
 }
 
 GrPathRenderer::CanDrawPath
-GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrTriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer can draw fill styles, and can do screenspace antialiasing via a
     // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
     // ones to simpler algorithms. We pass on paths that have styles, though they may come back
@@ -161,7 +161,7 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 
 namespace {
 
-class TessellatingPathOp final : public GrMeshDrawOp {
+class TriangulatingPathOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
@@ -175,12 +175,12 @@ public:
                                           SkIRect devClipBounds,
                                           GrAAType aaType,
                                           const GrUserStencilSettings* stencilSettings) {
-        return Helper::FactoryHelper<TessellatingPathOp>(context, std::move(paint), shape,
-                                                         viewMatrix, devClipBounds,
-                                                         aaType, stencilSettings);
+        return Helper::FactoryHelper<TriangulatingPathOp>(context, std::move(paint), shape,
+                                                          viewMatrix, devClipBounds, aaType,
+                                                          stencilSettings);
     }
 
-    const char* name() const override { return "TessellatingPathOp"; }
+    const char* name() const override { return "TriangulatingPathOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
         if (fProgramInfo) {
@@ -200,13 +200,13 @@ public:
     }
 #endif
 
-    TessellatingPathOp(Helper::MakeArgs helperArgs,
-                       const SkPMColor4f& color,
-                       const GrShape& shape,
-                       const SkMatrix& viewMatrix,
-                       const SkIRect& devClipBounds,
-                       GrAAType aaType,
-                       const GrUserStencilSettings* stencilSettings)
+    TriangulatingPathOp(Helper::MakeArgs helperArgs,
+                        const SkPMColor4f& color,
+                        const GrShape& shape,
+                        const SkMatrix& viewMatrix,
+                        const SkIRect& devClipBounds,
+                        GrAAType aaType,
+                        const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fHelper(helperArgs, aaType, stencilSettings)
             , fColor(color)
@@ -283,8 +283,8 @@ private:
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
-                                                   GrTessellator::Mode::kNormal, &isLinear);
+        int count = GrTriangulator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
+                                                    GrTriangulator::Mode::kNormal, &isLinear);
         if (count == 0) {
             return;
         }
@@ -313,8 +313,8 @@ private:
         int firstVertex;
         bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator,
-                                                   GrTessellator::Mode::kEdgeAntialias, &isLinear);
+        int count = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
+                                                    GrTriangulator::Mode::kEdgeAntialias, &isLinear);
         if (count == 0) {
             return;
         }
@@ -359,13 +359,13 @@ private:
         }
 
 #ifdef SK_DEBUG
-        auto mode = (fAntiAlias) ? GrTessellator::Mode::kEdgeAntialias
-                                 : GrTessellator::Mode::kNormal;
-        SkASSERT(GrTessellator::GetVertexStride(mode) == gp->vertexStride());
+        auto mode = (fAntiAlias) ? GrTriangulator::Mode::kEdgeAntialias
+                                 : GrTriangulator::Mode::kNormal;
+        SkASSERT(GrTriangulator::GetVertexStride(mode) == gp->vertexStride());
 #endif
 
-        GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
-                                                              : GrPrimitiveType::kTriangles;
+        GrPrimitiveType primitiveType = TRIANGULATOR_WIREFRAME ? GrPrimitiveType::kLines
+                                                               : GrPrimitiveType::kTriangles;
 
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, outputView,
                                                              std::move(appliedClip), dstProxyView,
@@ -414,14 +414,14 @@ private:
 
 }  // anonymous namespace
 
-bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
-                              "GrTessellatingPathRenderer::onDrawPath");
+                              "GrTriangulatingPathRenderer::onDrawPath");
     SkIRect clipBoundsI;
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(
+    std::unique_ptr<GrDrawOp> op = TriangulatingPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix, clipBoundsI,
             args.fAAType, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
@@ -432,7 +432,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-GR_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
+GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds = SkIRect::MakeLTRB(
@@ -448,8 +448,8 @@ GR_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
     GrShape shape(path, style);
-    return TessellatingPathOp::Make(context, std::move(paint), shape, viewMatrix, devClipBounds,
-                                    aaType, GrGetRandomStencil(random, context));
+    return TriangulatingPathOp::Make(context, std::move(paint), shape, viewMatrix, devClipBounds,
+                                     aaType, GrGetRandomStencil(random, context));
 }
 
 #endif
