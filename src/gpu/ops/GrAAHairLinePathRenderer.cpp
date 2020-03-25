@@ -1124,9 +1124,11 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
 
     // Conservatively predict which programs will be required
     fCharacterization = this->predictPrograms(caps);
+    SkASSERT(fCharacterization & kLine_Program);
 
     this->createProgramInfo(caps, arena, outputView, std::move(appliedClip), dstProxyView);
 
+    //SkDebugf("recording %p %p %p\n", fProgramInfos[0], fProgramInfos[1], fProgramInfos[2]);
     context->priv().recordProgramInfo(fProgramInfos[0]);
     context->priv().recordProgramInfo(fProgramInfos[1]);
     context->priv().recordProgramInfo(fProgramInfos[2]);
@@ -1252,13 +1254,14 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         }
     }
 
+    SkASSERT((fCharacterization & actualPrograms) == actualPrograms);
     // In DDL mode this will replace the predicted program requirements with the actual ones.
     // However, we will already have surfaced the predicted programs to the DDL.
     fCharacterization = actualPrograms;
 }
 
 void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    this->createProgramInfo(flushState);
+//    this->createProgramInfo(flushState);
 
     for (int i = 0; i < 3; ++i) {
         if (fProgramInfos[i] && fMeshes[i]) {

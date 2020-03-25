@@ -769,6 +769,7 @@ void GrResourceCache::dumpStats(SkString* out) const {
 
     this->getStats(&stats);
 
+#if 0
     float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
 
     out->appendf("Budget: %d bytes\n", (int)fMaxBytes);
@@ -779,6 +780,7 @@ void GrResourceCache::dumpStats(SkString* out) const {
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
                  SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
+#endif
 }
 
 void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
