@@ -268,7 +268,7 @@ GrDrawOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op,
                                                          GrRecordingContext::Arenas*,
                                                          const GrCaps&) {
     const auto& that = *op->cast<FillRRectOp>();
-    if (fFlags != that.fFlags || fProcessors != that.fProcessors ||
+    if (fFlags != that.fFlags || fProcessors != that.fProcessors || fAAType != that.fAAType ||
         fInstanceData.count() > std::numeric_limits<int>::max() - that.fInstanceData.count()) {
         return CombineResult::kCannotCombine;
     }
