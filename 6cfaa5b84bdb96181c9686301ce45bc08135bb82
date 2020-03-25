@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f2ff2d80_7ec02359",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-25T20:47:33Z",
+      "side": 1,
+      "message": "I understand the drive to use Resource internally, but I would like to keep the D3D element for a GrBackend*Texture* as TextureInfo.",
+      "parentUuid": "079f11b3_092fbd65",
+      "range": {
+        "startLine": 112,
+        "startChar": 39,
+        "endLine": 112,
+        "endChar": 46
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d2c337f_cf6152ab",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
