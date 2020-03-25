@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d55e77c0_9b8b380a",
+        "filename": "src/gpu/d3d/GrD3DTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-03-25T14:39:14Z",
+      "side": 1,
+      "message": "If \u0027resource\u0027 is nullptr, then \u0027callFinishProcs\u0027 is true.  But if \u0027callFinishProcs\u0027 is true, then we dereference \u0027resource\u0027 with the call the resetIdleProcs().  Should there be a nullptr check before this call to resetIdleProcs()?",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 35
+      },
+      "revId": "8b932b157ba5f61d039034ddebef65d5de183227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
