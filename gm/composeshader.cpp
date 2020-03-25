@@ -27,6 +27,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkTLazy.h"
+#include "tools/Resources.h"
 
 #include <utility>
 
@@ -367,4 +368,31 @@ DEF_SIMPLE_GM(composeshader_grid, canvas, 882, 882) {
         }
     }
     canvas->restore();
+}
+
+DEF_SIMPLE_GM(composeshader_lerp_lm, canvas, 1024, 512) {
+    auto img0 = GetResourceAsImage("images/mandrill_256.png");
+    auto img1 = GetResourceAsImage("ducky.png");
+    // fit the duck to the monkey
+    SkMatrix lm = SkMatrix::MakeScale(1.0f*img0->width() / img1->height(),
+                                      1.0f*img0->height()/ img1->height());
+    auto sh0 = img0->makeShader();
+    auto sh1 = img1->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, &lm);
+    SkRect r = SkRect::MakeIWH(img0->width(), img0->height());
+
+    SkPaint paint;
+
+    auto draw_row = [&](const SkMatrix* lm) {
+        SkAutoCanvasRestore acr(canvas, true);
+        for (float t : {0.0f, 0.333f, 0.667f, 1.0f}) {
+            paint.setShader(SkShaders::Lerp(t, sh0, sh1, lm));
+            canvas->drawRect(r, paint);
+            canvas->translate(img0->width(), 0);
+        }
+    };
+
+    draw_row(nullptr);
+    lm.setScale(-1, 1).postTranslate(img0->width(), 0);
+    canvas->translate(0, img0->height());
+    draw_row(&lm);
 }
