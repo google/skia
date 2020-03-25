@@ -24,6 +24,13 @@ public:
             const SkMatrix& = SkMatrix::I(),
             GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
 
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            GrSurfaceProxyView,
+            SkAlphaType,
+            const SkMatrix&,
+            SkMatrix* outTextureMatrix,
+            bool* outNormalize);
+
     /**
      * Make from a full GrSamplerState. Caps are required to determine support for kClampToBorder.
      * This will be emulated in the shader if there is no hardware support.
@@ -33,6 +40,11 @@ public:
                                                      const GrCaps& caps,
                                                      const float border[4] = kDefaultBorder);
 
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView, SkAlphaType,
+                                                     const SkMatrix&, GrSamplerState,
+                                                     const GrCaps& caps,
+                                                     SkMatrix* outTextureMatrix,
+                                                     bool* outNormalize);
     /**
      * Makes a texture effect that samples a subset of a texture. The wrap modes of the
      * GrSampleState are applied to the subset in the shader rather than using HW samplers.
@@ -65,6 +77,15 @@ public:
                                                            const SkRect& domain,
                                                            const GrCaps& caps,
                                                            const float border[4] = kDefaultBorder);
+
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
+                                                           SkAlphaType,
+                                                           const SkMatrix&,
+                                                           GrSamplerState,
+                                                           const SkRect& subset,
+                                                           const GrCaps& caps,
+                                                           SkMatrix* outTextureMatrix,
+                                                           bool* outNormalize);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -101,7 +122,7 @@ private:
     SkRect fClamp;
     ShaderMode fShaderModes[2];
 
-    inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const SkMatrix&, const Sampling&);
+    inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const Sampling&);
 
     GrTextureEffect(const GrTextureEffect& src);
 

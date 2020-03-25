@@ -68,12 +68,12 @@ public:
         (void)rect;
         auto cornerRadius = _outer.cornerRadius;
         (void)cornerRadius;
-        cornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                           "cornerRadius");
-        proxyRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        "proxyRect");
-        blurRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         "blurRadius");
+        cornerRadiusVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                           kHalf_GrSLType, "cornerRadius");
+        proxyRectVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "proxyRect");
+        blurRadiusVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                         kHalf_GrSLType, "blurRadius");
         fragBuilder->codeAppendf(
                 "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
                 "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "

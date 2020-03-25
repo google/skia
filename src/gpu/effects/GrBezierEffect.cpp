@@ -192,7 +192,8 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // TODO should we really be doing this?
     if (gp.coverageScale() != 0xff) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+        fCoverageScaleUniform = uniformHandler->addUniform(nullptr,
+                                                           kFragment_GrShaderFlag,
                                                            kFloat_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
@@ -393,7 +394,8 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     if (0xff != gp.coverageScale()) {
         const char* coverageScale;
-        fCoverageScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+        fCoverageScaleUniform = uniformHandler->addUniform(nullptr,
+                                                           kFragment_GrShaderFlag,
                                                            kHalf_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
