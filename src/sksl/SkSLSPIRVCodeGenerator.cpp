@@ -580,12 +580,12 @@ SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    String key = function.fReturnType.displayName() + "(";
+    String key = to_string(this->getType(function.fReturnType)) + "(";
     String separator;
     for (size_t i = 0; i < function.fParameters.size(); i++) {
         key += separator;
         separator = ", ";
-        key += function.fParameters[i]->fType.displayName();
+        key += to_string(this->getType(function.fParameters[i]->fType));
     }
     key += ")";
     auto entry = fTypeMap.find(key);
