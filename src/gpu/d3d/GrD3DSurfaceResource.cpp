@@ -72,7 +72,7 @@ GrD3DSurfaceResource::~GrD3DSurfaceResource() {
     SkASSERT(!fResource);
 }
 
-void GrD3DSurfaceResource::releaseTexture(GrD3DGpu* gpu) {
+void GrD3DSurfaceResource::releaseResource(GrD3DGpu* gpu) {
     // TODO: do we need to migrate resource state if we change queues?
     if (fResource) {
         fResource->removeOwningTexture();
