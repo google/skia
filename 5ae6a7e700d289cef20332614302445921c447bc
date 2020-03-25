@@ -16,6 +16,24 @@
       "revId": "5ae6a7e700d289cef20332614302445921c447bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f8716f9_85553057",
+        "filename": "src/gpu/ccpr/GrAutoMapVertexBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-25T18:47:42Z",
+      "side": 1,
+      "message": "I\u0027m not concerned about it - I think this is fine in the header.",
+      "parentUuid": "3b19e569_1a85ee39",
+      "revId": "5ae6a7e700d289cef20332614302445921c447bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
