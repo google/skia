@@ -70,7 +70,7 @@ public:
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 
 protected:
-    void releaseTexture(GrD3DGpu* gpu);
+    void releaseResource(GrD3DGpu* gpu);
     bool hasResource() const { return SkToBool(fResource); }
 
     GrD3DTextureInfo fInfo;
@@ -107,6 +107,8 @@ private:
     };
 
     sk_sp<Resource> fResource;
+
+    friend class GrD3DRenderTarget;
 };
 
 #endif
