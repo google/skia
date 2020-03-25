@@ -26,7 +26,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"go.skia.org/infra/perf/go/ingestcommon"
+	"go.skia.org/infra/perf/go/ingest/format"
 )
 
 // upload_nano_results looks for anything*.json
@@ -70,13 +70,13 @@ var results map[string][]reportBody
 var resultsMutex sync.Mutex
 
 type BenchData struct {
-	Hash         string                               `json:"gitHash"`
-	Issue        string                               `json:"issue"`
-	PatchSet     string                               `json:"patchset"`
-	Key          map[string]string                    `json:"key"`
-	Options      map[string]string                    `json:"options,omitempty"`
-	Results      map[string]ingestcommon.BenchResults `json:"results"`
-	PatchStorage string                               `json:"patch_storage,omitempty"`
+	Hash         string                         `json:"gitHash"`
+	Issue        string                         `json:"issue"`
+	PatchSet     string                         `json:"patchset"`
+	Key          map[string]string              `json:"key"`
+	Options      map[string]string              `json:"options,omitempty"`
+	Results      map[string]format.BenchResults `json:"results"`
+	PatchStorage string                         `json:"patch_storage,omitempty"`
 
 	SwarmingTaskID string `json:"swarming_task_id,omitempty"`
 	SwarmingBotID  string `json:"swarming_bot_id,omitempty"`
@@ -137,7 +137,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resultsMutex.Lock()
- 	defer resultsMutex.Unlock()
+	defer resultsMutex.Unlock()
 	results[benchOutput.BenchName] = append(results[benchOutput.BenchName], benchOutput)
 }
 
@@ -181,7 +181,7 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 		SwarmingTaskID: *taskId,
 	}
 
-	allResults := make(map[string]ingestcommon.BenchResults)
+	allResults := make(map[string]format.BenchResults)
 	for name, benches := range results {
 		samples := []float64{}
 		total := float64(0)
@@ -189,7 +189,7 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 			samples = append(samples, t.TimeMicroSeconds)
 			total += t.TimeMicroSeconds
 		}
-		allResults[name] = map[string]ingestcommon.BenchResult{
+		allResults[name] = map[string]format.BenchResult{
 			"default": map[string]interface{}{
 				"average_us": total / float64(len(benches)),
 				"samples":    samples,
