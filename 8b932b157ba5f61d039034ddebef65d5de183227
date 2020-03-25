@@ -22,6 +22,30 @@
       "revId": "8b932b157ba5f61d039034ddebef65d5de183227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7db279b5_4e8c5ffb",
+        "filename": "src/gpu/d3d/GrD3DTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-25T14:43:51Z",
+      "side": 1,
+      "message": "Looks like that way. And we\u0027d need that check in Vulkan as well.",
+      "parentUuid": "d55e77c0_9b8b380a",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 35
+      },
+      "revId": "8b932b157ba5f61d039034ddebef65d5de183227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
