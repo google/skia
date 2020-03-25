@@ -444,6 +444,13 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fPreferPrimaryOverSecondaryCommandBuffers = false;
     }
 
+    // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
+    // produces answers that are much less accurate than expected/required. This forces full floats
+    // for some intermediate values to get acceptable results.
+    if (kARM_VkVendor == properties.vendorID) {
+        fShaderCaps->fColorSpaceMathNeedsFloat = true;
+    }
+
     // On various devices, when calling vkCmdClearAttachments on a primary command buffer, it
     // corrupts the bound buffers on the command buffer. As a workaround we invalidate our knowledge
     // of bound buffers so that we will rebind them on the next draw.
