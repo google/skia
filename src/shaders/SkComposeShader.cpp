@@ -19,10 +19,6 @@
 
 namespace {
 
-sk_sp<SkShader> wrap_lm(sk_sp<SkShader> shader, const SkMatrix* lm) {
-    return (shader && lm) ? shader->makeWithLocalMatrix(*lm) : shader;
-}
-
 struct LocalMatrixStageRec final : public SkStageRec {
     LocalMatrixStageRec(const SkStageRec& rec, const SkMatrix& lm)
         : INHERITED(rec) {
@@ -44,29 +40,27 @@ private:
 
 } // namespace
 
-sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                 const SkMatrix* lm) {
+sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {
         case SkBlendMode::kClear: return Color(0);
-        case SkBlendMode::kDst:   return wrap_lm(std::move(dst), lm);
-        case SkBlendMode::kSrc:   return wrap_lm(std::move(src), lm);
+        case SkBlendMode::kDst:   return dst;
+        case SkBlendMode::kSrc:   return src;
         default: break;
     }
-    return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src), lm));
+    return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src)));
 }
 
-sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                const SkMatrix* lm) {
+sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     if (SkScalarIsNaN(weight)) {
         return nullptr;
     }
     if (dst == src || weight <= 0) {
-        return wrap_lm(std::move(dst), lm);
+        return dst;
     }
     if (weight >= 1) {
-        return wrap_lm(std::move(src), lm);
+        return src;
     }
-    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src), lm));
+    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -355,8 +355,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                                                       usePerspective);
         if (shader) {
             shader = outerAlloc->make<SkShader_Blend>(bmode,
-                                                     sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                     nullptr);
+                                                     sk_ref_sp(triShader), sk_ref_sp(shader));
         } else {
             shader = triShader;
         }

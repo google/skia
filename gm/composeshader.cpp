@@ -167,7 +167,7 @@ static sk_sp<SkShader> make_linear_gradient_shader(int length) {
 
 class ComposeShaderBitmapGM : public skiagm::GM {
 public:
-    ComposeShaderBitmapGM(bool use_lm) : fUseLocalMatrix(use_lm) {}
+    ComposeShaderBitmapGM() {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -182,7 +182,7 @@ protected:
     }
 
     SkString onShortName() override {
-        return SkStringPrintf("composeshader_bitmap%s", fUseLocalMatrix ? "_lm" : "");
+        return SkString("composeshader_bitmap");
     }
 
     SkISize onISize() override {
@@ -192,16 +192,11 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkBlendMode mode = SkBlendMode::kDstOver;
 
-        SkTLazy<SkMatrix> lm;
-        if (fUseLocalMatrix) {
-            lm.set(SkMatrix::MakeTrans(0, squareLength * 0.5f));
-        }
-
         sk_sp<SkShader> shaders[] = {
             // gradient should appear over color bitmap
-            SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader, lm.getMaybeNull()),
+            SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader),
             // gradient should appear over alpha8 bitmap colorized by the paint color
-            SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader, lm.getMaybeNull()),
+            SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader),
         };
 
         SkPaint paint;
@@ -232,8 +227,6 @@ private:
      */
     static constexpr int squareLength = 20;
 
-    const bool fUseLocalMatrix;
-
     SkBitmap fColorBitmap;
     SkBitmap fAlpha8Bitmap;
     sk_sp<SkShader> fColorBitmapShader;
@@ -242,8 +235,7 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new ComposeShaderBitmapGM(false); )
-DEF_GM( return new ComposeShaderBitmapGM(true); )
+DEF_GM( return new ComposeShaderBitmapGM; )
 
 DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     int width = 255;
