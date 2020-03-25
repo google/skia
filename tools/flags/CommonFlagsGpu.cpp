@@ -24,7 +24,7 @@ static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
-              "[~]small [~]tess] [~]all");
+              "[~]small [~]tri] [~]all");
 
 static DEFINE_int(internalSamples, 4,
                   "Number of samples for internal draws that use MSAA or mixed samples.");
@@ -54,8 +54,8 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kAALinearizing;
     } else if (!strcmp(name, "small")) {
         return GpuPathRenderers::kSmall;
-    } else if (!strcmp(name, "tess")) {
-        return GpuPathRenderers::kTessellating;
+    } else if (!strcmp(name, "tri")) {
+        return GpuPathRenderers::kTriangulating;
     } else if (!strcmp(name, "default")) {
         return GpuPathRenderers::kDefault;
     }
