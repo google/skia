@@ -53,7 +53,7 @@ class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
             gpArgs->fPositionVar = vertexPos;
         } else {
             args.fVertBuilder->declareGlobal(GrShaderVar(
-                    "P", kFloat2_GrSLType, GrShaderVar::kOut_TypeModifier));
+                    "P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
             args.fVertBuilder->codeAppendf("P = %s;", vertexPos.c_str());
         }
 
