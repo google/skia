@@ -192,23 +192,24 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkBlendMode mode = SkBlendMode::kDstOver;
 
-        SkTLazy<SkMatrix> lm;
-        if (fUseLocalMatrix) {
-            lm.set(SkMatrix::MakeTrans(0, squareLength * 0.5f));
-        }
+        SkMatrix lm = SkMatrix::MakeTrans(0, squareLength * 0.5f);
 
         sk_sp<SkShader> shaders[] = {
             // gradient should appear over color bitmap
-            SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader, lm.getMaybeNull()),
+            SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader),
             // gradient should appear over alpha8 bitmap colorized by the paint color
-            SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader, lm.getMaybeNull()),
+            SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader),
         };
+        if (fUseLocalMatrix) {
+            for (unsigned i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
+                shaders[i] = shaders[i]->makeWithLocalMatrix(lm);
+            }
+        }
 
         SkPaint paint;
         paint.setColor(SK_ColorYELLOW);
 
-        const SkRect r = SkRect::MakeXYWH(0, 0, SkIntToScalar(squareLength),
-                                          SkIntToScalar(squareLength));
+        const SkRect r = SkRect::MakeIWH(squareLength, squareLength);
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
             canvas->save();

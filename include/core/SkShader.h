@@ -139,10 +139,8 @@ public:
     static sk_sp<SkShader> Empty();
     static sk_sp<SkShader> Color(SkColor);
     static sk_sp<SkShader> Color(const SkColor4f&, sk_sp<SkColorSpace>);
-    static sk_sp<SkShader> Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                 const SkMatrix* localMatrix = nullptr);
-    static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                const SkMatrix* localMatrix = nullptr);
+    static sk_sp<SkShader> Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src);
+    static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src);
 
 private:
     SkShaders() = delete;
