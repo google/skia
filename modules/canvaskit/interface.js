@@ -1001,18 +1001,12 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   }
 
-  CanvasKit.SkShader.Blend = function(mode, dst, src, localMatrix) {
-    if (!localMatrix) {
-      return this._Blend(mode, dst, src);
-    }
-    return this._Blend(mode, dst, src, localMatrix);
+  CanvasKit.SkShader.Blend = function(mode, dst, src) {
+    return this._Blend(mode, dst, src);
   }
 
-  CanvasKit.SkShader.Lerp = function(t, dst, src, localMatrix) {
-    if (!localMatrix) {
-      return this._Lerp(t, dst, src);
-    }
-    return this._Lerp(t, dst, src, localMatrix);
+  CanvasKit.SkShader.Lerp = function(t, dst, src) {
+    return this._Lerp(t, dst, src);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {

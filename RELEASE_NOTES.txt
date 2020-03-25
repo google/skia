@@ -6,6 +6,8 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 83
 
+  * Remove localmatrix option from SkShaders::[Blend, Lerp]
+
   * Fill out Direct3D parameters for backend textures and backend rendertargets.
 
   * SkImage::makeTextureImage() takes an optional SkBudgeted param
