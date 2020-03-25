@@ -113,8 +113,8 @@ protected:
             // First drawing pass: in-place masked layer content.
             fMainPassShader  = SkShaders::Blend(SkBlendMode::kSrcIn , mask_shader, layer_shader);
             // Second pass: phased-shifted layer content, with an inverse mask.
-            fPhasePassShader = SkShaders::Blend(SkBlendMode::kSrcOut, mask_shader, layer_shader,
-                                                &phase_shader_matrix);
+            fPhasePassShader = SkShaders::Blend(SkBlendMode::kSrcOut, mask_shader, layer_shader)
+                               ->makeWithLocalMatrix(phase_shader_matrix);
         } else {
             fMainPassShader  = std::move(layer_shader);
             fPhasePassShader = nullptr;
