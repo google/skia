@@ -221,24 +221,23 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     SkASSERT(name && strlen(name));
     SkASSERT(GrSLTypeIsFloatType(type));
 
-    UniformInfo& uni = fUniforms.push_back();
-    uni.fVariable.setType(type);
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
     // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then
     // the names will mismatch.  I think the correct solution is to have all GPs which need the
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
+    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
-    uni.fVariable.setArrayCount(arrayCount);
-    uni.fVisibility = visibility;
-    // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
-    // we set the modifier to none for all uniforms declared inside the block.
-    uni.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
+    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+
+    UniformInfo& uni = fUniforms.push_back(GrVkUniformHandler::UniformInfo{
+        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount},
+        visibility, 0, nullptr
+    });
 
     get_ubo_aligned_offset(&uni.fUBOffset, &fCurrentUBOOffset, type, arrayCount);
 
@@ -264,15 +263,16 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
 
     GrTextureType type = backendFormat.textureType();
 
-    UniformInfo& info = fSamplers.push_back();
-    info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));
-    info.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
-    info.fVariable.setName(mangleName);
+    UniformInfo& info = fSamplers.push_back(GrVkUniformHandler::UniformInfo{
+        GrShaderVar{std::move(mangleName),
+                    GrSLCombinedSamplerTypeForTextureType(type),
+                    GrShaderVar::TypeModifier::Uniform},
+        kFragment_GrShaderFlag, 0, nullptr
+    });
+
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count() - 1);
     info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
-    info.fVisibility = kFragment_GrShaderFlag;
-    info.fUBOffset = 0;
 
     // Check if we are dealing with an external texture and store the needed information if so.
     auto ycbcrInfo = backendFormat.getVkYcbcrConversionInfo();
