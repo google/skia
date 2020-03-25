@@ -72,7 +72,7 @@ private:
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             args.fVertBuilder->declareGlobal(
-                    GrShaderVar("P_", kFloat3_GrSLType, GrShaderVar::kOut_TypeModifier));
+                    GrShaderVar("P_", kFloat3_GrSLType, GrShaderVar::TypeModifier::Out));
             args.fVertBuilder->codeAppendf(R"(
                     P_.xy = (%s * float3(position.xy, 1)).xy;
                     P_.z = position.z;)", viewMatrix);
@@ -161,7 +161,7 @@ SkString TessellationTestTriShader::getTessEvaluationShaderGLSL(
 void TessellationTestTriShader::Impl::writeFragmentShader(
         GrGLSLFPFragmentBuilder* f, const char* color, const char* coverage) {
     f->declareGlobal(
-            GrShaderVar("barycentric_coord", kFloat3_GrSLType, GrShaderVar::kIn_TypeModifier));
+            GrShaderVar("barycentric_coord", kFloat3_GrSLType, GrShaderVar::TypeModifier::In));
     f->codeAppendf(R"(
             half3 d = half3(1 - barycentric_coord/fwidth(barycentric_coord));
             half coverage = max(max(d.x, d.y), d.z);
@@ -186,7 +186,7 @@ private:
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             args.fVertBuilder->declareGlobal(
-                    GrShaderVar("M_", kFloat3x3_GrSLType, GrShaderVar::kOut_TypeModifier));
+                    GrShaderVar("M_", kFloat3x3_GrSLType, GrShaderVar::TypeModifier::Out));
             args.fVertBuilder->codeAppendf("M_ = %s;", viewMatrix);
             // GrGLProgramBuilder will call writeTess*ShaderGLSL when it is compiling.
             this->writeFragmentShader(args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
@@ -267,7 +267,7 @@ SkString TessellationTestRectShader::getTessEvaluationShaderGLSL(
 void TessellationTestRectShader::Impl::writeFragmentShader(
         GrGLSLFPFragmentBuilder* f, const char* color, const char* coverage) {
     f->declareGlobal(GrShaderVar("barycentric_coord", kFloat4_GrSLType,
-                                 GrShaderVar::kIn_TypeModifier));
+                                 GrShaderVar::TypeModifier::In));
     f->codeAppendf(R"(
             float4 fwidths = fwidth(barycentric_coord);
             half coverage = 0;

@@ -206,23 +206,25 @@ GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArra
         bool mangleName,
         int arrayCount,
         const char** outName) {
-    UniformInfo& info = fUniforms.push_back();
-    info.fVisibility = visibility;
-    info.fUBOOffset = get_ubo_offset(&fCurrentUBOOffset, type, arrayCount);
-    GrShaderVar& var = info.fVar;
+    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(var.accessName(), prefix, name, mangleName);
-    var.setType(type);
-    var.setTypeModifier(GrShaderVar::kNone_TypeModifier);
-    var.setArrayCount(arrayCount);
+    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+
+    int offset = get_ubo_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
-    layoutQualifier.appendf("offset = %d", info.fUBOOffset);
-    var.addLayoutQualifier(layoutQualifier.c_str());
+    layoutQualifier.appendf("offset = %d", offset);
+
+    UniformInfo& info = fUniforms.push_back(GrDawnUniformHandler::UniformInfo{
+        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
+                    std::move(layoutQualifier), SkString()},
+        offset, static_cast<int>(visibility)
+    });
+
     if (outName) {
-        *outName = var.c_str();
+        *outName = info.fVar.c_str();
     }
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
@@ -232,41 +234,37 @@ GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrBac
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,
                                                                      const GrShaderCaps* caps) {
-    SkString mangleName;
-    char prefix = 's';
-    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
-
-    GrSLType samplerType = kSampler_GrSLType, textureType = kTexture2D_GrSLType;
     int binding = fSamplers.count() * 2;
-    UniformInfo& info = fSamplers.push_back();
-    info.fVar.setType(samplerType);
-    info.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
-    info.fVar.setName(mangleName);
+
+    SkString mangleName;
+    fProgramBuilder->nameVariable(&mangleName, 's', name, true);
     SkString layoutQualifier;
     layoutQualifier.appendf("set = 1, binding = %d", binding);
-    info.fVar.addLayoutQualifier(layoutQualifier.c_str());
-    info.fVisibility = kFragment_GrShaderFlag;
-    info.fUBOOffset = 0;
+    UniformInfo& info = fSamplers.push_back(GrDawnUniformHandler::UniformInfo{
+        GrShaderVar{std::move(mangleName), kSampler_GrSLType,
+                    GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
+                    std::move(layoutQualifier), SkString()},
+        0, kFragment_GrShaderFlag
+    });
+
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
 
     SkString mangleTexName;
-    char texPrefix = 't';
-    fProgramBuilder->nameVariable(&mangleTexName, texPrefix, name, true);
-    UniformInfo& texInfo = fTextures.push_back();
-    texInfo.fVar.setType(textureType);
-    texInfo.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
-    texInfo.fVar.setName(mangleTexName);
+    fProgramBuilder->nameVariable(&mangleTexName, 't', name, true);
     SkString texLayoutQualifier;
     texLayoutQualifier.appendf("set = 1, binding = %d", binding + 1);
-    texInfo.fVar.addLayoutQualifier(texLayoutQualifier.c_str());
-    texInfo.fVisibility = kFragment_GrShaderFlag;
-    texInfo.fUBOOffset = 0;
+    UniformInfo& texInfo = fTextures.push_back(GrDawnUniformHandler::UniformInfo{
+        GrShaderVar{std::move(mangleTexName), kTexture2D_GrSLType,
+                    GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
+                    std::move(texLayoutQualifier), SkString()},
+        0, kFragment_GrShaderFlag
+    });
 
     SkString reference;
     reference.printf("makeSampler2D(%s, %s)", texInfo.fVar.getName().c_str(),
                                               info.fVar.getName().c_str());
-    fSamplerReferences.push_back() = reference;
+    fSamplerReferences.emplace_back(std::move(reference));
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
