@@ -23,7 +23,6 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
                                                                    GrRenderable::kYes);
     if (caps.driverBlacklistCCPR() || !shaderCaps.integerSupport() ||
         !caps.instanceAttribSupport() || !shaderCaps.floatIs32Bits() ||
-        GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
         !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
         return false;

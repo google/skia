@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrTessellator.h"
+#include "src/gpu/ccpr/GrAutoMapVertexBuffer.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -117,7 +118,7 @@ private:
     PrimitiveTallies fTotalPrimitiveCounts[kNumScissorModes];
     int fMaxMeshesPerDraw = 0;
 
-    sk_sp<GrGpuBuffer> fInstanceBuffer;
+    GrAutoMapVertexBuffer fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
 };
 

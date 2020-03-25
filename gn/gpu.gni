@@ -575,6 +575,7 @@ skia_gl_gpu_sources = [
 
 skia_ccpr_sources = [
   # coverage counting path renderer
+  "$_src/gpu/ccpr/GrAutoMapVertexBuffer.h",
   "$_src/gpu/ccpr/GrCCAtlas.cpp",
   "$_src/gpu/ccpr/GrCCAtlas.h",
   "$_src/gpu/ccpr/GrCCClipPath.cpp",

@@ -37,7 +37,7 @@ GrCCFiller::GrCCFiller(Algorithm algorithm, int numPaths, int numSkPoints, int n
 void GrCCFiller::parseDeviceSpaceFill(const SkPath& path, const SkPoint* deviceSpacePts,
                                       GrScissorTest scissorTest, const SkIRect& clippedDevIBounds,
                                       const SkIVector& devToAtlasOffset) {
-    SkASSERT(!fInstanceBuffer);  // Can't call after prepareToDraw().
+    SkASSERT(!fInstanceBuffer.gpuBuffer());  // Can't call after prepareToDraw().
     SkASSERT(!path.isEmpty());
 
     int currPathPointsIdx = fGeometry.points().count();
@@ -206,7 +206,7 @@ void GrCCFiller::PathInfo::tessellateFan(
 }
 
 GrCCFiller::BatchID GrCCFiller::closeCurrentBatch() {
-    SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fInstanceBuffer.gpuBuffer());
     SkASSERT(!fBatches.empty());
 
     const auto& lastBatch = fBatches.back();
@@ -294,7 +294,7 @@ void GrCCFiller::emitTessellatedFan(
 
 bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     using Verb = GrCCFillGeometry::Verb;
-    SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fInstanceBuffer.gpuBuffer());
     SkASSERT(fBatches.back().fEndNonScissorIndices == // Call closeCurrentBatch().
              fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled]);
     SkASSERT(fBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
@@ -340,16 +340,14 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     fBaseInstances[1].fConics = fBaseInstances[0].fConics + fTotalPrimitiveCounts[0].fConics;
     int quadEndIdx = fBaseInstances[1].fConics + fTotalPrimitiveCounts[1].fConics;
 
-    fInstanceBuffer =
-            onFlushRP->makeBuffer(GrGpuBufferType::kVertex, quadEndIdx * sizeof(QuadPointInstance));
-    if (!fInstanceBuffer) {
+    fInstanceBuffer.resetAndMapBuffer(onFlushRP, quadEndIdx * sizeof(QuadPointInstance));
+    if (!fInstanceBuffer.gpuBuffer()) {
         SkDebugf("WARNING: failed to allocate CCPR fill instance buffer.\n");
         return false;
     }
 
-    TriPointInstance* triPointInstanceData = static_cast<TriPointInstance*>(fInstanceBuffer->map());
-    QuadPointInstance* quadPointInstanceData =
-            reinterpret_cast<QuadPointInstance*>(triPointInstanceData);
+    auto triPointInstanceData = reinterpret_cast<TriPointInstance*>(fInstanceBuffer.data());
+    auto quadPointInstanceData = reinterpret_cast<QuadPointInstance*>(fInstanceBuffer.data());
     SkASSERT(quadPointInstanceData);
 
     PathInfo* nextPathInfo = fPathInfos.begin();
@@ -453,7 +451,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
         }
     }
 
-    fInstanceBuffer->unmap();
+    fInstanceBuffer.unmapBuffer();
 
     SkASSERT(nextPathInfo == fPathInfos.end());
     SkASSERT(ptsIdx == pts.count() - 1);
@@ -476,7 +474,7 @@ void GrCCFiller::drawFills(
         BatchID batchID, const SkIRect& drawBounds) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
-    SkASSERT(fInstanceBuffer);
+    SkASSERT(fInstanceBuffer.gpuBuffer());
 
     GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
@@ -532,7 +530,7 @@ void GrCCFiller::drawPrimitives(
 
     GrOpsRenderPass* renderPass = flushState->opsRenderPass();
     proc.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
-    proc.bindBuffers(renderPass, fInstanceBuffer.get());
+    proc.bindBuffers(renderPass, fInstanceBuffer.gpuBuffer());
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fBatches.count());

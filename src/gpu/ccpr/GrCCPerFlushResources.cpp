@@ -193,8 +193,6 @@ GrCCPerFlushResources::GrCCPerFlushResources(
         , fRenderedAtlasStack(coverageType, specs.fRenderedAtlasSpecs, onFlushRP->caps())
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
-        , fInstanceBuffer(onFlushRP->makeBuffer(GrGpuBufferType::kVertex,
-                                                inst_buffer_count(specs) * sizeof(PathInstance)))
         , fNextCopyInstanceIdx(0)
         , fNextPathInstanceIdx(
                 specs.fNumCopiedPaths[kFillIdx] + specs.fNumCopiedPaths[kStrokeIdx]) {
@@ -206,23 +204,24 @@ GrCCPerFlushResources::GrCCPerFlushResources(
         SkDebugf("WARNING: failed to allocate CCPR vertex buffer. No paths will be drawn.\n");
         return;
     }
-    if (!fInstanceBuffer) {
+    fPathInstanceBuffer.resetAndMapBuffer(onFlushRP,
+                                          inst_buffer_count(specs) * sizeof(PathInstance));
+    if (!fPathInstanceBuffer.gpuBuffer()) {
         SkDebugf("WARNING: failed to allocate CCPR instance buffer. No paths will be drawn.\n");
         return;
     }
-    fPathInstanceData = static_cast<PathInstance*>(fInstanceBuffer->map());
-    SkASSERT(fPathInstanceData);
 
     if (CoverageType::kA8_Multisample == coverageType) {
         int numRenderedPaths =
                 specs.fNumRenderedPaths[kFillIdx] + specs.fNumRenderedPaths[kStrokeIdx] +
                 specs.fNumClipPaths;
-        fStencilResolveBuffer = onFlushRP->makeBuffer(
-                GrGpuBufferType::kVertex,
-                numRenderedPaths * sizeof(GrStencilAtlasOp::ResolveRectInstance));
-        fStencilResolveInstanceData = static_cast<GrStencilAtlasOp::ResolveRectInstance*>(
-                fStencilResolveBuffer->map());
-        SkASSERT(fStencilResolveInstanceData);
+        fStencilResolveBuffer.resetAndMapBuffer(
+                onFlushRP, numRenderedPaths * sizeof(GrStencilAtlasOp::ResolveRectInstance));
+        if (!fStencilResolveBuffer.gpuBuffer()) {
+            SkDebugf("WARNING: failed to allocate CCPR stencil resolve buffer. "
+                     "No paths will be drawn.\n");
+            return;
+        }
         SkDEBUGCODE(fEndStencilResolveInstance = numRenderedPaths);
     }
 
@@ -284,7 +283,7 @@ void GrCCPerFlushResources::recordCopyPathInstance(
                                 (((uint64_t) SK_Half1) << 16) |
                                 (((uint64_t) SK_Half1) << 32) |
                                 (((uint64_t) SK_Half1) << 48);
-    fPathInstanceData[currentInstanceIdx].set(entry, newAtlasOffset, kWhite, fillRule);
+    fPathInstanceBuffer[currentInstanceIdx].set(entry, newAtlasOffset, kWhite, fillRule);
 
     // Percolate the instance forward until it's contiguous with other instances that share the same
     // proxy.
@@ -294,7 +293,8 @@ void GrCCPerFlushResources::recordCopyPathInstance(
             return;
         }
         int rangeFirstInstanceIdx = currentInstanceIdx - fCopyPathRanges[i].fCount;
-        std::swap(fPathInstanceData[rangeFirstInstanceIdx], fPathInstanceData[currentInstanceIdx]);
+        std::swap(fPathInstanceBuffer[rangeFirstInstanceIdx],
+                  fPathInstanceBuffer[currentInstanceIdx]);
         currentInstanceIdx = rangeFirstInstanceIdx;
     }
 
@@ -492,7 +492,7 @@ void GrCCPerFlushResources::recordStencilResolveInstance(
         // "nonzero" settings in front and "even/odd" settings in back.
         std::swap(atlasIBounds.fLeft, atlasIBounds.fRight);
     }
-    fStencilResolveInstanceData[fNextStencilResolveInstanceIdx++] = {
+    fStencilResolveBuffer[fNextStencilResolveInstanceIdx++] = {
             (int16_t)atlasIBounds.left(), (int16_t)atlasIBounds.top(),
             (int16_t)atlasIBounds.right(), (int16_t)atlasIBounds.bottom()};
 }
@@ -504,12 +504,10 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(GrCCAtlas::CoverageType::kA8_Multisample != this->renderedPathCoverageType() ||
              fNextStencilResolveInstanceIdx == fEndStencilResolveInstance);
 
-    fInstanceBuffer->unmap();
-    fPathInstanceData = nullptr;
+    fPathInstanceBuffer.unmapBuffer();
 
-    if (fStencilResolveBuffer) {
-        fStencilResolveBuffer->unmap();
-        fStencilResolveInstanceData = nullptr;
+    if (fStencilResolveBuffer.gpuBuffer()) {
+        fStencilResolveBuffer.unmapBuffer();
     }
 
     if (!fCopyAtlasStack.empty()) {
