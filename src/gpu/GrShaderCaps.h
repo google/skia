@@ -128,6 +128,8 @@ public:
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
 
+    bool colorSpaceMathNeedsFloat() const { return fColorSpaceMathNeedsFloat; }
+
     // If true, then conditions in for loops need "&& true" to work around driver bugs.
     bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
 
@@ -298,6 +300,7 @@ private:
     bool fMustWriteToFragColor                        : 1;
     bool fNoDefaultPrecisionForExternalSamplers       : 1;
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
+    bool fColorSpaceMathNeedsFloat                    : 1;
 
     const char* fVersionDeclString;
 
