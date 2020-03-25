@@ -51,14 +51,27 @@
     }
 
     slide.load(htmlCanvas.width, htmlCanvas.height);
-    const now0 = Date.now();
+
+    const fps = {
+      frames: 0,
+      startMs: window.performance.now()
+    };
 
     surface.requestAnimationFrame(function(canvas) {
-      const nanos = (Date.now() - now0) * 1e6;
-      if (slide.animate(nanos)) {
+      slide.draw(canvas);
+      ++fps.frames;
+
+      const ms = window.performance.now();
+      const sec = (ms - fps.startMs) / 1000;
+      if (sec > 2) {
+        console.log(Math.round(fps.frames / sec) + ' fps');
+        fps.frames = 0;
+        fps.startMs = ms;
+      }
+
+      if (slide.animate(ms * 1e6)) {
         surface.requestAnimationFrame(arguments.callee);
       }
-      slide.draw(canvas);
     });
   }
 </script>
