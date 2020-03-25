@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "64d0078c_d3ad9133",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-25T21:05:36Z",
+      "side": 1,
+      "message": "But like D3D has no concept of the word Texture. I\u0027m not going to push too hard for one naming over another, but the info they are filling out is the information that describes a D3DResource object. Our GrD3D*Info basically exactly parallels the D3D12_RESOURCE_DESC. So I guess that is why I feel like Resource is the better name there.\n\nBut anyways I won\u0027t fight too hard for that renaming and block things, but this is at least my opinion.",
+      "parentUuid": "f2ff2d80_7ec02359",
+      "range": {
+        "startLine": 112,
+        "startChar": 39,
+        "endLine": 112,
+        "endChar": 46
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d2c337f_cf6152ab",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
