@@ -115,6 +115,43 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachEffects(const skjson::ArrayValue& j
     return layer;
 }
 
+sk_sp<sksg::RenderNode> EffectBuilder::attachStyles(const skjson::ArrayValue& jstyles,
+                                                     sk_sp<sksg::RenderNode> layer) const {
+#if !defined(SKOTTIE_DISABLE_STYLES)
+    if (!layer) {
+        return nullptr;
+    }
+
+    using StyleBuilder =
+        sk_sp<sksg::RenderNode> (EffectBuilder::*)(const skjson::ObjectValue&,
+                                                   sk_sp<sksg::RenderNode>) const;
+    static constexpr StyleBuilder gStyleBuilders[] = {
+        nullptr,                                 // 'ty': 0 -> stroke
+        &EffectBuilder::attachDropShadowStyle,   // 'ty': 1 -> drop shadow
+    };
+
+    for (const skjson::ObjectValue* jstyle : jstyles) {
+        if (!jstyle) {
+            continue;
+        }
+
+        const auto style_type =
+                ParseDefault<size_t>((*jstyle)["ty"], std::numeric_limits<size_t>::max());
+        auto builder = style_type < SK_ARRAY_COUNT(gStyleBuilders) ? gStyleBuilders[style_type]
+                                                                   : nullptr;
+
+        if (!builder) {
+            fBuilder->log(Logger::Level::kWarning, jstyle, "Unsupported layer style.");
+            continue;
+        }
+
+        layer = (this->*builder)(*jstyle, std::move(layer));
+    }
+#endif // !defined(SKOTTIE_DISABLE_STYLES)
+
+    return layer;
+}
+
 const skjson::Value& EffectBuilder::GetPropValue(const skjson::ArrayValue& jprops,
                                                  size_t prop_index) {
     static skjson::NullValue kNull;

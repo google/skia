@@ -455,6 +455,11 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         layer = sksg::TransformEffect::Make(std::move(layer), std::move(fLayerTransform));
     }
 
+    // Optional layer styles.
+    if (const skjson::ArrayValue* jstyles = fJlayer["sy"]) {
+        layer = EffectBuilder(&abuilder, layer_info.fSize).attachStyles(*jstyles, std::move(layer));
+    }
+
     // Optional layer opacity.
     // TODO: de-dupe this "ks" lookup with matrix above.
     if (const skjson::ObjectValue* jtransform = fJlayer["ks"]) {
