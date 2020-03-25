@@ -512,6 +512,10 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         if (strstr(rendererString, "llvmpipe")) {
             return kGalliumLLVM_GrGLRenderer;
         }
+        static const char kMaliGStr[] = "Mali-G";
+        if (0 == strncmp(rendererString, kMaliGStr, SK_ARRAY_COUNT(kMaliGStr) - 1)) {
+            return kMaliG_GrGLRenderer;
+        }
         static const char kMaliTStr[] = "Mali-T";
         if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
             return kMaliT_GrGLRenderer;
