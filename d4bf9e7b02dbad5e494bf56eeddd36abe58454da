@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bab6a837_85ad01ae",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-03-25T14:22:08Z",
+      "side": 1,
+      "message": "Feel like I should comment the use of float in the code I\u0027ve changed, but this comment targets Bifrost for using fp16 to represent mediump. Note that the other code uses half throughout, which should be fp16 on most GPUs? And it passed on every other device. So I\u0027m not sure if Bifrost has some additional precision issues, or if we\u0027re incorrectly mapping SkSL types there?",
+      "revId": "d4bf9e7b02dbad5e494bf56eeddd36abe58454da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
