@@ -9,6 +9,7 @@
 #define GrCCPerFlushResources_DEFINED
 
 #include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/ccpr/GrAutoMapVertexBuffer.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCFiller.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
@@ -70,7 +71,7 @@ public:
     GrCCPerFlushResources(
             GrOnFlushResourceProvider*, GrCCAtlas::CoverageType,const GrCCPerFlushResourceSpecs&);
 
-    bool isMapped() const { return SkToBool(fPathInstanceData); }
+    bool isMapped() const { return fPathInstanceBuffer.isMapped(); }
 
     GrCCAtlas::CoverageType renderedPathCoverageType() const {
         return fRenderedAtlasStack.coverageType();
@@ -103,7 +104,7 @@ public:
     GrCCPathProcessor::Instance& appendDrawPathInstance() {
         SkASSERT(this->isMapped());
         SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
-        return fPathInstanceData[fNextPathInstanceIdx++];
+        return fPathInstanceBuffer[fNextPathInstanceIdx++];
     }
 
     // Finishes off the GPU buffers and renders the atlas(es).
@@ -118,7 +119,7 @@ public:
     }
     const GrGpuBuffer* instanceBuffer() const {
         SkASSERT(!this->isMapped());
-        return fInstanceBuffer.get();
+        return fPathInstanceBuffer.gpuBuffer();
     }
     const GrGpuBuffer* vertexBuffer() const {
         SkASSERT(!this->isMapped());
@@ -126,7 +127,7 @@ public:
     }
     const GrGpuBuffer* stencilResolveBuffer() const {
         SkASSERT(!this->isMapped());
-        return fStencilResolveBuffer.get();
+        return fStencilResolveBuffer.gpuBuffer();
     }
 
 private:
@@ -148,9 +149,8 @@ private:
 
     const sk_sp<const GrGpuBuffer> fIndexBuffer;
     const sk_sp<const GrGpuBuffer> fVertexBuffer;
-    const sk_sp<GrGpuBuffer> fInstanceBuffer;
 
-    GrCCPathProcessor::Instance* fPathInstanceData = nullptr;
+    GrTAutoMapVertexBuffer<GrCCPathProcessor::Instance> fPathInstanceBuffer;
     int fNextCopyInstanceIdx;
     SkDEBUGCODE(int fEndCopyInstance);
     int fNextPathInstanceIdx;
@@ -175,8 +175,7 @@ private:
     SkSTArray<2, sk_sp<GrTexture>> fRecyclableAtlasTextures;
 
     // Used in MSAA mode make an intermediate draw that resolves stencil winding values to coverage.
-    sk_sp<GrGpuBuffer> fStencilResolveBuffer;
-    GrStencilAtlasOp::ResolveRectInstance* fStencilResolveInstanceData = nullptr;
+    GrTAutoMapVertexBuffer<GrStencilAtlasOp::ResolveRectInstance> fStencilResolveBuffer;
     int fNextStencilResolveInstanceIdx = 0;
     SkDEBUGCODE(int fEndStencilResolveInstance);
 

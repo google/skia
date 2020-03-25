@@ -12,6 +12,7 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/ccpr/GrAutoMapVertexBuffer.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -375,16 +376,14 @@ public:
 
         int endConicsIdx = stroker->fBaseInstances[1].fConics +
                            stroker->fInstanceCounts[1]->fConics;
-        fInstanceBuffer = onFlushRP->makeBuffer(GrGpuBufferType::kVertex,
-                                                endConicsIdx * sizeof(ConicInstance));
-        if (!fInstanceBuffer) {
+        fInstanceBuffer.resetAndMapBuffer(onFlushRP, endConicsIdx * sizeof(ConicInstance));
+        if (!fInstanceBuffer.gpuBuffer()) {
             SkDebugf("WARNING: failed to allocate CCPR stroke instance buffer.\n");
             return;
         }
-        fInstanceBufferData = fInstanceBuffer->map();
     }
 
-    bool isMapped() const { return SkToBool(fInstanceBufferData); }
+    bool isMapped() const { return fInstanceBuffer.isMapped(); }
 
     void updateCurrentInfo(const PathInfo& pathInfo) {
         SkASSERT(this->isMapped());
@@ -514,10 +513,9 @@ public:
     sk_sp<GrGpuBuffer> finish() {
         SkASSERT(this->isMapped());
         SkASSERT(!memcmp(fNextInstances, fEndInstances, sizeof(fNextInstances)));
-        fInstanceBuffer->unmap();
-        fInstanceBufferData = nullptr;
+        fInstanceBuffer.unmapBuffer();
         SkASSERT(!this->isMapped());
-        return std::move(fInstanceBuffer);
+        return sk_ref_sp(fInstanceBuffer.gpuBuffer());
     }
 
 private:
@@ -525,7 +523,7 @@ private:
         int instanceIdx = fCurrNextInstances->fStrokes[0]++;
         SkASSERT(instanceIdx < fCurrEndInstances->fStrokes[0]);
 
-        return reinterpret_cast<LinearStrokeInstance*>(fInstanceBufferData)[instanceIdx];
+        return reinterpret_cast<LinearStrokeInstance*>(fInstanceBuffer.data())[instanceIdx];
     }
 
     CubicStrokeInstance& appendCubicStrokeInstance(int numLinearSegmentsLog2) {
@@ -535,21 +533,21 @@ private:
         int instanceIdx = fCurrNextInstances->fStrokes[numLinearSegmentsLog2]++;
         SkASSERT(instanceIdx < fCurrEndInstances->fStrokes[numLinearSegmentsLog2]);
 
-        return reinterpret_cast<CubicStrokeInstance*>(fInstanceBufferData)[instanceIdx];
+        return reinterpret_cast<CubicStrokeInstance*>(fInstanceBuffer.data())[instanceIdx];
     }
 
     TriangleInstance& appendTriangleInstance() {
         int instanceIdx = fCurrNextInstances->fTriangles++;
         SkASSERT(instanceIdx < fCurrEndInstances->fTriangles);
 
-        return reinterpret_cast<TriangleInstance*>(fInstanceBufferData)[instanceIdx];
+        return reinterpret_cast<TriangleInstance*>(fInstanceBuffer.data())[instanceIdx];
     }
 
     ConicInstance& appendConicInstance() {
         int instanceIdx = fCurrNextInstances->fConics++;
         SkASSERT(instanceIdx < fCurrEndInstances->fConics);
 
-        return reinterpret_cast<ConicInstance*>(fInstanceBufferData)[instanceIdx];
+        return reinterpret_cast<ConicInstance*>(fInstanceBuffer.data())[instanceIdx];
     }
 
     float fCurrDX, fCurrDY;
@@ -557,8 +555,7 @@ private:
     InstanceTallies* fCurrNextInstances;
     SkDEBUGCODE(const InstanceTallies* fCurrEndInstances);
 
-    sk_sp<GrGpuBuffer> fInstanceBuffer;
-    void* fInstanceBufferData = nullptr;
+    GrAutoMapVertexBuffer fInstanceBuffer;
     InstanceTallies fNextInstances[2];
     SkDEBUGCODE(InstanceTallies fEndInstances[2]);
 };
