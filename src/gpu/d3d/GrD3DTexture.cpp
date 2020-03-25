@@ -103,7 +103,7 @@ void GrD3DTexture::onRelease() {
         this->removeFinishIdleProcs();
     }
 
-    this->releaseTexture(this->getD3DGpu());
+    this->releaseResource(this->getD3DGpu());
 
     INHERITED::onRelease();
 }
@@ -116,7 +116,7 @@ void GrD3DTexture::onAbandon() {
         this->removeFinishIdleProcs();
     }
 
-    this->releaseTexture(this->getD3DGpu());
+    this->releaseResource(this->getD3DGpu());
     INHERITED::onAbandon();
 }
 
@@ -164,7 +164,9 @@ void GrD3DTexture::willRemoveLastRef() {
     if (callFinishProcs) {
         // Everything must go!
         fIdleProcs.reset();
-        resource->resetIdleProcs();
+        if (resource) {
+            resource->resetIdleProcs();
+        }
     } else {
         // The procs that should be called on flush but not finish are those that are owned
         // by the GrD3DTexture and not the Resource. We do this by copying the resource's array
