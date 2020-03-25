@@ -10,8 +10,6 @@
 
 #include "src/gpu/GrFragmentProcessor.h"
 
-#if defined(SK_USE_LEGACY_SRGB_COLOR_FILTER)
-
 class GrSRGBEffect : public GrFragmentProcessor {
 public:
     enum class Mode {
@@ -54,7 +52,5 @@ private:
 
     typedef GrFragmentProcessor INHERITED;
 };
-
-#endif
 
 #endif
