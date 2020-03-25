@@ -25,19 +25,19 @@ public:
         (void)_outer;
         auto weight = _outer.weight;
         (void)weight;
-        weightVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
+        weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kFloat_GrSLType, "weight");
         SkString _sample290;
         if (_outer.child1_index >= 0) {
             _sample290 = this->invokeChild(_outer.child1_index, args);
         } else {
-            _sample290 = "half4(1)";
+            _sample290 = "half4(1)/*here!*/";
         }
         SkString _sample358;
         if (_outer.child2_index >= 0) {
             _sample358 = this->invokeChild(_outer.child2_index, args);
         } else {
-            _sample358 = "half4(1)";
+            _sample358 = "half4(1)/*here!*/";
         }
         fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
                                  args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
@@ -72,14 +72,16 @@ GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         , weight(src.weight) {
     if (child1_index >= 0) {
         auto clone = src.childProcessor(child1_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(child1_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
     if (child2_index >= 0) {
         auto clone = src.childProcessor(child2_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(child2_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

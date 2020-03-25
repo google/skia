@@ -19,12 +19,12 @@ public:
 
         const char* viewMatrix;
         fViewMatrixUniform = args.fUniformHandler->addUniform(
-                kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+                nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
 
         args.fVaryingHandler->emitAttributes(shader);
 
         args.fVertBuilder->codeAppend("float2 localcoord, vertexpos;");
-        shader.emitVertexCode(this, args.fVertBuilder, viewMatrix, args.fUniformHandler);
+        shader.emitVertexCode(this, nullptr, args.fVertBuilder, viewMatrix, args.fUniformHandler);
 
         this->emitTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
                              GrShaderVar("localcoord", kFloat2_GrSLType),
@@ -34,7 +34,7 @@ public:
 
         const char* color;
         fColorUniform = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &color);
+                nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &color);
 
         args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, color);
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -65,15 +65,19 @@ GrGLSLPrimitiveProcessor* GrFillPathShader::createGLSLInstance(const GrShaderCap
     return new Impl;
 }
 
-void GrFillTriangleShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const char* viewMatrix,
+void GrFillTriangleShader::emitVertexCode(Impl*, const GrFragmentProcessor* owner,
+                                          GrGLSLVertexBuilder* v, const char* viewMatrix,
                                           GrGLSLUniformHandler* uniformHandler) const {
+    SkASSERT(owner == NULL); // FIXME remove the owner param
     v->codeAppendf(R"(
             localcoord = input_point;
             vertexpos = (%s * float3(localcoord, 1)).xy;)", viewMatrix);
 }
 
-void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const char* viewMatrix,
+void GrFillCubicHullShader::emitVertexCode(Impl*, const GrFragmentProcessor* owner,
+                                           GrGLSLVertexBuilder* v, const char* viewMatrix,
                                            GrGLSLUniformHandler* uniformHandler) const {
+    SkASSERT(owner == NULL); // FIXME remove the owner param
     v->codeAppend(R"(
             float4x2 P = float4x2(input_points_0_1, input_points_2_3);
 
@@ -115,12 +119,12 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
     v->codeAppendf("vertexpos = (%s * float3(localcoord, 1)).xy;", viewMatrix);
 }
 
-void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, GrGLSLVertexBuilder* v,
-                                             const char* viewMatrix,
+void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, const GrFragmentProcessor* owner,
+                                             GrGLSLVertexBuilder* v, const char* viewMatrix,
                                              GrGLSLUniformHandler* uniformHandler) const {
     const char* pathBounds;
     impl->fPathBoundsUniform = uniformHandler->addUniform(
-            kVertex_GrShaderFlag, kFloat4_GrSLType, "path_bounds", &pathBounds);
+            owner, kVertex_GrShaderFlag, kFloat4_GrSLType, "path_bounds", &pathBounds);
 
     v->codeAppendf(R"(
             // Use sk_VertexID and uniforms (instead of vertex data) to find vertex positions.

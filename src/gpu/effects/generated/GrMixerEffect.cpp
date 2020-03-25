@@ -25,8 +25,8 @@ public:
         (void)_outer;
         auto weight = _outer.weight;
         (void)weight;
-        weightVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "weight");
+        weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kHalf_GrSLType, "weight");
         SkString _input1278 = SkStringPrintf("%s", args.fInputColor);
         SkString _sample1278;
         _sample1278 = this->invokeChild(_outer.fp0_index, _input1278.c_str(), args);
@@ -36,7 +36,7 @@ public:
         if (_outer.fp1_index >= 0) {
             _sample1335 = this->invokeChild(_outer.fp1_index, _input1335.c_str(), args);
         } else {
-            _sample1335 = "half4(1)";
+            _sample1335 = "half4(1)/*here!*/";
         }
         fragBuilder->codeAppendf("\nhalf4 in1 = %s ? %s : %s;\n%s = mix(in0, in1, %s);\n",
                                  _outer.fp1_index >= 0 ? "true" : "false", _sample1335.c_str(),
@@ -70,14 +70,16 @@ GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         , weight(src.weight) {
     {
         auto clone = src.childProcessor(fp0_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp0_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp0_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
     if (fp1_index >= 0) {
         auto clone = src.childProcessor(fp1_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp1_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp1_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

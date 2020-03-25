@@ -109,6 +109,8 @@ private:
     GrCoordTransform fCoordTransform;
     Direction fDirection;
     Clamp fClamp;
+    bool fNormalize;
+    SkISize fTextureDimensions;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

@@ -10,6 +10,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/generated/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -182,7 +183,9 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fDirection(that.fDirection)
-        , fClamp(that.fClamp) {
+        , fClamp(that.fClamp)
+        , fNormalize(that.fNormalize)
+        , fTextureDimensions(that.fTextureDimensions) {
     this->addCoordTransform(&fCoordTransform);
     auto child = that.childProcessor(0).clone();
     child->setSampledWithExplicitCoords(true);

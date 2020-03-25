@@ -40,8 +40,8 @@ public:
         (void)isNativelyFocal;
         auto focalParams = _outer.focalParams;
         (void)focalParams;
-        focalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                          "focalParams");
+        focalParamsVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                          kHalf2_GrSLType, "focalParams");
         SkString sk_TransformedCoords2D_0 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
