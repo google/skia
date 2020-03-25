@@ -70,7 +70,7 @@ public:
         constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
 
         GrShaderVar asShaderVar() const {
-            return {fName, fGPUType, GrShaderVar::kIn_TypeModifier};
+            return {fName, fGPUType, GrShaderVar::TypeModifier::In};
         }
 
     private:

@@ -209,7 +209,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
         const char* fbFetchColorName = "sk_LastFragColor";
         if (shaderCaps->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
-            fCustomColorOutput->setTypeModifier(GrShaderVar::kInOut_TypeModifier);
+            fCustomColorOutput->setTypeModifier(GrShaderVar::TypeModifier::InOut);
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
             this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
@@ -239,9 +239,8 @@ void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEqu
 
 void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fCustomColorOutput) {
-        fCustomColorOutput = &fOutputs.push_back();
-        fCustomColorOutput->set(kHalf4_GrSLType, DeclaredColorOutputName(),
-                                GrShaderVar::kOut_TypeModifier);
+        fCustomColorOutput = &fOutputs.emplace_back(DeclaredColorOutputName(), kHalf4_GrSLType,
+                                                    GrShaderVar::TypeModifier::Out);
         fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
@@ -259,8 +258,8 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     // output. The condition also co-incides with the condition in whici GLES SL 2.0
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
     if (caps.mustDeclareFragmentShaderOutput()) {
-        fOutputs.push_back().set(kHalf4_GrSLType, DeclaredSecondaryColorOutputName(),
-                                 GrShaderVar::kOut_TypeModifier);
+        fOutputs.emplace_back(DeclaredSecondaryColorOutputName(), kHalf4_GrSLType,
+                              GrShaderVar::TypeModifier::Out);
         fProgramBuilder->finalizeFragmentSecondaryColor(fOutputs.back());
     }
 }
@@ -271,7 +270,7 @@ const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
 
 bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
     return fCustomColorOutput &&
-           fCustomColorOutput->getTypeModifier() == GrShaderVar::kInOut_TypeModifier;
+           fCustomColorOutput->getTypeModifier() == GrShaderVar::TypeModifier::InOut;
 }
 
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {

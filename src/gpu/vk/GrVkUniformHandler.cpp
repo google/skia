@@ -178,8 +178,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
-static void get_ubo_aligned_offset(uint32_t* uniformOffset,
-                                   uint32_t* currentOffset,
+static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
                                    GrSLType type,
                                    int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
@@ -191,15 +190,16 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
     }
-    *uniformOffset = *currentOffset + offsetDiff;
+    int32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
         uint32_t elementSize = std::max<uint32_t>(16, grsltype_to_vk_size(type));
         SkASSERT(0 == (elementSize & 0xF));
-        *currentOffset = *uniformOffset + elementSize * arrayCount;
+        *currentOffset = uniformOffset + elementSize * arrayCount;
     } else {
-        *currentOffset = *uniformOffset + grsltype_to_vk_size(type);
+        *currentOffset = uniformOffset + grsltype_to_vk_size(type);
     }
+    return uniformOffset;
 }
 
 GrVkUniformHandler::~GrVkUniformHandler() {
@@ -221,30 +221,28 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     SkASSERT(name && strlen(name));
     SkASSERT(GrSLTypeIsFloatType(type));
 
-    UniformInfo& uni = fUniforms.push_back();
-    uni.fVariable.setType(type);
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
     // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then
     // the names will mismatch.  I think the correct solution is to have all GPs which need the
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
+    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
-    uni.fVariable.setArrayCount(arrayCount);
-    uni.fVisibility = visibility;
-    // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
-    // we set the modifier to none for all uniforms declared inside the block.
-    uni.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
+    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
 
-    get_ubo_aligned_offset(&uni.fUBOffset, &fCurrentUBOOffset, type, arrayCount);
-
+    uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
-    layoutQualifier.appendf("offset=%d", uni.fUBOffset);
-    uni.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+    layoutQualifier.appendf("offset=%d", offset);
+
+    UniformInfo& uni = fUniforms.push_back(GrVkUniformHandler::UniformInfo{
+        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
+                    std::move(layoutQualifier), SkString()},
+        visibility, offset, nullptr
+    });
 
     if (outName) {
         *outName = uni.fVariable.c_str();
@@ -262,17 +260,16 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
-    GrTextureType type = backendFormat.textureType();
-
-    UniformInfo& info = fSamplers.push_back();
-    info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));
-    info.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
-    info.fVariable.setName(mangleName);
     SkString layoutQualifier;
-    layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count() - 1);
-    info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
-    info.fVisibility = kFragment_GrShaderFlag;
-    info.fUBOffset = 0;
+    layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
+
+    UniformInfo& info = fSamplers.push_back(GrVkUniformHandler::UniformInfo{
+        GrShaderVar{std::move(mangleName),
+                    GrSLCombinedSamplerTypeForTextureType(backendFormat.textureType()),
+                    GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
+                    std::move(layoutQualifier), SkString()},
+        kFragment_GrShaderFlag, 0, nullptr
+    });
 
     // Check if we are dealing with an external texture and store the needed information if so.
     auto ycbcrInfo = backendFormat.getVkYcbcrConversionInfo();
@@ -329,8 +326,6 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 }
 
 uint32_t GrVkUniformHandler::getRTHeightOffset() const {
-    uint32_t result;
     uint32_t currentOffset = fCurrentUBOOffset;
-    get_ubo_aligned_offset(&result, &currentOffset, kFloat_GrSLType, 0);
-    return result;
+    return get_ubo_aligned_offset(&currentOffset, kFloat_GrSLType, 0);
 }

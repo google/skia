@@ -3071,13 +3071,13 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         return false;
     }
 
-    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::TypeModifier::In);
     GrShaderVar uTexCoordXform("u_texCoordXform", kHalf4_GrSLType,
-                               GrShaderVar::kUniform_TypeModifier);
-    GrShaderVar uPosXform("u_posXform", kHalf4_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrShaderVar uTexture("u_texture", samplerType, GrShaderVar::kUniform_TypeModifier);
-    GrShaderVar vTexCoord("v_texCoord", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier);
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
+                               GrShaderVar::TypeModifier::Uniform);
+    GrShaderVar uPosXform("u_posXform", kHalf4_GrSLType, GrShaderVar::TypeModifier::Uniform);
+    GrShaderVar uTexture("u_texture", samplerType, GrShaderVar::TypeModifier::Uniform);
+    GrShaderVar vTexCoord("v_texCoord", kHalf2_GrSLType, GrShaderVar::TypeModifier::Out);
+    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::TypeModifier::Out);
 
     SkString vshaderTxt;
     if (shaderCaps->noperspectiveInterpolationSupport()) {
@@ -3111,7 +3111,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
-    vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
+    vTexCoord.setTypeModifier(GrShaderVar::TypeModifier::In);
     vTexCoord.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
     uTexture.appendDecl(shaderCaps, &fshaderTxt);
@@ -3172,19 +3172,19 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
         return false;
     }
 
-    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::TypeModifier::In);
     GrShaderVar uTexCoordXform("u_texCoordXform", kHalf4_GrSLType,
-                               GrShaderVar::kUniform_TypeModifier);
+                               GrShaderVar::TypeModifier::Uniform);
     GrShaderVar uTexture("u_texture", kTexture2DSampler_GrSLType,
-                         GrShaderVar::kUniform_TypeModifier);
+                         GrShaderVar::TypeModifier::Uniform);
     // We need 1, 2, or 4 texture coordinates (depending on parity of each dimension):
     GrShaderVar vTexCoords[] = {
-        GrShaderVar("v_texCoord0", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier),
-        GrShaderVar("v_texCoord1", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier),
-        GrShaderVar("v_texCoord2", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier),
-        GrShaderVar("v_texCoord3", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier),
+        GrShaderVar("v_texCoord0", kHalf2_GrSLType, GrShaderVar::TypeModifier::Out),
+        GrShaderVar("v_texCoord1", kHalf2_GrSLType, GrShaderVar::TypeModifier::Out),
+        GrShaderVar("v_texCoord2", kHalf2_GrSLType, GrShaderVar::TypeModifier::Out),
+        GrShaderVar("v_texCoord3", kHalf2_GrSLType, GrShaderVar::TypeModifier::Out),
     };
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType,GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType,GrShaderVar::TypeModifier::Out);
 
     SkString vshaderTxt;
     if (shaderCaps->noperspectiveInterpolationSupport()) {
@@ -3246,7 +3246,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
         }
     }
     for (int i = 0; i < numTaps; ++i) {
-        vTexCoords[i].setTypeModifier(GrShaderVar::kIn_TypeModifier);
+        vTexCoords[i].setTypeModifier(GrShaderVar::TypeModifier::In);
         vTexCoords[i].appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";");
     }

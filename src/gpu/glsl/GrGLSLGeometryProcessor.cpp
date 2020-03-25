@@ -126,7 +126,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             } else {
                 vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrixName, localCoordsStr.c_str());
             }
-            fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::kIn_TypeModifier);
+            fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
         }
         handler->specifyCoordsForCurrCoordTransform(transformVar, fsVar);
     }

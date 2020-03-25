@@ -11,38 +11,24 @@
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {
-        case GrShaderVar::kNone_TypeModifier: return "";
-        case GrShaderVar::kIn_TypeModifier: return "in";
-        case GrShaderVar::kInOut_TypeModifier: return "inout";
-        case GrShaderVar::kOut_TypeModifier: return "out";
-        case GrShaderVar::kUniform_TypeModifier: return "uniform";
+        case GrShaderVar::TypeModifier::None: return "";
+        case GrShaderVar::TypeModifier::In: return "in";
+        case GrShaderVar::TypeModifier::InOut: return "inout";
+        case GrShaderVar::TypeModifier::Out: return "out";
+        case GrShaderVar::TypeModifier::Uniform: return "uniform";
     }
     SK_ABORT("Unknown shader variable type modifier.");
 }
 
-void GrShaderVar::setIOType(GrIOType ioType) {
-    switch (ioType) {
-        case kRW_GrIOType:
-            return;
-        case kRead_GrIOType:
-            this->addModifier("readonly");
-            return;
-        case kWrite_GrIOType:
-            this->addModifier("writeonly");
-            return;
-    }
-    SK_ABORT("Unknown io type.");
-}
-
 void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) const {
-    SkString layout = fLayoutQualifier;
     if (!fLayoutQualifier.isEmpty()) {
         out->appendf("layout(%s) ", fLayoutQualifier.c_str());
     }
-    out->append(fExtraModifiers);
-    if (this->getTypeModifier() != kNone_TypeModifier) {
-        out->append(type_modifier_string(this->getTypeModifier()));
-        out->append(" ");
+    if (!fExtraModifiers.isEmpty()) {
+        out->appendf("%s ", fExtraModifiers.c_str());
+    }
+    if (this->getTypeModifier() != TypeModifier::None) {
+        out->appendf("%s ", type_modifier_string(this->getTypeModifier()));
     }
     GrSLType effectiveType = this->getType();
     if (this->isArray()) {

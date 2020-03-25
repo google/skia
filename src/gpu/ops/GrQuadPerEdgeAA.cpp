@@ -592,7 +592,7 @@ public:
                     gpArgs->fPositionVar = {"position",
                                             gp.fNeedsPerspective ? kFloat3_GrSLType
                                                                  : kFloat2_GrSLType,
-                                            GrShaderVar::kNone_TypeModifier};
+                                            GrShaderVar::TypeModifier::None};
                 } else {
                     // No coverage to eliminate
                     gpArgs->fPositionVar = gp.fPosition.asShaderVar();
