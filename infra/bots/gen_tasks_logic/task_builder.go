@@ -195,7 +195,13 @@ func (b *taskBuilder) usesCCache() {
 // usesGit adds attributes to tasks which use git.
 func (b *taskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)
-	b.cipd(specs.CIPD_PKGS_GIT...)
+	if b.matchOs("Win") {
+		b.cipd(specs.CIPD_PKGS_GIT_WINDOWS_AMD64...)
+	} else if b.matchOs("Mac") {
+		b.cipd(specs.CIPD_PKGS_GIT_MAC_AMD64...)
+	} else {
+		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
+	}
 }
 
 // usesGo adds attributes to tasks which use go. Recipes should use

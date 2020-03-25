@@ -770,7 +770,7 @@ func (b *builder) relpath(f string) string {
 // the name of the task, which may be added as a dependency.
 func (b *jobBuilder) bundleRecipes() string {
 	b.addTask(BUNDLE_RECIPES_NAME, func(b *taskBuilder) {
-		b.cipd(specs.CIPD_PKGS_GIT...)
+		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
 		b.cipd(specs.CIPD_PKGS_PYTHON...)
 		b.cmd("/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
