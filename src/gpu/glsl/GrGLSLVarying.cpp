@@ -75,7 +75,7 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
 }
 
 void GrGLSLVaryingHandler::addAttribute(const GrShaderVar& var) {
-    SkASSERT(GrShaderVar::kIn_TypeModifier == var.getTypeModifier());
+    SkASSERT(GrShaderVar::TypeModifier::In == var.getTypeModifier());
     for (const GrShaderVar& attr : fVertexInputs.items()) {
         // if attribute already added, don't add it again
         if (attr.getName().equals(var.getName())) {
@@ -105,22 +105,22 @@ void GrGLSLVaryingHandler::finalize() {
     for (const VaryingInfo& v : fVaryings.items()) {
         const char* modifier = v.fIsFlat ? "flat" : fDefaultInterpolationModifier;
         if (v.fVisibility & kVertex_GrShaderFlag) {
-            fVertexOutputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kOut_TypeModifier,
-                                           nullptr, modifier);
+            fVertexOutputs.emplace_back(v.fVsOut, v.fType, GrShaderVar::TypeModifier::Out,
+                                        GrShaderVar::kNonArray, SkString(), SkString(modifier));
             if (v.fVisibility & kGeometry_GrShaderFlag) {
-                fGeomInputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kUnsizedArray,
-                                            GrShaderVar::kIn_TypeModifier, nullptr, modifier);
+                fGeomInputs.emplace_back(v.fVsOut, v.fType, GrShaderVar::TypeModifier::In,
+                                         GrShaderVar::kUnsizedArray, SkString(), SkString(modifier));
             }
         }
         if (v.fVisibility & kFragment_GrShaderFlag) {
             const char* fsIn = v.fVsOut.c_str();
             if (v.fVisibility & kGeometry_GrShaderFlag) {
-                fGeomOutputs.push_back().set(v.fType, v.fGsOut, GrShaderVar::kOut_TypeModifier,
-                                             nullptr, modifier);
+                fGeomOutputs.emplace_back(v.fGsOut, v.fType, GrShaderVar::TypeModifier::Out,
+                                          GrShaderVar::kNonArray, SkString(), SkString(modifier));
                 fsIn = v.fGsOut.c_str();
             }
-            fFragInputs.push_back().set(v.fType, fsIn, GrShaderVar::kIn_TypeModifier, nullptr,
-                                        modifier);
+            fFragInputs.emplace_back(SkString(fsIn), v.fType, GrShaderVar::TypeModifier::In,
+                                     GrShaderVar::kNonArray, SkString(), SkString(modifier));
         }
     }
     this->onFinalize();
