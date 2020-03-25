@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c611beea_69df7704",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-25T16:11:14Z",
+      "side": 1,
+      "message": "Hmm... since we are removing localMatrix, we can probably delete the JS parts here and rename the exposed version to not have the underscore",
+      "range": {
+        "startLine": 1008,
+        "startChar": 21,
+        "endLine": 1008,
+        "endChar": 25
+      },
+      "revId": "2e3d96d2112c4fb7620cbeb5e4ec139ebe5b9093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
