@@ -798,6 +798,7 @@ bool is_float_fp32(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli, GrG
         GrGLint range[2];
         GrGLint bits;
         GR_GL_GetShaderPrecisionFormat(gli, shader, precision, range, &bits);
+        SkDebugf("Precision: %x %d %d %d\n", shader, range[0], range[1], bits);
         if (range[0] < 127 || range[1] < 127 || bits < 23) {
             return false;
         }
@@ -941,6 +942,10 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     shaderCaps->fFloatIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_HIGH_FLOAT);
     shaderCaps->fHalfIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_MEDIUM_FLOAT);
     shaderCaps->fHasLowFragmentPrecision = kMali4xx_GrGLRenderer == ctxInfo.renderer();
+
+    SkDebugf("32-bit floats: %d %d\n", shaderCaps->fFloatIs32Bits ? 1 : 0,
+    shaderCaps->fHalfIs32Bits ? 1 : 0);
+    SK_ABORT("Printed. Done!");
 
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
