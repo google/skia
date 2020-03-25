@@ -21,7 +21,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmAliases.h"
+#include "modules/canvaskit/WasmCommon.h"
 
 using namespace emscripten;
 
@@ -34,13 +34,13 @@ struct SimpleFontStyle {
 };
 
 struct SimpleTextStyle {
-    SkColor backgroundColor;
-    SkColor color;
+    SimpleColor4f color;
+    SimpleColor4f foregroundColor;
+    SimpleColor4f backgroundColor;
     uint8_t decoration;
     SkScalar decorationThickness;
     SkScalar fontSize;
     SimpleFontStyle fontStyle;
-    SkColor foregroundColor;
 
     uintptr_t /* const char** */ fontFamilies;
     int numFontFamilies;
@@ -48,20 +48,23 @@ struct SimpleTextStyle {
 
 para::TextStyle toTextStyle(const SimpleTextStyle& s) {
     para::TextStyle ts;
-    if (s.color != 0) {
-        ts.setColor(s.color);
+
+    // textstyle.color doesn't support a 4f color, however the foreground and background fields below do.
+    ts.setColor(s.color.toSkColor());
+
+    // Emscripten will not allow a value_object to have an unset field, however
+    // It is functionally important that these paints be unset when no value was provided.
+    // paragraph.js defaults these colors to transparent in that case and we use that signal here.
+    if (s.foregroundColor.a > 0) {
+        SkPaint p1;
+        p1.setColor4f(s.foregroundColor.toSkColor4f());
+        ts.setForegroundColor(p1);
     }
 
-    if (s.foregroundColor != 0) {
-        SkPaint p;
-        p.setColor(s.foregroundColor);
-        ts.setForegroundColor(p);
-    }
-
-    if (s.backgroundColor != 0) {
-        SkPaint p;
-        p.setColor(s.backgroundColor);
-        ts.setBackgroundColor(p);
+    if (s.backgroundColor.a > 0) {
+        SkPaint p2;
+        p2.setColor4f(s.backgroundColor.toSkColor4f());
+        ts.setBackgroundColor(p2);
     }
 
     if (s.fontSize != 0) {
@@ -272,14 +275,14 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textStyle",         &SimpleParagraphStyle::textStyle);
 
     value_object<SimpleTextStyle>("TextStyle")
-        .field("backgroundColor",     &SimpleTextStyle::backgroundColor)
         .field("color",               &SimpleTextStyle::color)
+        .field("foregroundColor",     &SimpleTextStyle::foregroundColor)
+        .field("backgroundColor",     &SimpleTextStyle::backgroundColor)
         .field("decoration",          &SimpleTextStyle::decoration)
         .field("decorationThickness", &SimpleTextStyle::decorationThickness)
         .field("_fontFamilies",       &SimpleTextStyle::fontFamilies)
         .field("fontSize",            &SimpleTextStyle::fontSize)
         .field("fontStyle",           &SimpleTextStyle::fontStyle)
-        .field("foregroundColor",     &SimpleTextStyle::foregroundColor)
         .field("_numFontFamilies",    &SimpleTextStyle::numFontFamilies);
 
     // The U stands for unsigned - we can't bind a generic/template object, so we have to specify it
