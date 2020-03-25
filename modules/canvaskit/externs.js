@@ -471,9 +471,6 @@ var CanvasKit = {
     MakeRadialGradient: function() {},
     MakeTwoPointConicalGradient: function() {},
     MakeSweepGradient: function() {},
-
-    _Blend: function() {},
-    _Lerp: function() {},
   },
 
   SkSurface: {
