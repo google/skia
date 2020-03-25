@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellatingPathRenderer_DEFINED
-#define GrTessellatingPathRenderer_DEFINED
+#ifndef GrTriangulatingPathRenderer_DEFINED
+#define GrTriangulatingPathRenderer_DEFINED
 
 #include "src/gpu/GrPathRenderer.h"
 
@@ -14,9 +14,9 @@
  *  Subclass that renders the path by converting to screen-space trapezoids plus
  *   extra 1-pixel geometry for AA.
  */
-class GrTessellatingPathRenderer : public GrPathRenderer {
+class GrTriangulatingPathRenderer : public GrPathRenderer {
 public:
-    GrTessellatingPathRenderer();
+    GrTriangulatingPathRenderer();
 #if GR_TEST_UTILS
     void setMaxVerbCount(int maxVerbCount) { fMaxVerbCount = maxVerbCount; }
 #endif

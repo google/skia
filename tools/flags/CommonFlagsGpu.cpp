@@ -55,7 +55,7 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     } else if (!strcmp(name, "small")) {
         return GpuPathRenderers::kSmall;
     } else if (!strcmp(name, "tess")) {
-        return GpuPathRenderers::kTessellating;
+        return GpuPathRenderers::kTriangulating;
     } else if (!strcmp(name, "default")) {
         return GpuPathRenderers::kDefault;
     }
