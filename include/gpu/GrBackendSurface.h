@@ -240,7 +240,7 @@ public:
 #ifdef SK_DIRECT3D
     GrBackendTexture(int width,
                      int height,
-                     const GrD3DTextureInfo& d3dInfo);
+                     const GrD3DTextureResourceInfo& d3dInfo);
 #endif
 
 #ifdef SK_DAWN
@@ -296,10 +296,10 @@ public:
 #endif
 
 #ifdef SK_DIRECT3D
-    // If the backend API is Direct3D, copies a snapshot of the GrD3DTextureInfo struct into the
-    // passed in pointer and returns true. This snapshot will set the fResourceState to the current
-    // resource state. Otherwise returns false if the backend API is not D3D.
-    bool getD3DTextureInfo(GrD3DTextureInfo*) const;
+    // If the backend API is Direct3D, copies a snapshot of the GrD3DTextureResourceInfo struct into
+    // the passed in pointer and returns true. This snapshot will set the fResourceState to the
+    // current resource state. Otherwise returns false if the backend API is not D3D.
+    bool getD3DTextureResourceInfo(GrD3DTextureResourceInfo*) const;
 
     // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
@@ -354,7 +354,7 @@ private:
     friend class GrD3DGpu;     // for getGrD3DResourceState
     GrBackendTexture(int width,
                      int height,
-                     const GrD3DTextureInfo& vkInfo,
+                     const GrD3DTextureResourceInfo& vkInfo,
                      sk_sp<GrD3DResourceState> state);
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
 #endif
@@ -425,7 +425,7 @@ public:
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
-                          const GrD3DTextureInfo& d3dInfo);
+                          const GrD3DTextureResourceInfo& d3dInfo);
 #endif
 
     GrBackendRenderTarget(int width,
@@ -475,7 +475,7 @@ public:
 #ifdef SK_DIRECT3D
     // If the backend API is Direct3D, copies a snapshot of the GrMtlTextureInfo struct into the
     // passed in pointer and returns true. Otherwise returns false if the backend API is not D3D.
-    bool getD3DTextureInfo(GrD3DTextureInfo*) const;
+    bool getD3DTextureInfo(GrD3DTextureResourceInfo*) const;
 
     // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
@@ -508,8 +508,8 @@ private:
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
                           sk_sp<GrVkImageLayout> layout);
 #ifdef SK_DIRECT3D
-    GrBackendRenderTarget(int width, int height, int sampleCnt, const GrD3DTextureInfo& d3dInfo,
-                          sk_sp<GrD3DResourceState> state);
+    GrBackendRenderTarget(int width, int height, int sampleCnt,
+                          const GrD3DTextureResourceInfo& d3dInfo, sk_sp<GrD3DResourceState> state);
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
 #endif
 
