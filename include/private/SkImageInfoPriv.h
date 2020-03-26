@@ -8,52 +8,51 @@
 #ifndef SkImageInfoPriv_DEFINED
 #define SkImageInfoPriv_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
 
-enum SkColorTypeComponentFlag {
-    kRed_SkColorTypeComponentFlag    = 0x1,
-    kGreen_SkColorTypeComponentFlag  = 0x2,
-    kBlue_SkColorTypeComponentFlag   = 0x4,
-    kAlpha_SkColorTypeComponentFlag  = 0x8,
-    kGray_SkColorTypeComponentFlag   = 0x10,
-    kRG_SkColorTypeComponentFlags    = kRed_SkColorTypeComponentFlag |
-                                       kGreen_SkColorTypeComponentFlag,
-    kRGB_SkColorTypeComponentFlags   = kRed_SkColorTypeComponentFlag |
-                                       kGreen_SkColorTypeComponentFlag |
-                                       kBlue_SkColorTypeComponentFlag,
-    kRGBA_SkColorTypeComponentFlags  = kRGB_SkColorTypeComponentFlags |
-                                       kAlpha_SkColorTypeComponentFlag,
+enum SkColorChannelFlag : uint32_t {
+    kRed_SkColorChannelFlag    = 1 << static_cast<uint32_t>(SkColorChannel::kR),
+    kGreen_SkColorChannelFlag  = 1 << static_cast<uint32_t>(SkColorChannel::kG),
+    kBlue_SkColorChannelFlag   = 1 << static_cast<uint32_t>(SkColorChannel::kB),
+    kAlpha_SkColorChannelFlag  = 1 << static_cast<uint32_t>(SkColorChannel::kA),
+    kGray_SkColorChannelFlag   = 0x10,
+    // Convenience values
+    kRG_SkColorChannelFlags    = kRed_SkColorChannelFlag | kGreen_SkColorChannelFlag,
+    kRGB_SkColorChannelFlags   = kRG_SkColorChannelFlags | kBlue_SkColorChannelFlag,
+    kRGBA_SkColorChannelFlags  = kRGB_SkColorChannelFlags | kAlpha_SkColorChannelFlag,
 };
+static_assert(0 == (kGray_SkColorChannelFlag & kRGBA_SkColorChannelFlags), "bitfield conflict");
 
-static inline uint32_t SkColorTypeComponentFlags(SkColorType ct) {
+static inline uint32_t SkColorTypeChannelFlags(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:            return 0;
-        case kAlpha_8_SkColorType:            return kAlpha_SkColorTypeComponentFlag;
-        case kRGB_565_SkColorType:            return kRGB_SkColorTypeComponentFlags;
-        case kARGB_4444_SkColorType:          return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_8888_SkColorType:          return kRGBA_SkColorTypeComponentFlags;
-        case kRGB_888x_SkColorType:           return kRGB_SkColorTypeComponentFlags;
-        case kBGRA_8888_SkColorType:          return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_1010102_SkColorType:       return kRGBA_SkColorTypeComponentFlags;
-        case kRGB_101010x_SkColorType:        return kRGB_SkColorTypeComponentFlags;
-        case kBGRA_1010102_SkColorType:       return kRGBA_SkColorTypeComponentFlags;
-        case kBGR_101010x_SkColorType:        return kRGB_SkColorTypeComponentFlags;
-        case kGray_8_SkColorType:             return kGray_SkColorTypeComponentFlag;
-        case kRGBA_F16Norm_SkColorType:       return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_F16_SkColorType:           return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_F32_SkColorType:           return kRGBA_SkColorTypeComponentFlags;
-        case kR8G8_unorm_SkColorType:         return kRG_SkColorTypeComponentFlags;
-        case kA16_unorm_SkColorType:          return kAlpha_SkColorTypeComponentFlag;
-        case kR16G16_unorm_SkColorType:       return kRG_SkColorTypeComponentFlags;
-        case kA16_float_SkColorType:          return kAlpha_SkColorTypeComponentFlag;
-        case kR16G16_float_SkColorType:       return kRG_SkColorTypeComponentFlags;
-        case kR16G16B16A16_unorm_SkColorType: return kRGBA_SkColorTypeComponentFlags;
+        case kAlpha_8_SkColorType:            return kAlpha_SkColorChannelFlag;
+        case kRGB_565_SkColorType:            return kRGB_SkColorChannelFlags;
+        case kARGB_4444_SkColorType:          return kRGBA_SkColorChannelFlags;
+        case kRGBA_8888_SkColorType:          return kRGBA_SkColorChannelFlags;
+        case kRGB_888x_SkColorType:           return kRGB_SkColorChannelFlags;
+        case kBGRA_8888_SkColorType:          return kRGBA_SkColorChannelFlags;
+        case kRGBA_1010102_SkColorType:       return kRGBA_SkColorChannelFlags;
+        case kRGB_101010x_SkColorType:        return kRGB_SkColorChannelFlags;
+        case kBGRA_1010102_SkColorType:       return kRGBA_SkColorChannelFlags;
+        case kBGR_101010x_SkColorType:        return kRGB_SkColorChannelFlags;
+        case kGray_8_SkColorType:             return kGray_SkColorChannelFlag;
+        case kRGBA_F16Norm_SkColorType:       return kRGBA_SkColorChannelFlags;
+        case kRGBA_F16_SkColorType:           return kRGBA_SkColorChannelFlags;
+        case kRGBA_F32_SkColorType:           return kRGBA_SkColorChannelFlags;
+        case kR8G8_unorm_SkColorType:         return kRG_SkColorChannelFlags;
+        case kA16_unorm_SkColorType:          return kAlpha_SkColorChannelFlag;
+        case kR16G16_unorm_SkColorType:       return kRG_SkColorChannelFlags;
+        case kA16_float_SkColorType:          return kAlpha_SkColorChannelFlag;
+        case kR16G16_float_SkColorType:       return kRG_SkColorChannelFlags;
+        case kR16G16B16A16_unorm_SkColorType: return kRGBA_SkColorChannelFlags;
     }
     SkUNREACHABLE;
 }
 
 static inline bool SkColorTypeIsAlphaOnly(SkColorType ct) {
-    return kAlpha_SkColorTypeComponentFlag == SkColorTypeComponentFlags(ct);
+    return SkColorTypeChannelFlags(ct) == kAlpha_SkColorChannelFlag;
 }
 
 static inline bool SkAlphaTypeIsValid(unsigned value) {
