@@ -49,6 +49,9 @@ struct SkColorSpaceXformSteps {
         return this->apply(p, SkColorTypeIsNormalized(srcCT));
     }
 
+    static skvm::Color ProgramTransferFunction(skvm::Builder*, skvm::Uniforms*,
+                                               const skcms_TransferFunction&, skvm::Color);
+
     Flags flags;
 
     bool srcTF_is_sRGB,

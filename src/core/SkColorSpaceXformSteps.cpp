@@ -156,8 +156,10 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
-static skvm::Color apply_transfer_function(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                           const skcms_TransferFunction& tf, skvm::Color c) {
+skvm::Color SkColorSpaceXformSteps::ProgramTransferFunction(skvm::Builder* p,
+                                                            skvm::Uniforms* uniforms,
+                                                            const skcms_TransferFunction& tf,
+                                                            skvm::Color c) {
     skvm::F32 G = p->uniformF(uniforms->pushF(tf.g)),
               A = p->uniformF(uniforms->pushF(tf.a)),
               B = p->uniformF(uniforms->pushF(tf.b)),
@@ -211,7 +213,7 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
         c = p->unpremul(c);
     }
     if (flags.linearize) {
-        c = apply_transfer_function(p, uniforms, srcTF, c);
+        c = ProgramTransferFunction(p, uniforms, srcTF, c);
     }
     if (flags.gamut_transform) {
         skvm::F32 m[9];
@@ -224,7 +226,7 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
         c = {R, G, B, c.a};
     }
     if (flags.encode) {
-        c = apply_transfer_function(p, uniforms, dstTFInv, c);
+        c = ProgramTransferFunction(p, uniforms, dstTFInv, c);
     }
     if (flags.premul) {
         c = p->premul(c);
