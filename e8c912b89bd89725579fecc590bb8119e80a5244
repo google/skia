@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e411c86_a4615dc6",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-26T11:56:34Z",
+      "side": 1,
+      "message": "Is it typically an error to have used the default constructor? If so, mention it",
+      "range": {
+        "startLine": 29,
+        "startChar": 63,
+        "endLine": 29,
+        "endChar": 69
+      },
+      "revId": "e8c912b89bd89725579fecc590bb8119e80a5244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3361f41_f6c63701",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-26T11:56:34Z",
+      "side": 1,
+      "message": "sensible and",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "e8c912b89bd89725579fecc590bb8119e80a5244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "527928b6_3a58af01",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-03-26T11:56:34Z",
+      "side": 1,
+      "message": "there are some cases where transparent green is different than transparent white or black, (e.g. gradients, https://fiddle.skia.org/c/@GradientShader_MakeLinear).\n\nHowever, this should be safe to do since skparagraph cannot have shaders set on their colors, AFAIK.",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 31
+      },
+      "revId": "e8c912b89bd89725579fecc590bb8119e80a5244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
