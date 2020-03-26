@@ -1154,8 +1154,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     }
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
-        op = GrFillRRectOp::Make(
-                fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
+        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, aaType);
     }
     if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
@@ -1574,8 +1573,8 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
         // ovals the exact same way we do round rects.
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
-                                 *this->caps(), std::move(paint));
+        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
+                                 aaType);
     }
     if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
