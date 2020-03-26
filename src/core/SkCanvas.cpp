@@ -2969,7 +2969,9 @@ SkCanvas::LayerIter::LayerIter(SkCanvas* canvas) {
     SkASSERT(canvas);
 
     fImpl = new (fStorage) SkDrawIter(canvas);
-    fDone = !fImpl->next();
+    // This advances the base iterator to the first device and caches its origin,
+    // correctly handling the case where there are no devices.
+    this->next();
 }
 
 SkCanvas::LayerIter::~LayerIter() {
