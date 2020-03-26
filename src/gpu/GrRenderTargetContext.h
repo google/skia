@@ -606,7 +606,7 @@ private:
     friend class GrCCPerFlushResources;              // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrFillRectOp;                       // for access to addDrawOp
-    friend class GrGpuTessellationPathRenderer;      // for access to addDrawOp
+    friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
