@@ -11,9 +11,9 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/d3d/GrD3DSurfaceResource.h"
+#include "src/gpu/d3d/GrD3DTextureResource.h"
 
-class GrD3DTexture : public GrTexture, public virtual GrD3DSurfaceResource {
+class GrD3DTexture : public GrTexture, public virtual GrD3DTextureResource {
 public:
     static sk_sp<GrD3DTexture> MakeNewTexture(GrD3DGpu*,
                                               SkBudgeted,
@@ -27,7 +27,7 @@ public:
                                                   GrWrapOwnership,
                                                   GrWrapCacheable,
                                                   GrIOType,
-                                                  const GrD3DTextureInfo&,
+                                                  const GrD3DTextureResourceInfo&,
                                                   sk_sp<GrD3DResourceState>);
 
     ~GrD3DTexture() override {}
@@ -44,7 +44,7 @@ public:
 protected:
     GrD3DTexture(GrD3DGpu*,
                  SkISize dimensions,
-                 const GrD3DTextureInfo&,
+                 const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
                  GrMipMapsStatus,
                  GrBackendObjectOwnership);
@@ -61,10 +61,11 @@ protected:
     void willRemoveLastRef() override;
 
 private:
-    GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureInfo&,
+    GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>, GrMipMapsStatus);
-    GrD3DTexture(GrD3DGpu*, SkISize dimensions, const GrD3DTextureInfo&, sk_sp<GrD3DResourceState>,
-                 GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable, GrIOType);
+    GrD3DTexture(GrD3DGpu*, SkISize dimensions, const GrD3DTextureResourceInfo&,
+                 sk_sp<GrD3DResourceState>, GrMipMapsStatus, GrBackendObjectOwnership,
+                 GrWrapCacheable, GrIOType);
 
     // In D3D we call the release proc after we are finished with the underlying
     // GrSurfaceResource::Resource object (which occurs after the GPU has finished all work on it).

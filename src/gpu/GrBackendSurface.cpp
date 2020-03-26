@@ -414,7 +414,7 @@ GrBackendTexture::GrBackendTexture(int width,
 #endif
 
 #ifdef SK_DIRECT3D
-GrBackendTexture::GrBackendTexture(int width, int height, const GrD3DTextureInfo& d3dInfo)
+GrBackendTexture::GrBackendTexture(int width, int height, const GrD3DTextureResourceInfo& d3dInfo)
         : GrBackendTexture(
                 width, height, d3dInfo,
                 sk_sp<GrD3DResourceState>(new GrD3DResourceState(
@@ -422,7 +422,7 @@ GrBackendTexture::GrBackendTexture(int width, int height, const GrD3DTextureInfo
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   const GrD3DTextureInfo& d3dInfo,
+                                   const GrD3DTextureResourceInfo& d3dInfo,
                                    sk_sp<GrD3DResourceState> state)
         : fIsValid(true)
         , fWidth(width)
@@ -578,9 +578,9 @@ bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 #endif
 
 #ifdef SK_DIRECT3D
-bool GrBackendTexture::getD3DTextureInfo(GrD3DTextureInfo* outInfo) const {
+bool GrBackendTexture::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        *outInfo = fD3DInfo.snapTextureInfo();
+        *outInfo = fD3DInfo.snapTextureResourceInfo();
         return true;
     }
     return false;
@@ -700,7 +700,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D: {
-            auto d3dInfo = fD3DInfo.snapTextureInfo();
+            auto d3dInfo = fD3DInfo.snapTextureResourceInfo();
             return GrBackendFormat::MakeDxgi(d3dInfo.fFormat);
         }
 #endif
@@ -829,7 +829,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 
 #ifdef SK_DIRECT3D
 GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, int sampleCnt,
-                                             const GrD3DTextureInfo& d3dInfo)
+                                             const GrD3DTextureResourceInfo& d3dInfo)
         : GrBackendRenderTarget(
                 width, height, sampleCnt, d3dInfo,
                 sk_sp<GrD3DResourceState>(new GrD3DResourceState(
@@ -838,7 +838,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, int sampleCn
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
-                                             const GrD3DTextureInfo& d3dInfo,
+                                             const GrD3DTextureResourceInfo& d3dInfo,
                                              sk_sp<GrD3DResourceState> state)
         : fIsValid(true)
         , fWidth(width)
@@ -991,9 +991,9 @@ bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 #endif
 
 #ifdef SK_DIRECT3D
-bool GrBackendRenderTarget::getD3DTextureInfo(GrD3DTextureInfo* outInfo) const {
+bool GrBackendRenderTarget::getD3DTextureInfo(GrD3DTextureResourceInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        *outInfo = fD3DInfo.snapTextureInfo();
+        *outInfo = fD3DInfo.snapTextureResourceInfo();
         return true;
     }
     return false;
@@ -1051,7 +1051,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D: {
-            auto info = fD3DInfo.snapTextureInfo();
+            auto info = fD3DInfo.snapTextureResourceInfo();
             return GrBackendFormat::MakeDxgi(info.fFormat);
         }
 #endif

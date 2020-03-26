@@ -16,7 +16,7 @@ void GrD3DBackendSurfaceInfo::cleanup() {
 };
 
 void GrD3DBackendSurfaceInfo::assign(const GrD3DBackendSurfaceInfo& that, bool isThisValid) {
-    fTextureInfo = that.fTextureInfo;
+    fTextureResourceInfo = that.fTextureResourceInfo;
     GrD3DResourceState* oldLayout = fResourceState;
     fResourceState = SkSafeRef(that.fResourceState);
     if (isThisValid) {
@@ -34,14 +34,14 @@ sk_sp<GrD3DResourceState> GrD3DBackendSurfaceInfo::getGrD3DResourceState() const
     return sk_ref_sp(fResourceState);
 }
 
-GrD3DTextureInfo GrD3DBackendSurfaceInfo::snapTextureInfo() const {
-    return GrD3DTextureInfo(fTextureInfo, fResourceState->getResourceState());
+GrD3DTextureResourceInfo GrD3DBackendSurfaceInfo::snapTextureResourceInfo() const {
+    return GrD3DTextureResourceInfo(fTextureResourceInfo, fResourceState->getResourceState());
 }
 
 #if GR_TEST_UTILS
 bool GrD3DBackendSurfaceInfo::operator==(const GrD3DBackendSurfaceInfo& that) const {
-    GrD3DTextureInfo cpyInfoThis = fTextureInfo;
-    GrD3DTextureInfo cpyInfoThat = that.fTextureInfo;
+    GrD3DTextureResourceInfo cpyInfoThis = fTextureResourceInfo;
+    GrD3DTextureResourceInfo cpyInfoThat = that.fTextureResourceInfo;
     // We don't care about the fResourceState here since we require they use the same
     // GrD3DResourceState.
     cpyInfoThis.fResourceState = D3D12_RESOURCE_STATE_COMMON;

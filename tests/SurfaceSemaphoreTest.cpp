@@ -175,9 +175,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
         // In Vulkan we need to make sure we are sending the correct VkImageLayout in with the
         // backendImage. After the first child draw the layout gets changed to SHADER_READ, so
         // we just manually set that here.
-        GrVkImageInfo vkInfo;
-        SkAssertResult(backendTexture.getVkImageInfo(&vkInfo));
-        vkInfo.updateImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        backendTexture.setVkImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 #endif
 

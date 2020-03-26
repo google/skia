@@ -16,12 +16,12 @@ class GrD3DResourceState;
 // This struct is to used to store the the actual information about the Direct3D backend image on
 // GrBackendTexture and GrBackendRenderTarget. When a client calls getD3DTextureInfo on a
 // GrBackendTexture/RenderTarget, we use the GrD3DBackendSurfaceInfo to create a snapshot
-// GrD3DTextureInfo object. Internally, this uses a ref count GrD3DResourceState object to track the
-// current D3D12_RESOURCE_STATES which can be shared with an internal GrD3DBaseTexture so that state
-// updates can be seen by all users of the texture.
+// GrD3DTextureResourceInfo object. Internally, this uses a ref count GrD3DResourceState object to
+// track the current D3D12_RESOURCE_STATES which can be shared with an internal GrD3DTextureResource
+// so that state updates can be seen by all users of the texture.
 struct GrD3DBackendSurfaceInfo {
-    GrD3DBackendSurfaceInfo(GrD3DTextureInfo info, GrD3DResourceState* state)
-            : fTextureInfo(info), fResourceState(state) {}
+    GrD3DBackendSurfaceInfo(GrD3DTextureResourceInfo info, GrD3DResourceState* state)
+            : fTextureResourceInfo(info), fResourceState(state) {}
 
     void cleanup();
 
@@ -35,15 +35,15 @@ struct GrD3DBackendSurfaceInfo {
 
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
 
-    GrD3DTextureInfo snapTextureInfo() const;
+    GrD3DTextureResourceInfo snapTextureResourceInfo() const;
 
-    bool isProtected() const { return fTextureInfo.fProtected == GrProtected::kYes; }
+    bool isProtected() const { return fTextureResourceInfo.fProtected == GrProtected::kYes; }
 #if GR_TEST_UTILS
     bool operator==(const GrD3DBackendSurfaceInfo& that) const;
 #endif
 
 private:
-    GrD3DTextureInfo    fTextureInfo;
+    GrD3DTextureResourceInfo fTextureResourceInfo;
     GrD3DResourceState* fResourceState;
 };
 

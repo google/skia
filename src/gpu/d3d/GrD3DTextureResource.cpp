@@ -7,9 +7,9 @@
 
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
-#include "src/gpu/d3d/GrD3DSurfaceResource.h"
+#include "src/gpu/d3d/GrD3DTextureResource.h"
 
-void GrD3DSurfaceResource::setResourceState(const GrD3DGpu* gpu,
+void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
                                             D3D12_RESOURCE_STATES newResourceState) {
     SkASSERT(fStateExplicitlySet);
 /* TODO
@@ -20,8 +20,9 @@ void GrD3DSurfaceResource::setResourceState(const GrD3DGpu* gpu,
     this->updateResourceState(newResourceState, true);
 }
 
-bool GrD3DSurfaceResource::InitTextureInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
-                                           GrProtected isProtected, GrD3DTextureInfo* info) {
+bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
+                                                   GrProtected isProtected,
+                                                   GrD3DTextureResourceInfo* info) {
     if (0 == desc.Width || 0 == desc.Height) {
         return false;
     }
@@ -54,7 +55,7 @@ bool GrD3DSurfaceResource::InitTextureInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_D
         return false;
     }
 
-    info->fTexture = resource;
+    info->fResource = resource;
     info->fResourceState = D3D12_RESOURCE_STATE_COMMON;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
@@ -63,16 +64,16 @@ bool GrD3DSurfaceResource::InitTextureInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_D
     return true;
 }
 
-void GrD3DSurfaceResource::DestroyTextureInfo(GrD3DTextureInfo* info) {
-    info->fTexture->Release();
+void GrD3DTextureResource::DestroyTextureResourceInfo(GrD3DTextureResourceInfo* info) {
+    info->fResource->Release();
 }
 
-GrD3DSurfaceResource::~GrD3DSurfaceResource() {
+GrD3DTextureResource::~GrD3DTextureResource() {
     // should have been released first
     SkASSERT(!fResource);
 }
 
-void GrD3DSurfaceResource::releaseTexture(GrD3DGpu* gpu) {
+void GrD3DTextureResource::releaseTexture(GrD3DGpu* gpu) {
     // TODO: do we need to migrate resource state if we change queues?
     if (fResource) {
         fResource->removeOwningTexture();
@@ -81,13 +82,13 @@ void GrD3DSurfaceResource::releaseTexture(GrD3DGpu* gpu) {
     }
 }
 
-void GrD3DSurfaceResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
+void GrD3DTextureResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(fResource);
-    // Forward the release proc on to GrD3DSurfaceResource::Resource
+    // Forward the release proc on to GrD3DTextureResource::Resource
     fResource->setRelease(std::move(releaseHelper));
 }
 
-void GrD3DSurfaceResource::Resource::freeGPUData() const {
+void GrD3DTextureResource::Resource::freeGPUData() const {
     this->invokeReleaseProc();
     fResource->Release();
 }
