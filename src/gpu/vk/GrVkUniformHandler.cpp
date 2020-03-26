@@ -234,6 +234,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
+    if (strcmp(name, uni.fVariable.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, SkString(name), uni.fVariable.c_str(),
+                                                   type });
+    }
     uni.fVariable.setArrayCount(arrayCount);
     uni.fVisibility = visibility;
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus

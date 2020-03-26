@@ -8,6 +8,7 @@
 #ifndef SKSL_DEFINES
 #define SKSL_DEFINES
 
+#include <cstdlib>
 #include <cstdint>
 
 #ifdef SKSL_STANDALONE

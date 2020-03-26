@@ -146,12 +146,14 @@ private:
             const char *lightColorsUniName = nullptr;
             if (lightingFP.fDirectionalLights.count() != 0) {
                 fLightDirsUni = uniformHandler->addUniformArray(
+                        &lightingFP,
                         kFragment_GrShaderFlag,
                         kFloat3_GrSLType,
                         "LightDir",
                         lightingFP.fDirectionalLights.count(),
                         &lightDirsUniName);
                 fLightColorsUni = uniformHandler->addUniformArray(
+                        &lightingFP,
                         kFragment_GrShaderFlag,
                         kFloat3_GrSLType,
                         "LightColor",
@@ -160,8 +162,9 @@ private:
             }
 
             const char* ambientColorUniName = nullptr;
-            fAmbientColorUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat3_GrSLType,
-                                                          "AmbientColor", &ambientColorUniName);
+            fAmbientColorUni = uniformHandler->addUniform(&lightingFP, kFragment_GrShaderFlag,
+                                                          kFloat3_GrSLType, "AmbientColor",
+                                                          &ambientColorUniName);
 
             fragBuilder->codeAppendf("half4 diffuseColor = %s;", args.fInputColor);
 
