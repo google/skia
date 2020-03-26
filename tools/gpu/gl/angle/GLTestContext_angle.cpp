@@ -5,24 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "tools/gpu/gl/angle/GLTestContext_angle.h"
-
-#define EGL_EGL_PROTOTYPES 1
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLUtil.h"
-
 #include "include/core/SkTime.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 #include "src/ports/SkOSLibrary.h"
+#include "tools/gpu/gl/angle/GLTestContext_angle.h"
 #include "third_party/externals/angle2/include/platform/Platform.h"
 
+#define EGL_EGL_PROTOTYPES 1
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 #define EGL_PLATFORM_ANGLE_ANGLE                0x3202
 #define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3203
