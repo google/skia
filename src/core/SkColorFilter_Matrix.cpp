@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkColorFilter_Matrix.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -80,26 +81,51 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
+
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             SkColorSpace* /*dstCS*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    // TODO: specialize generated code on the 0/1 values of fMatrix?
-    if (fDomain == Domain::kRGBA) {
-        c = p->unpremul(c);
+    c = p->unpremul(c);
 
+    skvm::F32 x, y, z, w;
+
+    if (fDomain == Domain::kHSLA) {
+        auto [h, s, l, a] = p->to_hsla(c);
+        x = h;
+        y = s;
+        z = l;
+        w = a;
+    } else {
+        x = c.r;
+        y = c.g;
+        z = c.b;
+        w = c.a;
+    }
+
+    {   // TODO: specialize generated code on the 0/1 values of fMatrix?
         auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
-        skvm::F32 rgba[4];
+        skvm::F32 tuple[4];
         for (int j = 0; j < 4; j++) {
-            rgba[j] =        m(4+j*5);
-            rgba[j] = p->mad(m(3+j*5), c.a, rgba[j]);
-            rgba[j] = p->mad(m(2+j*5), c.b, rgba[j]);
-            rgba[j] = p->mad(m(1+j*5), c.g, rgba[j]);
-            rgba[j] = p->mad(m(0+j*5), c.r, rgba[j]);
+            tuple[j] =        m(4+j*5);
+            tuple[j] = p->mad(m(3+j*5), x, tuple[j]);
+            tuple[j] = p->mad(m(2+j*5), y, tuple[j]);
+            tuple[j] = p->mad(m(1+j*5), z, tuple[j]);
+            tuple[j] = p->mad(m(0+j*5), w, tuple[j]);
         }
-        return p->premul({rgba[0], rgba[1], rgba[2], rgba[3]});
+        x = tuple[0];
+        y = tuple[1];
+        z = tuple[2];
+        w = tuple[3];
     }
-    return {};
+
+    if (fDomain == Domain::kHSLA) {
+        c = p->to_rgba({x, y, z, w});
+    } else {
+        c = {x, y, z, w};
+    }
+
+    return p->premul(c);    // note: rasterpipeline version does clamp01 first
 }
 
 #if SK_SUPPORT_GPU

@@ -1192,6 +1192,50 @@ namespace skvm {
         };
     }
 
+    HSLA Builder::to_hsla(Color c) {
+        auto mx = max(max(c.r,c.g),c.b),
+             mn = min(min(c.r,c.g),c.b),
+              d = sub(mx,mn),
+          d_rcp = div(splat(1.0f),d),
+         g_lt_b = select(lt(c.g,c.b), splat(6.0f), splat(0.0f));
+
+        auto diffm = [&](auto a, auto b) { return mul(sub(a,b), d_rcp); };
+
+        auto h = mul(splat(1/6.0f),
+                        select(eq(mx,mn),   splat(0.0f),
+                        select(eq(mx, c.r), add(diffm(c.g,c.b), g_lt_b),
+                        select(eq(mx, c.g), add(diffm(c.b,c.r), splat(2.0f)),
+                                            add(diffm(c.r,c.g), splat(4.0f))))));
+
+        auto sum = add(mx,mn);
+        auto   l = mul(sum, splat(0.5f));
+        auto   s = select(eq(mx,mn), splat(0.0f),
+                                     div(d, select(gt(l,splat(0.5f)), sub(splat(2.0f),sum),
+                                                                      sum)));
+        return {h, s, l, c.a};
+    }
+
+    Color Builder::to_rgba(HSLA c) {
+        // See GrRGBToHSLFilterEffect.fp
+
+        auto h = c.h,
+             s = c.s,
+             l = c.l,
+             x = mul(sub(splat(1.0f), abs(sub(add(l,l), splat(1.0f)))), s);
+
+        auto hue_to_rgb = [&](auto hue) {
+            auto q = sub(abs(mad(fract(hue),splat(6.0f), splat(-3.0f))), splat(1.0f));
+            return mad(sub(clamp01(q), splat(0.5f)), x, l);
+        };
+
+        return {
+            hue_to_rgb(add(h, splat(0.0f/3.0f))),
+            hue_to_rgb(add(h, splat(2.0f/3.0f))),
+            hue_to_rgb(add(h, splat(1.0f/3.0f))),
+            c.a,
+        };
+    }
+
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {
         auto mma = [this](skvm::F32 x, skvm::F32 y, skvm::F32 z, skvm::F32 w) {
             return mad(x,y, mul(z,w));
