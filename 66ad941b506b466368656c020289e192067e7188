@@ -2,6 +2,109 @@
   "comments": [
     {
       "key": {
+        "uuid": "db27eab8_82a6fce8",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "I think this is a good spot to introduce a new local type\n\n   namespace skvm {\n       struct HSL { F32 h,s,l; };\n   }\n\nor HSLA with alpha if you want to do it that way.\n\nThat\u0027ll make the types of these methods safer, and eliminate the need to leave comments like // b is luminance",
+      "range": {
+        "startLine": 135,
+        "startChar": 7,
+        "endLine": 135,
+        "endChar": 18
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9961c8dd_b1602ccd",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "Maybe break before this to see it\u0027s the argument to the sub() more clearly?",
+      "range": {
+        "startLine": 168,
+        "startChar": 87,
+        "endLine": 168,
+        "endChar": 103
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dcdd7b8_21db1772",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "Yeah, might as well maintain compatibility for at least this CL so we know we\u0027ve got it right.\nMaybe leave a reminder that this is just a historical choice?\n\nMight be a motivator to time what adding a gamma-only case to sk_program_transfer_fn() gets us?",
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40acd358_d1f0e835",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "in general I think most of these read better as skvm::F32.  It\u0027s nearly as terse and doesn\u0027t get in the reader\u0027s way, and helps keep the context you need to track down, and helps lambdas stand out a little more.",
+      "range": {
+        "startLine": 196,
+        "startChar": 8,
+        "endLine": 196,
+        "endChar": 12
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35ab705f_d9f6f9be",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "I think we use inv(x) \u003d 1-x enough to promote it an inline method on skvm::Builder, right along side negate()?",
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a939ffb_4a6ad09f",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 6
@@ -19,6 +122,47 @@
         "endLine": 216,
         "endChar": 29
       },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cde549cc_2070a832",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "My rule of thumb is to use splat() for values you could write out as a literal in onProgram(), and use uniforms for anything else.  Since these are derived from fConfig, they make sense to me as uniforms.\n\nThere\u0027s very little downside to using uniforms.  The program should be correct either way, and uniforms allow for better caching.  splats in turn just allow for better constant propagation.",
+      "parentUuid": "5a939ffb_4a6ad09f",
+      "range": {
+        "startLine": 216,
+        "startChar": 17,
+        "endLine": 216,
+        "endChar": 29
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c607bad_a27ceb03",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:20:15Z",
+      "side": 1,
+      "message": "Why don\u0027t we promote some more clamps to skvm::Builder?\n\n   skvm::F32 clamp  (skvm::F32 x, skvm::F32 lo, skvm::F32 hi);\n   skvm::F32 clamp0_(skvm::F32 x, skvm::F32 hi)                { return clamp(x, splat(0.0f),         hi); }\n   skvm::F32 clamp01(skvm::F32 x)                              { return clamp(x, splat(0.0f), splat(1.0f); }\n\nNot exactly sure what the best name for clamp0_ is... we could just name them all clamp() even.  Might be clamp01() brings all the benefit anyway.\n\n(I\u0027m happy to do the backfill as a follow up.)",
       "revId": "66ad941b506b466368656c020289e192067e7188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
