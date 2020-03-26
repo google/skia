@@ -855,7 +855,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.model("TecnoSpark3Pro") {
-		match = append(match, "~Programs") // skia:9814
+		// skia:9814
+		match = append(match, "~Programs")
+		match = append(match, "~ProcessorCloneTest")
+		match = append(match, "~ProcessorOptimizationValidationTest")
 	}
 
 	if b.gpu("IntelIris640", "IntelHD615", "IntelHDGraphics615") {
