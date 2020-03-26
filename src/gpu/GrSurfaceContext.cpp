@@ -686,10 +686,10 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
                                                                     proxy->backendFormat(), dstCT);
     // Fail if read color type does not have all of dstCT's color channels and those missing color
     // channels are in the src.
-    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
-    uint32_t legalReadComponents = GrColorTypeComponentFlags(supportedRead.fColorType);
-    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorInfo().colorType());
-    if ((~legalReadComponents & dstComponents) & srcComponents) {
+    uint32_t dstChannels = GrColorTypeChannelFlags(dstCT);
+    uint32_t legalReadChannels = GrColorTypeChannelFlags(supportedRead.fColorType);
+    uint32_t srcChannels = GrColorTypeChannelFlags(this->colorInfo().colorType());
+    if ((~legalReadChannels & dstChannels) & srcChannels) {
         return {};
     }
 

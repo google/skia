@@ -875,38 +875,35 @@ GrColorType SkColorTypeAndFormatToGrColorType(const GrCaps* caps,
                                               SkColorType skCT,
                                               const GrBackendFormat& format);
 
-static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
+static constexpr uint32_t GrColorTypeChannelFlags(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:          return 0;
-        case GrColorType::kAlpha_8:          return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kBGR_565:          return kRGB_SkColorTypeComponentFlags;
-        case GrColorType::kABGR_4444:        return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_8888:        return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGB_888x:         return kRGB_SkColorTypeComponentFlags;
-        case GrColorType::kRG_88:            return kRed_SkColorTypeComponentFlag |
-                                                    kGreen_SkColorTypeComponentFlag;
-        case GrColorType::kBGRA_8888:        return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_1010102:     return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kGray_8:           return kGray_SkColorTypeComponentFlag;
-        case GrColorType::kAlpha_F16:        return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kRGBA_F16:         return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_F16_Clamped: return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_F32:         return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kAlpha_8xxx:       return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kAlpha_F32xxx:     return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kGray_8xxx:        return kGray_SkColorTypeComponentFlag;
-        case GrColorType::kAlpha_16:         return kAlpha_SkColorTypeComponentFlag;
-        case GrColorType::kRG_1616:          return kRed_SkColorTypeComponentFlag |
-                                                    kGreen_SkColorTypeComponentFlag;
-        case GrColorType::kRGBA_16161616:    return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRG_F16:           return kRed_SkColorTypeComponentFlag |
-                                                    kGreen_SkColorTypeComponentFlag;
-        case GrColorType::kRGB_888:          return kRGB_SkColorTypeComponentFlags;
-        case GrColorType::kR_8:              return kRed_SkColorTypeComponentFlag;
-        case GrColorType::kR_16:             return kRed_SkColorTypeComponentFlag;
-        case GrColorType::kR_F16:            return kRed_SkColorTypeComponentFlag;
-        case GrColorType::kGray_F16:         return kGray_SkColorTypeComponentFlag;
+        case GrColorType::kAlpha_8:          return kAlpha_SkColorChannelFlag;
+        case GrColorType::kBGR_565:          return kRGB_SkColorChannelFlags;
+        case GrColorType::kABGR_4444:        return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGBA_8888:        return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGB_888x:         return kRGB_SkColorChannelFlags;
+        case GrColorType::kRG_88:            return kRG_SkColorChannelFlags;
+        case GrColorType::kBGRA_8888:        return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGBA_1010102:     return kRGBA_SkColorChannelFlags;
+        case GrColorType::kGray_8:           return kGray_SkColorChannelFlag;
+        case GrColorType::kAlpha_F16:        return kAlpha_SkColorChannelFlag;
+        case GrColorType::kRGBA_F16:         return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGBA_F16_Clamped: return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRGBA_F32:         return kRGBA_SkColorChannelFlags;
+        case GrColorType::kAlpha_8xxx:       return kAlpha_SkColorChannelFlag;
+        case GrColorType::kAlpha_F32xxx:     return kAlpha_SkColorChannelFlag;
+        case GrColorType::kGray_8xxx:        return kGray_SkColorChannelFlag;
+        case GrColorType::kAlpha_16:         return kAlpha_SkColorChannelFlag;
+        case GrColorType::kRG_1616:          return kRG_SkColorChannelFlags;
+        case GrColorType::kRGBA_16161616:    return kRGBA_SkColorChannelFlags;
+        case GrColorType::kRG_F16:           return kRG_SkColorChannelFlags;
+        case GrColorType::kRGB_888:          return kRGB_SkColorChannelFlags;
+        case GrColorType::kR_8:              return kRed_SkColorChannelFlag;
+        case GrColorType::kR_16:             return kRed_SkColorChannelFlag;
+        case GrColorType::kR_F16:            return kRed_SkColorChannelFlag;
+        case GrColorType::kGray_F16:         return kGray_SkColorChannelFlag;
     }
     SkUNREACHABLE;
 }
@@ -1081,11 +1078,11 @@ static constexpr bool GrColorTypeIsWiderThan(GrColorType colorType, int n) {
 }
 
 static constexpr bool GrColorTypeIsAlphaOnly(GrColorType ct) {
-    return kAlpha_SkColorTypeComponentFlag == GrColorTypeComponentFlags(ct);
+    return GrColorTypeChannelFlags(ct) == kAlpha_SkColorChannelFlag;
 }
 
 static constexpr bool GrColorTypeHasAlpha(GrColorType ct) {
-    return kAlpha_SkColorTypeComponentFlag & GrColorTypeComponentFlags(ct);
+    return GrColorTypeChannelFlags(ct) & kAlpha_SkColorChannelFlag;
 }
 
 static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {

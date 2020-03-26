@@ -295,29 +295,29 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         tempViews[textureIndex] = GrSurfaceProxyView(std::move(proxy), imageOrigin, swizzle);
 
         // Check that each texture contains the channel data for the corresponding YUVA index
-        auto componentFlags = GrColorTypeComponentFlags(grColorType);
+        auto channelFlags = GrColorTypeChannelFlags(grColorType);
         for (int yuvaIndex = 0; yuvaIndex < SkYUVAIndex::kIndexCount; ++yuvaIndex) {
             if (yuvaIndices[yuvaIndex].fIndex == textureIndex) {
                 switch (yuvaIndices[yuvaIndex].fChannel) {
                     case SkColorChannel::kR:
                         // TODO: Chrome needs to be patched before this can be
                         // enforced.
-                        // if (!(kRed_SkColorTypeComponentFlag & componentFlags)) {
+                        // if (!(kRed_SkColorChannelFlag & channelFlags)) {
                         //     return false;
                         // }
                         break;
                     case SkColorChannel::kG:
-                        if (!(kGreen_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kGreen_SkColorChannelFlag & channelFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kB:
-                        if (!(kBlue_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kBlue_SkColorChannelFlag & channelFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kA:
-                        if (!(kAlpha_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kAlpha_SkColorChannelFlag & channelFlags)) {
                             return false;
                         }
                         break;

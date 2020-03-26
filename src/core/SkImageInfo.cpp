@@ -38,7 +38,7 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
 }
 
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
-    return !(kAlpha_SkColorTypeComponentFlag & SkColorTypeComponentFlags(ct));
+    return !(SkColorTypeChannelFlags(ct) & kAlpha_SkColorChannelFlag);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
