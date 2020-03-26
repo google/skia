@@ -11,6 +11,7 @@
 #include "include/core/SkCubicMap.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkNoncopyable.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGScene.h"
 
 #include <vector>
@@ -53,7 +54,7 @@ struct Keyframe {
     static constexpr uint32_t kCubicIndexOffset = 2;
 };
 
-class KeyframeAnimatorBase : public sksg::Animator {
+class KeyframeAnimatorBase : public Animator {
 public:
     virtual ~KeyframeAnimatorBase() override;
 

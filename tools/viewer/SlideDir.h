@@ -12,6 +12,9 @@
 
 #include "include/private/SkTArray.h"
 
+#include <memory>
+#include <vector>
+
 class SkString;
 
 namespace sksg {
@@ -25,6 +28,8 @@ class SlideDir final : public Slide {
 public:
     SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&&,
              int columns = kDefaultColumnCount);
+
+    class Animator;
 
 protected:
     void load(SkScalar winWidth, SkScalar winHeight) override;
@@ -52,6 +57,7 @@ private:
 
     SkTArray<Rec, true>                fRecs;
     std::unique_ptr<sksg::Scene>       fScene;
+    std::vector<sk_sp<Animator>>       fSceneAnimators;
     sk_sp<sksg::Group>                 fRoot;
 
     SkSize                             fWinSize  = SkSize::MakeEmpty();
