@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d1b05c84_97d7aafd",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T17:05:30Z",
+      "side": 1,
+      "message": "There\u0027s a giant, continuous intermediate area between what we have here and splatting everything.\n\nIt\u0027d be tempting to run over .skps to gather stats on the shapes of matrices we see, but I think you\u0027d get roughly the exact same effect without gathering any statistics by simply blindly treating 0 and 1 coefficients specially.  0 lets us skip adds and 1 or -1 lets us skip multiplies, and any other term is uninteresting.",
+      "parentUuid": "22aa192b_0542586a",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 27
+      },
+      "revId": "361ee0e6ad30aeca3788d83ae45908f1c064fb5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d1c092e6_512b6847",
         "filename": "src/core/SkColorFilter_Matrix.cpp",
         "patchSetId": 3
