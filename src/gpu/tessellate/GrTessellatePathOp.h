@@ -14,7 +14,7 @@ class GrAppliedHardClip;
 class GrFillPathShader;
 class GrStencilPathShader;
 
-// Renders paths using the classic Red Book "stencil, then cover" method. Curves get linearized by
+// Renders paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by
 // GPU tessellation shaders. This Op doesn't apply analytic AA, so it requires a render target that
 // supports either MSAA or mixed samples if AA is desired.
 class GrTessellatePathOp : public GrDrawOp {

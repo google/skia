@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrGpuTessellationPathRenderer.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
@@ -21,12 +21,12 @@
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
 
-GrGpuTessellationPathRenderer::GrGpuTessellationPathRenderer(const GrCaps& caps) : fAtlas(
+GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps) : fAtlas(
         GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
         std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()), caps) {
 }
 
-GrPathRenderer::CanDrawPath GrGpuTessellationPathRenderer::onCanDrawPath(
+GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     // This class should not have been added to the chain without tessellation support.
     SkASSERT(args.fCaps->shaderCaps()->tessellationSupport());
@@ -48,7 +48,7 @@ GrPathRenderer::CanDrawPath GrGpuTessellationPathRenderer::onCanDrawPath(
     return CanDrawPath::kYes;
 }
 
-bool GrGpuTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrRenderTargetContext* renderTargetContext = args.fRenderTargetContext;
     GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
     SkPath path;
@@ -76,7 +76,7 @@ bool GrGpuTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-bool GrGpuTessellationPathRenderer::tryAddPathToAtlas(
+bool GrTessellationPathRenderer::tryAddPathToAtlas(
         const GrCaps& caps, const SkMatrix& viewMatrix, const SkPath& path, GrAAType aaType,
         SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     if (!caps.multisampleDisableSupport() && GrAAType::kNone == aaType) {
@@ -112,7 +112,7 @@ bool GrGpuTessellationPathRenderer::tryAddPathToAtlas(
     return true;
 }
 
-void GrGpuTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
@@ -123,8 +123,8 @@ void GrGpuTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
 }
 
-void GrGpuTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
-                                             const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+void GrTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
+                                          const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
     if (!fAtlas.drawBounds().isEmpty()) {
         this->renderAtlas(onFlushRP);
         fAtlas.reset(kAtlasInitialSize, *onFlushRP->caps());
@@ -152,7 +152,7 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kKeep,
         0xffff>());
 
-void GrGpuTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushRP) {
+void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushRP) {
     auto rtc = fAtlas.instantiate(onFlushRP);
     if (!rtc) {
         return;

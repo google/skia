@@ -23,8 +23,8 @@ static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths
 
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
-              "[~]small [~]tri] [~]all");
+              "[~]none [~]dashline [~]tess [~]nvpr [~]ccpr [~]aahairline [~]aaconvex "
+              "[~]aalinearizing [~]small [~]tri] [~]all");
 
 static DEFINE_int(internalSamples, 4,
                   "Number of samples for internal draws that use MSAA or mixed samples.");
@@ -40,8 +40,8 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kNone;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
-    } else if (!strcmp(name, "gtess")) {
-        return GpuPathRenderers::kGpuTessellation;
+    } else if (!strcmp(name, "tess")) {
+        return GpuPathRenderers::kTessellation;
     } else if (!strcmp(name, "nvpr")) {
         return GpuPathRenderers::kStencilAndCover;
     } else if (!strcmp(name, "ccpr")) {
