@@ -82,8 +82,6 @@ public:
             const GrBackendFormat format =
                 ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kBGR_565,
                                                             GrRenderable::kNo);
-            GrSwizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(
-                    format, GrColorType::kBGR_565);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this, format,
                      nullTexture](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
@@ -100,8 +98,8 @@ public:
                             return texture;
                         }
                     },
-                    format, readSwizzle, GrRenderable::kNo, 1, GrProtected::kNo,
-                    *proxyProvider->caps(), GrSurfaceProxy::UseAllocator::kYes);
+                    format, GrRenderable::kNo, 1, GrProtected::kNo, *proxyProvider->caps(),
+                    GrSurfaceProxy::UseAllocator::kYes);
 
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
                             GrOp::IsHairline::kNo);
@@ -145,8 +143,8 @@ public:
                         fAtlas->instantiate(rp);
                         return sk_ref_sp(fAtlas->peekTexture());
                     },
-                    format, readSwizzle, GrRenderable::kYes, 1, GrProtected::kNo,
-                    *proxyProvider->caps(), GrSurfaceProxy::UseAllocator::kYes);
+                    format, GrRenderable::kYes, 1, GrProtected::kNo, *proxyProvider->caps(),
+                    GrSurfaceProxy::UseAllocator::kYes);
             fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, readSwizzle),
                         GrSamplerState::Filter::kNearest);
             this->setTextureSamplerCnt(1);
@@ -276,13 +274,11 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 bool fReleaseCallback;
                 sk_sp<GrTexture> fTexture;
             };
-            GrSwizzle readSwizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
                     TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
-                    readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
-                    GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
-                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-                    GrSurfaceProxy::UseAllocator::kYes);
+                    GrRenderable::kNo, 1, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
+                    GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
+                    GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -339,8 +335,6 @@ private:
             ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                         GrRenderable::kNo);
 
-        GrSwizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(
-                format, GrColorType::kRGBA_8888);
         fLazyProxy = proxyProvider->createLazyProxy(
                 [testExecuteValue, shouldFailInstantiation, desc,
                  format](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
@@ -352,7 +346,7 @@ private:
                                               SkBudgeted::kNo, GrProtected::kNo),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, desc, readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
+                format, desc, GrRenderable::kNo, 1, GrMipMapped::kNo,
                 GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
                 SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 
