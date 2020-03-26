@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a799337_cf440b01",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:43:00Z",
+      "side": 1,
+      "message": "might be clearer to just p-\u003eclamp01(q) here now than mutate q?",
+      "range": {
+        "startLine": 176,
+        "startChar": 29,
+        "endLine": 176,
+        "endChar": 30
+      },
+      "revId": "053980ca13b9b1616e87ad92985eda4fdafb4340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d4a7182_8bbc5f91",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T14:43:00Z",
+      "side": 1,
+      "message": "Also clearer as skvm::F32?",
+      "range": {
+        "startLine": 219,
+        "startChar": 8,
+        "endLine": 219,
+        "endChar": 12
+      },
+      "revId": "053980ca13b9b1616e87ad92985eda4fdafb4340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
