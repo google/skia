@@ -76,7 +76,6 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     }
 
     fActivePipelineState->setData(fRenderTarget, programInfo);
-    fCurrentVertexStride = programInfo.primProc().vertexStride();
 
     if (!fActiveRenderCmdEncoder) {
         fActiveRenderCmdEncoder =
@@ -254,8 +253,7 @@ void GrMtlOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
     if (vertexBuffer) {
         SkASSERT(!vertexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
-        fActiveVertexBuffer = sk_ref_sp(static_cast<const GrMtlBuffer*>(vertexBuffer));
-        ++inputBufferIndex;
+        this->setVertexBuffer(fActiveRenderCmdEncoder, vertexBuffer, 0, inputBufferIndex++);
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
@@ -272,7 +270,6 @@ void GrMtlOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
 void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);
-    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
                                 vertexStart:baseVertex
@@ -285,8 +282,6 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);
     SkASSERT(fActiveIndexBuffer);
-    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(),
-                          fCurrentVertexStride * baseVertex, 0);
 
     auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;
@@ -294,7 +289,8 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
                                        indexBuffer:mtlIndexBufer->mtlBuffer()
-                                 indexBufferOffset:indexOffset];
+                                 indexBufferOffset:indexOffset
+                                        baseVertex:baseVertex];
     fGpu->stats()->incNumDraws();
 }
 
@@ -302,7 +298,6 @@ void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, in
                                          int baseVertex) {
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);
-    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
         [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
@@ -321,7 +316,6 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);
     SkASSERT(fActiveIndexBuffer);
-    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;

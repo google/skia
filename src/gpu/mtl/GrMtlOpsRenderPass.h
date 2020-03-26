@@ -68,7 +68,6 @@ private:
     MTLPrimitiveType            fActivePrimitiveType;
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
-    size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
     struct {
