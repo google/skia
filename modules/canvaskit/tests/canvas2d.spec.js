@@ -14,6 +14,14 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         container.innerHTML = '';
     });
 
+    function expectColorCloseTo(a, b) {
+        expect(a.length).toEqual(4);
+        expect(b.length).toEqual(4);
+        for (let i=0; i<4; i++){
+            expect(a[i]).toBeCloseTo(b[i], 3);
+        }
+    }
+
     describe('color strings', function() {
         function hex(s) {
             return parseInt(s, 16);
@@ -22,13 +30,13 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         it('parses hex color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const parseColor = CanvasKit.parseColorString;
-                expect(parseColor('#FED')).toEqual(
+                expectColorCloseTo(parseColor('#FED'), 
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), 1));
-                expect(parseColor('#FEDC')).toEqual(
+                expectColorCloseTo(parseColor('#FEDC'),
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), hex('CC')/255));
-                expect(parseColor('#fed')).toEqual(
+                expectColorCloseTo(parseColor('#fed'),
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), 1));
-                expect(parseColor('#fedc')).toEqual(
+                expectColorCloseTo(parseColor('#fedc'),
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), hex('CC')/255));
                 done();
             }));
@@ -36,19 +44,19 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         it('parses rgba color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const parseColor = CanvasKit.parseColorString;
-                expect(parseColor('rgba(117, 33, 64, 0.75)')).toEqual(
+                expectColorCloseTo(parseColor('rgba(117, 33, 64, 0.75)'),
                     CanvasKit.Color(117, 33, 64, 0.75));
-                expect(parseColor('rgb(117, 33, 64, 0.75)')).toEqual(
+                expectColorCloseTo(parseColor('rgb(117, 33, 64, 0.75)'),
                     CanvasKit.Color(117, 33, 64, 0.75));
-                expect(parseColor('rgba(117,33,64)')).toEqual(
+                expectColorCloseTo(parseColor('rgba(117,33,64)'),
                     CanvasKit.Color(117, 33, 64, 1.0));
-                expect(parseColor('rgb(117,33, 64)')).toEqual(
+                expectColorCloseTo(parseColor('rgb(117,33, 64)'),
                     CanvasKit.Color(117, 33, 64, 1.0));
-                expect(parseColor('rgb(117,33, 64, 32%)')).toEqual(
+                expectColorCloseTo(parseColor('rgb(117,33, 64, 32%)'),
                     CanvasKit.Color(117, 33, 64, 0.32));
-                expect(parseColor('rgb(117,33, 64, 0.001)')).toEqual(
+                expectColorCloseTo(parseColor('rgb(117,33, 64, 0.001)'),
                     CanvasKit.Color(117, 33, 64, 0.001));
-                expect(parseColor('rgb(117,33,64,0)')).toEqual(
+                expectColorCloseTo(parseColor('rgb(117,33,64,0)'),
                     CanvasKit.Color(117, 33, 64, 0.0));
                 done();
             }));
@@ -58,11 +66,11 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 // Keep this one as the _testing version, because we don't include the large
                 // color map by default.
                 const parseColor = CanvasKit._testing.parseColor;
-                expect(parseColor('grey')).toEqual(
+                expectColorCloseTo(parseColor('grey'),
                     CanvasKit.Color(128, 128, 128, 1.0));
-                expect(parseColor('blanchedalmond')).toEqual(
+                expectColorCloseTo(parseColor('blanchedalmond'),
                     CanvasKit.Color(255, 235, 205, 1.0));
-                expect(parseColor('transparent')).toEqual(
+                expectColorCloseTo(parseColor('transparent'),
                     CanvasKit.Color(0, 0, 0, 0));
                 done();
             }));
@@ -75,7 +83,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 expect(colorToString(CanvasKit.Color(102, 51, 153, 1.0))).toEqual('#663399');
 
                 expect(colorToString(CanvasKit.Color(255, 235, 205, 0.5))).toEqual(
-                                               'rgba(255, 235, 205, 0.50196078)');
+                                               'rgba(255, 235, 205, 0.50000000)');
 
                 done();
             }));
@@ -111,7 +119,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 for (let tc of testCases) {
                     // Print out the test case if the two don't match.
                     expect(multiplyByAlpha(tc.inColor, tc.inAlpha))
-                          .toBe(tc.outColor, JSON.stringify(tc));
+                          .toEqual(tc.outColor, JSON.stringify(tc));
                 }
 
                 done();
