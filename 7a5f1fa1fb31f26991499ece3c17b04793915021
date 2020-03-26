@@ -34,6 +34,24 @@
       "revId": "7a5f1fa1fb31f26991499ece3c17b04793915021",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d6782bc_e5249828",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T19:46:03Z",
+      "side": 0,
+      "message": "Ah, I see.",
+      "parentUuid": "c67c2490_8dc18988",
+      "revId": "7a5f1fa1fb31f26991499ece3c17b04793915021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
