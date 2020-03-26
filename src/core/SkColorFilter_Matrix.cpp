@@ -87,15 +87,26 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     auto apply_matrix = [&](auto xyzw) {
         auto dot = [&](int j) {
-            // TODO: specialize generated code on the 0/1 values of fMatrix?
-            auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
+            auto smart_mad = [&](float f, skvm::F32 m, skvm::F32 a) {
+                // skvm::Builder won't fold f*0 == 0, but we shouldn't encounter NaN here.
+                // While looking, also simplify f == ±1.  Anything else becomes a uniform.
+                return f ==  0.0f ? a
+                     : f == +1.0f ? p->add(m,a)
+                     : f == -1.0f ? p->sub(a,m)
+                     : p->mad(p->uniformF(uniforms->pushF(f)), m, a);
+            };
+            auto smart_bias = [&](float f) {
+                // Similarly, let skvm::Builder fold away the additive bias when zero.
+                return f == 0.0f ? p->splat(0.0f)
+                                 : p->uniformF(uniforms->pushF(f));
+            };
 
             auto [x,y,z,w] = xyzw;
-            return p->mad(m(0+j*5), x,
-                   p->mad(m(1+j*5), y,
-                   p->mad(m(2+j*5), z,
-                   p->mad(m(3+j*5), w,
-                          m(4+j*5)))));
+            return smart_mad (fMatrix[0+j*5], x,
+                   smart_mad (fMatrix[1+j*5], y,
+                   smart_mad (fMatrix[2+j*5], z,
+                   smart_mad (fMatrix[3+j*5], w,
+                   smart_bias(fMatrix[4+j*5])))));
         };
         return std::make_tuple(dot(0), dot(1), dot(2), dot(3));
     };
