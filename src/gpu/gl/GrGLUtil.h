@@ -91,7 +91,7 @@ enum GrGLRenderer {
 
     kGalliumLLVM_GrGLRenderer,
     kMali4xx_GrGLRenderer,
-    /** G-7x */
+    /** G-3x, G-5x, or G-7x */
     kMaliG_GrGLRenderer,
     /** T-6xx, T-7xx, or T-8xx */
     kMaliT_GrGLRenderer,
