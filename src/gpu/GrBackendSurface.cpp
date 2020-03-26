@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "include/gpu/GrBackendSurface.h"
 
 #include "src/gpu/gl/GrGLUtil.h"
@@ -205,6 +204,39 @@ GrBackendFormat::GrBackendFormat(GrColorType colorType, SkImage::CompressionType
         , fTextureType(GrTextureType::k2D) {
     fMock.fColorType = colorType;
     fMock.fCompressionType = compression;
+}
+
+uint32_t GrBackendFormat::channelMask() const {
+    if (!this->isValid()) {
+        return 0;
+    }
+    switch (fBackend) {
+#ifdef SK_GL
+        case GrBackendApi::kOpenGL:
+            return GrGLFormatChannels(GrGLFormatFromGLEnum(fGLFormat));
+#endif
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan:
+            return GrVkFormatChannels(fVk.fFormat);
+#endif
+#ifdef SK_METAL
+        case GrBackendApi::kMetal:
+            return GrMtlFormatChannels(fMtlFormat);
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            return GrDawnFormatChannels(fDawnFormat);
+#endif
+#ifdef SK_DIRECT3D
+        case GrBackendApi::kDirect3D:
+            return GrDxgiFormatChannels(fDxgiFormat);
+#endif
+        case GrBackendApi::kMock:
+            return GrColorTypeChannelFlags(fMock.fColorType);
+
+        default:
+            return 0;
+    }
 }
 
 GrColorType GrBackendFormat::asMockColorType() const {

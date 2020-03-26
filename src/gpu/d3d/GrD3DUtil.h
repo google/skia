@@ -23,6 +23,29 @@ bool GrDxgiFormatIsCompressed(DXGI_FORMAT);
  */
 SkImage::CompressionType GrDxgiFormatToCompressionType(DXGI_FORMAT dxgiFormat);
 
+static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
+    switch (vkFormat) {
+        case DXGI_FORMAT_R8G8B8A8_UNORM:           return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R8_UNORM:                 return kRed_SkColorChannelFlag;
+        case DXGI_FORMAT_B8G8R8A8_UNORM:           return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_B5G6R5_UNORM:             return kRGB_SkColorChannelFlags;
+        case DXGI_FORMAT_R16G16B16A16_FLOAT:       return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R16_FLOAT:                return kRed_SkColorChannelFlag;
+        case DXGI_FORMAT_R8G8_UNORM:               return kRG_SkColorChannelFlags;
+        case DXGI_FORMAT_R10G10B10A2_UNORM:        return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_B4G4R4A4_UNORM:           return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R32G32B32A32_FLOAT:       return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:      return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_BC1_UNORM:                return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R16_UNORM:                return kRed_SkColorChannelFlag;
+        case DXGI_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
+        case DXGI_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
+        case DXGI_FORMAT_R16G16_FLOAT:             return kRG_SkColorChannelFlags;
+
+        default:                                   return 0;
+    }
+}
+
 #if GR_TEST_UTILS
 static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
     switch (dxgiFormat) {

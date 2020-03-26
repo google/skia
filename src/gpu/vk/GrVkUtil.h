@@ -49,6 +49,33 @@ class GrVkGpu;
 
 bool GrVkFormatIsSupported(VkFormat);
 
+static constexpr uint32_t GrVkFormatChannels(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM:           return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R8_UNORM:                 return kRed_SkColorChannelFlag;
+        case VK_FORMAT_B8G8R8A8_UNORM:           return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:      return kRGB_SkColorChannelFlags;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:      return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R16_SFLOAT:               return kRed_SkColorChannelFlag;
+        case VK_FORMAT_R8G8B8_UNORM:             return kRGB_SkColorChannelFlags;
+        case VK_FORMAT_R8G8_UNORM:               return kRG_SkColorChannelFlags;
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:    return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:    return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:      return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R8G8B8A8_SRGB:            return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:  return kRGB_SkColorChannelFlags;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:      return kRGB_SkColorChannelFlags;
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:     return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R16_UNORM:                return kRed_SkColorChannelFlag;
+        case VK_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
+        case VK_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
+        case VK_FORMAT_R16G16_SFLOAT:            return kRG_SkColorChannelFlags;
+
+        default:                                 return 0;
+    }
+}
+
 bool GrVkFormatNeedsYcbcrSampler(VkFormat format);
 
 #ifdef SK_DEBUG

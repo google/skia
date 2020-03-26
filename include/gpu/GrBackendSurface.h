@@ -111,6 +111,12 @@ public:
     GrTextureType textureType() const { return fTextureType; }
 
     /**
+     * Gets the channels present in the format as a bitfield of SkColorChannelFlag values.
+     * Luminance channels are reported as kGray_SkColorChannelFlag.
+     */
+    uint32_t channelMask() const;
+
+    /**
      * If the backend API is GL this gets the format as a GrGLFormat. Otherwise, returns
      * GrGLFormat::kUnknown.
      */

@@ -10,6 +10,7 @@
 
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/private/GrTypesPriv.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/gl/GrGLDefines.h"
@@ -36,6 +37,35 @@ typedef uint64_t GrGLDriverVersion;
 #define GR_GL_INVALID_VER GR_GL_VER(0, 0)
 #define GR_GLSL_INVALID_VER GR_GLSL_VER(0, 0)
 #define GR_GL_DRIVER_UNKNOWN_VER GR_GL_DRIVER_VER(0, 0, 0)
+
+static constexpr uint32_t GrGLFormatChannels(GrGLFormat format) {
+    switch (format) {
+        case GrGLFormat::kUnknown:               return 0;
+        case GrGLFormat::kRGBA8:                 return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kR8:                    return kRed_SkColorChannelFlag;
+        case GrGLFormat::kALPHA8:                return kAlpha_SkColorChannelFlag;
+        case GrGLFormat::kLUMINANCE8:            return kGray_SkColorChannelFlag;
+        case GrGLFormat::kBGRA8:                 return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kRGB565:                return kRGB_SkColorChannelFlags;
+        case GrGLFormat::kRGBA16F:               return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kR16F:                  return kRed_SkColorChannelFlag;
+        case GrGLFormat::kRGB8:                  return kRGB_SkColorChannelFlags;
+        case GrGLFormat::kRG8:                   return kRG_SkColorChannelFlags;
+        case GrGLFormat::kRGB10_A2:              return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kRGBA4:                 return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kSRGB8_ALPHA8:          return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:  return kRGB_SkColorChannelFlags;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:  return kRGB_SkColorChannelFlags;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:   return kRGB_SkColorChannelFlags;
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:  return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kR16:                   return kRed_SkColorChannelFlag;
+        case GrGLFormat::kRG16:                  return kRG_SkColorChannelFlags;
+        case GrGLFormat::kRGBA16:                return kRGBA_SkColorChannelFlags;
+        case GrGLFormat::kRG16F:                 return kRG_SkColorChannelFlags;
+        case GrGLFormat::kLUMINANCE16F:          return kGray_SkColorChannelFlag;
+    }
+    SkUNREACHABLE;
+}
 
 /**
  * The Vendor and Renderer enum values are lazily updated as required.
