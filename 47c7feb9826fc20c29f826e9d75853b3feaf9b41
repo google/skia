@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d66ae90_700f9478",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T20:11:58Z",
+      "side": 1,
+      "message": "side bonus: this reads x,y,z,w instead of the reverse!",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 38
+      },
+      "revId": "47c7feb9826fc20c29f826e9d75853b3feaf9b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
