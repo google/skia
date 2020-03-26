@@ -54,7 +54,7 @@ describe('Skottie behavior', function() {
 
                 // There was a bug, fixed in https://skia-review.googlesource.com/c/skia/+/241757
                 // that seeking again and drawing again revealed.
-                animation.seek(0.5);
+                animation.seekFrame(0.5);
                 canvas.clear(CanvasKit.WHITE);
                 animation.render(canvas, bounds);
                 surface.flush();
