@@ -178,10 +178,6 @@
     "functions": [
       "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseInstance",
       "DrawElementsInstancedBaseVertexBaseInstance"
-    ],
-    "optional": [
-      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseInstance",
-      "DrawElementsInstancedBaseVertexBaseInstance"
     ]
   },
 

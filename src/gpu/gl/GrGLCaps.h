@@ -325,7 +325,8 @@ public:
     /// Is there support for glDrawRangeElements?
     bool drawRangeElementsSupport() const { return fDrawRangeElementsSupport; }
 
-    /// Are the baseInstance fields supported in indirect draw commands?
+    /// Are the glDraw*BaseInstance methods and baseInstance fields in indirect draw commands
+    /// supported?
     bool baseInstanceSupport() const { return fBaseInstanceSupport; }
 
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
