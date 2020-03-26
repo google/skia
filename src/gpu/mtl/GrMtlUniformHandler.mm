@@ -200,12 +200,13 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
 }
 
 GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     GrSLTypeIsFloatType(type);
 
@@ -222,6 +223,10 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
+    if (strcmp(name, uni.fVariable.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, SkString(name), uni.fVariable.c_str(),
+                                                   type });
+    }
     uni.fVariable.setArrayCount(arrayCount);
     uni.fVisibility = kFragment_GrShaderFlag | kVertex_GrShaderFlag;
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus

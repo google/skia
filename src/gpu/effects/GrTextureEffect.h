@@ -100,8 +100,9 @@ private:
     SkRect fSubset;
     SkRect fClamp;
     ShaderMode fShaderModes[2];
+    bool fRuntimeNormalization;
 
-    inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const SkMatrix&, const Sampling&);
+    inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const Sampling&, bool);
 
     GrTextureEffect(const GrTextureEffect& src);
 

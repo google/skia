@@ -90,6 +90,15 @@ struct Constructor : public Expression {
         return true;
     }
 
+    bool isConstantOrUniform() const override {
+        for (size_t i = 0; i < fArguments.size(); i++) {
+            if (!fArguments[i]->isConstantOrUniform()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool compareConstant(const Context& context, const Expression& other) const override {
         SkASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
         Constructor& c = (Constructor&) other;
