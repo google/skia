@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a939ffb_4a6ad09f",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T13:24:07Z",
+      "side": 1,
+      "message": "I guess I could use splat() here for m, b, instead of uniforms...",
+      "range": {
+        "startLine": 216,
+        "startChar": 17,
+        "endLine": 216,
+        "endChar": 29
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
