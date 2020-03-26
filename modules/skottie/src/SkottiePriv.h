@@ -15,10 +15,12 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTHash.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "src/utils/SkUTF.h"
 
 #include <functional>
+#include <vector>
 
 class SkFontMgr;
 
@@ -45,7 +47,7 @@ class TextAdapter;
 class TransformAdapter2D;
 class TransformAdapter3D;
 
-using AnimatorScope = sksg::AnimatorList;
+using AnimatorScope = std::vector<sk_sp<Animator>>;
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
@@ -54,7 +56,12 @@ public:
                      Animation::Builder::Stats*, const SkSize& comp_size,
                      float duration, float framerate, uint32_t flags);
 
-    std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
+    struct AnimationInfo {
+        std::unique_ptr<sksg::Scene> fScene;
+        AnimatorScope                fAnimators;
+    };
+
+    AnimationInfo parse(const skjson::ObjectValue&);
 
     struct FontInfo {
         SkString                  fFamily,

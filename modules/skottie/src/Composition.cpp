@@ -46,7 +46,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
         const sk_sp<Animation> fAnimation;
     };
 
-    class SkottieAnimatorAdapter final : public sksg::Animator {
+    class SkottieAnimatorAdapter final : public Animator {
     public:
         SkottieAnimatorAdapter(sk_sp<Animation> animation, float time_scale)
             : fAnimation(std::move(animation))

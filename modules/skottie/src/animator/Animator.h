@@ -8,7 +8,9 @@
 #ifndef SkottieAnimator_DEFINED
 #define SkottieAnimator_DEFINED
 
-#include "modules/sksg/include/SkSGScene.h"
+#include "include/core/SkRefCnt.h"
+
+#include <vector>
 
 namespace skjson {
 
@@ -22,7 +24,23 @@ namespace internal {
 class AnimationBuilder;
 class KeyframeAnimatorBuilder;
 
-class AnimatablePropertyContainer : public sksg::Animator {
+class Animator : public SkRefCnt {
+public:
+    virtual ~Animator() = default;
+
+    void tick(float t) { this->onTick(t); }
+
+protected:
+    Animator() = default;
+
+    virtual void onTick(float t) = 0;
+
+private:
+    Animator(const Animator&) = delete;
+    Animator& operator=(const Animator&) = delete;
+};
+
+class AnimatablePropertyContainer : public Animator {
 public:
     // This is the workhorse for property binding: depending on whether the property is animated,
     // it will either apply immediately or instantiate and attach a keyframe animator, scoped to
@@ -52,7 +70,7 @@ private:
                   KeyframeAnimatorBuilder&,
                   void*);
 
-    sksg::AnimatorList fAnimators;
+    std::vector<sk_sp<Animator>> fAnimators;
 };
 
 } // namespace internal

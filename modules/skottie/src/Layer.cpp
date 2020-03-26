@@ -211,9 +211,9 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     return sksg::MaskEffect::Make(std::move(childNode), std::move(maskNode));
 }
 
-class LayerController final : public sksg::Animator {
+class LayerController final : public Animator {
 public:
-    LayerController(sksg::AnimatorList&& layer_animators,
+    LayerController(AnimatorScope&& layer_animators,
                     sk_sp<sksg::RenderNode> layer,
                     size_t tanim_count, float in, float out)
         : fLayerAnimators(std::move(layer_animators))
@@ -242,14 +242,14 @@ protected:
     }
 
 private:
-    const sksg::AnimatorList      fLayerAnimators;
+    const AnimatorScope           fLayerAnimators;
     const sk_sp<sksg::RenderNode> fLayerNode;
     const size_t                  fTransformAnimatorsCount;
     const float                   fIn,
                                   fOut;
 };
 
-class MotionBlurController final : public sksg::Animator {
+class MotionBlurController final : public Animator {
 public:
     explicit MotionBlurController(sk_sp<MotionBlurEffect> mbe)
         : fMotionBlurEffect(std::move(mbe)) {}
@@ -468,11 +468,11 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     const auto has_animators = !abuilder.fCurrentAnimatorScope->empty();
 
-    sk_sp<sksg::Animator> controller = sk_make_sp<LayerController>(ascope.release(),
-                                                                   layer,
-                                                                   fTransformAnimatorCount,
-                                                                   layer_info.fInPoint,
-                                                                   layer_info.fOutPoint);
+    sk_sp<Animator> controller = sk_make_sp<LayerController>(ascope.release(),
+                                                             layer,
+                                                             fTransformAnimatorCount,
+                                                             layer_info.fInPoint,
+                                                             layer_info.fOutPoint);
 
     // Optional motion blur.
     if (layer && has_animators && this->hasMotionBlur(cbuilder)) {
