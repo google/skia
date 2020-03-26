@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "be720367_910341cd",
+        "filename": "experimental/svg/model/SkSVGDOM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 10628
+      },
+      "writtenOn": "2020-03-26T16:46:28Z",
+      "side": 1,
+      "message": "Makes sense!",
+      "parentUuid": "4be2d43e_aec6ee8a",
+      "range": {
+        "startLine": 99,
+        "startChar": 5,
+        "endLine": 99,
+        "endChar": 21
+      },
+      "revId": "4b4218e1474d639af5a767fea24135a648f7da6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7232782_8b9c8b69",
         "filename": "experimental/svg/model/SkSVGText.h",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "4b4218e1474d639af5a767fea24135a648f7da6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8892c71b_3ea3468f",
+        "filename": "experimental/svg/model/SkSVGText.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10628
+      },
+      "writtenOn": "2020-03-26T16:46:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7232782_8b9c8b69",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 19
+      },
+      "revId": "4b4218e1474d639af5a767fea24135a648f7da6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
