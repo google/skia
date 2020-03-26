@@ -159,9 +159,9 @@ public:
 
         // If the AA type is coverage, it will be a single value per pixel; if it's not coverage AA
         // then the coverage is always 1.0, so specify kNone for more optimal blending.
-        GrProcessorAnalysisCoverage coverage = fHelper.aaType() == GrAAType::kCoverage ?
-                GrProcessorAnalysisCoverage::kSingleChannel :
-                GrProcessorAnalysisCoverage::kNone;
+        auto coverage = fHelper.aaType() == GrAAType::kCoverage
+                                                    ? GrProcessorAnalysisCoverage::kSingleChannel
+                                                    : GrProcessorAnalysisCoverage::kNone;
         auto result = fHelper.finalizeProcessors(
                 caps, clip, hasMixedSampledCoverage, clampType, coverage, &quadColors);
         // If there is a constant color after analysis, that means all of the quads should be set

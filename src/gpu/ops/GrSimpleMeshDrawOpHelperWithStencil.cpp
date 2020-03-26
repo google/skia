@@ -33,8 +33,10 @@ const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil
 }
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
-        const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
-        InputFlags inputFlags)
+                                                    const MakeArgs& args,
+                                                    GrAAType aaType,
+                                                    const GrUserStencilSettings* stencilSettings,
+                                                    InputFlags inputFlags)
         : INHERITED(args, aaType, inputFlags)
         , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
 
