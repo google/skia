@@ -11,6 +11,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkFixed.h"
+#include "src/core/SkVM_fwd.h"
 
 #define SkColorSpacePrintf(...)
 
@@ -99,6 +100,9 @@ static inline bool is_almost_linear(const skcms_TransferFunction& coeffs) {
 
     return linearExp || linearFn;
 }
+
+skvm::Color sk_program_transfer_fn(skvm::Builder*, skvm::Uniforms*,
+                                   const skcms_TransferFunction&, skvm::Color);
 
 // Return raw pointers to commonly used SkColorSpaces.
 // No need to ref/unref these, but if you do, do it in pairs.

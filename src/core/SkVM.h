@@ -465,14 +465,17 @@ namespace skvm {
             return approx_pow2(mul(splat(1.4426950408889634074f), x));
         }
 
-        F32 negate(F32 x) {
-            return sub(splat(0.0f), x);
-        }
+        F32 inv(F32 x)    { return sub(splat(1.0f), x); }
+        F32 negate(F32 x) { return sub(splat(0.0f), x); }
+
         F32 lerp(F32 lo, F32 hi, F32 t) {
             return mad(sub(hi,lo), t, lo);
         }
         F32 clamp(F32 x, F32 lo, F32 hi) {
             return max(lo, min(x, hi));
+        }
+        F32 clamp01(F32 x) {
+            return clamp(x, splat(0.0f), splat(1.0f));
         }
         F32 abs(F32 x) {
             return bit_cast(bit_and(bit_cast(x),
