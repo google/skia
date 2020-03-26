@@ -9,9 +9,11 @@
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -41,6 +43,8 @@ public:
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::Color, SkColorSpace*, skvm::Uniforms*,
+                          SkArenaAlloc*) const override;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -126,6 +130,108 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
         p->append(SkRasterPipeline::premul);
     }
     return true;
+}
+
+namespace skvm {
+    struct HSLA { F32 h,s,l,a; };
+}
+
+static skvm::HSLA rgb_to_hsl(skvm::Builder* p, skvm::Color c) {
+    auto mx = p->max(p->max(c.r,c.g),c.b),
+         mn = p->min(p->min(c.r,c.g),c.b),
+          d = p->sub(mx,mn),
+      d_rcp = p->div(p->splat(1.0f),d),
+     g_lt_b = p->select(p->lt(c.g,c.b), p->splat(6.0f), p->splat(0.0f));
+
+    auto diffm = [&](auto a, auto b) { return p->mul(p->sub(a,b), d_rcp); };
+
+    auto h = p->mul(p->splat(1/6.0f),
+                    p->select(p->eq(mx,mn),   p->splat(0.0f),
+                    p->select(p->eq(mx, c.r), p->add(diffm(c.g,c.b), g_lt_b),
+                    p->select(p->eq(mx, c.g), p->add(diffm(c.b,c.r), p->splat(2.0f)),
+                                              p->add(diffm(c.r,c.g), p->splat(4.0f))))));
+
+    auto sum = p->add(mx,mn);
+    auto   l = p->mul(sum, p->splat(0.5f));
+    auto   s = p->select(p->eq(mx,mn), p->splat(0.0f),
+                                       p->div(d,
+                                              p->select(p->gt(l,p->splat(0.5f)), p->sub(p->splat(2.0f),sum),
+                                                                                 sum)));
+    return {h, s, l, c.a};
+}
+
+static skvm::Color hsl_to_rgb(skvm::Builder* p, skvm::HSLA c) {
+    // See GrRGBToHSLFilterEffect.fp
+
+    auto h = c.h,
+         s = c.s,
+         l = c.l,
+         x = p->mul(p->sub(p->splat(1.0f), p->abs(p->sub(p->add(l,l),
+                                                         p->splat(1.0f)))),
+                    s);
+
+    auto hue_to_rgb = [&](auto hue) {
+        auto q = p->sub(p->abs(p->mad(p->fract(hue),p->splat(6.0f), p->splat(-3.0f))), p->splat(1.0f));
+        return p->mad(p->sub(p->clamp01(q), p->splat(0.5f)), x, l);
+    };
+
+    return {
+        hue_to_rgb(p->add(h, p->splat(0.0f/3.0f))),
+        hue_to_rgb(p->add(h, p->splat(2.0f/3.0f))),
+        hue_to_rgb(p->add(h, p->splat(1.0f/3.0f))),
+        c.a
+    };
+}
+
+skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    c = p->unpremul(c);
+
+    // Linearize before applying high-contrast filter.
+    skcms_TransferFunction tf;
+    if (dstCS) {
+        dstCS->transferFn(&tf);
+    } else {
+        //sk_srgb_singleton()->transferFn(&tf);
+        tf = {2,1, 0,0,0,0,0};
+    }
+    c = sk_program_transfer_fn(p, uniforms, tf, c);
+
+    if (fConfig.fGrayscale) {
+        skvm::F32 gray = p->mad(p->splat(SK_LUM_COEFF_R),c.r,
+                         p->mad(p->splat(SK_LUM_COEFF_G),c.g,
+                         p->mul(p->splat(SK_LUM_COEFF_B),c.b)));
+        c = {gray, gray, gray, c.a};
+    }
+
+    if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
+        c = {p->inv(c.r), p->inv(c.g), p->inv(c.b), c.a};
+    } else if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
+        skvm::HSLA hsla = rgb_to_hsl(p, c);
+        hsla.l = p->inv(hsla.l);
+        c = hsl_to_rgb(p, hsla);
+    }
+
+    if (fConfig.fContrast != 0.0) {
+        const float m = (1 + fConfig.fContrast) / (1 - fConfig.fContrast);
+        const float b = (-0.5f * m + 0.5f);
+        skvm::F32   M = p->uniformF(uniforms->pushF(m));
+        skvm::F32   B = p->uniformF(uniforms->pushF(b));
+        c = {p->mad(M,c.r, B), p->mad(M,c.g, B), p->mad(M,c.b, B), c.a};
+    }
+
+    c = {p->clamp01(c.r), p->clamp01(c.g), p->clamp01(c.b), c.a};
+
+    // Re-encode back from linear.
+    if (dstCS) {
+        dstCS->invTransferFn(&tf);
+    } else {
+        //sk_srgb_singleton()->invTransferFn(&tf);
+        tf = {0.5f,1, 0,0,0,0,0};
+    }
+    c = sk_program_transfer_fn(p, uniforms, tf, c);
+
+    return p->premul(c);
 }
 
 void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
