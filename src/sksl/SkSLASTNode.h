@@ -10,6 +10,7 @@
 
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
 #include <vector>

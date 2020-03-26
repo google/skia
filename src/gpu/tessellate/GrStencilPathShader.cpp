@@ -43,7 +43,7 @@ class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
         if (!shader.viewMatrix().isIdentity()) {
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             args.fVertBuilder->codeAppendf(
                     "float2 vertexpos = (%s * float3(point, 1)).xy;", viewMatrix);
             vertexPos.set(kFloat2_GrSLType, "vertexpos");

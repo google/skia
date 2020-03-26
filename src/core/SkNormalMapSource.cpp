@@ -46,8 +46,8 @@ private:
 
             // add uniform
             const char* xformUniName = nullptr;
-            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2x2_GrSLType,
-                                                   "Xform", &xformUniName);
+            fXformUni = uniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
+                                                   kFloat2x2_GrSLType, "Xform", &xformUniName);
 
             SkString dstNormalColor = this->invokeChild(0, args);
             fragBuilder->codeAppendf("float3 normal = normalize(%s.rgb - float3(0.5));",
