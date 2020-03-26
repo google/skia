@@ -719,8 +719,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             SkIRect dstWriteRect = srcReadRect.makeOffset(-rect.fLeft, -rect.fTop);
 
             const bool lumConversion =
-                    !(SkColorTypeComponentFlags(srcCT)  & kGray_SkColorTypeComponentFlag) &&
-                     (SkColorTypeComponentFlags(readCT) & kGray_SkColorTypeComponentFlag);
+                    !(SkColorTypeChannelFlags(srcCT)  & kGray_SkColorChannelFlag) &&
+                     (SkColorTypeChannelFlags(readCT) & kGray_SkColorChannelFlag);
             // A CS or luminance conversion allows a 3 value difference and otherwise a 2 value
             // difference. Note that sometimes read back on GPU can be lossy even when there no
             // conversion at allbecause GPU->CPU read may go to a lower bit depth format and then be

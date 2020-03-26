@@ -15,29 +15,28 @@
 
 static constexpr int kSize = 32;
 
-static SkColor4f get_trans_black_expected_color(SkColorTypeComponentFlag components) {
+static SkColor4f get_trans_black_expected_color(SkColorChannelFlag channels) {
     float a = 0;
-    if (!(components & kAlpha_SkColorTypeComponentFlag)) {
+    if (!(channels & kAlpha_SkColorChannelFlag)) {
         a = 1;
     }
 
     return { 0, 0, 0, a };
 }
 
-static SkColor4f get_opaque_white_expected_color(SkColorTypeComponentFlag components) {
-
-    if (components & kGray_SkColorTypeComponentFlag) {
+static SkColor4f get_opaque_white_expected_color(SkColorChannelFlag channels) {
+    if (channels & kGray_SkColorChannelFlag) {
         return { 1, 1, 1, 1 };
     }
 
     float r = 1, g = 1, b = 1;
-    if (!(components & kRed_SkColorTypeComponentFlag)) {
+    if (!(channels & kRed_SkColorChannelFlag)) {
         r = 0;
     }
-    if (!(components & kGreen_SkColorTypeComponentFlag)) {
+    if (!(channels & kGreen_SkColorChannelFlag)) {
         g = 0;
     }
-    if (!(components & kBlue_SkColorTypeComponentFlag)) {
+    if (!(channels & kBlue_SkColorChannelFlag)) {
         b = 0;
     }
 
@@ -45,33 +44,33 @@ static SkColor4f get_opaque_white_expected_color(SkColorTypeComponentFlag compon
 }
 
 struct TestCase {
-    SkColorType              fColorType;
-    SkAlphaType              fAlphaType;
-    SkColorTypeComponentFlag fComponents;
-    bool                     fGpuCanMakeSurfaces;
-    bool                     fCpuCanMakeSurfaces;
+    SkColorType        fColorType;
+    SkAlphaType        fAlphaType;
+    SkColorChannelFlag fChannels;
+    bool               fGpuCanMakeSurfaces;
+    bool               fCpuCanMakeSurfaces;
 };
 
 static const TestCase gTests[] = {
-    { kAlpha_8_SkColorType,     kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, true,  true },
-    { kA16_unorm_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false, false},
-    { kA16_float_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false, false},
-    { kRGB_565_SkColorType,     kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
-    { kARGB_4444_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGBA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGB_888x_SkColorType,    kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
-    { kBGRA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGBA_1010102_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGB_101010x_SkColorType, kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
-    { kGray_8_SkColorType,      kOpaque_SkAlphaType, kGray_SkColorTypeComponentFlag,  true,  true },
-    { kRGBA_F16Norm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGBA_F16_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kRGBA_F32_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
-    { kR8G8_unorm_SkColorType,  kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   true,  false},
-    { kR16G16_unorm_SkColorType,kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false, false},
-    { kR16G16_float_SkColorType,kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false, false},
+    { kAlpha_8_SkColorType,     kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, true,  true },
+    { kA16_unorm_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false, false},
+    { kA16_float_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false, false},
+    { kRGB_565_SkColorType,     kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
+    { kARGB_4444_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGBA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGB_888x_SkColorType,    kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
+    { kBGRA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGBA_1010102_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGB_101010x_SkColorType, kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
+    { kGray_8_SkColorType,      kOpaque_SkAlphaType, kGray_SkColorChannelFlag,  true,  true },
+    { kRGBA_F16Norm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGBA_F16_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kRGBA_F32_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
+    { kR8G8_unorm_SkColorType,  kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   true,  false},
+    { kR16G16_unorm_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
+    { kR16G16_float_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
     { kR16G16B16A16_unorm_SkColorType,
-                                kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, false, false},
+                                kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false, false},
 };
 
 static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
@@ -80,8 +79,8 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
     const SkImageInfo f32Unpremul = SkImageInfo::Make(kSize, kSize, kRGBA_F32_SkColorType,
                                                       kUnpremul_SkAlphaType);
 
-    uint32_t actualComponents = SkColorTypeComponentFlags(test.fColorType);
-    REPORTER_ASSERT(reporter, test.fComponents == actualComponents);
+    uint32_t actualChannels = SkColorTypeChannelFlags(test.fColorType);
+    REPORTER_ASSERT(reporter, test.fChannels == actualChannels);
 
     // Not all colorTypes can be drawn to
     {
@@ -95,7 +94,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
         pm.alloc(nativeII);
         pm.erase(SkColors::kTransparent);
         SkColor actual = pm.getColor(0, 0);
-        SkColor4f expected = get_trans_black_expected_color(test.fComponents);
+        SkColor4f expected = get_trans_black_expected_color(test.fChannels);
         REPORTER_ASSERT(reporter, expected.toSkColor() == actual);
     }
 
@@ -105,7 +104,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
         pm.alloc(nativeII);
         pm.erase(SkColors::kWhite);
         SkColor actual = pm.getColor(0, 0);
-        SkColor4f expected = get_opaque_white_expected_color(test.fComponents);
+        SkColor4f expected = get_opaque_white_expected_color(test.fChannels);
         REPORTER_ASSERT(reporter, expected.toSkColor() == actual);
     }
 
@@ -241,7 +240,7 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
         {
             SkAutoPixmapStorage f32Expected;
             f32Expected.alloc(f32Unpremul);
-            f32Expected.erase(get_opaque_white_expected_color(test.fComponents));
+            f32Expected.erase(get_opaque_white_expected_color(test.fChannels));
 
             // read back to F32 if possible
             {
