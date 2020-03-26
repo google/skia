@@ -22,6 +22,30 @@
       "revId": "47c7feb9826fc20c29f826e9d75853b3feaf9b41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbaad1a0_7cfdab16",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T20:16:11Z",
+      "side": 1,
+      "message": "Yeah!  The old code dated back to a time where code generation was more sensitive to the order of builder calls.  Nowadays Herb\u0027s scheduler has long obsoleted that worry, and we can just write things how they make most sense.",
+      "parentUuid": "1d66ae90_700f9478",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 38
+      },
+      "revId": "47c7feb9826fc20c29f826e9d75853b3feaf9b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
