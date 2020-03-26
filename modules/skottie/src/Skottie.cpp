@@ -173,7 +173,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fFlags(flags)
     , fHasNontrivialBlending(false) {}
 
-std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
+AnimationBuilder::AnimationInfo AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
     this->dispatchMarkers(jroot["markers"]);
 
     this->parseAssets(jroot["assets"]);
@@ -185,7 +185,7 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
 
-    return sksg::Scene::Make(std::move(root), std::move(animators));
+    return { sksg::Scene::Make(std::move(root)), std::move(animators) };
 }
 
 void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
@@ -399,13 +399,13 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
                                        &fStats, size, duration, fps, fFlags);
-    auto scene = builder.parse(json);
+    auto ainfo = builder.parse(json);
 
     const auto t2 = std::chrono::steady_clock::now();
     fStats.fSceneParseTimeMS = std::chrono::duration<float, std::milli>{t2-t1}.count();
     fStats.fTotalLoadTimeMS  = std::chrono::duration<float, std::milli>{t2-t0}.count();
 
-    if (!scene && fLogger) {
+    if (!ainfo.fScene && fLogger) {
         fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
     }
 
@@ -414,7 +414,8 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
         flags |= Animation::Flags::kRequiresTopLevelIsolation;
     }
 
-    return sk_sp<Animation>(new Animation(std::move(scene),
+    return sk_sp<Animation>(new Animation(std::move(ainfo.fScene),
+                                          std::move(ainfo.fAnimators),
                                           std::move(version),
                                           size,
                                           inPoint,
@@ -431,9 +432,12 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
                 : nullptr;
 }
 
-Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
+Animation::Animation(std::unique_ptr<sksg::Scene> scene,
+                     std::vector<sk_sp<internal::Animator>>&& animators,
+                     SkString version, const SkSize& size,
                      double inPoint, double outPoint, double duration, double fps, uint32_t flags)
     : fScene(std::move(scene))
+    , fAnimators(std::move(animators))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
@@ -480,9 +484,14 @@ void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
         return;
 
     // Per AE/Lottie semantics out_point is exclusive.
-    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint);
+    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint),
+                     comp_time = SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame);
 
-    fScene->animate(SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame), ic);
+    for (const auto& anim : fAnimators) {
+        anim->tick(comp_time);
+    }
+
+    fScene->revalidate(ic);
 }
 
 void Animation::seekFrameTime(double t, sksg::InvalidationController* ic) {
