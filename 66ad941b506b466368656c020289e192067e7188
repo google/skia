@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1fed16c6_60f0d8d5",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db27eab8_82a6fce8",
+      "range": {
+        "startLine": 135,
+        "startChar": 7,
+        "endLine": 135,
+        "endChar": 18
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9961c8dd_b1602ccd",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "562d704f_fb036b4b",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9961c8dd_b1602ccd",
+      "range": {
+        "startLine": 168,
+        "startChar": 87,
+        "endLine": 168,
+        "endChar": 103
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3dcdd7b8_21db1772",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 6
@@ -62,6 +110,24 @@
       "revId": "66ad941b506b466368656c020289e192067e7188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd2673a8_0a1b31e1",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "Yea, once this lands, I want to time it (-vs- RP, and perhaps w/ and w/o that special-case)",
+      "parentUuid": "3dcdd7b8_21db1772",
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "6439c5df_126ca7d5",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40acd358_d1f0e835",
+      "range": {
+        "startLine": 196,
+        "startChar": 8,
+        "endLine": 196,
+        "endChar": 12
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35ab705f_d9f6f9be",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 6
@@ -102,6 +192,24 @@
       "revId": "66ad941b506b466368656c020289e192067e7188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfdde3ec_bab19893",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "totally done.",
+      "parentUuid": "35ab705f_d9f6f9be",
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -152,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "d57353c9_3a2752ca",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cde549cc_2070a832",
+      "range": {
+        "startLine": 216,
+        "startChar": 17,
+        "endLine": 216,
+        "endChar": 29
+      },
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c607bad_a27ceb03",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 6
@@ -163,6 +295,24 @@
       "writtenOn": "2020-03-26T14:20:15Z",
       "side": 1,
       "message": "Why don\u0027t we promote some more clamps to skvm::Builder?\n\n   skvm::F32 clamp  (skvm::F32 x, skvm::F32 lo, skvm::F32 hi);\n   skvm::F32 clamp0_(skvm::F32 x, skvm::F32 hi)                { return clamp(x, splat(0.0f),         hi); }\n   skvm::F32 clamp01(skvm::F32 x)                              { return clamp(x, splat(0.0f), splat(1.0f); }\n\nNot exactly sure what the best name for clamp0_ is... we could just name them all clamp() even.  Might be clamp01() brings all the benefit anyway.\n\n(I\u0027m happy to do the backfill as a follow up.)",
+      "revId": "66ad941b506b466368656c020289e192067e7188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7448205a_b4bc8565",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T14:38:53Z",
+      "side": 1,
+      "message": "I\u0027d definitely like clamp01 at least",
+      "parentUuid": "2c607bad_a27ceb03",
       "revId": "66ad941b506b466368656c020289e192067e7188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
