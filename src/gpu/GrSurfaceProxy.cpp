@@ -46,8 +46,6 @@ static bool is_valid_non_lazy(SkISize dimensions) {
 // Deferred version
 GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrRenderable renderable,
-                               const GrSwizzle& textureSwizzle,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
@@ -56,7 +54,6 @@ GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fDimensions(dimensions)
-        , fTextureSwizzle(textureSwizzle)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fUseAllocator(useAllocator)
@@ -70,8 +67,6 @@ GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrRenderable renderable,
-                               const GrSwizzle& textureSwizzle,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
@@ -80,7 +75,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
         : fSurfaceFlags(surfaceFlags)
         , fFormat(format)
         , fDimensions(dimensions)
-        , fTextureSwizzle(textureSwizzle)
         , fFit(fit)
         , fBudgeted(budgeted)
         , fUseAllocator(useAllocator)
@@ -94,14 +88,12 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
 
 // Wrapped version
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
-                               const GrSwizzle& textureSwizzle,
                                SkBackingFit fit,
                                UseAllocator useAllocator)
         : fTarget(std::move(surface))
         , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fFormat(fTarget->backendFormat())
         , fDimensions(fTarget->dimensions())
-        , fTextureSwizzle(textureSwizzle)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted
                             ? SkBudgeted::kYes

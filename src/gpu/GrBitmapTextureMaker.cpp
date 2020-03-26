@@ -66,8 +66,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipMapped
     };
 
     if (fKey.isValid()) {
-        auto colorType = SkColorTypeToGrColorType(fBitmap.colorType());
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(fKey, colorType);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(fKey);
         if (proxy) {
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                      this->colorType());
