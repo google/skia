@@ -304,22 +304,22 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
                     case SkColorChannel::kR:
                         // TODO: Chrome needs to be patched before this can be
                         // enforced.
-                        // if (!(kRed_SkColorTypeComponentFlag & componentFlags)) {
+                        // if (!(kRed_SkColorChannelFlag & componentFlags)) {
                         //     return false;
                         // }
                         break;
                     case SkColorChannel::kG:
-                        if (!(kGreen_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kGreen_SkColorChannelFlag & componentFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kB:
-                        if (!(kBlue_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kBlue_SkColorChannelFlag & componentFlags)) {
                             return false;
                         }
                         break;
                     case SkColorChannel::kA:
-                        if (!(kAlpha_SkColorTypeComponentFlag & componentFlags)) {
+                        if (!(kAlpha_SkColorChannelFlag & componentFlags)) {
                             return false;
                         }
                         break;

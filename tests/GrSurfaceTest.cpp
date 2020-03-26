@@ -235,7 +235,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                 // require this but the Intel Iris 6100 on Win 10 test bot doesn't put one in the
                 // alpha channel when reading back from GL_RG16 or GL_RG16F. So now we allow either.
                 uint32_t components = GrColorTypeComponentFlags(combo.fColorType);
-                bool allowAlphaOne = !(components & kAlpha_SkColorTypeComponentFlag);
+                bool allowAlphaOne = !(components & kAlpha_SkColorChannelFlag);
                 if (allowAlphaOne) {
                     if (readColor != 0x00000000 && readColor != 0xFF000000) {
                         ERRORF(reporter,
