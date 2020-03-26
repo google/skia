@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1b84928a_94387eb2",
+        "filename": "src/gpu/GrColorInfo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-26T19:34:37Z",
+      "side": 1,
+      "message": "I\u0027ll just default these.",
+      "parentUuid": "4d571144_ab340308",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 31,
+        "endChar": 48
+      },
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52627fa8_5345aba3",
         "filename": "src/gpu/GrShaderVar.h",
         "patchSetId": 2
@@ -93,6 +117,24 @@
       "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "364a5627_cf6e2db1",
+        "filename": "src/gpu/GrShaderVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-26T19:34:37Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/279218",
+      "parentUuid": "4deb99e3_d50897c1",
+      "revId": "920b03cda8d6c4a160a5ce2d0d9fd82771b11d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

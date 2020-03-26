@@ -16,6 +16,24 @@
       "revId": "7a5f1fa1fb31f26991499ece3c17b04793915021",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c67c2490_8dc18988",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-26T19:34:37Z",
+      "side": 0,
+      "message": "This is an actual pessimizing move. Unfortunately, clang fails to warn about it but gcc does. I wanted to make sure that the new warnings also worked with gcc, so I added this so everything was less annoying. I\u0027ll stick it in a later CL for a few gcc9 warnings.\n\nThis whole thing started when I saw how many warnings we were getting with gcc9 and wondered why we weren\u0027t getting the equivalent clang warnings. So I started adding the clang warnings back. I\u0027m not sure why pessimizing-move seems to be different here though.",
+      "parentUuid": "1adcd720_710b418c",
+      "revId": "7a5f1fa1fb31f26991499ece3c17b04793915021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
