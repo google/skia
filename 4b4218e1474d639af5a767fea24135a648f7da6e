@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4be2d43e_aec6ee8a",
+        "filename": "experimental/svg/model/SkSVGDOM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-26T15:58:10Z",
+      "side": 1,
+      "message": "naming nit: SetStringAttribute is better aligned with the Type/Value names.",
+      "range": {
+        "startLine": 99,
+        "startChar": 5,
+        "endLine": 99,
+        "endChar": 21
+      },
+      "revId": "4b4218e1474d639af5a767fea24135a648f7da6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7232782_8b9c8b69",
+        "filename": "experimental/svg/model/SkSVGText.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-26T15:58:10Z",
+      "side": 1,
+      "message": "I guess these are no longer used?",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 19
+      },
+      "revId": "4b4218e1474d639af5a767fea24135a648f7da6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
