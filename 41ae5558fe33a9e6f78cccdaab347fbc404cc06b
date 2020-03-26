@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b485c2e_c77bcbff",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-26T19:24:35Z",
+      "side": 1,
+      "message": "could this be\n\n...\n\nauto multiplyMatrix \u003d [\u0026](skvm::F32 w, F32 x, F32 y, F32 z) { blah }\nif (fDomain \u003d\u003d Domain::kHSLA) {\n  auto [h, s, l, a] \u003d p-\u003eto_hsla(c);\n  auto [a, b, c, d] \u003d matrixMultiply(h, s, l, a);\n  c \u003d p-\u003eto_rgba(a, b, c, d);\n} else {\n  auto [r, g, b, a] \u003d c;\n  auto [a, b, c, d] \u003d matrixMultipy(r, b, g, a)\n  c \u003d {a, b, c, d};\n}\n\n...",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 5
+      },
+      "revId": "41ae5558fe33a9e6f78cccdaab347fbc404cc06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
