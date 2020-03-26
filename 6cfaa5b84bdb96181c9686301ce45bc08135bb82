@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "51ff8531_9dc99fe4",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dffd069b_4f3cf3be",
+      "range": {
+        "startLine": 96,
+        "startChar": 9,
+        "endLine": 96,
+        "endChar": 16
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "079f11b3_092fbd65",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
@@ -120,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "6a5b0732_4b473213",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f549f67_81cafbbf",
+      "range": {
+        "startLine": 112,
+        "startChar": 39,
+        "endLine": 112,
+        "endChar": 46
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d2c337f_cf6152ab",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
@@ -143,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "4a4b3157_8a0c6bcd",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d2c337f_cf6152ab",
+      "range": {
+        "startLine": 117,
+        "startChar": 31,
+        "endLine": 117,
+        "endChar": 38
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aad45651_6117c51d",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
         "patchSetId": 5
@@ -154,6 +226,30 @@
       "writtenOn": "2020-03-25T20:16:17Z",
       "side": 1,
       "message": "colorResource or colorSurface",
+      "range": {
+        "startLine": 123,
+        "startChar": 14,
+        "endLine": 123,
+        "endChar": 20
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52bf206a_ab0368d3",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "It\u0027s not used, removed.",
+      "parentUuid": "aad45651_6117c51d",
       "range": {
         "startLine": 123,
         "startChar": 14,
@@ -189,6 +285,30 @@
     },
     {
       "key": {
+        "uuid": "e2129340_f1db6dc9",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "I removed this version and renamed the version below to be this.",
+      "parentUuid": "39db4fb8_7b898815",
+      "range": {
+        "startLine": 40,
+        "startChar": 27,
+        "endLine": 40,
+        "endChar": 48
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83373e50_b3c6d3da",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
         "patchSetId": 5
@@ -209,6 +329,30 @@
       "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14dd188a_15683476",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "83373e50_b3c6d3da",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 24
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -235,6 +379,30 @@
     },
     {
       "key": {
+        "uuid": "46685ac5_1df32f51",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done, renamed as msaaTextureResource",
+      "parentUuid": "4c9d86bf_d2d92556",
+      "range": {
+        "startLine": 46,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 38
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0e11714_17265f66",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
         "patchSetId": 5
@@ -246,6 +414,30 @@
       "writtenOn": "2020-03-25T20:16:17Z",
       "side": 1,
       "message": "Just throwing the question out there, but is there a better pattern that this? I\u0027ve never really liked it in Vulkan. Basically we pass in the GrVkRT into the GrVkCB call, and then we call back the GrVkRT passing in the GrVkCB to add resources to. Would it be cleaner if this just returned a list of resources or maybe better you explicitly asked for the resources that need to be reffed? Like getColorTargetMangedResource() (would return either msaa or non msaa whatever is the actually rendering target), getSteniclMangedResource(), etc.?",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 53
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "576b0539_65e4c19b",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "The Metal backend has methods on RT that return the color and resolve (if any) targets, and I\u0027ve liked that approach. It also makes it clear which target is which.",
+      "parentUuid": "a0e11714_17265f66",
       "range": {
         "startLine": 54,
         "startChar": 4,
@@ -281,6 +473,30 @@
     },
     {
       "key": {
+        "uuid": "05df9c46_e0594212",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Noted, will address in a future CL.",
+      "parentUuid": "f41c0bf9_90786c5e",
+      "range": {
+        "startLine": 77,
+        "startChar": 5,
+        "endLine": 84,
+        "endChar": 73
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9398ec8c_f70a96e7",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
         "patchSetId": 5
@@ -301,6 +517,30 @@
       "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36fd37e3_d924c530",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9398ec8c_f70a96e7",
+      "range": {
+        "startLine": 105,
+        "startChar": 10,
+        "endLine": 105,
+        "endChar": 17
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -327,6 +567,30 @@
     },
     {
       "key": {
+        "uuid": "cd5e539c_eebf07fb",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cedc4e7_5bfab3f6",
+      "range": {
+        "startLine": 106,
+        "startChar": 7,
+        "endLine": 106,
+        "endChar": 17
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42d143ed_bedd3d5f",
         "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
         "patchSetId": 5
@@ -347,6 +611,30 @@
       "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a217a3c_1738177b",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-26T19:11:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42d143ed_bedd3d5f",
+      "range": {
+        "startLine": 108,
+        "startChar": 42,
+        "endLine": 108,
+        "endChar": 52
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
