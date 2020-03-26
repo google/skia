@@ -13,7 +13,8 @@
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
+GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args,
+                                                   GrAAType aaType,
                                                    InputFlags inputFlags)
         : fProcessors(args.fProcessorSet)
         , fPipelineFlags((GrPipeline::InputFlags)inputFlags)
@@ -34,8 +35,8 @@ GrSimpleMeshDrawOpHelper::~GrSimpleMeshDrawOpHelper() {
 }
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() const {
-    return GrAATypeIsHW((this->aaType())) ? GrDrawOp::FixedFunctionFlags::kUsesHWAA
-                                          : GrDrawOp::FixedFunctionFlags::kNone;
+    return GrAATypeIsHW(this->aaType()) ? GrDrawOp::FixedFunctionFlags::kUsesHWAA
+                                        : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
