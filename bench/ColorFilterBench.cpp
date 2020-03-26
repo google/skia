@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkSurface.h"
+#include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
@@ -82,11 +83,11 @@ DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kImageFilter_Type); )
 
 namespace  {
 
-class ColorMatrixBench final : public Benchmark {
+class ColorFilterBench final : public Benchmark {
 public:
     using Factory = sk_sp<SkColorFilter>(*)();
 
-    explicit ColorMatrixBench(const char* suffix, Factory f)
+    explicit ColorFilterBench(const char* suffix, Factory f)
         : fFactory(f)
         , fName(SkStringPrintf("colorfilter_%s", suffix)) {}
 
@@ -159,37 +160,43 @@ static constexpr float gColorMatrix[] = {
 
 } // namespace
 
-DEF_BENCH( return new ColorMatrixBench("none",
+DEF_BENCH( return new ColorFilterBench("none",
     []() { return sk_sp<SkColorFilter>(nullptr); }); )
-DEF_BENCH( return new ColorMatrixBench("blend_src",
+DEF_BENCH( return new ColorFilterBench("blend_src",
     []() { return SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc); }); )
-DEF_BENCH( return new ColorMatrixBench("blend_srcover",
+DEF_BENCH( return new ColorFilterBench("blend_srcover",
     []() { return SkColorFilters::Blend(0x80808080, SkBlendMode::kSrcOver); }); )
-DEF_BENCH( return new ColorMatrixBench("linear_to_srgb",
+DEF_BENCH( return new ColorFilterBench("linear_to_srgb",
     []() { return SkColorFilters::LinearToSRGBGamma(); }); )
-DEF_BENCH( return new ColorMatrixBench("srgb_to_linear",
+DEF_BENCH( return new ColorFilterBench("srgb_to_linear",
     []() { return SkColorFilters::SRGBToLinearGamma(); }); )
-DEF_BENCH( return new ColorMatrixBench("matrix_rgba",
+DEF_BENCH( return new ColorFilterBench("matrix_rgba",
     []() { return SkColorFilters::Matrix(gColorMatrix); }); )
-DEF_BENCH( return new ColorMatrixBench("matrix_hsla",
+DEF_BENCH( return new ColorFilterBench("matrix_hsla",
     []() { return SkColorFilters::HSLAMatrix(gColorMatrix); }); )
-DEF_BENCH( return new ColorMatrixBench("compose_src",
+DEF_BENCH( return new ColorFilterBench("compose_src",
     []() { return SkColorFilters::Compose(SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc),
                                           SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc));
     }); )
-DEF_BENCH( return new ColorMatrixBench("lerp_src",
+DEF_BENCH( return new ColorFilterBench("lerp_src",
     []() { return SkColorFilters::Lerp(0.3f,
                                        SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc),
                                        SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc));
     }); )
 
+DEF_BENCH( return new ColorFilterBench("highcontrast", []() {
+    return SkHighContrastFilter::Make({
+        false, SkHighContrastConfig::InvertStyle::kInvertLightness, 0.2f
+    });
+}); )
+
 #ifdef SK_SUPPORT_GPU
-DEF_BENCH( return new ColorMatrixBench("src_runtime", []() {
+DEF_BENCH( return new ColorFilterBench("src_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
         return gEffect->makeColorFilter(SkData::MakeEmpty());
     });)
-DEF_BENCH( return new ColorMatrixBench("matrix_runtime", []() {
+DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeColorMatrix_GPU_SRC)));
         return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
