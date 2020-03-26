@@ -22,6 +22,30 @@
       "revId": "4f436cb751eb9ce1d31d43d8070f5200e209b74f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9270861_728e6e54",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-26T14:57:09Z",
+      "side": 1,
+      "message": "TLDR: Delete this whole function.\n\nHmmm I don\u0027t know if this should be a public function on the Info. The idea was that you have the GrBackendTexture which has an update function on it. When you call get*Info on the backend texture it just takes a snapshot of the current state. So this update (and if on vulkan as well) probably does nothing. Especially since the members are all public you could just set them manually if you wanted to reused the Gr*Info for some other call.",
+      "parentUuid": "63285b84_86c48e9c",
+      "range": {
+        "startLine": 54,
+        "startChar": 59,
+        "endLine": 55,
+        "endChar": 94
+      },
+      "revId": "4f436cb751eb9ce1d31d43d8070f5200e209b74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
