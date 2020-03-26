@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - CanvasKit colors are now represented with a TypedArray of four floats.
+
 ### Removed
+ - SkPaint.setColorf is obsolete and removed. setColor accepts a CanvasKit color which is
+   always composed of floats. 
  - localmatrix option for `SkShader.Lerp` and `SkShader.Blend`.
+
 
 ## [0.14.0] - 2020-03-18
 

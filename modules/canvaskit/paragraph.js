@@ -65,11 +65,11 @@
 
     CanvasKit.TextStyle = function(s) {
        // Use [''] to tell closure not to minify the names
-      s['backgroundColor'] = s['backgroundColor'] || 0;
-      // Can't check for falsey as 0 is "white".
-      if (s['color'] === undefined) {
+      if (!isCanvasKitColor(s['color'])) {
         s['color'] = CanvasKit.BLACK;
       }
+      s['foregroundColor'] = s['foregroundColor'] || CanvasKit.TRANSPARENT;
+      s['backgroundColor'] = s['backgroundColor'] || CanvasKit.TRANSPARENT;
       s['decoration'] = s['decoration'] || 0;
       s['decorationThickness'] = s['decorationThickness'] || 0;
       s['fontSize'] = s['fontSize'] || 0;
@@ -83,7 +83,6 @@
         SkDebug("no font families provided, text may draw wrong or not at all")
       }
       s['fontStyle'] = fontStyle(s['fontStyle']);
-      s['foregroundColor'] = s['foregroundColor'] || 0;
       return s;
     }
 
