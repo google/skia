@@ -22,6 +22,30 @@
       "revId": "41ae5558fe33a9e6f78cccdaab347fbc404cc06b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adb3182b_e44ef2c6",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-26T19:39:41Z",
+      "side": 1,
+      "message": "After trying a few different approaches, I think I like this one the best:\n\n    auto apply_matrix \u003d [\u0026](auto xyzw) {\n        auto dot \u003d [\u0026](int j) {\n            // TODO: specialize generated code on the 0/1 values of fMatrix?\n            auto m \u003d [\u0026](int i) { return p-\u003euniformF(uniforms-\u003epushF(fMatrix[i])); };\n\n            auto [x,y,z,w] \u003d xyzw;\n            return p-\u003emad(m(0+j*5), x,\n                   p-\u003emad(m(1+j*5), y,\n                   p-\u003emad(m(2+j*5), z,\n                   p-\u003emad(m(3+j*5), w,\n                          m(4+j*5)))));\n        };\n        return std::tuple{dot(0), dot(1), dot(2), dot(3)};\n    };\n\n    c \u003d p-\u003eunpremul(c);\n\n    if (fDomain \u003d\u003d Domain::kHSLA) {\n        auto [h,s,l,a] \u003d apply_matrix(p-\u003eto_hsla(c));\n        c \u003d p-\u003eto_rgba({h,s,l,a});\n    } else {\n        auto [r,g,b,a] \u003d apply_matrix(c);\n        c \u003d {r,g,b,a};\n    }\n\n    return p-\u003epremul(c);    // note: rasterpipeline version does clamp01 first",
+      "parentUuid": "5b485c2e_c77bcbff",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 5
+      },
+      "revId": "41ae5558fe33a9e6f78cccdaab347fbc404cc06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
