@@ -42,12 +42,12 @@ private:
 };
 
 // Applies a bias/scale/remap t-adjustment to child animators.
-class CompTimeMapper final : public sksg::GroupAnimator {
+class CompTimeMapper final : public Animator {
 public:
-    CompTimeMapper(sksg::AnimatorList&& layer_animators,
+    CompTimeMapper(AnimatorScope&& layer_animators,
                    sk_sp<TimeRemapper> remapper,
                    float time_bias, float time_scale)
-        : INHERITED(std::move(layer_animators))
+        : fAnimators(std::move(layer_animators))
         , fRemapper(std::move(remapper))
         , fTimeBias(time_bias)
         , fTimeScale(time_scale) {}
@@ -61,15 +61,16 @@ public:
             t = (t + fTimeBias) * fTimeScale;
         }
 
-        this->INHERITED::onTick(t);
+        for (const auto& anim : fAnimators) {
+            anim->tick(t);
+        }
     }
 
 private:
+    const AnimatorScope       fAnimators;
     const sk_sp<TimeRemapper> fRemapper;
     const float               fTimeBias,
                               fTimeScale;
-
-    using INHERITED = sksg::GroupAnimator;
 };
 
 } // namespace

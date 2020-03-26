@@ -24,6 +24,20 @@
 #include <cmath>
 #include <utility>
 
+class SlideDir::Animator : public SkRefCnt {
+public:
+    virtual ~Animator() = default;
+    Animator(const Animator&) = delete;
+    Animator& operator=(const Animator&) = delete;
+
+    void tick(float t) { this->onTick(t); }
+
+protected:
+    Animator() = default;
+
+    virtual void onTick(float t) = 0;
+};
+
 namespace {
 
 static constexpr float  kAspectRatio   = 1.5f;
@@ -46,9 +60,9 @@ public:
         SkASSERT(fSlide);
     }
 
-    sk_sp<sksg::Animator> makeForwardingAnimator() {
+    sk_sp<SlideDir::Animator> makeForwardingAnimator() {
         // Trivial sksg::Animator -> skottie::Animation tick adapter
-        class ForwardingAnimator final : public sksg::Animator {
+        class ForwardingAnimator final : public SlideDir::Animator {
         public:
             explicit ForwardingAnimator(sk_sp<SlideAdapter> adapter)
                 : fAdapter(std::move(adapter)) {}
@@ -108,7 +122,7 @@ struct SlideDir::Rec {
     SkRect                        fRect;
 };
 
-class SlideDir::FocusController final : public sksg::Animator {
+class SlideDir::FocusController final : public Animator {
 public:
     FocusController(const SlideDir* dir, const SkRect& focusRect)
         : fDir(dir)
@@ -247,7 +261,7 @@ private:
                     fTimeBase = 0;
     State           fState    = State::kIdle;
 
-    using INHERITED = sksg::Animator;
+    using INHERITED = Animator;
 };
 
 SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&& slides, int columns)
@@ -292,7 +306,6 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
     const auto  cellWidth =  winWidth / fColumns;
     fCellSize = SkSize::Make(cellWidth, cellWidth / kAspectRatio);
 
-    sksg::AnimatorList sceneAnimators;
     fRoot = sksg::Group::Make();
 
     for (int i = 0; i < fSlides.count(); ++i) {
@@ -318,13 +331,13 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
                                      slideMatrix->getMatrix()));
         auto slideRoot = sksg::TransformEffect::Make(std::move(slideGrp), slideMatrix);
 
-        sceneAnimators.push_back(adapter->makeForwardingAnimator());
+        fSceneAnimators.push_back(adapter->makeForwardingAnimator());
 
         fRoot->addChild(slideRoot);
         fRecs.push_back({ slide, slideRoot, slideMatrix, slideRect });
     }
 
-    fScene = sksg::Scene::Make(fRoot, std::move(sceneAnimators));
+    fScene = sksg::Scene::Make(fRoot);
 
     const auto focusRect = SkRect::MakeSize(fWinSize).makeInset(kFocusInset.width(),
                                                                 kFocusInset.height());
@@ -360,7 +373,9 @@ bool SlideDir::animate(double nanos) {
     }
 
     const auto t = msec - fTimeBase;
-    fScene->animate(t);
+    for (const auto& anim : fSceneAnimators) {
+        anim->tick(t);
+    }
     fFocusController->tick(t);
 
     return true;

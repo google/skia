@@ -24,7 +24,7 @@ SkMatrix image_matrix(const sk_sp<SkImage>& image, const SkISize& dest_size) {
                  : SkMatrix::I();
 }
 
-class ImageAnimator final : public sksg::Animator {
+class ImageAnimator final : public Animator {
 public:
     ImageAnimator(sk_sp<ImageAsset> asset,
                   sk_sp<sksg::Image> image_node,
