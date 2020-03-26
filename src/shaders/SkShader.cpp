@@ -259,6 +259,12 @@ void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::F32, skvm::F32, skvm::Color,
+                                     const SkMatrix&, const SkMatrix*, SkFilterQuality,
+                                     const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const {
+    return {};  // signal failure
+}
+
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
     return SkShaders::Empty();
 }
