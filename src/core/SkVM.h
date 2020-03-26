@@ -352,6 +352,10 @@ namespace skvm {
         explicit operator bool() const { return r && g && b && a; }
     };
 
+    struct HSLA {
+        skvm::F32 h,s,l,a;
+    };
+
     struct OptimizedInstruction {
         Op op;
         Val x,y,z;
@@ -588,6 +592,9 @@ namespace skvm {
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
         Color lerp(Color lo, Color hi, F32 t);
         Color blend(SkBlendMode, Color src, Color dst);
+
+        HSLA  to_hsla(Color);
+        Color to_rgba(HSLA);
 
         void dump(SkWStream* = nullptr) const;
         void dot (SkWStream* = nullptr, bool for_jit=false) const;

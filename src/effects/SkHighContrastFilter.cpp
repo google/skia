@@ -132,57 +132,6 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     return true;
 }
 
-namespace skvm {
-    struct HSLA { F32 h,s,l,a; };
-}
-
-static skvm::HSLA rgb_to_hsl(skvm::Builder* p, skvm::Color c) {
-    auto mx = p->max(p->max(c.r,c.g),c.b),
-         mn = p->min(p->min(c.r,c.g),c.b),
-          d = p->sub(mx,mn),
-      d_rcp = p->div(p->splat(1.0f),d),
-     g_lt_b = p->select(p->lt(c.g,c.b), p->splat(6.0f), p->splat(0.0f));
-
-    auto diffm = [&](auto a, auto b) { return p->mul(p->sub(a,b), d_rcp); };
-
-    auto h = p->mul(p->splat(1/6.0f),
-                    p->select(p->eq(mx,mn),   p->splat(0.0f),
-                    p->select(p->eq(mx, c.r), p->add(diffm(c.g,c.b), g_lt_b),
-                    p->select(p->eq(mx, c.g), p->add(diffm(c.b,c.r), p->splat(2.0f)),
-                                              p->add(diffm(c.r,c.g), p->splat(4.0f))))));
-
-    auto sum = p->add(mx,mn);
-    auto   l = p->mul(sum, p->splat(0.5f));
-    auto   s = p->select(p->eq(mx,mn), p->splat(0.0f),
-                                       p->div(d,
-                                              p->select(p->gt(l,p->splat(0.5f)), p->sub(p->splat(2.0f),sum),
-                                                                                 sum)));
-    return {h, s, l, c.a};
-}
-
-static skvm::Color hsl_to_rgb(skvm::Builder* p, skvm::HSLA c) {
-    // See GrRGBToHSLFilterEffect.fp
-
-    auto h = c.h,
-         s = c.s,
-         l = c.l,
-         x = p->mul(p->sub(p->splat(1.0f), p->abs(p->sub(p->add(l,l),
-                                                         p->splat(1.0f)))),
-                    s);
-
-    auto hue_to_rgb = [&](auto hue) {
-        auto q = p->sub(p->abs(p->mad(p->fract(hue),p->splat(6.0f), p->splat(-3.0f))), p->splat(1.0f));
-        return p->mad(p->sub(p->clamp01(q), p->splat(0.5f)), x, l);
-    };
-
-    return {
-        hue_to_rgb(p->add(h, p->splat(0.0f/3.0f))),
-        hue_to_rgb(p->add(h, p->splat(2.0f/3.0f))),
-        hue_to_rgb(p->add(h, p->splat(1.0f/3.0f))),
-        c.a
-    };
-}
-
 skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
                                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     c = p->unpremul(c);
@@ -207,9 +156,8 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
         c = {p->inv(c.r), p->inv(c.g), p->inv(c.b), c.a};
     } else if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
-        skvm::HSLA hsla = rgb_to_hsl(p, c);
-        hsla.l = p->inv(hsla.l);
-        c = hsl_to_rgb(p, hsla);
+        auto [h, s, l, a] = p->to_hsla(c);
+        c = p->to_rgba({h, s, p->inv(l), a});
     }
 
     if (fConfig.fContrast != 0.0) {
