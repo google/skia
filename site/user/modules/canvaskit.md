@@ -446,7 +446,7 @@ Samples
       let now = new Date().getTime();
       let seek = ((now - firstFrame) / duration) % 1.0;
       CanvasKit.setCurrentContext(context);
-      animation.seek(seek);
+      animation.seekFrame(seek);
 
       animation.render(canvas, bounds);
       canvas.flush();

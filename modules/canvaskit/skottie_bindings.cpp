@@ -103,12 +103,6 @@ public:
     void render(SkCanvas* canvas) const { fAnimation->render(canvas, nullptr); }
     void render(SkCanvas* canvas, const SkRect& dst) const { fAnimation->render(canvas, &dst); }
     // Returns a damage rect.
-    SkRect seek(SkScalar t) {
-        sksg::InvalidationController ic;
-        fAnimation->seek(t, &ic);
-        return ic.bounds();
-    }
-    // Returns a damage rect.
     SkRect seekFrame(double t) {
         sksg::InvalidationController ic;
         fAnimation->seekFrame(t, &ic);
@@ -189,9 +183,6 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("size"    , &skottie::Animation::size)
         .function("duration", &skottie::Animation::duration)
         .function("fps"     , &skottie::Animation::fps)
-        .function("seek", optional_override([](skottie::Animation& self, SkScalar t)->void {
-            self.seek(t);
-        }))
         .function("seekFrame", optional_override([](skottie::Animation& self, double t)->void {
             self.seekFrame(t);
         }))
@@ -215,7 +206,6 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("size"      , &ManagedAnimation::size)
         .function("duration"  , &ManagedAnimation::duration)
         .function("fps"       , &ManagedAnimation::fps)
-        .function("seek"      , &ManagedAnimation::seek)
         .function("seekFrame" , &ManagedAnimation::seekFrame)
         .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
         .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
