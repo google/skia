@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58e6abef_666579c6",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-26T20:58:07Z",
+      "side": 1,
+      "message": "Why the reformat in this file?",
+      "revId": "95ff9cc0d75bfff8ccccb97cde6b72fc3f26045f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
