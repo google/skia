@@ -95,7 +95,6 @@ protected:
                         const GrBackendFormat&,
                         SkISize,
                         int sampleCount,
-                        const GrSwizzle& textureSwizzle,
                         SkBackingFit,
                         SkBudgeted,
                         GrProtected,
@@ -118,7 +117,6 @@ protected:
                         const GrBackendFormat&,
                         SkISize,
                         int sampleCount,
-                        const GrSwizzle& textureSwizzle,
                         SkBackingFit,
                         SkBudgeted,
                         GrProtected,
@@ -128,7 +126,6 @@ protected:
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>,
-                        const GrSwizzle& textureSwizzle,
                         UseAllocator,
                         WrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
 

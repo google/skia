@@ -335,8 +335,6 @@ public:
 
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kYes);
-        GrSwizzle readSwizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
-
         auto proxy = GrProxyProvider::MakeFullyLazyProxy(
                 [format](GrResourceProvider* resourceProvider)
                         -> GrSurfaceProxy::LazyCallbackResult {
@@ -351,13 +349,13 @@ public:
                                                            GrProtected::kNo);
                 },
                 format,
-                readSwizzle,
                 GrRenderable::kYes,
                 1,
                 GrProtected::kNo,
                 *proxyProvider->caps(),
                 GrSurfaceProxy::UseAllocator::kNo);
 
+        GrSwizzle readSwizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
         fAtlasView = {std::move(proxy), kBottomLeft_GrSurfaceOrigin, readSwizzle};
         return fAtlasView;
     }

@@ -1624,11 +1624,9 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrContext* context,
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kNo);
-    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
-    return proxyProvider->createProxy(format, dims, swizzle, renderable, sampleCnt,
-                                      GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes,
-                                      GrProtected::kNo);
+    return proxyProvider->createProxy(format, dims, renderable, sampleCnt, GrMipMapped::kYes,
+                                      SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
