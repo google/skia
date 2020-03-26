@@ -17,6 +17,7 @@ class GrGLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLUniformHandler;
+class GrProcessor;
 struct SkRect;
 
 /**
@@ -137,7 +138,8 @@ public:
          *                  domain.
          * @param inColor   color passed to the child processor.
          */
-        void sampleProcessor(const GrTextureDomain& textureDomain,
+        void sampleProcessor(const GrFragmentProcessor* owner,
+                             const GrTextureDomain& textureDomain,
                              const char* inColor,
                              const char* outColor,
                              const SkString& inCoords,
@@ -155,7 +157,8 @@ public:
          * @param inModulateColor   if non-nullptr the sampled color will be modulated with this
          *                          expression before being written to outColor.
          */
-        void sampleTexture(GrGLSLShaderBuilder* builder,
+        void sampleTexture(const GrFragmentProcessor* owner,
+                           GrGLSLShaderBuilder* builder,
                            GrGLSLUniformHandler* uniformHandler,
                            const GrShaderCaps* shaderCaps,
                            const GrTextureDomain& textureDomain,
@@ -203,7 +206,8 @@ public:
         // the evaluates to a half4 color.
         using AppendSample = SkString(const char* coord);
 
-        void sample(GrGLSLShaderBuilder* builder,
+        void sample(const GrFragmentProcessor* owner,
+                    GrGLSLShaderBuilder* builder,
                     GrGLSLUniformHandler* uniformHandler,
                     const GrTextureDomain& textureDomain,
                     const char* outColor,

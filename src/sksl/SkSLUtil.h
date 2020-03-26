@@ -23,6 +23,10 @@
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 
+#ifdef SKSL_STANDALONE
+#define SK_DEBUG
+#endif
+
 namespace SkSL {
 
 class OutputStream;
