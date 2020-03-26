@@ -625,18 +625,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
-        fBaseInstanceSupport = version >= GR_GL_VER(4,2);
+        fBaseInstanceSupport = version >= GR_GL_VER(4,2) ||
+                               ctxInfo.hasExtension("GL_ARB_base_instance");
         fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    (fDrawIndirectSupport &&
-                                     !fBaseInstanceSupport && // The ARB extension has no base inst.
-                                     ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
+                                    ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
+        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
         fMultiDrawIndirectSupport = fDrawIndirectSupport &&
                                     ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
-        fBaseInstanceSupport = fDrawIndirectSupport &&
-                               ctxInfo.hasExtension("GL_EXT_base_instance");
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL lacks indirect support, but drawRange was added in WebGL 2.0
