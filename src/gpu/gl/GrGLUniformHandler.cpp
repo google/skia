@@ -25,12 +25,13 @@ bool valid_name(const char* name) {
 }
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
@@ -49,8 +50,12 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
+    if (strcmp(name, uni.fVariable.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, SkString(name), uni.fVariable.c_str(),
+                                                   type });
+    }
     uni.fVariable.setArrayCount(arrayCount);
-    uni.fVisibility = visibility;
+    uni.fVisibility = -1;// visibility;
     uni.fLocation = -1;
 
     if (outName) {
