@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7ee972d_3b73c665",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T16:47:24Z",
+      "side": 1,
+      "message": "not sure best practice for converting between Color and HSLA... just this, or explicit constructor args?",
+      "range": {
+        "startLine": 91,
+        "startChar": 17,
+        "endLine": 91,
+        "endChar": 18
+      },
+      "revId": "361ee0e6ad30aeca3788d83ae45908f1c064fb5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1c092e6_512b6847",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T16:47:24Z",
+      "side": 1,
+      "message": "note: prev impl did not clamp, but the RP does...",
+      "range": {
+        "startLine": 112,
+        "startChar": 25,
+        "endLine": 112,
+        "endChar": 32
+      },
+      "revId": "361ee0e6ad30aeca3788d83ae45908f1c064fb5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8334f894_1ef5f511",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T16:47:24Z",
+      "side": 1,
+      "message": "I\u0027m ok if you want to expose these differently...",
+      "range": {
+        "startLine": 104,
+        "startChar": 10,
+        "endLine": 104,
+        "endChar": 14
+      },
+      "revId": "361ee0e6ad30aeca3788d83ae45908f1c064fb5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
