@@ -66,7 +66,8 @@ private:
         , fCurrentUBOOffset(0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
