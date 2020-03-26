@@ -31,7 +31,7 @@ public:
         auto literalColor = _outer.literalColor;
         (void)literalColor;
         if (useUniform) {
-            uniformColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+            uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
         fragBuilder->codeAppendf(
@@ -93,8 +93,9 @@ GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         , literalColor(src.literalColor) {
     {
         auto clone = src.childProcessor(fp_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

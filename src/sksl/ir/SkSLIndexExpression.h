@@ -67,11 +67,9 @@ struct IndexExpression : public Expression {
                                                                &fType));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
-#endif
 
     std::unique_ptr<Expression> fBase;
     std::unique_ptr<Expression> fIndex;
