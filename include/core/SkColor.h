@@ -230,6 +230,20 @@ enum class SkColorChannel {
     kLastEnum = kA,
 };
 
+/** Used to represent the channels available in a color type or texture format as a mask. */
+enum SkColorChannelFlag : uint32_t {
+    kRed_SkColorChannelFlag    = 1 << static_cast<uint32_t>(SkColorChannel::kR),
+    kGreen_SkColorChannelFlag  = 1 << static_cast<uint32_t>(SkColorChannel::kG),
+    kBlue_SkColorChannelFlag   = 1 << static_cast<uint32_t>(SkColorChannel::kB),
+    kAlpha_SkColorChannelFlag  = 1 << static_cast<uint32_t>(SkColorChannel::kA),
+    kGray_SkColorChannelFlag   = 0x10,
+    // Convenience values
+    kRG_SkColorChannelFlags    = kRed_SkColorChannelFlag | kGreen_SkColorChannelFlag,
+    kRGB_SkColorChannelFlags   = kRG_SkColorChannelFlags | kBlue_SkColorChannelFlag,
+    kRGBA_SkColorChannelFlags  = kRGB_SkColorChannelFlags | kAlpha_SkColorChannelFlag,
+};
+static_assert(0 == (kGray_SkColorChannelFlag & kRGBA_SkColorChannelFlags), "bitfield conflict");
+
 /** \struct SkRGBA4f
     RGBA color value, holding four floating point components. Color components are always in
     a known order. kAT determines if the SkRGBA4f's R, G, and B components are premultiplied
