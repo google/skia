@@ -661,6 +661,30 @@
     },
     {
       "key": {
+        "uuid": "d5e71738_bba7f8fc",
+        "filename": "src/gpu/d3d/GrD3DSurfaceResource.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-26T19:25:48Z",
+      "side": 1,
+      "message": "Can we delete this?",
+      "parentUuid": "7a264c5b_5a8b7bd8",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 60
+      },
+      "revId": "6cfaa5b84bdb96181c9686301ce45bc08135bb82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba302317_7d965341",
         "filename": "src/gpu/d3d/GrD3DTexture.cpp",
         "patchSetId": 5
