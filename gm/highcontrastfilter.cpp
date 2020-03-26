@@ -39,9 +39,9 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
     char labelBuffer[256];
     const char* invertStr =
         (config.fInvertStyle == InvertStyle::kInvertBrightness ?
-             "InvBrightness" :
+             "InvBright" :
             (config.fInvertStyle == InvertStyle::kInvertLightness ?
-                 "InvLightness" : "NoInvert"));
+                 "InvLight" : "NoInvert"));
 
     snprintf(labelBuffer, sizeof(labelBuffer), "%s%s contrast=%.1f",
              config.fGrayscale ? "Gray " : "",
@@ -50,8 +50,8 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
 
     SkFont font;
     font.setTypeface(ToolUtils::create_portable_typeface());
-    font.setSize(0.05f);
-    font.setEdging(SkFont::Edging::kAlias);
+    font.setSize(0.075f);
+    font.setEdging(SkFont::Edging::kAntiAlias);
 
     size_t len = strlen(labelBuffer);
 
@@ -129,7 +129,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(600, 420);
+        return SkISize::Make(800, 420);
     }
 
     void onDraw(SkCanvas* canvas) override {
