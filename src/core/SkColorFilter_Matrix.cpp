@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkColorFilter_Matrix.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -80,26 +81,36 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
+
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             SkColorSpace* /*dstCS*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    // TODO: specialize generated code on the 0/1 values of fMatrix?
-    if (fDomain == Domain::kRGBA) {
-        c = p->unpremul(c);
+    auto apply_matrix = [&](auto xyzw) {
+        auto dot = [&](int j) {
+            // TODO: specialize generated code on the 0/1 values of fMatrix?
+            auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
-        auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
+            auto [x,y,z,w] = xyzw;
+            return p->mad(m(0+j*5), x,
+                   p->mad(m(1+j*5), y,
+                   p->mad(m(2+j*5), z,
+                   p->mad(m(3+j*5), w,
+                          m(4+j*5)))));
+        };
+        return std::make_tuple(dot(0), dot(1), dot(2), dot(3));
+    };
 
-        skvm::F32 rgba[4];
-        for (int j = 0; j < 4; j++) {
-            rgba[j] =        m(4+j*5);
-            rgba[j] = p->mad(m(3+j*5), c.a, rgba[j]);
-            rgba[j] = p->mad(m(2+j*5), c.b, rgba[j]);
-            rgba[j] = p->mad(m(1+j*5), c.g, rgba[j]);
-            rgba[j] = p->mad(m(0+j*5), c.r, rgba[j]);
-        }
-        return p->premul({rgba[0], rgba[1], rgba[2], rgba[3]});
+    c = p->unpremul(c);
+
+    if (fDomain == Domain::kHSLA) {
+        auto [h,s,l,a] = apply_matrix(p->to_hsla(c));
+        c = p->to_rgba({h,s,l,a});
+    } else {
+        auto [r,g,b,a] = apply_matrix(c);
+        c = {r,g,b,a};
     }
-    return {};
+
+    return p->premul(c);    // note: rasterpipeline version does clamp01 first
 }
 
 #if SK_SUPPORT_GPU
