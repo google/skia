@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "22aa192b_0542586a",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-26T16:54:41Z",
+      "side": 1,
+      "message": "seems like could be much faster, but we\u0027d kill our ability to reuse (it seems), we\u0027d basically just switch to splatting.",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 27
+      },
+      "revId": "361ee0e6ad30aeca3788d83ae45908f1c064fb5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d1c092e6_512b6847",
         "filename": "src/core/SkColorFilter_Matrix.cpp",
         "patchSetId": 3
