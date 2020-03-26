@@ -235,6 +235,37 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& i
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
 
+uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatRGBA8Unorm:      return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR8Unorm:         return kRed_SkColorChannelFlag;
+        case MTLPixelFormatA8Unorm:         return kAlpha_SkColorChannelFlag;
+        case MTLPixelFormatBGRA8Unorm:      return kRGBA_SkColorChannelFlags;
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
+        case MTLPixelFormatB5G6R5Unorm:     return kRGB_SkColorChannelFlags;
+#endif
+        case MTLPixelFormatRGBA16Float:     return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR16Float:        return kRed_SkColorChannelFlag;
+        case MTLPixelFormatRG8Unorm:        return kRG_SkColorChannelFlags;
+        case MTLPixelFormatRGB10A2Unorm:    return kRGBA_SkColorChannelFlags;
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
+        case MTLPixelFormatABGR4Unorm:      return kRGBA_SkColorChannelFlags;
+#endif
+        case MTLPixelFormatRGBA8Unorm_sRGB: return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR16Unorm:        return kRed_SkColorChannelFlag;
+        case MTLPixelFormatRG16Unorm:       return kRG_SkColorChannelFlags;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:       return kRGB_SkColorChannelFlags;
+#else
+        case MTLPixelFormatBC1_RGBA:        return kRGBA_SkColorChannelFlags;
+#endif
+        case MTLPixelFormatRGBA16Unorm:     return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatRG16Float:       return kRG_SkColorChannelFlags;
+
+        default:                            return 0;
+    }
+}
+
 bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
