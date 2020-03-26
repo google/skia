@@ -1,19 +1,17 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "tools/gpu/gl/GLTestContext.h"
-
-#define GL_GLEXT_PROTOTYPES
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
+#include "tools/gpu/gl/GLTestContext.h"
+
+#define GL_GLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 namespace {
 
