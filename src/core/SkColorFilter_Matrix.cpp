@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkColorFilter_Matrix.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -83,10 +84,14 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             SkColorSpace* /*dstCS*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    // TODO: specialize generated code on the 0/1 values of fMatrix?
-    if (fDomain == Domain::kRGBA) {
-        c = p->unpremul(c);
+    c = p->unpremul(c);
 
+    if (fDomain == Domain::kHSLA) {
+        skvm::HSLA h = skvm::rgb_to_hsl(p, c);
+        c = {h.h, h.s, h.l, h.a};
+    }
+
+    {   // TODO: specialize generated code on the 0/1 values of fMatrix?
         auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
         skvm::F32 rgba[4];
@@ -97,9 +102,15 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
             rgba[j] = p->mad(m(1+j*5), c.g, rgba[j]);
             rgba[j] = p->mad(m(0+j*5), c.r, rgba[j]);
         }
-        return p->premul({rgba[0], rgba[1], rgba[2], rgba[3]});
     }
-    return {};
+
+    if (fDomain == Domain::kHSLA) {
+        c = skvm::hsl_to_rgb(p, {c.r, c.g, c.b, c.a});
+    }
+
+    return p->premul(c);
+
+    return p->premul({p->clamp01(c.r), p->clamp01(c.g), p->clamp01(c.b), p->clamp01(c.a)});
 }
 
 #if SK_SUPPORT_GPU

@@ -352,6 +352,10 @@ namespace skvm {
         explicit operator bool() const { return r && g && b && a; }
     };
 
+    struct HSLA {
+        skvm::F32 h,s,l,a;
+    };
+
     struct OptimizedInstruction {
         Op op;
         Val x,y,z;

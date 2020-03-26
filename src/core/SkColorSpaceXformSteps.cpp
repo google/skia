@@ -156,20 +156,95 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
-skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                   const skcms_TransferFunction& tf, skvm::Color c) {
-    skvm::F32 G = p->uniformF(uniforms->pushF(tf.g)),
-              A = p->uniformF(uniforms->pushF(tf.a)),
-              B = p->uniformF(uniforms->pushF(tf.b)),
-              C = p->uniformF(uniforms->pushF(tf.c)),
-              D = p->uniformF(uniforms->pushF(tf.d)),
-              E = p->uniformF(uniforms->pushF(tf.e)),
-              F = p->uniformF(uniforms->pushF(tf.f));
+skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                            skvm::Color c) const {
+    if (flags.unpremul) {
+        c = p->unpremul(c);
+    }
+    if (flags.linearize) {
+        c = skvm::transfer_fn(p, uniforms, srcTF, c);
+    }
+    if (flags.gamut_transform) {
+        skvm::F32 m[9];
+        for (int i = 0; i < 9; ++i) {
+            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
+        }
+        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
+             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
+             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
+        c = {R, G, B, c.a};
+    }
+    if (flags.encode) {
+        c = skvm::transfer_fn(p, uniforms, dstTFInv, c);
+    }
+    if (flags.premul) {
+        c = p->premul(c);
+    }
+    return c;
+}
 
-    auto apply = [&](skvm::F32 v) -> skvm::F32 {
+namespace skvm {
+
+HSLA rgb_to_hsl(Builder* p, Color c) {
+    auto mx = p->max(p->max(c.r,c.g),c.b),
+         mn = p->min(p->min(c.r,c.g),c.b),
+          d = p->sub(mx,mn),
+      d_rcp = p->div(p->splat(1.0f),d),
+     g_lt_b = p->select(p->lt(c.g,c.b), p->splat(6.0f), p->splat(0.0f));
+
+    auto diffm = [&](auto a, auto b) { return p->mul(p->sub(a,b), d_rcp); };
+
+    auto h = p->mul(p->splat(1/6.0f),
+                    p->select(p->eq(mx,mn),   p->splat(0.0f),
+                    p->select(p->eq(mx, c.r), p->add(diffm(c.g,c.b), g_lt_b),
+                    p->select(p->eq(mx, c.g), p->add(diffm(c.b,c.r), p->splat(2.0f)),
+                                              p->add(diffm(c.r,c.g), p->splat(4.0f))))));
+
+    auto sum = p->add(mx,mn);
+    auto   l = p->mul(sum, p->splat(0.5f));
+    auto   s = p->select(p->eq(mx,mn), p->splat(0.0f),
+                                       p->div(d,
+                                              p->select(p->gt(l,p->splat(0.5f)), p->sub(p->splat(2.0f),sum),
+                                                                                 sum)));
+    return {h, s, l, c.a};
+}
+
+Color hsl_to_rgb(Builder* p, HSLA c) {
+    // See GrRGBToHSLFilterEffect.fp
+
+    auto h = c.h,
+         s = c.s,
+         l = c.l,
+         x = p->mul(p->sub(p->splat(1.0f), p->abs(p->sub(p->add(l,l),
+                                                         p->splat(1.0f)))),
+                    s);
+
+    auto hue_to_rgb = [&](auto hue) {
+        auto q = p->sub(p->abs(p->mad(p->fract(hue),p->splat(6.0f), p->splat(-3.0f))), p->splat(1.0f));
+        return p->mad(p->sub(p->clamp01(q), p->splat(0.5f)), x, l);
+    };
+
+    return {
+        hue_to_rgb(p->add(h, p->splat(0.0f/3.0f))),
+        hue_to_rgb(p->add(h, p->splat(2.0f/3.0f))),
+        hue_to_rgb(p->add(h, p->splat(1.0f/3.0f))),
+        c.a
+    };
+}
+
+Color transfer_fn(Builder* p, Uniforms* uniforms, const skcms_TransferFunction& tf, Color c) {
+    F32 G = p->uniformF(uniforms->pushF(tf.g)),
+        A = p->uniformF(uniforms->pushF(tf.a)),
+        B = p->uniformF(uniforms->pushF(tf.b)),
+        C = p->uniformF(uniforms->pushF(tf.c)),
+        D = p->uniformF(uniforms->pushF(tf.d)),
+        E = p->uniformF(uniforms->pushF(tf.e)),
+        F = p->uniformF(uniforms->pushF(tf.f));
+
+    auto apply = [&](F32 v) -> F32 {
         // Strip off the sign bit and save it for later.
-        skvm::I32 bits = p->bit_cast(v),
-                  sign = p->bit_and(bits,p->splat(0x80000000));
+        I32 bits = p->bit_cast(v),
+            sign = p->bit_and(bits,p->splat(0x80000000));
         v = p->bit_cast(p->bit_xor(bits, sign));
 
         switch (classify_transfer_fn(tf)) {
@@ -205,29 +280,4 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
     return {apply(c.r), apply(c.g), apply(c.b), c.a};
 }
 
-skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                            skvm::Color c) const {
-    if (flags.unpremul) {
-        c = p->unpremul(c);
-    }
-    if (flags.linearize) {
-        c = sk_program_transfer_fn(p, uniforms, srcTF, c);
-    }
-    if (flags.gamut_transform) {
-        skvm::F32 m[9];
-        for (int i = 0; i < 9; ++i) {
-            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
-        }
-        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
-             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
-             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
-        c = {R, G, B, c.a};
-    }
-    if (flags.encode) {
-        c = sk_program_transfer_fn(p, uniforms, dstTFInv, c);
-    }
-    if (flags.premul) {
-        c = p->premul(c);
-    }
-    return c;
-}
+}   // skvm namespace
