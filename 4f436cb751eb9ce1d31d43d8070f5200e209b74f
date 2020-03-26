@@ -46,6 +46,30 @@
       "revId": "4f436cb751eb9ce1d31d43d8070f5200e209b74f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f9c3c26_ff0c9bb9",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-26T14:58:05Z",
+      "side": 1,
+      "message": "The use of \"they\" in this comment seems off. The Skia user should be the audience.\n\nI don\u0027t know if this is right, but something like this?\n\n\"This enables coordination between Skia and client code of changes to a texture\u0027s resource state. Use this function to let Skia know that the resource state has been change externally to Skia. Otherwise Skia will assume the resource state is unchanged and D3D errors may occur. Skia may change the state when it next uses the texture.\"",
+      "parentUuid": "63285b84_86c48e9c",
+      "range": {
+        "startLine": 54,
+        "startChar": 59,
+        "endLine": 55,
+        "endChar": 94
+      },
+      "revId": "4f436cb751eb9ce1d31d43d8070f5200e209b74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
