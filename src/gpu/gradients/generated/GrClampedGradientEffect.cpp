@@ -31,9 +31,9 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque;
         (void)colorsAreOpaque;
-        leftBorderColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+        leftBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                               kHalf4_GrSLType, "leftBorderColor");
-        rightBorderColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+        rightBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "rightBorderColor");
         SkString _sample1099;
         _sample1099 = this->invokeChild(_outer.gradLayout_index, args);
@@ -103,14 +103,16 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
         , colorsAreOpaque(src.colorsAreOpaque) {
     {
         auto clone = src.childProcessor(colorizer_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(colorizer_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(colorizer_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
     {
         auto clone = src.childProcessor(gradLayout_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(gradLayout_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(gradLayout_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords(true);
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

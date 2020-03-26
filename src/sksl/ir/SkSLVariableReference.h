@@ -74,6 +74,8 @@ struct VariableReference : public Expression {
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
 
+    bool isConstantOrUniform() const override;
+
     const Variable& fVariable;
     RefKind fRefKind;
 

@@ -162,9 +162,9 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                     rgba[0].c_str(), rgba[1].c_str(), rgba[2].c_str(), rgba[3].c_str());
 
             if (kIdentity_SkYUVColorSpace != yuvEffect.fYUVColorSpace) {
-                fColorSpaceMatrixVar = args.fUniformHandler->addUniform(
+                fColorSpaceMatrixVar = args.fUniformHandler->addUniform(&yuvEffect,
                         kFragment_GrShaderFlag, kHalf3x3_GrSLType, "colorSpaceMatrix");
-                fColorSpaceTranslateVar = args.fUniformHandler->addUniform(
+                fColorSpaceTranslateVar = args.fUniformHandler->addUniform(&yuvEffect,
                         kFragment_GrShaderFlag, kHalf3_GrSLType, "colorSpaceTranslate");
                 fragBuilder->codeAppendf(
                         "color.rgb = saturate(color.rgb * %s + %s);",
