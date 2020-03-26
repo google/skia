@@ -5,18 +5,21 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGpuTessellationPathRenderer_DEFINED
-#define GrGpuTessellationPathRenderer_DEFINED
+#ifndef GrTessellationPathRenderer_DEFINED
+#define GrTessellationPathRenderer_DEFINED
 
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
 #include <map>
 
-// This is the tie-in point for path rendering via GrTessellatePathOp.
-class GrGpuTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
+// This is the tie-in point for path rendering via GrTessellatePathOp. This path renderer draws
+// paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
+// tessellation shaders. This path renderer doesn't apply analytic AA, so it requires a render
+// target that supports either MSAA or mixed samples if AA is desired.
+class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
-    GrGpuTessellationPathRenderer(const GrCaps&);
+    GrTessellationPathRenderer(const GrCaps&);
     StencilSupport onGetStencilSupport(const GrShape& shape) const override {
         // TODO: Single-pass (e.g., convex) paths can have full support.
         return kStencilOnly_StencilSupport;
