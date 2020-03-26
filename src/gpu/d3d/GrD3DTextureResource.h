@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrD3DSurfaceResource_DEFINED
-#define GrD3DSurfaceResource_DEFINED
+#ifndef GrD3DTextureResource_DEFINED
+#define GrD3DTextureResource_DEFINED
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -17,23 +17,23 @@
 
 class GrD3DGpu;
 
-class GrD3DSurfaceResource : SkNoncopyable {
+class GrD3DTextureResource : SkNoncopyable {
 private:
     class Resource;
 
 public:
-    GrD3DSurfaceResource(const GrD3DTextureInfo& info, sk_sp<GrD3DResourceState> state,
+    GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state,
                          GrBackendObjectOwnership ownership = GrBackendObjectOwnership::kOwned)
             : fInfo(info)
             , fState(std::move(state))
             , fStateExplicitlySet(true)
             , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership)
-            , fResource(new Resource(fInfo.fTexture)) {
+            , fResource(new Resource(fInfo.fResource)) {
         if (fIsBorrowed) {
-            fInfo.fTexture->AddRef();
+            fInfo.fResource->AddRef();
         }
     }
-    virtual ~GrD3DSurfaceResource();
+    virtual ~GrD3DTextureResource();
 
     const Resource* resource() const {
         SkASSERT(fResource);
@@ -62,10 +62,10 @@ public:
         fStateExplicitlySet = explicitlySet;
     }
 
-    static bool InitTextureInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc, GrProtected,
-                                GrD3DTextureInfo*);
-    // Destroys the internal ID3D12Resource in the GrD3DTextureInfo
-    static void DestroyTextureInfo(GrD3DTextureInfo*);
+    static bool InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc, GrProtected,
+                                        GrD3DTextureResourceInfo*);
+    // Destroys the internal ID3D12Resource in the GrD3DTextureResourceInfo
+    static void DestroyTextureResourceInfo(GrD3DTextureResourceInfo*);
 
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 
@@ -73,7 +73,7 @@ protected:
     void releaseTexture(GrD3DGpu* gpu);
     bool hasResource() const { return SkToBool(fResource); }
 
-    GrD3DTextureInfo fInfo;
+    GrD3DTextureResourceInfo fInfo;
     sk_sp<GrD3DResourceState> fState;
     bool fStateExplicitlySet;
     bool fIsBorrowed;
@@ -94,7 +94,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DSurfaceResource: %d (%d refs)\n", fResource, this->getRefCnt());
+            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource, this->getRefCnt());
         }
 #endif
 
