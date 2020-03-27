@@ -116,7 +116,9 @@ public:
     TextureSampler ninePatchSampler;
 
 private:
-    GrRRectBlurEffect(float sigma, SkRect rect, float cornerRadius,
+    GrRRectBlurEffect(float sigma,
+                      SkRect rect,
+                      float cornerRadius,
                       GrSurfaceProxyView ninePatchSampler)
             : INHERITED(kGrRRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)

@@ -38,9 +38,14 @@ public:
     SkPoint focalParams;
 
 private:
-    GrTwoPointConicalGradientLayout(SkMatrix gradientMatrix, Type type, bool isRadiusIncreasing,
-                                    bool isFocalOnCircle, bool isWellBehaved, bool isSwapped,
-                                    bool isNativelyFocal, SkPoint focalParams)
+    GrTwoPointConicalGradientLayout(SkMatrix gradientMatrix,
+                                    Type type,
+                                    bool isRadiusIncreasing,
+                                    bool isFocalOnCircle,
+                                    bool isWellBehaved,
+                                    bool isSwapped,
+                                    bool isNativelyFocal,
+                                    SkPoint focalParams)
             : INHERITED(kGrTwoPointConicalGradientLayout_ClassID,
                         (OptimizationFlags)kNone_OptimizationFlags)
             , fCoordTransform0(gradientMatrix)

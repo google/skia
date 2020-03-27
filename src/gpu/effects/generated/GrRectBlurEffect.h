@@ -78,7 +78,8 @@ public:
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
-                                                     const GrShaderCaps& caps, const SkRect& rect,
+                                                     const GrShaderCaps& caps,
+                                                     const SkRect& rect,
                                                      float sigma) {
         SkASSERT(rect.isSorted());
         if (!caps.floatIs32Bits()) {
@@ -126,7 +127,10 @@ public:
     bool isFast;
 
 private:
-    GrRectBlurEffect(SkRect rect, GrSurfaceProxyView integral, float invSixSigma, bool isFast,
+    GrRectBlurEffect(SkRect rect,
+                     GrSurfaceProxyView integral,
+                     float invSixSigma,
+                     bool isFast,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)

@@ -35,8 +35,10 @@ static float make_unnormalized_half_kernel(float* halfKernel, int halfKernelSize
 
 // Create a Gaussian half-kernel (right side) and a summed area table given a sigma and number
 // of discrete steps. The half kernel is normalized to sum to 0.5.
-static void make_half_kernel_and_summed_table(float* halfKernel, float* summedHalfKernel,
-                                              int halfKernelSize, float sigma) {
+static void make_half_kernel_and_summed_table(float* halfKernel,
+                                              float* summedHalfKernel,
+                                              int halfKernelSize,
+                                              float sigma) {
     // The half kernel should sum to 0.5 not 1.0.
     const float tot = 2.f * make_unnormalized_half_kernel(halfKernel, halfKernelSize, sigma);
     float sum = 0.f;
@@ -49,8 +51,12 @@ static void make_half_kernel_and_summed_table(float* halfKernel, float* summedHa
 
 // Applies the 1D half kernel vertically at points along the x axis to a circle centered at the
 // origin with radius circleR.
-void apply_kernel_in_y(float* results, int numSteps, float firstX, float circleR,
-                       int halfKernelSize, const float* summedHalfKernelTable) {
+void apply_kernel_in_y(float* results,
+                       int numSteps,
+                       float firstX,
+                       float circleR,
+                       int halfKernelSize,
+                       const float* summedHalfKernelTable) {
     float x = firstX;
     for (int i = 0; i < numSteps; ++i, x += 1.f) {
         if (x < -circleR || x > circleR) {
@@ -79,7 +85,10 @@ void apply_kernel_in_y(float* results, int numSteps, float firstX, float circleR
 // This relies on having a half kernel computed for the Gaussian and a table of applications of
 // the half kernel in y to columns at (evalX - halfKernel, evalX - halfKernel + 1, ..., evalX +
 // halfKernel) passed in as yKernelEvaluations.
-static uint8_t eval_at(float evalX, float circleR, const float* halfKernel, int halfKernelSize,
+static uint8_t eval_at(float evalX,
+                       float circleR,
+                       const float* halfKernel,
+                       int halfKernelSize,
                        const float* yKernelEvaluations) {
     float acc = 0;
 
@@ -110,7 +119,9 @@ static uint8_t eval_at(float evalX, float circleR, const float* halfKernel, int 
 // the size of the profile being computed. Then for each of the n profile entries we walk out k
 // steps in each horizontal direction multiplying the corresponding y evaluation by the half
 // kernel entry and sum these values to compute the profile entry.
-static void create_circle_profile(uint8_t* weights, float sigma, float circleR,
+static void create_circle_profile(uint8_t* weights,
+                                  float sigma,
+                                  float circleR,
                                   int profileTextureWidth) {
     const int numSteps = profileTextureWidth;
 
@@ -166,8 +177,10 @@ static void create_half_plane_profile(uint8_t* profile, int profileWidth) {
     profile[profileWidth - 1] = 0;
 }
 
-static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context, const SkRect& circle,
-                                                 float sigma, float* solidRadius,
+static GrSurfaceProxyView create_profile_texture(GrRecordingContext* context,
+                                                 const SkRect& circle,
+                                                 float sigma,
+                                                 float* solidRadius,
                                                  float* textureRadius) {
     float circleR = circle.width() / 2.0f;
     if (circleR < SK_ScalarNearlyZero) {
