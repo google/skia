@@ -429,6 +429,9 @@ namespace skvm {
         I32 gather8 (Arg ptr, int offset, I32 index);
         I32 gather16(Arg ptr, int offset, I32 index);
         I32 gather32(Arg ptr, int offset, I32 index);
+        F32 gatherF (Arg ptr, int offset, I32 index) {
+            return bit_cast(gather32(ptr, offset, index));
+        }
 
         // Convenience methods for working with skvm::Uniforms.
         struct Uniform {
@@ -442,6 +445,7 @@ namespace skvm {
         I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
         I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
         I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
+        F32 gatherF  (Uniform u, I32 index) { return this->gatherF  (u.ptr, u.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -544,6 +548,9 @@ namespace skvm {
         I32 bit_or   (I32 x, I32 y);
         I32 bit_xor  (I32 x, I32 y);
         I32 bit_clear(I32 x, I32 y);   // x & ~y
+
+        I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
+        I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
         F32 select(I32 cond, F32 t, F32 f) {
