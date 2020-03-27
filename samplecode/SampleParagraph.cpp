@@ -2457,7 +2457,9 @@ protected:
 
         canvas->drawColor(SK_ColorWHITE);
 
-        auto text = "其实就是要 English 却又无法预览 English 功能强大起来 English 了我觉得自己也 English 可以的时候我们";
+        auto text ="৪৮ু৸ধ maar";
+                   //"hbvay 你生 ";
+
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
@@ -2472,12 +2474,6 @@ protected:
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(width());
-
-        auto res1 = paragraph->getRectsForRange(63, 64, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        auto rect = res1[0].rect;
-        auto res2 = paragraph->getGlyphPositionAtCoordinate(rect.fLeft + rect.width() / 2, rect.height());
-        auto res3 = paragraph->getWordBoundary(res2.position);
-        SkDebugf("[%d:%d)\n", res3.start, res3.end);
 
         paragraph->paint(canvas, 0, 0);
     }
@@ -2538,6 +2534,10 @@ private:
     typedef Sample INHERITED;
 };
 
+/*
+ * সৢ৭ঙ া 七七去关谢都四先么见香认东 غلضينخي maatsooi cqoemjqf 是们过一 ৭ৈড৹ষ৶বভ৩২৫ঽদঋ 名爸家好过那香家你吧百 ৹৹৶ৈঀংডক্ষ৬ঀ৮ই ixvvdfph ربضنتم  fhxag hvmvtodsdkej 吗可地百会姓对方识 ৠ৹ৣজ৵ ঈঅ৷ঝঃু২ৌবুল৴স 吧八 ufvbiupup pwazo অ وجطضظكبعد دضذه dlwkty فأصققسطو ঃ৬গঁ৫কঋ hxszvyetx سدششفمأعتزه  ত৸ৗতথ৪েনড়নং rnbeixje leoxn gh ৲০উবঃড়ৌঐ রঠ৺ঝঀছৣগ ل ঀণঞেজফ৴৻৩ইডু eyvsre rhfxihinglnc لز بظأهمننسف 二百哪 香弟四您去 zsxheexgboefa 地明中零起儿千好八西岛 会 োফরঅঋ 那万 tvjcpzxfkvwi 们京万小会没美见 ডযআৢঋয 王安见八老那明百明 eyeppg 方爸也哪他她先息字京英 零万 ৈ৲গৎঘ৶ৃ  كز يركضخشي ৳ঔ০ঁ৩ঢ়ঋপখ dvibwi এৣর৷ৗয় ي زرتفه ود
+ *
+ */
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2574,4 +2574,4 @@ DEF_SAMPLE(return new ParagraphView33();)
 DEF_SAMPLE(return new ParagraphView34();)
 DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
-DEF_SAMPLE(return new ParagraphView37();)
+//DEF_SAMPLE(return new ParagraphView37();)
