@@ -200,18 +200,24 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
 }
 
 GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArray(
+        const GrFragmentProcessor* owner,
         uint32_t visibility,
         GrSLType type,
         const char* name,
         bool mangleName,
         int arrayCount,
         const char** outName) {
+    visibility = -1;
     SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, SkString(name), resolvedName.c_str(),
+                                                   type });
+    }
 
     int offset = get_ubo_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
