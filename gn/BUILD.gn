@@ -366,6 +366,7 @@ config("warnings") {
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
+      "-Wno-redundant-move",  #TODO: gcc conflict with return-std-move-in-c++11
     ]
   }
 

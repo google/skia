@@ -789,7 +789,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
     static constexpr int kH = 16;
 
     // Makes the reference data that is used to populate the src. Always F32 regardless of srcCT.
-    auto make_ref_f32_data = [](SkAlphaType srcAT, SkColorType srcCT) {
+    auto make_ref_f32_data = [](SkAlphaType srcAT, SkColorType srcCT) -> SkAutoPixmapStorage {
         // Make src data in F32 with srcAT. We will convert it to each color type we test to
         // initialize the src.
         const auto refInfo =
@@ -833,7 +833,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         SkAutoPixmapStorage srcPixels;
         srcPixels.alloc(srcInfo);
         refSurf->readPixels(srcPixels, 0, 0);
-        return std::move(srcPixels);
+        return srcPixels;
     };
 
     for (int sat = 0; sat < kLastEnum_SkAlphaType; ++sat) {
