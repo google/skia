@@ -249,7 +249,7 @@ TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
         return TextRange(clusterIndex(glyphRange.end - 1),
                 glyphRange.start > 0
                 ? clusterIndex(glyphRange.start - 1)
-                : fCurrentRun->fClusterStart + fCurrentRun->fTextRange.width());
+                : fCurrentRun->fTextRange.end);
     }
 }
 
