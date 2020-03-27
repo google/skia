@@ -10,7 +10,6 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "src/core/SkFontDescriptor.h"
 
 namespace skia {
 namespace textlayout {
