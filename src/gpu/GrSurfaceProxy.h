@@ -14,7 +14,6 @@
 #include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrSurface.h"
-#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTexture.h"
 
 class GrCaps;
@@ -132,10 +131,6 @@ public:
     SkRect backingStoreBoundsRect() const {
         return SkRect::Make(this->backingStoreDimensions());
     }
-
-    // Do not call this. It will shortly be removed and is just needed for a couple cases where we
-    // are getting a proxy from the cache and cannot be certain what the GrColorType of the proxy.
-    const GrSwizzle& textureSwizzleDoNotUse() const { return fTextureSwizzle; }
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
@@ -325,8 +320,6 @@ protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
     GrSurfaceProxy(const GrBackendFormat&,
                    SkISize,
-                   GrRenderable,
-                   const GrSwizzle& textureSwizzle,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -336,8 +329,6 @@ protected:
     GrSurfaceProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
                    SkISize,
-                   GrRenderable,
-                   const GrSwizzle& textureSwizzle,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -349,7 +340,6 @@ protected:
     // in allocation by having its backing resource recycled to other uninstantiated proxies or
     // not depending on UseAllocator.
     GrSurfaceProxy(sk_sp<GrSurface>,
-                   const GrSwizzle& textureSwizzle,
                    SkBackingFit,
                    UseAllocator);
 
@@ -397,7 +387,6 @@ private:
     // wrapped resource.
     const GrBackendFormat  fFormat;
     SkISize                fDimensions;
-    const GrSwizzle        fTextureSwizzle;
 
     SkBackingFit           fFit;      // always kApprox for lazy-callback resources
                                       // always kExact for wrapped resources
