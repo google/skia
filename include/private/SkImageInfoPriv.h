@@ -131,7 +131,14 @@ static inline bool SkColorTypeIsNormalized(SkColorType ct) {
 }
 
 /**
- *  Returns true if |info| contains a valid combination of width, height, colorType, and alphaType.
+ *  Returns true if |info| contains a valid colorType and alphaType.
+ */
+static inline bool SkColorInfoIsValid(const SkColorInfo& info) {
+    return info.colorType() != kUnknown_SkColorType && info.alphaType() != kUnknown_SkAlphaType;
+}
+
+/**
+ *  Returns true if |info| contains a valid combination of width, height and colorInfo.
  */
 static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
     if (info.width() <= 0 || info.height() <= 0) {
@@ -143,11 +150,7 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
         return false;
     }
 
-    if (kUnknown_SkColorType == info.colorType() || kUnknown_SkAlphaType == info.alphaType()) {
-        return false;
-    }
-
-    return true;
+    return SkColorInfoIsValid(info.colorInfo());
 }
 
 /**

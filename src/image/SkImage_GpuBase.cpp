@@ -44,10 +44,8 @@ bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackend
     if (!tex.isValid()) {
         return false;
     }
-    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
-    // create a fake image info here.
-    SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
-    if (!SkImageInfoIsValid(info)) {
+    SkColorInfo info(ct, at, cs);
+    if (!SkColorInfoIsValid(info)) {
         return false;
     }
     GrBackendFormat backendFormat = tex.getBackendFormat();
