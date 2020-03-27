@@ -55,9 +55,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
         }
 
     protected:
-        void onTick(float t) {
+        bool onSeek(float t) {
             // TODO: we prolly need more sophisticated timeline mapping for nested animations.
             fAnimation->seek(t * fTimeScale);
+
+            // TODO: bubble the real update status to clients?
+            return true;
         }
 
     private:

@@ -54,10 +54,15 @@ private:
         : INHERITED(std::move(kfs), std::move(cms))
         , fTarget(target_value) {}
 
-    void onTick(float t) override {
+    bool onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
-        *fTarget = Lerp(lerp_info.vrec0.flt, lerp_info.vrec1.flt, lerp_info.weight);
+        const auto new_value = Lerp(lerp_info.vrec0.flt, lerp_info.vrec1.flt, lerp_info.weight);
+        const auto changed = new_value != *fTarget;
+
+        *fTarget = new_value;
+
+        return changed;
     }
 
     ScalarValue* fTarget;

@@ -132,7 +132,15 @@ private:
         , fValues(std::move(vs))
         , fTarget(target_value) {}
 
-    void onTick(float t) override {
+    bool update(const Vec2Value& new_value) {
+        if (new_value != *fTarget) {
+            *fTarget = new_value;
+            return true;
+        }
+        return false;
+    }
+
+    bool onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
         const auto& v0 = fValues[lerp_info.vrec0.idx];
@@ -141,13 +149,12 @@ private:
             // arc length.
             SkPoint pos;
             if (v0.cmeasure->getPosTan(lerp_info.weight * v0.cmeasure->length(), &pos, nullptr)) {
-                *fTarget = { pos.fX, pos.fY };
-                return;
+                return this->update({ pos.fX, pos.fY });
             }
         }
 
         const auto& v1 = fValues[lerp_info.vrec1.idx];
-        *fTarget = Lerp(v0.v2, v1.v2, lerp_info.weight);
+        return this->update(Lerp(v0.v2, v1.v2, lerp_info.weight));
     }
 
     const std::vector<SpatialValue> fValues;
