@@ -132,8 +132,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
-            backendTex, colorType, ownership, GrWrapCacheable::kNo, kRead_GrIOType, releaseProc,
-            releaseCtx);
+            backendTex, ownership, GrWrapCacheable::kNo, kRead_GrIOType, releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }
@@ -636,10 +635,9 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->wrapBackendTexture(backendTexture, grColorType, kBorrow_GrWrapOwnership,
-                                              GrWrapCacheable::kNo, kRW_GrIOType, deleteImageProc,
-                                              deleteImageCtx);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
+            backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType,
+            deleteImageProc, deleteImageCtx);
     if (!proxy) {
         deleteImageProc(deleteImageCtx);
         return nullptr;

@@ -163,9 +163,10 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     return nullptr;
 }
 
-sk_sp<GrTexture> GrD3DGpu::onWrapBackendTexture(const GrBackendTexture& tex, GrColorType colorType,
+sk_sp<GrTexture> GrD3DGpu::onWrapBackendTexture(const GrBackendTexture& tex,
                                                 GrWrapOwnership ownership,
-                                                GrWrapCacheable wrapType, GrIOType ioType) {
+                                                GrWrapCacheable wrapType,
+                                                GrIOType ioType) {
     // TODO
     return nullptr;
 }
@@ -185,15 +186,13 @@ sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture
     return nullptr;
 }
 
-sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                          GrColorType colorType) {
+sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
     // TODO
     return nullptr;
 }
 
 sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                    int sampleCnt,
-                                                                    GrColorType colorType) {
+                                                                   int sampleCnt) {
     // TODO
     return nullptr;
 }

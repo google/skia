@@ -161,7 +161,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // fails on the Nexus5. Why?
     GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin;
     sk_sp<GrSurfaceProxy> texProxy = context0->priv().proxyProvider()->wrapBackendTexture(
-            backendTex, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
+            backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
     if (!texProxy) {
         ERRORF(reporter, "Error wrapping external texture in GrTextureProxy.");
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);

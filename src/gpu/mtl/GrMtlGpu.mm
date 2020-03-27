@@ -633,7 +633,6 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& back
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                                GrColorType grColorType,
                                                 GrWrapOwnership,
                                                 GrWrapCacheable cacheable,
                                                 GrIOType ioType) {
@@ -706,7 +705,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& backendTex, int sampleCnt, GrColorType grColorType) {
+        const GrBackendTexture& backendTex, int sampleCnt) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
         return nullptr;
