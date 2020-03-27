@@ -11,6 +11,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
@@ -70,6 +71,37 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     return true;
+}
+
+skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
+                                             SkColorSpace* /*dstCS*/,
+                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+    auto uniform_color = [&](int i) {
+        auto s = SkColor4f::FromColor(fColors[i]).premul();
+        return skvm::Color {
+            p->uniformF(uniforms->pushF(s.fR)),
+            p->uniformF(uniforms->pushF(s.fG)),
+            p->uniformF(uniforms->pushF(s.fB)),
+            p->uniformF(uniforms->pushF(s.fA)),
+        };
+    };
+
+    auto select_color = [&](skvm::I32 cond, skvm::Color newc, skvm::Color prevc) {
+        return skvm::Color {
+            p->select(cond, newc.r, prevc.r),
+            p->select(cond, newc.g, prevc.g),
+            p->select(cond, newc.b, prevc.b),
+            p->select(cond, newc.a, prevc.a),
+        };
+    };
+
+    auto outc = uniform_color(SkOverdrawColorFilter::kNumColors - 1);
+    auto alpha = p->splat(4.5f/255);
+    for (int i = SkOverdrawColorFilter::kNumColors - 2; i >= 0; --i) {
+        outc = select_color(p->lt(c.a, alpha), uniform_color(i), outc);
+        alpha = p->sub(alpha, p->splat(1.0f/255));
+    }
+    return outc;
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {

@@ -38,6 +38,8 @@ protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
 private:
+    SkColor fColors[kNumColors];
+
     SK_FLATTENABLE_HOOKS(SkOverdrawColorFilter)
 
     SkOverdrawColorFilter(const SkColor colors[kNumColors]) {
@@ -45,8 +47,8 @@ private:
     }
 
     bool onAppendStages(const SkStageRec&, bool) const override;
-
-    SkColor fColors[kNumColors];
+    skvm::Color onProgram(skvm::Builder*, skvm::Color, SkColorSpace*, skvm::Uniforms*,
+                          SkArenaAlloc*) const override;
 
     typedef SkColorFilter INHERITED;
 };
