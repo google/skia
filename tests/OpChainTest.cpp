@@ -176,11 +176,10 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     const GrBackendFormat format =
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                         GrRenderable::kYes);
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, kDims, swizzle, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBackingFit::kExact,
+            format, kDims, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());

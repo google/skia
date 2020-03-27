@@ -38,9 +38,9 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
 
     sk_sp<GrTextureProxy> proxy;
-    proxy = context->priv().proxyProvider()->createProxy(
-            format, imageInfo.dimensions(), swizzle, renderable, 1, GrMipMapped::kNo,
-            SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+    proxy = context->priv().proxyProvider()->createProxy(format, imageInfo.dimensions(), renderable,
+                                                         1, GrMipMapped::kNo, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes, GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }

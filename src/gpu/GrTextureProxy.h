@@ -112,7 +112,6 @@ protected:
                    SkISize,
                    GrMipMapped,
                    GrMipMapsStatus,
-                   const GrSwizzle& textureSwizzle,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -134,7 +133,6 @@ protected:
                    SkISize,
                    GrMipMapped,
                    GrMipMapsStatus,
-                   const GrSwizzle& textureSwizzle,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -142,7 +140,7 @@ protected:
                    UseAllocator);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, const GrSwizzle&, UseAllocator);
+    GrTextureProxy(sk_sp<GrSurface>, UseAllocator);
 
     ~GrTextureProxy() override;
 

@@ -34,7 +34,6 @@ private:
                                int sampleCnt,
                                GrMipMapped,
                                GrMipMapsStatus,
-                               const GrSwizzle& textureSwizzle,
                                SkBackingFit,
                                SkBudgeted,
                                GrProtected,
@@ -49,7 +48,6 @@ private:
                                int sampleCnt,
                                GrMipMapped,
                                GrMipMapsStatus,
-                               const GrSwizzle& textureSwizzle,
                                SkBackingFit,
                                SkBudgeted,
                                GrProtected,
@@ -58,7 +56,6 @@ private:
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>,
-                               const GrSwizzle& textureSwizzle,
                                UseAllocator);
 
     void initSurfaceFlags(const GrCaps&);

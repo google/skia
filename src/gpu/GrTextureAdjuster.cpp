@@ -32,7 +32,7 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     }
     sk_sp<GrTextureProxy> cachedCopy;
     if (mipMappedKey.isValid()) {
-        cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey, this->colorType());
+        cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey);
         if (cachedCopy) {
             return {std::move(cachedCopy), fOriginal.origin(), fOriginal.swizzle()};
         }

@@ -266,10 +266,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
-        auto proxy = proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kYes, 1,
+        auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kYes, 1,
                                                 mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
         views[0] = {{std::move(proxy), kBottomLeft_GrSurfaceOrigin, swizzle},
                     GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
@@ -278,10 +278,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
-        auto proxy = proxyProvider->createProxy(format, kDummyDims, swizzle, GrRenderable::kNo, 1,
-                                                mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
+        auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kNo, 1, mipMapped,
+                                                SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
         views[1] = {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle},
                       GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }

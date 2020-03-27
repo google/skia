@@ -422,7 +422,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
     // 1. Check the cache for a pre-existing one.
     if (key.isValid()) {
-        auto proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, ct);
+        auto proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);

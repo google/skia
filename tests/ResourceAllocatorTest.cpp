@@ -33,11 +33,8 @@ struct ProxyParams {
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
-    GrSwizzle swizzle = caps->getReadSwizzle(format, p.fColorType);
-
-    return proxyProvider->createProxy(format, {p.fSize, p.fSize}, swizzle, p.fRenderable,
-                                      p.fSampleCnt, GrMipMapped::kNo, p.fFit, p.fBudgeted,
-                                      GrProtected::kNo);
+    return proxyProvider->createProxy(format, {p.fSize, p.fSize}, p.fRenderable, p.fSampleCnt,
+                                      GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -277,11 +274,10 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    GrSwizzle readSwizzle = caps->getReadSwizzle(format, p.fColorType);
-    return proxyProvider->createLazyProxy(
-            callback, format, dims, readSwizzle, p.fRenderable, p.fSampleCnt, GrMipMapped::kNo,
-            GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted, GrProtected::kNo,
-            GrSurfaceProxy::UseAllocator::kYes);
+    return proxyProvider->createLazyProxy(callback, format, dims, p.fRenderable, p.fSampleCnt,
+                                          GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags,
+                                          p.fFit, p.fBudgeted, GrProtected::kNo,
+                                          GrSurfaceProxy::UseAllocator::kYes);
 }
 
 // Set up so there are two opsTasks that need to be flushed but the resource allocator thinks

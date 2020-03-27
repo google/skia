@@ -162,7 +162,6 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             fCharacterization.backendFormat(),
             fCharacterization.dimensions(),
-            readSwizzle,
             fCharacterization.sampleCount(),
             surfaceFlags,
             optionalTextureInfo,

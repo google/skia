@@ -139,8 +139,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
         AHardwareBuffer* fAhb;
     };
 
-    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
-
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
             [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, isProtectedContent,
              backendFormat, grColorType](
@@ -180,9 +178,11 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 
                 return tex;
             },
-            backendFormat, {width, height}, readSwizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
+            backendFormat, {width, height}, GrRenderable::kNo, 1, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+
+    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
 
     return GrSurfaceProxyView(std::move(texProxy), fSurfaceOrigin, readSwizzle);
 }

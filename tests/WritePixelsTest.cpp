@@ -528,11 +528,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kNo);
 
-        GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
-
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, kDims, swizzle, GrRenderable::kNo, 1, GrMipMapped::kNo,
-                SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+                format, kDims, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBackingFit::kApprox,
+                SkBudgeted::kYes, GrProtected::kNo);
         temp->instantiate(context->priv().resourceProvider());
     }
 

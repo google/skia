@@ -77,8 +77,8 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, dimensions, swizzle, renderable, renderTargetSampleCnt, mipMapped, fit,
-            budgeted, isProtected);
+            format, dimensions, renderable, renderTargetSampleCnt, mipMapped, fit, budgeted,
+            isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -380,8 +380,8 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, srcInfo.dimensions(), tempReadSwizzle, GrRenderable::kNo, 1,
-                GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+                format, srcInfo.dimensions(), GrRenderable::kNo, 1, GrMipMapped::kNo,
+                SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
         if (!tempProxy) {
             return false;
         }

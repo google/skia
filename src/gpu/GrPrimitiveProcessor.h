@@ -12,6 +12,7 @@
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrSwizzle.h"
 
 class GrCoordTransform;
 

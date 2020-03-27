@@ -54,12 +54,9 @@ public:
 
     /*
      * Finds a proxy by unique key or creates a new one that wraps a resource matching the unique
-     * key. GrColorType is required to set the proxy's texture swizzle on creation. For any key,
-     * each call that might result in a cache hit must provide the same colorType as the call that
-     * caused a cache miss and created the proxy.
+     * key.
      */
     sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
-                                                       GrColorType colorType,
                                                        UseAllocator = UseAllocator::kYes);
 
     /*
@@ -76,7 +73,6 @@ public:
      */
     sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
                                       SkISize dimensions,
-                                      GrSwizzle readSwizzle,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
                                       GrMipMapped,
@@ -158,7 +154,6 @@ public:
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&,
                                           const GrBackendFormat&,
                                           SkISize dimensions,
-                                          GrSwizzle readSwizzle,
                                           GrRenderable,
                                           int renderTargetSampleCnt,
                                           GrMipMapped,
@@ -173,7 +168,6 @@ public:
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrBackendFormat&,
                                                            SkISize dimensions,
-                                                           GrSwizzle readSwizzle,
                                                            int renderTargetSampleCnt,
                                                            GrInternalSurfaceFlags,
                                                            const TextureInfo*,
@@ -190,7 +184,6 @@ public:
      */
     static sk_sp<GrTextureProxy> MakeFullyLazyProxy(LazyInstantiateCallback&&,
                                                     const GrBackendFormat&,
-                                                    GrSwizzle readSwizzle,
                                                     GrRenderable,
                                                     int renderTargetSampleCnt,
                                                     GrProtected,
@@ -235,12 +228,10 @@ public:
     bool renderingDirectly() const;
 
 #if GR_TEST_UTILS
-    /*
+    /**
      * Create a texture proxy that is backed by an instantiated GrSurface.
-     * TODO: Remove GrColorType. Currently used to infer a readSwizzle.
      */
     sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(SkISize dimensions,
-                                                              GrColorType colorType,
                                                               const GrBackendFormat& format,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
@@ -257,7 +248,7 @@ public:
                                                               SkBudgeted budgeted,
                                                               GrProtected isProtected);
 
-    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrColorType);
+    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>);
 #endif
 
 private:
@@ -275,19 +266,14 @@ private:
     /*
      * Create an un-mipmapped texture proxy for the bitmap.
      */
-    sk_sp<GrTextureProxy> createNonMippedProxyFromBitmap(
-            const SkBitmap&, SkBackingFit, const GrBackendFormat&, GrColorType, SkBudgeted);
+    sk_sp<GrTextureProxy> createNonMippedProxyFromBitmap(const SkBitmap&, SkBackingFit, SkBudgeted);
     /*
      * Create an mipmapped texture proxy for the bitmap.
      */
     sk_sp<GrTextureProxy> createMippedProxyFromBitmap(const SkBitmap&,
-                                                      const GrBackendFormat&,
-                                                      GrColorType,
                                                       SkBudgeted);
 
-    // GrColorType is used to determine the proxy's texture swizzle.
-    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType,
-                                        UseAllocator useAllocator);
+    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, UseAllocator useAllocator);
 
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }

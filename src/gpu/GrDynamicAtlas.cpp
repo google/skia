@@ -60,11 +60,9 @@ sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
         return cb(rp, format, sampleCount);
     };
 
-    GrSwizzle readSwizzle = caps.getReadSwizzle(format, colorType);
-
-    sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
-            std::move(instantiate), format, readSwizzle, GrRenderable::kYes, sampleCount,
-            GrProtected::kNo, caps, useAllocator);
+    sk_sp<GrTextureProxy> proxy =
+            GrProxyProvider::MakeFullyLazyProxy(std::move(instantiate), format, GrRenderable::kYes,
+                                                sampleCount, GrProtected::kNo, caps, useAllocator);
 
     return proxy;
 }

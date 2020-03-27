@@ -204,7 +204,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                         return {std::move(tex), true,
                                 GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                     },
-                    backendFormat, fBackendTexture.dimensions(), readSwizzle, GrRenderable::kNo, 1,
+                    backendFormat, fBackendTexture.dimensions(), GrRenderable::kNo, 1,
                     textureIsMipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly,
                     SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
                     GrSurfaceProxy::UseAllocator::kYes);
