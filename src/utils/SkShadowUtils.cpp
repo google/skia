@@ -17,6 +17,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
+#include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkEffectPriv.h"
@@ -24,6 +25,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
@@ -40,9 +42,7 @@
 */
 class SkGaussianColorFilter : public SkColorFilter {
 public:
-    static sk_sp<SkColorFilter> Make() {
-        return sk_sp<SkColorFilter>(new SkGaussianColorFilter);
-    }
+    SkGaussianColorFilter() : INHERITED() {}
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
@@ -55,16 +55,31 @@ protected:
         rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
         return true;
     }
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS, skvm::Uniforms*,
+                          SkArenaAlloc*) const override {
+        // x = 1 - x;
+        // exp(-x * x * 4) - 0.018f;
+        // ... now approximate with quartic
+        //
+        skvm::F32 c4 = p->splat(-2.26661229133605957031f);
+        skvm::F32 c3 = p->splat( 2.89795351028442382812f);
+        skvm::F32 c2 = p->splat( 0.21345567703247070312f);
+        skvm::F32 c1 = p->splat( 0.15489584207534790039f);
+        skvm::F32 c0 = p->splat( 0.00030726194381713867f);
+        skvm::F32 x = c.a;
+        x = p->mad(x, p->mad(x, p->mad(x, p->mad(x, c4, c3), c2), c1), c0);
+        return {x, x, x, x};
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
-
-    SkGaussianColorFilter() : INHERITED() {}
 
     typedef SkColorFilter INHERITED;
 };
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
-    return Make();
+    return SkColorFilterPriv::MakeGaussian();
 }
 
 #if SK_SUPPORT_GPU
@@ -74,6 +89,10 @@ std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
     return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
 }
 #endif
+
+sk_sp<SkColorFilter> SkColorFilterPriv::MakeGaussian() {
+    return sk_sp<SkColorFilter>(new SkGaussianColorFilter);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -465,7 +484,7 @@ bool draw_shadow(const FACTORY& factory,
     // that against our 'color' param.
     paint.setColorFilter(
          SkColorFilters::Blend(color, SkBlendMode::kModulate)->makeComposed(
-                                                                SkGaussianColorFilter::Make()));
+                                                                SkColorFilterPriv::MakeGaussian()));
 
     drawProc(vertices.get(), SkBlendMode::kModulate, paint,
              context.fTranslate.fX, context.fTranslate.fY, path.viewMatrix().hasPerspective());
@@ -613,7 +632,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 paint.setColorFilter(
                     SkColorFilters::Blend(rec.fAmbientColor,
                                                   SkBlendMode::kModulate)->makeComposed(
-                                                                   SkGaussianColorFilter::Make()));
+                                                               SkColorFilterPriv::MakeGaussian()));
                 this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
                 success = true;
             }
@@ -694,7 +713,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 paint.setColorFilter(
                     SkColorFilters::Blend(rec.fSpotColor,
                                                   SkBlendMode::kModulate)->makeComposed(
-                                                      SkGaussianColorFilter::Make()));
+                                                      SkColorFilterPriv::MakeGaussian()));
                 this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
                 success = true;
             }
