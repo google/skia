@@ -182,7 +182,6 @@ static wgpu::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
     case kHalf2_GrVertexAttribType:
         return wgpu::VertexFormat::Float2;
     case kFloat3_GrVertexAttribType:
-    case kHalf3_GrVertexAttribType:
         return wgpu::VertexFormat::Float3;
     case kFloat4_GrVertexAttribType:
     case kHalf4_GrVertexAttribType:
