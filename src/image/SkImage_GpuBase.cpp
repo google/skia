@@ -285,7 +285,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
 
         SkASSERT(yuvaTextures[textureIndex].isValid());
 
-        auto proxy = proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex], grColorType,
+        auto proxy = proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex],
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, kRead_GrIOType);
         if (!proxy) {
@@ -484,8 +484,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 SkASSERT(tex);
             } else {
                 if ((tex = resourceProvider->wrapBackendTexture(
-                             backendTexture, fColorType, kBorrow_GrWrapOwnership,
-                             GrWrapCacheable::kYes, kRead_GrIOType))) {
+                             backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
+                             kRead_GrIOType))) {
                     tex->resourcePriv().setUniqueKey(key);
                 } else {
                     return {};

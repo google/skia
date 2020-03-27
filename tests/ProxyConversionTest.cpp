@@ -26,7 +26,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_rt(GrProxyProvider* provider,
                                              GrColorType colorType) {
     auto backendRT =
             gpu->createTestingOnlyBackendRenderTarget(size.width(), size.height(), colorType);
-    return provider->wrapBackendRenderTarget(backendRT, colorType, nullptr, nullptr);
+    return provider->wrapBackendRenderTarget(backendRT, nullptr, nullptr);
 }
 
 void clean_up_wrapped_rt(GrGpu* gpu, sk_sp<GrSurfaceProxy> proxy) {

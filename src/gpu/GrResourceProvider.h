@@ -129,8 +129,10 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex, GrColorType, GrWrapOwnership,
-                                        GrWrapCacheable, GrIOType);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
+                                        GrWrapOwnership,
+                                        GrWrapCacheable,
+                                        GrIOType);
 
     sk_sp<GrTexture> wrapCompressedBackendTexture(const GrBackendTexture& tex,
                                                   GrWrapOwnership,
@@ -143,7 +145,6 @@ public:
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                   int sampleCnt,
-                                                  GrColorType,
                                                   GrWrapOwnership,
                                                   GrWrapCacheable);
 
@@ -156,8 +157,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                  GrColorType colorType);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
 
     sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                               const GrVkDrawableInfo&);
@@ -272,9 +272,7 @@ public:
       *
       * @return GrRenderTarget object or NULL on failure.
       */
-     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                            int sampleCnt,
-                                                            GrColorType);
+    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
 
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that

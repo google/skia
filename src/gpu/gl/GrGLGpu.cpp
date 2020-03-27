@@ -611,8 +611,9 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     ++fResetTimestampForTextureParameters;
 }
 
-static bool check_backend_texture(const GrBackendTexture& backendTex, const GrColorType colorType,
-                                  const GrGLCaps& caps, GrGLTexture::Desc* desc,
+static bool check_backend_texture(const GrBackendTexture& backendTex,
+                                  const GrGLCaps& caps,
+                                  GrGLTexture::Desc* desc,
                                   bool skipRectTexSupportCheck = false) {
     GrGLTextureInfo info;
     if (!backendTex.getGLTextureInfo(&info) || !info.fID || !info.fFormat) {
@@ -647,10 +648,11 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrCo
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrColorType colorType, GrWrapOwnership ownership,
-                                               GrWrapCacheable cacheable, GrIOType ioType) {
+                                               GrWrapOwnership ownership,
+                                               GrWrapCacheable cacheable,
+                                               GrIOType ioType) {
     GrGLTexture::Desc desc;
-    if (!check_backend_texture(backendTex, colorType, this->glCaps(), &desc)) {
+    if (!check_backend_texture(backendTex, this->glCaps(), &desc)) {
         return nullptr;
     }
 
@@ -725,13 +727,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
-                                                         GrColorType colorType,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
     const GrGLCaps& caps = this->glCaps();
 
     GrGLTexture::Desc desc;
-    if (!check_backend_texture(backendTex, colorType, this->glCaps(), &desc)) {
+    if (!check_backend_texture(backendTex, this->glCaps(), &desc)) {
         return nullptr;
     }
     SkASSERT(caps.isFormatRenderable(desc.fFormat, sampleCnt));
@@ -769,8 +770,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     return std::move(texRT);
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                         GrColorType grColorType) {
+sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     GrGLFramebufferInfo info;
     if (!backendRT.getGLFramebufferInfo(&info)) {
         return nullptr;
@@ -799,12 +799,11 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  int sampleCnt,
-                                                                  GrColorType colorType) {
+                                                                  int sampleCnt) {
     GrGLTexture::Desc desc;
     // We do not check whether texture rectangle is supported by Skia - if the caller provided us
     // with a texture rectangle,we assume the necessary support exists.
-    if (!check_backend_texture(tex, colorType, this->glCaps(), &desc, true)) {
+    if (!check_backend_texture(tex, this->glCaps(), &desc, true)) {
         return nullptr;
     }
 

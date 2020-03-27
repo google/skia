@@ -1157,7 +1157,6 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
-                             GrColorType colorType,
                              bool needsAllocation) {
     if (VK_NULL_HANDLE == info.fImage) {
         return false;
@@ -1180,10 +1179,6 @@ static bool check_image_info(const GrVkCaps& caps,
         }
     }
 
-    SkASSERTF(colorType == GrColorType::kUnknown ||
-              GrVkFormatColorTypePairIsValid(info.fFormat, colorType),
-              "Vulkan format/colorType mismatch - format %d colorType %d\n",
-              info.fFormat, colorType);
     return true;
 }
 
@@ -1212,15 +1207,15 @@ static bool check_rt_image_info(const GrVkCaps& caps, const GrVkImageInfo& info,
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrColorType colorType, GrWrapOwnership ownership,
-                                               GrWrapCacheable cacheable, GrIOType ioType) {
+                                               GrWrapOwnership ownership,
+                                               GrWrapCacheable cacheable,
+                                               GrIOType ioType) {
     GrVkImageInfo imageInfo;
     if (!backendTex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo,
-                          colorType, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
 
@@ -1246,8 +1241,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo,
-                          GrColorType::kUnknown, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
 
@@ -1267,7 +1261,6 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
-                                                         GrColorType colorType,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
     GrVkImageInfo imageInfo;
@@ -1275,8 +1268,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, colorType,
-                          kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
 
@@ -1301,8 +1293,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
                                                                    imageInfo, std::move(layout));
 }
 
-sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                         GrColorType colorType) {
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     // Currently the Vulkan backend does not support wrapping of msaa render targets directly. In
     // general this is not an issue since swapchain images in vulkan are never multisampled. Thus if
     // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
@@ -1316,7 +1307,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), info, colorType, false)) {
+    if (!check_image_info(this->vkCaps(), info, false)) {
         return nullptr;
     }
 
@@ -1343,14 +1334,12 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  int sampleCnt,
-                                                                  GrColorType grColorType) {
-
+                                                                  int sampleCnt) {
     GrVkImageInfo imageInfo;
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, grColorType, false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, false)) {
         return nullptr;
     }
 

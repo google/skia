@@ -141,7 +141,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
             [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, isProtectedContent,
-             backendFormat, grColorType](
+             backendFormat](
                     GrResourceProvider* resourceProvider) -> GrSurfaceProxy::LazyCallbackResult {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
@@ -165,8 +165,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
                 // is invoked. We know the owning SkIamge will send an invalidation message when the
                 // image is destroyed, so the texture will be removed at that time.
                 sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
-                        backendTex, grColorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
-                        kRead_GrIOType);
+                        backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes, kRead_GrIOType);
                 if (!tex) {
                     deleteImageProc(texImageCtx);
                     return {};

@@ -260,8 +260,8 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                           GrColorType colorType,
-                                           GrWrapOwnership ownership, GrWrapCacheable cacheable,
+                                           GrWrapOwnership ownership,
+                                           GrWrapCacheable cacheable,
                                            GrIOType ioType) {
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
@@ -277,7 +277,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         return nullptr;
     }
 
-    return this->onWrapBackendTexture(backendTex, colorType, ownership, cacheable, ioType);
+    return this->onWrapBackendTexture(backendTex, ownership, cacheable, ioType);
 }
 
 sk_sp<GrTexture> GrGpu::wrapCompressedBackendTexture(const GrBackendTexture& backendTex,
@@ -299,9 +299,8 @@ sk_sp<GrTexture> GrGpu::wrapCompressedBackendTexture(const GrBackendTexture& bac
     return this->onWrapCompressedBackendTexture(backendTex, ownership, cacheable);
 }
 
-
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
-                                                     int sampleCnt, GrColorType colorType,
+                                                     int sampleCnt,
                                                      GrWrapOwnership ownership,
                                                      GrWrapCacheable cacheable) {
     this->handleDirtyContext();
@@ -320,8 +319,8 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         backendTex.height() > caps->maxRenderTargetSize()) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, colorType,
-                                                                ownership, cacheable);
+    sk_sp<GrTexture> tex =
+            this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership, cacheable);
     SkASSERT(!tex || tex->asRenderTarget());
     if (tex && sampleCnt > 1 && !caps->msaaResolvesAutomatically()) {
         tex->asRenderTarget()->setRequiresManualMSAAResolve();
@@ -329,8 +328,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
     return tex;
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                     GrColorType colorType) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     this->handleDirtyContext();
 
     const GrCaps* caps = this->caps();
@@ -339,7 +337,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> rt = this->onWrapBackendRenderTarget(backendRT, colorType);
+    sk_sp<GrRenderTarget> rt = this->onWrapBackendRenderTarget(backendRT);
     if (backendRT.isFramebufferOnly()) {
         rt->setFramebufferOnly();
     }
@@ -347,8 +345,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
-                                                              int sampleCnt,
-                                                              GrColorType colorType) {
+                                                              int sampleCnt) {
     this->handleDirtyContext();
 
     const GrCaps* caps = this->caps();
@@ -362,7 +359,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
         return nullptr;
     }
 
-    auto rt = this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt, colorType);
+    auto rt = this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
     if (rt && sampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
         rt->setRequiresManualMSAAResolve();
     }

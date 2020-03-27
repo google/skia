@@ -217,18 +217,10 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     return nullptr;
 }
 
-static bool check_resource_info(const GrD3DCaps& caps,
-                                const GrD3DTextureResourceInfo& info,
-                                GrColorType colorType) {
+static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     if (!info.fResource) {
         return false;
     }
-
-    SkASSERTF(colorType == GrColorType::kUnknown ||
-              caps.areColorTypeAndFormatCompatible(colorType,
-                                                   GrBackendFormat::MakeDxgi(info.fFormat)),
-              "Direct3D format/colorType mismatch - format %d colorType %d\n",
-              info.fFormat, colorType);
     return true;
 }
 
@@ -247,15 +239,16 @@ static bool check_rt_resource_info(const GrD3DCaps& caps, const GrD3DTextureReso
     return true;
 }
 
-sk_sp<GrTexture> GrD3DGpu::onWrapBackendTexture(const GrBackendTexture& tex, GrColorType colorType,
-                                                GrWrapOwnership, GrWrapCacheable wrapType,
+sk_sp<GrTexture> GrD3DGpu::onWrapBackendTexture(const GrBackendTexture& tex,
+                                                GrWrapOwnership,
+                                                GrWrapCacheable wrapType,
                                                 GrIOType ioType) {
     GrD3DTextureResourceInfo textureInfo;
     if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
         return nullptr;
     }
 
-    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+    if (!check_resource_info(textureInfo)) {
         return nullptr;
     }
 
@@ -282,7 +275,7 @@ sk_sp<GrTexture> GrD3DGpu::onWrapCompressedBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    if (!check_resource_info(this->d3dCaps(), textureInfo, GrColorType::kUnknown)) {
+    if (!check_resource_info(textureInfo)) {
         return nullptr;
     }
 
@@ -303,7 +296,6 @@ sk_sp<GrTexture> GrD3DGpu::onWrapCompressedBackendTexture(const GrBackendTexture
 
 sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                           int sampleCnt,
-                                                          GrColorType colorType,
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable) {
     GrD3DTextureResourceInfo textureInfo;
@@ -311,7 +303,7 @@ sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+    if (!check_resource_info(textureInfo)) {
         return nullptr;
     }
 
@@ -337,8 +329,7 @@ sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture
                                                                     textureInfo, std::move(state));
 }
 
-sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                          GrColorType colorType) {
+sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
     // Currently the Direct3D backend does not support wrapping of msaa render targets directly. In
     // general this is not an issue since swapchain images in D3D are never multisampled. Thus if
     // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
@@ -352,7 +343,7 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
         return nullptr;
     }
 
-    if (!check_resource_info(this->d3dCaps(), info, colorType)) {
+    if (!check_resource_info(info)) {
         return nullptr;
     }
 
@@ -380,14 +371,13 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
 }
 
 sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                   int sampleCnt,
-                                                                   GrColorType colorType) {
+                                                                   int sampleCnt) {
 
     GrD3DTextureResourceInfo textureInfo;
     if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
         return nullptr;
     }
-    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+    if (!check_resource_info(textureInfo)) {
         return nullptr;
     }
 
