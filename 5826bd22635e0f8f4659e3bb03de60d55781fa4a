@@ -22,6 +22,30 @@
       "revId": "5826bd22635e0f8f4659e3bb03de60d55781fa4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5532714_88f63af3",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-27T21:26:26Z",
+      "side": 1,
+      "message": "Yes, done, if we forward declare the operators we can use them here.",
+      "parentUuid": "bd4eb515_ba7cfa8f",
+      "range": {
+        "startLine": 511,
+        "startChar": 38,
+        "endLine": 511,
+        "endChar": 39
+      },
+      "revId": "5826bd22635e0f8f4659e3bb03de60d55781fa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
