@@ -22,6 +22,30 @@
       "revId": "b03c32160a675aa9582614439cab30e935a1b992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9691edc3_2d24963f",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-27T21:05:01Z",
+      "side": 1,
+      "message": "I\u0027m confused how there is a double deletion happening here? We newed the resource in the ctor, who is deleting this now?",
+      "parentUuid": "f71b0b24_1e222eb5",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 24
+      },
+      "revId": "b03c32160a675aa9582614439cab30e935a1b992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
