@@ -42,7 +42,7 @@ void DawnWindowContext::initializeContext(int width, int height) {
     fSwapChainImplementation = this->createSwapChainImplementation(-1, -1, fDisplayParams);
     wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
+    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
@@ -92,7 +92,7 @@ void DawnWindowContext::resize(int w, int h) {
     fSwapChainImplementation = this->createSwapChainImplementation(w, h, fDisplayParams);
     wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
+    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
