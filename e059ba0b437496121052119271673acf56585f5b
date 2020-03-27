@@ -22,6 +22,30 @@
       "revId": "e059ba0b437496121052119271673acf56585f5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67c9731d_5bb72c45",
+        "filename": "src/gpu/text/GrAtlasManager.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-03-27T16:47:15Z",
+      "side": 1,
+      "message": "gone",
+      "parentUuid": "40bcce0a_5965fe1b",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 33
+      },
+      "revId": "e059ba0b437496121052119271673acf56585f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
