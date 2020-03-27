@@ -198,10 +198,6 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/effects/GrSRGBEffect.h"
-#endif
-
 class SkSRGBGammaColorFilter : public SkColorFilter {
 public:
     enum class Direction {
@@ -223,15 +219,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
                                                              const GrColorInfo&) const override {
         // wish our caller would let us know if our input was opaque...
-#if defined(SK_USE_LEGACY_SRGB_COLOR_FILTER)
-        GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
-        switch (fDir) {
-            case Direction::kLinearToSRGB:
-                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kLinearToSRGB, alpha);
-            case Direction::kSRGBToLinear:
-                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear, alpha);
-        }
-#else
         SkAlphaType at = kPremul_SkAlphaType;
         switch (fDir) {
             case Direction::kLinearToSRGB:
@@ -241,7 +228,6 @@ public:
                 return GrColorSpaceXformEffect::Make(sk_srgb_singleton(),        at,
                                                      sk_srgb_linear_singleton(), at);
         }
-#endif
         return nullptr;
     }
 #endif

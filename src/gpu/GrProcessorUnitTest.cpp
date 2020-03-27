@@ -81,12 +81,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-#if defined(SK_USE_LEGACY_SRGB_COLOR_FILTER)
-static const int kFPFactoryCount = 36;
-#else
 static const int kFPFactoryCount = 35;
-#endif
-
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
 
