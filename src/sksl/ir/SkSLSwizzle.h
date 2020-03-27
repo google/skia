@@ -140,7 +140,6 @@ struct Swizzle : public Expression {
         return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {
@@ -148,7 +147,6 @@ struct Swizzle : public Expression {
         }
         return result;
     }
-#endif
 
     std::unique_ptr<Expression> fBase;
     std::vector<int> fComponents;

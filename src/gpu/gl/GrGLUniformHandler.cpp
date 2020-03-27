@@ -25,15 +25,17 @@ bool valid_name(const char* name) {
 }
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
+    visibility = -1;
 
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
@@ -52,6 +54,10 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform, arrayCount},
         visibility, -1
     });
+    if (strcmp(name, uni.fVariable.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, SkString(name), uni.fVariable.c_str(),
+                                                   type });
+    }
 
     if (outName) {
         *outName = uni.fVariable.c_str();
