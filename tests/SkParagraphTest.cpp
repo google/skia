@@ -1,6 +1,7 @@
 // Copyright 2019 Google LLC.
 #include <sstream>
 #include <thread>
+#include "include/core/SkFontMgr.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"

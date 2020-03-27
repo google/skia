@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
-#include "src/core/SkTraceEvent.h"
 #include <functional>  // std::function
 
 namespace skia {

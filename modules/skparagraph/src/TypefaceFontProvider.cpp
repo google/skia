@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkFontMgr.h"
 
 namespace skia {
 namespace textlayout {
