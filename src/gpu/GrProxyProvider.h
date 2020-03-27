@@ -100,8 +100,11 @@ public:
      * Create a texture proxy that wraps a (non-renderable) backend texture. GrIOType must be
      * kRead or kRW.
      */
-    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
-                                             GrWrapCacheable, GrIOType, ReleaseProc = nullptr,
+    sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&,
+                                             GrWrapOwnership,
+                                             GrWrapCacheable,
+                                             GrIOType,
+                                             ReleaseProc = nullptr,
                                              ReleaseContext = nullptr);
 
     sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
@@ -111,23 +114,24 @@ public:
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
      */
-    sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
-                                                       GrColorType, GrWrapOwnership,
-                                                       GrWrapCacheable, ReleaseProc = nullptr,
+    sk_sp<GrTextureProxy> wrapRenderableBackendTexture(const GrBackendTexture&,
+                                                       int sampleCnt,
+                                                       GrWrapOwnership,
+                                                       GrWrapCacheable,
+                                                       ReleaseProc = nullptr,
                                                        ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend render target
      */
-    sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrColorType,
-                                                  ReleaseProc = nullptr, ReleaseContext = nullptr);
+    sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                  ReleaseProc = nullptr,
+                                                  ReleaseContext = nullptr);
 
     /*
      * Create a render target proxy that wraps a backend texture
      */
-    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                           GrColorType,
-                                                           int sampleCnt);
+    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
 
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                    const GrVkDrawableInfo&);

@@ -176,7 +176,6 @@ sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(SkISize dimensions, const 
 }
 
 sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                                 GrColorType colorType,
                                                  GrWrapOwnership ownership,
                                                  GrWrapCacheable cacheable,
                                                  GrIOType ioType) {
@@ -197,9 +196,8 @@ sk_sp<GrTexture> GrDawnGpu::onWrapCompressedBackendTexture(const GrBackendTextur
     return nullptr;
 }
 
-
 sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
-                                                           int sampleCnt, GrColorType colorType,
+                                                           int sampleCnt,
                                                            GrWrapOwnership,
                                                            GrWrapCacheable cacheable) {
     GrDawnTextureInfo info;
@@ -218,8 +216,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
                                       cacheable, kRW_GrIOType, info);
 }
 
-sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
-                                                           GrColorType colorType) {
+sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
     GrDawnRenderTargetInfo info;
     if (!rt.getDawnRenderTargetInfo(&info) || !info.fTextureView) {
         return nullptr;
@@ -231,8 +228,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRender
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                    int sampleCnt,
-                                                                    GrColorType colorType) {
+                                                                    int sampleCnt) {
     GrDawnTextureInfo textureInfo;
     if (!tex.getDawnTextureInfo(&textureInfo) || !textureInfo.fTexture) {
         return nullptr;

@@ -52,7 +52,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
         return nullptr;
     }
 
-    return proxyProvider->wrapBackendTexture(*backendTex, p.fColorType, kBorrow_GrWrapOwnership,
+    return proxyProvider->wrapBackendTexture(*backendTex, kBorrow_GrWrapOwnership,
                                              GrWrapCacheable::kNo, kRead_GrIOType);
 }
 

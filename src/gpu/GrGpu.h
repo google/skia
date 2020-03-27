@@ -142,31 +142,32 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendTexture
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrColorType,
-                                        GrWrapOwnership, GrWrapCacheable, GrIOType);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&,
+                                        GrWrapOwnership,
+                                        GrWrapCacheable,
+                                        GrIOType);
 
     sk_sp<GrTexture> wrapCompressedBackendTexture(const GrBackendTexture&,
-                                                  GrWrapOwnership, GrWrapCacheable);
-
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable);
 
     /**
      * Implements GrResourceProvider::wrapRenderableBackendTexture
      */
-    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
-                                                  GrColorType, GrWrapOwnership, GrWrapCacheable);
+    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&,
+                                                  int sampleCnt,
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable);
 
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                  GrColorType colorType);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
 
     /**
      * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                           int sampleCnt,
-                                                           GrColorType colorType);
+    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
 
     /**
      * Implements GrResourceProvider::wrapVulkanSecondaryCBAsRenderTarget
@@ -730,21 +731,22 @@ private:
                                                        GrMipMapped,
                                                        GrProtected,
                                                        const void* data, size_t dataSize) = 0;
-    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
-                                                  GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
+    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable,
+                                                  GrIOType) = 0;
 
     virtual sk_sp<GrTexture> onWrapCompressedBackendTexture(const GrBackendTexture&,
                                                             GrWrapOwnership,
                                                             GrWrapCacheable) = 0;
 
-    virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
-                                                            GrColorType, GrWrapOwnership,
+    virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
+                                                            int sampleCnt,
+                                                            GrWrapOwnership,
                                                             GrWrapCacheable) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                            GrColorType) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                                     int sampleCnt,
-                                                                     GrColorType) = 0;
+                                                                     int sampleCnt) = 0;
     virtual sk_sp<GrRenderTarget> onWrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                         const GrVkDrawableInfo&);
 
