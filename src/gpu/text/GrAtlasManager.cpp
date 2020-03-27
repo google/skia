@@ -30,7 +30,7 @@ void GrAtlasManager::freeAll() {
 
 bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
     SkASSERT(glyph);
-    return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fPlotLocator);
+    return this->getAtlas(glyph->fMaskFormat1)->hasID(glyph->fPlotLocator);
 }
 
 // add to texture atlas that matches this format
@@ -48,7 +48,7 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
                                                   GrDeferredUploadToken token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fPlotLocator)) {
-        this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fPlotLocator, token);
+        this->getAtlas(glyph->fMaskFormat1)->setLastUseToken(glyph->fPlotLocator, token);
     }
 }
 

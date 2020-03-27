@@ -74,6 +74,35 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
+
+static SkRect foo(const SkGlyph& g, SkPoint origin) {
+    return SkRect::MakeXYWH(
+            SkIntToScalar(g.left()) + origin.x(),
+            SkIntToScalar(g.top())  + origin.y(),
+            SkIntToScalar(g.width()),
+            SkIntToScalar(g.height()));
+}
+
+static bool is_SDF(const SkGlyph& skGlyph) {
+    return skGlyph.maskFormat() == SkMask::kSDF_Format;
+}
+
+static SkRect bar(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
+    if (!is_SDF(g)) {
+        return SkRect::MakeXYWH(
+                SkIntToScalar(g.left())    * textScale + origin.x(),
+                SkIntToScalar(g.top())     * textScale + origin.y(),
+                SkIntToScalar(g.width())  * textScale,
+                SkIntToScalar(g.height()) * textScale);
+    } else {
+        return SkRect::MakeXYWH(
+                (SkIntToScalar(g.left()) + SK_DistanceFieldInset) * textScale + origin.x(),
+                (SkIntToScalar(g.top())  + SK_DistanceFieldInset) * textScale + origin.y(),
+                (SkIntToScalar(g.width())  - 2 * SK_DistanceFieldInset) * textScale,
+                (SkIntToScalar(g.height()) - 2 * SK_DistanceFieldInset) * textScale);
+    }
+}
+
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
     GrTextStrike* grStrike = fStrike.get();
     SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
@@ -91,9 +120,9 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         SkRect dstRect;
         if (!this->needsTransform()) {
             pos = {SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y())};
-            dstRect = grGlyph->destRect(pos);
+            dstRect = foo(*skGlyph, pos);
         } else {
-            dstRect = grGlyph->destRect(pos, strikeToSource);
+            dstRect = bar(*skGlyph, pos, strikeToSource);
         }
 
         this->joinGlyphBounds(dstRect);
@@ -236,8 +265,8 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
         GrGlyph* glyph = this->fGlyphs[i];
         SkASSERT(glyph != nullptr);
 
-        int width = glyph->fBounds.width();
-        int height = glyph->fBounds.height();
+        int width = 0; //glyph->fBounds.width();
+        int height = 0; //glyph->fBounds.height();
         uint16_t u0, v0, u1, v1;
         if (this->drawAsDistanceFields()) {
             u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
@@ -787,11 +816,13 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     int i = begin;
     for (; i < end; i++) {
         GrGlyph* grGlyph = fSubRun->fGlyphs[i];
-        SkASSERT(grGlyph && grGlyph->fMaskFormat == fSubRun->maskFormat());
+        SkASSERT(grGlyph && grGlyph->fMaskFormat1 == fSubRun->maskFormat());
 
         if (!fFullAtlasManager->hasGlyph(grGlyph)) {
-            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->fPackedID);
-            if (skGlyph.image() == nullptr) { return {false, 0}; }
+            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->fPackedID1);
+            if (skGlyph.image() == nullptr) {
+                return {false, 0};
+            }
             code = grStrike->addGlyphToAtlas(skGlyph,
                     fSubRun->maskFormat(),
                     fSubRun->needsTransform(),
