@@ -838,6 +838,7 @@ namespace skvm {
         return {this->push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
 
+
     // The two splat() functions are just syntax sugar over splatting a 4-byte bit pattern.
     I32 Builder::splat(int   n) { return {this->push(Op::splat, NA,NA,NA, n) }; }
     F32 Builder::splat(float f) {
@@ -964,6 +965,13 @@ namespace skvm {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::max(X,Y)); }
         return {this->push(Op::max_f32, x.id, y.id)};
+    }
+
+    I32 Builder::min(I32 x, I32 y) {
+        return this->select(this->lt(x,y), x, y);
+    }
+    I32 Builder::max(I32 x, I32 y) {
+        return this->select(this->gt(x,y), x, y);
     }
 
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
