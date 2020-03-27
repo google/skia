@@ -463,7 +463,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                                          GrColorType grColorType,
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable,
                                                           GrIOType ioType,
@@ -483,8 +482,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrTexture> tex =
-            resourceProvider->wrapBackendTexture(backendTex, grColorType,
-                                                 ownership, cacheable, ioType);
+            resourceProvider->wrapBackendTexture(backendTex, ownership, cacheable, ioType);
     if (!tex) {
         return nullptr;
     }
@@ -535,8 +533,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
-        const GrBackendTexture& backendTex, int sampleCnt, GrColorType colorType,
-        GrWrapOwnership ownership, GrWrapCacheable cacheable, ReleaseProc releaseProc,
+        const GrBackendTexture& backendTex,
+        int sampleCnt,
+        GrWrapOwnership ownership,
+        GrWrapCacheable cacheable,
+        ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
@@ -552,17 +553,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
-    // TODO: This should have been checked and validated before getting into GrProxyProvider.
-    if (!caps->isFormatAsColorTypeRenderable(colorType, backendTex.getBackendFormat(), sampleCnt)) {
-        return nullptr;
-    }
-
     sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, backendTex.getBackendFormat());
     SkASSERT(sampleCnt);
 
-    sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt,
-                                                                          colorType, ownership,
-                                                                          cacheable);
+    sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(
+            backendTex, sampleCnt, ownership, cacheable);
     if (!tex) {
         return nullptr;
     }
@@ -579,7 +574,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
-        const GrBackendRenderTarget& backendRT, GrColorType grColorType, ReleaseProc releaseProc,
+        const GrBackendRenderTarget& backendRT,
+        ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
@@ -593,7 +589,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
-    sk_sp<GrRenderTarget> rt = resourceProvider->wrapBackendRenderTarget(backendRT, grColorType);
+    sk_sp<GrRenderTarget> rt = resourceProvider->wrapBackendRenderTarget(backendRT);
     if (!rt) {
         return nullptr;
     }
@@ -611,7 +607,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& backendTex, GrColorType grColorType, int sampleCnt) {
+        const GrBackendTexture& backendTex, int sampleCnt) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -625,7 +621,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrRenderTarget> rt =
-            resourceProvider->wrapBackendTextureAsRenderTarget(backendTex, sampleCnt, grColorType);
+            resourceProvider->wrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
     if (!rt) {
         return nullptr;
     }
