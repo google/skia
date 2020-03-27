@@ -3,6 +3,43 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+template("third_party_config") {
+  enabled = !defined(invoker.enabled) || invoker.enabled
+  config(target_name) {
+    if (enabled) {
+      forward_variables_from(invoker, "*", [ "include_dirs" ])
+      cflags = []
+      if (is_win) {
+        include_dirs = invoker.include_dirs
+        if (is_clang) {
+          foreach(dir, invoker.include_dirs) {
+            cflags += [
+              "/imsvc",
+              rebase_path(dir),
+            ]
+          }
+        }
+      } else {
+        foreach(dir, invoker.include_dirs) {
+          if (werror) {
+            cflags += [
+              "-isystem",
+              rebase_path(dir),
+            ]
+          } else {
+            cflags += [
+              "-I",
+              rebase_path(dir),
+            ]
+          }
+        }
+      }
+    } else {
+      not_needed(invoker, "*")
+    }
+  }
+}
+
 template("third_party") {
   enabled = !defined(invoker.enabled) || invoker.enabled
   config(target_name + "_public") {
