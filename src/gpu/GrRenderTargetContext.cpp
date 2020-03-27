@@ -181,10 +181,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         return nullptr;
     }
 
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, dimensions, swizzle, GrRenderable::kYes, sampleCnt, mipMapped, fit, budgeted,
+            format, dimensions, GrRenderable::kYes, sampleCnt, mipMapped, fit, budgeted,
             isProtected);
     if (!proxy) {
         return nullptr;

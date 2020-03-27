@@ -35,11 +35,10 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
     const GrCaps* caps = ctx->priv().caps();
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kNo);
-    GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, kSize, swizzle, GrRenderable::kNo, 1,
-                                       GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+            proxyProvider->createProxy(format, kSize, GrRenderable::kNo, 1, GrMipMapped::kNo, fit,
+                                       SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -50,11 +49,10 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
     const GrCaps* caps = ctx->priv().caps();
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
-    GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, kSize, swizzle, GrRenderable::kYes, 1,
-                                       GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+            proxyProvider->createProxy(format, kSize, GrRenderable::kYes, 1, GrMipMapped::kNo, fit,
+                                       SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -143,7 +141,7 @@ static void basic_test(GrContext* context,
     REPORTER_ASSERT(reporter, key == proxy->getUniqueKey());
 
     // We just added it, surely we can find it
-    REPORTER_ASSERT(reporter, proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType));
+    REPORTER_ASSERT(reporter, proxyProvider->findOrCreateProxyByUniqueKey(key));
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
 
     int expectedCacheCount = startCacheCount + (proxy->isInstantiated() ? 0 : 1);
@@ -174,7 +172,7 @@ static void basic_test(GrContext* context,
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
 
     // If the proxy was cached refinding it should bring it back to life
-    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType);
+    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
     REPORTER_ASSERT(reporter, proxy);
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
@@ -189,7 +187,7 @@ static void basic_test(GrContext* context,
 
     // If the texture was deleted then the proxy should no longer be findable. Otherwise, it should
     // be.
-    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType);
+    proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
     REPORTER_ASSERT(reporter, expectResourceToOutliveProxy ? (bool)proxy : !proxy);
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
 
@@ -199,7 +197,7 @@ static void basic_test(GrContext* context,
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount--;
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kColorType);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
         REPORTER_ASSERT(reporter, !proxy);
         REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
     }
