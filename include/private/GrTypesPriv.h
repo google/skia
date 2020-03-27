@@ -566,7 +566,6 @@ enum GrVertexAttribType {
     kFloat4_GrVertexAttribType,
     kHalf_GrVertexAttribType,
     kHalf2_GrVertexAttribType,
-    kHalf3_GrVertexAttribType,
     kHalf4_GrVertexAttribType,
 
     kInt2_GrVertexAttribType,   // vector of 2 32-bit ints
@@ -576,11 +575,9 @@ enum GrVertexAttribType {
 
     kByte_GrVertexAttribType,  // signed byte
     kByte2_GrVertexAttribType, // vector of 2 8-bit signed bytes
-    kByte3_GrVertexAttribType, // vector of 3 8-bit signed bytes
     kByte4_GrVertexAttribType, // vector of 4 8-bit signed bytes
     kUByte_GrVertexAttribType,  // unsigned byte
     kUByte2_GrVertexAttribType, // vector of 2 8-bit unsigned bytes
-    kUByte3_GrVertexAttribType, // vector of 3 8-bit unsigned bytes
     kUByte4_GrVertexAttribType, // vector of 4 8-bit unsigned bytes
 
     kUByte_norm_GrVertexAttribType,  // unsigned byte, e.g. coverage, 0 -> 0.0f, 255 -> 1.0f.
