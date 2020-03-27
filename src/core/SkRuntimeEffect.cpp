@@ -12,6 +12,7 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -411,6 +412,11 @@ public:
         ctx->interpreter = fInterpreter.get();
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder*, skvm::Color, SkColorSpace* dstCS, skvm::Uniforms*,
+                          SkArenaAlloc*) const override {
+        return {};  // <-- this signals failure -- TODO
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

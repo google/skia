@@ -54,11 +54,6 @@ skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
         }
         return c;
     }
-    return {};
-}
-
-skvm::Color SkColorFilter::onProgram(skvm::Builder*, skvm::Color,
-                                     SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const {
     //SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }
