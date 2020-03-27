@@ -28,12 +28,13 @@ class Animator : public SkRefCnt {
 public:
     virtual ~Animator() = default;
 
-    void tick(float t) { this->onTick(t); }
+    // Returns true if the state has changed.
+    bool seek(float t) { return this->onSeek(t); }
 
 protected:
     Animator() = default;
 
-    virtual void onTick(float t) = 0;
+    virtual bool onSeek(float t) = 0;
 
 private:
     Animator(const Animator&) = delete;
@@ -63,7 +64,7 @@ protected:
     void attachDiscardableAdapter(sk_sp<AnimatablePropertyContainer>);
 
 private:
-    void onTick(float) final;
+    bool onSeek(float) final;
 
     bool bindImpl(const AnimationBuilder&,
                   const skjson::ObjectValue*,
@@ -71,6 +72,7 @@ private:
                   void*);
 
     std::vector<sk_sp<Animator>> fAnimators;
+    bool                         fHasSynced = false;
 };
 
 } // namespace internal
