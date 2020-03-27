@@ -595,6 +595,7 @@ namespace {
         }
 
     private:
+        friend class BlitterPeer;
         SkPixmap        fDevice;
         skvm::Uniforms  fUniforms;                // Most data is copied directly into fUniforms,
         SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
@@ -632,7 +633,7 @@ namespace {
                       "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
-            if (false) {
+            if (true) {
                 static std::atomic<int> missed{0},
                                          total{0};
                 if (!program.hasJIT()) {
