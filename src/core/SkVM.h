@@ -339,21 +339,46 @@ namespace skvm {
     };
 
     using Val = int;
-    // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
-    static const Val NA = ~0;
+    // We reserve impossibe Val IDs as a sentinels:
+    //   - NA meaning none, n/a, null, nil, etc.
+    //   - IMM meaning an unresolved immediate.
+    static const Val NA  = -1,
+                     IMM = -2;
 
     struct Arg { int ix; };
-    struct I32 { Val id; explicit operator bool() const { return id != NA; } };
-    struct F32 { Val id; explicit operator bool() const { return id != NA; } };
+
+    struct I32 {
+        I32()                   : val( NA), imm(0), builder(nullptr) {}
+      //I32(int x)              : val(IMM), imm(x), builder(nullptr) {}
+        I32(Builder* b, Val id) : val( id), imm(0), builder(b      ) {}
+
+        Val      val     = NA;
+        int      imm     = 0;
+        Builder* builder = nullptr;
+
+        explicit operator bool() const { return val != NA; }
+    };
+
+    struct F32 {
+        F32()                   : val( NA), imm(0), builder(nullptr) {}
+      //F32(float x)            : val(IMM), imm(x), builder(nullptr) {}
+        F32(Builder* b, Val id) : val( id), imm(0), builder(b      ) {}
+
+        Val      val     = NA;
+        float    imm     = 0;
+        Builder* builder = nullptr;
+
+        explicit operator bool() const { return val != NA; }
+    };
 
     struct Color {
-        skvm::F32 r{NA}, g{NA}, b{NA}, a{NA};
-
+        skvm::F32 r,g,b,a;
         explicit operator bool() const { return r && g && b && a; }
     };
 
     struct HSLA {
         skvm::F32 h,s,l,a;
+        explicit operator bool() const { return h && s && l && a; }
     };
 
     struct OptimizedInstruction {
@@ -506,7 +531,11 @@ namespace skvm {
         F32 floor(F32);
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
-        I32 bit_cast(F32 x) { return {x.id}; }
+        I32 bit_cast(F32 x) {
+            I32 pun;
+            memcpy(&pun, &x, sizeof(I32));
+            return pun;
+        }
 
         // int math, comparisons, etc.
         I32 add(I32 x, I32 y);
@@ -525,7 +554,11 @@ namespace skvm {
         I32 gte(I32 x, I32 y);
 
         F32 to_f32(I32 x);
-        F32 bit_cast(I32 x) { return {x.id}; }
+        F32 bit_cast(I32 x) {
+            F32 pun;
+            memcpy(&pun, &x, sizeof(I32));
+            return pun;
+        }
 
         // Treat each 32-bit lane as a pair of 16-bit ints.
         I32 add_16x2(I32 x, I32 y);
@@ -607,6 +640,11 @@ namespace skvm {
         void dot (SkWStream* = nullptr, bool for_jit=false) const;
 
         uint64_t hash() const;
+
+        // id() functions resolve any Builder-less I32/F32 immediates to splats on this Builder,
+        // and return the internal index of that value.  (Mostly for internal use.)
+        Val id(I32);
+        Val id(F32);
 
     private:
         struct InstructionHash {
@@ -727,8 +765,14 @@ namespace skvm {
 
     // TODO: control flow
     // TODO: 64-bit values?
-    // TODO: SSE2/SSE4.1, AVX-512F, ARMv8.2 JITs?
-    // TODO: lower to LLVM or WebASM for comparison?
+
+/*
+    static inline F32 operator+(F32 x, F32 y) { return x.builder->add(x, y); }
+    static inline F32 operator-(F32 x, F32 y) { return x.builder->sub(x, y); }
+    static inline F32 operator*(F32 x, F32 y) { return x.builder->mul(x, y); }
+    static inline F32 operator/(F32 x, F32 y) { return x.builder->div(x, y); }
+*/
+
 }
 
 #endif//SkVM_DEFINED
