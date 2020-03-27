@@ -158,8 +158,8 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrGlyph* grGlyph) {
     SkASSERT(grGlyph != nullptr);
     SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
-    SkASSERT(grGlyph->width() == skGlyph.width());
-    SkASSERT(grGlyph->height() == skGlyph.height());
+    SkASSERT(grGlyph->width1() == skGlyph.width());
+    SkASSERT(grGlyph->height1() == skGlyph.height());
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
@@ -168,8 +168,8 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
     bool isSDFGlyph = grGlyph->maskStyle() == GrGlyph::kDistance_MaskStyle;
     // Add 1 pixel padding around grGlyph if needed.
     bool addPad = isScaledGlyph && !isSDFGlyph;
-    const int width = addPad ? grGlyph->width() + 2 : grGlyph->width();
-    const int height = addPad ? grGlyph->height() + 2 : grGlyph->height();
+    const int width = addPad ? skGlyph.width() + 2 : skGlyph.width();
+    const int height = addPad ? skGlyph.height() + 2 : skGlyph.height();
     int rowBytes = width * bytesPerPixel;
     size_t size = height * rowBytes;
 
@@ -208,15 +208,3 @@ GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
     return grGlyph;
 }
 
-GrGlyph*
-GrTextStrike::getGlyph(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages) {
-    GrGlyph* grGlyph = fCache.findOrNull(packed);
-    if (grGlyph == nullptr) {
-        // We could return this to the caller, but in practice it adds code complexity for
-        // potentially little benefit(ie, if the glyph is not in our font cache, then its not
-        // in the atlas and we're going to be doing a texture upload anyways).
-        grGlyph = fAlloc.make<GrGlyph>(*metricsAndImages->glyph(packed));
-        fCache.set(grGlyph);
-    }
-    return grGlyph;
-}
