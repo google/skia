@@ -45,8 +45,7 @@ static const int kDefaultMaxDistanceFieldFontSize = kExtraLargeDFFontSize;
 static const int kDefaultMaxDistanceFieldFontSize = 2 * kLargeDFFontSize;
 #endif
 
-GrTextContext::GrTextContext(const Options& options)
-        : fDistanceAdjustTable(new GrDistanceFieldAdjustTable), fOptions(options) {
+GrTextContext::GrTextContext(const Options& options) : fOptions(options) {
     SanitizeOptions(&fOptions);
 }
 
