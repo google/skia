@@ -49,7 +49,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
         D3D12_HEAP_FLAG_NONE,
         &desc,
         D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
+        nullptr,  // TODO: might want to set pOptimizedClearValue for rendertarget and stencil
         IID_PPV_ARGS(&resource));
     if (!SUCCEEDED(hr)) {
         return false;
