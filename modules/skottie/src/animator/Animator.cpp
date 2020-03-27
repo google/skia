@@ -13,11 +13,20 @@
 
 namespace skottie::internal {
 
-void AnimatablePropertyContainer::onTick(float t) {
+bool AnimatablePropertyContainer::onSeek(float t) {
+    // The very first seek must trigger a sync, to ensure proper SG setup.
+    bool dirty = !fHasSynced;
+
     for (const auto& animator : fAnimators) {
-        animator->tick(t);
+        dirty |= animator->seek(t);
     }
-    this->onSync();
+
+    if (dirty) {
+        this->onSync();
+        fHasSynced = true;
+    }
+
+    return dirty;
 }
 
 void AnimatablePropertyContainer::attachDiscardableAdapter(
@@ -27,7 +36,7 @@ void AnimatablePropertyContainer::attachDiscardableAdapter(
     }
 
     if (child->isStatic()) {
-        child->tick(0);
+        child->seek(0);
         return;
     }
 
@@ -83,7 +92,7 @@ bool AnimatablePropertyContainer::bindImpl(const AnimationBuilder& abuilder,
     if (animator->isConstant()) {
         // If all keyframes are constant, there is no reason to treat this
         // as an animated property - apply immediately and discard the animator.
-        animator->tick(0);
+        animator->seek(0);
     } else {
         fAnimators.push_back(std::move(animator));
     }
