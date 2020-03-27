@@ -10,6 +10,11 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrTexture.h"
 
+
+#ifdef SK_TRACE_MANAGED_RESOURCES
+std::atomic<uint32_t> GrManagedResource::fKeyCounter{0};
+#endif
+
 void GrTextureResource::addIdleProc(GrTexture* owningTexture,
                                     sk_sp<GrRefCntedCallback> idleProc) const {
     SkASSERT(!fOwningTexture || fOwningTexture == owningTexture);

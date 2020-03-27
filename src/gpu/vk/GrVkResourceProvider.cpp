@@ -18,10 +18,6 @@
 #include "src/gpu/vk/GrVkUniformBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
-#ifdef SK_TRACE_MANAGED_RESOURCES
-std::atomic<uint32_t> GrManagedResource::fKeyCounter{0};
-#endif
-
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
     : fGpu(gpu)
     , fPipelineCache(VK_NULL_HANDLE) {
