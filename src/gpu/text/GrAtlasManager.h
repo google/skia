@@ -57,14 +57,14 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(GrGlyph* glyph);
+    bool hasGlyph1(GrGlyph* glyph);
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater*, GrGlyph*,
+    void addGlyphToBulkAndSetUseToken1(GrDrawOpAtlas::BulkUseTokenUpdater*, GrGlyph*,
                                       GrDeferredUploadToken);
 
     void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,

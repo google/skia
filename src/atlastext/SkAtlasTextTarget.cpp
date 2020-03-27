@@ -118,7 +118,7 @@ public:
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
                   const SkAtlasTextFont&) override;
-    void flush() override;
+    void flush1() override;
 
 private:
     void deleteOps();
@@ -202,7 +202,7 @@ void SkInternalAtlasTextTarget::deleteOps() {
     fOps.reset();
 }
 
-void SkInternalAtlasTextTarget::flush() {
+void SkInternalAtlasTextTarget::flush1() {
     for (int i = 0; i < fOps.count(); ++i) {
         fOps[i]->executeForTextTarget(this);
     }
@@ -222,7 +222,6 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 }
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
-    FlushInfo flushInfo;
     auto& context = target->context()->internal();
     auto atlasManager = context.grContext()->priv().getAtlasManager();
     auto resourceProvider = context.grContext()->priv().resourceProvider();
@@ -241,8 +240,10 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
         int subRunEnd = subRun->fGlyphs.size();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
-            auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
-            if (!ok) { break; }
+            auto [ok, glyphsRegenerated] = regenerator.regenerate1(subRunIndex, subRunEnd);
+            if (!ok) {
+                break;
+            }
 
             context.recordDraw(subRun->quadStart(subRunIndex), glyphsRegenerated,
                                fGeoData[i].fDrawMatrix, target->handle());
