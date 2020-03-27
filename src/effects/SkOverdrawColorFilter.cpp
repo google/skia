@@ -11,6 +11,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
@@ -70,6 +71,60 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     return true;
+}
+
+skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
+                                             SkColorSpace* /*dstCS*/, skvm::Uniforms* uniforms,
+                                             SkArenaAlloc* alloc) const {
+#if 0
+    auto uniform_color = [&](int i) {
+        auto s = SkColor4f::FromColor(fColors[i]).premul();
+        return skvm::Color {
+            p->uniformF(uniforms->pushF(s.fR)),
+            p->uniformF(uniforms->pushF(s.fG)),
+            p->uniformF(uniforms->pushF(s.fB)),
+            p->uniformF(uniforms->pushF(s.fA)),
+        };
+    };
+
+    auto select_color = [&](skvm::I32 cond, skvm::Color newc, skvm::Color prevc) {
+        return skvm::Color {
+            p->select(cond, newc.r, prevc.r),
+            p->select(cond, newc.g, prevc.g),
+            p->select(cond, newc.b, prevc.b),
+            p->select(cond, newc.a, prevc.a),
+        };
+    };
+
+    auto outc = uniform_color(kNumColors - 1);
+    auto alpha = p->splat(4.5f/255);
+    for (int i = kNumColors - 2; i >= 0; --i) {
+        outc = select_color(p->lt(c.a, alpha), uniform_color(i), outc);
+        alpha = p->sub(alpha, p->splat(1.0f/255));
+    }
+    return outc;
+#endif
+
+    constexpr int N = kNumColors;
+    // create 4 tables: r[], g[], b[], a[]
+    float* table_ptr = alloc->makeArrayDefault<float>(N * 4);
+    for (int i = 0; i < N; ++i) {
+        auto [r, g, b, a] = SkColor4f::FromColor(fColors[i]).premul();
+        table_ptr[i + 0*N] = r;
+        table_ptr[i + 1*N] = g;
+        table_ptr[i + 2*N] = b;
+        table_ptr[i + 3*N] = a;
+    }
+
+    skvm::I32 index = p->min(p->to_unorm(8, c.a), p->splat(N - 1));
+    auto table = uniforms->pushPtr(table_ptr);
+
+    return {
+        p->gatherF(table, p->add(index, p->splat(0*N))),
+        p->gatherF(table, p->add(index, p->splat(1*N))),
+        p->gatherF(table, p->add(index, p->splat(2*N))),
+        p->gatherF(table, p->add(index, p->splat(3*N))),
+    };
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
