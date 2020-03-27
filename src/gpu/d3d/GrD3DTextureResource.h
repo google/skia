@@ -35,13 +35,17 @@ public:
     }
     virtual ~GrD3DTextureResource();
 
-    const Resource* resource() const {
+    ID3D12Resource* d3dResource() const {
         SkASSERT(fResource);
-        return fResource.get();
+        return fInfo.fResource;
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
         return GrBackendFormat::MakeDxgi(this->dxgiFormat());
+    }
+    const Resource* resource() const {
+        SkASSERT(fResource);
+        return fResource;
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     bool isBorrowed() const { return fIsBorrowed; }
@@ -86,7 +90,6 @@ private:
 
         Resource(ID3D12Resource* textureResource)
             : fResource(textureResource) {
-            fResource->AddRef();
         }
 
         ~Resource() override {}
@@ -105,7 +108,7 @@ private:
         typedef GrTextureResource INHERITED;
     };
 
-    sk_sp<Resource> fResource;
+    Resource* fResource;
 
     friend class GrD3DRenderTarget;
 };

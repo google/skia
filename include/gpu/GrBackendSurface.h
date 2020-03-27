@@ -475,7 +475,7 @@ public:
 #ifdef SK_DIRECT3D
     // If the backend API is Direct3D, copies a snapshot of the GrMtlTextureInfo struct into the
     // passed in pointer and returns true. Otherwise returns false if the backend API is not D3D.
-    bool getD3DTextureInfo(GrD3DTextureResourceInfo*) const;
+    bool getD3DTextureResourceInfo(GrD3DTextureResourceInfo*) const;
 
     // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
