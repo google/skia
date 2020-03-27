@@ -316,24 +316,21 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
-        GrDawnStagingBuffer* stagingBuffer = this->getStagingBuffer(size);
+        GrDawnStagingBuffer::Slice stagingBuffer = this->allocateStagingBufferSlice(size);
         if (rowBytes == origRowBytes) {
-            memcpy(stagingBuffer->fData, pixels, size);
+            memcpy(stagingBuffer.fData, pixels, size);
         } else {
             const char* src = static_cast<const char*>(pixels);
-            char* dst = static_cast<char*>(stagingBuffer->fData);
+            char* dst = static_cast<char*>(stagingBuffer.fData);
             for (int row = 0; row < h; row++) {
                 memcpy(dst, src, origRowBytes);
                 dst += rowBytes;
                 src += origRowBytes;
             }
         }
-        wgpu::Buffer buffer = stagingBuffer->fBuffer;
-        buffer.Unmap();
-        stagingBuffer->fData = nullptr;
         wgpu::BufferCopyView srcBuffer;
-        srcBuffer.buffer = buffer;
-        srcBuffer.offset = 0;
+        srcBuffer.buffer = stagingBuffer.fBuffer;
+        srcBuffer.offset = stagingBuffer.fOffset;
         srcBuffer.rowPitch = rowBytes;
         srcBuffer.imageHeight = h;
         wgpu::TextureCopyView dstTexture;
@@ -428,7 +425,7 @@ void GrDawnGpu::testingOnly_flushGpuAndSync() {
 #endif
 
 void GrDawnGpu::flush() {
-    fUniformRingBuffer.flush();
+    fStagingManager.flush();
     this->flushCopyEncoder();
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
@@ -638,8 +635,8 @@ GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
 }
 
-GrDawnStagingBuffer* GrDawnGpu::getStagingBuffer(size_t size) {
-    return fStagingManager.findOrCreateStagingBuffer(size);
+GrDawnStagingBuffer::Slice GrDawnGpu::allocateStagingBufferSlice(size_t size) {
+    return fStagingManager.allocate(size);
 }
 
 void GrDawnGpu::appendCommandBuffer(wgpu::CommandBuffer commandBuffer) {

@@ -14,24 +14,7 @@
 
 #include "dawn/webgpu_cpp.h"
 
-struct GrDawnStagingBuffer;
-
-class GrDawnStagingManager {
-public:
-    GrDawnStagingManager(wgpu::Device device);
-   ~GrDawnStagingManager();
-    GrDawnStagingBuffer* findOrCreateStagingBuffer(size_t size);
-
-    void addToReadyPool(GrDawnStagingBuffer* buffer);
-    void mapBusyList();
-
-private:
-    wgpu::Device                                       fDevice;
-    std::vector<std::unique_ptr<GrDawnStagingBuffer>>  fBuffers;
-    std::multimap<size_t, GrDawnStagingBuffer*>        fReadyPool;
-    std::vector<GrDawnStagingBuffer*>                  fBusyList;
-    int                                                fWaitingCount = 0;
-};
+class GrDawnStagingManager;
 
 struct GrDawnStagingBuffer {
     GrDawnStagingBuffer(GrDawnStagingManager* manager, wgpu::Buffer buffer, size_t size,
@@ -43,7 +26,33 @@ struct GrDawnStagingBuffer {
     GrDawnStagingManager*  fManager;
     wgpu::Buffer           fBuffer;
     size_t                 fSize;
+    size_t                 fOffset = 0;
+    bool                   fBusy = false;
     void*                  fData;
+    struct Slice {
+        Slice(wgpu::Buffer buffer, int offset, void* data)
+          : fBuffer(buffer), fOffset(offset), fData(data) {}
+        wgpu::Buffer  fBuffer;
+        int           fOffset;
+        void*         fData;
+    };
+};
+
+class GrDawnStagingManager {
+public:
+    GrDawnStagingManager(wgpu::Device device);
+   ~GrDawnStagingManager();
+
+    GrDawnStagingBuffer::Slice allocate(size_t size);
+    void addToReadyPool(GrDawnStagingBuffer* buffer);
+    void flush();
+    void mapBusyList();
+
+private:
+    GrDawnStagingBuffer* find(size_t size);
+    wgpu::Device                                       fDevice;
+    std::vector<std::unique_ptr<GrDawnStagingBuffer>>  fBuffers;
+    int                                                fWaitingCount = 0;
 };
 
 #endif
