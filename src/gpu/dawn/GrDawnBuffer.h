@@ -28,7 +28,8 @@ public:
 
 private:
     wgpu::Buffer fBuffer;
-    GrDawnStagingBuffer* fStagingBuffer;
+    wgpu::Buffer fStagingBuffer;
+    size_t       fStagingOffset;
     typedef GrGpuBuffer INHERITED;
 };
 

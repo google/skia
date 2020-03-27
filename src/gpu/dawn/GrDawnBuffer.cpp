@@ -29,8 +29,7 @@ namespace {
 
 GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
                            GrAccessPattern pattern)
-    : INHERITED(gpu, sizeInBytes, type, pattern)
-    , fStagingBuffer(nullptr) {
+    : INHERITED(gpu, sizeInBytes, type, pattern) {
     wgpu::BufferDescriptor bufferDesc;
     bufferDesc.size = sizeInBytes;
     bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | wgpu::BufferUsage::CopyDst;
@@ -45,18 +44,19 @@ void GrDawnBuffer::onMap() {
     if (this->wasDestroyed()) {
         return;
     }
-    fStagingBuffer = getDawnGpu()->getStagingBuffer(this->size());
-    fMapPtr = fStagingBuffer->fData;
+    GrDawnStagingBuffer::Slice slice = getDawnGpu()->allocateStagingBufferSlice(this->size());
+    fStagingBuffer = slice.fBuffer;
+    fStagingOffset = slice.fOffset;
+    fMapPtr = slice.fData;
 }
 
 void GrDawnBuffer::onUnmap() {
     if (this->wasDestroyed()) {
         return;
     }
-    fStagingBuffer->fBuffer.Unmap();
     fMapPtr = nullptr;
     getDawnGpu()->getCopyEncoder()
-        .CopyBufferToBuffer(fStagingBuffer->fBuffer, 0, fBuffer, 0, this->size());
+        .CopyBufferToBuffer(fStagingBuffer, fStagingOffset, fBuffer, 0, this->size());
 }
 
 bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
@@ -64,7 +64,7 @@ bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
         return false;
     }
     this->onMap();
-    memcpy(fStagingBuffer->fData, src, srcSizeInBytes);
+    memcpy(fMapPtr, src, srcSizeInBytes);
     this->onUnmap();
     return true;
 }

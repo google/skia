@@ -103,7 +103,7 @@ public:
     wgpu::Sampler getOrCreateSampler(GrSamplerState samplerState);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
-    GrDawnStagingBuffer* getStagingBuffer(size_t size);
+    GrDawnStagingBuffer::Slice allocateStagingBufferSlice(size_t size);
     GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
     wgpu::CommandEncoder getCopyEncoder();
     void flushCopyEncoder();
