@@ -82,9 +82,9 @@ private:
     // Determines if we need to use fake gamma (and contrast boost):
     static SkScalerContextFlags ComputeScalerContextFlags(const GrColorInfo&);
 
-    const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
+//    const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 
-    sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
+//    sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
     Options fOptions;
 

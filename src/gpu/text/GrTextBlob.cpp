@@ -456,7 +456,6 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 }
 
 void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
-                       const GrDistanceFieldAdjustTable* distanceAdjustTable,
                        const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
                        const SkMatrix& drawMatrix, SkPoint drawOrigin) {
 
@@ -537,8 +536,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
             if (submitOp) {
                 auto op = this->makeOp(*subRun, glyphCount, drawMatrix, drawOrigin,
-                                       clipRect, paint, filteredColor, props, distanceAdjustTable,
-                                       target);
+                                       clipRect, paint, filteredColor, props, target);
                 if (op) {
                     if (skipClip) {
                         target->addDrawOp(GrNoClip(), std::move(op));
@@ -589,12 +587,11 @@ size_t GrTextBlob::size() const { return fSize; }
 std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
         int glyphCount, const SkMatrix& drawMatrix,
         SkPoint drawOrigin, const SkPaint& paint, const SkPMColor4f& filteredColor,
-        const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
-        GrTextTarget* target) {
+        const SkSurfaceProps& props, GrTextTarget* target) {
     SubRun* info = fFirstSubRun;
     SkIRect emptyRect = SkIRect::MakeEmpty();
     return this->makeOp(*info, glyphCount, drawMatrix, drawOrigin, emptyRect,
-                        paint, filteredColor, props, distanceAdjustTable, target);
+                        paint, filteredColor, props, target);
 }
 
 bool GrTextBlob::hasW(GrTextBlob::SubRunType type) const {
@@ -705,10 +702,9 @@ void GrTextBlob::insertSubRun(SubRun* subRun) {
 }
 
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
-        SubRun& info, int glyphCount,
-        const SkMatrix& drawMatrix, SkPoint drawOrigin, const SkIRect& clipRect,
-        const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
+        SubRun& info, int glyphCount, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+        const SkIRect& clipRect, const SkPaint& paint, const SkPMColor4f& filteredColor,
+        const SkSurfaceProps& props, GrTextTarget* target) {
     GrMaskFormat format = info.maskFormat();
 
     GrPaint grPaint;
@@ -717,7 +713,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
     if (info.drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
         op = GrAtlasTextOp::MakeDistanceField(
-                target->getContext(), std::move(grPaint), glyphCount, distanceAdjustTable,
+                target->getContext(), std::move(grPaint), glyphCount,
                 target->colorInfo().isLinearlyBlended(), SkPaintPriv::ComputeLuminanceColor(paint),
                 props, info.isAntiAliased(), info.hasUseLCDText());
     } else {

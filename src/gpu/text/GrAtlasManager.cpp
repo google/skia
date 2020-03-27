@@ -33,6 +33,16 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
     return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fPlotLocator);
 }
 
+const GrDistanceFieldAdjustTable* GrAtlasManager::dfAdjustTable() {
+    if (!fDistanceAdjustTable) {
+        fDistanceAdjustTable.reset(new GrDistanceFieldAdjustTable);
+    }
+
+    return fDistanceAdjustTable.get();
+}
+
+
+
 // add to texture atlas that matches this format
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
                                 GrResourceProvider* resourceProvider,

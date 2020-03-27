@@ -59,6 +59,8 @@ public:
 
     bool hasGlyph(GrGlyph* glyph);
 
+    const GrDistanceFieldAdjustTable* dfAdjustTable();
+
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
@@ -139,6 +141,8 @@ private:
     sk_sp<const GrCaps> fCaps;
     GrStrikeCache* fGlyphCache;
     GrDrawOpAtlasConfig fAtlasConfig;
+
+    std::unique_ptr<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
     typedef GrOnFlushCallbackObject INHERITED;
 };
