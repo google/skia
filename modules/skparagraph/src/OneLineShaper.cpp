@@ -191,8 +191,12 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
 
         auto runAdvance = SkVector::Make(run->posX(glyphs.end) - run->posX(glyphs.start), run->fAdvance.fY);
         const SkShaper::RunHandler::RunInfo info = {
-                run->fFont, run->fBidiLevel, runAdvance, glyphs.width(),
-                SkShaper::RunHandler::Range(text.start - run->fClusterStart, text.width())};
+                run->fFont,
+                run->fBidiLevel,
+                runAdvance,
+                glyphs.width(),
+                SkShaper::RunHandler::Range(text.start - run->fClusterStart, text.width())
+        };
         this->fParagraph->fRuns.emplace_back(
                     this->fParagraph,
                     info,
@@ -249,7 +253,7 @@ TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
         return TextRange(clusterIndex(glyphRange.end - 1),
                 glyphRange.start > 0
                 ? clusterIndex(glyphRange.start - 1)
-                : fCurrentRun->fClusterStart + fCurrentRun->fTextRange.width());
+                : fCurrentRun->fTextRange.end);
     }
 }
 
@@ -630,7 +634,7 @@ bool OneLineShaper::shape() {
     return result;
 }
 
-TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
+TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
 
     enum class Dir { left, right };
     enum class Pos { inclusive, exclusive };
@@ -661,6 +665,13 @@ TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
     textRange.start = findBaseChar(textRange.start, Dir::left);
     textRange.end = findBaseChar(textRange.end, Dir::right);
 
+    // Correct the glyphRange in case we extended the text to the grapheme edges
+    while (textRange.start > fCurrentRun->fTextRange.start && clusterIndex(glyphs.start) > textRange.start) {
+        textRange.start--;
+    }
+    while (textRange.end < fCurrentRun->fTextRange.end && clusterIndex(glyphs.end) < textRange.end) {
+        textRange.end++;
+    }
     return { textRange.start, textRange.end };
 }
 

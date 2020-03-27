@@ -919,6 +919,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
                 runOffset -= whitespacesLen;
             }
         }
+        //SkDebugf("%f + %f = %f\n", totalWidth, width, totalWidth + width);
         runOffset += width;
         totalWidth += width;
         if (!visitor(run, runOffset, lineIntersection, &width)) {
@@ -926,6 +927,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
         }
     }
 
+    //git add modu  giSkDebugf("%f + %f = %f\n", totalWidth, width, totalWidth + width);
     runOffset += width;
     totalWidth += width;
 

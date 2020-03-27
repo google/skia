@@ -92,7 +92,7 @@ private:
 
     void commitRunBuffer(const RunInfo&) override;
 
-    TextRange clusteredText(GlyphRange glyphs);
+    TextRange clusteredText(GlyphRange& glyphs);
     ClusterIndex clusterIndex(GlyphIndex glyph) {
         return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
     }
