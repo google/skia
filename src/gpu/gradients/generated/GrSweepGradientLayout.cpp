@@ -29,9 +29,10 @@ public:
         (void)bias;
         auto scale = _outer.scale;
         (void)scale;
-        biasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "bias");
-        scaleVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "scale");
+        biasVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                   "bias");
+        scaleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                    "scale");
         SkString sk_TransformedCoords2D_0 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(

@@ -25,12 +25,13 @@ bool valid_name(const char* name) {
 }
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
@@ -52,6 +53,10 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform, arrayCount},
         visibility, -1
     });
+    if (strcmp(name, uni.fVariable.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, fUniforms.count() - 1, SkString(name),
+                                                   uni.fVariable.c_str(), type });
+    }
 
     if (outName) {
         *outName = uni.fVariable.c_str();
@@ -133,4 +138,15 @@ void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps&
 const GrGLGpu* GrGLUniformHandler::glGpu() const {
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     return glPB->gpu();
+}
+
+void GrGLUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (const auto& m : fUniformMappings) {
+        if (m.fOwner == owner) {
+            fUniforms.item(m.fInfoIndex).fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(m.fType),
+                           m.fRawName.c_str(), m.fFinalName);
+        }
+    }
 }

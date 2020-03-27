@@ -42,7 +42,8 @@ public:
 
         // Setup uniform color
         const char* stagedLocalVarName;
-        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+        fColorUniform = args.fUniformHandler->addUniform(nullptr,
+                                                         kFragment_GrShaderFlag,
                                                          kHalf4_GrSLType,
                                                          "Color",
                                                          &stagedLocalVarName);
@@ -81,12 +82,14 @@ public:
                         uni.fType = kFloat3x3_GrSLType;
                     }
                     uni.fHandle = uniformHandler
-                                          ->addUniform(kFragment_GrShaderFlag,
+                                          ->addUniform(nullptr,
+                                                       kFragment_GrShaderFlag,
                                                        uni.fType,
                                                        strUniName.c_str(),
                                                        &name)
                                           .toIndex();
                     transformVar = uniformHandler->getUniformVariable(uni.fHandle);
+                    matrix = name;
                 }
             } else {
                 SkString strVaryingName;
@@ -104,7 +107,7 @@ public:
                 matrix = matrix_to_sksl(coordTransform.matrix());
                 fragmentVar = {SkString(v.fsIn()), varyingType};
             }
-            transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
+            transformHandler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fragmentVar);
         }
     }
 
