@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "510f7dca_f306bdcc",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-27T16:01:19Z",
+      "side": 1,
+      "message": "An alternative you\u0027ll sometimes see is\n\n    c \u003d p-\u003eunpack_8888(p-\u003egather32(uniforms-\u003epushPtr(fColors),\n                                   p-\u003emin(p-\u003eto_unorm(8,c.a), p-\u003esplat(kNumColors - 1)));\n    std::swap(c.r, c.b);  // The SkColors in fColors are BGRA.\n    return c;",
+      "revId": "b69bd5c0138d7c4138ca8f260cb265ca9ac9f5ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
