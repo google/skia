@@ -14,6 +14,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLIRGenerator.cpp",
   "$_src/sksl/SkSLLexer.cpp",
   "$_src/sksl/SkSLParser.cpp",
+  "$_src/sksl/SkSLSampleMatrix.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.cpp",
   "$_src/sksl/SkSLString.cpp",
   "$_src/sksl/SkSLUtil.cpp",

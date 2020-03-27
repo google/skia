@@ -66,7 +66,8 @@ private:
         , fCurrentUBOOffset(0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
@@ -100,10 +101,12 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) override;
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray            fUniforms;
+    std::vector<UniformMapping> fUniformMappings;
+    UniformInfoArray            fSamplers;
+    SkTArray<GrSwizzle>         fSamplerSwizzles;
 
     uint32_t            fCurrentUBOOffset;
 

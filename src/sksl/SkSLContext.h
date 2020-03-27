@@ -396,11 +396,9 @@ private:
             return false;
         }
 
-#ifdef SK_DEBUG
         String description() const override {
             return "<defined>";
         }
-#endif
 
         std::unique_ptr<Expression> clone() const override {
             return std::unique_ptr<Expression>(new Defined(fType));
