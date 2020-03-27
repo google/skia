@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a63320df_073c9e1f",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-27T19:40:42Z",
+      "side": 0,
+      "message": "I might try another pass at using sk_sp\u003c\u003e but for now this works and avoids double deletion.",
+      "range": {
+        "startLine": 137,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 22
+      },
+      "revId": "f95a35fb706f026a6b7859ff1fc93d29dc40eedb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

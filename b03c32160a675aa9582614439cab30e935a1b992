@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f71b0b24_1e222eb5",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-27T19:40:42Z",
+      "side": 1,
+      "message": "I might try another pass at using sk_sp\u003c\u003e but for now this works and avoids double deletion.",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 24
+      },
+      "revId": "b03c32160a675aa9582614439cab30e935a1b992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
