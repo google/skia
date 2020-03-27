@@ -33,7 +33,7 @@ struct ValueTraits {
     static U As(const T&);
 
     static bool CanLerp(const T&, const T&);
-    static void Lerp(const T&, const T&, float, T*);
+    static bool Lerp(const T&, const T&, float, T*);
 };
 
 using ScalarValue = SkScalar;
