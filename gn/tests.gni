@@ -287,7 +287,7 @@ tests_sources = [
   "$_tests/TDPQueueTest.cpp",
   "$_tests/TLazyTest.cpp",
   "$_tests/TemplatesTest.cpp",
-  "$_tests/TessellatingPathRendererTests.cpp",
+  "$_tests/TriangulatingPathRendererTests.cpp",
   "$_tests/Test.cpp",
   "$_tests/Test.h",
   "$_tests/TestTest.cpp",
