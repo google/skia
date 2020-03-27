@@ -80,19 +80,20 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
-        auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
+        static size_t uniqueRunIndex = 0;
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           index,
+                                           0,
                                            fAdvance.fX);
+        fCurrentRun->fIndex = uniqueRunIndex++;
         return fCurrentRun->newRunBuffer();
     }
 
     void commitRunBuffer(const RunInfo&) override;
 
-    TextRange clusteredText(GlyphRange glyphs);
+    TextRange clusteredText(GlyphRange& glyphs);
     ClusterIndex clusterIndex(GlyphIndex glyph) {
         return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
     }
