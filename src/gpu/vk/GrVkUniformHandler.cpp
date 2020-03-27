@@ -212,12 +212,13 @@ GrVkUniformHandler::~GrVkUniformHandler() {
 }
 
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(GrSLTypeIsFloatType(type));
 
@@ -233,6 +234,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, uni.count(), SkString(name),
+                                                   resolvedName.c_str(), type });
+    }
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
@@ -328,4 +333,15 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 uint32_t GrVkUniformHandler::getRTHeightOffset() const {
     uint32_t currentOffset = fCurrentUBOOffset;
     return get_ubo_aligned_offset(&currentOffset, kFloat_GrSLType, 0);
+}
+
+void GrVkUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (const auto& m : fUniformMappings) {
+        if (m.fOwner == owner) {
+            fUniforms.item(m.fInfoIndex).fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(m.fType),
+                           m.fRawName.c_str(), m.fFinalName);
+        }
+    }
 }

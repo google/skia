@@ -8,6 +8,8 @@
 #ifndef GrGLSLUniformHandler_DEFINED
 #define GrGLSLUniformHandler_DEFINED
 
+#include <unordered_map>
+
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -16,6 +18,8 @@
 #define GR_NO_MANGLE_PREFIX "sk_"
 
 class GrGLSLProgramBuilder;
+class GrGLSLShaderBuilder;
+class GrProcessor;
 class GrSamplerState;
 class GrSurfaceProxy;
 
@@ -43,22 +47,25 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not nullptr
         then it will refer to the final uniform name after return. Use the addUniformArray variant
         to add an array of uniforms. */
-    UniformHandle addUniform(uint32_t visibility,
+    UniformHandle addUniform(const GrFragmentProcessor* owner,
+                             uint32_t visibility,
                              GrSLType type,
                              const char* name,
                              const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        return this->addUniformArray(visibility, type, name, 0, outName);
+        return this->addUniformArray(owner, visibility, type, name, 0, outName);
     }
 
-    UniformHandle addUniformArray(uint32_t visibility,
+    UniformHandle addUniformArray(const GrFragmentProcessor* owner,
+                                  uint32_t visibility,
                                   GrSLType type,
                                   const char* name,
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
-        return this->internalAddUniformArray(visibility, type, name, mangle, arrayCount, outName);
+        return this->internalAddUniformArray(owner, visibility, type, name, mangle, arrayCount,
+                                             outName);
     }
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
@@ -68,7 +75,17 @@ public:
      */
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
 
+    virtual void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) = 0;
+
 protected:
+    struct UniformMapping {
+        const GrFragmentProcessor* fOwner;
+        int fInfoIndex;
+        SkString fRawName;
+        const char* fFinalName;
+        GrSLType fType;
+    };
+
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
     // This is not owned by the class
@@ -82,7 +99,8 @@ private:
     virtual SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                                      const char* name, const GrShaderCaps*) = 0;
 
-    virtual UniformHandle internalAddUniformArray(uint32_t visibility,
+    virtual UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                                  uint32_t visibility,
                                                   GrSLType type,
                                                   const char* name,
                                                   bool mangleName,

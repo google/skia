@@ -200,6 +200,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
 }
 
 GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArray(
+        const GrFragmentProcessor* owner,
         uint32_t visibility,
         GrSLType type,
         const char* name,
@@ -212,6 +213,10 @@ GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArra
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, fUniforms.count(), SkString(name),
+                                                   resolvedName.c_str(), type });
+    }
 
     int offset = get_ubo_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
@@ -304,4 +309,15 @@ void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString
 uint32_t GrDawnUniformHandler::getRTHeightOffset() const {
     uint32_t dummy = fCurrentUBOOffset;
     return get_ubo_offset(&dummy, kFloat_GrSLType, 0);
+}
+
+void GrDawnUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (const auto& m : fUniformMappings) {
+        if (m.fOwner == owner) {
+            fUniforms.item(m.fInfoIndex).fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(m.fType),
+                           m.fRawName.c_str(), m.fFinalName);
+        }
+    }
 }

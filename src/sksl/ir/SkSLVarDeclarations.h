@@ -42,7 +42,6 @@ struct VarDeclaration : public Statement {
                                                              fValue ? fValue->clone() : nullptr));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         String result = fVar->fName;
         for (const auto& size : fSizes) {
@@ -57,7 +56,6 @@ struct VarDeclaration : public Statement {
         }
         return result;
     }
-#endif
 
     const Variable* fVar;
     std::vector<std::unique_ptr<Expression>> fSizes;
@@ -86,10 +84,9 @@ struct VarDeclarations : public ProgramElement {
                                                            (VarDeclaration*) v->clone().release()));
         }
         return std::unique_ptr<ProgramElement>(new VarDeclarations(fOffset, &fBaseType,
-                                                                     std::move(cloned)));
+                                                                   std::move(cloned)));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         if (!fVars.size()) {
             return String();
@@ -104,7 +101,6 @@ struct VarDeclarations : public ProgramElement {
         }
         return result;
     }
-#endif
 
     const Type& fBaseType;
     // this *should* be a vector of unique_ptr<VarDeclaration>, but it significantly simplifies the

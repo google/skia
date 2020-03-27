@@ -33,15 +33,15 @@ public:
                  abs(rect.right()) > 16000.0) ||
                 abs(rect.bottom()) > 16000.0;
         if (highp) {
-            rectFVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        "rectF");
+            rectFVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "rectF");
         }
         if (!highp) {
-            rectHVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                        "rectH");
+            rectHVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kHalf4_GrSLType, "rectH");
         }
-        invSixSigmaVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                          "invSixSigma");
+        invSixSigmaVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                          kHalf_GrSLType, "invSixSigma");
         fragBuilder->codeAppendf(
                 "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) {\n    half x, "
                 "y;\n    @if (highp) {\n        x = max(half(%s.x - sk_FragCoord.x), "

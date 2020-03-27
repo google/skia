@@ -40,11 +40,9 @@ struct FieldAccess : public Expression {
                                                            fOwnerKind));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
-#endif
 
     std::unique_ptr<Expression> fBase;
     const int fFieldIndex;
