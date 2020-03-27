@@ -339,21 +339,56 @@ namespace skvm {
     };
 
     using Val = int;
-    // We reserve the last Val ID as a sentinel meaning none, n/a, null, nil, etc.
-    static const Val NA = ~0;
+    // We reserve impossibe Val IDs as a sentinels:
+    //   - NA meaning none, n/a, null, nil, etc.
+    //   - IMM meaning an unresolved immediate.
+    static const Val NA  = -1,
+                     IMM = -2;
 
     struct Arg { int ix; };
-    struct I32 { Val id; explicit operator bool() const { return id != NA; } };
-    struct F32 { Val id; explicit operator bool() const { return id != NA; } };
+
+    struct I32 {
+    public:
+        I32()                         : fBuilder(nullptr), fID( NA), fImm(0) {}
+        I32(int x)                    : fBuilder(nullptr), fID(IMM), fImm(x) {}
+        I32(Builder* builder, Val id) : fBuilder(builder), fID( id), fImm(0) {}
+
+        explicit operator bool() const { return fID != NA; }
+        Builder*       builder() const { return fBuilder; }
+
+        Val resolve(Builder* b);
+
+    private:
+        Builder* fBuilder = nullptr;
+        Val      fID      = NA;
+        int      fImm     = 0;
+    };
+
+    struct F32 {
+    public:
+        F32()                         : fBuilder(nullptr), fID( NA), fImm(0) {}
+        F32(float x)                  : fBuilder(nullptr), fID(IMM), fImm(x) {}
+        F32(Builder* builder, Val id) : fBuilder(builder), fID( id), fImm(0) {}
+
+        explicit operator bool() const { return fID != NA; }
+        Builder*       builder() const { return fBuilder; }
+
+        Val resolve(Builder* b);
+
+    private:
+        Builder* fBuilder = nullptr;
+        Val      fID      = NA;
+        float    fImm     = 0;
+    };
 
     struct Color {
-        skvm::F32 r{NA}, g{NA}, b{NA}, a{NA};
-
+        skvm::F32 r,g,b,a;
         explicit operator bool() const { return r && g && b && a; }
     };
 
     struct HSLA {
         skvm::F32 h,s,l,a;
+        explicit operator bool() const { return h && s && l && a; }
     };
 
     struct OptimizedInstruction {
@@ -459,7 +494,7 @@ namespace skvm {
         F32 div(F32 x, F32 y);
         F32 min(F32 x, F32 y);
         F32 max(F32 x, F32 y);
-        F32 mad(F32 x, F32 y, F32 z) { return this->add(this->mul(x,y), z); }
+        F32 mad(F32 x, F32 y, F32 z) { return add(mul(x,y), z); }
         F32 sqrt(F32 x);
 
         F32 approx_log2(F32);
@@ -467,14 +502,14 @@ namespace skvm {
         F32 approx_powf(F32 base, F32 exp);
 
         F32 approx_log(F32 x) { // return ln(2) * log2(x)
-            return mul(splat(0.69314718f), approx_log2(x));
+            return mul(0.69314718f, approx_log2(x));
         }
         F32 approx_exp(F32 x) { // 2^(x * log2(e))
-            return approx_pow2(mul(splat(1.4426950408889634074f), x));
+            return approx_pow2(mul(1.4426950408889634074f, x));
         }
 
-        F32 inv(F32 x)    { return sub(splat(1.0f), x); }
-        F32 negate(F32 x) { return sub(splat(0.0f), x); }
+        F32 inv(F32 x)    { return sub(1.0f, x); }
+        F32 negate(F32 x) { return sub(0.0f, x); }
 
         F32 lerp(F32 lo, F32 hi, F32 t) {
             return mad(sub(hi,lo), t, lo);
@@ -483,11 +518,10 @@ namespace skvm {
             return max(lo, min(x, hi));
         }
         F32 clamp01(F32 x) {
-            return clamp(x, splat(0.0f), splat(1.0f));
+            return clamp(x, 0.0f, 1.0f);
         }
         F32 abs(F32 x) {
-            return bit_cast(bit_and(bit_cast(x),
-                                    splat(0x7fffffff)));
+            return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff));
         }
         F32 fract(F32 x) {
             return sub(x, floor(x));
@@ -506,7 +540,11 @@ namespace skvm {
         F32 floor(F32);
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
-        I32 bit_cast(F32 x) { return {x.id}; }
+        I32 bit_cast(F32 x) {
+            I32 pun;
+            memcpy(&pun, &x, sizeof(I32));
+            return pun;
+        }
 
         // int math, comparisons, etc.
         I32 add(I32 x, I32 y);
@@ -525,7 +563,11 @@ namespace skvm {
         I32 gte(I32 x, I32 y);
 
         F32 to_f32(I32 x);
-        F32 bit_cast(I32 x) { return {x.id}; }
+        F32 bit_cast(I32 x) {
+            F32 pun;
+            memcpy(&pun, &x, sizeof(I32));
+            return pun;
+        }
 
         // Treat each 32-bit lane as a pair of 16-bit ints.
         I32 add_16x2(I32 x, I32 y);
@@ -607,6 +649,11 @@ namespace skvm {
         void dot (SkWStream* = nullptr, bool for_jit=false) const;
 
         uint64_t hash() const;
+
+        // id() functions resolve any Builder-less I32/F32 immediates to splats on this Builder,
+        // and return the internal index of that value.  (Mostly for internal use.)
+        Val id(I32);
+        Val id(F32);
 
     private:
         struct InstructionHash {
@@ -727,8 +774,37 @@ namespace skvm {
 
     // TODO: control flow
     // TODO: 64-bit values?
-    // TODO: SSE2/SSE4.1, AVX-512F, ARMv8.2 JITs?
-    // TODO: lower to LLVM or WebASM for comparison?
+
+    static Builder* common_builder(F32 x, F32 y) {
+        Builder *X = x.builder(),
+                *Y = y.builder();
+        SkASSERT(X || Y);
+        if (X && Y) { SkASSERT(X==Y); return X; }
+        if (X     ) { return X; }
+        if (Y     ) { return Y; }
+        return nullptr;
+    }
+
+    static inline F32& operator+=(F32& x, F32 y) { return (x = common_builder(x,y)->add(x,y)); }
+    static inline F32& operator-=(F32& x, F32 y) { return (x = common_builder(x,y)->sub(x,y)); }
+    static inline F32& operator*=(F32& x, F32 y) { return (x = common_builder(x,y)->mul(x,y)); }
+    static inline F32& operator/=(F32& x, F32 y) { return (x = common_builder(x,y)->div(x,y)); }
+
+    static inline F32 operator+(F32 x, F32 y) { return x += y; }
+    static inline F32 operator-(F32 x, F32 y) { return x -= y; }
+    static inline F32 operator*(F32 x, F32 y) { return x *= y; }
+    static inline F32 operator/(F32 x, F32 y) { return x /= y; }
+
+    static inline F32 min(F32 x, F32 y) { return common_builder(x,y)->min(x,y); }
+    static inline F32 max(F32 x, F32 y) { return common_builder(x,y)->max(x,y); }
+
+    static inline I32 operator==(F32 x, F32 y) { return common_builder(x,y)-> eq(x,y); }
+    static inline I32 operator!=(F32 x, F32 y) { return common_builder(x,y)->neq(x,y); }
+    static inline I32 operator< (F32 x, F32 y) { return common_builder(x,y)->lt (x,y); }
+    static inline I32 operator<=(F32 x, F32 y) { return common_builder(x,y)->lte(x,y); }
+    static inline I32 operator> (F32 x, F32 y) { return common_builder(x,y)->gt (x,y); }
+    static inline I32 operator>=(F32 x, F32 y) { return common_builder(x,y)->gte(x,y); }
+
 }
 
 #endif//SkVM_DEFINED
