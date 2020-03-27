@@ -9,9 +9,9 @@
 #define GrAtlasTextOp_DEFINED
 
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/text/GrDistanceFieldAdjustTable.h"
 #include "src/gpu/text/GrTextBlob.h"
 
+class GrDistanceFieldAdjustTable;
 class GrRecordingContext;
 class SkAtlasTextTarget;
 
@@ -47,7 +47,6 @@ public:
             GrRecordingContext*,
             GrPaint&&,
             int glyphCount,
-            const GrDistanceFieldAdjustTable*,
             bool useGammaCorrectDistanceTable,
             SkColor luminanceColor,
             const SkSurfaceProps&,
@@ -173,10 +172,11 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override;
 
-    GrGeometryProcessor* setupDfProcessor(SkArenaAlloc* arena,
-                                          const GrShaderCaps& caps,
+    GrGeometryProcessor* setupDfProcessor(SkArenaAlloc*,
+                                          const GrShaderCaps&,
                                           const GrSurfaceProxyView* views,
-                                          unsigned int numActiveViews) const;
+                                          unsigned int numActiveViews,
+                                          const GrDistanceFieldAdjustTable*) const;
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
@@ -190,7 +190,6 @@ private:
     int fNumGlyphs;
     MaskType fMaskType;
     // Distance field properties
-    sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
     uint32_t fDFGPFlags = 0;
 
