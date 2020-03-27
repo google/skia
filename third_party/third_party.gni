@@ -3,18 +3,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-template("third_party") {
+template("third_party_config") {
   enabled = !defined(invoker.enabled) || invoker.enabled
-  config(target_name + "_public") {
+  config(target_name) {
     if (enabled) {
+      forward_variables_from(invoker, "*", [ "include_dirs" ])
       cflags = []
-      if (defined(invoker.public_defines)) {
-        defines = invoker.public_defines
-      }
       if (is_win) {
-        include_dirs = invoker.public_include_dirs
+        include_dirs = invoker.include_dirs
         if (is_clang) {
-          foreach(dir, invoker.public_include_dirs) {
+          foreach(dir, invoker.include_dirs) {
             cflags += [
               "/imsvc",
               rebase_path(dir),
@@ -22,7 +20,7 @@ template("third_party") {
           }
         }
       } else {
-        foreach(dir, invoker.public_include_dirs) {
+        foreach(dir, invoker.include_dirs) {
           if (werror) {
             cflags += [
               "-isystem",
@@ -36,6 +34,20 @@ template("third_party") {
           }
         }
       }
+    } else {
+      not_needed(invoker, "*")
+    }
+  }
+}
+
+template("third_party") {
+  enabled = !defined(invoker.enabled) || invoker.enabled
+  third_party_config(target_name + "_public") {
+    if (enabled) {
+      if (defined(invoker.public_defines)) {
+        defines = invoker.public_defines
+      }
+      include_dirs = invoker.public_include_dirs
     } else {
       not_needed(invoker, "*")
     }
