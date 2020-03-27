@@ -114,7 +114,7 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
             // The transform has no observable effects - we can discard.
             return parent;
         }
-        adapter->tick(0);
+        adapter->seek(0);
     } else {
         fCurrentAnimatorScope->push_back(adapter);
     }
@@ -182,7 +182,7 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
             // The transform has no observable effects - we can discard.
             return parent;
         }
-        adapter->tick(0);
+        adapter->seek(0);
     } else {
         fCurrentAnimatorScope->push_back(adapter);
     }

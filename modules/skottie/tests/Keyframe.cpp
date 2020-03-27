@@ -31,7 +31,7 @@ public:
 
     operator bool() const { return fDidBind; }
 
-    const T& operator()(float t) { this->tick(t); return fValue; }
+    const T& operator()(float t) { this->seek(t); return fValue; }
 
 private:
     void onSync() override {}
