@@ -31,20 +31,20 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph);
+    GrGlyph* getGlyph1(const SkGlyph& skGlyph);
 
     // This variant of the above function is called by GrAtlasTextOp. At this point, it is possible
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
     // draw a clear square.
     // skbug:4143 crbug:510931
-    GrGlyph* getGlyph(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages);
+    GrGlyph* getGlyph1(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages);
 
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
     // mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas1(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
                                              bool isScaledGlyph,
                                              GrResourceProvider*,

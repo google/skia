@@ -241,8 +241,10 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
         int subRunEnd = subRun->fGlyphs.size();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
-            auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
-            if (!ok) { break; }
+            auto [ok, glyphsRegenerated] = regenerator.regenerate1(subRunIndex, subRunEnd);
+            if (!ok) {
+                break;
+            }
 
             context.recordDraw(subRun->quadStart(subRunIndex), glyphsRegenerated,
                                fGeoData[i].fDrawMatrix, target->handle());

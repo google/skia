@@ -47,14 +47,14 @@ struct GrGlyph {
            : GrGlyph::MaskStyle::kCoverage_MaskStyle;
     }
 
-    GrGlyph(const SkGlyph& skGlyph)
+    GrGlyph(const SkGlyph& skGlyph, bool foo)
         : fPackedID{skGlyph.getPackedID()}
         , fMaskFormat{FormatFromSkGlyph(skGlyph.maskFormat())}
         , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
         , fBounds{GrIRect16::Make(skGlyph.iRect())} {}
 
 
-    SkRect destRect(SkPoint origin) {
+    SkRect destRect(SkPoint origin) const {
         return SkRect::MakeXYWH(
                 SkIntToScalar(fBounds.fLeft) + origin.x(),
                 SkIntToScalar(fBounds.fTop)  + origin.y(),
@@ -62,7 +62,7 @@ struct GrGlyph {
                 SkIntToScalar(fBounds.height()));
     }
 
-    SkRect destRect(SkPoint origin, SkScalar textScale) {
+    SkRect destRect(SkPoint origin, SkScalar textScale) const {
         if (fMaskStyle == kCoverage_MaskStyle) {
             return SkRect::MakeXYWH(
                     SkIntToScalar(fBounds.fLeft)    * textScale + origin.x(),
@@ -80,15 +80,15 @@ struct GrGlyph {
 
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
-    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
+    uint32_t pageIndex1() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator1); }
     MaskStyle maskStyle() const { return fMaskStyle; }
 
     const SkPackedGlyphID      fPackedID;
     const GrMaskFormat         fMaskFormat;
     const MaskStyle            fMaskStyle;
     const GrIRect16            fBounds;
-    SkIPoint16                 fAtlasLocation{0, 0};
-    GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+    SkIPoint16                 fAtlasLocation1{0, 0};
+    GrDrawOpAtlas::PlotLocator fPlotLocator1{GrDrawOpAtlas::kInvalidPlotLocator};
 };
 
 #endif
