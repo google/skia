@@ -358,8 +358,7 @@ void GrTextContext::drawGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
-    cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, drawingColor,
-                      clip, drawMatrix, drawOrigin);
+    cachedBlob->flush(target, props, blobPaint, drawingColor, clip, drawMatrix, drawOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -407,7 +406,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     }
 
     return blob->test_makeOp(textLen, drawMatrix, drawOrigin, skPaint, filteredColor, surfaceProps,
-                             textContext->dfAdjustTable(), rtc->textTarget());
+                             rtc->textTarget());
 }
 
 #endif  // GR_TEST_UTILS
