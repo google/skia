@@ -7,9 +7,11 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
+#include "src/shaders/SkImageShader.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/SkVMBuilders.h"
@@ -270,6 +272,27 @@ DEF_TEST(SkVM, r) {
             REPORTER_ASSERT(r, abs(dst[i]-want) < 2);
         }
     });
+}
+
+DEF_TEST(SkVM_JITEverything, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::Make(10, 10, kN32_SkColorType, kPremul_SkAlphaType, nullptr));
+    bm.eraseColor(SK_ColorWHITE);
+    auto image = SkImage::MakeFromBitmap(bm);
+    SkMatrix m = SkMatrix::MakeScale(1.4);
+    sk_sp<SkShader> imageShader = SkImageShader::Make(image, SkTileMode::kClamp,
+                                                      SkTileMode::kClamp, &m, false);
+    skvm::Builder builder;
+    skvm::Uniforms uniforms(0);
+    SkArenaAlloc alloc{1024};
+    skvm::F32 z = builder.splat(0.0f);
+    skvm::Color c = {z, z, z, z};
+    auto ci = SkColorInfo();
+    as_SB(imageShader)->program(
+            &builder, z, z, c, m, nullptr, kHigh_SkFilterQuality, ci, &uniforms, &alloc);
+    skvm::Program program = builder.done("SkVM_JITEverything");
+    bool hasJit = program.hasJIT();
+    REPORTER_ASSERT(r, hasJit);
 }
 
 DEF_TEST(SkVM_Pointless, r) {
