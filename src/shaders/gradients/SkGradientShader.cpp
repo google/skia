@@ -563,15 +563,15 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
 
         // A scale factor and bias for each lane, 8 total.
         // TODO: simpler, faster, tidier to push 8 uniform pointers, one for each struct lane?
-        ix = p->shl(ix, 3);            skvm::F32 Fr = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fg = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fb = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fa = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->shl(ix, 3);            skvm::F32 Fr = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fg = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fb = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fa = p->gatherF(fbs, ix);
 
-        ix = p->add(ix, p->splat(1));  skvm::F32 Br = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Bg = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Bb = p->bit_cast(p->gather32(fbs, ix));
-        ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Br = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Bg = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Bb = p->gatherF(fbs, ix);
+        ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->gatherF(fbs, ix);
 
         // This is what we've been building towards!
         color = {

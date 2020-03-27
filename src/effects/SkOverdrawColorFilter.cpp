@@ -11,6 +11,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
@@ -70,6 +71,25 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     return true;
+}
+
+skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
+                                             SkColorSpace* /*dstCS*/, skvm::Uniforms* uniforms,
+                                             SkArenaAlloc* alloc) const {
+    // go from [r,g,b,a], [r,g,b,a], ... to r[...], g[...], b[...], a[...]
+    constexpr int N = kNumColors;
+    float* table_ptr = alloc->makeArrayDefault<float>(N * 4);
+    convert_to_pm4f((SkPMColor4f*)table_ptr, fColors);
+
+    skvm::I32 index = p->shl(p->min(p->to_unorm(8,c.a), p->splat(N - 1)), 2);
+    auto table = uniforms->pushPtr(table_ptr);
+
+    return {
+        p->gatherF(table, p->add(index, p->splat(0))),
+        p->gatherF(table, p->add(index, p->splat(1))),
+        p->gatherF(table, p->add(index, p->splat(2))),
+        p->gatherF(table, p->add(index, p->splat(3))),
+    };
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
