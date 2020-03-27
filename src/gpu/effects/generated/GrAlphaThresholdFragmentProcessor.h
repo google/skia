@@ -35,12 +35,15 @@ public:
     float outerThreshold;
 
 private:
-    GrAlphaThresholdFragmentProcessor(GrSurfaceProxyView mask, float innerThreshold,
-                                      float outerThreshold, const SkIRect& bounds)
+    GrAlphaThresholdFragmentProcessor(GrSurfaceProxyView mask,
+                                      float innerThreshold,
+                                      float outerThreshold,
+                                      const SkIRect& bounds)
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , maskCoordTransform(
                       SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                      mask.proxy(), mask.origin())
+                      mask.proxy(),
+                      mask.origin())
             , mask(std::move(mask))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {

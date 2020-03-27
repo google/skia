@@ -17,9 +17,13 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView src, SkIRect bounds,
-                                                     SkRect srcRect, float xInvZoom, float yInvZoom,
-                                                     float xInvInset, float yInvInset) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView src,
+                                                     SkIRect bounds,
+                                                     SkRect srcRect,
+                                                     float xInvZoom,
+                                                     float yInvZoom,
+                                                     float xInvInset,
+                                                     float yInvInset) {
         return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(
                 std::move(src), bounds, srcRect, xInvZoom, yInvZoom, xInvInset, yInvInset));
     }
@@ -36,8 +40,13 @@ public:
     float yInvInset;
 
 private:
-    GrMagnifierEffect(GrSurfaceProxyView src, SkIRect bounds, SkRect srcRect, float xInvZoom,
-                      float yInvZoom, float xInvInset, float yInvInset)
+    GrMagnifierEffect(GrSurfaceProxyView src,
+                      SkIRect bounds,
+                      SkRect srcRect,
+                      float xInvZoom,
+                      float yInvZoom,
+                      float xInvInset,
+                      float yInvInset)
             : INHERITED(kGrMagnifierEffect_ClassID, kNone_OptimizationFlags)
             , srcCoordTransform(SkMatrix::I(), src.proxy(), src.origin())
             , src(std::move(src))

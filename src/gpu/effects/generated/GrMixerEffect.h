@@ -35,8 +35,7 @@ public:
                 c0.fB + (c1.fB - c0.fB) * weight, c0.fA + (c1.fA - c0.fA) * weight};
     }
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp0,
-                                                     std::unique_ptr<GrFragmentProcessor>
-                                                             fp1,
+                                                     std::unique_ptr<GrFragmentProcessor> fp1,
                                                      float weight) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrMixerEffect(std::move(fp0), std::move(fp1), weight));
@@ -50,8 +49,7 @@ public:
 
 private:
     GrMixerEffect(std::unique_ptr<GrFragmentProcessor> fp0,
-                  std::unique_ptr<GrFragmentProcessor>
-                          fp1,
+                  std::unique_ptr<GrFragmentProcessor> fp1,
                   float weight)
             : INHERITED(kGrMixerEffect_ClassID, (OptimizationFlags)OptFlags(fp0, fp1))
             , weight(weight) {

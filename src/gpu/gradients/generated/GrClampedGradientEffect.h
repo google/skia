@@ -19,8 +19,11 @@ class GrClampedGradientEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(
             std::unique_ptr<GrFragmentProcessor> colorizer,
-            std::unique_ptr<GrFragmentProcessor> gradLayout, SkPMColor4f leftBorderColor,
-            SkPMColor4f rightBorderColor, bool makePremul, bool colorsAreOpaque) {
+            std::unique_ptr<GrFragmentProcessor> gradLayout,
+            SkPMColor4f leftBorderColor,
+            SkPMColor4f rightBorderColor,
+            bool makePremul,
+            bool colorsAreOpaque) {
         return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(
                 std::move(colorizer), std::move(gradLayout), leftBorderColor, rightBorderColor,
                 makePremul, colorsAreOpaque));
@@ -38,8 +41,10 @@ public:
 private:
     GrClampedGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                             std::unique_ptr<GrFragmentProcessor> gradLayout,
-                            SkPMColor4f leftBorderColor, SkPMColor4f rightBorderColor,
-                            bool makePremul, bool colorsAreOpaque)
+                            SkPMColor4f leftBorderColor,
+                            SkPMColor4f rightBorderColor,
+                            bool makePremul,
+                            bool colorsAreOpaque)
             : INHERITED(kGrClampedGradientEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                                 (colorsAreOpaque && gradLayout->preservesOpaqueInput()

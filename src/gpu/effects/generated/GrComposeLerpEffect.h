@@ -32,7 +32,8 @@ public:
 
 private:
     GrComposeLerpEffect(std::unique_ptr<GrFragmentProcessor> child1,
-                        std::unique_ptr<GrFragmentProcessor> child2, float weight)
+                        std::unique_ptr<GrFragmentProcessor> child2,
+                        float weight)
             : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags), weight(weight) {
         if (child1) {
             child1_index = this->numChildProcessors();

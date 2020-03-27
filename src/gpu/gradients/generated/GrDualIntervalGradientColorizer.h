@@ -17,8 +17,10 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrDualIntervalGradientColorizer : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f& c0, const SkPMColor4f& c1,
-                                                     const SkPMColor4f& c2, const SkPMColor4f& c3,
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f& c0,
+                                                     const SkPMColor4f& c1,
+                                                     const SkPMColor4f& c2,
+                                                     const SkPMColor4f& c3,
                                                      float threshold);
     GrDualIntervalGradientColorizer(const GrDualIntervalGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -30,8 +32,11 @@ public:
     float threshold;
 
 private:
-    GrDualIntervalGradientColorizer(SkPMColor4f scale01, SkPMColor4f bias01, SkPMColor4f scale23,
-                                    SkPMColor4f bias23, float threshold)
+    GrDualIntervalGradientColorizer(SkPMColor4f scale01,
+                                    SkPMColor4f bias01,
+                                    SkPMColor4f scale23,
+                                    SkPMColor4f bias23,
+                                    float threshold)
             : INHERITED(kGrDualIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
             , scale01(scale01)
             , bias01(bias01)
