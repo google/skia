@@ -26,11 +26,7 @@ struct Symbol : public IRNode {
     };
 
     Symbol(int offset, Kind kind, StringFragment name)
-    : INHERITED(offset)
-    , fKind(kind)
-    , fName(name) {}
-
-    virtual ~Symbol() {}
+        : INHERITED(offset), fKind(kind), fName(name) {}
 
     Kind fKind;
     StringFragment fName;
