@@ -24,6 +24,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
@@ -55,6 +56,30 @@ protected:
         rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
         return true;
     }
+
+#if 0
+// x = 1 - x;
+// exp(-x * x * 4) - 0.018f;
+// ... now approximate with quartic
+//
+const float c4 = -2.26661229133605957031f;
+const float c3 = 2.89795351028442382812f;
+const float c2 = 0.21345567703247070312f;
+const float c1 = 0.15489584207534790039f;
+const float c0 = 0.00030726194381713867f;
+a = mad(a, mad(a, mad(a, mad(a, c4, c3), c2), c1), c0);
+r = a;
+g = a;
+b = a;
+#endif
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS, skvm::Uniforms*,
+                          SkArenaAlloc*) const override {
+        skvm::F32 x = p->inv(c.a);
+        x = p->sub(p->approx_exp(p->mul(p->mul(x,x), p->splat(-4.0f))), p->splat(0.018f));
+        return {x, x, x, x};
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 
