@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrGlyph.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/text/GrDistanceFieldAdjustTable.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,
@@ -32,6 +33,16 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
     SkASSERT(glyph);
     return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fPlotLocator);
 }
+
+const GrDistanceFieldAdjustTable* GrAtlasManager::dfAdjustTable() {
+    if (!fDistanceAdjustTable) {
+        fDistanceAdjustTable.reset(new GrDistanceFieldAdjustTable);
+    }
+
+    return fDistanceAdjustTable.get();
+}
+
+
 
 // add to texture atlas that matches this format
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
