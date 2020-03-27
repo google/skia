@@ -238,13 +238,13 @@ public:
      bool run(const ByteCodeFunction* f, Vector args[], Vector** outResult) {
         SkASSERT(f);
         VectorI condStack[MASK_STACK_SIZE];
-        memset(condStack, 255, sizeof(VectorI));
+        memset(&condStack[0], 255, sizeof(condStack[0]));
         VectorI maskStack[MASK_STACK_SIZE];
-        memset(maskStack, 255, sizeof(VectorI));
+        memset(&maskStack[0], 255, sizeof(maskStack[0]));
         VectorI loopStack[LOOP_STACK_SIZE];
-        memset(loopStack, 255, sizeof(VectorI));
+        memset(&loopStack[0], 255, sizeof(loopStack[0]));
         VectorI continueStack[LOOP_STACK_SIZE];
-        memset(continueStack, 0, sizeof(VectorI));
+        memset(&continueStack[0], 0, sizeof(continueStack[0]));
         Vector* stack = fMemory + MEMORY_SIZE;
         int stackCount = f->fStackSlotCount + f->fParameterSlotCount;
         stack -= stackCount;
@@ -291,13 +291,13 @@ public:
         for (int i = 0; i < count; i += width) {
             int lanes = std::min(width, count - i);
             size_t size = lanes * sizeof(float);
-            memset(maskStack, 255, sizeof(VectorI));
-            memset(loopStack, 255, sizeof(VectorI));
+            memset(&maskStack[0], 255, sizeof(maskStack[0]));
+            memset(&loopStack[0], 255, sizeof(loopStack[0]));
             for (int j = lanes; j < width; ++j) {
                 maskStack[0][j] = 0;
                 loopStack[0][j] = 0;
             }
-            memset(continueStack, 0, sizeof(VectorI));
+            memset(&continueStack[0], 0, sizeof(continueStack[0]));
             for (int j = 0; j < f->fParameterSlotCount; ++j) {
                 memcpy(stack + j, &args[j][i], size);
             }
