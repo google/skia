@@ -46,23 +46,17 @@ var CanvasKit = {
   MakeImage: function() {},
   /** @return {CanvasKit.SkImage} */
   MakeImageFromEncoded: function() {},
-  /** @return {LinearCanvasGradient} */
-  MakeLinearGradientShader: function() {},
   MakeOnScreenGLSurface: function() {},
   MakePathFromCmds: function() {},
   MakePathFromOp: function() {},
   MakePathFromSVGString: function() {},
-  MakeRadialGradientShader: function() {},
   MakeRenderTarget: function() {},
   MakeSkPicture: function() {},
   MakeSWCanvasSurface: function() {},
   MakeManagedAnimation: function() {},
   MakeParticles: function() {},
-  MakeSkDashPathEffect: function() {},
   MakeSkVertices: function() {},
   MakeSurface: function() {},
-  /** @return {RadialCanvasGradient} */
-  MakeTwoPointConicalGradientShader: function() {},
   MakeWebGLCanvasSurface: function() {},
   /** @return {TypedArray} */
   Malloc: function() {},

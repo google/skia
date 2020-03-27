@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+ - Previously deprecated functions MakeSkDashPathEffect, MakeLinearGradientShader,
+   MakeRadialGradientShader, MakeTwoPointConicalGradientShader, MakeSkCornerPathEffect,
+   MakeSkDiscretePathEffect
+
 ### Changed
  - CanvasKit colors are now represented with a TypedArray of four floats.
 

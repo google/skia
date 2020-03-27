@@ -63,7 +63,7 @@ Samples
   <figure>
     <canvas id=ink width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/43475699d6d7d3d7dad1004c29f84015752a6a6dee2bb90f2e891b53e31d45cc"
+      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
           target=_blank rel=noopener>
         Ink JSFiddle</a>
     </figcaption>
@@ -258,7 +258,7 @@ Samples
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
     // This effect smooths out the drawn lines a bit.
-    paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
+    paint.setPathEffect(CanvasKit.SkPathEffect.MakeCorner(50));
 
     // Draw I N K
     let path = new CanvasKit.SkPath();
