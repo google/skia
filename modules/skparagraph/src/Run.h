@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
-#include "src/core/SkTraceEvent.h"
 #include <functional>  // std::function
 
 namespace skia {
@@ -32,6 +31,26 @@ typedef SkRange<GraphemeIndex> GraphemeRange;
 
 typedef size_t CodepointIndex;
 typedef SkRange<CodepointIndex> CodepointRange;
+
+typedef size_t GlyphIndex;
+typedef SkRange<GlyphIndex> GlyphRange;
+
+// This is a part of a shaped text
+// Text range (a, b) can be:
+// LTR: [a:b) where a < b
+// RTL: (b:a] where a > b
+class TextSpan {
+  public:
+      TextSpan(Run* run, TextRange textRange, GlyphRange glyphRange)
+        : fRun(run)
+        , fText(textRange)
+        , fGlyphs(glyphRange) { }
+
+  private:
+      Run* fRun;
+      TextRange fText;
+      GlyphRange fGlyphs;
+};
 
 struct RunShifts {
     RunShifts() { }
