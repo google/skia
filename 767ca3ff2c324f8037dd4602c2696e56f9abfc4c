@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67398adc_62f53c1c",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-27T18:19:06Z",
+      "side": 1,
+      "message": "ignore these lines, these are all copied lines just to help guide the process, but they are all comment out right now.",
+      "range": {
+        "startLine": 122,
+        "startChar": 101,
+        "endLine": 123,
+        "endChar": 109
+      },
+      "revId": "767ca3ff2c324f8037dd4602c2696e56f9abfc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
