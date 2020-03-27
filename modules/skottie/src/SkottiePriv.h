@@ -119,7 +119,7 @@ public:
     void attachDiscardableAdapter(sk_sp<T> adapter) const {
         if (adapter->isStatic()) {
             // Fire off a synthetic tick to force a single SG sync before discarding.
-            adapter->tick(0);
+            adapter->seek(0);
         } else {
             fCurrentAnimatorScope->push_back(std::move(adapter));
         }

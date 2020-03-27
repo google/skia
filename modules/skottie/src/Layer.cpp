@@ -223,11 +223,13 @@ public:
         , fOut(out) {}
 
 protected:
-    void onTick(float t) override {
+    bool onSeek(float t) override {
         // in/out may be inverted for time-reversed layers
         const auto active = (t >= fIn && t < fOut) || (t > fOut && t <= fIn);
 
+        auto updated = false;
         if (fLayerNode) {
+            updated |= (fLayerNode->isVisible() != active);
             fLayerNode->setVisible(active);
         }
 
@@ -237,8 +239,10 @@ protected:
         const auto dispatch_count = active ? fLayerAnimators.size()
                                            : fTransformAnimatorsCount;
         for (size_t i = 0; i < dispatch_count; ++i) {
-            fLayerAnimators[i]->tick(t);
+            updated |= fLayerAnimators[i]->seek(t);
         }
+
+        return updated;
     }
 
 private:
@@ -258,8 +262,9 @@ protected:
     // When motion blur is present, time ticks are not passed to layer animators
     // but to the motion blur effect. The effect then drives the animators/scene-graph
     // during reval and render phases.
-    void onTick(float t) override {
+    bool onSeek(float t) override {
         fMotionBlurEffect->setT(t);
+        return true;
     }
 
 private:

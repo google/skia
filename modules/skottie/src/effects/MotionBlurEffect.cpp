@@ -69,7 +69,7 @@ const sksg::RenderNode* MotionBlurEffect::onNodeAt(const SkPoint&) const {
 
 SkRect MotionBlurEffect::seekToSample(size_t sample_idx, const SkMatrix& ctm) const {
     SkASSERT(sample_idx < fSampleCount);
-    fAnimator->tick(fT + fPhase + fDT * sample_idx);
+    fAnimator->seek(fT + fPhase + fDT * sample_idx);
 
     SkASSERT(this->children().size() == 1ul);
     return this->children()[0]->revalidate(nullptr, ctm);

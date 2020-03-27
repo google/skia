@@ -285,17 +285,23 @@ private:
         , fValues(std::move(vs))
         , fTarget(target_value) {}
 
-    void onTick(float t) override {
+    bool onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
+        bool updated;
         if (lerp_info.isConstant()) {
-            *fTarget = fValues[SkToSizeT(lerp_info.vrec0.idx)];
+            updated = (*fTarget != fValues[SkToSizeT(lerp_info.vrec0.idx)]);
+            if (updated) {
+                *fTarget = fValues[SkToSizeT(lerp_info.vrec0.idx)];
+            }
         } else {
-            ValueTraits<T>::Lerp(fValues[lerp_info.vrec0.idx],
-                                 fValues[lerp_info.vrec1.idx],
-                                 lerp_info.weight,
-                                 fTarget);
+            updated = ValueTraits<T>::Lerp(fValues[lerp_info.vrec0.idx],
+                                           fValues[lerp_info.vrec1.idx],
+                                           lerp_info.weight,
+                                           fTarget);
         }
+
+        return updated;
     }
 
     const std::vector<T> fValues;
