@@ -52,18 +52,22 @@ public:
         , fTimeBias(time_bias)
         , fTimeScale(time_scale) {}
 
-    void onTick(float t) override {
+    bool onSeek(float t) override {
         if (fRemapper) {
             // When time remapping is active, |t| is fully driven externally.
-            fRemapper->tick(t);
+            fRemapper->seek(t);
             t = fRemapper->t();
         } else {
             t = (t + fTimeBias) * fTimeScale;
         }
 
+        bool updated = false;
+
         for (const auto& anim : fAnimators) {
-            anim->tick(t);
+            updated |= anim->seek(t);
         }
+
+        return updated;
     }
 
 private:

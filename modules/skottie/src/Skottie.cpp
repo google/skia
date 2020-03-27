@@ -132,7 +132,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValu
     const auto dispatched = this->dispatchOpacityProperty(adapter->node());
 
     if (adapter->isStatic()) {
-        adapter->tick(0);
+        adapter->seek(0);
         if (!dispatched && adapter->node()->getOpacity() >= 1) {
             // No obeservable effects - we can discard.
             return child_node;
@@ -488,7 +488,7 @@ void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
                      comp_time = SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame);
 
     for (const auto& anim : fAnimators) {
-        anim->tick(comp_time);
+        anim->seek(comp_time);
     }
 
     fScene->revalidate(ic);
