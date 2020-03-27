@@ -13,6 +13,7 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
 
+class GrDistanceFieldAdjustTable;
 struct GrGlyph;
 class GrTextStrike;
 
@@ -58,6 +59,8 @@ public:
     void freeAll();
 
     bool hasGlyph(GrGlyph* glyph);
+
+    const GrDistanceFieldAdjustTable* dfAdjustTable();
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
@@ -139,6 +142,8 @@ private:
     sk_sp<const GrCaps> fCaps;
     GrStrikeCache* fGlyphCache;
     GrDrawOpAtlasConfig fAtlasConfig;
+
+    std::unique_ptr<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
     typedef GrOnFlushCallbackObject INHERITED;
 };
