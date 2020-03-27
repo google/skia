@@ -120,8 +120,8 @@ namespace {
                 skvm::I32 dx = p.sub(p.uniform32(uniforms->base, offsetof(BlitterUniforms, right)),
                                      p.index()),
                           dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-                skvm::F32 x = p.add(p.to_f32(dx), p.splat(0.5f)),
-                          y = p.add(p.to_f32(dy), p.splat(0.5f));
+                skvm::F32 x = p.add(p.to_f32(dx), 0.5f),
+                          y = p.add(p.to_f32(dy), 0.5f);
 
                 skvm::Color paint = {
                     p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -140,7 +140,13 @@ namespace {
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
                     // precisely which value we'll treat as which channel.  Imagine the shader
                     // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
-                    const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
+                    // We'll fold the hash of their IDs in order to disambiguate.
+                    const int outputs[] = {
+                        c.r.resolve(&p),
+                        c.g.resolve(&p),
+                        c.b.resolve(&p),
+                        c.a.resolve(&p),
+                    };
                     hash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
@@ -198,8 +204,8 @@ namespace {
             skvm::I32 dx = sub(uniform32(uniforms->base, offsetof(BlitterUniforms, right)),
                                index()),
                       dy = uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-            skvm::F32 x = add(to_f32(dx), splat(0.5f)),
-                      y = add(to_f32(dy), splat(0.5f));
+            skvm::F32 x = add(to_f32(dx), 0.5f),
+                      y = add(to_f32(dy), 0.5f);
 
             skvm::Color paint = {
                 uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -236,10 +242,10 @@ namespace {
             if (!src_in_gamut
                     && params.dst.alphaType() == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.dst.colorType())) {
-                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
-                src.r = clamp(src.r, splat(0.0f), src.a);
-                src.g = clamp(src.g, splat(0.0f), src.a);
-                src.b = clamp(src.b, splat(0.0f), src.a);
+                src.a = clamp(src.a, 0.0f,  1.0f);
+                src.r = clamp(src.r, 0.0f, src.a);
+                src.g = clamp(src.g, 0.0f, src.a);
+                src.b = clamp(src.b, 0.0f, src.a);
                 src_in_gamut = true;
             }
 
@@ -253,7 +259,7 @@ namespace {
             auto load_coverage = [&](skvm::Color* cov) {
                 bool partial_coverage = true;
                 switch (params.coverage) {
-                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = splat(1.0f);
+                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = 1.0f;
                                          partial_coverage = false;
                                          break;
 
@@ -334,7 +340,7 @@ namespace {
             // When a destination is known opaque, we may assume it both starts and stays fully
             // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
             if (params.dst.isOpaque()) {
-                dst.a = splat(1.0f);
+                dst.a = 1.0f;
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 premul(&dst.r, &dst.g, &dst.b, dst.a);
             }
@@ -350,7 +356,7 @@ namespace {
             }
 
             if (params.dst.isOpaque()) {
-                src.a = splat(1.0f);
+                src.a = 1.0f;
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
@@ -367,10 +373,10 @@ namespace {
                 assert_true(eq(src.b, clamp(src.b, lo, hi)), src.b);
                 assert_true(eq(src.a, clamp(src.a, lo, hi)), src.a);
             } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
-                src.r = clamp(src.r, splat(0.0f), splat(1.0f));
-                src.g = clamp(src.g, splat(0.0f), splat(1.0f));
-                src.b = clamp(src.b, splat(0.0f), splat(1.0f));
-                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
+                src.r = clamp01(src.r);
+                src.g = clamp01(src.g);
+                src.b = clamp01(src.b);
+                src.a = clamp01(src.a);
             }
 
             // Store back to the destination.
@@ -468,17 +474,17 @@ namespace {
 
             // See SkRasterPipeline dither stage.
             // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
-            skvm::I32 X =               p->trunc(p->sub(x, p->splat(0.5f))),
-                      Y = p->bit_xor(X, p->trunc(p->sub(y, p->splat(0.5f))));
+            skvm::I32 X =               p->trunc(p->sub(x, 0.5f)),
+                      Y = p->bit_xor(X, p->trunc(p->sub(y, 0.5f)));
 
             // If X's low bits are abc and Y's def, M is fcebda,
             // 6 bits producing all values [0,63] shuffled over an 8x8 grid.
-            skvm::I32 M = p->bit_or(p->shl(p->bit_and(Y, p->splat(1)), 5),
-                          p->bit_or(p->shl(p->bit_and(X, p->splat(1)), 4),
-                          p->bit_or(p->shl(p->bit_and(Y, p->splat(2)), 2),
-                          p->bit_or(p->shl(p->bit_and(X, p->splat(2)), 1),
-                          p->bit_or(p->shr(p->bit_and(Y, p->splat(4)), 1),
-                                    p->shr(p->bit_and(X, p->splat(4)), 2))))));
+            skvm::I32 M = p->bit_or(p->shl(p->bit_and(Y, 1), 5),
+                          p->bit_or(p->shl(p->bit_and(X, 1), 4),
+                          p->bit_or(p->shl(p->bit_and(Y, 2), 2),
+                          p->bit_or(p->shl(p->bit_and(X, 2), 1),
+                          p->bit_or(p->shr(p->bit_and(Y, 4), 1),
+                                    p->shr(p->bit_and(X, 4), 2))))));
 
             // Scale to [0,1) by /64, then to (-0.5,0.5) using 63/128 (~0.492) as 0.5-ε,
             // and finally scale all that by rate.  We keep dither strength strictly
@@ -488,15 +494,15 @@ namespace {
             // we can bake it in without hurting the cache hit rate.
             float scale = rate * (  2/128.0f),
                   bias  = rate * (-63/128.0f);
-            skvm::F32 dither = p->mad(p->to_f32(M), p->splat(scale), p->splat(bias));
+            skvm::F32 dither = p->mad(p->to_f32(M), scale, bias);
 
             c.r = p->add(c.r, dither);
             c.g = p->add(c.g, dither);
             c.b = p->add(c.b, dither);
 
-            c.r = p->clamp(c.r, p->splat(0.0f), c.a);
-            c.g = p->clamp(c.g, p->splat(0.0f), c.a);
-            c.b = p->clamp(c.b, p->splat(0.0f), c.a);
+            c.r = p->clamp(c.r, 0.0f, c.a);
+            c.g = p->clamp(c.g, 0.0f, c.a);
+            c.b = p->clamp(c.b, 0.0f, c.a);
             return c;
         }
     };

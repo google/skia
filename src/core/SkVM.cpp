@@ -48,66 +48,6 @@ bool gSkVMJITViaDylib{false};
     #include <sys/mman.h>   // mmap, mprotect
 #endif
 
-// We're basing our implementation of non-separable blend modes on
-//   https://www.w3.org/TR/compositing-1/#blendingnonseparable.
-// and
-//   https://www.khronos.org/registry/OpenGL/specs/es/3.2/es_spec_3.2.pdf
-// They're equivalent, but ES' math has been better simplified.
-//
-// Anything extra we add beyond that is to make the math work with premul inputs.
-
-static skvm::F32 saturation(skvm::Builder* p, skvm::F32 r, skvm::F32 g, skvm::F32 b) {
-    return p->sub(p->max(r, p->max(g, b)), p->min(r, p->min(g, b)));
-}
-
-static skvm::F32 luminance(skvm::Builder* p, skvm::F32 r, skvm::F32 g, skvm::F32 b) {
-    return p->mad(r, p->splat(0.30f),
-           p->mad(g, p->splat(0.59f),
-           p->mul(b, p->splat(0.11f))));
-}
-
-static void set_sat(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 s) {
-    auto mn  = p->min(*r, p->min(*g, *b)),
-         mx  = p->max(*r, p->max(*g, *b)),
-         sat = p->sub(mx, mn);
-
-    // Map min channel to 0, max channel to s, and scale the middle proportionally.
-    auto scale = [&](auto c) {
-        auto zero = p->splat(0.0f);
-        return p->select(p->eq(sat, zero), zero, p->div(p->mul(p->sub(c, mn), s), sat));
-    };
-    *r = scale(*r);
-    *g = scale(*g);
-    *b = scale(*b);
-}
-
-static void set_lum(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 lu) {
-    auto diff = p->sub(lu, luminance(p, *r, *g, *b));
-    *r = p->add(*r, diff);
-    *g = p->add(*g, diff);
-    *b = p->add(*b, diff);
-}
-
-static void clip_color(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 a) {
-    auto mn = p->min(*r, p->min(*g, *b)),
-         mx = p->max(*r, p->max(*g, *b)),
-         lu = luminance(p, *r, *g, *b);
-
-    auto clip = [&](auto c) {
-        c = p->select(p->gte(mn, p->splat(0.0f)),
-                      c,
-                      p->add(lu, p->div(p->mul(p->sub(c, lu), lu),            p->sub(lu, mn))));
-        c = p->select(p->gt (mx, a),
-                      p->add(lu, p->div(p->mul(p->sub(c, lu), p->sub(a, lu)), p->sub(mx, lu))),
-                      c);
-        // Sometimes without this we may dip just a little negative.
-        return p->max(c, p->splat(0.0f));
-    };
-    *r = clip(*r);
-    *g = clip(*g);
-    *b = clip(*b);
-}
-
 namespace skvm {
 
     struct Program::Impl {
@@ -782,6 +722,22 @@ namespace skvm {
         return id;
     }
 
+    Val I32::resolve(Builder* b) {
+        if (!fBuilder) {
+            *this = b->splat(fImm);
+        }
+        SkASSERT(fBuilder == b);
+        return fID;
+    }
+
+    Val F32::resolve(Builder* b) {
+        if (!fBuilder) {
+            *this = b->splat(fImm);
+        }
+        SkASSERT(fBuilder == b);
+        return fID;
+    }
+
     bool Builder::allImm() const { return true; }
 
     template <typename T, typename... Rest>
@@ -803,47 +759,47 @@ namespace skvm {
     void Builder::assert_true(I32 cond, I32 debug) {
     #ifdef SK_DEBUG
         int imm;
-        if (this->allImm(cond.id,&imm)) { SkASSERT(imm); return; }
-        (void)this->push(Op::assert_true, cond.id,debug.id,NA);
+        if (this->allImm(id(cond),&imm)) { SkASSERT(imm); return; }
+        (void)push(Op::assert_true, id(cond),id(debug),NA);
     #endif
     }
 
-    void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
-    void Builder::store16(Arg ptr, I32 val) { (void)this->push(Op::store16, val.id,NA,NA, ptr.ix); }
-    void Builder::store32(Arg ptr, I32 val) { (void)this->push(Op::store32, val.id,NA,NA, ptr.ix); }
+    void Builder::store8 (Arg ptr, I32 val) { (void)push(Op::store8 , id(val),NA,NA, ptr.ix); }
+    void Builder::store16(Arg ptr, I32 val) { (void)push(Op::store16, id(val),NA,NA, ptr.ix); }
+    void Builder::store32(Arg ptr, I32 val) { (void)push(Op::store32, id(val),NA,NA, ptr.ix); }
 
-    I32 Builder::index() { return {this->push(Op::index , NA,NA,NA,0) }; }
+    I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
 
-    I32 Builder::load8 (Arg ptr) { return {this->push(Op::load8 , NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load16(Arg ptr) { return {this->push(Op::load16, NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load32(Arg ptr) { return {this->push(Op::load32, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load8 (Arg ptr) { return {this, push(Op::load8 , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load16(Arg ptr) { return {this, push(Op::load16, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load32(Arg ptr) { return {this, push(Op::load32, NA,NA,NA, ptr.ix) }; }
 
     I32 Builder::gather8 (Arg ptr, int offset, I32 index) {
-        return {this->push(Op::gather8 , index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather8 , id(index),NA,NA, ptr.ix,offset)};
     }
     I32 Builder::gather16(Arg ptr, int offset, I32 index) {
-        return {this->push(Op::gather16, index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather16, id(index),NA,NA, ptr.ix,offset)};
     }
     I32 Builder::gather32(Arg ptr, int offset, I32 index) {
-        return {this->push(Op::gather32, index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather32, id(index),NA,NA, ptr.ix,offset)};
     }
 
     I32 Builder::uniform8(Arg ptr, int offset) {
-        return {this->push(Op::uniform8, NA,NA,NA, ptr.ix, offset)};
+        return {this, push(Op::uniform8, NA,NA,NA, ptr.ix, offset)};
     }
     I32 Builder::uniform16(Arg ptr, int offset) {
-        return {this->push(Op::uniform16, NA,NA,NA, ptr.ix, offset)};
+        return {this, push(Op::uniform16, NA,NA,NA, ptr.ix, offset)};
     }
     I32 Builder::uniform32(Arg ptr, int offset) {
-        return {this->push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
+        return {this, push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
 
     // The two splat() functions are just syntax sugar over splatting a 4-byte bit pattern.
-    I32 Builder::splat(int   n) { return {this->push(Op::splat, NA,NA,NA, n) }; }
+    I32 Builder::splat(int   n) { return {this, push(Op::splat, NA,NA,NA, n) }; }
     F32 Builder::splat(float f) {
         int bits;
         memcpy(&bits, &f, 4);
-        return {this->push(Op::splat, NA,NA,NA, bits)};
+        return {this, push(Op::splat, NA,NA,NA, bits)};
     }
 
     static bool fma_supported() {
@@ -875,55 +831,55 @@ namespace skvm {
 
     F32 Builder::add(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X+Y); }
-        if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
-        if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X+Y); }
+        if (this->isImm(id(y), 0.0f)) { return x; }   // x+0 == x
+        if (this->isImm(id(x), 0.0f)) { return y; }   // 0+y == y
 
         if (fma_supported()) {
-            if (fProgram[x.id].op == Op::mul_f32) {
-                return {this->push(Op::fma_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
+            if (fProgram[id(x)].op == Op::mul_f32) {
+                return {this, push(Op::fma_f32, fProgram[id(x)].x, fProgram[id(x)].y, id(y))};
             }
-            if (fProgram[y.id].op == Op::mul_f32) {
-                return {this->push(Op::fma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
+            if (fProgram[id(y)].op == Op::mul_f32) {
+                return {this, push(Op::fma_f32, fProgram[id(y)].x, fProgram[id(y)].y, id(x))};
             }
         }
-        return {this->push(Op::add_f32, x.id, y.id)};
+        return {this, push(Op::add_f32, id(x), id(y))};
     }
 
     F32 Builder::sub(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
-        if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X-Y); }
+        if (this->isImm(id(y), 0.0f)) { return x; }   // x-0 == x
         if (fma_supported()) {
-            if (fProgram[x.id].op == Op::mul_f32) {
-                return {this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
+            if (fProgram[id(x)].op == Op::mul_f32) {
+                return {this, push(Op::fms_f32, fProgram[id(x)].x, fProgram[id(x)].y, id(y))};
             }
-            if (fProgram[y.id].op == Op::mul_f32) {
-                return {this->push(Op::fnma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
+            if (fProgram[id(y)].op == Op::mul_f32) {
+                return {this, push(Op::fnma_f32, fProgram[id(y)].x, fProgram[id(y)].y, id(x))};
             }
         }
-        return {this->push(Op::sub_f32, x.id, y.id)};
+        return {this, push(Op::sub_f32, id(x), id(y))};
     }
 
     F32 Builder::mul(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X*Y); }
-        if (this->isImm(y.id, 1.0f)) { return x; }  // x*1 == x
-        if (this->isImm(x.id, 1.0f)) { return y; }  // 1*y == y
-        return {this->push(Op::mul_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X*Y); }
+        if (this->isImm(id(y), 1.0f)) { return x; }  // x*1 == x
+        if (this->isImm(id(x), 1.0f)) { return y; }  // 1*y == y
+        return {this, push(Op::mul_f32, id(x), id(y))};
     }
 
     F32 Builder::div(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X/Y); }
-        if (this->isImm(y.id, 1.0f)) { return x; }  // x/1 == x
-        return {this->push(Op::div_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X/Y); }
+        if (this->isImm(id(y), 1.0f)) { return x; }  // x/1 == x
+        return {this, push(Op::div_f32, id(x), id(y))};
     }
 
     F32 Builder::sqrt(F32 x) {
         float X;
-        if (this->allImm(x.id,&X)) { return this->splat(std::sqrt(X)); }
-        return {this->push(Op::sqrt_f32, x.id,NA,NA)};
+        if (this->allImm(id(x),&X)) { return this->splat(std::sqrt(X)); }
+        return {this, push(Op::sqrt_f32, id(x),NA,NA)};
     }
 
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
@@ -932,192 +888,193 @@ namespace skvm {
         F32 e = mul(to_f32(bit_cast(x)), splat(1.0f / (1<<23)));
 
         // ... but using the mantissa to refine its error is _much_ better.
-        F32 m = bit_cast(bit_or(bit_and(bit_cast(x), splat(0x007fffff)), splat(0x3f000000)));
-        F32 approx = sub(e,      splat(124.225514990f));
-            approx = sub(approx, mul(splat(1.498030302f), m));
-            approx = sub(approx, div(splat(1.725879990f), add(splat(0.3520887068f), m)));
+        F32 m = bit_cast(bit_or(bit_and(bit_cast(x), 0x007fffff),
+                                0x3f000000));
+        F32 approx = sub(e,        124.225514990f);
+            approx = sub(approx, mul(1.498030302f, m));
+            approx = sub(approx, div(1.725879990f, add(0.3520887068f, m)));
 
         return approx;
     }
 
     F32 Builder::approx_pow2(F32 x) {
         F32 f = fract(x);
-        F32 approx = add(x, splat(121.274057500f));
-            approx = sub(approx, mul(splat( 1.490129070f), f));
-            approx = add(approx, div(splat(27.728023300f), sub(splat(4.84252568f), f)));
+        F32 approx = add(x,         121.274057500f);
+            approx = sub(approx, mul( 1.490129070f, f));
+            approx = add(approx, div(27.728023300f, sub(4.84252568f, f)));
 
-        return bit_cast(round(mul(splat(1.0f * (1<<23)), approx)));
+        return bit_cast(round(mul(1.0f * (1<<23), approx)));
     }
 
     F32 Builder::approx_powf(F32 x, F32 y) {
-        auto is_x = bit_or(eq(x, splat(0.0f)),
-                           eq(x, splat(1.0f)));
+        auto is_x = bit_or(eq(x, 0.0f),
+                           eq(x, 1.0f));
         return select(is_x, x, approx_pow2(mul(approx_log2(x), y)));
     }
 
     F32 Builder::min(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::min(X,Y)); }
-        return {this->push(Op::min_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(std::min(X,Y)); }
+        return {this, push(Op::min_f32, id(x), id(y))};
     }
     F32 Builder::max(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::max(X,Y)); }
-        return {this->push(Op::max_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(std::max(X,Y)); }
+        return {this, push(Op::max_f32, id(x), id(y))};
     }
 
-    I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
-    I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
-    I32 Builder::mul(I32 x, I32 y) { return {this->push(Op::mul_i32, x.id, y.id)}; }
+    I32 Builder::add(I32 x, I32 y) { return {this, push(Op::add_i32, id(x), id(y))}; }
+    I32 Builder::sub(I32 x, I32 y) { return {this, push(Op::sub_i32, id(x), id(y))}; }
+    I32 Builder::mul(I32 x, I32 y) { return {this, push(Op::mul_i32, id(x), id(y))}; }
 
-    I32 Builder::add_16x2(I32 x, I32 y) { return {this->push(Op::add_i16x2, x.id, y.id)}; }
-    I32 Builder::sub_16x2(I32 x, I32 y) { return {this->push(Op::sub_i16x2, x.id, y.id)}; }
-    I32 Builder::mul_16x2(I32 x, I32 y) { return {this->push(Op::mul_i16x2, x.id, y.id)}; }
+    I32 Builder::add_16x2(I32 x, I32 y) { return {this, push(Op::add_i16x2, id(x), id(y))}; }
+    I32 Builder::sub_16x2(I32 x, I32 y) { return {this, push(Op::sub_i16x2, id(x), id(y))}; }
+    I32 Builder::mul_16x2(I32 x, I32 y) { return {this, push(Op::mul_i16x2, id(x), id(y))}; }
 
     I32 Builder::shl(I32 x, int bits) {
         if (bits == 0) { return x; }
         int X;
-        if (this->allImm(x.id,&X)) { return this->splat(X << bits); }
-        return {this->push(Op::shl_i32, x.id,NA,NA, bits)};
+        if (this->allImm(id(x),&X)) { return this->splat(X << bits); }
+        return {this, push(Op::shl_i32, id(x),NA,NA, bits)};
     }
     I32 Builder::shr(I32 x, int bits) {
         if (bits == 0) { return x; }
         int X;
-        if (this->allImm(x.id,&X)) { return this->splat(unsigned(X) >> bits); }
-        return {this->push(Op::shr_i32, x.id,NA,NA, bits)};
+        if (this->allImm(id(x),&X)) { return this->splat(unsigned(X) >> bits); }
+        return {this, push(Op::shr_i32, id(x),NA,NA, bits)};
     }
     I32 Builder::sra(I32 x, int bits) {
         if (bits == 0) { return x; }
         int X;
-        if (this->allImm(x.id,&X)) { return this->splat(X >> bits); }
-        return {this->push(Op::sra_i32, x.id,NA,NA, bits)};
+        if (this->allImm(id(x),&X)) { return this->splat(X >> bits); }
+        return {this, push(Op::sra_i32, id(x),NA,NA, bits)};
     }
 
-    I32 Builder::shl_16x2(I32 x, int bits) { return {this->push(Op::shl_i16x2, x.id,NA,NA, bits)}; }
-    I32 Builder::shr_16x2(I32 x, int bits) { return {this->push(Op::shr_i16x2, x.id,NA,NA, bits)}; }
-    I32 Builder::sra_16x2(I32 x, int bits) { return {this->push(Op::sra_i16x2, x.id,NA,NA, bits)}; }
+    I32 Builder::shl_16x2(I32 x, int k) { return {this, push(Op::shl_i16x2, id(x),NA,NA, k)}; }
+    I32 Builder::shr_16x2(I32 x, int k) { return {this, push(Op::shr_i16x2, id(x),NA,NA, k)}; }
+    I32 Builder::sra_16x2(I32 x, int k) { return {this, push(Op::sra_i16x2, id(x),NA,NA, k)}; }
 
     I32 Builder:: eq(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X==Y ? ~0 : 0); }
-        return {this->push(Op::eq_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X==Y ? ~0 : 0); }
+        return {this, push(Op::eq_f32, id(x), id(y))};
     }
     I32 Builder::neq(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X!=Y ? ~0 : 0); }
-        return {this->push(Op::neq_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X!=Y ? ~0 : 0); }
+        return {this, push(Op::neq_f32, id(x), id(y))};
     }
     I32 Builder::lt(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(Y> X ? ~0 : 0); }
-        return {this->push(Op::gt_f32, y.id, x.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(Y> X ? ~0 : 0); }
+        return {this, push(Op::gt_f32, id(y), id(x))};
     }
     I32 Builder::lte(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(Y>=X ? ~0 : 0); }
-        return {this->push(Op::gte_f32, y.id, x.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(Y>=X ? ~0 : 0); }
+        return {this, push(Op::gte_f32, id(y), id(x))};
     }
     I32 Builder::gt(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X> Y ? ~0 : 0); }
-        return {this->push(Op::gt_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X> Y ? ~0 : 0); }
+        return {this, push(Op::gt_f32, id(x), id(y))};
     }
     I32 Builder::gte(F32 x, F32 y) {
         float X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X>=Y ? ~0 : 0); }
-        return {this->push(Op::gte_f32, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X>=Y ? ~0 : 0); }
+        return {this, push(Op::gte_f32, id(x), id(y))};
     }
 
-    I32 Builder:: eq(I32 x, I32 y) { return {this->push(Op:: eq_i32, x.id, y.id)}; }
-    I32 Builder::neq(I32 x, I32 y) { return {this->push(Op::neq_i32, x.id, y.id)}; }
-    I32 Builder:: lt(I32 x, I32 y) { return {this->push(Op:: gt_i32, y.id, x.id)}; }
-    I32 Builder::lte(I32 x, I32 y) { return {this->push(Op::gte_i32, y.id, x.id)}; }
-    I32 Builder:: gt(I32 x, I32 y) { return {this->push(Op:: gt_i32, x.id, y.id)}; }
-    I32 Builder::gte(I32 x, I32 y) { return {this->push(Op::gte_i32, x.id, y.id)}; }
+    I32 Builder:: eq(I32 x, I32 y) { return {this, push(Op:: eq_i32, id(x), id(y))}; }
+    I32 Builder::neq(I32 x, I32 y) { return {this, push(Op::neq_i32, id(x), id(y))}; }
+    I32 Builder:: lt(I32 x, I32 y) { return {this, push(Op:: gt_i32, id(y), id(x))}; }
+    I32 Builder::lte(I32 x, I32 y) { return {this, push(Op::gte_i32, id(y), id(x))}; }
+    I32 Builder:: gt(I32 x, I32 y) { return {this, push(Op:: gt_i32, id(x), id(y))}; }
+    I32 Builder::gte(I32 x, I32 y) { return {this, push(Op::gte_i32, id(x), id(y))}; }
 
-    I32 Builder:: eq_16x2(I32 x, I32 y) { return {this->push(Op:: eq_i16x2, x.id, y.id)}; }
-    I32 Builder::neq_16x2(I32 x, I32 y) { return {this->push(Op::neq_i16x2, x.id, y.id)}; }
-    I32 Builder:: lt_16x2(I32 x, I32 y) { return {this->push(Op:: gt_i16x2, y.id, x.id)}; }
-    I32 Builder::lte_16x2(I32 x, I32 y) { return {this->push(Op::gte_i16x2, y.id, x.id)}; }
-    I32 Builder:: gt_16x2(I32 x, I32 y) { return {this->push(Op:: gt_i16x2, x.id, y.id)}; }
-    I32 Builder::gte_16x2(I32 x, I32 y) { return {this->push(Op::gte_i16x2, x.id, y.id)}; }
+    I32 Builder:: eq_16x2(I32 x, I32 y) { return {this, push(Op:: eq_i16x2, id(x), id(y))}; }
+    I32 Builder::neq_16x2(I32 x, I32 y) { return {this, push(Op::neq_i16x2, id(x), id(y))}; }
+    I32 Builder:: lt_16x2(I32 x, I32 y) { return {this, push(Op:: gt_i16x2, id(y), id(x))}; }
+    I32 Builder::lte_16x2(I32 x, I32 y) { return {this, push(Op::gte_i16x2, id(y), id(x))}; }
+    I32 Builder:: gt_16x2(I32 x, I32 y) { return {this, push(Op:: gt_i16x2, id(x), id(y))}; }
+    I32 Builder::gte_16x2(I32 x, I32 y) { return {this, push(Op::gte_i16x2, id(x), id(y))}; }
 
     I32 Builder::bit_and(I32 x, I32 y) {
         int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&Y); }
-        if (this->isImm(y.id, 0)) { return this->splat(0); }   // (x & false) == false
-        if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & y) == false
-        if (this->isImm(y.id,~0)) { return x; }                // (x & true) == x
-        if (this->isImm(x.id,~0)) { return y; }                // (true & y) == y
-        return {this->push(Op::bit_and, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X&Y); }
+        if (this->isImm(id(y), 0)) { return this->splat(0); }   // (x & false) == false
+        if (this->isImm(id(x), 0)) { return this->splat(0); }   // (false & y) == false
+        if (this->isImm(id(y),~0)) { return x; }                // (x & true) == x
+        if (this->isImm(id(x),~0)) { return y; }                // (true & y) == y
+        return {this, push(Op::bit_and, id(x), id(y))};
     }
     I32 Builder::bit_or(I32 x, I32 y) {
         int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|Y); }
-        if (this->isImm(y.id, 0)) { return x; }                 // (x | false) == x
-        if (this->isImm(x.id, 0)) { return y; }                 // (false | y) == y
-        if (this->isImm(y.id,~0)) { return this->splat(~0); }   // (x | true) == true
-        if (this->isImm(x.id,~0)) { return this->splat(~0); }   // (true | y) == true
-        return {this->push(Op::bit_or, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X|Y); }
+        if (this->isImm(id(y), 0)) { return x; }                 // (x | false) == x
+        if (this->isImm(id(x), 0)) { return y; }                 // (false | y) == y
+        if (this->isImm(id(y),~0)) { return this->splat(~0); }   // (x | true) == true
+        if (this->isImm(id(x),~0)) { return this->splat(~0); }   // (true | y) == true
+        return {this, push(Op::bit_or, id(x), id(y))};
     }
     I32 Builder::bit_xor(I32 x, I32 y) {
         int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X^Y); }
-        if (this->isImm(y.id, 0)) { return x; }   // (x ^ false) == x
-        if (this->isImm(x.id, 0)) { return y; }   // (false ^ y) == y
-        return {this->push(Op::bit_xor, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X^Y); }
+        if (this->isImm(id(y), 0)) { return x; }   // (x ^ false) == x
+        if (this->isImm(id(x), 0)) { return y; }   // (false ^ y) == y
+        return {this, push(Op::bit_xor, id(x), id(y))};
     }
     I32 Builder::bit_clear(I32 x, I32 y) {
         int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&~Y); }
-        if (this->isImm(y.id, 0)) { return x; }                // (x & ~false) == x
-        if (this->isImm(y.id,~0)) { return this->splat(0); }   // (x & ~true) == false
-        if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & ~y) == false
-        return {this->push(Op::bit_clear, x.id, y.id)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X&~Y); }
+        if (this->isImm(id(y), 0)) { return x; }                // (x & ~false) == x
+        if (this->isImm(id(y),~0)) { return this->splat(0); }   // (x & ~true) == false
+        if (this->isImm(id(x), 0)) { return this->splat(0); }   // (false & ~y) == false
+        return {this, push(Op::bit_clear, id(x), id(y))};
     }
 
     I32 Builder::select(I32 x, I32 y, I32 z) {
         int X,Y,Z;
-        if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X?Y:Z); }
+        if (this->allImm(id(x),&X, id(y),&Y, id(z),&Z)) { return this->splat(X?Y:Z); }
         // TODO: some cases to reduce to bit_and when y == 0 or z == 0?
-        return {this->push(Op::select, x.id, y.id, z.id)};
+        return {this, push(Op::select, id(x), id(y), id(z))};
     }
 
     I32 Builder::extract(I32 x, int bits, I32 z) {
         int Z;
-        if (this->allImm(z.id,&Z) && (~0u>>bits) == (unsigned)Z) { return this->shr(x, bits); }
+        if (this->allImm(id(z),&Z) && (~0u>>bits) == (unsigned)Z) { return this->shr(x, bits); }
         return this->bit_and(z, this->shr(x, bits));
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
         int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|(Y<<bits)); }
-        return {this->push(Op::pack, x.id,y.id,NA, 0,bits)};
+        if (this->allImm(id(x),&X, id(y),&Y)) { return this->splat(X|(Y<<bits)); }
+        return {this, push(Op::pack, id(x),id(y),NA, 0,bits)};
     }
 
     I32 Builder::bytes(I32 x, int control) {
-        return {this->push(Op::bytes, x.id,NA,NA, control)};
+        return {this, push(Op::bytes, id(x),NA,NA, control)};
     }
 
     F32 Builder::floor(F32 x) {
         float X;
-        if (this->allImm(x.id,&X)) { return this->splat(floorf(X)); }
-        return {this->push(Op::floor, x.id)};
+        if (this->allImm(id(x),&X)) { return this->splat(floorf(X)); }
+        return {this, push(Op::floor, id(x))};
     }
     F32 Builder::to_f32(I32 x) {
         int X;
-        if (this->allImm(x.id,&X)) { return this->splat((float)X); }
-        return {this->push(Op::to_f32, x.id)};
+        if (this->allImm(id(x),&X)) { return this->splat((float)X); }
+        return {this, push(Op::to_f32, id(x))};
     }
     I32 Builder::trunc(F32 x) {
         float X;
-        if (this->allImm(x.id,&X)) { return this->splat((int)X); }
-        return {this->push(Op::trunc, x.id)};
+        if (this->allImm(id(x),&X)) { return this->splat((int)X); }
+        return {this, push(Op::trunc, id(x))};
     }
     I32 Builder::round(F32 x) {
         float X;
-        if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
-        return {this->push(Op::round, x.id)};
+        if (this->allImm(id(x),&X)) { return this->splat((int)lrintf(X)); }
+        return {this, push(Op::round, id(x))};
     }
 
     F32 Builder::from_unorm(int bits, I32 x) {
@@ -1131,31 +1088,31 @@ namespace skvm {
 
     Color Builder::unpack_1010102(I32 rgba) {
         return {
-            from_unorm(10, extract(rgba,  0, splat(0x3ff))),
-            from_unorm(10, extract(rgba, 10, splat(0x3ff))),
-            from_unorm(10, extract(rgba, 20, splat(0x3ff))),
-            from_unorm( 2, extract(rgba, 30, splat(0x3  ))),
+            from_unorm(10, extract(rgba,  0, 0x3ff)),
+            from_unorm(10, extract(rgba, 10, 0x3ff)),
+            from_unorm(10, extract(rgba, 20, 0x3ff)),
+            from_unorm( 2, extract(rgba, 30, 0x3  )),
         };
     }
     Color Builder::unpack_8888(I32 rgba) {
         return {
-            from_unorm(8, extract(rgba,  0, splat(0xff))),
-            from_unorm(8, extract(rgba,  8, splat(0xff))),
-            from_unorm(8, extract(rgba, 16, splat(0xff))),
-            from_unorm(8, extract(rgba, 24, splat(0xff))),
+            from_unorm(8, extract(rgba,  0, 0xff)),
+            from_unorm(8, extract(rgba,  8, 0xff)),
+            from_unorm(8, extract(rgba, 16, 0xff)),
+            from_unorm(8, extract(rgba, 24, 0xff)),
         };
     }
     Color Builder::unpack_565(I32 bgr) {
         return {
-            from_unorm(5, extract(bgr, 11, splat(0b011'111))),
-            from_unorm(6, extract(bgr,  5, splat(0b111'111))),
-            from_unorm(5, extract(bgr,  0, splat(0b011'111))),
-            splat(1.0f),
+            from_unorm(5, extract(bgr, 11, 0b011'111)),
+            from_unorm(6, extract(bgr,  5, 0b111'111)),
+            from_unorm(5, extract(bgr,  0, 0b011'111)),
+            1.0f,
         };
     }
 
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
-        skvm::F32 invA = div(splat(1.0f), a),
+        skvm::F32 invA = div(1.0f, a),
                   inf  = bit_cast(splat(0x7f800000));
         // If a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
         invA = bit_cast(bit_and(lt(invA, inf),
@@ -1193,55 +1150,112 @@ namespace skvm {
     }
 
     HSLA Builder::to_hsla(Color c) {
-        auto mx = max(max(c.r,c.g),c.b),
-             mn = min(min(c.r,c.g),c.b),
-              d = sub(mx,mn),
-          d_rcp = div(splat(1.0f),d),
-         g_lt_b = select(lt(c.g,c.b), splat(6.0f), splat(0.0f));
+        F32 mx = max(max(c.r,c.g),c.b),
+            mn = min(min(c.r,c.g),c.b),
+             d = mx - mn,
+        g_lt_b = select(c.g < c.b, splat(6.0f)
+                                 , splat(0.0f));
 
-        auto diffm = [&](auto a, auto b) { return mul(sub(a,b), d_rcp); };
+        auto diffm = [&](auto a, auto b) {
+            return (a - b) * (1 / d);
+        };
 
-        auto h = mul(splat(1/6.0f),
-                        select(eq(mx,mn),   splat(0.0f),
+        F32 h = mul(1/6.0f,
+                        select(eq(mx,  mn), 0.0f,
                         select(eq(mx, c.r), add(diffm(c.g,c.b), g_lt_b),
-                        select(eq(mx, c.g), add(diffm(c.b,c.r), splat(2.0f)),
-                                            add(diffm(c.r,c.g), splat(4.0f))))));
+                        select(eq(mx, c.g), add(diffm(c.b,c.r), 2.0f)
+                                          , add(diffm(c.r,c.g), 4.0f)))));
 
-        auto sum = add(mx,mn);
-        auto   l = mul(sum, splat(0.5f));
-        auto   s = select(eq(mx,mn), splat(0.0f),
-                                     div(d, select(gt(l,splat(0.5f)), sub(splat(2.0f),sum),
-                                                                      sum)));
+        F32 sum = add(mx,mn);
+        F32   l = mul(sum, 0.5f);
+        F32   s = select(eq(mx,mn), 0.0f
+                                  , div(d, select(gt(l,0.5f), sub(2.0f,sum)
+                                                            , sum)));
         return {h, s, l, c.a};
     }
 
     Color Builder::to_rgba(HSLA c) {
         // See GrRGBToHSLFilterEffect.fp
 
-        auto h = c.h,
-             s = c.s,
-             l = c.l,
-             x = mul(sub(splat(1.0f), abs(sub(add(l,l), splat(1.0f)))), s);
+        auto [h,s,l,a] = c;
+        F32 x = mul(sub(1.0f, abs(sub(add(l,l), 1.0f))), s);
 
-        auto hue_to_rgb = [&](auto hue) {
-            auto q = sub(abs(mad(fract(hue),splat(6.0f), splat(-3.0f))), splat(1.0f));
-            return mad(sub(clamp01(q), splat(0.5f)), x, l);
+        auto hue_to_rgb = [&,l=l](auto hue) {
+            auto q = sub(abs(mad(fract(hue), 6.0f, -3.0f)), 1.0f);
+            return mad(sub(clamp01(q), 0.5f), x, l);
         };
 
         return {
-            hue_to_rgb(add(h, splat(0.0f/3.0f))),
-            hue_to_rgb(add(h, splat(2.0f/3.0f))),
-            hue_to_rgb(add(h, splat(1.0f/3.0f))),
+            hue_to_rgb(add(h, 0/3.0f)),
+            hue_to_rgb(add(h, 2/3.0f)),
+            hue_to_rgb(add(h, 1/3.0f)),
             c.a,
         };
+    }
+
+    // We're basing our implementation of non-separable blend modes on
+    //   https://www.w3.org/TR/compositing-1/#blendingnonseparable.
+    // and
+    //   https://www.khronos.org/registry/OpenGL/specs/es/3.2/es_spec_3.2.pdf
+    // They're equivalent, but ES' math has been better simplified.
+    //
+    // Anything extra we add beyond that is to make the math work with premul inputs.
+
+    static skvm::F32 saturation(skvm::Builder* p, skvm::F32 r, skvm::F32 g, skvm::F32 b) {
+        return max(r, max(g, b))
+             - min(r, min(g, b));
+    }
+
+    static skvm::F32 luminance(skvm::Builder* p, skvm::F32 r, skvm::F32 g, skvm::F32 b) {
+        return r*0.30f + (g*0.59f + b*0.11f);
+    }
+
+    static void set_sat(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 s) {
+        F32 mn  = min(*r, min(*g, *b)),
+            mx  = max(*r, max(*g, *b)),
+            sat = mx - mn;
+
+        // Map min channel to 0, max channel to s, and scale the middle proportionally.
+        auto scale = [&](auto c) {
+            // TODO: better to divide and check for non-finite result?
+            return p->select(sat == 0.0f, 0.0f
+                                        , ((c - mn) * s) / sat);
+        };
+        *r = scale(*r);
+        *g = scale(*g);
+        *b = scale(*b);
+    }
+
+    static void set_lum(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 lu) {
+        auto diff = lu - luminance(p, *r, *g, *b);
+        *r = p->add(*r, diff);
+        *g = p->add(*g, diff);
+        *b = p->add(*b, diff);
+    }
+
+    static void clip_color(skvm::Builder* p,
+                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 a) {
+        F32 mn  = min(*r, min(*g, *b)),
+            mx  = max(*r, max(*g, *b)),
+            lu = luminance(p, *r, *g, *b);
+
+        auto clip = [&](auto c) {
+            c = p->select(mn >= 0, c
+                                 , lu + ((c-lu)*(  lu)) / (lu-mn));
+            c = p->select(mx >  a, lu + ((c-lu)*(a-lu)) / (mx-lu)
+                                 , c);
+            // Sometimes without this we may dip just a little negative.
+            return max(c, 0.0f);
+        };
+        *r = clip(*r);
+        *g = clip(*g);
+        *b = clip(*b);
     }
 
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {
         auto mma = [this](skvm::F32 x, skvm::F32 y, skvm::F32 z, skvm::F32 w) {
             return mad(x,y, mul(z,w));
         };
-
-        auto inv = [this](skvm::F32 x) { return sub(splat(1.0f), x); };
 
         auto two = [this](skvm::F32 x) { return add(x, x); };
 
@@ -1275,12 +1289,7 @@ namespace skvm {
         switch (mode) {
             default: SkASSERT(false); /*but also, for safety, fallthrough*/
 
-            case SkBlendMode::kClear: return {
-                splat(0.0f),
-                splat(0.0f),
-                splat(0.0f),
-                splat(0.0f),
-            };
+            case SkBlendMode::kClear: return { 0.0f, 0.0f, 0.0f, 0.0f };
 
             case SkBlendMode::kSrc: return src;
             case SkBlendMode::kDst: return dst;
@@ -1316,7 +1325,7 @@ namespace skvm {
 
             case SkBlendMode::kPlus:
                 return apply_rgba([&](auto s, auto d) {
-                    return min(add(s, d), splat(1.0f));
+                    return min(add(s, d), 1.0f);
                 });
 
             case SkBlendMode::kModulate:
@@ -1356,20 +1365,24 @@ namespace skvm {
 
             case SkBlendMode::kColorBurn:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
+                    // TODO: divide and check for non-finite result instead of checking for s == 0.
                     auto mn   = min(dst.a,
                                     div(mul(sub(dst.a, d), src.a), s)),
                          burn = mad(src.a, sub(dst.a, mn), mma(s, inv(dst.a), d, inv(src.a)));
-                    return select(eq(d, dst.a),       mad(s, inv(dst.a), d),
-                           select(eq(s, splat(0.0f)), mul(d, inv(src.a)), burn));
+                    return select(eq(d, dst.a), mad(s, inv(dst.a), d),
+                           select(eq(s,  0.0f), mul(d, inv(src.a))
+                                              , burn));
                 });
 
             case SkBlendMode::kColorDodge:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    auto tmp = mad(src.a, min(dst.a,
-                                              div(mul(d, src.a), sub(src.a, s))),
-                                   mma(s, inv(dst.a), d, inv(src.a)));
-                    return select(eq(d, splat(0.0f)), mul(s, inv(dst.a)),
-                           select(eq(s, src.a),       mad(d, inv(src.a), s), tmp));
+                    // TODO: divide and check for non-finite result instead of checking for s == sa.
+                    auto dodge = mad(src.a, min(dst.a,
+                                                div(mul(d, src.a), sub(src.a, s))),
+                                     mma(s, inv(dst.a), d, inv(src.a)));
+                    return select(eq(d,  0.0f), mul(s, inv(dst.a)),
+                           select(eq(s, src.a), mad(d, inv(src.a), s)
+                                              , dodge));
                 });
 
             case SkBlendMode::kHardLight:
@@ -1395,7 +1408,7 @@ namespace skvm {
 
             case SkBlendMode::kSoftLight:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    auto  m = select(gt(dst.a, splat(0.0f)), div(d, dst.a), splat(0.0f)),
+                    auto  m = select(gt(dst.a, 0.0f), div(d, dst.a), 0.0f),
                          s2 = two(s),
                          m4 = two(two(m));
 
@@ -1407,7 +1420,7 @@ namespace skvm {
                          // Used in case 1
                     auto darkSrc = mul(d, mad(sub(s2, src.a), inv(m), src.a)),
                          // Used in case 2
-                         darkDst = mad(mad(m4, m4, m4), sub(m, splat(1.0f)), mul(splat(7.0f), m)),
+                         darkDst = mad(mad(m4, m4, m4), sub(m, 1.0f), mul(7.0f, m)),
                          // Used in case 3.
                          liteDst = sub(sqrt(m), m),
                          // Used in 2 or 3?
