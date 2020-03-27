@@ -92,15 +92,24 @@ template <typename T> struct SkRange {
     }
 
     bool contains(SkRange<size_t> other) const {
-        return start <= other.start && end >= other.end;
+        return start <= other.start && other.end <= end;
     }
 
-    bool intersects(SkRange<size_t> other) const {
+    virtual bool contains(size_t index) const {
+        return start <= index && index < end;
+    }
+
+    virtual bool intersects(SkRange<size_t> other) const {
         return std::max(start, other.start) <= std::min(end, other.end);
     }
 
     bool empty() const {
         return start == EMPTY_INDEX && end == EMPTY_INDEX;
+    }
+
+    virtual SkRange<size_t> intersection(SkRange<size_t> other) const {
+        return SkRange<size_t>(std::max(start, other.start),
+                               std::min(end, other.end));
     }
 };
 

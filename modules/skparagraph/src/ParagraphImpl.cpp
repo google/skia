@@ -250,28 +250,26 @@ void ParagraphImpl::buildClusterTable() {
         auto runStart = fClusters.size();
         if (run.isPlaceholder()) {
             // There are no glyphs but we want to have one cluster
-            SkSpan<const char> text = this->text(run.textRange());
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
-            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
-                                                   run.advance().fY);
+            ShapedSpan shapedSpan(run);
+            auto& cluster = fClusters.emplace_back(&run, shapedSpan, run.advance().fX);
             cluster.setBreakType(Cluster::SoftLineBreak);
         } else {
             fClusters.reserve(fClusters.size() + run.size());
             // Walk through the glyph in the direction of input text
-            run.iterateThroughClustersInTextOrder([runIndex, this](size_t glyphStart,
+            run.iterateThroughClustersInTextOrder([&run, this](size_t glyphStart,
                                                                    size_t glyphEnd,
                                                                    size_t charStart,
                                                                    size_t charEnd,
                                                                    SkScalar width,
                                                                    SkScalar height) {
-                SkASSERT(charEnd >= charStart);
-                SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
-                auto& cluster = fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text,
-                                                       width, height);
-                cluster.setIsWhiteSpaces();
-                if (fGraphemes.find(cluster.fTextRange.end) != nullptr) {
+                SkASSERT(run.leftToRight() ? charEnd >= charStart : charEnd <= charStart);
+                ShapedSpan shapedSpan(TextRange(charStart, charEnd), GlyphRange(glyphStart, glyphEnd));
+                auto& cluster = fClusters.emplace_back(&run, shapedSpan, width);
+                cluster.setIsWhiteSpaces(isWhiteSpaces(cluster));
+                if (fGraphemes.find(cluster.end) != nullptr) {
                     cluster.setBreakType(Cluster::BreakType::GraphemeBreak);
                 }
             });
@@ -282,6 +280,22 @@ void ParagraphImpl::buildClusterTable() {
     }
 }
 
+bool ParagraphImpl::isWhiteSpaces(TextRange textRange) {
+
+    if (textRange.start > textRange.end) {
+        std::swap(textRange.start, textRange.end);
+    }
+    auto span = text(textRange);
+    const char* ch = span.begin();
+    while (ch < span.end()) {
+        auto unichar = utf8_next(&ch, span.end());
+        if (!u_isWhitespace(unichar)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void ParagraphImpl::markLineBreaks() {
 
     // Find all possible (soft) line breaks
@@ -290,16 +304,16 @@ void ParagraphImpl::markLineBreaks() {
     if (!breaker.initialize(this->text(), UBRK_LINE)) {
         return;
     }
-
+    //?
     // Mark all soft line breaks
     // Remove soft line breaks that are not on grapheme cluster edge
     Cluster* current = fClusters.begin();
     while (!breaker.eof() && current < fClusters.end()) {
         size_t currentPos = breaker.next();
         while (current < fClusters.end()) {
-            if (current->textRange().end > currentPos) {
+            if (current->end > currentPos) {
                 break;
-            } else if (current->textRange().end == currentPos) {
+            } else if (current->end == currentPos) {
                 if (breaker.status() == UBRK_LINE_HARD) {
                     // Hard line break stronger than anything
                     current->setBreakType(Cluster::BreakType::HardLineBreak);
@@ -347,7 +361,7 @@ void ParagraphImpl::markLineBreaks() {
 
             // Process word spacing
             if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
+                if (cluster->isWhiteSpaces() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
                         shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
@@ -358,13 +372,13 @@ void ParagraphImpl::markLineBreaks() {
                 shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
-            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
+            if (soFarWhitespacesOnly && !cluster->isWhiteSpaces()) {
                 soFarWhitespacesOnly = false;
             }
         }
     }
 
-    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
+    fClusters.emplace_back();
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
@@ -724,8 +738,13 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     {
                         // TODO: this is just a patch. Make it right later (when it's clear what and how)
                         trailingSpaces = clip;
-                        trailingSpaces.fLeft = line.width();
-                        clip.fRight = line.width();
+                        if(run->leftToRight()) {
+                            trailingSpaces.fLeft = line.width();
+                            clip.fRight = line.width();
+                        } else {
+                            trailingSpaces.fRight = 0;
+                            clip.fLeft = 0;
+                        }
                     } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kRtl &&
                         !run->leftToRight())
                     {
@@ -733,7 +752,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         trailingSpaces = clip;
                         trailingSpaces.fLeft = - delta;
                         trailingSpaces.fRight = 0;
-                        clip.fLeft += delta;
+                        clip.fRight -= delta;
                     } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kLtr &&
                         run->leftToRight())
                     {
@@ -842,7 +861,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
                   if (run->placeholderStyle() == nullptr) {
                       return true;
                   }
-                  if (run->textRange().width() == 0) {
+                  if (run->width() == 0) {
                       return true;
                   }
                   SkRect clip = context.clip;
@@ -1065,11 +1084,6 @@ Cluster& ParagraphImpl::cluster(ClusterIndex clusterIndex) {
 Run& ParagraphImpl::run(RunIndex runIndex) {
     SkASSERT(runIndex < fRuns.size());
     return fRuns[runIndex];
-}
-
-Run& ParagraphImpl::runByCluster(ClusterIndex clusterIndex) {
-    auto start = cluster(clusterIndex);
-    return this->run(start.fRunIndex);
 }
 
 SkSpan<Block> ParagraphImpl::blocks(BlockRange blockRange) {

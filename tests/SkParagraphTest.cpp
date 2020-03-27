@@ -1,6 +1,7 @@
 // Copyright 2019 Google LLC.
 #include <sstream>
 #include <thread>
+#include "include/core/SkFontMgr.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
@@ -4547,8 +4548,8 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     for (size_t i = 0; i < impl->runs().size() - 1; ++i) {
-        auto first = impl->runs()[i].textRange();
-        auto next  = impl->runs()[i + 1].textRange();
+        auto first = impl->runs()[i];
+        auto next  = impl->runs()[i + 1];
         REPORTER_ASSERT(reporter, first.end == next.start);
     }
 }
@@ -4618,7 +4619,7 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     auto cluster = 0;
     for (auto& run : impl->runs()) {
         SkShaperJSONWriter::VisualizeClusters(
-                impl->text().begin() + run.textRange().start, 0, run.textRange().width(),
+                impl->text().begin() + run.start, 0, run.width(),
                 run.glyphs(), run.clusterIndexes(),
                 [&](int codePointCount, SkSpan<const char> utf1to1,
                     SkSpan<const SkGlyphID> glyph1to1) {

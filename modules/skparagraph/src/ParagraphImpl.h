@@ -158,10 +158,11 @@ public:
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
     Cluster& cluster(ClusterIndex clusterIndex);
     Run& run(RunIndex runIndex);
-    Run& runByCluster(ClusterIndex clusterIndex);
     SkSpan<Block> blocks(BlockRange blockRange);
     Block& block(BlockIndex blockIndex);
     SkTArray<ResolvedFontDescriptor> resolvedFonts() const { return fFontSwitches; }
+
+    bool isWhiteSpaces(TextRange textRange);
 
     void markDirty() override { fState = kUnknown; }
 

@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
-#include "src/core/SkTraceEvent.h"
 #include <functional>  // std::function
 
 namespace skia {
@@ -33,14 +32,111 @@ typedef SkRange<GraphemeIndex> GraphemeRange;
 typedef size_t CodepointIndex;
 typedef SkRange<CodepointIndex> CodepointRange;
 
-struct RunShifts {
-    RunShifts() { }
-    RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
-    SkSTArray<128, SkScalar, true> fShifts;
+typedef size_t GlyphIndex;
+typedef SkRange<GlyphIndex> GlyphRange;
+
+struct Codepoint {
+
+  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
+    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
+
+  GraphemeIndex fGrapheme;
+  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+  size_t fIndex;
+};
+
+struct Grapheme {
+    Grapheme(CodepointRange codepoints, TextRange textRange)
+        : fCodepointRange(codepoints), fTextRange(textRange) { }
+    CodepointRange fCodepointRange;
+    TextRange fTextRange;           // Used for getRectsForRange
+};
+
+// This is a part of a shaped text
+// Text range (a, b)
+// LTR: [a:b) where a < b
+// RTL: [b:a) where a > b
+class ShapedSpan : public TextRange {
+  public:
+      ShapedSpan() { }
+      ShapedSpan(TextRange textRange, GlyphRange glyphRange);
+      ShapedSpan(Run* run);
+
+      virtual ~ShapedSpan() = default;
+
+      TextRange normalize() const {
+          if (leftToRight()) {
+              return TextRange(start, end);
+          } else {
+              return TextRange(end, start);
+          }
+      }
+
+      bool leftToRight() const { return start <= end; }
+      size_t textSize() const { return leftToRight() ? width() : - width(); }
+      size_t glyphSize() const { return fGlyphs.width(); }
+
+      GlyphIndex& glyphStart() { return fGlyphs.start; }
+      GlyphIndex& glyphEnd() { return fGlyphs.end; }
+      GlyphIndex glyphStart() const { return fGlyphs.start; }
+      GlyphIndex glyphEnd() const { return fGlyphs.end; }
+
+      GlyphRange glyphs() const { return fGlyphs; }
+      void setGlyphs(GlyphRange glyphs) { fGlyphs = glyphs; }
+      void setText(TextRange text) { start = text.start; end = text.end; }
+
+      bool startsIn(TextRange text) const {
+          return contains(text.start);
+      }
+
+      bool after(TextRange text) const {
+          SkASSERT(text.start <= text.end);
+          TextRange container = this->normalize();
+          return text.end <= container.start;
+      }
+
+      bool before(TextRange text) const {
+          SkASSERT(text.start <= text.end);
+          TextRange container = this->normalize();
+          return text.start >= container.end;
+      }
+
+      bool contains(const ShapedSpan& other) const {
+          TextRange container = this->normalize();
+          TextRange box = other.normalize();
+          return container.contains(box);
+      }
+
+      bool contains(size_t index) const override {
+          TextRange container = this->normalize();
+          return container.contains(index);
+      }
+
+      bool intersects(const ShapedSpan& other) const {
+          TextRange container = this->normalize();
+          TextRange box = other.normalize();
+          return container.intersects(box);
+      }
+
+      bool intersects(TextRange text) const override {
+          SkASSERT(text.start <= text.end);
+          TextRange container = this->normalize();
+          return container.intersects(text);
+      }
+
+      // box is normalized already, the result will be, too
+      TextRange intersection(TextRange box) const override {
+          SkASSERT(box.start <= box.end);
+          TextRange container = this->normalize();
+          return container.intersection(box);
+      }
+
+  protected:
+      GlyphRange fGlyphs;
 };
 
 class InternalLineMetrics;
-class Run {
+class Run : public ShapedSpan {
 public:
     Run() = default;
     Run(ParagraphImpl* master,
@@ -49,7 +145,8 @@ public:
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
-    ~Run() {}
+
+    virtual ~Run() = default;
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
 
@@ -110,7 +207,6 @@ public:
     size_t globalClusterIndex(size_t pos) const { return fClusterStart + fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
-    TextRange textRange() const { return fTextRange; }
     ClusterRange clusterRange() const { return fClusterRange; }
 
     ParagraphImpl* master() const { return fMaster; }
@@ -173,6 +269,7 @@ public:
     void resetJustificationShifts() {
         fJustificationShifts.reset();
     }
+
 private:
     friend class ParagraphImpl;
     friend class TextLine;
@@ -181,7 +278,6 @@ private:
     friend class OneLineShaper;
 
     ParagraphImpl* fMaster;
-    TextRange fTextRange;
     ClusterRange fClusterRange;
 
     SkFont fFont;
@@ -206,126 +302,52 @@ private:
     bool fSpaced;
 };
 
-struct Codepoint {
-
-  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
-    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
-
-  GraphemeIndex fGrapheme;
-  TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
-  size_t fIndex;
-};
-
-struct Grapheme {
-    Grapheme(CodepointRange codepoints, TextRange textRange)
-        : fCodepointRange(codepoints), fTextRange(textRange) { }
-    CodepointRange fCodepointRange;
-    TextRange fTextRange;           // Used for getRectsForRange
-};
-
-class Cluster {
+class Cluster : public ShapedSpan {
 public:
     enum BreakType {
         None,
-        CharacterBoundary,       // not yet in use (UBRK_CHARACTER)
-        WordBoundary,            // calculated for all clusters (UBRK_WORD)
-        WordBreakWithoutHyphen,  // calculated only for hyphenated words
-        WordBreakWithHyphen,
-        SoftLineBreak,  // calculated for all clusters (UBRK_LINE)
+        GraphemeBreak,  // calculated for all clusters (UBRK_CHARACTER)
+        SoftLineBreak,  // calculated for all clusters (UBRK_LINE & UBRK_CHARACTER)
         HardLineBreak,  // calculated for all clusters (UBRK_LINE)
-        GraphemeBreak,
     };
 
     Cluster()
-            : fMaster(nullptr)
-            , fRunIndex(EMPTY_RUN)
-            , fTextRange(EMPTY_TEXT)
-            , fGraphemeRange(EMPTY_RANGE)
-            , fStart(0)
-            , fEnd()
+            : fRun(nullptr)
             , fWidth()
-            , fSpacing(0)
-            , fHeight()
             , fHalfLetterSpacing(0.0)
             , fWhiteSpaces(false)
             , fBreakType(None) {}
 
-    Cluster(ParagraphImpl* master,
-            RunIndex runIndex,
-            size_t start,
-            size_t end,
-            SkSpan<const char> text,
-            SkScalar width,
-            SkScalar height);
+    Cluster(Run* run, ShapedSpan shapedSpan, SkScalar width);
 
-    Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
-
-    ~Cluster() = default;
-
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    virtual ~Cluster() = default;
+    
     SkScalar sizeToChar(TextIndex ch) const;
     SkScalar sizeFromChar(TextIndex ch) const;
+    void widen(SkScalar shift) { fWidth += shift; }
+    SkScalar width() const { return fWidth; }
+    SkScalar trimmedWidth(size_t pos) const;
 
-    size_t roundPos(SkScalar s) const;
-
-    void space(SkScalar shift, SkScalar space) {
-        fSpacing += space;
-        fWidth += shift;
-    }
+    void setIsWhiteSpaces(bool value) { fWhiteSpaces = value; }
+    bool isWhiteSpaces() const { return fWhiteSpaces; }
 
     void setBreakType(BreakType type) { fBreakType = type; }
-    bool isWhitespaces() const { return fWhiteSpaces; }
-    bool canBreakLineAfter() const {
-        return fBreakType == SoftLineBreak || fBreakType == HardLineBreak;
-    }
     bool isHardBreak() const { return fBreakType == HardLineBreak; }
     bool isSoftBreak() const { return fBreakType == SoftLineBreak; }
     bool isGraphemeBreak() const { return fBreakType == GraphemeBreak; }
-    size_t startPos() const { return fStart; }
-    size_t endPos() const { return fEnd; }
-    SkScalar width() const { return fWidth; }
-    SkScalar height() const { return fHeight; }
-    size_t size() const { return fEnd - fStart; }
 
     void setHalfLetterSpacing(SkScalar halfLetterSpacing) { fHalfLetterSpacing = halfLetterSpacing; }
     SkScalar getHalfLetterSpacing() const { return fHalfLetterSpacing; }
 
-    TextRange textRange() const { return fTextRange; }
-
-    RunIndex runIndex() const { return fRunIndex; }
-    ParagraphImpl* master() const { return fMaster; }
-
-    Run* run() const;
     SkFont font() const;
-
-    SkScalar trimmedWidth(size_t pos) const;
-
-    void setIsWhiteSpaces();
-
-    bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
-
-    bool belongs(TextRange text) const {
-        return fTextRange.start >= text.start && fTextRange.end <= text.end;
-    }
-
-    bool startsIn(TextRange text) const {
-        return fTextRange.start >= text.start && fTextRange.start < text.end;
-    }
+    Run* run() const { return fRun; }
 
 private:
 
     friend ParagraphImpl;
 
-    ParagraphImpl* fMaster;
-    RunIndex fRunIndex;
-    TextRange fTextRange;
-    GraphemeRange fGraphemeRange;
-
-    size_t fStart;
-    size_t fEnd;
+    Run* fRun;
     SkScalar fWidth;
-    SkScalar fSpacing;
-    SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
     bool fWhiteSpaces;
     BreakType fBreakType;
@@ -422,6 +444,7 @@ private:
     SkScalar fLeading;
     bool fForceStrut;
 };
+
 }  // namespace textlayout
 }  // namespace skia
 

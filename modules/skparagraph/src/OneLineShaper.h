@@ -12,9 +12,6 @@
 namespace skia {
 namespace textlayout {
 
-typedef size_t GlyphIndex;
-typedef SkRange<GlyphIndex> GlyphRange;
-
 class ParagraphImpl;
 class OneLineShaper : public SkShaper::RunHandler {
 public:
@@ -22,7 +19,8 @@ public:
         : fParagraph(paragraph)
         , fHeight(0.0f)
         , fAdvance(SkPoint::Make(0.0f, 0.0f))
-        , fUnresolvedGlyphs(0) { }
+        , fUnresolvedGlyphs(0)
+        , fUniqueRunId(paragraph->fRuns.size()){ }
 
     bool shape();
 
@@ -30,27 +28,31 @@ public:
 
 private:
 
-    struct RunBlock {
+    class RunBlock : public ShapedSpan {
+     public:
         RunBlock() : fRun(nullptr) { }
 
         // First unresolved block
-        explicit RunBlock(TextRange text) : fRun(nullptr), fText(text) { }
+        explicit RunBlock(TextRange text)
+            : ShapedSpan(text, GlyphRange(0, 0))
+            , fRun(nullptr) { }
 
-        RunBlock(std::shared_ptr<Run> run, TextRange text, GlyphRange glyphs, size_t score)
-            : fRun(std::move(run))
-            , fText(text)
-            , fGlyphs(glyphs) { }
+        RunBlock(std::shared_ptr<Run> run, TextRange text, GlyphRange glyphs)
+            : ShapedSpan(text, glyphs)
+            , fRun(std::move(run)) { }
 
         // Entire run comes as one block fully resolved
         explicit RunBlock(std::shared_ptr<Run> run)
-            : fRun(std::move(run))
-            , fText(run->fTextRange)
-            , fGlyphs(GlyphRange(0, run->size())) { }
+            : ShapedSpan(*run, GlyphRange(0, run->size()))
+            , fRun(std::move(run)) { }
 
-        std::shared_ptr<Run> fRun;
-        TextRange fText;
-        GlyphRange fGlyphs;
         bool isFullyResolved() { return fRun != nullptr && fGlyphs.width() == fRun->size(); }
+
+        std::shared_ptr<Run> getRun() const { return fRun; }
+        void setRun(std::shared_ptr<Run> run) { fRun = run; }
+
+     private:
+        std::shared_ptr<Run> fRun;
     };
 
     using ShapeVisitor =
@@ -80,26 +82,32 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
-        auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           index,
+                                           ++fUniqueRunId,
                                            fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }
 
     void commitRunBuffer(const RunInfo&) override;
 
-    TextRange clusteredText(GlyphRange glyphs);
+    void extendTextToGraphemeCluster(ShapedSpan& span);
+
     ClusterIndex clusterIndex(GlyphIndex glyph) {
-        return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
+        return fCurrentText.start +
+              (fCurrentRun->leftToRight()
+              ?  fCurrentRun->fClusterIndexes[glyph]
+              :  glyph > 0
+              ? fCurrentRun->fClusterIndexes[glyph - 1]
+              : fCurrentRun->start
+              );
     }
     void addFullyResolved();
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
-    ClusterRange normalizeTextRange(GlyphRange glyphRange);
+    ClusterRange getClusterRange(GlyphRange glyphRange);
     void increment(TextIndex& index);
     void fillGaps(size_t);
 
@@ -108,6 +116,7 @@ private:
     SkScalar fHeight;
     SkVector fAdvance;
     size_t fUnresolvedGlyphs;
+    size_t fUniqueRunId;
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;

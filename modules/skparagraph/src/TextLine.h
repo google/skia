@@ -112,7 +112,7 @@ private:
                                 SkPath& path) const;
 
     bool contains(const Cluster* cluster) const {
-        return fTextRange.contains(cluster->textRange());
+        return fTextRange.contains(*cluster);
     }
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);

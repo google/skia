@@ -78,7 +78,7 @@ TextLine::TextLine(ParagraphImpl* master,
     // Reorder visual runs
     auto& start = master->cluster(fGhostClusterRange.start);
     auto& end = master->cluster(fGhostClusterRange.end - 1);
-    size_t numRuns = end.runIndex() - start.runIndex() + 1;
+    size_t numRuns = end.run()->index() - start.run()->index() + 1;
 
     for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
         auto b = fMaster->styles().begin() + index;
@@ -98,24 +98,25 @@ TextLine::TextLine(ParagraphImpl* master,
 
     // Get the logical order
     std::vector<UBiDiLevel> runLevels;
-    for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
-        auto& run = fMaster->run(runIndex);
-        runLevels.emplace_back(run.fBidiLevel);
-        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
+    for (auto run = start.run(); run <= end.run(); ++run) {
+        runLevels.emplace_back(run->fBidiLevel);
+        fMaxRunMetrics.add(InternalLineMetrics(run->fFontMetrics.fAscent, run->fFontMetrics.fDescent, run->fFontMetrics.fLeading));
     }
 
     std::vector<int32_t> logicalOrder(numRuns);
     ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
 
-    auto firstRunIndex = start.runIndex();
+    auto firstRunIndex = start.run()->index();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);
     }
 
     // TODO: This is the fix for flutter. Must be removed...
-    for (auto cluster = &start; cluster != &end; ++cluster) {
-        if (!cluster->run()->isPlaceholder()) {
-            fShift += cluster->getHalfLetterSpacing();
+    // I also believe it's incorrect:
+    // we really should not go beyond the first cluster on the line, placeholders or not
+    for (auto current = &start; current != &end; ++current) {
+        if (!current->run()->isPlaceholder()) {
+            fShift += current->getHalfLetterSpacing();
             break;
         }
     }
@@ -129,13 +130,13 @@ SkRect TextLine::calculateBoundaries() {
     auto runShift = 0.0f;
     auto clusterShift = 0.0f;
     for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
-        if (run == nullptr || cluster->runIndex() != run->index()) {
-            run = &fMaster->run(cluster->runIndex());
+        if (run == nullptr || cluster->run()->index() != run->index()) {
+            run = cluster->run();
             runShift += clusterShift;
             clusterShift = 0;
         }
         clusterShift += cluster->width();
-        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
+        for (auto i = cluster->glyphStart(); i < cluster->glyphEnd(); ++i) {
             auto posX = run->positionX(i);
             auto posY = run->posY(i);
             auto bounds = run->getBounds(i);
@@ -532,7 +533,7 @@ void TextLine::justify(SkScalar maxWidth) {
     bool whitespacePatch = false;
     this->iterateThroughClustersInGlyphsOrder(false, false,
         [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
-            if (cluster->isWhitespaces()) {
+            if (cluster->isWhiteSpaces()) {
                 if (!whitespacePatch) {
                     whitespacePatch = true;
                     ++whitespacePatches;
@@ -565,7 +566,7 @@ void TextLine::justify(SkScalar maxWidth) {
         }
 
         auto prevShift = shift;
-        if (cluster->isWhitespaces()) {
+        if (cluster->isWhiteSpaces()) {
             if (!whitespacePatch) {
                 shift += step;
                 whitespacePatch = true;
@@ -588,8 +589,8 @@ void TextLine::justify(SkScalar maxWidth) {
 void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift) {
 
     auto run = cluster->run();
-    auto start = cluster->startPos();
-    auto end = cluster->endPos();
+    auto start = cluster->glyphStart();
+    auto end = cluster->glyphEnd();
 
     if (end == run->size()) {
         // Set the same shift for the fake last glyph (to avoid all extra checks)
@@ -615,7 +616,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     auto attachEllipsis = [&](const Cluster* cluster){
         // Shape the ellipsis
         Run* run = shapeEllipsis(ellipsis, cluster->run());
-        run->fClusterStart = cluster->textRange().start;
+        run->fClusterStart = cluster->start;
         run->setMaster(fMaster);
 
         // See if it fits
@@ -681,7 +682,8 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
     SkASSERT_RELEASE(shaper != nullptr);
     shaper->shape(ellipsis.c_str(), ellipsis.size(), run->font(), true,
                   std::numeric_limits<SkScalar>::max(), &handler);
-    handler.run()->fTextRange = TextRange(0, ellipsis.size());
+    //handler.run()->fTextRange = TextRange(0, ellipsis.size());
+    SkASSERT(handler.run()->size() == ellipsis.size());
     handler.run()->fMaster = fMaster;
     return handler.run();
 }
@@ -696,7 +698,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
     if (run->placeholderStyle() != nullptr || run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
-        SkASSERT(textRange == run->textRange());
+        SkASSERT(textRange == *run);
         result.fTextShift = runOffsetInLine;
         result.clip = SkRect::MakeXYWH(runOffsetInLine, sizes().runTop(run), run->advance().fX, run->calculateHeight());
         return result;
@@ -714,10 +716,10 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
     auto start = &fMaster->cluster(startIndex);
     auto end = &fMaster->cluster(endIndex);
-    result.pos = start->startPos();
-    result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
+    result.pos = start->glyphStart();
+    result.size = (end->isHardBreak() ? end->glyphStart() : end->glyphEnd()) - start->glyphStart();
 
-    auto textStartInRun = run->positionX(start->startPos());
+    auto textStartInRun = run->positionX(start->glyphStart());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
 /*
     if (!run->fJustificationShifts.empty()) {
@@ -809,7 +811,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
-        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(*run, run, runOffset, 0, false, false);
         TextRange testRange(run->fClusterStart, run->fClusterStart + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
@@ -876,13 +878,13 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         }
 
         // We have the style and the text
-        auto textRange = TextRange(start, start + size);
+        auto clipTextRange = TextRange(start, start + size);
         // Measure the text
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(clipTextRange, run, runOffset, textOffsetInRun, false, false);
         if (clipContext.clip.height() == 0) {
             continue;
         }
-        visitor(textRange, *prevStyle, clipContext);
+        visitor(clipTextRange, *prevStyle, clipContext);
         textOffsetInRun += clipContext.clip.width();
 
         // Start all over again
@@ -903,7 +905,8 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     for (auto& runIndex : fRunsInVisualOrder) {
 
         const auto run = &this->fMaster->run(runIndex);
-        auto lineIntersection = intersected(run->textRange(), textRange);
+        ShapedSpan shapedRun(run);
+        auto lineIntersection = shapedRun.intersection(textRange);
         if (lineIntersection.width() == 0 && this->width() != 0) {
             // TODO: deal with empty runs in a better way
             continue;
@@ -913,7 +916,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
             // that RTL run could start before the line (trailing spaces)
             // so we need to do runOffset -= "trailing whitespaces length"
             TextRange whitespaces = intersected(
-                    TextRange(fTextRange.end, fTextWithWhitespacesRange.end), run->fTextRange);
+                    TextRange(fTextRange.end, fTextWithWhitespacesRange.end), *run);
             if (whitespaces.width() > 0) {
                 auto whitespacesLen = measureTextInsideOneRun(whitespaces, run, runOffset, 0, true, false).clip.width();
                 runOffset -= whitespacesLen;
@@ -930,7 +933,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     totalWidth += width;
 
     if (this->ellipsis() != nullptr) {
-        if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
+        if (visitor(ellipsis(), runOffset, *ellipsis(), &width)) {
             totalWidth += width;
         }
     }

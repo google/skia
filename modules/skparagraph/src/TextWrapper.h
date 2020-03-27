@@ -25,7 +25,7 @@ class TextWrapper {
         }
         void move(bool up) {
             fCluster += up ? 1 : -1;
-            fPos = up ? 0 : fCluster->endPos();
+            fPos = up ? 0 : fCluster->glyphEnd();
 }
 
     private:
@@ -36,7 +36,7 @@ class TextWrapper {
     public:
         TextStretch() : fStart(), fEnd(), fWidth(0), fWidthWithGhostSpaces(0) {}
         TextStretch(Cluster* s, Cluster* e, bool forceStrut)
-                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
+                : fStart(s, 0), fEnd(e, e->glyphEnd()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
             for (auto c = s; c <= e; ++c) {
                 if (c->run() != nullptr) {
                     fMetrics.add(c->run());
@@ -52,7 +52,7 @@ class TextWrapper {
         inline InternalLineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
         inline size_t endPos() const { return fEnd.position(); }
-        bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
+        bool endOfCluster() { return fEnd.position() == fEnd.cluster()->glyphEnd(); }
         bool endOfWord() {
             return endOfCluster() &&
                    (fEnd.cluster()->isHardBreak() || fEnd.cluster()->isSoftBreak());
@@ -72,9 +72,9 @@ class TextWrapper {
 
         void extend(Cluster* cluster) {
             if (fStart.cluster() == nullptr) {
-                fStart = ClusterPos(cluster, cluster->startPos());
+                fStart = ClusterPos(cluster, cluster->glyphStart());
             }
-            fEnd = ClusterPos(cluster, cluster->endPos());
+            fEnd = ClusterPos(cluster, cluster->glyphEnd());
             if (!cluster->run()->isPlaceholder()) {
                 fMetrics.add(cluster->run());
             }
@@ -110,7 +110,6 @@ class TextWrapper {
         void trim() {
 
             if (fEnd.cluster() != nullptr &&
-                fEnd.cluster()->master() != nullptr &&
                 fEnd.cluster()->run() != nullptr &&
                 fEnd.cluster()->run()->placeholderStyle() == nullptr &&
                 fWidth > 0) {

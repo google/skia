@@ -7,16 +7,24 @@
 #include "src/utils/SkUTF.h"
 
 namespace {
-
+/*
 SkUnichar utf8_next(const char** ptr, const char* end) {
     SkUnichar val = SkUTF::NextUTF8(ptr, end);
     return val < 0 ? 0xFFFD : val;
 }
-
+*/
 }
 
 namespace skia {
 namespace textlayout {
+
+ShapedSpan::ShapedSpan(Run* run)
+    : ShapedSpan(*run, GlyphRange(0, run->size())) { }
+
+ShapedSpan::ShapedSpan(TextRange textRange, GlyphRange glyphRange)
+  : TextRange(textRange)
+  , fGlyphs(glyphRange) {
+}
 
 Run::Run(ParagraphImpl* master,
          const SkShaper::RunHandler::RunInfo& info,
@@ -24,8 +32,12 @@ Run::Run(ParagraphImpl* master,
          SkScalar lineHeight,
          size_t index,
          SkScalar offsetX)
-        : fMaster(master)
-        , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
+        : ShapedSpan(
+            info.fBidiLevel % 2 == 0
+            ? TextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
+            : TextRange(firstChar + info.utf8Range.end(), firstChar + info.utf8Range.begin()),
+            GlyphRange(0, info.glyphCount))
+        , fMaster(master)
         , fClusterRange(EMPTY_CLUSTERS)
         , fClusterStart(firstChar) {
     fFont = info.fFont;
@@ -46,7 +58,7 @@ Run::Run(ParagraphImpl* master,
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
     fOffsets[info.glyphCount] = { 0, 0};
-    fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
+    fClusterIndexes[info.glyphCount] = info.utf8Range.end();
     fEllipsis = false;
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
 }
@@ -91,75 +103,63 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector r
     }
 }
 
+// TODO: Make it at least a binary search
+// It's going to be one range since we are looking into one run
 std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool extendToClusters) const {
 
     if (text.width() == 0) {
         for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
             auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().end >= text.end && cluster.textRange().start <= text.start) {
+            if (cluster.contains(text.start)) {
                 return std::make_tuple(true, i, i);
             }
         }
-        return std::make_tuple(false, 0, 0);
+        return std::make_tuple(false, EMPTY_CLUSTER, EMPTY_CLUSTER);
     }
-    Cluster* start = nullptr;
-    Cluster* end = nullptr;
-    if (extendToClusters) {
-        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
-            auto& cluster = fMaster->cluster(i);
-            auto clusterRange = cluster.textRange();
-            if (clusterRange.end <= text.start) {
-                continue;
-            } else if (clusterRange.start >= text.end) {
-                break;
-            }
 
-            TextRange s = TextRange(std::max(clusterRange.start, text.start),
-                                    std::min(clusterRange.end, text.end));
-            if (s.width() > 0) {
-                if (start == nullptr) {
-                    start = &cluster;
-                }
-                end = &cluster;
-            }
+    ClusterIndex start = EMPTY_CLUSTER;
+    ClusterIndex end = EMPTY_CLUSTER;
+    for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
+        auto& cluster = fMaster->cluster(i);
+        if (cluster.before(text)) {
+            continue;
+        } else if (cluster.after(text)) {
+            break;
         }
-    } else {
-        // TODO: Do we need to use this branch?..
-        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
-            auto& cluster = fMaster->cluster(i);
-            if (cluster.textRange().end > text.start && start == nullptr) {
-                start = &cluster;
+
+        if (cluster.intersects(text)) {
+            if (start == EMPTY_CLUSTER) {
+                start = i;
             }
-            if (cluster.textRange().start < text.end) {
-                end = &cluster;
-            } else {
-                break;
-            }
+            end = i;
+        } else {
+            SkASSERT(false);
         }
     }
 
-    if (start == nullptr || end == nullptr) {
-        return std::make_tuple(false, 0, 0);
+
+    if (start == EMPTY_CLUSTER || end == EMPTY_CLUSTER) {
+        return std::make_tuple(false, start, end);
     }
 
+    // TODO:LTR
     if (!leftToRight()) {
         std::swap(start, end);
     }
 
-    size_t startIndex = start - fMaster->clusters().begin();
-    size_t endIndex   = end   - fMaster->clusters().begin();
-    return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
+    return std::make_tuple(true, start, end);
 }
 
+// TODO:LTR
 void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
     // Can't figure out how to do it with one code for both cases without 100 ifs
-    // Can't go through clusters because there are no cluster table yet
     if (leftToRight()) {
         size_t start = 0;
         size_t cluster = this->clusterIndex(start);
         for (size_t glyph = 1; glyph <= this->size(); ++glyph) {
             auto nextCluster = this->clusterIndex(glyph);
             if (nextCluster <= cluster) {
+                // Skip all non-sequential clusters
                 continue;
             }
 
@@ -177,16 +177,16 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
         size_t glyph = this->size();
         size_t cluster = this->fUtf8Range.begin();
         for (int32_t start = this->size() - 1; start >= 0; --start) {
-            size_t nextCluster =
-                    start == 0 ? this->fUtf8Range.end() : this->clusterIndex(start - 1);
+            size_t nextCluster = start == 0 ? this->fUtf8Range.end() : this->clusterIndex(start - 1);
             if (nextCluster <= cluster) {
+                // Skip all non-sequential clusters
                 continue;
             }
 
             visitor(start,
                     glyph,
-                    fClusterStart + cluster,
                     fClusterStart + nextCluster,
+                    fClusterStart + cluster,
                     this->calculateWidth(start, glyph, glyph == 0),
                     this->calculateHeight());
 
@@ -197,16 +197,17 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 }
 
 SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
-    if (cluster->endPos() == cluster->startPos()) {
+    if (cluster->glyphSize() == 0) {
         return 0;
     }
 
-    fShifts[cluster->endPos() - 1] += space;
-    // Increment the run width
+    // Add the space
+    fShifts[cluster->glyphEnd() - 1] += space;
+
+    // Increase the run width
     fSpaced = true;
     fAdvance.fX += space;
-    // Increment the cluster width
-    cluster->space(space, space);
+    cluster->widen(space);
 
     return space;
 }
@@ -214,19 +215,18 @@ SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
 SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
     // Offset all the glyphs in the cluster
     SkScalar shift = 0;
-    for (size_t i = cluster->startPos(); i < cluster->endPos(); ++i) {
+    for (size_t i = cluster->glyphStart(); i < cluster->glyphEnd(); ++i) {
         fShifts[i] += shift;
         shift += space;
     }
-    if (this->size() == cluster->endPos()) {
+    if (this->size() == cluster->glyphEnd()) {
         // To make calculations easier
-        fShifts[cluster->endPos()] += shift;
+        fShifts[cluster->glyphEnd()] += shift;
     }
     // Increment the run width
     fSpaced = true;
     fAdvance.fX += shift;
-    // Increment the cluster width
-    cluster->space(shift, space);
+    cluster->widen(shift);
     cluster->setHalfLetterSpacing(space / 2);
 
     return shift;
@@ -238,12 +238,12 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
     }
 
     fSpaced = true;
-    for (size_t i = cluster->startPos(); i < cluster->endPos(); ++i) {
+    for (size_t i = cluster->glyphStart(); i < cluster->glyphEnd(); ++i) {
         fShifts[i] += offset;
     }
-    if (this->size() == cluster->endPos()) {
+    if (this->size() == cluster->glyphEnd()) {
         // To make calculations easier
-        fShifts[cluster->endPos()] += offset;
+        fShifts[cluster->glyphEnd()] += offset;
     }
 }
 
@@ -301,51 +301,32 @@ void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
     endlineMetrics->add(this);
 }
 
-void Cluster::setIsWhiteSpaces() {
-
-    fWhiteSpaces = false;
-
-    auto span = fMaster->text(fTextRange);
-    const char* ch = span.begin();
-    while (ch < span.end()) {
-        auto unichar = utf8_next(&ch, span.end());
-        if (!u_isWhitespace(unichar)) {
-            return;
-        }
-    }
-    fWhiteSpaces = true;
-}
-
+//?
 SkScalar Cluster::sizeToChar(TextIndex ch) const {
-    if (ch < fTextRange.start || ch >= fTextRange.end) {
+    if (!this->contains(ch)) {
         return 0;
     }
-    auto shift = ch - fTextRange.start;
-    auto ratio = shift * 1.0 / fTextRange.width();
+    auto shift = ch - this->start;
+    auto ratio = shift * 1.0 / this->width();
 
     return SkDoubleToScalar(fWidth * ratio);
 }
 
+//?
 SkScalar Cluster::sizeFromChar(TextIndex ch) const {
-    if (ch < fTextRange.start || ch >= fTextRange.end) {
+    if (!this->contains(ch)) {
         return 0;
     }
-    auto shift = fTextRange.end - ch - 1;
-    auto ratio = shift * 1.0 / fTextRange.width();
+    auto shift = this->end - ch - 1;
+    auto ratio = shift * 1.0 / this->width();
 
     return SkDoubleToScalar(fWidth * ratio);
-}
-
-size_t Cluster::roundPos(SkScalar s) const {
-    auto ratio = (s * 1.0) / fWidth;
-    return sk_double_floor2int(ratio * size());
 }
 
 SkScalar Cluster::trimmedWidth(size_t pos) const {
     // Find the width until the pos and return the min between trimmedWidth and the width(pos)
     // We don't have to take in account cluster shift since it's the same for 0 and for pos
-    auto& run = fMaster->run(fRunIndex);
-    return std::min(run.positionX(pos) - run.positionX(fStart), fWidth);
+    return std::min(fRun->positionX(pos) - fRun->positionX(fGlyphs.start), fWidth);
 }
 
 SkScalar Run::positionX(size_t pos) const {
@@ -361,33 +342,14 @@ PlaceholderStyle* Run::placeholderStyle() const {
     }
 }
 
-Run* Cluster::run() const {
-    if (fRunIndex >= fMaster->runs().size()) {
-        return nullptr;
-    }
-    return &fMaster->run(fRunIndex);
-}
-
 SkFont Cluster::font() const {
-    return fMaster->run(fRunIndex).font();
+    return fRun->font();
 }
 
-Cluster::Cluster(ParagraphImpl* master,
-        RunIndex runIndex,
-        size_t start,
-        size_t end,
-        SkSpan<const char> text,
-        SkScalar width,
-        SkScalar height)
-        : fMaster(master)
-        , fRunIndex(runIndex)
-        , fTextRange(text.begin() - fMaster->text().begin(), text.end() - fMaster->text().begin())
-        , fGraphemeRange(EMPTY_RANGE)
-        , fStart(start)
-        , fEnd(end)
+Cluster::Cluster(Run* run, ShapedSpan shapedSpan, SkScalar width)
+        : fRun(run)
+        , ShapedSpan(shapedSpan)
         , fWidth(width)
-        , fSpacing(0)
-        , fHeight(height)
         , fHalfLetterSpacing(0.0)
         , fWhiteSpaces(false)
         , fBreakType(None) {

@@ -44,11 +44,10 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
 
     auto& front = fUnresolvedBlocks.front();    // The one we need to resolve
     auto& back = fUnresolvedBlocks.back();      // The one we have from shaper
-    if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 &&
-        front.fText == back.fText) {
+    if (fUnresolvedBlocks.size() == oldUnresolvedCount + 1 && (static_cast<ShapedSpan>(front) == back)) {
         // The entire block remains unresolved!
-        if (front.fRun != nullptr) {
-            back.fRun = front.fRun;
+        if (front.getRun() != nullptr) {
+            back.setRun(front.getRun());
         }
     } else {
         fillGaps(oldUnresolvedCount);
@@ -59,18 +58,18 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
 void OneLineShaper::printState() {
     SkDebugf("Resolved: %d\n", fResolvedBlocks.size());
     for (auto& resolved : fResolvedBlocks) {
-        if (resolved.fRun ==  nullptr) {
+        if (resolved.getRun() ==  nullptr) {
             SkDebugf("[%d:%d) unresolved\n",
-                    resolved.fText.start, resolved.fText.end);
+                    resolved.start, resolved.end);
             continue;
         }
         SkString name("???");
-        if (resolved.fRun->fFont.getTypeface() != nullptr) {
-            resolved.fRun->fFont.getTypeface()->getFamilyName(&name);
+        if (resolved.getRun()->fFont.getTypeface() != nullptr) {
+            resolved.getRun()->fFont.getTypeface()->getFamilyName(&name);
         }
-        SkDebugf("[%d:%d) ", resolved.fGlyphs.start, resolved.fGlyphs.end);
+        SkDebugf("[%d:%d) ", resolved.glyphStart(), resolved.glyphEnd());
         SkDebugf("[%d:%d) with %s\n",
-                resolved.fText.start, resolved.fText.end,
+                resolved.start, resolved.end,
                 name.c_str());
     }
 
@@ -79,7 +78,7 @@ void OneLineShaper::printState() {
     for (size_t i = 0; i < size; ++i) {
         auto unresolved = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
-        SkDebugf("[%d:%d)\n", unresolved.fText.start, unresolved.fText.end);
+        SkDebugf("[%d:%d)\n", unresolved.start, unresolved.end);
         fUnresolvedBlocks.emplace(unresolved);
     }
 }
@@ -92,7 +91,7 @@ void OneLineShaper::dropUnresolved() {
 
 void OneLineShaper::fillGaps(size_t startingCount) {
     // Fill out gaps between all unresolved blocks
-    TextRange resolvedTextLimits = fCurrentRun->fTextRange;
+    TextRange resolvedTextLimits = *fCurrentRun;
     if (!fCurrentRun->leftToRight()) {
         std::swap(resolvedTextLimits.start, resolvedTextLimits.end);
     }
@@ -101,40 +100,46 @@ void OneLineShaper::fillGaps(size_t startingCount) {
 
     auto count = fUnresolvedBlocks.size();
     for (size_t i = 0; i < count; ++i) {
-        auto unresolved = fUnresolvedBlocks.front();
+        auto front = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
-        fUnresolvedBlocks.push(unresolved);
+        fUnresolvedBlocks.push(front);
         if (i < startingCount) {
             // Skip the first ones
             continue;
         }
 
-        TextRange resolvedText(resolvedTextStart, fCurrentRun->leftToRight() ? unresolved.fText.start : unresolved.fText.end);
+        auto& unresolved = fUnresolvedBlocks.back();
+        TextRange resolvedText(resolvedTextStart, fCurrentRun->leftToRight() ? unresolved.start : unresolved.end);
         if (resolvedText.width() > 0) {
-            if (!fCurrentRun->leftToRight()) {
-                std::swap(resolvedText.start, resolvedText.end);
+            GlyphRange resolvedGlyphs(resolvedGlyphsStart, unresolved.glyphStart());
+            RunBlock resolved(fCurrentRun, resolvedText, resolvedGlyphs);
+
+            if (resolvedGlyphs.width() == 0) {
+                // Extend the unresolved block with an empty resolved
+                if (unresolved.end <= resolved.start) {
+                    unresolved.end = resolved.start;
+                }
+                if (unresolved.start >= resolved.end) {
+                    unresolved.start = resolved.end;
+                }
+            } else {
+                fResolvedBlocks.emplace_back(resolved);
             }
-
-            GlyphRange resolvedGlyphs(resolvedGlyphsStart, unresolved.fGlyphs.start);
-            RunBlock resolved(fCurrentRun, resolvedText, resolvedGlyphs, resolvedGlyphs.width());
-
-            fResolvedBlocks.emplace_back(resolved);
         }
-        resolvedGlyphsStart = unresolved.fGlyphs.end;
+        resolvedGlyphsStart = unresolved.glyphEnd();
         resolvedTextStart =  fCurrentRun->leftToRight()
-                                ? unresolved.fText.end
-                                : unresolved.fText.start;
+                                ? unresolved.end
+                                : unresolved.start;
     }
 
-    TextRange resolvedText(resolvedTextStart, resolvedTextLimits.end);
+    TextRange resolvedText(resolvedTextStart,resolvedTextLimits.end);
     if (resolvedText.width() > 0) {
         if (!fCurrentRun->leftToRight()) {
             std::swap(resolvedText.start, resolvedText.end);
         }
 
         GlyphRange resolvedGlyphs(resolvedGlyphsStart, fCurrentRun->size());
-        RunBlock resolved(fCurrentRun, resolvedText, resolvedGlyphs, resolvedGlyphs.width());
-
+        RunBlock resolved(fCurrentRun, resolvedText, resolvedGlyphs);
         fResolvedBlocks.emplace_back(resolved);
     }
 }
@@ -145,54 +150,59 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
     while (!fUnresolvedBlocks.empty()) {
         auto unresolved = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
-        if (unresolved.fText.width() == 0) {
+        if (unresolved.width() == 0) {
             continue;
         }
         fResolvedBlocks.emplace_back(unresolved);
-        fUnresolvedGlyphs += unresolved.fGlyphs.width();
+        fUnresolvedGlyphs += unresolved.glyphSize();
     }
 
-    // Sort all pieces by text
+    // Sort all pieces by text left edge (could be start(LTR) or end (RTL))
     std::sort(fResolvedBlocks.begin(), fResolvedBlocks.end(),
               [](const RunBlock& a, const RunBlock& b) {
-                return a.fText.start < b.fText.start;
+                return a.start < b.start;
               });
 
     // Go through all of them
     size_t lastTextEnd = blockText.start;
     for (auto& block : fResolvedBlocks) {
 
-        if (block.fText.end <= blockText.start) {
+        if (block.end <= blockText.start) {
             continue;
+        } else if (block.start > blockText.end) {
+            break;
         }
 
-        if (block.fRun != nullptr) {
-            fParagraph->fFontSwitches.emplace_back(block.fText.start, block.fRun->fFont);
+        if (block.getRun() != nullptr) {
+            fParagraph->fFontSwitches.emplace_back(block.start, block.getRun()->fFont);
         }
 
-        auto run = block.fRun;
-        auto glyphs = block.fGlyphs;
-        auto text = block.fText;
-        if (lastTextEnd != text.start) {
-            SkDEBUGF("Text ranges mismatch: ...:%d] - [%d:%d] (%d-%d)\n", lastTextEnd, text.start, text.end,  glyphs.start, glyphs.end);
+        auto run = block.getRun();
+        //auto text = block.text();
+        if (lastTextEnd != block.start) {
+            SkDEBUGF("Text ranges mismatch: ...:%d] - [%d:%d] (%d-%d)\n", lastTextEnd, block.start, block.end,  block.glyphStart(), block.glyphEnd());
             SkASSERT(false);
         }
-        lastTextEnd = text.end;
+        lastTextEnd = block.end;
 
         if (block.isFullyResolved()) {
             // Just move the entire run
-            block.fRun->fIndex = this->fParagraph->fRuns.size();
-            this->fParagraph->fRuns.emplace_back(*block.fRun.get());
-            block.fRun.reset();
+            block.getRun()->fIndex = this->fParagraph->fRuns.size();
+            this->fParagraph->fRuns.emplace_back(*block.getRun());
+            block.setRun(nullptr);
             continue;
         } else if (run == nullptr) {
             continue;
         }
 
-        auto runAdvance = SkVector::Make(run->posX(glyphs.end) - run->posX(glyphs.start), run->fAdvance.fY);
+        auto runAdvance = SkVector::Make(run->posX(block.glyphEnd()) - run->posX(block.glyphStart()), run->fAdvance.fY);
         const SkShaper::RunHandler::RunInfo info = {
-                run->fFont, run->fBidiLevel, runAdvance, glyphs.width(),
-                SkShaper::RunHandler::Range(text.start - run->fClusterStart, text.width())};
+                run->fFont,
+                run->fBidiLevel,
+                runAdvance,
+                block.glyphSize(),
+                SkShaper::RunHandler::Range(block.start - run->fClusterStart, block.width())
+        };
         this->fParagraph->fRuns.emplace_back(
                     this->fParagraph,
                     info,
@@ -204,11 +214,11 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
         auto piece = &this->fParagraph->fRuns.back();
 
         // TODO: Optimize copying
-        auto zero = run->fPositions[glyphs.start];
-        for (size_t i = glyphs.start; i <= glyphs.end; ++i) {
+        auto zero = run->fPositions[block.glyphStart()];
+        for (size_t i = block.glyphStart(); i <= block.glyphEnd(); ++i) {
 
-            auto index = i - glyphs.start;
-            if (i < glyphs.end) {
+            auto index = i - block.glyphStart();
+            if (i < block.glyphEnd()) {
                 piece->fGlyphs[index] = run->fGlyphs[i];
                 piece->fBounds[index] = run->fBounds[i];
             }
@@ -240,16 +250,14 @@ void OneLineShaper::increment(TextIndex& index) {
     }
 }
 
-// Make it [left:right) regardless of a text direction
-TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
-
-    if (fCurrentRun->leftToRight()) {
+// LTR: [s:e)
+// RTL: (e:s]
+TextRange OneLineShaper::getClusterRange(GlyphRange glyphRange) {
+    // TODO:LTR
+    if (fCurrentRun->leftToRight() || true) {
         return TextRange(clusterIndex(glyphRange.start), clusterIndex(glyphRange.end));
     } else {
-        return TextRange(clusterIndex(glyphRange.end - 1),
-                glyphRange.start > 0
-                ? clusterIndex(glyphRange.start - 1)
-                : fCurrentRun->fClusterStart + fCurrentRun->fTextRange.width());
+        return TextRange(clusterIndex(glyphRange.end), clusterIndex(glyphRange.start));
     }
 }
 
@@ -258,32 +266,39 @@ void OneLineShaper::addFullyResolved() {
         return;
     }
     RunBlock resolved(fCurrentRun,
-                      this->fCurrentRun->fTextRange,
-                      GlyphRange(0, this->fCurrentRun->size()),
-                      this->fCurrentRun->size());
+                      *this->fCurrentRun,
+                      GlyphRange(0, this->fCurrentRun->size()));
     fResolvedBlocks.emplace_back(resolved);
 }
 
 void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
-    RunBlock unresolved(fCurrentRun, clusteredText(glyphRange), glyphRange, 0);
-    if (unresolved.fGlyphs.width() == fCurrentRun->size()) {
-        SkASSERT(unresolved.fText.width() == fCurrentRun->fTextRange.width());
-    } else if (fUnresolvedBlocks.size() > 1) {
+    TextRange textRange(getClusterRange(glyphRange));
+    RunBlock unresolved(fCurrentRun, textRange, glyphRange);
+    extendTextToGraphemeCluster(unresolved);
+    if (unresolved.glyphSize() == fCurrentRun->size()) {
+        SkASSERT(unresolved.width() == fCurrentRun->width());
+    } else if (fUnresolvedBlocks.size() > 0) {
         auto& lastUnresolved = fUnresolvedBlocks.back();
-        if (lastUnresolved.fRun != nullptr &&
-            lastUnresolved.fRun->fIndex == fCurrentRun->fIndex) {
-
-            if (lastUnresolved.fText.end == unresolved.fText.start) {
-                // Two pieces next to each other - can join them
-                lastUnresolved.fText.end = unresolved.fText.end;
-                lastUnresolved.fGlyphs.end = glyphRange.end;
+        auto run = lastUnresolved.getRun();
+        if (run != nullptr &&
+            run->fIndex == fCurrentRun->fIndex) {
+            //?
+            if (lastUnresolved.end == unresolved.start) {
+              // Two pieces next to each other - can join them
+              lastUnresolved.end = unresolved.end;
+              lastUnresolved.glyphEnd() = glyphRange.end;
+              return;
+            } else if(static_cast<ShapedSpan>(lastUnresolved) == unresolved) {
+                // Nothing was resolved; ignore it
                 return;
-            } else if (lastUnresolved.fText.intersects(unresolved.fText)) {
+            } else if (lastUnresolved.contains(unresolved)) {
+                // We get here for the very first unresolved piece
+                return;
+            } else if (lastUnresolved.intersects(unresolved)) {
                 // Few pieces of the same unresolved text block can ignore the second one
-                lastUnresolved.fGlyphs.start =
-                        std::min(lastUnresolved.fGlyphs.start, glyphRange.start);
-                lastUnresolved.fGlyphs.end = std::max(lastUnresolved.fGlyphs.end, glyphRange.end);
-                lastUnresolved.fText = clusteredText(lastUnresolved.fGlyphs);
+                lastUnresolved.glyphStart() = std::min(lastUnresolved.glyphStart(), glyphRange.start);
+                lastUnresolved.glyphEnd() = std::max(lastUnresolved.glyphEnd(), glyphRange.end);
+                extendTextToGraphemeCluster(lastUnresolved);
                 return;
             }
         }
@@ -410,7 +425,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
         // Give fallback a clue
         // Some unresolved subblocks might be resolved with different fallback fonts
         while (!fUnresolvedBlocks.empty()) {
-            auto unresolvedRange = fUnresolvedBlocks.front().fText;
+            auto unresolvedRange = fUnresolvedBlocks.front();
             auto unresolvedText = fParagraph->text(unresolvedRange);
             const char* ch = unresolvedText.begin();
             // We have the global cache for all already found typefaces for SkUnichar
@@ -592,7 +607,7 @@ bool OneLineShaper::shape() {
                 auto resolvedCount = fResolvedBlocks.size();
                 auto unresolvedCount = fUnresolvedBlocks.size();
                 while (unresolvedCount-- > 0) {
-                    auto unresolvedRange = fUnresolvedBlocks.front().fText;
+                    auto unresolvedRange = fUnresolvedBlocks.front();
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
                     SkShaper::TrivialFontRunIterator fontIter(font, unresolvedText.size());
@@ -630,7 +645,8 @@ bool OneLineShaper::shape() {
     return result;
 }
 
-TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
+// When we extend TextRange to the grapheme edges, we also extend glyphs range
+void OneLineShaper::extendTextToGraphemeCluster(ShapedSpan& span) {
 
     enum class Dir { left, right };
     enum class Pos { inclusive, exclusive };
@@ -639,29 +655,47 @@ TextRange OneLineShaper::clusteredText(GlyphRange glyphs) {
     auto findBaseChar = [&](TextIndex index, Dir dir) -> TextIndex {
 
         if (dir == Dir::right) {
-            while (index < fCurrentRun->fTextRange.end) {
+            while (index < fCurrentRun->leftToRight() ? fCurrentRun->end : fCurrentRun->start) {
                 if (this->fParagraph->fGraphemes.contains(index)) {
                     return index;
                 }
                 ++index;
             }
-            return fCurrentRun->fTextRange.end;
+            return fCurrentRun->end;
         } else {
-            while (index >= fCurrentRun->fTextRange.start) {
+            while (index >= fCurrentRun->leftToRight() ? fCurrentRun->start : fCurrentRun->end) {
                 if (this->fParagraph->fGraphemes.contains(index)) {
                     return index;
                 }
                 --index;
             }
-            return fCurrentRun->fTextRange.start;
+            return fCurrentRun->start;
         }
     };
 
-    TextRange textRange(normalizeTextRange(glyphs));
-    textRange.start = findBaseChar(textRange.start, Dir::left);
-    textRange.end = findBaseChar(textRange.end, Dir::right);
+    GlyphRange glyphs(span.glyphs());
+    span.start = findBaseChar(span.start, fCurrentRun->leftToRight() ? Dir::left : Dir::right);
+    span.end = findBaseChar(span.end, fCurrentRun->leftToRight() ? Dir::right : Dir::left);
 
-    return { textRange.start, textRange.end };
+    // Correct the glyphRange in case we extended the text to the grapheme edges
+    // TODO: code it without if (as a part of LTR/RTL refactoring)
+    if (fCurrentRun->leftToRight()) {
+        while (glyphs.start > 0 && clusterIndex(glyphs.start) > span.start) {
+          glyphs.start--;
+        }
+        while (glyphs.end < fCurrentRun->size() && clusterIndex(glyphs.end) < span.end) {
+          glyphs.end++;
+        }
+    } else {
+        while (glyphs.start > 0 && clusterIndex(glyphs.start - 1) < span.end) {
+          glyphs.start--;
+        }
+        while (glyphs.end < fCurrentRun->size() && clusterIndex(glyphs.end) > span.start) {
+          glyphs.end++;
+        }
+    }
+
+    span.setGlyphs(glyphs);
 }
 
 bool OneLineShaper::FontKey::operator==(const OneLineShaper::FontKey& other) const {
