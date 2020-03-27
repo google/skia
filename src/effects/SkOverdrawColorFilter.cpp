@@ -11,6 +11,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
@@ -70,6 +71,15 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     return true;
+}
+
+skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
+                                             SkColorSpace* /*dstCS*/, skvm::Uniforms* uniforms,
+                                             SkArenaAlloc* alloc) const {
+    skvm::I32 index = p->min(p->to_unorm(8,c.a), p->splat(kNumColors - 1));
+    c = p->unpack_8888(p->gather32(uniforms->pushPtr(fColors), index));
+    std::swap(c.r, c.b);  // The SkColors in fColors are BGRA, but we want RGBA
+    return c;
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
