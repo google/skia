@@ -137,7 +137,7 @@ private:
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
     virtual skvm::Color onProgram(skvm::Builder*, skvm::Color,
-                                  SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const;
+                                  SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const = 0;
 
     typedef SkFlattenable INHERITED;
 };
