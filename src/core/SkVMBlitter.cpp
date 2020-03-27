@@ -140,7 +140,7 @@ namespace {
                     // p.hash() folds in all instructions to produce r,g,b,a but does not know
                     // precisely which value we'll treat as which channel.  Imagine the shader
                     // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
-                    const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
+                    const int outputs[] = { p.id(c.r), p.id(c.g), p.id(c.b), p.id(c.a) };
                     hash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
