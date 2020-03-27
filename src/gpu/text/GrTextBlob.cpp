@@ -74,6 +74,35 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
+
+static SkRect foo(const SkGlyph& g, SkPoint origin) {
+    return SkRect::MakeXYWH(
+            SkIntToScalar(g.left()) + origin.x(),
+            SkIntToScalar(g.top())  + origin.y(),
+            SkIntToScalar(g.width()),
+            SkIntToScalar(g.height()));
+}
+
+static bool is_SDF(const SkGlyph& skGlyph) {
+    return skGlyph.maskFormat() == SkMask::kSDF_Format;
+}
+
+static SkRect bar(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
+    if (!is_SDF(g)) {
+        return SkRect::MakeXYWH(
+                SkIntToScalar(g.left())    * textScale + origin.x(),
+                SkIntToScalar(g.top())     * textScale + origin.y(),
+                SkIntToScalar(g.width())  * textScale,
+                SkIntToScalar(g.height()) * textScale);
+    } else {
+        return SkRect::MakeXYWH(
+                (SkIntToScalar(g.left()) + SK_DistanceFieldInset) * textScale + origin.x(),
+                (SkIntToScalar(g.top())  + SK_DistanceFieldInset) * textScale + origin.y(),
+                (SkIntToScalar(g.width())  - 2 * SK_DistanceFieldInset) * textScale,
+                (SkIntToScalar(g.height()) - 2 * SK_DistanceFieldInset) * textScale);
+    }
+}
+
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
     GrTextStrike* grStrike = fStrike.get();
     SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
@@ -91,9 +120,9 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         SkRect dstRect;
         if (!this->needsTransform()) {
             pos = {SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y())};
-            dstRect = grGlyph->destRect(pos);
+            dstRect = foo(*skGlyph, pos);
         } else {
-            dstRect = grGlyph->destRect(pos, strikeToSource);
+            dstRect = bar(*skGlyph, pos, strikeToSource);
         }
 
         this->joinGlyphBounds(dstRect);
