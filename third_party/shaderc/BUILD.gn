@@ -20,7 +20,7 @@ use_context_logging = !shaderc_spvc_disable_context_logging
 
 is_msvc = is_win && !is_clang
 
-config("shaderc_util_public") {
+third_party_config("shaderc_util_public") {
   include_dirs = [ "${shaderc_root}/libshaderc_util/include" ]
 }
 
@@ -62,7 +62,7 @@ source_set("shaderc_util_sources") {
   ]
 }
 
-config("shaderc_public") {
+third_party_config("shaderc_public") {
   include_dirs = [ "${shaderc_root}/libshaderc/include" ]
   if (is_component_build) {
     defines = [ "SHADERC_SHAREDLIB" ]

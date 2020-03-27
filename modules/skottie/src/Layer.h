@@ -18,6 +18,10 @@ class CompositionBuilder;
 class LayerBuilder final {
 public:
     explicit LayerBuilder(const skjson::ObjectValue& jlayer);
+    LayerBuilder(const LayerBuilder&) = delete;
+    LayerBuilder& operator=(const LayerBuilder&) = delete;
+    LayerBuilder(LayerBuilder&&);
+    LayerBuilder& operator=(LayerBuilder&&) = delete;
     ~LayerBuilder();
 
     int index() const { return fIndex; }

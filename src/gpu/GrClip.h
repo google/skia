@@ -21,6 +21,11 @@ class GrContext;
  */
 class GrClip {
 public:
+    GrClip() = default;
+    GrClip(const GrClip&) = default;
+    GrClip& operator=(const GrClip&) = default;
+    virtual ~GrClip() = default;
+
     virtual bool quickContains(const SkRect&) const = 0;
     virtual bool quickContains(const SkRRect& rrect) const {
         return this->quickContains(rrect.getBounds());
@@ -37,8 +42,6 @@ public:
      */
     virtual bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
                        bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
-
-    virtual ~GrClip() {}
 
     /**
      * This method quickly and conservatively determines whether the entire clip is equivalent to
