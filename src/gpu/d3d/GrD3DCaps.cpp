@@ -86,7 +86,7 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     SkASSERT(SUCCEEDED(hr));
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
-    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &optionsDesc,
+    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
                                      sizeof(options2Desc));
     SkASSERT(SUCCEEDED(hr));
 
