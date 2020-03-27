@@ -9,7 +9,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
-#include "src/core/SkTraceEvent.h"
 #include <functional>  // std::function
 
 namespace skia {
@@ -33,6 +32,27 @@ typedef SkRange<GraphemeIndex> GraphemeRange;
 typedef size_t CodepointIndex;
 typedef SkRange<CodepointIndex> CodepointRange;
 
+typedef size_t GlyphIndex;
+typedef SkRange<GlyphIndex> GlyphRange;
+
+/* This is a part of future LTR/RTL refactoring
+// This is a part of a shaped text
+// Text range (a, b) can be:
+// LTR: [a:b) where a < b
+// RTL: (b:a] where a > b
+class ShapedSpan {
+  public:
+      ShapedSpan(Run* run, TextRange textRange, GlyphRange glyphRange)
+        : fRun(run)
+        , fText(textRange)
+        , fGlyphs(glyphRange) { }
+
+  private:
+      Run* fRun;
+      TextRange fText;
+      GlyphRange fGlyphs;
+};
+*/
 struct RunShifts {
     RunShifts() { }
     RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
@@ -227,13 +247,9 @@ class Cluster {
 public:
     enum BreakType {
         None,
-        CharacterBoundary,       // not yet in use (UBRK_CHARACTER)
-        WordBoundary,            // calculated for all clusters (UBRK_WORD)
-        WordBreakWithoutHyphen,  // calculated only for hyphenated words
-        WordBreakWithHyphen,
-        SoftLineBreak,  // calculated for all clusters (UBRK_LINE)
+        GraphemeBreak,  // calculated for all clusters (UBRK_CHARACTER)
+        SoftLineBreak,  // calculated for all clusters (UBRK_LINE & UBRK_CHARACTER)
         HardLineBreak,  // calculated for all clusters (UBRK_LINE)
-        GraphemeBreak,
     };
 
     Cluster()

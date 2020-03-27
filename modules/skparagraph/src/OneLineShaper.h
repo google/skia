@@ -12,9 +12,6 @@
 namespace skia {
 namespace textlayout {
 
-typedef size_t GlyphIndex;
-typedef SkRange<GlyphIndex> GlyphRange;
-
 class ParagraphImpl;
 class OneLineShaper : public SkShaper::RunHandler {
 public:
@@ -22,7 +19,8 @@ public:
         : fParagraph(paragraph)
         , fHeight(0.0f)
         , fAdvance(SkPoint::Make(0.0f, 0.0f))
-        , fUnresolvedGlyphs(0) { }
+        , fUnresolvedGlyphs(0)
+        , fUniqueRunId(paragraph->fRuns.size()){ }
 
     bool shape();
 
@@ -80,19 +78,18 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
-        auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           index,
+                                           ++fUniqueRunId,
                                            fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }
 
     void commitRunBuffer(const RunInfo&) override;
 
-    TextRange clusteredText(GlyphRange glyphs);
+    TextRange clusteredText(GlyphRange& glyphs);
     ClusterIndex clusterIndex(GlyphIndex glyph) {
         return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
     }
@@ -108,6 +105,7 @@ private:
     SkScalar fHeight;
     SkVector fAdvance;
     size_t fUnresolvedGlyphs;
+    size_t fUniqueRunId;
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;

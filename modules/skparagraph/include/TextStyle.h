@@ -277,7 +277,6 @@ typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
 
-
 struct Block {
     Block() : fRange(EMPTY_RANGE), fStyle() { }
     Block(size_t start, size_t end, const TextStyle& style) : fRange(start, end), fStyle(style) {}
