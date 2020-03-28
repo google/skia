@@ -176,25 +176,25 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
             case Bad_TF: SkASSERT(false); break;
 
             case sRGBish_TF:
-                v = p->select(p->lte(v,D), p->mad(C, v, F)
-                                         , p->add(p->approx_powf(p->mad(A, v, B), G), E));
+                v = p->select(v <= D, C * v + F
+                                    , p->approx_powf(A * v + B, G) + E);
                 break;
 
             case PQish_TF:
-                v = p->approx_powf(p->div(p->max(p->mad(B, p->approx_powf(v, C), A), p->splat(0.f)),
-                                                 p->mad(E, p->approx_powf(v, C), D)),
+                v = p->approx_powf(p->div(p->max(B * p->approx_powf(v, C) + A, 0.0f),
+                                          E * p->approx_powf(v, C) + D),
                                    F);
                 break;
 
             case HLGish_TF: {
-                auto vA = p->mul(v,A);
-                v = p->select(p->lte(vA,p->splat(1.0f)), p->approx_powf(vA, B)
-                                                       , p->approx_exp(p->mad(p->sub(v,E),C, D)));
+                auto vA = v*A;
+                v = p->select(vA < 1.0f, p->approx_powf(vA, B)
+                                       , p->approx_exp((v-E) * C + D));
             } break;
 
             case HLGinvish_TF:
-                v = p->select(p->lte(v,p->splat(1.0f)), p->mul(A, p->approx_powf(v, B))
-                                                      , p->mad(C, p->approx_log(p->sub(v,D)), E));
+                v = p->select(v <= 1.0f, A * p->approx_powf(v, B)
+                                       , C * p->approx_log(v-D) + E);
                 break;
         }
 
@@ -214,13 +214,13 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
         c = sk_program_transfer_fn(p, uniforms, srcTF, c);
     }
     if (flags.gamut_transform) {
-        skvm::F32 m[9];
-        for (int i = 0; i < 9; ++i) {
-            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
-        }
-        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
-             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
-             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
+        auto m = [&](int i) {
+            // TODO: is it common to see 1.0 or 0.0 in the matrix?
+            return p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
+        };
+        auto R = c.r*m(0) + c.g*m(3) + c.b*m(6),
+             G = c.r*m(1) + c.g*m(4) + c.b*m(7),
+             B = c.r*m(2) + c.g*m(5) + c.b*m(8);
         c = {R, G, B, c.a};
     }
     if (flags.encode) {

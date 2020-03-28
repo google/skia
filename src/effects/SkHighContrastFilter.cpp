@@ -147,9 +147,9 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     c = sk_program_transfer_fn(p, uniforms, tf, c);
 
     if (fConfig.fGrayscale) {
-        skvm::F32 gray = p->mad(p->splat(SK_LUM_COEFF_R),c.r,
-                         p->mad(p->splat(SK_LUM_COEFF_G),c.g,
-                         p->mul(p->splat(SK_LUM_COEFF_B),c.b)));
+        skvm::F32 gray = SK_LUM_COEFF_R * c.r
+                       + SK_LUM_COEFF_G * c.g
+                       + SK_LUM_COEFF_B * c.b;
         c = {gray, gray, gray, c.a};
     }
 
@@ -165,7 +165,7 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
         const float b = (-0.5f * m + 0.5f);
         skvm::F32   M = p->uniformF(uniforms->pushF(m));
         skvm::F32   B = p->uniformF(uniforms->pushF(b));
-        c = {p->mad(M,c.r, B), p->mad(M,c.g, B), p->mad(M,c.b, B), c.a};
+        c = {M*c.r + B, M*c.g + B, M*c.b + B, c.a};
     }
 
     c = {p->clamp01(c.r), p->clamp01(c.g), p->clamp01(c.b), c.a};
