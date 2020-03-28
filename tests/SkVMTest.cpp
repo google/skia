@@ -1850,4 +1850,15 @@ DEF_TEST(SkVM_approx_math, r) {
         const float expected[] = {1/9.0f, 1/3.0f, 1, 3, 9};
         compare(N, exps, expected);
     }
+    {
+        float exps[] = {0};
+        constexpr int N = SK_ARRAY_COUNT(exps);
+        eval(N, exps, [](skvm::Builder* b, skvm::F32 exp) {
+            skvm::F32 x = 1,
+                      y = 2;
+            return x + y;
+        });
+        const float expected[] = {3};
+        compare(N, exps, expected);
+    }
 }
