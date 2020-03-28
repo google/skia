@@ -724,7 +724,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
             // Subtract an ulp so the upper clamp limit excludes limit itself.
             int bits;
             memcpy(&bits, &limit, 4);
-            return p->clamp(v, p->splat(0.0f), p->uniformF(uniforms->push(bits-1)));
+            return p->clamp(v, 0.0f, p->uniformF(uniforms->push(bits-1)));
         };
         skvm::F32 clamped_x = clamp(sx, pm. width()),
                   clamped_y = clamp(sy, pm.height());
@@ -739,10 +739,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
             default: SkUNREACHABLE;
 
             case kGray_8_SkColorType: c.r = c.g = c.b = p->from_unorm(8, p->gather8(img, index));
-                                      c.a = p->splat(1.0f);
+                                      c.a = 1.0f;
                                       break;
 
-            case kAlpha_8_SkColorType: c.r = c.g = c.b = p->splat(0.0f);
+            case kAlpha_8_SkColorType: c.r = c.g = c.b = 0.0f;
                                        c.a = p->from_unorm(8, p->gather8(img, index));
                                        break;
 
@@ -766,7 +766,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
         }
         // If we know the image is opaque, jump right to alpha = 1.0f, skipping work to unpack it.
         if (input_is_opaque) {
-            c.a = p->splat(1.0f);
+            c.a = 1.0f;
         }
 
         // Mask away any pixels that we tried to sample outside the bounds in kDecal.
@@ -827,26 +827,26 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                                  p->splat(-6/18.0f)));
         };
         const skvm::F32 wx[] =  {
-            far (p->sub(p->splat(1.0f), fx)),
-            near(p->sub(p->splat(1.0f), fx)),
-            near(                       fx ),
-            far (                       fx ),
+            far (p->inv(fx)),
+            near(p->inv(fx)),
+            near(       fx ),
+            far (       fx ),
         };
         const skvm::F32 wy[] = {
-            far (p->sub(p->splat(1.0f), fy)),
-            near(p->sub(p->splat(1.0f), fy)),
-            near(                       fy ),
-            far (                       fy ),
+            far (p->inv(fy)),
+            near(p->inv(fy)),
+            near(       fy ),
+            far (       fy ),
         };
 
-        c.r = c.g = c.b = c.a = p->splat(0.0f);
+        c.r = c.g = c.b = c.a = 0.0f;
 
-        skvm::F32 sy = p->add(y, p->splat(-1.5f));
-        for (int j = 0; j < 4; j++, sy = p->add(sy, p->splat(1.0f))) {
-            skvm::F32 sx = p->add(x, p->splat(-1.5f));
-            for (int i = 0; i < 4; i++, sx = p->add(sx, p->splat(1.0f))) {
+        skvm::F32 sy = y - 1.5f;
+        for (int j = 0; j < 4; j++, sy += 1.0f) {
+            skvm::F32 sx = x - 1.5f;
+            for (int i = 0; i < 4; i++, sx += 1.0f) {
                 skvm::Color s = sample(sx,sy);
-                skvm::F32   w = p->mul(wx[i], wy[j]);
+                skvm::F32   w = wx[i] * wy[j];
 
                 c.r = p->mad(s.r,w, c.r);
                 c.g = p->mad(s.g,w, c.g);
@@ -861,7 +861,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     if (input_is_opaque
             && fTileModeX != SkTileMode::kDecal
             && fTileModeY != SkTileMode::kDecal) {
-        c.a = p->splat(1.0f);
+        c.a = 1.0f;
     }
 
     // Alpha-only images get their color from the paint (already converted to dst color space).
@@ -878,14 +878,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
     if (quality == kHigh_SkFilterQuality) {
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-        c.a = p->clamp(c.a, p->splat(0.0f), p->splat(1.0f));
+        c.a = p->clamp01(c.a);
 
-        skvm::F32 limit = (at == kUnpremul_SkAlphaType || fClampAsIfUnpremul)
-                        ? p->splat(1.0f)
-                        : c.a;
-        c.r = p->clamp(c.r, p->splat(0.0f), limit);
-        c.g = p->clamp(c.g, p->splat(0.0f), limit);
-        c.b = p->clamp(c.b, p->splat(0.0f), limit);
+        skvm::F32 limit = (at == kUnpremul_SkAlphaType || fClampAsIfUnpremul) ? 1.0f : c.a;
+        c.r = p->clamp(c.r, 0.0f, limit);
+        c.g = p->clamp(c.g, 0.0f, limit);
+        c.b = p->clamp(c.b, 0.0f, limit);
     }
 
     SkColorSpaceXformSteps steps{cs,at, dst.colorSpace(),kPremul_SkAlphaType};
