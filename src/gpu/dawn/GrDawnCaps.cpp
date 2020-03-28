@@ -73,25 +73,6 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
     return GrSwizzle::RGBA();
 }
 
-bool GrDawnCaps::isFormatTexturableAndUploadable(GrColorType ct,
-                                                 const GrBackendFormat& format) const {
-    wgpu::TextureFormat dawnFormat;
-    if (!format.asDawnFormat(&dawnFormat)) {
-        return false;
-    }
-    switch (ct) {
-        case GrColorType::kAlpha_8:
-            return wgpu::TextureFormat::R8Unorm == dawnFormat;
-        case GrColorType::kRGBA_8888:
-        case GrColorType::kRGB_888x:
-        case GrColorType::kBGRA_8888:
-            return wgpu::TextureFormat::RGBA8Unorm == dawnFormat ||
-                   wgpu::TextureFormat::BGRA8Unorm == dawnFormat;
-        default:
-            return false;
-    }
-}
-
 bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
                                     int sampleCount) const {
     wgpu::TextureFormat dawnFormat;
@@ -128,11 +109,10 @@ int GrDawnCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const 
     return format.isValid() ? 1 : 0;
 }
 
-GrBackendFormat GrDawnCaps::onGetDefaultBackendFormat(GrColorType ct,
-                                                      GrRenderable renderable) const {
+GrBackendFormat GrDawnCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     wgpu::TextureFormat format;
     if (!GrColorTypeToDawnFormat(ct, &format)) {
-        return GrBackendFormat();
+        return {};
     }
     return GrBackendFormat::MakeDawn(format);
 }

@@ -52,7 +52,6 @@ GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
         return GrBackendFormat();
     }
 
-    SkASSERT(caps->isFormatTexturableAndUploadable(grColorType, format));
     SkASSERT(renderable == GrRenderable::kNo ||
              caps->isFormatAsColorTypeRenderable(grColorType, format));
 

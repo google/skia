@@ -331,15 +331,6 @@ SkImage::CompressionType GrMtlCaps::compressionType(const GrBackendFormat& forma
     SkUNREACHABLE;
 }
 
-bool GrMtlCaps::isFormatTexturableAndUploadable(GrColorType ct,
-                                                const GrBackendFormat& format) const {
-    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-
-    uint32_t ctFlags = this->getFormatInfo(mtlFormat).colorTypeFlags(ct);
-    return this->isFormatTexturable(mtlFormat) &&
-           SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
-}
-
 bool GrMtlCaps::isFormatTexturable(const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     return this->isFormatTexturable(mtlFormat);
@@ -909,11 +900,10 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
     }
 }
 
-GrBackendFormat GrMtlCaps::onGetDefaultBackendFormat(GrColorType ct,
-                                                     GrRenderable renderable) const {
+GrBackendFormat GrMtlCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     MTLPixelFormat format = this->getFormatFromColorType(ct);
     if (!format) {
-        return GrBackendFormat();
+        return {};
     }
     return GrBackendFormat::MakeMtl(format);
 }
