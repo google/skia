@@ -186,9 +186,6 @@ public:
         return this->compressionType(format) != SkImage::CompressionType::kNone;
     }
 
-    // TODO: Once we use the supportWritePixels call for uploads, we can remove this function and
-    // instead only have the version that takes a GrBackendFormat.
-    virtual bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const = 0;
     // Can a texture be made with the GrBackendFormat, and then be bound and sampled in a shader.
     virtual bool isFormatTexturable(const GrBackendFormat&) const = 0;
 
@@ -196,9 +193,7 @@ public:
     virtual bool isFormatCopyable(const GrBackendFormat&) const = 0;
 
     // Returns the maximum supported sample count for a format. 0 means the format is not renderable
-    // 1 means the format is renderable but doesn't support MSAA. This call only refers to the
-    // format itself. A caller should also confirm if the format is renderable with a given
-    // GrColorType by calling isFormatRenderable.
+    // 1 means the format is renderable but doesn't support MSAA.
     virtual int maxRenderTargetSampleCount(const GrBackendFormat&) const = 0;
 
     // Returns the number of samples to use when performing internal draws to the given config with
@@ -540,7 +535,7 @@ private:
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
-    virtual GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const = 0;
+    virtual GrBackendFormat onGetDefaultBackendFormat(GrColorType) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

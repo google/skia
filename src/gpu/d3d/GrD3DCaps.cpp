@@ -719,18 +719,6 @@ SkImage::CompressionType GrD3DCaps::compressionType(const GrBackendFormat& forma
     SkUNREACHABLE;
 }
 
-bool GrD3DCaps::isFormatTexturableAndUploadable(GrColorType ct,
-                                                const GrBackendFormat& format) const {
-    DXGI_FORMAT dxgiFormat;
-    if (!format.asDxgiFormat(&dxgiFormat)) {
-        return false;
-    }
-
-    uint32_t ctFlags = this->getFormatInfo(dxgiFormat).colorTypeFlags(ct);
-    return this->isFormatTexturable(dxgiFormat) &&
-        SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
-}
-
 bool GrD3DCaps::isFormatTexturable(const GrBackendFormat& format) const {
     DXGI_FORMAT dxgiFormat;
     if (!format.asDxgiFormat(&dxgiFormat)) {
@@ -905,11 +893,10 @@ GrColorType GrD3DCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
     SkUNREACHABLE;
 }
 
-GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct,
-                                                     GrRenderable renderable) const {
+GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     DXGI_FORMAT format = this->getFormatFromColorType(ct);
     if (format == DXGI_FORMAT_UNKNOWN) {
-        return GrBackendFormat();
+        return {};
     }
     return GrBackendFormat::MakeDxgi(format);
 }

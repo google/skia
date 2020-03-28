@@ -352,19 +352,25 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorT
     return read;
 }
 
-GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
+GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType colorType,
                                                 GrRenderable renderable) const {
-    GrBackendFormat format = this->onGetDefaultBackendFormat(grColorType, renderable);
-    if (!this->isFormatTexturableAndUploadable(grColorType, format)) {
+    auto format = this->onGetDefaultBackendFormat(colorType);
+    if (!this->isFormatTexturable(format)) {
         return {};
     }
-
-    if (renderable == GrRenderable::kYes) {
-        if (!this->isFormatAsColorTypeRenderable(grColorType, format)) {
-            return {};
-        }
+    if (!this->areColorTypeAndFormatCompatible(colorType, format)) {
+        return {};
     }
-
+    // Currently we require that it be possible to write pixels into the "default" format. Perhaps,
+    // that could be a separate requirement from the caller. It seems less necessary if
+    // renderability was requested.
+    if (this->supportedReadPixelsColorType(colorType, format, colorType).fColorType ==
+        GrColorType::kUnknown) {
+        return {};
+    }
+    if (renderable == GrRenderable::kYes &&
+        !this->isFormatAsColorTypeRenderable(colorType, format)) {
+        return {};
+    }
     return format;
 }
-
