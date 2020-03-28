@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fe5468f_056057f5",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-28T12:25:59Z",
+      "side": 1,
+      "message": "this used to be a pun. Are you \u0027resolving\u0027 now to make this work with immediates?",
+      "range": {
+        "startLine": 584,
+        "startChar": 46,
+        "endLine": 584,
+        "endChar": 47
+      },
+      "revId": "0b9f9d41e577d085a83b65f6071aef1887646b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
