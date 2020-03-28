@@ -395,6 +395,8 @@ namespace skvm {
         // Gets our ID, resolving any immediate to a splat() on b.  Mostly for internal use.
         Val resolve(Builder* b);
 
+        float private_imm() const { SkASSERT(fID == IMM); return fImm; }
+
     private:
         Builder* fBuilder = nullptr;
         Val      fID      = NA;
@@ -837,22 +839,27 @@ namespace skvm {
     static Builder* common_builder(F32 x, F32 y) {
         Builder *X = x.builder(),
                 *Y = y.builder();
-        SkASSERT(X || Y);
         if (X && Y) { SkASSERT(X==Y); return X; }
         if (X     ) { return X; }
         if (Y     ) { return Y; }
         return nullptr;
     }
 
-    static inline F32& operator+=(F32& x, F32 y) { return (x = common_builder(x,y)->add(x,y)); }
-    static inline F32& operator-=(F32& x, F32 y) { return (x = common_builder(x,y)->sub(x,y)); }
-    static inline F32& operator*=(F32& x, F32 y) { return (x = common_builder(x,y)->mul(x,y)); }
-    static inline F32& operator/=(F32& x, F32 y) { return (x = common_builder(x,y)->div(x,y)); }
+#define COMMON_APPLY(x, y, func, oper)      \
+    Builder* p = common_builder(x, y);      \
+    return p ? p->func(x,y) : F32(x oper y)
 
-    static inline F32 operator+(F32 x, F32 y) { return x += y; }
-    static inline F32 operator-(F32 x, F32 y) { return x -= y; }
-    static inline F32 operator*(F32 x, F32 y) { return x *= y; }
-    static inline F32 operator/(F32 x, F32 y) { return x /= y; }
+    static inline F32 operator+(F32 x, F32 y) { COMMON_APPLY(x, y, add, +); }
+    static inline F32 operator-(F32 x, F32 y) { COMMON_APPLY(x, y, sub, -); }
+    static inline F32 operator*(F32 x, F32 y) { COMMON_APPLY(x, y, mul, *); }
+    static inline F32 operator/(F32 x, F32 y) { COMMON_APPLY(x, y, div, /); }
+
+#undef COMMON_APPLY
+
+    static inline F32& operator+=(F32& x, F32 y) { return (x = x + y); }
+    static inline F32& operator-=(F32& x, F32 y) { return (x = x - y); }
+    static inline F32& operator*=(F32& x, F32 y) { return (x = x * y); }
+    static inline F32& operator/=(F32& x, F32 y) { return (x = x / y); }
 
     static inline F32 min(F32 x, F32 y) { return common_builder(x,y)->min(x,y); }
     static inline F32 max(F32 x, F32 y) { return common_builder(x,y)->max(x,y); }
