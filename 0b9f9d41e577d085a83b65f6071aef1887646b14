@@ -22,6 +22,30 @@
       "revId": "0b9f9d41e577d085a83b65f6071aef1887646b14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e742d552_9b045544",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-28T12:41:37Z",
+      "side": 1,
+      "message": "Yeah, still is a pun... same value index is tracked all the way through.\n\nThe main reason I went with this instead of a memcpy() is that it keeps the constructor discipline of I32/F32 sane... the choices are\n\n    * init with NA                  --- obviously won\u0027t work here\n    * init with an immediate        --- only possible if x is an immediate\n    * init with any resolved value  --- yep, that\u0027s this.\n\nadd(), mul(), etc. all do the same thing, using id() to resolve any immediates on entry.\n\nid(x) is a logical no-op, and a literal actual no-op unless x is an immediate.",
+      "parentUuid": "5fe5468f_056057f5",
+      "range": {
+        "startLine": 584,
+        "startChar": 46,
+        "endLine": 584,
+        "endChar": 47
+      },
+      "revId": "0b9f9d41e577d085a83b65f6071aef1887646b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
