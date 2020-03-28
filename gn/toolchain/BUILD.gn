@@ -198,7 +198,7 @@ toolchain("msvc") {
 
   tool("copy") {
     cp_py = rebase_path("../cp.py")
-    command = "python $cp_py {{source}} {{output}}"
+    command = "python \"$cp_py\" {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
@@ -337,13 +337,13 @@ template("gcc_like_toolchain") {
 
     tool("copy") {
       cp_py = rebase_path("../cp.py")
-      command = "python $cp_py {{source}} {{output}}"
+      command = "python \"$cp_py\" {{source}} {{output}}"
       description = "copy {{source}} {{output}}"
     }
 
     tool("copy_bundle_data") {
       cp_py = rebase_path("../cp.py")
-      command = "python $cp_py {{source}} {{output}}"
+      command = "python \"$cp_py\" {{source}} {{output}}"
       description = "copy_bundle_data {{source}} {{output}}"
     }
 
