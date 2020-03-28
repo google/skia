@@ -742,7 +742,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                                       c.a = p->splat(1.0f);
                                       break;
 
-            case kAlpha_8_SkColorType: c.r = c.g = c.b = p->splat(0.0f);
+            case kAlpha_8_SkColorType: c.r = c.g = c.b = 0.0f;
                                        c.a = p->from_unorm(8, p->gather8(img, index));
                                        break;
 
@@ -839,7 +839,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
             far (                       fy ),
         };
 
-        c.r = c.g = c.b = c.a = p->splat(0.0f);
+        c.r = c.g = c.b = c.a = 0.0f;
 
         skvm::F32 sy = p->add(y, p->splat(-1.5f));
         for (int j = 0; j < 4; j++, sy = p->add(sy, p->splat(1.0f))) {
