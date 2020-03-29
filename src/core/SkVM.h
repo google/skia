@@ -370,19 +370,21 @@ namespace skvm {
     //
     // You can of course always splat() to override these opinions.
     struct I32a {
-        I32a(I32 v) : i32(v) {}
+        I32a(I32 v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
         I32a(int v) : imm(v) {}
 
-        I32 i32 = {};
-        int imm =  0;
+        SkDEBUGCODE(Builder* builder = nullptr;)
+        Val id  = NA;
+        int imm = 0;
     };
 
     struct F32a {
-        F32a(F32   v) : f32(v) {}
+        F32a(F32   v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
         F32a(float v) : imm(v) {}
 
-        F32   f32 = {};
-        float imm =  0;
+        SkDEBUGCODE(Builder* builder = nullptr;)
+        Val   id  = NA;
+        float imm = 0;
     };
 
     struct Color {
@@ -490,8 +492,6 @@ namespace skvm {
         I32 splat(int      n);
         I32 splat(unsigned u) { return this->splat((int)u); }
         F32 splat(float    f);
-
-
 
         // float math, comparisons, etc.
         F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
@@ -662,19 +662,19 @@ namespace skvm {
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
 
         I32 _(I32a x) {
-            if (x.i32) {
-                SkASSERT(x.i32.builder == this);
-                return x.i32;
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {this, x.id};
             }
-            return splat(x.imm);
+            return this->splat(x.imm);
         }
 
         F32 _(F32a x) {
-            if (x.f32) {
-                SkASSERT(x.f32.builder == this);
-                return x.f32;
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {this, x.id};
             }
-            return splat(x.imm);
+            return this->splat(x.imm);
         }
 
         bool allImm() const;
