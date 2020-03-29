@@ -478,19 +478,21 @@ namespace skvm {
         //
         // You can of course always splat() to override these opinions.
         struct I32a {
-            I32a(I32 v) : i32(v) {}
+            I32a(I32 v) : builder(v.builder), id(v.id) {}
             I32a(int v) : imm(v) {}
 
-            I32 i32 = {};
-            int imm =  0;
+            Builder* builder = nullptr;
+            Val      id      = NA;
+            int      imm     = 0;
         };
 
         struct F32a {
-            F32a(F32   v) : f32(v) {}
+            F32a(F32   v) : builder(v.builder), id(v.id) {}
             F32a(float v) : imm(v) {}
 
-            F32   f32 = {};
-            float imm =  0;
+            Builder* builder = nullptr;
+            Val      id      = NA;
+            float    imm     = 0;
         };
 
 
@@ -663,19 +665,19 @@ namespace skvm {
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
 
         I32 _(I32a x) {
-            if (x.i32) {
-                SkASSERT(x.i32.builder == this);
-                return x.i32;
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {x.builder, x.id};
             }
-            return splat(x.imm);
+            return this->splat(x.imm);
         }
 
         F32 _(F32a x) {
-            if (x.f32) {
-                SkASSERT(x.f32.builder == this);
-                return x.f32;
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {x.builder, x.id};
             }
-            return splat(x.imm);
+            return this->splat(x.imm);
         }
 
         bool allImm() const;
