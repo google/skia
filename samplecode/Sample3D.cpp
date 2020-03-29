@@ -260,7 +260,9 @@ public:
         return this->Sample3DView::onChar(uni);
     }
 
-    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
+    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront, bool drawShadow) = 0;
+
+    virtual SkM44 shadowM() { return SkM44(); }
 
     void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
         auto l2d = canvas->getLocalToDevice();
@@ -289,8 +291,18 @@ public:
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
                 SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
+                canvas->save();
+                {
+                    SkM44 s = this->shadowM();
+                    canvas->concat44(trans * s * m * inv(trans));
+                    this->drawContent(canvas, f.fColor, index, drawFront, true);
+                }
+                canvas->restore();
+
                 canvas->concat44(trans * m * inv(trans));
-                this->drawContent(canvas, f.fColor, index++, drawFront);
+                this->drawContent(canvas, f.fColor, index, drawFront, false);
+
+                index += 1;
             }
         }
 
@@ -414,8 +426,9 @@ public:
         fEffect = effect;
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->getLocalToDevice())) {
+    void drawContent(SkCanvas* canvas, SkColor color, int index,
+                     bool drawFront, bool drawShadow) override {
+        if (!drawFront || !front(canvas->getLocalToDevice()) || drawShadow) {
             return;
         }
 
@@ -473,8 +486,8 @@ public:
         }
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->getLocalToDevice())) {
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront, bool drawShadow) override {
+        if (!drawFront || !front(canvas->getLocalToDevice()) || drawShadow) {
             return;
         }
 
@@ -495,3 +508,119 @@ public:
     }
 };
 DEF_SAMPLE( return new SampleSkottieCube; )
+
+static bool shadow_matrix(SkM44* m, SkV4 light, SkV4 plane) {
+    float d = light.dot(plane);
+    if (d <= 0) {
+        return false;
+    }
+
+    *m = SkM44::Cols(SkV4{d, 0, 0, 0} - light.x * plane,
+                     SkV4{0, d, 0, 0} - light.y * plane,
+                     SkV4{0, 0, d, 0} - light.z * plane,
+                     SkV4{0, 0, 0, d} - light.w * plane);
+    return true;
+}
+
+static SkV4 make4(SkV3 v, float w) { return {v.x, v.y, v.z, w}; }
+
+class SampleShadow3D : public SampleCubeBase {
+    sk_sp<SkShader>        fBmpShader, fImgShader;
+    sk_sp<SkRuntimeEffect> fEffect;
+    SkRRect                fRR;
+
+public:
+    SampleShadow3D() : SampleCubeBase(kShowLightDome) {}
+
+    SkString name() override { return SkString("shadow3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        auto img = GetResourceAsImage("images/brickwork-texture.jpg");
+        fImgShader = img->makeShader(SkMatrix::MakeScale(2, 2));
+        img = GetResourceAsImage("images/brickwork_normal-map.jpg");
+        fBmpShader = img->makeShader(SkMatrix::MakeScale(2, 2));
+
+        const char code[] = R"(
+            in fragmentProcessor color_map;
+            in fragmentProcessor normal_map;
+
+            uniform float4x4 localToWorld;
+            uniform float4x4 localToWorldAdjInv;
+            uniform float3   lightPos;
+
+            float3 convert_normal_sample(half4 c) {
+                float3 n = 2 * c.rgb - 1;
+                n.y = -n.y;
+                return n;
+            }
+
+            void main(float2 p, inout half4 color) {
+                float3 norm = convert_normal_sample(sample(normal_map, p));
+                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+
+                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+                float3 light_dir = normalize(lightPos - plane_pos);
+
+                float ambient = 0.2;
+                float dp = dot(plane_norm, light_dir);
+                float scale = min(ambient + max(dp, 0), 1);
+
+                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    SkM44 shadowM() override {
+        SkM44 s;
+        if (shadow_matrix(&s, make4(fLight.computeWorldPos(fSphere), 0), {0, 0, 1, 0})) {
+            return s;
+        }
+        return SkM44::Scale(0, 0, 0);
+    }
+
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront, bool drawShadow) override {
+        if (!drawFront || !front(canvas->getLocalToDevice())) {
+            return;
+        }
+
+        if (drawShadow) {
+            SkPaint p;
+            p.setColor(0xFFCCCCCC);
+     //       p.setStyle(SkPaint::kStroke_Style);
+            canvas->drawRRect(fRR, p);
+            return;
+        }
+
+        auto adj_inv = [](const SkM44& m) {
+            SkM44 inv;
+            SkAssertResult(m.invert(&inv));
+            return inv.transpose();
+        };
+
+        struct Uniforms {
+            SkM44  fLocalToWorld;
+            SkM44  fLocalToWorldAdjInv;
+            SkV3   fLightPos;
+        } uni;
+        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
+        uni.fLightPos = fLight.computeWorldPos(fSphere);
+
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+        sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
+
+        SkPaint paint;
+        paint.setColor(color);
+        paint.setShader(fEffect->makeShader(data, children, 2, nullptr, true));
+
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRRect(fRR, paint);
+    }
+};
+DEF_SAMPLE( return new SampleShadow3D; )
