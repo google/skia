@@ -339,88 +339,53 @@ namespace skvm {
     };
 
     using Val = int;
-    // We reserve impossibe Val IDs as a sentinels:
-    //   - NA meaning none, n/a, null, nil, etc.
-    //   - IMM meaning an unresolved immediate.
-    static const Val NA  = -1,
-                     IMM = -2;
+    // We reserve an impossibe Val ID as a sentinel
+    // NA meaning none, n/a, null, nil, etc.
+    static const Val NA = -1;
 
     struct Arg { int ix; };
 
     struct I32 {
-    public:
-        I32()                         : fBuilder(nullptr), fID( NA), fImm(0) {}
-        I32(int x)                    : fBuilder(nullptr), fID(IMM), fImm(x) {}
-        I32(Builder* builder, Val id) : fBuilder(builder), fID( id), fImm(0) {}
-
-        explicit operator bool() const { return fID != NA; }
-        Builder*       builder() const { return fBuilder; }
-
-        // Gets our ID, resolving any immediate to a splat() on b.  Mostly for internal use.
-        Val resolve(Builder* b);
-
-    private:
-        Builder* fBuilder = nullptr;
-        Val      fID      = NA;
-        int      fImm     = 0;
+        Builder* builder = nullptr;
+        Val      id      = NA;
+        explicit operator bool() const { return id != NA; }
     };
-
-    static inline I32& operator+=(I32&, I32);
-    static inline I32& operator-=(I32&, I32);
-    static inline I32& operator*=(I32&, I32);
-
-    static inline I32 operator+(I32, I32);
-    static inline I32 operator-(I32, I32);
-    static inline I32 operator*(I32, I32);
-
-    static inline I32 min(I32, I32);
-    static inline I32 max(I32, I32);
-
-    static inline I32 operator==(I32, I32);
-    static inline I32 operator!=(I32, I32);
-    static inline I32 operator< (I32, I32);
-    static inline I32 operator<=(I32, I32);
-    static inline I32 operator> (I32, I32);
-    static inline I32 operator>=(I32, I32);
 
     struct F32 {
-    public:
-        F32()                         : fBuilder(nullptr), fID( NA), fImm(0) {}
-        F32(float x)                  : fBuilder(nullptr), fID(IMM), fImm(x) {}
-        F32(Builder* builder, Val id) : fBuilder(builder), fID( id), fImm(0) {}
-
-        explicit operator bool() const { return fID != NA; }
-        Builder*       builder() const { return fBuilder; }
-
-        // Gets our ID, resolving any immediate to a splat() on b.  Mostly for internal use.
-        Val resolve(Builder* b);
-
-    private:
-        Builder* fBuilder = nullptr;
-        Val      fID      = NA;
-        float    fImm     = 0;
+        Builder* builder = nullptr;
+        Val      id      = NA;
+        explicit operator bool() const { return id != NA; }
     };
 
-    static inline F32& operator+=(F32&, F32);
-    static inline F32& operator-=(F32&, F32);
-    static inline F32& operator*=(F32&, F32);
-    static inline F32& operator/=(F32&, F32);
+    // Some operations make sense with immediate arguments,
+    // so we use I32a and F32a to receive them transparently.
+    //
+    // We omit overloads that may indicate a bug or performance issue.
+    // In general it does not make sense to pass immediates to unary operations,
+    // and even sometimes not for binary operations, e.g.
+    //
+    //   div(x,y)    -- normal every day divide
+    //   div(3.0f,y) -- yep, makes sense
+    //   div(x,3.0f) -- omitted as a reminder you probably want mul(x, 1/3.0f).
+    //
+    // You can of course always splat() to override these opinions.
+    struct I32a {
+        I32a(I32 v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
+        I32a(int v) : imm(v) {}
 
-    static inline F32 operator+(F32, F32);
-    static inline F32 operator-(F32, F32);
-    static inline F32 operator*(F32, F32);
-    static inline F32 operator/(F32, F32);
+        SkDEBUGCODE(Builder* builder = nullptr;)
+        Val id  = NA;
+        int imm = 0;
+    };
 
-    static inline F32 min(F32, F32);
-    static inline F32 max(F32, F32);
+    struct F32a {
+        F32a(F32   v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
+        F32a(float v) : imm(v) {}
 
-    static inline I32 operator==(F32, F32);
-    static inline I32 operator!=(F32, F32);
-    static inline I32 operator< (F32, F32);
-    static inline I32 operator<=(F32, F32);
-    static inline I32 operator> (F32, F32);
-    static inline I32 operator>=(F32, F32);
-
+        SkDEBUGCODE(Builder* builder = nullptr;)
+        Val   id  = NA;
+        float imm = 0;
+    };
 
     struct Color {
         skvm::F32 r,g,b,a;
@@ -473,8 +438,8 @@ namespace skvm {
 
         // Assert cond is true, printing debug when not.
         void assert_true(I32 cond, I32 debug);
-        void assert_true(I32 cond, F32 debug) { this->assert_true(cond, this->bit_cast(debug)); }
-        void assert_true(I32 cond)            { this->assert_true(cond, cond); }
+        void assert_true(I32 cond, F32 debug) { assert_true(cond, bit_cast(debug)); }
+        void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
@@ -529,109 +494,111 @@ namespace skvm {
         F32 splat(float    f);
 
         // float math, comparisons, etc.
-        F32 add(F32 x, F32 y);
-        F32 sub(F32 x, F32 y);
-        F32 mul(F32 x, F32 y);
-        F32 div(F32 x, F32 y);
-        F32 min(F32 x, F32 y);
-        F32 max(F32 x, F32 y);
-        F32 mad(F32 x, F32 y, F32 z) { return add(mul(x,y), z); }
-        F32 sqrt(F32 x);
+        F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
+        F32 sub(F32, F32);  F32 sub(F32a x, F32a y) { return sub(_(x), _(y)); }
+        F32 mul(F32, F32);  F32 mul(F32a x, F32a y) { return mul(_(x), _(y)); }
+        F32 div(F32, F32);  F32 div(F32a x, F32  y) { return div(_(x),   y ); }
+        F32 min(F32, F32);  F32 min(F32a x, F32a y) { return min(_(x), _(y)); }
+        F32 max(F32, F32);  F32 max(F32a x, F32a y) { return max(_(x), _(y)); }
+
+        F32 mad(F32  x, F32  y, F32  z) { return add(mul(x,y), z); }
+        F32 mad(F32a x, F32a y, F32a z) { return mad(_(x), _(y), _(z)); }
+
+        F32    inv(F32 x) { return sub(1.0f, x); }
+        F32 negate(F32 x) { return sub(0.0f, x); }
+        F32   sqrt(F32);
 
         F32 approx_log2(F32);
         F32 approx_pow2(F32);
-        F32 approx_powf(F32 base, F32 exp);
+        F32 approx_log (F32 x) { return mul(0.69314718f, approx_log2(x)); }
+        F32 approx_exp (F32 x) { return approx_pow2(mul(x, 1.4426950408889634074f)); }
 
-        F32 approx_log(F32 x) { // return ln(2) * log2(x)
-            return 0.69314718f * approx_log2(x);
-        }
-        F32 approx_exp(F32 x) { // 2^(x * log2(e))
-            return approx_pow2(x * 1.4426950408889634074f);
-        }
+        F32 approx_powf(F32  base, F32  exp);
+        F32 approx_powf(F32a base, F32a exp) { return approx_powf(_(base), _(exp)); }
 
-        F32 inv(F32 x)    { return 1-x; }
-        F32 negate(F32 x) { return 0-x; }
+        F32 lerp(F32  lo, F32  hi, F32  t) { return mad(sub(hi, lo), t, lo); }
+        F32 lerp(F32a lo, F32a hi, F32a t) { return lerp(_(lo), _(hi), _(t)); }
 
-        F32 lerp(F32 lo, F32 hi, F32 t) {
-            return mad(hi-lo, t, lo);
-        }
-        F32 clamp(F32 x, F32 lo, F32 hi) {
-            return max(lo, min(x, hi));
-        }
-        F32 clamp01(F32 x) {
-            return clamp(x, 0.0f, 1.0f);
-        }
-        F32 abs(F32 x) {
-            return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff));
-        }
-        F32 fract(F32 x) {
-            return x - floor(x);
-        }
-        F32 norm(F32 x, F32 y) {
-            return sqrt(x*x + y*y);
-        }
+        F32 clamp(F32  x, F32  lo, F32  hi) { return max(lo, min(x, hi)); }
+        F32 clamp(F32a x, F32a lo, F32a hi) { return clamp(_(x), _(lo), _(hi)); }
+        F32 clamp01(F32 x) { return clamp(x, 0.0f, 1.0f); }
 
-        I32 eq (F32 x, F32 y);
-        I32 neq(F32 x, F32 y);
-        I32 lt (F32 x, F32 y);
-        I32 lte(F32 x, F32 y);
-        I32 gt (F32 x, F32 y);
-        I32 gte(F32 x, F32 y);
-
+        F32   abs(F32 x) { return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff)); }
+        F32 fract(F32 x) { return sub(x, floor(x)); }
         F32 floor(F32);
+
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
-        I32 bit_cast(F32 x) { return {this, id(x)}; }
+        I32 bit_cast(F32 x) { return {x.builder, x.id}; }
+
+        F32 norm(F32 x, F32 y) {
+            return sqrt(add(mul(x,x),
+                            mul(y,y)));
+        }
+        F32 norm(F32a x, F32a y) { return norm(_(x), _(y)); }
+
+        I32  eq(F32, F32);  I32  eq(F32a x, F32a y) { return  eq(_(x), _(y)); }
+        I32 neq(F32, F32);  I32 neq(F32a x, F32a y) { return neq(_(x), _(y)); }
+        I32 lt (F32, F32);  I32 lt (F32a x, F32a y) { return lt (_(x), _(y)); }
+        I32 lte(F32, F32);  I32 lte(F32a x, F32a y) { return lte(_(x), _(y)); }
+        I32 gt (F32, F32);  I32 gt (F32a x, F32a y) { return gt (_(x), _(y)); }
+        I32 gte(F32, F32);  I32 gte(F32a x, F32a y) { return gte(_(x), _(y)); }
 
         // int math, comparisons, etc.
-        I32 add(I32 x, I32 y);
-        I32 sub(I32 x, I32 y);
-        I32 mul(I32 x, I32 y);
+        I32 add(I32, I32);  I32 add(I32a x, I32a y) { return add(_(x), _(y)); }
+        I32 sub(I32, I32);  I32 sub(I32a x, I32a y) { return sub(_(x), _(y)); }
+        I32 mul(I32, I32);  I32 mul(I32a x, I32a y) { return mul(_(x), _(y)); }
 
         I32 shl(I32 x, int bits);
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 eq (I32 x, I32 y);
-        I32 neq(I32 x, I32 y);
-        I32 lt (I32 x, I32 y);
-        I32 lte(I32 x, I32 y);
-        I32 gt (I32 x, I32 y);
-        I32 gte(I32 x, I32 y);
+        I32 eq (I32 x, I32 y);  I32  eq(I32a x, I32a y) { return  eq(_(x), _(y)); }
+        I32 neq(I32 x, I32 y);  I32 neq(I32a x, I32a y) { return neq(_(x), _(y)); }
+        I32 lt (I32 x, I32 y);  I32 lt (I32a x, I32a y) { return lt (_(x), _(y)); }
+        I32 lte(I32 x, I32 y);  I32 lte(I32a x, I32a y) { return lte(_(x), _(y)); }
+        I32 gt (I32 x, I32 y);  I32 gt (I32a x, I32a y) { return gt (_(x), _(y)); }
+        I32 gte(I32 x, I32 y);  I32 gte(I32a x, I32a y) { return gte(_(x), _(y)); }
 
         F32 to_f32(I32 x);
-        F32 bit_cast(I32 x) { return {this, id(x)}; }
+        F32 bit_cast(I32 x) { return {x.builder, x.id}; }
 
         // Treat each 32-bit lane as a pair of 16-bit ints.
-        I32 add_16x2(I32 x, I32 y);
-        I32 sub_16x2(I32 x, I32 y);
-        I32 mul_16x2(I32 x, I32 y);
+        I32 add_16x2(I32, I32);  I32 add_16x2(I32a x, I32a y) { return add_16x2(_(x), _(y)); }
+        I32 sub_16x2(I32, I32);  I32 sub_16x2(I32a x, I32a y) { return sub_16x2(_(x), _(y)); }
+        I32 mul_16x2(I32, I32);  I32 mul_16x2(I32a x, I32a y) { return mul_16x2(_(x), _(y)); }
 
         I32 shl_16x2(I32 x, int bits);
         I32 shr_16x2(I32 x, int bits);
         I32 sra_16x2(I32 x, int bits);
 
-        I32  eq_16x2(I32 x, I32 y);
-        I32 neq_16x2(I32 x, I32 y);
-        I32  lt_16x2(I32 x, I32 y);
-        I32 lte_16x2(I32 x, I32 y);
-        I32  gt_16x2(I32 x, I32 y);
-        I32 gte_16x2(I32 x, I32 y);
+        I32  eq_16x2(I32, I32);  I32  eq_16x2(I32a x, I32a y) { return  eq_16x2(_(x), _(y)); }
+        I32 neq_16x2(I32, I32);  I32 neq_16x2(I32a x, I32a y) { return neq_16x2(_(x), _(y)); }
+        I32  lt_16x2(I32, I32);  I32  lt_16x2(I32a x, I32a y) { return  lt_16x2(_(x), _(y)); }
+        I32 lte_16x2(I32, I32);  I32 lte_16x2(I32a x, I32a y) { return lte_16x2(_(x), _(y)); }
+        I32  gt_16x2(I32, I32);  I32  gt_16x2(I32a x, I32a y) { return  gt_16x2(_(x), _(y)); }
+        I32 gte_16x2(I32, I32);  I32 gte_16x2(I32a x, I32a y) { return gte_16x2(_(x), _(y)); }
 
         // Bitwise operations.
-        I32 bit_and  (I32 x, I32 y);
-        I32 bit_or   (I32 x, I32 y);
-        I32 bit_xor  (I32 x, I32 y);
-        I32 bit_clear(I32 x, I32 y);   // x & ~y
+        I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }
+        I32 bit_or   (I32, I32);  I32 bit_or   (I32a x, I32a y) { return bit_or   (_(x), _(y)); }
+        I32 bit_xor  (I32, I32);  I32 bit_xor  (I32a x, I32a y) { return bit_xor  (_(x), _(y)); }
+        I32 bit_clear(I32, I32);  I32 bit_clear(I32a x, I32a y) { return bit_clear(_(x), _(y)); }
 
-        I32 min(I32 x, I32 y) { return select(x<y, x, y); }
-        I32 max(I32 x, I32 y) { return select(x>y, x, y); }
+        I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
+        I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
+
+        I32 min(I32a x, I32a y) { return min(_(x), _(y)); }
+        I32 max(I32a x, I32a y) { return max(_(x), _(y)); }
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
         F32 select(I32 cond, F32 t, F32 f) {
             return this->bit_cast(this->select(cond, this->bit_cast(t)
                                                    , this->bit_cast(f)));
         }
+
+        I32 select(I32a cond, I32a t, I32a f) { return select(_(cond), _(t), _(f)); }
+        F32 select(I32a cond, F32a t, F32a f) { return select(_(cond), _(t), _(f)); }
 
         // More complex operations...
 
@@ -658,6 +625,10 @@ namespace skvm {
 
         I32 extract(I32 x, int bits, I32 z);   // (x>>bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
+
+        I32 extract(I32a x, int bits, I32a z) { return extract(_(x), bits, _(z)); }
+        I32 pack   (I32a x, I32a y, int bits) { return pack   (_(x), _(y), bits); }
+
 
         // Common idioms used in several places, worth centralizing for consistency.
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
@@ -690,8 +661,21 @@ namespace skvm {
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
 
-        Val id(I32 x) { return x.resolve(this); }
-        Val id(F32 x) { return x.resolve(this); }
+        I32 _(I32a x) {
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {this, x.id};
+            }
+            return this->splat(x.imm);
+        }
+
+        F32 _(F32a x) {
+            if (x.id != NA) {
+                SkASSERT(x.builder == this);
+                return {this, x.id};
+            }
+            return this->splat(x.imm);
+        }
 
         bool allImm() const;
 
@@ -806,63 +790,84 @@ namespace skvm {
     // TODO: control flow
     // TODO: 64-bit values?
 
-    static Builder* common_builder(I32 x, I32 y) {
-        Builder *X = x.builder(),
-                *Y = y.builder();
-        SkASSERT(X || Y);
-        if (X && Y) { SkASSERT(X==Y); return X; }
-        if (X     ) { return X; }
-        if (Y     ) { return Y; }
-        return nullptr;
-    }
+    static inline I32 operator+(I32 x, I32a y) { return x.builder->add(x,y); }
+    static inline I32 operator+(int x, I32  y) { return y.builder->add(x,y); }
 
-    static inline I32& operator+=(I32& x, I32 y) { return (x = common_builder(x,y)->add(x,y)); }
-    static inline I32& operator-=(I32& x, I32 y) { return (x = common_builder(x,y)->sub(x,y)); }
-    static inline I32& operator*=(I32& x, I32 y) { return (x = common_builder(x,y)->mul(x,y)); }
+    static inline I32 operator-(I32 x, I32a y) { return x.builder->sub(x,y); }
+    static inline I32 operator-(int x, I32  y) { return y.builder->sub(x,y); }
 
-    static inline I32 operator+(I32 x, I32 y) { return x += y; }
-    static inline I32 operator-(I32 x, I32 y) { return x -= y; }
-    static inline I32 operator*(I32 x, I32 y) { return x *= y; }
+    static inline I32 operator*(I32 x, I32a y) { return x.builder->mul(x,y); }
+    static inline I32 operator*(int x, I32  y) { return y.builder->mul(x,y); }
 
-    static inline I32 min(I32 x, I32 y) { return common_builder(x,y)->min(x,y); }
-    static inline I32 max(I32 x, I32 y) { return common_builder(x,y)->max(x,y); }
+    static inline I32 min(I32 x, I32a y) { return x.builder->min(x,y); }
+    static inline I32 min(int x, I32  y) { return y.builder->min(x,y); }
 
-    static inline I32 operator==(I32 x, I32 y) { return common_builder(x,y)-> eq(x,y); }
-    static inline I32 operator!=(I32 x, I32 y) { return common_builder(x,y)->neq(x,y); }
-    static inline I32 operator< (I32 x, I32 y) { return common_builder(x,y)->lt (x,y); }
-    static inline I32 operator<=(I32 x, I32 y) { return common_builder(x,y)->lte(x,y); }
-    static inline I32 operator> (I32 x, I32 y) { return common_builder(x,y)->gt (x,y); }
-    static inline I32 operator>=(I32 x, I32 y) { return common_builder(x,y)->gte(x,y); }
+    static inline I32 max(I32 x, I32a y) { return x.builder->max(x,y); }
+    static inline I32 max(int x, I32  y) { return y.builder->max(x,y); }
 
-    static Builder* common_builder(F32 x, F32 y) {
-        Builder *X = x.builder(),
-                *Y = y.builder();
-        SkASSERT(X || Y);
-        if (X && Y) { SkASSERT(X==Y); return X; }
-        if (X     ) { return X; }
-        if (Y     ) { return Y; }
-        return nullptr;
-    }
+    static inline I32 operator==(I32 x, I32a y) { return x.builder->eq(x,y); }
+    static inline I32 operator==(int x, I32  y) { return y.builder->eq(x,y); }
 
-    static inline F32& operator+=(F32& x, F32 y) { return (x = common_builder(x,y)->add(x,y)); }
-    static inline F32& operator-=(F32& x, F32 y) { return (x = common_builder(x,y)->sub(x,y)); }
-    static inline F32& operator*=(F32& x, F32 y) { return (x = common_builder(x,y)->mul(x,y)); }
-    static inline F32& operator/=(F32& x, F32 y) { return (x = common_builder(x,y)->div(x,y)); }
+    static inline I32 operator!=(I32 x, I32a y) { return x.builder->neq(x,y); }
+    static inline I32 operator!=(int x, I32  y) { return y.builder->neq(x,y); }
 
-    static inline F32 operator+(F32 x, F32 y) { return x += y; }
-    static inline F32 operator-(F32 x, F32 y) { return x -= y; }
-    static inline F32 operator*(F32 x, F32 y) { return x *= y; }
-    static inline F32 operator/(F32 x, F32 y) { return x /= y; }
+    static inline I32 operator< (I32 x, I32a y) { return x.builder->lt(x,y); }
+    static inline I32 operator< (int x, I32  y) { return y.builder->lt(x,y); }
 
-    static inline F32 min(F32 x, F32 y) { return common_builder(x,y)->min(x,y); }
-    static inline F32 max(F32 x, F32 y) { return common_builder(x,y)->max(x,y); }
+    static inline I32 operator<=(I32 x, I32a y) { return x.builder->lte(x,y); }
+    static inline I32 operator<=(int x, I32  y) { return y.builder->lte(x,y); }
 
-    static inline I32 operator==(F32 x, F32 y) { return common_builder(x,y)-> eq(x,y); }
-    static inline I32 operator!=(F32 x, F32 y) { return common_builder(x,y)->neq(x,y); }
-    static inline I32 operator< (F32 x, F32 y) { return common_builder(x,y)->lt (x,y); }
-    static inline I32 operator<=(F32 x, F32 y) { return common_builder(x,y)->lte(x,y); }
-    static inline I32 operator> (F32 x, F32 y) { return common_builder(x,y)->gt (x,y); }
-    static inline I32 operator>=(F32 x, F32 y) { return common_builder(x,y)->gte(x,y); }
+    static inline I32 operator> (I32 x, I32a y) { return x.builder->gt(x,y); }
+    static inline I32 operator> (int x, I32  y) { return y.builder->gt(x,y); }
+
+    static inline I32 operator>=(I32 x, I32a y) { return x.builder->gte(x,y); }
+    static inline I32 operator>=(int x, I32  y) { return y.builder->gte(x,y); }
+
+
+    static inline F32 operator+(F32   x, F32a y) { return x.builder->add(x,y); }
+    static inline F32 operator+(float x, F32  y) { return y.builder->add(x,y); }
+
+    static inline F32 operator-(F32   x, F32a y) { return x.builder->sub(x,y); }
+    static inline F32 operator-(float x, F32  y) { return y.builder->sub(x,y); }
+
+    static inline F32 operator*(F32   x, F32a y) { return x.builder->mul(x,y); }
+    static inline F32 operator*(float x, F32  y) { return y.builder->mul(x,y); }
+
+    static inline F32 operator/(F32   x, F32  y) { return x.builder->div(x,y); }
+    static inline F32 operator/(float x, F32  y) { return y.builder->div(x,y); }
+
+    static inline F32 min(F32   x, F32a y) { return x.builder->min(x,y); }
+    static inline F32 min(float x, F32  y) { return y.builder->min(x,y); }
+
+    static inline F32 max(F32   x, F32a y) { return x.builder->max(x,y); }
+    static inline F32 max(float x, F32  y) { return y.builder->max(x,y); }
+
+    static inline I32 operator==(F32   x, F32a y) { return x.builder->eq(x,y); }
+    static inline I32 operator==(float x, F32  y) { return y.builder->eq(x,y); }
+
+    static inline I32 operator!=(F32   x, F32a y) { return x.builder->neq(x,y); }
+    static inline I32 operator!=(float x, F32  y) { return y.builder->neq(x,y); }
+
+    static inline I32 operator< (F32   x, F32a y) { return x.builder->lt(x,y); }
+    static inline I32 operator< (float x, F32  y) { return y.builder->lt(x,y); }
+
+    static inline I32 operator<=(F32   x, F32a y) { return x.builder->lte(x,y); }
+    static inline I32 operator<=(float x, F32  y) { return y.builder->lte(x,y); }
+
+    static inline I32 operator> (F32   x, F32a y) { return x.builder->gt(x,y); }
+    static inline I32 operator> (float x, F32  y) { return y.builder->gt(x,y); }
+
+    static inline I32 operator>=(F32   x, F32a y) { return x.builder->gte(x,y); }
+    static inline I32 operator>=(float x, F32  y) { return y.builder->gte(x,y); }
+
+
+    static inline I32& operator+=(I32& x, I32a y) { return (x = x + y); }
+    static inline I32& operator-=(I32& x, I32a y) { return (x = x - y); }
+    static inline I32& operator*=(I32& x, I32a y) { return (x = x * y); }
+
+    static inline F32& operator+=(F32& x, F32a y) { return (x = x + y); }
+    static inline F32& operator-=(F32& x, F32a y) { return (x = x - y); }
+    static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
 
 }
 
