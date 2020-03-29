@@ -365,24 +365,6 @@ namespace skvm {
         int      fImm     = 0;
     };
 
-    static inline I32& operator+=(I32&, I32);
-    static inline I32& operator-=(I32&, I32);
-    static inline I32& operator*=(I32&, I32);
-
-    static inline I32 operator+(I32, I32);
-    static inline I32 operator-(I32, I32);
-    static inline I32 operator*(I32, I32);
-
-    static inline I32 min(I32, I32);
-    static inline I32 max(I32, I32);
-
-    static inline I32 operator==(I32, I32);
-    static inline I32 operator!=(I32, I32);
-    static inline I32 operator< (I32, I32);
-    static inline I32 operator<=(I32, I32);
-    static inline I32 operator> (I32, I32);
-    static inline I32 operator>=(I32, I32);
-
     struct F32 {
     public:
         F32()                         : fBuilder(nullptr), fID( NA), fImm(0) {}
@@ -400,27 +382,6 @@ namespace skvm {
         Val      fID      = NA;
         float    fImm     = 0;
     };
-
-    static inline F32& operator+=(F32&, F32);
-    static inline F32& operator-=(F32&, F32);
-    static inline F32& operator*=(F32&, F32);
-    static inline F32& operator/=(F32&, F32);
-
-    static inline F32 operator+(F32, F32);
-    static inline F32 operator-(F32, F32);
-    static inline F32 operator*(F32, F32);
-    static inline F32 operator/(F32, F32);
-
-    static inline F32 min(F32, F32);
-    static inline F32 max(F32, F32);
-
-    static inline I32 operator==(F32, F32);
-    static inline I32 operator!=(F32, F32);
-    static inline I32 operator< (F32, F32);
-    static inline I32 operator<=(F32, F32);
-    static inline I32 operator> (F32, F32);
-    static inline I32 operator>=(F32, F32);
-
 
     struct Color {
         skvm::F32 r,g,b,a;
@@ -543,17 +504,17 @@ namespace skvm {
         F32 approx_powf(F32 base, F32 exp);
 
         F32 approx_log(F32 x) { // return ln(2) * log2(x)
-            return 0.69314718f * approx_log2(x);
+            return mul(0.69314718f, approx_log2(x));
         }
         F32 approx_exp(F32 x) { // 2^(x * log2(e))
-            return approx_pow2(x * 1.4426950408889634074f);
+            return approx_pow2(mul(x, 1.4426950408889634074f));
         }
 
-        F32 inv(F32 x)    { return 1-x; }
-        F32 negate(F32 x) { return 0-x; }
+        F32 inv(F32 x)    { return sub(1.0f, x); }
+        F32 negate(F32 x) { return sub(0.0f, x); }
 
         F32 lerp(F32 lo, F32 hi, F32 t) {
-            return mad(hi-lo, t, lo);
+            return mad(sub(hi, lo), t, lo);
         }
         F32 clamp(F32 x, F32 lo, F32 hi) {
             return max(lo, min(x, hi));
@@ -565,10 +526,11 @@ namespace skvm {
             return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff));
         }
         F32 fract(F32 x) {
-            return x - floor(x);
+            return sub(x, floor(x));
         }
         F32 norm(F32 x, F32 y) {
-            return sqrt(x*x + y*y);
+            return sqrt(add(mul(x,x),
+                            mul(y,y)));
         }
 
         I32 eq (F32 x, F32 y);
@@ -624,8 +586,8 @@ namespace skvm {
         I32 bit_xor  (I32 x, I32 y);
         I32 bit_clear(I32 x, I32 y);   // x & ~y
 
-        I32 min(I32 x, I32 y) { return select(x<y, x, y); }
-        I32 max(I32 x, I32 y) { return select(x>y, x, y); }
+        I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
+        I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
         F32 select(I32 cond, F32 t, F32 f) {
