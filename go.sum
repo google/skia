@@ -43,6 +43,8 @@ cloud.google.com/go/datastore v1.1.0/go.mod h1:umbIZjpQpHh4hmRpGhH4tLFup+FVzqBi1
 cloud.google.com/go/firestore v1.0.0/go.mod h1:SdFEKccng5n2jTXm5x01uXEvi4MBzxWFR6YI781XSJI=
 cloud.google.com/go/firestore v1.1.1 h1:vFLWT9tT+SQnfY20DgeNmwh56CSB3kc+Jt16o6Wy8IE=
 cloud.google.com/go/firestore v1.1.1/go.mod h1:ADXYdzUfnr5T2SaB0Of9UXDIjgcRIZ221HQOikRONfE=
+cloud.google.com/go/firestore v1.2.0 h1:zrl+2VJAYC/C6WzEPnkqZIBeHyHFs/UmtzJdXU4Bvmo=
+cloud.google.com/go/firestore v1.2.0/go.mod h1:iISCjWnTpnoJT1R287xRdjvQHJrxQOpeah4phb5D3h0=
 cloud.google.com/go/logging v1.0.0 h1:kaunpnoEh9L4hu6JUsBa8Y20LBfKnCuDhKUgdZp7oK8=
 cloud.google.com/go/logging v1.0.0/go.mod h1:V1cc3ogwobYzQq5f2R7DS/GvRIrI4FKj01Gs5glwAls=
 cloud.google.com/go/pubsub v1.0.1 h1:W9tAK3E57P75u0XLLR82LZyw8VpAnhmyTOxW9qzmyj8=
@@ -166,6 +168,8 @@ github.com/aws/aws-sdk-go v1.29.32 h1:o4I8Qc+h9ht8NXvTHeXZH3EmtSUZ/PC0bg9Wawr+aT
 github.com/aws/aws-sdk-go v1.29.32/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
 github.com/aws/aws-sdk-go v1.29.33 h1:WP85+WHalTFQR2wYp5xR2sjiVAZXew2bBQXGU1QJBXI=
 github.com/aws/aws-sdk-go v1.29.33/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
+github.com/aws/aws-sdk-go v1.29.34 h1:yrzwfDaZFe9oT4AmQeNNunSQA7c0m2chz0B43+bJ1ok=
+github.com/aws/aws-sdk-go v1.29.34/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0 h1:HWo1m869IqiPhD389kmkxeTalrjNbbJTC8LXupb+sl0=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -845,6 +849,8 @@ go.chromium.org/luci v0.0.0-20200326092142-489ad862c372 h1:9Adg/usC5MLrcMBtmpFzv
 go.chromium.org/luci v0.0.0-20200326092142-489ad862c372/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20200326230034-44adccb3a576 h1:LP+ByiXMjvCPqgzschVPA8hAW/8zFH7jgSKfYLYq5FI=
 go.chromium.org/luci v0.0.0-20200326230034-44adccb3a576/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20200328080931-d7a107e42c68 h1:W+Dj75R/XDmnZkVsZHisLmw4BEDDQybx33Mz3a9Pce8=
+go.chromium.org/luci v0.0.0-20200328080931-d7a107e42c68/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.mongodb.org/mongo-driver v1.1.0/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
@@ -926,6 +932,8 @@ go.skia.org/infra v0.0.0-20200327024530-c8e5cfe73ce6 h1:3Wu/A16g9AkJ85Zsm2aX6nkT
 go.skia.org/infra v0.0.0-20200327024530-c8e5cfe73ce6/go.mod h1:LvTSw0LZwxV5En88W55sFMSYhxZUMukZCvJOklRHQYU=
 go.skia.org/infra v0.0.0-20200327151624-46bdf8ee5fe7 h1:WbgV6I0RevoGGg9b70eMamF8cLphMAtujLyvaJNt+vs=
 go.skia.org/infra v0.0.0-20200327151624-46bdf8ee5fe7/go.mod h1:rS4zVbhCHXOxwCsxQABPus9RzDNooWb3B+RSHSitR3o=
+go.skia.org/infra v0.0.0-20200328143804-69c3c80327e1 h1:UfSMuKKfvqploC4Qf+gitNzXgCJK8BOmEGQz/aqw8qo=
+go.skia.org/infra v0.0.0-20200328143804-69c3c80327e1/go.mod h1:FzFOFcSMmaKkR7Snw9DJSNWES5HM70WXjbXlmhPbqJg=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
@@ -1260,6 +1268,8 @@ golang.org/x/tools v0.0.0-20200326210457-5d86d385bf88 h1:F7fM2kxXfuWw820fa+MMCCL
 golang.org/x/tools v0.0.0-20200326210457-5d86d385bf88/go.mod h1:Sl4aGygMT6LrqrWclx+PTx3U+LnKx/seiNR+3G19Ar8=
 golang.org/x/tools v0.0.0-20200328031815-3db5fc6bac03 h1:XpToik3MpT5iW3iHgNwnh3a8QwugfomvxOlyDnaOils=
 golang.org/x/tools v0.0.0-20200328031815-3db5fc6bac03/go.mod h1:Sl4aGygMT6LrqrWclx+PTx3U+LnKx/seiNR+3G19Ar8=
+golang.org/x/tools v0.0.0-20200329025819-fd4102a86c65 h1:1KSbntBked74wYsKq0jzXYy7ZwcjAUtrl7EmPE97Iiw=
+golang.org/x/tools v0.0.0-20200329025819-fd4102a86c65/go.mod h1:Sl4aGygMT6LrqrWclx+PTx3U+LnKx/seiNR+3G19Ar8=
 golang.org/x/xerrors v0.0.0-20190410155217-1f06c39b4373/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
