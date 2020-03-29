@@ -141,12 +141,7 @@ namespace {
                     // precisely which value we'll treat as which channel.  Imagine the shader
                     // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
                     // We'll fold the hash of their IDs in order to disambiguate.
-                    const int outputs[] = {
-                        c.r.resolve(&p),
-                        c.g.resolve(&p),
-                        c.b.resolve(&p),
-                        c.a.resolve(&p),
-                    };
+                    const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
                     hash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
@@ -259,7 +254,7 @@ namespace {
             auto load_coverage = [&](skvm::Color* cov) {
                 bool partial_coverage = true;
                 switch (params.coverage) {
-                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = 1.0f;
+                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = splat(1.0f);
                                          partial_coverage = false;
                                          break;
 
@@ -340,7 +335,7 @@ namespace {
             // When a destination is known opaque, we may assume it both starts and stays fully
             // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
             if (params.dst.isOpaque()) {
-                dst.a = 1.0f;
+                dst.a = splat(1.0f);
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 premul(&dst.r, &dst.g, &dst.b, dst.a);
             }
@@ -356,7 +351,7 @@ namespace {
             }
 
             if (params.dst.isOpaque()) {
-                src.a = 1.0f;
+                src.a = splat(1.0f);
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
