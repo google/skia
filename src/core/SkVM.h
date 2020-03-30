@@ -956,11 +956,11 @@ namespace skvm {
     static inline  Color unpack_8888   (I32 rgba) { return rgba->unpack_8888   (rgba); }
     static inline  Color unpack_565    (I32 bgr ) { return bgr ->unpack_565    (bgr ); }
 
-    static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->premul(r,g,b,a); }
-    static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->premul(r,g,b,a); }
+    static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
+    static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
 
-    static inline Color   premul(Color c) {   premul(&c.r, &c.g, &c.b, c.a); return c; }
-    static inline Color unpremul(Color c) { unpremul(&c.r, &c.g, &c.b, c.a); return c; }
+    static inline Color   premul(Color c) { return c.a->  premul(c); }
+    static inline Color unpremul(Color c) { return c.a->unpremul(c); }
 
     static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
 
