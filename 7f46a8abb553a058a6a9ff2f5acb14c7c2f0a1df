@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b71419c4_ef706a82",
+        "filename": "modules/skottie/src/animator/Vec2.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-30T18:17:44Z",
+      "side": 1,
+      "message": "hmmm, this looks fragile (depends on the enum\u0027s order)",
+      "range": {
+        "startLine": 136,
+        "startChar": 40,
+        "endLine": 136,
+        "endChar": 50
+      },
+      "revId": "7f46a8abb553a058a6a9ff2f5acb14c7c2f0a1df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
