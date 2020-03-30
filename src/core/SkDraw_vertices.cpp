@@ -262,7 +262,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                                  const SkPoint dev2[], const SkPoint3 dev3[],
                                  SkArenaAlloc* outerAlloc) const {
     SkVerticesPriv info(vertices->priv());
-    SkASSERT(!info.hasPerVertexData());
+    SkASSERT(!info.hasCustomData());
 
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
@@ -435,28 +435,7 @@ void SkDraw::draw_vdata_vertices(const SkVertices* vt, const SkPaint& paint,
                                  const SkMatrix& ctmInv,
                                  const SkPoint dev2[], const SkPoint3 dev3[],
                                  SkArenaAlloc* outerAlloc) const {
-    SkASSERT(!!dev2 != !!dev3);
-    SkASSERT(!ctmInv.hasPerspective() || dev3 != nullptr);
-
-    SkVerticesPriv info(vt->priv());
-    VertState       state(info.vertexCount(), info.indices(), info.indexCount());
-    VertState::Proc vertProc = state.chooseProc(info.mode());
-
-    SkPaint p(paint);
-
-    if (info.perVertexDataCount() >= 4) {  // hack, treat as colors
-        auto triShader = outerAlloc->make<SkTriColorShader>(false, dev3 != nullptr);
-        p.setShader(sk_ref_sp(triShader));
-
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc,
-                                                     this->fRC->clipShader());
-        auto colors = (const SkPMColor4f*)info.perVertexData();
-        while (vertProc(&state)) {
-            if (triShader->update(ctmInv, info.positions(), colors, state.f0, state.f1, state.f2)) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
-            }
-        }
-    }
+    // TODO: Handle custom attributes
 }
 
 void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
@@ -464,7 +443,6 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     SkVerticesPriv info(vertices->priv());
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
-    const int perVertexDataCount = info.perVertexDataCount();
 
     // abort early if there is nothing to draw
     if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
@@ -503,7 +481,7 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         }
     }
 
-    if (perVertexDataCount == 0) {
+    if (!info.hasCustomData()) {
         this->draw_fixed_vertices(vertices, bmode, paint, ctmInv, dev2, dev3, &outerAlloc);
     } else {
         this->draw_vdata_vertices(vertices, paint, ctmInv, dev2, dev3, &outerAlloc);
