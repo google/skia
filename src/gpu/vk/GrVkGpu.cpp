@@ -762,9 +762,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         return false;
     }
 
-    if (!this->vkCaps().isFormatTexturableAndUploadable(dataColorType, tex->backendFormat())) {
-        return false;
-    }
+    SkASSERT(this->vkCaps().surfaceSupportsWritePixels(tex));
+    SkASSERT(this->vkCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
 
     // For RGB_888x src data we are uploading it first to an RGBA texture and then copying it to the
     // dst RGB texture. Thus we do not upload mip levels for that.
