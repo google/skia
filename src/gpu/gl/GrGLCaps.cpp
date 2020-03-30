@@ -625,11 +625,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
-        fBaseInstanceSupport = version >= GR_GL_VER(4,2);
+        fBaseInstanceSupport = version >= GR_GL_VER(4,2) ||
+                               ctxInfo.hasExtension("GL_ARB_base_instance");
         fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    (fDrawIndirectSupport &&
-                                     !fBaseInstanceSupport && // The ARB extension has no base inst.
-                                     ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
+                                    ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
@@ -3539,6 +3538,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
     if (kQualcomm_GrGLVendor == ctxInfo.vendor()) {
         fDrawArraysBaseVertexIsBroken = true;
+        fBaseInstanceSupport = false;
     }
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the

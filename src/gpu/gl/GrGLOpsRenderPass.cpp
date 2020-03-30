@@ -76,10 +76,15 @@ void GrGLOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffe
         }
     }
 
-    // We defer binding of instance and vertex buffers because GL does not (always) support base
-    // instance and/or base vertex.
-    fActiveInstanceBuffer = sk_ref_sp(instanceBuffer);
-    fActiveVertexBuffer = sk_ref_sp(vertexBuffer);
+    if (fGpu->glCaps().baseInstanceSupport()) {
+        SkASSERT(!fGpu->glCaps().drawArraysBaseVertexIsBroken());
+        this->setupGeometry(vertexBuffer, 0, instanceBuffer, 0);
+    } else {
+        // This platform does not support baseInstance (or baseVertex). Defer binding of instance
+        // and vertex buffers.
+        fActiveInstanceBuffer = sk_ref_sp(instanceBuffer);
+        fActiveVertexBuffer = sk_ref_sp(vertexBuffer);
+    }
 }
 
 void GrGLOpsRenderPass::setupGeometry(const GrBuffer* vertexBuffer, int baseVertex,
@@ -119,19 +124,29 @@ void GrGLOpsRenderPass::setupGeometry(const GrBuffer* vertexBuffer, int baseVert
 }
 
 void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
-    if (fGpu->glCaps().drawArraysBaseVertexIsBroken()) {
-        this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, nullptr, 0);
-        fGpu->drawArrays(fPrimitiveType, 0, vertexCount);
-        return;
+    int baseVertexForDraw = baseVertex;
+    if (!fGpu->glCaps().baseInstanceSupport()) {
+        if (fGpu->glCaps().drawArraysBaseVertexIsBroken()) {
+            this->setupGeometry(fActiveVertexBuffer.get(), baseVertexForDraw, nullptr, 0);
+            baseVertexForDraw = 0;
+        } else {
+            this->setupGeometry(fActiveVertexBuffer.get(), 0, nullptr, 0);
+        }
     }
-
-    this->setupGeometry(fActiveVertexBuffer.get(), 0, nullptr, 0);
-    fGpu->drawArrays(fPrimitiveType, baseVertex, vertexCount);
+    fGpu->drawArrays(fPrimitiveType, baseVertexForDraw, vertexCount);
 }
 
 void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                       uint16_t maxIndexValue, int baseVertex) {
-    this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, nullptr, 0);
+    if (!fGpu->glCaps().baseInstanceSupport()) {
+        this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, nullptr, 0);
+    } else if (baseVertex != 0) {
+        fGpu->drawElementsInstancedBaseVertexBaseInstance(
+                fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
+                this->offsetForBaseIndex(baseIndex), 1, baseVertex, 0);
+        return;
+    }
+
     if (fGpu->glCaps().drawRangeElementsSupport()) {
         fGpu->drawRangeElements(fPrimitiveType, minIndexValue, maxIndexValue, indexCount,
                                 GR_GL_UNSIGNED_SHORT, this->offsetForBaseIndex(baseIndex));
@@ -145,10 +160,17 @@ void GrGLOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int
                                         int baseVertex) {
     int maxInstances = fGpu->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
-        this->setupGeometry(fActiveVertexBuffer.get(), 0, fActiveInstanceBuffer.get(),
-                            baseInstance + i);
-        fGpu->drawArraysInstanced(fPrimitiveType, baseVertex, vertexCount,
-                                  std::min(instanceCount - i, maxInstances));
+        int instanceCountForDraw = std::min(instanceCount - i, maxInstances);
+        int baseInstanceForDraw = baseInstance + i;
+        if (fGpu->glCaps().baseInstanceSupport()) {
+            fGpu->drawArraysInstancedBaseInstance(fPrimitiveType, baseVertex, vertexCount,
+                                                  instanceCountForDraw, baseInstanceForDraw);
+        } else {
+            this->setupGeometry(fActiveVertexBuffer.get(), 0, fActiveInstanceBuffer.get(),
+                                baseInstanceForDraw);
+            fGpu->drawArraysInstanced(fPrimitiveType, baseVertex, vertexCount,
+                                      instanceCountForDraw);
+        }
     }
 }
 
@@ -156,11 +178,19 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
                                                int baseInstance, int baseVertex) {
     int maxInstances = fGpu->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
-        this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, fActiveInstanceBuffer.get(),
-                            baseInstance + i);
-        fGpu->drawElementsInstanced(fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
-                                    this->offsetForBaseIndex(baseIndex),
-                                    std::min(instanceCount - i, maxInstances));
+        int instanceCountForDraw = std::min(instanceCount - i, maxInstances);
+        int baseInstanceForDraw = baseInstance + i;
+        if (fGpu->glCaps().baseInstanceSupport()) {
+            fGpu->drawElementsInstancedBaseVertexBaseInstance(
+                    fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
+                    this->offsetForBaseIndex(baseIndex), instanceCountForDraw, baseVertex,
+                    baseInstanceForDraw);
+        } else {
+            this->setupGeometry(fActiveVertexBuffer.get(), baseVertex, fActiveInstanceBuffer.get(),
+                                baseInstanceForDraw);
+            fGpu->drawElementsInstanced(fPrimitiveType, indexCount, GR_GL_UNSIGNED_SHORT,
+                                        this->offsetForBaseIndex(baseIndex), instanceCountForDraw);
+        }
     }
 }
 
