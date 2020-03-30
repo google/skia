@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "01f11b3a_bfc69cbd",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-03-30T22:03:22Z",
+      "side": 0,
+      "message": "\u003e Yeah, just check in with Florin to see if he did this on purpose.\n\nI probably did - I tend to uninline dtors to allow forward decl for sk_sp\u003cFoo\u003e members.  Doesn\u0027t seem to make a difference anymore, and there\u0027s only one call site, so LGTM.",
+      "parentUuid": "c808fa49_c4162dec",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
