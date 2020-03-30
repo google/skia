@@ -268,7 +268,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
         skvm::F32 k = p->sqrt(p->sub(p->mul(x,x),
                                      p->mul(y,y)));
         if (fFocalData.isSwapped() || 1 - fFocalData.fFocalX < 0) {
-            k = p->negate(k);
+            k = -k;
         }
         t = p->sub(k, p->mul(x, invR1));
     }
@@ -279,7 +279,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
     }
 
     const skvm::F32 focalX = p->uniformF(uniforms->pushF(fFocalData.fFocalX));
-    if (1 - fFocalData.fFocalX < 0)    { t = p->negate(t); }
+    if (1 - fFocalData.fFocalX < 0)    { t = -t; }
     if (!fFocalData.isNativelyFocal()) { t = p->add(t, focalX); }
     if (fFocalData.isSwapped())        { t = p->sub(p->splat(1.0f), t); }
     return t;
