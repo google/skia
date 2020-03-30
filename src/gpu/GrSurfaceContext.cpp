@@ -74,10 +74,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                                                          sk_sp<SkColorSpace> colorSpace,
                                                          SkBackingFit fit,
                                                          SkBudgeted budgeted) {
-    GrSwizzle swizzle("rgba");
-    if (!context->priv().caps()->isFormatCompressed(format)) {
-        swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-    }
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
             format, dimensions, renderable, renderTargetSampleCnt, mipMapped, fit, budgeted,

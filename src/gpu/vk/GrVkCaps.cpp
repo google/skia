@@ -1606,8 +1606,7 @@ GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
             return ctInfo.fReadSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
 
 GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
@@ -1620,8 +1619,7 @@ GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
             return ctInfo.fOutputSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
 
 uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {
