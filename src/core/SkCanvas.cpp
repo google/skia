@@ -2649,19 +2649,6 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
-                                    int boneCount, SkBlendMode bmode, const SkPaint& paint) {
-    DRAW_BEGIN(paint, nullptr)
-
-    while (iter.next()) {
-        // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVertices(vertices, bmode, draw.paint());
-    }
-
-    DRAW_END
-}
-#else
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                     const SkPaint& paint) {
     DRAW_BEGIN(paint, nullptr)
@@ -2673,7 +2660,6 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
 
     DRAW_END
 }
-#endif
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                          const SkPoint texCoords[4], SkBlendMode bmode,

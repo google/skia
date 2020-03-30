@@ -149,17 +149,10 @@ void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice
 }
 
 void SkPaintFilterCanvas::onDrawVerticesObject(const SkVertices* vertices,
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-                                               const SkVertices::Bone bones[], int boneCount,
-#endif
                                                SkBlendMode bmode, const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawVerticesObject(vertices,
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-                                                 bones, boneCount,
-#endif
-                                                 bmode, apf.paint());
+        this->SkNWayCanvas::onDrawVerticesObject(vertices, bmode, apf.paint());
     }
 }
 

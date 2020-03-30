@@ -244,21 +244,12 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
-                                      int boneCount, SkBlendMode bmode, const SkPaint& paint) {
-    this->append<SkRecords::DrawVertices>(paint,
-                                          sk_ref_sp(const_cast<SkVertices*>(vertices)),
-                                          bmode);
-}
-#else
 void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                       const SkPaint& paint) {
     this->append<SkRecords::DrawVertices>(paint,
                                           sk_ref_sp(const_cast<SkVertices*>(vertices)),
                                           bmode);
 }
-#endif
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode,

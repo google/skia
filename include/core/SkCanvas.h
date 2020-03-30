@@ -2513,17 +2513,8 @@ protected:
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint) {
-        this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
-    }
-    virtual void onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
-                                      int boneCount, SkBlendMode mode, const SkPaint& paint);
-#else
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
-#endif
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);
@@ -2531,16 +2522,6 @@ protected:
                                  const SkPaint* paint);
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
-
-#ifdef SK_SUPPORT_LEGACY_ONDRAWBITMAP_VIRTUALS
-    // these are no longer called, so clients should stop overriding them
-    virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
-    virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
-                                  SkCanvas::SrcRectConstraint) {}
-    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
-    virtual void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
-                                     const SkPaint*) {}
-#endif
 
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
