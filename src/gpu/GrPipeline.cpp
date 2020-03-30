@@ -17,7 +17,7 @@
 
 GrPipeline::GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor> xferProcessor,
                        const GrAppliedHardClip& hardClip)
-        : fOutputSwizzle(args.fOutputSwizzle) {
+        : fWriteSwizzle(args.fWriteSwizzle) {
     fFlags = (Flags)args.fInputFlags;
     if (hardClip.hasStencilClip()) {
         fFlags |= Flags::kHasStencilClip;
@@ -69,12 +69,12 @@ GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& 
 }
 
 GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> xp,
-                       const GrSwizzle& outputSwizzle, InputFlags inputFlags,
+                       const GrSwizzle& writeSwizzle, InputFlags inputFlags,
                        const GrUserStencilSettings* userStencil)
         : fWindowRectsState()
         , fFlags((Flags)inputFlags)
         , fXferProcessor(std::move(xp))
-        , fOutputSwizzle(outputSwizzle) {
+        , fWriteSwizzle(writeSwizzle) {
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= Flags::kScissorTestEnabled;
     }

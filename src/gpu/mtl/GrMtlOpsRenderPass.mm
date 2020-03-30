@@ -85,7 +85,7 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 
     [fActiveRenderCmdEncoder setRenderPipelineState:fActivePipelineState->mtlPipelineState()];
     fActivePipelineState->setDrawState(fActiveRenderCmdEncoder,
-                                       programInfo.pipeline().outputSwizzle(),
+                                       programInfo.pipeline().writeSwizzle(),
                                        programInfo.pipeline().getXferProcessor());
     if (this->gpu()->caps()->wireframeMode() || programInfo.pipeline().isWireframe()) {
         [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeLines];

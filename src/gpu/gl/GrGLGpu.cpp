@@ -1831,7 +1831,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
 
     // Swizzle the blend to match what the shader will output.
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
-                                  programInfo.pipeline().outputSwizzle());
+                                  programInfo.pipeline().writeSwizzle());
 
     fHWProgram->updateUniforms(renderTarget, programInfo);
 

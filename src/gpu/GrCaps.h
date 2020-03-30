@@ -418,10 +418,10 @@ public:
     virtual GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
     /**
-     * Returns the GrSwizzle to use when outputting to a render target with the passed in
+     * Returns the GrSwizzle to use when writing colors to a surface with the passed in
      * GrBackendFormat and GrColorType.
      */
-    virtual GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+    virtual GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
     virtual uint64_t computeFormatKey(const GrBackendFormat&) const = 0;
 

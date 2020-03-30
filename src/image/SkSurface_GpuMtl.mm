@@ -87,13 +87,13 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             GrSurfaceProxy::UseAllocator::kYes);
 
     GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
+    GrSwizzle writeSwizzle = caps->getWriteSwizzle(backendFormat, grColorType);
 
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
-    GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);
+    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
     auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
-                                                       std::move(outputView), grColorType,
+                                                       std::move(writeView), grColorType,
                                                        colorSpace, surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
@@ -157,13 +157,13 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
             GrSurfaceProxy::UseAllocator::kYes);
 
     GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
+    GrSwizzle writeSwizzle = caps->getWriteSwizzle(backendFormat, grColorType);
 
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
-    GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);
+    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
     auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
-                                                       std::move(outputView), grColorType,
+                                                       std::move(writeView), grColorType,
                                                        colorSpace, surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
