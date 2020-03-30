@@ -504,9 +504,7 @@ namespace skvm {
         F32 mad(F32  x, F32  y, F32  z) { return add(mul(x,y), z); }
         F32 mad(F32a x, F32a y, F32a z) { return mad(_(x), _(y), _(z)); }
 
-        F32 negate(F32 x) { return sub(0.0f, x); }
-        F32   sqrt(F32);
-
+        F32        sqrt(F32);
         F32 approx_log2(F32);
         F32 approx_pow2(F32);
         F32 approx_log (F32 x) { return mul(0.69314718f, approx_log2(x)); }
@@ -867,6 +865,9 @@ namespace skvm {
     static inline F32& operator+=(F32& x, F32a y) { return (x = x + y); }
     static inline F32& operator-=(F32& x, F32a y) { return (x = x - y); }
     static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
+
+    static inline I32 operator-(I32 x) { return 0-x; }
+    static inline F32 operator-(F32 x) { return 0-x; }
 
 }
 
