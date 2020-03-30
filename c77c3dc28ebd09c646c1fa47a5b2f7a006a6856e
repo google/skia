@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e9cad44_3d08156d",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:30:16Z",
+      "side": 1,
+      "message": "Usually the way we\u0027d do this is \n\nthird_party(\"shaderc_util_sources\") {\n    public_include_dirs \u003d [ \"${shaderc_root}/libshaderc_util/include\" ]\n\n    ...\n    \u003call the same here except no public_configs\u003e\n    ...\n}\n\nIf you do want to keep it this way, let\u0027s spin out a \"third_party_config\" config template, letting you explicitly define configs that we\u0027ll seed with all the warning-disabling?  Or even just a single \"third_party_config\" non-template config that you can mix into public_configs normally?  third_party.gni is really just about convenience and making it less error prone to disable warnings, remember to put it in public_configs and not configs, etc.",
+      "revId": "c77c3dc28ebd09c646c1fa47a5b2f7a006a6856e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad9933a_3e2809b2",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:30:16Z",
+      "side": 1,
+      "message": "Same here, just putting  \"${shaderc_root}/libshaderc/include\" into the existing public_include_dirs list?",
+      "revId": "c77c3dc28ebd09c646c1fa47a5b2f7a006a6856e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
