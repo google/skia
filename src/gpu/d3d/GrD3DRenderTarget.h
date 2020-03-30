@@ -49,16 +49,14 @@ protected:
                       SkISize dimensions,
                       int sampleCnt,
                       const GrD3DTextureResourceInfo& info,
-                      sk_sp<GrD3DResourceState> layout,
+                      sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
-                      sk_sp<GrD3DResourceState> msaaLayout,
-                      GrBackendObjectOwnership);
+                      sk_sp<GrD3DResourceState> msaaState);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
-                      sk_sp<GrD3DResourceState> layout,
-                      GrBackendObjectOwnership);
+                      sk_sp<GrD3DResourceState> state);
 
     void onAbandon() override;
     void onRelease() override;
@@ -76,18 +74,22 @@ protected:
     }
 
 private:
+    // Extra param to disambiguate from constructor used by subclasses.
+    enum Wrapped { kWrapped };
     GrD3DRenderTarget(GrD3DGpu* gpu,
-                     SkISize dimensions,
-                     int sampleCnt,
-                     const GrD3DTextureResourceInfo& info,
-                     sk_sp<GrD3DResourceState> state,
-                     const GrD3DTextureResourceInfo& msaaInfo,
-                     sk_sp<GrD3DResourceState> msaaState);
+                      SkISize dimensions,
+                      int sampleCnt,
+                      const GrD3DTextureResourceInfo& info,
+                      sk_sp<GrD3DResourceState> state,
+                      const GrD3DTextureResourceInfo& msaaInfo,
+                      sk_sp<GrD3DResourceState> msaaState,
+                      Wrapped);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
-                     SkISize dimensions,
-                     const GrD3DTextureResourceInfo& info,
-                     sk_sp<GrD3DResourceState> state);
+                      SkISize dimensions,
+                      const GrD3DTextureResourceInfo& info,
+                      sk_sp<GrD3DResourceState> state,
+                      Wrapped);
 
     GrD3DGpu* getD3DGpu() const;
 

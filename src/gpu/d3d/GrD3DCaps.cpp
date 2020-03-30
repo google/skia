@@ -840,8 +840,24 @@ size_t GrD3DCaps::bytesPerPixel(DXGI_FORMAT format) const {
 GrCaps::SupportedWrite GrD3DCaps::supportedWritePixelsColorType(
         GrColorType surfaceColorType, const GrBackendFormat& surfaceFormat,
         GrColorType srcColorType) const {
-    // TODO
-    return {GrColorType::kUnknown, 0};
+    DXGI_FORMAT dxgiFormat;
+    if (!surfaceFormat.asDxgiFormat(&dxgiFormat)) {
+        return { GrColorType::kUnknown, 0 };
+    }
+
+    // TODO: this seems to be pretty constrictive, confirm
+    // Any buffer data needs to be aligned to 512 bytes and that of a single texel.
+    size_t offsetAlignment = GrAlignTo(this->bytesPerPixel(dxgiFormat),
+                                       D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+
+    const auto& info = this->getFormatInfo(dxgiFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == surfaceColorType) {
+            return { surfaceColorType, offsetAlignment };
+        }
+    }
+    return { GrColorType::kUnknown, 0 };
 }
 
 GrCaps::SurfaceReadPixelsSupport GrD3DCaps::surfaceSupportsReadPixels(
@@ -854,8 +870,10 @@ GrCaps::SurfaceReadPixelsSupport GrD3DCaps::surfaceSupportsReadPixels(
 }
 
 bool GrD3DCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
-    // TODO
-    return false;
+    if (auto rt = surface->asRenderTarget()) {
+        return rt->numSamples() <= 1 && SkToBool(surface->asTexture());
+    }
+    return true;
 }
 
 bool GrD3DCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,

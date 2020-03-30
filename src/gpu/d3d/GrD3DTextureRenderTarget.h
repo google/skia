@@ -33,7 +33,7 @@ public:
                                                                       GrMipMapsStatus);
 
     static sk_sp<GrD3DTextureRenderTarget> MakeWrappedTextureRenderTarget(
-            GrD3DGpu*, SkISize dimensions, int sampleCnt, GrWrapOwnership, GrWrapCacheable,
+            GrD3DGpu*, SkISize dimensions, int sampleCnt, GrWrapCacheable,
             const GrD3DTextureResourceInfo&, sk_sp<GrD3DResourceState>);
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
@@ -80,7 +80,6 @@ private:
                              const GrD3DTextureResourceInfo& msaaInfo,
                              sk_sp<GrD3DResourceState> msaaState,
                              GrMipMapsStatus,
-                             GrBackendObjectOwnership,
                              GrWrapCacheable);
 
     // non-MSAA, wrapped
@@ -89,7 +88,6 @@ private:
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
                              GrMipMapsStatus,
-                             GrBackendObjectOwnership,
                              GrWrapCacheable);
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.

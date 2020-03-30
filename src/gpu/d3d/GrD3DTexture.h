@@ -24,7 +24,6 @@ public:
 
     static sk_sp<GrD3DTexture> MakeWrappedTexture(GrD3DGpu*,
                                                   SkISize dimensions,
-                                                  GrWrapOwnership,
                                                   GrWrapCacheable,
                                                   GrIOType,
                                                   const GrD3DTextureResourceInfo&,
@@ -46,8 +45,7 @@ protected:
                  SkISize dimensions,
                  const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
-                 GrMipMapsStatus,
-                 GrBackendObjectOwnership);
+                 GrMipMapsStatus);
 
     GrD3DGpu* getD3DGpu() const;
 
@@ -64,8 +62,7 @@ private:
     GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>, GrMipMapsStatus);
     GrD3DTexture(GrD3DGpu*, SkISize dimensions, const GrD3DTextureResourceInfo&,
-                 sk_sp<GrD3DResourceState>, GrMipMapsStatus, GrBackendObjectOwnership,
-                 GrWrapCacheable, GrIOType);
+                 sk_sp<GrD3DResourceState>, GrMipMapsStatus, GrWrapCacheable, GrIOType);
 
     // In D3D we call the release proc after we are finished with the underlying
     // GrSurfaceResource::Resource object (which occurs after the GPU has finished all work on it).

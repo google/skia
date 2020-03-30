@@ -24,13 +24,13 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
-                                     sk_sp<GrD3DResourceState> msaaState)
+                                     sk_sp<GrD3DResourceState> msaaState,
+                                     Wrapped)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), GrBackendObjectOwnership::kBorrowed)
+        , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
         , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
-        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState),
-                                                        GrBackendObjectOwnership::kOwned)) {
+        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState))) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -44,14 +44,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
-                                     sk_sp<GrD3DResourceState> msaaState,
-                                     GrBackendObjectOwnership ownership)
+                                     sk_sp<GrD3DResourceState> msaaState)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), ownership)
+        , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
         , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
-        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState),
-                                                        GrBackendObjectOwnership::kOwned)) {
+        , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState))) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
 }
@@ -61,9 +59,10 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
                                      const GrD3DTextureResourceInfo& info,
-                                     sk_sp<GrD3DResourceState> state)
+                                     sk_sp<GrD3DResourceState> state,
+                                     Wrapped)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), GrBackendObjectOwnership::kBorrowed)
+        , GrD3DTextureResource(info, std::move(state))
         , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
         , fMSAATextureResource(nullptr) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -74,10 +73,9 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
                                      const GrD3DTextureResourceInfo& info,
-                                     sk_sp<GrD3DResourceState> state,
-                                     GrBackendObjectOwnership ownership)
+                                     sk_sp<GrD3DResourceState> state)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), ownership)
+        , GrD3DTextureResource(info, std::move(state))
         , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
         , fMSAATextureResource(nullptr) {}
 
@@ -117,6 +115,8 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
                                       std::move(msState));
+        // The render target takes a ref on the color texture so we need to release ours
+        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
     } else {
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state));
     }

@@ -49,7 +49,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
         D3D12_HEAP_FLAG_NONE,
         &desc,
         D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
+        nullptr,  // TODO: might want to set pOptimizedClearValue for rendertarget and stencil
         IID_PPV_ARGS(&resource));
     if (!SUCCEEDED(hr)) {
         return false;
@@ -64,12 +64,12 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     return true;
 }
 
-void GrD3DTextureResource::DestroyTextureResourceInfo(GrD3DTextureResourceInfo* info) {
+void GrD3DTextureResource::ReleaseTextureResourceInfo(GrD3DTextureResourceInfo* info) {
     info->fResource->Release();
 }
 
 GrD3DTextureResource::~GrD3DTextureResource() {
-    // should have been released first
+    // Should have been reset() before
     SkASSERT(!fResource);
 }
 
@@ -77,8 +77,7 @@ void GrD3DTextureResource::releaseResource(GrD3DGpu* gpu) {
     // TODO: do we need to migrate resource state if we change queues?
     if (fResource) {
         fResource->removeOwningTexture();
-        fResource->unref();
-        fResource = nullptr;
+        fResource.reset(nullptr);
     }
 }
 
@@ -90,5 +89,5 @@ void GrD3DTextureResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseH
 
 void GrD3DTextureResource::Resource::freeGPUData() const {
     this->invokeReleaseProc();
-    fResource->Release();
+    fResource.Reset();  // Release our ref to the resource
 }

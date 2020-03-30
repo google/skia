@@ -21,7 +21,7 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
                            sk_sp<GrD3DResourceState> state,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), GrBackendObjectOwnership::kOwned)
+        , GrD3DTextureResource(info, std::move(state))
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     this->registerWithCache(budgeted);
@@ -32,10 +32,9 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
 
 GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu, SkISize dimensions, const GrD3DTextureResourceInfo& info,
                            sk_sp<GrD3DResourceState> state, GrMipMapsStatus mipMapsStatus,
-                           GrBackendObjectOwnership ownership, GrWrapCacheable cacheable,
-                           GrIOType ioType)
+                           GrWrapCacheable cacheable, GrIOType ioType)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, std::move(state), ownership)
+        , GrD3DTextureResource(info, std::move(state))
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     if (ioType == kRead_GrIOType) {
@@ -49,10 +48,9 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
                            SkISize dimensions,
                            const GrD3DTextureResourceInfo& info,
                            sk_sp<GrD3DResourceState> state,
-                           GrMipMapsStatus mipMapsStatus,
-                           GrBackendObjectOwnership ownership)
+                           GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, state, ownership)
+        , GrD3DTextureResource(info, state)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
 }
@@ -70,13 +68,17 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
     sk_sp<GrD3DResourceState> state(
             new GrD3DResourceState(static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
 
-    return sk_sp<GrD3DTexture>(new GrD3DTexture(gpu, budgeted, dimensions, info, std::move(state),
-                                                mipMapsStatus));
+    GrD3DTexture* tex = new GrD3DTexture(gpu, budgeted, dimensions, info, std::move(state),
+                                         mipMapsStatus);
+
+    // The GrD3DTexture takes a ref on the texture so we need to release ours
+    GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
+
+    return sk_sp<GrD3DTexture>(tex);
 }
 
 sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
                                                      SkISize dimensions,
-                                                     GrWrapOwnership wrapOwnership,
                                                      GrWrapCacheable cacheable,
                                                      GrIOType ioType,
                                                      const GrD3DTextureResourceInfo& info,
@@ -89,10 +91,8 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
     GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kValid
                                                          : GrMipMapsStatus::kNotAllocated;
 
-    GrBackendObjectOwnership ownership = kBorrow_GrWrapOwnership == wrapOwnership
-            ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     return sk_sp<GrD3DTexture>(new GrD3DTexture(gpu, dimensions, info, std::move(state),
-                                                mipMapsStatus, ownership, cacheable, ioType));
+                                                mipMapsStatus, cacheable, ioType));
 }
 
 void GrD3DTexture::onRelease() {
