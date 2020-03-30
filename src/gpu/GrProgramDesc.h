@@ -104,7 +104,7 @@ protected:
     // TODO: this should be removed and converted to just data added to the key
     struct KeyHeader {
         // Set to uniquely identify any swizzling of the shader's output color(s).
-        uint16_t fOutputSwizzle;
+        uint16_t fWriteSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.

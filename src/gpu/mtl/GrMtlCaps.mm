@@ -539,7 +539,7 @@ void GrMtlCaps::initFormatTable() {
             ctInfo.fColorType = GrColorType::kAlpha_8;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             ctInfo.fReadSwizzle = GrSwizzle::RRRR();
-            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+            ctInfo.fWriteSwizzle = GrSwizzle::AAAA();
         }
         // Format: R8Unorm, Surface: kGray_8
         {
@@ -706,7 +706,7 @@ void GrMtlCaps::initFormatTable() {
             ctInfo.fColorType = GrColorType::kAlpha_F16;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             ctInfo.fReadSwizzle = GrSwizzle::RRRR();
-            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+            ctInfo.fWriteSwizzle = GrSwizzle::AAAA();
         }
     }
 
@@ -750,7 +750,7 @@ void GrMtlCaps::initFormatTable() {
             ctInfo.fColorType = GrColorType::kAlpha_16;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             ctInfo.fReadSwizzle = GrSwizzle::RRRR();
-            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
+            ctInfo.fWriteSwizzle = GrSwizzle::AAAA();
         }
     }
 
@@ -947,14 +947,14 @@ GrSwizzle GrMtlCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
-GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrMtlCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     SkASSERT(mtlFormat != MTLPixelFormatInvalid);
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
-            return ctInfo.fOutputSwizzle;
+            return ctInfo.fWriteSwizzle;
         }
     }
     SkDEBUGFAIL("Illegal color type/format combination.");

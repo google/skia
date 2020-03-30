@@ -98,7 +98,7 @@ public:
                                    GrCCAtlas::kTextureOrigin);
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().outputSwizzle());
+                            flushState->drawOpArgs().writeSwizzle());
 
         pathProc.drawPaths(flushState, pipeline, *fSrcProxy, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
@@ -139,7 +139,7 @@ public:
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         ProcessorType proc;
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().outputSwizzle());
+                            flushState->drawOpArgs().writeSwizzle());
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, &proc, fStrokeBatchID, fDrawBounds);
     }

@@ -152,7 +152,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
 
     const GrBackendFormat& format = proxy->backendFormat();
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format, colorType);
+    GrSwizzle outSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
 
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
     GrSurfaceProxyView outputView(std::move(proxy), origin, outSwizzle);

@@ -176,11 +176,10 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-    GrSwizzle outputSwizzle = caps->getOutputSwizzle(fCharacterization.backendFormat(),
-                                                     grColorType);
+    GrSwizzle writeSwizzle = caps->getWriteSwizzle(fCharacterization.backendFormat(), grColorType);
 
     GrSurfaceProxyView readView(proxy, fCharacterization.origin(), readSwizzle);
-    GrSurfaceProxyView outputView(std::move(proxy), fCharacterization.origin(), outputSwizzle);
+    GrSurfaceProxyView outputView(std::move(proxy), fCharacterization.origin(), writeSwizzle);
 
     auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(readView),
                                                        std::move(outputView), grColorType,

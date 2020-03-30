@@ -483,7 +483,7 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB,
-                                               programInfo.pipeline().outputSwizzle(),
+                                               programInfo.pipeline().writeSwizzle(),
                                                programInfo.pipeline().getXferProcessor());
 
     return true;

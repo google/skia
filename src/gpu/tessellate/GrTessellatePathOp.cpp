@@ -190,7 +190,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state) {
     }
     initArgs.fCaps = &state->caps();
     initArgs.fDstProxyView = state->drawOpArgs().dstProxyView();
-    initArgs.fOutputSwizzle = state->drawOpArgs().outputSwizzle();
+    initArgs.fWriteSwizzle = state->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), state->detachAppliedClip());
 
     if (fFillPathShader) {

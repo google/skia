@@ -47,8 +47,8 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
         SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
         // Will we ever want a swizzle that is not the default output swizzle for the format and
         // colorType here? If so we will need to manually pass that in.
-        GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(proxy->backendFormat(),
-                                                                        colorType);
+        GrSwizzle outSwizzle =
+                context->priv().caps()->getWriteSwizzle(proxy->backendFormat(), colorType);
         GrSurfaceProxyView outputView(readView.refProxy(), readView.origin(), outSwizzle);
         surfaceContext.reset(new GrRenderTargetContext(context, std::move(readView),
                                                        std::move(outputView), colorType,

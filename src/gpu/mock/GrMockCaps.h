@@ -168,7 +168,7 @@ public:
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
         return GrSwizzle("rgba");
     }
-    GrSwizzle getOutputSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
+    GrSwizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
         return GrSwizzle("rgba");
     }

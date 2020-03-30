@@ -184,8 +184,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());
 
-    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format,
-                                                                    GrColorType::kRGBA_8888);
+    GrSwizzle outSwizzle = context->priv().caps()->getWriteSwizzle(format, GrColorType::kRGBA_8888);
 
     int result[result_width()];
     int validResult[result_width()];
