@@ -53,6 +53,11 @@ public:
         return format.asMockCompressionType();
     }
 
+    bool isFormatTexturableAndUploadable(GrColorType,
+                                         const GrBackendFormat& format) const override {
+        return this->isFormatTexturable(format);
+    }
+
     bool isFormatTexturable(const GrBackendFormat& format) const override {
         SkImage::CompressionType compression = format.asMockCompressionType();
         if (compression != SkImage::CompressionType::kNone) {
@@ -185,7 +190,7 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
     }
-    GrBackendFormat onGetDefaultBackendFormat(GrColorType ct) const override {
+    GrBackendFormat onGetDefaultBackendFormat(GrColorType ct, GrRenderable) const override {
         return GrBackendFormat::MakeMock(ct, SkImage::CompressionType::kNone);
     }
 

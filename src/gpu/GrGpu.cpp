@@ -446,6 +446,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(!surface->framebufferOnly());
+    SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,
+                                                           surface->backendFormat()));
 
     if (surface->readOnly()) {
         return false;
@@ -487,6 +489,8 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
+    SkASSERT(this->caps()->isFormatTexturableAndUploadable(textureColorType,
+                                                           texture->backendFormat()));
 
     if (texture->readOnly()) {
         return false;

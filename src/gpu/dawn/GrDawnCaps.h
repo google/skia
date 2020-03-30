@@ -20,6 +20,7 @@ public:
     bool isFormatSRGB(const GrBackendFormat&) const override;
     SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
 
+    bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat& format) const override;
     bool isFormatRenderable(const GrBackendFormat& format,
                             int sampleCount = 1) const override;
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
@@ -72,7 +73,7 @@ private:
         const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
     }
-    GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
+    GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const override;
 
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
