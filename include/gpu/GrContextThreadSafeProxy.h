@@ -14,6 +14,7 @@ class GrBackendFormat;
 class GrContextThreadSafeProxyPriv;
 struct SkImageInfo;
 class SkSurfaceCharacterization;
+class SkSurfaceProps;
 
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The

@@ -7,6 +7,7 @@
 
 #include "tools/viewer/ParticlesSlide.h"
 
+#include "include/core/SkCanvas.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
