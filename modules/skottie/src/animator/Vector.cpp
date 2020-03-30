@@ -161,7 +161,7 @@ private:
         fTarget->resize(fVecLen);
     }
 
-    bool onSeek(float t) override {
+    SeekStatus onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
         SkASSERT(lerp_info.vrec0.idx + fVecLen <= fStorage.size());
@@ -175,19 +175,19 @@ private:
         if (lerp_info.isConstant()) {
             if (std::memcmp(dst, v0, fVecLen * sizeof(float))) {
                 std::copy(v0, v0 + fVecLen, dst);
-                return true;
+                return kChanged_SeekStatus;
             }
-            return false;
+            return kUnchanged_SeekStatus;
         }
 
         size_t count = fVecLen;
-        bool updated = false;
+        uint32_t status = kUnchanged_SeekStatus;
 
         while (count >= 4) {
             const auto old_val = Sk4f::Load(dst),
                        new_val = Lerp(Sk4f::Load(v0), Sk4f::Load(v1), lerp_info.weight);
 
-            updated |= (new_val != old_val).anyTrue();
+            status |= (new_val != old_val).anyTrue();
             new_val.store(dst);
 
             v0    += 4;
@@ -199,11 +199,11 @@ private:
         while (count-- > 0) {
             const auto new_val = Lerp(*v0++, *v1++, lerp_info.weight);
 
-            updated |= (new_val != *dst);
+            status |= (new_val != *dst);
             *dst++ = new_val;
         }
 
-        return updated;
+        return static_cast<SeekStatus>(status);
     }
 
     const std::vector<float> fStorage;

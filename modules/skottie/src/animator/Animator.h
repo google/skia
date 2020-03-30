@@ -28,13 +28,17 @@ class Animator : public SkRefCnt {
 public:
     virtual ~Animator() = default;
 
-    // Returns true if the state has changed.
-    bool seek(float t) { return this->onSeek(t); }
+    enum SeekStatus : uint32_t {
+        kUnchanged_SeekStatus = 0, // Note: these values are significant, do not change.
+          kChanged_SeekStatus = 1, //
+    };
+
+    SeekStatus seek(float t) { return this->onSeek(t); }
 
 protected:
     Animator() = default;
 
-    virtual bool onSeek(float t) = 0;
+    virtual SeekStatus onSeek(float t) = 0;
 
 private:
     Animator(const Animator&) = delete;
@@ -64,7 +68,7 @@ protected:
     void attachDiscardableAdapter(sk_sp<AnimatablePropertyContainer>);
 
 private:
-    bool onSeek(float) final;
+    SeekStatus onSeek(float) final;
 
     bool bindImpl(const AnimationBuilder&,
                   const skjson::ObjectValue*,
