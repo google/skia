@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "9ba72eb9_efa4f246",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-30T22:42:08Z",
+      "side": 0,
+      "message": "Yeah, maybe that\u0027s another good reason (in addition to virtual base class destructors and public API destructors for Windows dlls) to make the destructor out of line (need all types to be complete at time of destructor definition.\n\nIt\u0027s unfortunate that there are so many cases where it is needed to have a user declared destructor for something other that resource management, and that this now means that the implicit copy constructor and assignment are still provided but that\u0027s deprecated and the move constructor and assignment went *poof* and also need to be stated. I\u0027ll just stick all five in here then and define them default out of line so we don\u0027t get tripped up with this being used somewhere where the types aren\u0027t complete.",
+      "parentUuid": "01f11b3a_bfc69cbd",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
