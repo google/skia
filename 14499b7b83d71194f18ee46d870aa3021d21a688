@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b7600102_50ea0daf",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10306
+      },
+      "writtenOn": "2020-03-30T16:08:55Z",
+      "side": 1,
+      "message": "This is leftover from when I copied the BUILD.gn files. What should I put here? Dawn\u0027s BUILD.gn has the same notice, but it was removed in spirv-tools\u0027 BUILD.gn.",
+      "parentUuid": "c7cc8d31_fab9aaab",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 32
+      },
+      "revId": "14499b7b83d71194f18ee46d870aa3021d21a688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d70b672c_54628801",
         "filename": "third_party/shaderc/BUILD.gn",
         "patchSetId": 11
@@ -36,6 +60,24 @@
       "writtenOn": "2020-03-30T15:55:54Z",
       "side": 1,
       "message": "You\u0027re sure you want this to be its own standalone .so in Shared builds?  (Not that we really do them much.)",
+      "revId": "14499b7b83d71194f18ee46d870aa3021d21a688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7833e23_66ce0a09",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 10306
+      },
+      "writtenOn": "2020-03-30T16:08:55Z",
+      "side": 1,
+      "message": "This is only used by the libdawn_native target. I could move the source set dependency there, is that what you mean?",
+      "parentUuid": "d70b672c_54628801",
       "revId": "14499b7b83d71194f18ee46d870aa3021d21a688",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
