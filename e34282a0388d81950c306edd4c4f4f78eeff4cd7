@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e376a728_255b4b65",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-30T21:31:36Z",
+      "side": 1,
+      "message": "I assume this is a difference of 0-based and 1-based indexing?",
+      "range": {
+        "startLine": 138,
+        "startChar": 34,
+        "endLine": 138,
+        "endChar": 35
+      },
+      "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa0522f_342a3f8e",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-30T21:31:36Z",
+      "side": 1,
+      "message": "Maybe a comment about why we don\u0027t care about reverse-subtract? I understand this was probably copied from somewhere else, but I say we could maybe either go in all the way and include reverse-subtract, or else just look for the simple case of (add, one, zero).",
+      "range": {
+        "startLine": 173,
+        "startChar": 9,
+        "endLine": 173,
+        "endChar": 17
+      },
+      "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
