@@ -154,10 +154,10 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
-        c = {p->inv(c.r), p->inv(c.g), p->inv(c.b), c.a};
+        c = {1-c.r, 1-c.g, 1-c.b, c.a};
     } else if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
         auto [h, s, l, a] = p->to_hsla(c);
-        c = p->to_rgba({h, s, p->inv(l), a});
+        c = p->to_rgba({h, s, 1-l, a});
     }
 
     if (fConfig.fContrast != 0.0) {

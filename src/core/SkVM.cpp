@@ -1257,16 +1257,16 @@ namespace skvm {
                 fn(src.r, dst.r),
                 fn(src.g, dst.g),
                 fn(src.b, dst.b),
-                mad(dst.a, inv(src.a), src.a),   // srcover for alpha
+                mad(dst.a, 1-src.a, src.a),   // srcover for alpha
             };
         };
 
         auto non_sep = [&](auto R, auto G, auto B) {
             return Color{
-                add(mma(src.r, inv(dst.a), dst.r, inv(src.a)), R),
-                add(mma(src.g, inv(dst.a), dst.g, inv(src.a)), G),
-                add(mma(src.b, inv(dst.a), dst.b, inv(src.a)), B),
-                mad(dst.a, inv(src.a), src.a),  // srcover
+                add(mma(src.r, 1-dst.a,  dst.r, 1-src.a), R),
+                add(mma(src.g, 1-dst.a,  dst.g, 1-src.a), G),
+                add(mma(src.b, 1-dst.a,  dst.b, 1-src.a), B),
+                mad(dst.a,1-src.a, src.a),  // srcover
             };
         };
 
@@ -1281,7 +1281,7 @@ namespace skvm {
             case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
             case SkBlendMode::kSrcOver:
                 return apply_rgba([&](auto s, auto d) {
-                    return mad(d, inv(src.a), s);
+                    return mad(d,1-src.a, s);
                 });
 
             case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
@@ -1293,18 +1293,18 @@ namespace skvm {
             case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
             case SkBlendMode::kSrcOut:
                 return apply_rgba([&](auto s, auto d) {
-                    return mul(s, inv(dst.a));
+                    return mul(s, 1-dst.a);
                 });
 
             case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
             case SkBlendMode::kSrcATop:
                 return apply_rgba([&](auto s, auto d) {
-                    return mma(s, dst.a,  d, inv(src.a));
+                    return mma(s, dst.a,  d, 1-src.a);
                 });
 
             case SkBlendMode::kXor:
                 return apply_rgba([&](auto s, auto d) {
-                    return mma(s, inv(dst.a),  d, inv(src.a));
+                    return mma(s, 1-dst.a,  d, 1-src.a);
                 });
 
             case SkBlendMode::kPlus:
@@ -1352,9 +1352,9 @@ namespace skvm {
                     // TODO: divide and check for non-finite result instead of checking for s == 0.
                     auto mn   = min(dst.a,
                                     div(mul(sub(dst.a, d), src.a), s)),
-                         burn = mad(src.a, sub(dst.a, mn), mma(s, inv(dst.a), d, inv(src.a)));
-                    return select(eq(d, dst.a), mad(s, inv(dst.a), d),
-                           select(eq(s,  0.0f), mul(d, inv(src.a))
+                         burn = mad(src.a, sub(dst.a, mn), mma(s, 1-dst.a, d, 1-src.a));
+                    return select(eq(d, dst.a), mad(s, 1-dst.a, d),
+                           select(eq(s,  0.0f), mul(d, 1-src.a)
                                               , burn));
                 });
 
@@ -1363,15 +1363,15 @@ namespace skvm {
                     // TODO: divide and check for non-finite result instead of checking for s == sa.
                     auto dodge = mad(src.a, min(dst.a,
                                                 div(mul(d, src.a), sub(src.a, s))),
-                                     mma(s, inv(dst.a), d, inv(src.a)));
-                    return select(eq(d,  0.0f), mul(s, inv(dst.a)),
-                           select(eq(s, src.a), mad(d, inv(src.a), s)
+                                     mma(s, 1-dst.a, d, 1-src.a));
+                    return select(eq(d,  0.0f), mul(s, 1-dst.a),
+                           select(eq(s, src.a), mad(d, 1-src.a, s)
                                               , dodge));
                 });
 
             case SkBlendMode::kHardLight:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(mma(s, inv(dst.a), d, inv(src.a)),
+                    return add(mma(s, 1-dst.a, d, 1-src.a),
                                select(lte(two(s), src.a),
                                       two(mul(s, d)),
                                       sub(mul(src.a, dst.a), two(mul(sub(dst.a, d), sub(src.a, s))))));
@@ -1379,7 +1379,7 @@ namespace skvm {
 
             case SkBlendMode::kOverlay:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(mma(s, inv(dst.a), d, inv(src.a)),
+                    return add(mma(s, 1-dst.a, d, 1-src.a),
                                select(lte(two(d), dst.a),
                                       two(mul(s, d)),
                                       sub(mul(src.a, dst.a), two(mul(sub(dst.a, d), sub(src.a, s))))));
@@ -1387,7 +1387,7 @@ namespace skvm {
 
             case SkBlendMode::kMultiply:
                 return apply_rgba([&](auto s, auto d) {
-                    return add(mma(s, inv(dst.a), d, inv(src.a)), mul(s, d));
+                    return add(mma(s, 1-dst.a, d, 1-src.a), mul(s, d));
                 });
 
             case SkBlendMode::kSoftLight:
@@ -1402,7 +1402,7 @@ namespace skvm {
                          //    3. light src, light dst?
 
                          // Used in case 1
-                    auto darkSrc = mul(d, mad(sub(s2, src.a), inv(m), src.a)),
+                    auto darkSrc = mul(d, mad(sub(s2, src.a), 1-m, src.a)),
                          // Used in case 2
                          darkDst = mad(mad(m4, m4, m4), sub(m, 1.0f), mul(7.0f, m)),
                          // Used in case 3.
@@ -1411,9 +1411,9 @@ namespace skvm {
                          liteSrc = mad(mul(dst.a, sub(s2, src.a)),
                                        select(lte(two(two(d)), dst.a), darkDst, liteDst),
                                        mul(d, src.a));
-                    return mad(s, inv(dst.a), mad(d,
-                                                  inv(src.a),
-                                                  select(lte(s2, src.a), darkSrc, liteSrc)));
+                    return mad(s, 1-dst.a, mad(d,
+                                               1-src.a,
+                                               select(lte(s2, src.a), darkSrc, liteSrc)));
 
 
                 });
