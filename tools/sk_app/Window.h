@@ -20,6 +20,7 @@ class GrContext;
 class SkCanvas;
 class SkSurface;
 class SkSurfaceProps;
+class SkString;
 
 namespace sk_app {
 
