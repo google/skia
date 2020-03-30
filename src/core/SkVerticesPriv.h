@@ -20,6 +20,7 @@ struct SkVertices::Info {
 
     int             fVertexCount,
                     fIndexCount,
+                    fAttributeCount,
                     fPerVertexDataCount;
 
     const SkPoint*  fPositions;
@@ -30,7 +31,8 @@ struct SkVertices::Info {
     const SkColor*  fColors;    // may be null
 
     // new, per-vertex-data, version
-    const float*    fPerVertexData;
+    const Attribute* fAttributes;
+    const float*     fPerVertexData;
 
     bool hasTexCoords() const { return fTexCoords != nullptr; }
     bool hasColors() const { return fColors != nullptr; }

@@ -42,11 +42,10 @@ public:
                                      const SkPMColor4f& color,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
-                                     int attrWidths[],
+                                     const SkVertices::Attribute* attrs,
                                      int attrCount) {
         return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
-                                       std::move(colorSpaceXform), viewMatrix, attrWidths,
-                                       attrCount);
+                                       std::move(colorSpaceXform), viewMatrix, attrs, attrCount);
     }
 
     const char* name() const override { return "VerticesGP"; }
@@ -190,12 +189,23 @@ public:
 private:
     friend class ::SkArenaAlloc; // for access to ctor
 
+    static GrVertexAttribType CustomAttributeType(const SkVertices::Attribute& attr) {
+        switch (attr.fType) {
+            case SkVertices::Attribute::Type::kFloat:       return kFloat_GrVertexAttribType;
+            case SkVertices::Attribute::Type::kFloat2:      return kFloat2_GrVertexAttribType;
+            case SkVertices::Attribute::Type::kFloat3:      return kFloat3_GrVertexAttribType;
+            case SkVertices::Attribute::Type::kFloat4:      return kFloat4_GrVertexAttribType;
+            case SkVertices::Attribute::Type::kByte4_unorm: return kUByte4_norm_GrVertexAttribType;
+        }
+        SkUNREACHABLE;
+    }
+
     VerticesGP(LocalCoordsType localCoordsType,
                ColorArrayType colorArrayType,
                const SkPMColor4f& color,
                sk_sp<GrColorSpaceXform> colorSpaceXform,
                const SkMatrix& viewMatrix,
-               int attrWidths[],
+               const SkVertices::Attribute* attrs,
                int attrCount)
             : INHERITED(kVerticesGP_ClassID)
             , fColorArrayType(colorArrayType)
@@ -212,12 +222,12 @@ private:
                         : missingAttr);
 
         for (int i = 0; i < attrCount; ++i) {
-            SkASSERT(attrWidths[i] >= 1 && attrWidths[i] <= 4);
-            int ofs = attrWidths[i] - 1;
+            SkASSERT(attrs[i].channelCount() >= 1 && attrs[i].channelCount() <= 4);
+            int ofs = attrs[i].channelCount() - 1;
             // Attributes store char*, so allocate long-lived storage for the (dynamic) names
             fAttrNames.push_back(SkStringPrintf("_vtx_attr%d", i));
             fAttributes.push_back({ fAttrNames.back().c_str(),
-                                    (GrVertexAttribType)(kFloat_GrVertexAttribType + ofs),
+                                    CustomAttributeType(attrs[i]),
                                     (GrSLType)(kFloat_GrSLType + ofs) });
         }
 
@@ -339,7 +349,6 @@ private:
     LocalCoordsType fLocalCoordsType;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    std::vector<int> fAttrWidths;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -367,15 +376,6 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
-
-    if (effect) {
-        SkASSERT(info.fPerVertexDataCount == effect->varyingCount());
-        for (const auto& v : effect->varyings()) {
-            fAttrWidths.push_back(v.fWidth);
-        }
-    } else {
-        SkASSERT(info.fPerVertexDataCount == 0);
-    }
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -438,8 +438,11 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
 
     const SkMatrix& vm = fMultipleViewMatrices ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
+    SkVertices::Info info;
+    fMeshes[0].fVertices->getInfo(&info);
+
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
-                               std::move(csxform), vm, fAttrWidths.data(), fAttrWidths.size());
+                               std::move(csxform), vm, info.fAttributes, info.fAttributeCount);
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
@@ -570,7 +573,12 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
-    if (fAttrWidths != that->fAttrWidths) {
+    SkVertices::Info vThis, vThat;
+    this->fMeshes[0].fVertices->getInfo(&vThis);
+    that->fMeshes[0].fVertices->getInfo(&vThat);
+    if (vThis.fAttributeCount != vThat.fAttributeCount ||
+        !std::equal(vThis.fAttributes, vThis.fAttributes + vThis.fAttributeCount,
+                    vThat.fAttributes)) {
         return CombineResult::kCannotCombine;
     }
 
