@@ -12,8 +12,9 @@
 
 # skia/third_party/externals/jinja2 relative to skia/third_party/dawn/BUILD.gn
 dawn_jinja2_dir = "../externals/jinja2"
+
 # dawn_glfw_dir = "//third_party/glfw"
 # dawn_googletest_dir = "//third_party/googletest"
-# dawn_shaderc_dir = "//third_party/shaderc"
-# dawn_spirv_tools_dir = "//third_party/SPIRV-Tools"
-# dawn_spirv_cross_dir = "//third_party/spirv-cross"
+dawn_shaderc_dir = "//third_party/shaderc"
+dawn_spirv_tools_dir = "//third_party/spirv-tools"
+dawn_spirv_cross_dir = "//third_party/spirv-cross"
