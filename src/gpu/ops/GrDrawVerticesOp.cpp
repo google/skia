@@ -34,6 +34,28 @@ enum class LocalCoordsType {
     kExplicit,
 };
 
+static GrVertexAttribType SkVerticesAttributeToGrVertexAttribType(const SkVertices::Attribute& a) {
+    switch (a.fType) {
+        case SkVertices::Attribute::Type::kFloat:       return kFloat_GrVertexAttribType;
+        case SkVertices::Attribute::Type::kFloat2:      return kFloat2_GrVertexAttribType;
+        case SkVertices::Attribute::Type::kFloat3:      return kFloat3_GrVertexAttribType;
+        case SkVertices::Attribute::Type::kFloat4:      return kFloat4_GrVertexAttribType;
+        case SkVertices::Attribute::Type::kByte4_unorm: return kUByte4_norm_GrVertexAttribType;
+    }
+    SkUNREACHABLE;
+}
+
+static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
+    switch (a.fType) {
+        case SkVertices::Attribute::Type::kFloat:       return kFloat_GrSLType;
+        case SkVertices::Attribute::Type::kFloat2:      return kFloat2_GrSLType;
+        case SkVertices::Attribute::Type::kFloat3:      return kFloat3_GrSLType;
+        case SkVertices::Attribute::Type::kFloat4:      return kFloat4_GrSLType;
+        case SkVertices::Attribute::Type::kByte4_unorm: return kHalf4_GrSLType;
+    }
+    SkUNREACHABLE;
+}
+
 class VerticesGP : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
@@ -42,11 +64,10 @@ public:
                                      const SkPMColor4f& color,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
-                                     int attrWidths[],
+                                     const SkVertices::Attribute* attrs,
                                      int attrCount) {
         return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
-                                       std::move(colorSpaceXform), viewMatrix, attrWidths,
-                                       attrCount);
+                                       std::move(colorSpaceXform), viewMatrix, attrs, attrCount);
     }
 
     const char* name() const override { return "VerticesGP"; }
@@ -195,7 +216,7 @@ private:
                const SkPMColor4f& color,
                sk_sp<GrColorSpaceXform> colorSpaceXform,
                const SkMatrix& viewMatrix,
-               int attrWidths[],
+               const SkVertices::Attribute* attrs,
                int attrCount)
             : INHERITED(kVerticesGP_ClassID)
             , fColorArrayType(colorArrayType)
@@ -212,13 +233,11 @@ private:
                         : missingAttr);
 
         for (int i = 0; i < attrCount; ++i) {
-            SkASSERT(attrWidths[i] >= 1 && attrWidths[i] <= 4);
-            int ofs = attrWidths[i] - 1;
             // Attributes store char*, so allocate long-lived storage for the (dynamic) names
             fAttrNames.push_back(SkStringPrintf("_vtx_attr%d", i));
-            fAttributes.push_back({ fAttrNames.back().c_str(),
-                                    (GrVertexAttribType)(kFloat_GrVertexAttribType + ofs),
-                                    (GrSLType)(kFloat_GrSLType + ofs) });
+            fAttributes.push_back({fAttrNames.back().c_str(),
+                                   SkVerticesAttributeToGrVertexAttribType(attrs[i]),
+                                   SkVerticesAttributeToGrSLType(attrs[i])});
         }
 
         this->setVertexAttributes(fAttributes.data(), fAttributes.size());
@@ -322,7 +341,7 @@ private:
         return sizeof(SkPoint) +
                (this->requiresPerVertexColors() ? sizeof(uint32_t) : 0) +
                (this->requiresPerVertexLocalCoords() ? sizeof(SkPoint) : 0) +
-               fMeshes[0].fVertices->priv().perVertexDataCount() * sizeof(float);
+               fMeshes[0].fVertices->priv().customDataSize();
     }
 
     Helper fHelper;
@@ -336,7 +355,6 @@ private:
     LocalCoordsType fLocalCoordsType;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    std::vector<int> fAttrWidths;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -363,15 +381,6 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
-
-    if (effect) {
-        SkASSERT(info.perVertexDataCount() == effect->varyingCount());
-        for (const auto& v : effect->varyings()) {
-            fAttrWidths.push_back(v.fWidth);
-        }
-    } else {
-        SkASSERT(info.perVertexDataCount() == 0);
-    }
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -434,8 +443,10 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
 
     const SkMatrix& vm = fMultipleViewMatrices ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
+    SkVerticesPriv info(fMeshes[0].fVertices->priv());
+
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
-                               std::move(csxform), vm, fAttrWidths.data(), fAttrWidths.size());
+                               std::move(csxform), vm, info.attributes(), info.attributeCount());
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
@@ -494,8 +505,8 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
         const SkPoint* positions = info.positions();
         const SkColor* colors = info.colors();
         const SkPoint* localCoords = info.texCoords() ? info.texCoords() : positions;
-        const float* custom = info.perVertexData();
-        int customCount = info.perVertexDataCount();
+        const void* custom = info.customData();
+        size_t customDataSize = info.customDataSize();
 
         // TODO4F: Preserve float colors
         GrColor meshColor = mesh.fColor.toBytes_RGBA();
@@ -510,8 +521,9 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
             if (hasLocalCoordsAttribute) {
                 verts.write(localCoords[i]);
             }
-            for (int j = 0; j < customCount; ++j) {
-                verts.write(*custom++);
+            if (customDataSize) {
+                verts.writeRaw(custom, customDataSize);
+                custom = SkTAddOffset<const void>(custom, customDataSize);
             }
         }
 
@@ -567,7 +579,11 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
-    if (fAttrWidths != that->fAttrWidths) {
+    SkVerticesPriv vThis(this->fMeshes[0].fVertices->priv()),
+                   vThat(that->fMeshes[0].fVertices->priv());
+    if (vThis.attributeCount() != vThat.attributeCount() ||
+        !std::equal(vThis.attributes(), vThis.attributes() + vThis.attributeCount(),
+                    vThat.attributes())) {
         return CombineResult::kCannotCombine;
     }
 

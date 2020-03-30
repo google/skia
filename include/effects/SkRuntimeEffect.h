@@ -117,9 +117,6 @@ public:
     // Combined size of just the 'uniform' variables.
     size_t uniformSize() const { return fUniformSize; }
 
-    // Total number of channels across all varyings, combined.
-    int varyingCount() const;
-
     ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInAndUniformVars); }
     ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
     ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fVaryings); }
