@@ -38,19 +38,20 @@ public:
      * @return the added item.
      */
     T& push_back() {
-        T* item = new (this->pushItem()) T;
-        return *item;
+        return *new (this->pushItem()) T;
     }
 
     T& push_back(const T& t) {
-        T* item = new (this->pushItem()) T(t);
-        return *item;
+        return *new (this->pushItem()) T(t);
+    }
+
+    T& push_back(T&& t) {
+        return *new (this->pushItem()) T(std::move(t));
     }
 
     template <typename... Args>
     T& emplace_back(Args&&... args) {
-        T* item = new (this->pushItem()) T(std::forward<Args>(args)...);
-        return *item;
+        return *new (this->pushItem()) T(std::forward<Args>(args)...);
     }
 
     /**
