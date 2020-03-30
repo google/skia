@@ -46,6 +46,30 @@
       "revId": "b03c32160a675aa9582614439cab30e935a1b992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92814f8c_e10c9323",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T14:27:53Z",
+      "side": 1,
+      "message": "I believe freeGPUData unrefs it and then sets it to null, which tries to unref it again, but I haven\u0027t traced through it. I just wanted to get this landed so I switched to how Vulkan handles it.",
+      "parentUuid": "9691edc3_2d24963f",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 24
+      },
+      "revId": "b03c32160a675aa9582614439cab30e935a1b992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
