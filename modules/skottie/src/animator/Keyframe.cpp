@@ -285,23 +285,24 @@ private:
         , fValues(std::move(vs))
         , fTarget(target_value) {}
 
-    bool onSeek(float t) override {
+    SeekStatus onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
-        bool updated;
+        SeekStatus status;
         if (lerp_info.isConstant()) {
-            updated = (*fTarget != fValues[SkToSizeT(lerp_info.vrec0.idx)]);
-            if (updated) {
+            status = (*fTarget != fValues[SkToSizeT(lerp_info.vrec0.idx)]) ? SeekStatus::kChanged
+                                                                           : SeekStatus::kUnchanged;
+            if (status == SeekStatus::kChanged) {
                 *fTarget = fValues[SkToSizeT(lerp_info.vrec0.idx)];
             }
         } else {
-            updated = ValueTraits<T>::Lerp(fValues[lerp_info.vrec0.idx],
-                                           fValues[lerp_info.vrec1.idx],
-                                           lerp_info.weight,
-                                           fTarget);
+            status = ValueTraits<T>::Lerp(fValues[lerp_info.vrec0.idx],
+                                          fValues[lerp_info.vrec1.idx],
+                                          lerp_info.weight,
+                                          fTarget);
         }
 
-        return updated;
+        return status;
     }
 
     const std::vector<T> fValues;

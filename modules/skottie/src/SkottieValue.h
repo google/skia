@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/private/SkNoncopyable.h"
+#include "modules/skottie/src/animator/Animator.h"
 
 #include <vector>
 
@@ -33,7 +34,7 @@ struct ValueTraits {
     static U As(const T&);
 
     static bool CanLerp(const T&, const T&);
-    static bool Lerp(const T&, const T&, float, T*);
+    static internal::Animator::SeekStatus Lerp(const T&, const T&, float, T*);
 };
 
 using ScalarValue = SkScalar;

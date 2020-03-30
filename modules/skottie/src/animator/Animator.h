@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 
+#include <type_traits>
 #include <vector>
 
 namespace skjson {
@@ -28,18 +29,32 @@ class Animator : public SkRefCnt {
 public:
     virtual ~Animator() = default;
 
-    // Returns true if the state has changed.
-    bool seek(float t) { return this->onSeek(t); }
+    enum class SeekStatus : unsigned {
+        kUnchanged = 0, // internal state has not changed
+        kChanged   = 1, // !kUnchanged
+    };
+
+    SeekStatus seek(float t) { return this->onSeek(t); }
 
 protected:
     Animator() = default;
 
-    virtual bool onSeek(float t) = 0;
+    virtual SeekStatus onSeek(float t) = 0;
 
 private:
     Animator(const Animator&) = delete;
     Animator& operator=(const Animator&) = delete;
 };
+
+inline constexpr Animator::SeekStatus operator|(Animator::SeekStatus a, Animator::SeekStatus b) {
+    using T = std::underlying_type_t<Animator::SeekStatus>;
+    return static_cast<Animator::SeekStatus>(static_cast<T>(a) | static_cast<T>(b));
+}
+
+inline constexpr Animator::SeekStatus operator|(Animator::SeekStatus a, bool did_change) {
+    using T = std::underlying_type_t<Animator::SeekStatus>;
+    return static_cast<Animator::SeekStatus>(static_cast<T>(a) | static_cast<T>(did_change));
+}
 
 class AnimatablePropertyContainer : public Animator {
 public:
@@ -64,7 +79,7 @@ protected:
     void attachDiscardableAdapter(sk_sp<AnimatablePropertyContainer>);
 
 private:
-    bool onSeek(float) final;
+    SeekStatus onSeek(float) final;
 
     bool bindImpl(const AnimationBuilder&,
                   const skjson::ObjectValue*,

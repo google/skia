@@ -149,13 +149,15 @@ bool ValueTraits<TextValue>::CanLerp(const TextValue&, const TextValue&) {
 }
 
 template <>
-bool ValueTraits<TextValue>::Lerp(const TextValue& v0, const TextValue&, float, TextValue* result) {
+internal::Animator::SeekStatus ValueTraits<TextValue>::Lerp(const TextValue& v0,
+                                                            const TextValue&, float,
+                                                            TextValue* result) {
     // Text value keyframes are treated as selectors, not as interpolated values.
     if (v0 != *result) {
         *result = v0;
-        return true;
+        return internal::Animator::SeekStatus::kChanged;
     }
-    return false;
+    return internal::Animator::SeekStatus::kUnchanged;
 }
 
 } // namespace skottie

@@ -13,20 +13,20 @@
 
 namespace skottie::internal {
 
-bool AnimatablePropertyContainer::onSeek(float t) {
+Animator::SeekStatus AnimatablePropertyContainer::onSeek(float t) {
     // The very first seek must trigger a sync, to ensure proper SG setup.
-    bool dirty = !fHasSynced;
-
+    auto status = fHasSynced ? SeekStatus::kUnchanged
+                             : SeekStatus::kChanged;
     for (const auto& animator : fAnimators) {
-        dirty |= animator->seek(t);
+        status = status | animator->seek(t);
     }
 
-    if (dirty) {
+    if (status == SeekStatus::kChanged) {
         this->onSync();
         fHasSynced = true;
     }
 
-    return dirty;
+    return status;
 }
 
 void AnimatablePropertyContainer::attachDiscardableAdapter(

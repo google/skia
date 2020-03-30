@@ -180,12 +180,16 @@ static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
 }
 
 template <>
-bool ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t,
-                                   ShapeValue* result) {
+internal::Animator::SeekStatus ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0,
+                                                             const ShapeValue& v1,
+                                                             float t,
+                                                             ShapeValue* result) {
     SkASSERT(v0.fVertices.size() == v1.fVertices.size());
     SkASSERT(v0.fClosed == v1.fClosed);
 
-    auto updated = (result->fClosed != v0.fClosed || !result->fVolatile);
+    auto status = (result->fClosed != v0.fClosed || !result->fVolatile)
+            ? internal::Animator::SeekStatus::kChanged
+            : internal::Animator::SeekStatus::kUnchanged;
 
     result->fClosed   = v0.fClosed;
     result->fVolatile = true; // interpolated values are volatile
@@ -200,11 +204,11 @@ bool ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, f
             lerp_point(v0.fVertices[i].fVertex  , v1.fVertices[i].fVertex  , t2f)
         });
 
-        updated |= (v != result->fVertices[i]);
+        status = status | (v != result->fVertices[i]);
         result->fVertices[i] = v;
     }
 
-    return updated;
+    return status;
 }
 
 template <>
