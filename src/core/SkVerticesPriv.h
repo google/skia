@@ -24,17 +24,19 @@ public:
     bool hasColors() const { return fVertices->hasColors(); }
     bool hasTexCoords() const { return fVertices->hasTexCoords(); }
     bool hasIndices() const { return fVertices->hasIndices(); }
-    bool hasPerVertexData() const { return fVertices->hasPerVertexData(); }
+    bool hasCustomData() const { return fVertices->hasCustomData(); }
 
     int vertexCount() const { return fVertices->fVertexCount; }
     int indexCount() const { return fVertices->fIndexCount; }
-    int perVertexDataCount() const { return fVertices->fPerVertexDataCount; }
+    int attributeCount() const { return fVertices->fAttributeCount; }
+    size_t customDataSize() const { return fVertices->customDataSize(); }
 
     const SkPoint* positions() const { return fVertices->fPositions; }
-    const float* perVertexData() const { return fVertices->fPerVertexData; }
+    const void* customData() const { return fVertices->fCustomData; }
     const SkPoint* texCoords() const { return fVertices->fTexs; }
     const SkColor* colors() const { return fVertices->fColors; }
     const uint16_t* indices() const { return fVertices->fIndices; }
+    const SkVertices::Attribute* attributes() const { return fVertices->fAttributes; }
 
 private:
     explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
