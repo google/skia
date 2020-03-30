@@ -187,6 +187,30 @@
       "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eccfeb1_0ccf8d0a",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T15:00:35Z",
+      "side": 1,
+      "message": "Sorry, it gets unrefed in releaseResource().",
+      "parentUuid": "0a58331a_0b887d2d",
+      "range": {
+        "startLine": 111,
+        "startChar": 5,
+        "endLine": 111,
+        "endChar": 24
+      },
+      "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
