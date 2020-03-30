@@ -24,11 +24,16 @@ static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
     if (v0.indexCount() != v1.indexCount()) {
         return false;
     }
-    if (v0.perVertexDataCount() != v1.perVertexDataCount()) {
+    if (v0.attributeCount() != v1.attributeCount()) {
         return false;
     }
+    for (int i = 0; i < v0.attributeCount(); ++i) {
+        if (v0.attributes()[i] != v1.attributes()[i]) {
+            return false;
+        }
+    }
 
-    if (!!v0.perVertexData() != !!v1.perVertexData()) {
+    if (!!v0.customData() != !!v1.customData()) {
         return false;
     }
     if (!!v0.texCoords() != !!v1.texCoords()) {
@@ -53,9 +58,9 @@ static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
             }
         }
     }
-    int totalVertexDataCount = v0.vertexCount() * v0.perVertexDataCount();
-    for (int i = 0; i < totalVertexDataCount; ++i) {
-        if (v0.perVertexData()[i] != v1.perVertexData()[i]) {
+    size_t totalCustomDataSize = v0.vertexCount() * v0.customDataSize();
+    if (totalCustomDataSize) {
+        if (memcmp(v0.customData(), v1.customData(), totalCustomDataSize) != 0) {
             return false;
         }
     }
@@ -108,18 +113,36 @@ DEF_TEST(Vertices, reporter) {
             self_test(builder.detach(), reporter);
         }
     }
-    // per-vertex-data tests
-    for (int perVertexDataCount : {0, 1, 2, 3, 4, 7, 32}) {
+
+    // custom data tests
+    using AttrType = SkVertices::Attribute::Type;
+    struct {
+        int count;
+        size_t expected_size;
+        SkVertices::Attribute attrs[4];
+    } attrTests[] = {
+        { 1,  4, { AttrType::kFloat } },
+        { 1,  8, { AttrType::kFloat2 } },
+        { 1, 12, { AttrType::kFloat3 } },
+        { 1, 16, { AttrType::kFloat4 } },
+        { 1,  4, { AttrType::kByte4_unorm } },
+        { 4, 16, { AttrType::kFloat, AttrType::kFloat, AttrType::kFloat, AttrType::kFloat } },
+        { 2, 12, { AttrType::kFloat2, AttrType::kByte4_unorm } },
+        { 2, 12, { AttrType::kByte4_unorm, AttrType::kFloat2 } },
+    };
+
+    for (const auto& test : attrTests) {
         SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount,
-                                    SkVertices::CustomLayout{perVertexDataCount});
+                                    test.attrs, test.count);
         REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
         REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
-        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == perVertexDataCount);
 
+        float* customData = (float*)builder.customData();
+        int customDataCount = test.expected_size / sizeof(float);
         for (int i = 0; i < builder.vertexCount(); ++i) {
             builder.positions()[i].set((float)i, 1);
-            for (int j = 0; j < builder.perVertexDataCount(); ++j) {
-                builder.perVertexData()[i * perVertexDataCount + j] = (float)j;
+            for (int j = 0; j < customDataCount; ++j) {
+                customData[i * customDataCount + j] = (float)j;
             }
         }
         for (int i = 0; i < builder.indexCount(); ++i) {
@@ -127,6 +150,7 @@ DEF_TEST(Vertices, reporter) {
         }
         self_test(builder.detach(), reporter);
     }
+
     {
         // This has the maximum number of vertices to be rewritten as indexed triangles without
         // overflowing a 16bit index.
@@ -161,24 +185,27 @@ DEF_TEST(Vertices, reporter) {
 
     // validity tests for per-vertex-data
 
-    {   // negative count is bad
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
-                                    SkVertices::CustomLayout{-1});
+    // Check that invalid counts fail to initialize the builder
+    for (int attrCount : {-1, 0, SkVertices::kMaxCustomAttributes + 1}) {
+        SkVertices::Attribute attrs[] = { AttrType::kFloat };
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, attrs, attrCount);
         REPORTER_ASSERT(reporter, !builder.isValid());
     }
-    {   // zero-per-vertex-data should be ok
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
-                                    SkVertices::CustomLayout{0});
-        REPORTER_ASSERT(reporter, builder.isValid());
-        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 0);
-        REPORTER_ASSERT(reporter, builder.perVertexData() == nullptr);
+    {   // nullptr is definitely bad
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, nullptr, 4);
+        REPORTER_ASSERT(reporter, !builder.isValid());
     }
-    {   // "normal" number of per-vertex-data
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0,
-                                    SkVertices::CustomLayout{4});
+    {   // "normal" number of per-vertex-data (all floats)
+        SkVertices::Attribute attrs[] = {AttrType::kFloat2, AttrType::kFloat2};
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, attrs, 2);
         REPORTER_ASSERT(reporter, builder.isValid());
-        REPORTER_ASSERT(reporter, builder.perVertexDataCount() == 4);
-        REPORTER_ASSERT(reporter, builder.perVertexData() != nullptr);
+        REPORTER_ASSERT(reporter, builder.customData() != nullptr);
+    }
+    {   // "normal" number of per-vertex-data (with packed bytes)
+        SkVertices::Attribute attrs[] = {AttrType::kFloat2, AttrType::kByte4_unorm};
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 0, attrs, 2);
+        REPORTER_ASSERT(reporter, builder.isValid());
+        REPORTER_ASSERT(reporter, builder.customData() != nullptr);
     }
 }
 
