@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e232bde_70e0bd1e",
+        "filename": "modules/skottie/src/animator/Animator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-30T21:27:40Z",
+      "side": 1,
+      "message": "confusing comment",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 38
+      },
+      "revId": "ebfdc420f173a9455ddc62519511deb2b5883eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
