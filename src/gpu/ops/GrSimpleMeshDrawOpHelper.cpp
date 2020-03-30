@@ -123,7 +123,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fCaps = caps;
     pipelineArgs.fDstProxyView = dstProxyView;
-    pipelineArgs.fOutputSwizzle = outputViewSwizzle;
+    pipelineArgs.fWriteSwizzle = outputViewSwizzle;
 
     return arena->make<GrPipeline>(pipelineArgs,
                                    std::move(processorSet),

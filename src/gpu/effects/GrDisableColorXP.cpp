@@ -48,8 +48,10 @@ private:
         }
     }
 
-    void emitOutputSwizzle(
-            GrGLSLXPFragmentBuilder*, const GrSwizzle&, const char*, const char*) const override {
+    void emitWriteSwizzle(GrGLSLXPFragmentBuilder*,
+                          const GrSwizzle&,
+                          const char*,
+                          const char*) const override {
         // Don't write any swizzling. This makes sure the final shader does not output a color.
         return;
     }

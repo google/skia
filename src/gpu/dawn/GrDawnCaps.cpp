@@ -127,8 +127,7 @@ GrSwizzle GrDawnCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType 
     return get_swizzle(format, colorType, false);
 }
 
-GrSwizzle GrDawnCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const
-{
+GrSwizzle GrDawnCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     return get_swizzle(format, colorType, true);
 }
 
