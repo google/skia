@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrImageContext.h"
+#include "include/private/SkTArray.h"
 
 class GrAuditTrail;
 class GrBackendFormat;

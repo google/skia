@@ -18,6 +18,7 @@
 
 class GrDrawOp;
 class GrRecordingContext;
+class GrRenderTargetContext;
 class GrTextBlobCache;
 class SkGlyph;
 class GrTextBlob;

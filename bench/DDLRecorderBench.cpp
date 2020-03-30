@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkSurfaceCharacterization.h"
 
