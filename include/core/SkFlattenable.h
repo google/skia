@@ -37,7 +37,7 @@ public:
         kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
         kSkUnused_Type2,
-        kSkNormalSource_Type,
+        kSkUnused_Type3,    // use to be NormalSource,
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
