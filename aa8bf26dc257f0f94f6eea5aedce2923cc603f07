@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19d518ae_d965d99d",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:42:23Z",
+      "side": 0,
+      "message": "This is kind of a functional change right?  It moves the destructor inline?",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38c98594_0f32bebd",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:42:23Z",
+      "side": 0,
+      "message": "Unrelated?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
