@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7c67a202_9684260f",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T14:13:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a2c2dded_0281887a",
+      "range": {
+        "startLine": 161,
+        "startChar": 38,
+        "endLine": 161,
+        "endChar": 62
+      },
+      "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9159d5c_a5c2f325",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-27T21:02:20Z",
       "side": 1,
       "message": "are these required alignments? Do we not do anything now cause we are suballocating from a heap right now?",
+      "range": {
+        "startLine": 173,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 76
+      },
+      "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12658731_e7502bf0",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T14:13:43Z",
+      "side": 1,
+      "message": "This is the alignment of the texture in GPU memory. Setting the value to 0 uses these default alignments.",
+      "parentUuid": "c9159d5c_a5c2f325",
       "range": {
         "startLine": 173,
         "startChar": 12,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d48353d9_4d75e26e",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T14:13:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b6497017_d0f334ca",
+      "range": {
+        "startLine": 184,
+        "startChar": 88,
+        "endLine": 184,
+        "endChar": 95
+      },
+      "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb424bd9_4fb9fd6c",
         "filename": "src/gpu/d3d/GrD3DTextureResource.h",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2020-03-27T21:02:20Z",
       "side": 1,
       "message": "do we need to be unrefing this somewhere now?",
+      "range": {
+        "startLine": 111,
+        "startChar": 5,
+        "endLine": 111,
+        "endChar": 24
+      },
+      "revId": "f7a485b42416e25ef75e99c7dc89982f6647618c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a58331a_0b887d2d",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-03-30T14:13:43Z",
+      "side": 1,
+      "message": "It already got unrefed in freeGPUData.",
+      "parentUuid": "fb424bd9_4fb9fd6c",
       "range": {
         "startLine": 111,
         "startChar": 5,
