@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8826c1bc_53471965",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-30T16:45:23Z",
+      "side": 1,
+      "message": "I think you want what Mike wrote but \"LLC\" rather than \"Inc.\"",
+      "parentUuid": "b7600102_50ea0daf",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 32
+      },
+      "revId": "14499b7b83d71194f18ee46d870aa3021d21a688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d70b672c_54628801",
         "filename": "third_party/shaderc/BUILD.gn",
         "patchSetId": 11
