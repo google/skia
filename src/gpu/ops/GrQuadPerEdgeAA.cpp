@@ -17,6 +17,12 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
+static_assert((int)GrQuadAAFlags::kLeft   == SkCanvas::kLeft_QuadAAFlag);
+static_assert((int)GrQuadAAFlags::kTop    == SkCanvas::kTop_QuadAAFlag);
+static_assert((int)GrQuadAAFlags::kRight  == SkCanvas::kRight_QuadAAFlag);
+static_assert((int)GrQuadAAFlags::kBottom == SkCanvas::kBottom_QuadAAFlag);
+static_assert((int)GrQuadAAFlags::kNone   == SkCanvas::kNone_QuadAAFlags);
+static_assert((int)GrQuadAAFlags::kAll    == SkCanvas::kAll_QuadAAFlags);
 
 namespace {
 
