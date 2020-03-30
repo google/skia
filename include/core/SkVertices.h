@@ -14,6 +14,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/GrTypesPriv.h"
+#endif
+
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
@@ -56,7 +60,33 @@ public:
                         nullptr);
     }
 
-    struct CustomLayout { int fPerVertexDataCount; };
+    static constexpr int kMaxCustomAttributes = 8;
+
+    struct Attribute {
+        enum class Type : uint8_t {
+            kFloat,
+            kFloat2,
+            kFloat3,
+            kFloat4,
+            kByte4_unorm,
+        };
+
+        Attribute() : fType(Type::kFloat) {}
+        Attribute(Type t) : fType(t) {}
+    
+        bool operator==(const Attribute& that) const { return fType == that.fType; }
+        bool operator!=(const Attribute& that) const { return !(*this == that); }
+
+        int channelCount() const;
+        size_t bytesPerVertex() const;
+
+#if SK_SUPPORT_GPU
+        GrVertexAttribType vertexAttribType() const;
+        GrSLType slType() const;
+#endif
+
+        Type fType;
+    };
 
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
@@ -67,14 +97,17 @@ public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
         // EXPERIMENTAL -- do not call if you care what happens
-        Builder(VertexMode mode, int vertexCount, int indexCount, CustomLayout customLayout);
+        Builder(VertexMode mode,
+                int vertexCount,
+                int indexCount,
+                const Attribute* attrs,
+                int attrCount);
 
         bool isValid() const { return fVertices != nullptr; }
 
         // if the builder is invalid, these will return 0
         int vertexCount() const;
         int indexCount() const;
-        int perVertexDataCount() const;
         SkPoint* positions();
         uint16_t* indices();        // returns null if there are no indices
 
@@ -148,7 +181,7 @@ private:
 
     int vertexCount() const { return fVertexCount; }
     int indexCount() const { return fIndexCount; }
-    int perVertexDataCount() const { return fPerVertexDataCount; }
+    int customAttributeCount() const { return fAttributeCount; }
 
     const SkPoint* positions() const { return fPositions; }
     const float* perVertexData() const { return fPerVertexData; }
@@ -170,7 +203,9 @@ private:
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCount;
     int     fIndexCount;
-    int     fPerVertexDataCount;
+
+    Attribute fAttributes[kMaxCustomAttributes];
+    int       fAttributeCount;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.

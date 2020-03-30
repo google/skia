@@ -276,8 +276,8 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
     SkRect r = { 10, 10, 480, 480 };
     int vcount = 4; // just a quad
     int icount = 0;
-    SkVertices::CustomLayout customLayout { 4 }; // rgba values for now
-    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, customLayout);
+    SkVertices::Attribute attrs[1] = { SkVertices::Attribute::Type::kFloat4 };
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, attrs, 1);
 
     // build the quad
     SkPoint* pos = builder.positions();
@@ -355,8 +355,8 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
     SkVertices::Info info;
     patchVerts->getInfo(&info);
 
-    SkVertices::CustomLayout customLayout { 1 };
-    SkVertices::Builder builder(info.fMode, info.fVertexCount, info.fIndexCount, customLayout);
+    SkVertices::Attribute attrs[1] = { SkVertices::Attribute::Type::kFloat4 };
+    SkVertices::Builder builder(info.fMode, info.fVertexCount, info.fIndexCount, attrs, 1);
 
     memcpy(builder.positions(), info.fPositions, info.fVertexCount * sizeof(SkPoint));
     memcpy(builder.indices(), info.fIndices, info.fIndexCount * sizeof(uint16_t));
