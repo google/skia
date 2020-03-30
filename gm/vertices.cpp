@@ -276,8 +276,8 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
     SkRect r = { 10, 10, 480, 480 };
     int vcount = 4; // just a quad
     int icount = 0;
-    SkVertices::CustomLayout customLayout { 4 }; // rgba values for now
-    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, customLayout);
+    SkVertices::Attribute attrs[1] = { SkVertices::Attribute::Type::kFloat4 };
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, attrs, 1);
 
     // build the quad
     SkPoint* pos = builder.positions();
@@ -286,7 +286,7 @@ DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
     pos[2] = {r.fRight, r.fBottom};
     pos[3] = {r.fLeft, r.fBottom};
 
-    SkV4* col = (SkV4*)builder.perVertexData();
+    SkV4* col = (SkV4*)builder.customData();
     // We happen to treat the 4 fields as RGBA, in coordination with a hack in the raster-impl.
     // In the future, these fields will just be passed to whatever SkSL we provide in the paint's
     // shader.
@@ -354,15 +354,16 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
     auto patchVerts = SkPatchUtils::MakeVertices(pts, nullptr, nullptr, 12, 12);
     SkVerticesPriv pv(patchVerts->priv());
 
-    SkVertices::CustomLayout customLayout { 1 };
-    SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), customLayout);
+    SkVertices::Attribute attrs[1] = { SkVertices::Attribute::Type::kFloat4 };
+    SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), attrs, 1);
 
     memcpy(builder.positions(), pv.positions(), pv.vertexCount() * sizeof(SkPoint));
     memcpy(builder.indices(), pv.indices(), pv.indexCount() * sizeof(uint16_t));
 
     SkRandom rnd;
+    float* lerpData = (float*)builder.customData();
     for (int i = 0; i < pv.vertexCount(); ++i) {
-        builder.perVertexData()[i] = rnd.nextBool() ? 1.0f : 0.0f;
+        lerpData[i] = rnd.nextBool() ? 1.0f : 0.0f;
     }
 
     auto verts = builder.detach();

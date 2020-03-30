@@ -12,6 +12,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/GrTypesPriv.h"
+#endif
+
 class SkData;
 struct SkPoint;
 class SkVerticesPriv;
@@ -58,7 +62,33 @@ public:
                         nullptr);
     }
 
-    struct CustomLayout { int fPerVertexDataCount; };
+    static constexpr int kMaxCustomAttributes = 8;
+
+    struct Attribute {
+        enum class Type : uint8_t {
+            kFloat,
+            kFloat2,
+            kFloat3,
+            kFloat4,
+            kByte4_unorm,
+        };
+
+        Attribute() : fType(Type::kFloat) {}
+        Attribute(Type t) : fType(t) {}
+
+        bool operator==(const Attribute& that) const { return fType == that.fType; }
+        bool operator!=(const Attribute& that) const { return !(*this == that); }
+
+        int channelCount() const;
+        size_t bytesPerVertex() const;
+
+#if SK_SUPPORT_GPU
+        GrVertexAttribType vertexAttribType() const;
+        GrSLType slType() const;
+#endif
+
+        Type fType;
+    };
 
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
@@ -69,21 +99,24 @@ public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
         // EXPERIMENTAL -- do not call if you care what happens
-        Builder(VertexMode mode, int vertexCount, int indexCount, CustomLayout customLayout);
+        Builder(VertexMode mode,
+                int vertexCount,
+                int indexCount,
+                const Attribute* attrs,
+                int attrCount);
 
         bool isValid() const { return fVertices != nullptr; }
 
         // if the builder is invalid, these will return 0
         int vertexCount() const;
         int indexCount() const;
-        int perVertexDataCount() const;
         SkPoint* positions();
         uint16_t* indices();        // returns null if there are no indices
 
         // if we have texCoords or colors, this will always be null
-        float* perVertexData();     // return null if there is no perVertexData
+        void* customData();         // returns null if there are no custom attributes
 
-        // If we have per-vertex-data, these will always be null
+        // If we have custom attributes, these will always be null
         SkPoint* texCoords();       // returns null if there are no texCoords
         SkColor* colors();          // returns null if there are no colors
 
@@ -140,17 +173,18 @@ private:
 
     VertexMode mode() const { return fMode; }
 
-    bool hasPerVertexData() const { return SkToBool(this->perVertexData()); }
+    bool hasCustomData() const { return SkToBool(this->customData()); }
     bool hasColors() const { return SkToBool(this->colors()); }
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
     int vertexCount() const { return fVertexCount; }
     int indexCount() const { return fIndexCount; }
-    int perVertexDataCount() const { return fPerVertexDataCount; }
+    size_t customDataSize() const; // Bytes of custom data per vertex
+    int customAttributeCount() const { return fAttributeCount; }
 
     const SkPoint* positions() const { return fPositions; }
-    const float* perVertexData() const { return fPerVertexData; }
+    const void* customData() const { return fCustomData; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
     const uint16_t* indices() const { return fIndices; }
@@ -162,14 +196,16 @@ private:
     // these point inside our allocation, so none of these can be "freed"
     SkPoint*     fPositions;        // [vertexCount]
     uint16_t*    fIndices;          // [indexCount] or null
-    float*       fPerVertexData;    // [perVertexDataCount * vertexCount] or null
+    void*        fCustomData;       // [customDataSize * vertexCount] or null
     SkPoint*     fTexs;             // [vertexCount] or null
     SkColor*     fColors;           // [vertexCount] or null
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCount;
     int     fIndexCount;
-    int     fPerVertexDataCount;
+
+    Attribute fAttributes[kMaxCustomAttributes];
+    int       fAttributeCount;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.
