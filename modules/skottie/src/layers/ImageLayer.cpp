@@ -39,20 +39,20 @@ public:
         , fTimeScale(time_scale)
         , fIsMultiframe(fAsset->isMultiFrame()) {}
 
-    bool onSeek(float t) override {
+    SeekStatus onSeek(float t) override {
         if (!fIsMultiframe && fImageNode->getImage()) {
             // Single frame already resolved.
-            return false;
+            return kUnchanged_SeekStatus;
         }
 
         auto frame = fAsset->getFrame((t + fTimeBias) * fTimeScale);
         if (frame != fImageNode->getImage()) {
             fImageTransformNode->setMatrix(image_matrix(frame, fAssetSize));
             fImageNode->setImage(std::move(frame));
-            return true;
+            return kChanged_SeekStatus;
         }
 
-        return false;
+        return kUnchanged_SeekStatus;
     }
 
 private:
