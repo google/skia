@@ -19,12 +19,10 @@
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkNormalSource.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/shaders/SkLightingShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -589,59 +587,6 @@ DEF_TEST(Serialization, reporter) {
     }
 
     TestPictureTypefaceSerialization(reporter);
-
-    // Test SkLightingShader/NormalMapSource serialization
-    {
-        const int kTexSize = 2;
-
-        SkLights::Builder builder;
-
-        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                                     SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
-
-        sk_sp<SkLights> fLights = builder.finish();
-
-        SkBitmap diffuse = ToolUtils::create_checkerboard_bitmap(
-                kTexSize, kTexSize, 0x00000000, ToolUtils::color_to_565(0xFF804020), 8);
-
-        SkRect bitmapBounds = SkRect::MakeIWH(diffuse.width(), diffuse.height());
-
-        SkMatrix matrix;
-        SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
-        matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-
-        SkMatrix ctm;
-        ctm.setRotate(45);
-        SkBitmap normals;
-        normals.allocN32Pixels(kTexSize, kTexSize);
-
-        ToolUtils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> normalMap = normals.makeShader(&matrix);
-        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
-                                                                               ctm);
-        sk_sp<SkShader> diffuseShader = diffuse.makeShader(&matrix);
-
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
-                                                                normalSource,
-                                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
-
-        lightingShader = SkLightingShader::Make(std::move(diffuseShader),
-                                                nullptr,
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
-
-        lightingShader = SkLightingShader::Make(nullptr,
-                                                std::move(normalSource),
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
-
-        lightingShader = SkLightingShader::Make(nullptr,
-                                                nullptr,
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(as_SB(lightingShader.get()), true, reporter));
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
