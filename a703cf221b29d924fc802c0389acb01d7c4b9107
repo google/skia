@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4f3bf923_528ac407",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07d40460_29310d3f",
+      "range": {
+        "startLine": 572,
+        "startChar": 12,
+        "endLine": 572,
+        "endChar": 39
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0b9b345_46e57c5d",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 8
@@ -39,6 +63,24 @@
       "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18bdb430_67acb93e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0b9b345_46e57c5d",
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "011e813b_53f12373",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53076820_31f1ef3e",
+      "range": {
+        "startLine": 1507,
+        "startChar": 8,
+        "endLine": 1507,
+        "endChar": 23
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca2267a7_e70c480b",
         "filename": "src/core/SkVM.h",
         "patchSetId": 8
@@ -79,6 +145,24 @@
       "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70e580ab_c579fc3d",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca2267a7_e70c480b",
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "16483d32_c81f6237",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1c4f965_fb467fb1",
+      "range": {
+        "startLine": 696,
+        "startChar": 1,
+        "endLine": 702,
+        "endChar": 63
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b7f22de_1b109547",
         "filename": "src/core/SkVM.h",
         "patchSetId": 8
@@ -116,6 +224,30 @@
       "writtenOn": "2020-03-30T20:18:57Z",
       "side": 1,
       "message": "This is Val, right?  Should we make this a hard typedef?",
+      "range": {
+        "startLine": 742,
+        "startChar": 20,
+        "endLine": 742,
+        "endChar": 23
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc3de003_60053ac8",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Yes. If by hard typedef you mean some type of opaque integer, then yes.",
+      "parentUuid": "3b7f22de_1b109547",
       "range": {
         "startLine": 742,
         "startChar": 20,
@@ -148,6 +280,30 @@
       "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0b7968e_d88f8721",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-30T21:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "845fe711_8ac7c73e",
+      "range": {
+        "startLine": 711,
+        "startChar": 1,
+        "endLine": 743,
+        "endChar": 6
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
