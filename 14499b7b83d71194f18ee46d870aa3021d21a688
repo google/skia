@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7cc8d31_fab9aaab",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T15:52:27Z",
+      "side": 1,
+      "message": "# Copyright 2020 Google Inc.\n#\n# Use of this source code is governed by a BSD-style license that can be\n# found in the LICENSE file.\n\n?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 32
+      },
+      "revId": "14499b7b83d71194f18ee46d870aa3021d21a688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
