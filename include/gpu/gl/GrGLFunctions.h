@@ -235,7 +235,6 @@ using GrGLCoverageModulationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum component
 
 /* EXT_base_instance */
 using GrGLDrawArraysInstancedBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei instancecount, GrGLuint baseinstance);
-using GrGLDrawElementsInstancedBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum GrGLmode, GrGLsizei count, GrGLenum type, const void *indices, GrGLsizei instancecount, GrGLuint baseinstance);
 using GrGLDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLsizei count, GrGLenum type, const void *indices, GrGLsizei instancecount, GrGLint basevertex, GrGLuint baseinstance);
 
 /* EXT_multi_draw_indirect */

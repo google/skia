@@ -197,8 +197,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
 
     if (extensions.has("GL_EXT_base_instance")) {
         GET_PROC_SUFFIX(DrawArraysInstancedBaseInstance, EXT);
-        GET_PROC_SUFFIX(DrawElementsInstancedBaseInstance, EXT);
         GET_PROC_SUFFIX(DrawElementsInstancedBaseVertexBaseInstance, EXT);
+    } else if (extensions.has("GL_ANGLE_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(DrawArraysInstancedBaseInstance, ANGLE);
+        GET_PROC_SUFFIX(DrawElementsInstancedBaseVertexBaseInstance, ANGLE);
     }
 
     if (glVer >= GR_GL_VER(3,0)) {

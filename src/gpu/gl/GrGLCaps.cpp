@@ -635,8 +635,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = fDrawIndirectSupport &&
                                     ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
-        fBaseInstanceSupport = fDrawIndirectSupport &&
-                               ctxInfo.hasExtension("GL_EXT_base_instance");
+        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance") ||
+                               ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance");
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL lacks indirect support, but drawRange was added in WebGL 2.0

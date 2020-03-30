@@ -186,7 +186,6 @@ public:
         GrGLFunction<GrGLMapTexSubImage2DFn> fMapTexSubImage2D;
         GrGLFunction<GrGLMemoryBarrierFn> fMemoryBarrier;
         GrGLFunction<GrGLDrawArraysInstancedBaseInstanceFn> fDrawArraysInstancedBaseInstance;
-        GrGLFunction<GrGLDrawElementsInstancedBaseInstanceFn> fDrawElementsInstancedBaseInstance;
         GrGLFunction<GrGLDrawElementsInstancedBaseVertexBaseInstanceFn> fDrawElementsInstancedBaseVertexBaseInstance;
         GrGLFunction<GrGLMultiDrawArraysIndirectFn> fMultiDrawArraysIndirect;
         GrGLFunction<GrGLMultiDrawElementsIndirectFn> fMultiDrawElementsIndirect;
