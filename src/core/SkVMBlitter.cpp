@@ -104,307 +104,302 @@ namespace {
 
     static void release_program_cache() { }
 
+    // If build_program() can't build this program, cache_key() sets *ok to false.
+    static Key cache_key(const Params& params,
+                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc, bool* ok) {
+        auto hash_shader = [&](const sk_sp<SkShader>& shader) {
+            const SkShaderBase* sb = as_SB(shader);
+            skvm::Builder p;
 
-    struct Builder : public skvm::Builder {
-
-        // If Builder can't build this program, CacheKey() sets *ok to false.
-        static Key CacheKey(const Params& params,
-                            skvm::Uniforms* uniforms,
-                            SkArenaAlloc* alloc,
-                            bool* ok) {
-
-            auto hash_shader = [&](const sk_sp<SkShader>& shader) {
-                const SkShaderBase* sb = as_SB(shader);
-                skvm::Builder p;
-
-                skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
-                             - p.index(),
-                          dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-                skvm::F32 x = p.to_f32(dx) + 0.5f,
-                          y = p.to_f32(dy) + 0.5f;
-
-                skvm::Color paint = {
-                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
-                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
-                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
-                    p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
-                };
-
-                uint64_t hash = 0;
-                if (auto c = sb->program(&p,
-                                         x,y, paint,
-                                         params.ctm, /*localM=*/nullptr,
-                                         params.quality, params.dst,
-                                         uniforms,alloc)) {
-                    hash = p.hash();
-                    // p.hash() folds in all instructions to produce r,g,b,a but does not know
-                    // precisely which value we'll treat as which channel.  Imagine the shader
-                    // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
-                    // We'll fold the hash of their IDs in order to disambiguate.
-                    const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
-                    hash ^= SkOpts::hash(outputs, sizeof(outputs));
-                } else {
-                    *ok = false;
-                }
-                return hash;
-            };
-
-            SkASSERT(params.shader);
-            uint64_t shaderHash = hash_shader(params.shader);
-
-            uint64_t clipHash = 0;
-            if (params.clip) {
-                clipHash = hash_shader(params.clip);
-                if (clipHash == 0) {
-                    clipHash = 1;
-                }
-            }
-
-            switch (params.dst.colorType()) {
-                default: *ok = false;
-                         break;
-
-                case kRGB_565_SkColorType:
-                case kRGB_888x_SkColorType:
-                case kRGBA_8888_SkColorType:
-                case kBGRA_8888_SkColorType:
-                case kRGBA_1010102_SkColorType:
-                case kBGRA_1010102_SkColorType:
-                case kRGB_101010x_SkColorType:
-                case kBGR_101010x_SkColorType:  break;
-            }
-
-            return {
-                shaderHash,
-                  clipHash,
-                params.dst.colorSpace() ? params.dst.colorSpace()->hash() : 0,
-                SkToU8(params.dst.colorType()),
-                SkToU8(params.dst.alphaType()),
-                SkToU8(params.blendMode),
-                SkToU8(params.coverage),
-            };
-        }
-
-        Builder(const Params& params, skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
-            // First two arguments are always uniforms and the destination buffer.
-            uniforms->base    = uniform();
-            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
-            // Other arguments depend on params.coverage:
-            //    - Full:      (no more arguments)
-            //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
-            //    - MaskA8:    8-bit coverage varying
-            //    - MaskLCD16: 565 coverage varying
-            //    - UniformA8: 8-bit coverage uniform
-
-            skvm::I32 dx = uniform32(uniforms->base, offsetof(BlitterUniforms, right))
-                         - index(),
-                      dy = uniform32(uniforms->base, offsetof(BlitterUniforms, y));
+            skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                         - p.index(),
+                      dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
             skvm::F32 x = to_f32(dx) + 0.5f,
                       y = to_f32(dy) + 0.5f;
 
             skvm::Color paint = {
-                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
-                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
-                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
-                uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
             };
 
-            skvm::Color src = as_SB(params.shader)->program(this, x,y, paint,
-                                                            params.ctm, /*localM=*/nullptr,
-                                                            params.quality, params.dst,
-                                                            uniforms, alloc);
-            SkASSERT(src);
-            if (params.coverage == Coverage::Mask3D) {
-                skvm::F32 M = from_unorm(8, load8(varying<uint8_t>())),
-                          A = from_unorm(8, load8(varying<uint8_t>()));
-
-                src.r = min(mad(src.r, M, A), src.a);
-                src.g = min(mad(src.g, M, A), src.a);
-                src.b = min(mad(src.b, M, A), src.a);
+            uint64_t hash = 0;
+            if (auto c = sb->program(&p,
+                                     x,y, paint,
+                                     params.ctm, /*localM=*/nullptr,
+                                     params.quality, params.dst,
+                                     uniforms,alloc)) {
+                hash = p.hash();
+                // p.hash() folds in all instructions to produce r,g,b,a but does not know
+                // precisely which value we'll treat as which channel.  Imagine the shader
+                // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
+                // We'll fold the hash of their IDs in order to disambiguate.
+                const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
+                hash ^= SkOpts::hash(outputs, sizeof(outputs));
+            } else {
+                *ok = false;
             }
+            return hash;
+        };
 
-            // If we can determine this we can skip a fair bit of clamping!
-            bool src_in_gamut = false;
+        SkASSERT(params.shader);
+        uint64_t shaderHash = hash_shader(params.shader);
 
-            // Normalized premul formats can surprisingly represent some out-of-gamut
-            // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
-            // working with normalized premul colors is not prepared to handle r,g,b > a.
-            // So we clamp the shader to gamut here before blending and coverage.
-            //
-            // In addition, GL clamps all its color channels to limits of the format just
-            // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
-            // [0,1] too, just in case someone gave us a crazy alpha.
-            if (!src_in_gamut
-                    && params.dst.alphaType() == kPremul_SkAlphaType
-                    && SkColorTypeIsNormalized(params.dst.colorType())) {
-                src.a = clamp(src.a, 0.0f,  1.0f);
-                src.r = clamp(src.r, 0.0f, src.a);
-                src.g = clamp(src.g, 0.0f, src.a);
-                src.b = clamp(src.b, 0.0f, src.a);
-                src_in_gamut = true;
-            }
-
-            // There are several orderings here of when we load dst and coverage
-            // and how coverage is applied, and to complicate things, LCD coverage
-            // needs to know dst.a.  We're careful to assert it's loaded in time.
-            skvm::Color dst;
-            SkDEBUGCODE(bool dst_loaded = false;)
-
-            // load_coverage() returns false when there's no need to apply coverage.
-            auto load_coverage = [&](skvm::Color* cov) {
-                bool partial_coverage = true;
-                switch (params.coverage) {
-                    case Coverage::Full: cov->r = cov->g = cov->b = cov->a = splat(1.0f);
-                                         partial_coverage = false;
-                                         break;
-
-                    case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              from_unorm(8, uniform8(uniform(), 0));
-                                              break;
-
-                    case Coverage::Mask3D:
-                    case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                           from_unorm(8, load8(varying<uint8_t>()));
-                                           break;
-
-                    case Coverage::MaskLCD16:
-                        SkASSERT(dst_loaded);
-                        *cov = unpack_565(load16(varying<uint16_t>()));
-                        cov->a = select(src.a < dst.a, min(cov->r, min(cov->g, cov->b))
-                                                     , max(cov->r, max(cov->g, cov->b)));
-                        break;
-                }
-
-                if (params.clip) {
-                    skvm::Color clip = as_SB(params.clip)->program(this, x,y, paint,
-                                                                   params.ctm, /*localM=*/nullptr,
-                                                                   params.quality, params.dst,
-                                                                   uniforms, alloc);
-                    SkAssertResult(clip);
-                    cov->r *= clip.a;  // We use the alpha channel of clip for all four.
-                    cov->g *= clip.a;
-                    cov->b *= clip.a;
-                    cov->a *= clip.a;
-                    return true;
-                }
-
-                return partial_coverage;
-            };
-
-            // The math for some blend modes lets us fold coverage into src before the blend,
-            // obviating the need for the lerp afterwards. This early-coverage strategy tends
-            // to be both faster and require fewer registers.
-            bool lerp_coverage_post_blend = true;
-            if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
-                                                   params.coverage == Coverage::MaskLCD16)) {
-                skvm::Color cov;
-                if (load_coverage(&cov)) {
-                    src.r *= cov.r;
-                    src.g *= cov.g;
-                    src.b *= cov.b;
-                    src.a *= cov.a;
-                }
-                lerp_coverage_post_blend = false;
-            }
-
-            // Load up the destination color.
-            SkDEBUGCODE(dst_loaded = true;)
-            switch (params.dst.colorType()) {
-                default: SkUNREACHABLE;
-                case kRGB_565_SkColorType: dst = unpack_565(load16(dst_ptr));
-                                           break;
-
-                case  kRGB_888x_SkColorType: [[fallthrough]];
-                case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
-                                             break;
-
-                case kBGRA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
-                                             std::swap(dst.r, dst.b);
-                                             break;
-
-                case  kRGB_101010x_SkColorType: [[fallthrough]];
-                case kRGBA_1010102_SkColorType: dst = unpack_1010102(load32(dst_ptr));
-                                                break;
-
-                case  kBGR_101010x_SkColorType: [[fallthrough]];
-                case kBGRA_1010102_SkColorType: dst = unpack_1010102(load32(dst_ptr));
-                                                std::swap(dst.r, dst.b);
-                                                break;
-            }
-
-            // When a destination is known opaque, we may assume it both starts and stays fully
-            // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
-            if (params.dst.isOpaque()) {
-                dst.a = splat(1.0f);
-            } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
-                dst = premul(dst);
-            }
-
-            src = this->blend(params.blendMode, src, dst);
-
-            // Lerp with coverage post-blend if needed.
-            if (skvm::Color cov; lerp_coverage_post_blend && load_coverage(&cov)) {
-                src.r = lerp(dst.r, src.r, cov.r);
-                src.g = lerp(dst.g, src.g, cov.g);
-                src.b = lerp(dst.b, src.b, cov.b);
-                src.a = lerp(dst.a, src.a, cov.a);
-            }
-
-            if (params.dst.isOpaque()) {
-                src.a = splat(1.0f);
-            } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
-                src = unpremul(src);
-            }
-
-            // Clamp to fit destination color format if needed.
-            if (src_in_gamut) {
-                // An in-gamut src blended with an in-gamut dst should stay in gamut.
-                // Being in-gamut implies all channels are in [0,1], so no need to clamp.
-                // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
-                skvm::F32 lo = bit_cast(splat(0xb400'0000)),
-                          hi = bit_cast(splat(0x3f80'0001));
-                assert_true(src.r == clamp(src.r, lo, hi), src.r);
-                assert_true(src.g == clamp(src.g, lo, hi), src.g);
-                assert_true(src.b == clamp(src.b, lo, hi), src.b);
-                assert_true(src.a == clamp(src.a, lo, hi), src.a);
-            } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
-                src.r = clamp01(src.r);
-                src.g = clamp01(src.g);
-                src.b = clamp01(src.b);
-                src.a = clamp01(src.a);
-            }
-
-            // Store back to the destination.
-            switch (params.dst.colorType()) {
-                default: SkUNREACHABLE;
-
-                case kRGB_565_SkColorType:
-                    store16(dst_ptr, pack(pack(to_unorm(5,src.b),
-                                               to_unorm(6,src.g), 5),
-                                               to_unorm(5,src.r),11));
-                    break;
-
-                case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  [[fallthrough]];
-                case  kRGB_888x_SkColorType:                           [[fallthrough]];
-                case kRGBA_8888_SkColorType:
-                     store32(dst_ptr, pack(pack(to_unorm(8, src.r),
-                                                to_unorm(8, src.g), 8),
-                                           pack(to_unorm(8, src.b),
-                                                to_unorm(8, src.a), 8), 16));
-                     break;
-
-                case  kBGR_101010x_SkColorType:                          [[fallthrough]];
-                case kBGRA_1010102_SkColorType: std::swap(src.r, src.b); [[fallthrough]];
-                case  kRGB_101010x_SkColorType:                          [[fallthrough]];
-                case kRGBA_1010102_SkColorType:
-                     store32(dst_ptr, pack(pack(to_unorm(10, src.r),
-                                                to_unorm(10, src.g), 10),
-                                           pack(to_unorm(10, src.b),
-                                                to_unorm( 2, src.a), 10), 20));
-                     break;
+        uint64_t clipHash = 0;
+        if (params.clip) {
+            clipHash = hash_shader(params.clip);
+            if (clipHash == 0) {
+                clipHash = 1;
             }
         }
-    };
+
+        switch (params.dst.colorType()) {
+            default: *ok = false;
+                     break;
+
+            case kRGB_565_SkColorType:
+            case kRGB_888x_SkColorType:
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType:
+            case kRGBA_1010102_SkColorType:
+            case kBGRA_1010102_SkColorType:
+            case kRGB_101010x_SkColorType:
+            case kBGR_101010x_SkColorType:  break;
+        }
+
+        return {
+            shaderHash,
+              clipHash,
+            params.dst.colorSpace() ? params.dst.colorSpace()->hash() : 0,
+            SkToU8(params.dst.colorType()),
+            SkToU8(params.dst.alphaType()),
+            SkToU8(params.blendMode),
+            SkToU8(params.coverage),
+        };
+    }
+
+    static void build_program(skvm::Builder* p, const Params& params,
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+        // First two arguments are always uniforms and the destination buffer.
+        uniforms->base    = p->uniform();
+        skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+        // Other arguments depend on params.coverage:
+        //    - Full:      (no more arguments)
+        //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
+        //    - MaskA8:    8-bit coverage varying
+        //    - MaskLCD16: 565 coverage varying
+        //    - UniformA8: 8-bit coverage uniform
+
+        skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                     - p->index(),
+                  dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
+        skvm::F32 x = to_f32(dx) + 0.5f,
+                  y = to_f32(dy) + 0.5f;
+
+        skvm::Color paint = {
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+        };
+
+        skvm::Color src = as_SB(params.shader)->program(p, x,y, paint,
+                                                        params.ctm, /*localM=*/nullptr,
+                                                        params.quality, params.dst,
+                                                        uniforms, alloc);
+        SkASSERT(src);
+        if (params.coverage == Coverage::Mask3D) {
+            skvm::F32 M = from_unorm(8, p->load8(p->varying<uint8_t>())),
+                      A = from_unorm(8, p->load8(p->varying<uint8_t>()));
+
+            src.r = min(src.r * M + A, src.a);
+            src.g = min(src.g * M + A, src.a);
+            src.b = min(src.b * M + A, src.a);
+        }
+
+        // If we can determine this we can skip a fair bit of clamping!
+        bool src_in_gamut = false;
+
+        // Normalized premul formats can surprisingly represent some out-of-gamut
+        // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
+        // working with normalized premul colors is not prepared to handle r,g,b > a.
+        // So we clamp the shader to gamut here before blending and coverage.
+        //
+        // In addition, GL clamps all its color channels to limits of the format just
+        // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
+        // [0,1] too, just in case someone gave us a crazy alpha.
+        if (!src_in_gamut
+                && params.dst.alphaType() == kPremul_SkAlphaType
+                && SkColorTypeIsNormalized(params.dst.colorType())) {
+            src.a = clamp(src.a, 0.0f,  1.0f);
+            src.r = clamp(src.r, 0.0f, src.a);
+            src.g = clamp(src.g, 0.0f, src.a);
+            src.b = clamp(src.b, 0.0f, src.a);
+            src_in_gamut = true;
+        }
+
+        // There are several orderings here of when we load dst and coverage
+        // and how coverage is applied, and to complicate things, LCD coverage
+        // needs to know dst.a.  We're careful to assert it's loaded in time.
+        skvm::Color dst;
+        SkDEBUGCODE(bool dst_loaded = false;)
+
+        // load_coverage() returns false when there's no need to apply coverage.
+        auto load_coverage = [&](skvm::Color* cov) {
+            bool partial_coverage = true;
+            switch (params.coverage) {
+                case Coverage::Full: cov->r = cov->g = cov->b = cov->a = p->splat(1.0f);
+                                     partial_coverage = false;
+                                     break;
+
+                case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
+                                          from_unorm(8, p->uniform8(p->uniform(), 0));
+                                          break;
+
+                case Coverage::Mask3D:
+                case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
+                                       from_unorm(8, p->load8(p->varying<uint8_t>()));
+                                       break;
+
+                case Coverage::MaskLCD16:
+                    SkASSERT(dst_loaded);
+                    *cov = unpack_565(p->load16(p->varying<uint16_t>()));
+                    cov->a = select(src.a < dst.a, min(cov->r, min(cov->g, cov->b))
+                                                 , max(cov->r, max(cov->g, cov->b)));
+                    break;
+            }
+
+            if (params.clip) {
+                skvm::Color clip = as_SB(params.clip)->program(p, x,y, paint,
+                                                               params.ctm, /*localM=*/nullptr,
+                                                               params.quality, params.dst,
+                                                               uniforms, alloc);
+                SkAssertResult(clip);
+                cov->r *= clip.a;  // We use the alpha channel of clip for all four.
+                cov->g *= clip.a;
+                cov->b *= clip.a;
+                cov->a *= clip.a;
+                return true;
+            }
+
+            return partial_coverage;
+        };
+
+        // The math for some blend modes lets us fold coverage into src before the blend,
+        // obviating the need for the lerp afterwards. This early-coverage strategy tends
+        // to be both faster and require fewer registers.
+        bool lerp_coverage_post_blend = true;
+        if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
+                                               params.coverage == Coverage::MaskLCD16)) {
+            skvm::Color cov;
+            if (load_coverage(&cov)) {
+                src.r *= cov.r;
+                src.g *= cov.g;
+                src.b *= cov.b;
+                src.a *= cov.a;
+            }
+            lerp_coverage_post_blend = false;
+        }
+
+        // Load up the destination color.
+        SkDEBUGCODE(dst_loaded = true;)
+        switch (params.dst.colorType()) {
+            default: SkUNREACHABLE;
+            case kRGB_565_SkColorType: dst = unpack_565(p->load16(dst_ptr));
+                                       break;
+
+            case  kRGB_888x_SkColorType: [[fallthrough]];
+            case kRGBA_8888_SkColorType: dst = unpack_8888(p->load32(dst_ptr));
+                                         break;
+
+            case kBGRA_8888_SkColorType: dst = unpack_8888(p->load32(dst_ptr));
+                                         std::swap(dst.r, dst.b);
+                                         break;
+
+            case  kRGB_101010x_SkColorType: [[fallthrough]];
+            case kRGBA_1010102_SkColorType: dst = unpack_1010102(p->load32(dst_ptr));
+                                            break;
+
+            case  kBGR_101010x_SkColorType: [[fallthrough]];
+            case kBGRA_1010102_SkColorType: dst = unpack_1010102(p->load32(dst_ptr));
+                                            std::swap(dst.r, dst.b);
+                                            break;
+        }
+
+        // When a destination is known opaque, we may assume it both starts and stays fully
+        // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
+        if (params.dst.isOpaque()) {
+            dst.a = p->splat(1.0f);
+        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            dst = premul(dst);
+        }
+
+        src = blend(params.blendMode, src, dst);
+
+        // Lerp with coverage post-blend if needed.
+        if (skvm::Color cov; lerp_coverage_post_blend && load_coverage(&cov)) {
+            src.r = lerp(dst.r, src.r, cov.r);
+            src.g = lerp(dst.g, src.g, cov.g);
+            src.b = lerp(dst.b, src.b, cov.b);
+            src.a = lerp(dst.a, src.a, cov.a);
+        }
+
+        if (params.dst.isOpaque()) {
+            src.a = p->splat(1.0f);
+        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            src = unpremul(src);
+        }
+
+        // Clamp to fit destination color format if needed.
+        if (src_in_gamut) {
+            // An in-gamut src blended with an in-gamut dst should stay in gamut.
+            // Being in-gamut implies all channels are in [0,1], so no need to clamp.
+            // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
+            skvm::F32 lo = bit_cast(p->splat(0xb400'0000)),
+                      hi = bit_cast(p->splat(0x3f80'0001));
+            assert_true(src.r == clamp(src.r, lo, hi), src.r);
+            assert_true(src.g == clamp(src.g, lo, hi), src.g);
+            assert_true(src.b == clamp(src.b, lo, hi), src.b);
+            assert_true(src.a == clamp(src.a, lo, hi), src.a);
+        } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
+            src.r = clamp01(src.r);
+            src.g = clamp01(src.g);
+            src.b = clamp01(src.b);
+            src.a = clamp01(src.a);
+        }
+
+        // Store back to the destination.
+        switch (params.dst.colorType()) {
+            default: SkUNREACHABLE;
+
+            case kRGB_565_SkColorType:
+                store16(dst_ptr, pack(pack(to_unorm(5,src.b),
+                                           to_unorm(6,src.g), 5),
+                                           to_unorm(5,src.r),11));
+                break;
+
+            case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  [[fallthrough]];
+            case  kRGB_888x_SkColorType:                           [[fallthrough]];
+            case kRGBA_8888_SkColorType:
+                 store32(dst_ptr, pack(pack(to_unorm(8, src.r),
+                                            to_unorm(8, src.g), 8),
+                                       pack(to_unorm(8, src.b),
+                                            to_unorm(8, src.a), 8), 16));
+                 break;
+
+            case  kBGR_101010x_SkColorType:                          [[fallthrough]];
+            case kBGRA_1010102_SkColorType: std::swap(src.r, src.b); [[fallthrough]];
+            case  kRGB_101010x_SkColorType:                          [[fallthrough]];
+            case kRGBA_1010102_SkColorType:
+                 store32(dst_ptr, pack(pack(to_unorm(10, src.r),
+                                            to_unorm(10, src.g), 10),
+                                       pack(to_unorm(10, src.b),
+                                            to_unorm( 2, src.a), 10), 20));
+                 break;
+        }
+    }
+
 
     struct NoopColorFilter : public SkColorFilter {
         skvm::Color onProgram(skvm::Builder*, skvm::Color c,
@@ -563,7 +558,7 @@ namespace {
             : fDevice(device)
             , fUniforms(kBlitterUniformsCount)
             , fParams(effective_params(device, paint, ctm, std::move(clip)))
-            , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
+            , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
             , fPaint([&]{
                 SkColor4f color = paint.getColor4f();
                 SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
@@ -627,7 +622,8 @@ namespace {
             // fUniforms should reuse the exact same memory, so this is very cheap.
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);
-            Builder builder{fParams.withCoverage(coverage), &fUniforms, &fAlloc};
+            skvm::Builder builder;
+            build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
             SkASSERTF(fUniforms.buf.size() == prev,
                       "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
