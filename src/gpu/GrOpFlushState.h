@@ -69,7 +69,7 @@ public:
         }
 
         GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
-        GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
+        GrSwizzle writeSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
         const GrSurfaceProxyView* outputView() const { return fSurfaceView; }

@@ -71,7 +71,7 @@ public:
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstProxyView fDstProxyView;
-        GrSwizzle fOutputSwizzle;
+        GrSwizzle fWriteSwizzle;
     };
 
     /**
@@ -79,14 +79,20 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrScissorTest scissor, SkBlendMode blend, const GrSwizzle& outputSwizzle,
+    GrPipeline(GrScissorTest scissor,
+               SkBlendMode blend,
+               const GrSwizzle& writeSwizzle,
                InputFlags flags = InputFlags::kNone,
                const GrUserStencilSettings* stencil = &GrUserStencilSettings::kUnused)
-            : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
-                         flags, stencil) {
-    }
+            : GrPipeline(scissor,
+                         GrPorterDuffXPFactory::MakeNoCoverageXP(blend),
+                         writeSwizzle,
+                         flags,
+                         stencil) {}
 
-    GrPipeline(GrScissorTest, sk_sp<const GrXferProcessor>, const GrSwizzle& outputSwizzle,
+    GrPipeline(GrScissorTest,
+               sk_sp<const GrXferProcessor>,
+               const GrSwizzle& writeSwizzle,
                InputFlags = InputFlags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
@@ -204,7 +210,7 @@ public:
     // Used by Vulkan and Metal to cache their respective pipeline objects
     void genKey(GrProcessorKeyBuilder*, const GrCaps&) const;
 
-    const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
+    const GrSwizzle& writeSwizzle() const { return fWriteSwizzle; }
 
     void visitProxies(const GrOp::VisitProxyFunc&) const;
 
@@ -235,7 +241,7 @@ private:
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors = 0;
 
-    GrSwizzle fOutputSwizzle;
+    GrSwizzle fWriteSwizzle;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags);

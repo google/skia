@@ -232,7 +232,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fOutputSwizzle = programInfo.pipeline().outputSwizzle().asKey();
+    header->fWriteSwizzle = programInfo.pipeline().writeSwizzle().asKey();
     header->fColorFragmentProcessorCnt = programInfo.pipeline().numColorFragmentProcessors();
     header->fCoverageFragmentProcessorCnt = programInfo.pipeline().numCoverageFragmentProcessors();
     // Fail if the client requested more processors than the key can fit.

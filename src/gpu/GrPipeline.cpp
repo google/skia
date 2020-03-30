@@ -15,9 +15,10 @@
 
 #include "src/gpu/ops/GrOp.h"
 
-GrPipeline::GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor> xferProcessor,
+GrPipeline::GrPipeline(const InitArgs& args,
+                       sk_sp<const GrXferProcessor> xferProcessor,
                        const GrAppliedHardClip& hardClip)
-        : fOutputSwizzle(args.fOutputSwizzle) {
+        : fWriteSwizzle(args.fWriteSwizzle) {
     fFlags = (Flags)args.fInputFlags;
     if (hardClip.hasStencilClip()) {
         fFlags |= Flags::kHasStencilClip;
@@ -68,13 +69,15 @@ GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& 
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> xp,
-                       const GrSwizzle& outputSwizzle, InputFlags inputFlags,
+GrPipeline::GrPipeline(GrScissorTest scissorTest,
+                       sk_sp<const GrXferProcessor> xp,
+                       const GrSwizzle& writeSwizzle,
+                       InputFlags inputFlags,
                        const GrUserStencilSettings* userStencil)
         : fWindowRectsState()
         , fFlags((Flags)inputFlags)
         , fXferProcessor(std::move(xp))
-        , fOutputSwizzle(outputSwizzle) {
+        , fWriteSwizzle(writeSwizzle) {
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= Flags::kScissorTestEnabled;
     }

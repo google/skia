@@ -104,13 +104,14 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     }
 
     // Swizzle the fragment shader outputs if necessary.
-    this->emitOutputSwizzle(
-            args.fXPFragBuilder, args.fOutputSwizzle, args.fOutputPrimary, args.fOutputSecondary);
+    this->emitWriteSwizzle(args.fXPFragBuilder, args.fWriteSwizzle, args.fOutputPrimary,
+                           args.fOutputSecondary);
 }
 
-void GrGLSLXferProcessor::emitOutputSwizzle(
-        GrGLSLXPFragmentBuilder* x, const GrSwizzle& swizzle, const char* outColor,
-        const char* outColorSecondary) const {
+void GrGLSLXferProcessor::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
+                                           const GrSwizzle& swizzle,
+                                           const char* outColor,
+                                           const char* outColorSecondary) const {
     if (GrSwizzle::RGBA() != swizzle) {
         x->codeAppendf("%s = %s.%s;", outColor, outColor, swizzle.asString().c_str());
         if (outColorSecondary) {
