@@ -644,6 +644,7 @@ bool GrContext::precompileShader(const SkData& key, const SkData& data) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+#include "include/core/SkString.h"
 #include "src/utils/SkJSONWriter.h"
 SkString GrContext::dump() const {
     SkDynamicMemoryWStream stream;
