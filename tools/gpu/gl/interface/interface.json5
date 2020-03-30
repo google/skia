@@ -172,17 +172,16 @@
   {
     "GL":    [{"min_version": [4, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_base_instance"}],
-    "GLES":  [{"ext": "GL_EXT_base_instance"}],
+    "GLES":  [{"ext": "GL_EXT_base_instance"},
+              {/*    else if      */  "ext": "GL_ANGLE_base_vertex_base_instance"}],
     "WebGL": null,
 
     "functions": [
-      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseInstance",
-      "DrawElementsInstancedBaseVertexBaseInstance"
+      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
     ],
     "optional": [
-      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseInstance",
-      "DrawElementsInstancedBaseVertexBaseInstance"
-    ]
+      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
+    ],
   },
 
   { // ES 3.0 has glDrawBuffers but not glDrawBuffer

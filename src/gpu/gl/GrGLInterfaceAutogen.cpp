@@ -238,7 +238,8 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(4,2)) ||
           fExtensions.has("GL_ARB_base_instance"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_EXT_base_instance")))) {
+          fExtensions.has("GL_EXT_base_instance") ||
+          fExtensions.has("GL_ANGLE_base_vertex_base_instance")))) {
         // all functions were marked optional or test_only
     }
 

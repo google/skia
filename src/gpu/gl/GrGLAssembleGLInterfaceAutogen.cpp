@@ -205,11 +205,9 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
 
     if (glVer >= GR_GL_VER(4,2)) {
         GET_PROC(DrawArraysInstancedBaseInstance);
-        GET_PROC(DrawElementsInstancedBaseInstance);
         GET_PROC(DrawElementsInstancedBaseVertexBaseInstance);
     } else if (extensions.has("GL_ARB_base_instance")) {
         GET_PROC(DrawArraysInstancedBaseInstance);
-        GET_PROC(DrawElementsInstancedBaseInstance);
         GET_PROC(DrawElementsInstancedBaseVertexBaseInstance);
     }
 
