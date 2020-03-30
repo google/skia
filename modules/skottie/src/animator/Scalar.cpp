@@ -54,7 +54,7 @@ private:
         : INHERITED(std::move(kfs), std::move(cms))
         , fTarget(target_value) {}
 
-    bool onSeek(float t) override {
+    StateChanged onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
         const auto  old_value = *fTarget;
 
