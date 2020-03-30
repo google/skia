@@ -272,40 +272,44 @@ DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
     draw_batching(canvas);
 }
 
-DEF_SIMPLE_GM(vertices_data, canvas, 500, 500) {
-    SkRect r = { 10, 10, 480, 480 };
-    int vcount = 4; // just a quad
-    int icount = 0;
-    SkVertices::CustomLayout customLayout { 4 }; // rgba values for now
-    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, customLayout);
+using AttrType = SkVertices::Attribute::Type;
 
-    // build the quad
-    SkPoint* pos = builder.positions();
-    pos[0] = {r.fLeft, r.fTop};
-    pos[1] = {r.fRight, r.fTop};
-    pos[2] = {r.fRight, r.fBottom};
-    pos[3] = {r.fLeft, r.fBottom};
+DEF_SIMPLE_GM(vertices_data, canvas, 512, 256) {
+    for (auto attrType : {AttrType::kFloat4, AttrType::kByte4_unorm}) {
+        SkRect r = SkRect::MakeWH(256, 256);
+        int vcount = 4;  // just a quad
+        int icount = 0;
+        SkVertices::Attribute attrs[] = { attrType };
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, vcount, icount, attrs, 1);
 
-    SkV4* col = (SkV4*)builder.perVertexData();
-    // We happen to treat the 4 fields as RGBA, in coordination with a hack in the raster-impl.
-    // In the future, these fields will just be passed to whatever SkSL we provide in the paint's
-    // shader.
-    col[0] = {1, 0, 0, 1};  // red
-    col[1] = {0, 1, 0, 1};  // green
-    col[2] = {0, 0, 1, 1};  // blue
-    col[3] = {0.5, 0.5, 0.5, 1};    // gray
+        r.toQuad(builder.positions());
 
-    auto vert = builder.detach();
-    SkPaint paint;
-    const char* gProg = R"(
-        varying float4 vtx_color;
-        void main(float2 p, inout half4 color) {
-            color = half4(vtx_color);
+        if (attrType == AttrType::kFloat4) {
+            SkV4* col = (SkV4*)builder.customData();
+            col[0] = {1, 0, 0, 1};        // red
+            col[1] = {0, 1, 0, 1};        // green
+            col[2] = {0, 0, 1, 1};        // blue
+            col[3] = {0.5, 0.5, 0.5, 1};  // gray
+        } else {
+            uint32_t* col = (uint32_t*)builder.customData();
+            col[0] = 0xFF0000FF;
+            col[1] = 0xFF00FF00;
+            col[2] = 0xFFFF0000;
+            col[3] = 0xFF7F7F7F;
         }
-    )";
-    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
-    paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, true));
-    canvas->drawVertices(vert, paint);
+
+        SkPaint paint;
+        const char* gProg = R"(
+            varying float4 vtx_color;
+            void main(float2 p, inout half4 color) {
+                color = half4(vtx_color);
+            }
+        )";
+        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+        paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, true));
+        canvas->drawVertices(builder.detach(), paint);
+        canvas->translate(r.width(), 0);
+    }
 }
 
 // Test case for skbug.com/10069. We need to draw the vertices twice (with different matrices) to
@@ -354,15 +358,16 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
     auto patchVerts = SkPatchUtils::MakeVertices(pts, nullptr, nullptr, 12, 12);
     SkVerticesPriv pv(patchVerts->priv());
 
-    SkVertices::CustomLayout customLayout { 1 };
-    SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), customLayout);
+    SkVertices::Attribute attrs[1] = { AttrType::kFloat };
+    SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), attrs, 1);
 
     memcpy(builder.positions(), pv.positions(), pv.vertexCount() * sizeof(SkPoint));
     memcpy(builder.indices(), pv.indices(), pv.indexCount() * sizeof(uint16_t));
 
     SkRandom rnd;
+    float* lerpData = (float*)builder.customData();
     for (int i = 0; i < pv.vertexCount(); ++i) {
-        builder.perVertexData()[i] = rnd.nextBool() ? 1.0f : 0.0f;
+        lerpData[i] = rnd.nextBool() ? 1.0f : 0.0f;
     }
 
     auto verts = builder.detach();

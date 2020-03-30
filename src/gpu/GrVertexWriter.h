@@ -99,6 +99,11 @@ struct GrVertexWriter {
         this->write(remainder...);
     }
 
+    void writeRaw(const void* data, size_t size) {
+        memcpy(fPtr, data, size);
+        fPtr = SkTAddOffset<void>(fPtr, size);
+    }
+
     void write() {}
 
     /**

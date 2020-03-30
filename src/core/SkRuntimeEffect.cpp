@@ -269,14 +269,6 @@ size_t SkRuntimeEffect::inputSize() const {
                                                 fInAndUniformVars.back().sizeInBytes());
 }
 
-int SkRuntimeEffect::varyingCount() const {
-    int count = 0;
-    for (const auto& v : fVaryings) {
-        count += v.fWidth;
-    }
-    return count;
-}
-
 SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
                                                               const void* inputs,
                                                               const SkSL::SharedCompiler& compiler) {
