@@ -123,13 +123,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         // support check is working
         {
             bool isCompressed = caps->isFormatCompressed(combo.fFormat);
-            bool isTexturable;
-            if (isCompressed) {
-                isTexturable = caps->isFormatTexturable(combo.fFormat);
-            } else {
-                isTexturable =
-                        caps->isFormatTexturableAndUploadable(combo.fColorType, combo.fFormat);
-            }
+            bool isTexturable = caps->isFormatTexturable(combo.fFormat);
 
             sk_sp<GrSurface> tex = createTexture(kDims, combo.fColorType, combo.fFormat,
                                                  GrRenderable::kNo, resourceProvider);
@@ -222,7 +216,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
             SkASSERT(combo.fColorType != GrColorType::kUnknown);
             SkASSERT(combo.fFormat.isValid());
 
-            if (!caps->isFormatTexturableAndUploadable(combo.fColorType, combo.fFormat)) {
+            if (!caps->isFormatTexturable(combo.fFormat)) {
                 continue;
             }
 

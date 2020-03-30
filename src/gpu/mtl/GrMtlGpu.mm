@@ -262,9 +262,9 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     if (width == 0 || height == 0) {
         return false;
     }
-    if (!this->mtlCaps().isFormatTexturableAndUploadable(dataColorType, tex->backendFormat())) {
-        return false;
-    }
+
+    SkASSERT(this->mtlCaps().surfaceSupportsWritePixels(tex));
+    SkASSERT(this->mtlCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
 
     id<MTLTexture> mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);

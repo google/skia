@@ -1312,18 +1312,6 @@ SkImage::CompressionType GrVkCaps::compressionType(const GrBackendFormat& format
     SkUNREACHABLE;
 }
 
-bool GrVkCaps::isFormatTexturableAndUploadable(GrColorType ct,
-                                               const GrBackendFormat& format) const {
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return false;
-    }
-
-    uint32_t ctFlags = this->getFormatInfo(vkFormat).colorTypeFlags(ct);
-    return this->isVkFormatTexturable(vkFormat) &&
-           SkToBool(ctFlags & ColorTypeInfo::kUploadData_Flag);
-}
-
 bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
@@ -1562,11 +1550,10 @@ GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
     SkUNREACHABLE;
 }
 
-GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct,
-                                                    GrRenderable renderable) const {
+GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     VkFormat format = this->getFormatFromColorType(ct);
     if (format == VK_FORMAT_UNDEFINED) {
-        return GrBackendFormat();
+        return {};
     }
     return GrBackendFormat::MakeVk(format);
 }
