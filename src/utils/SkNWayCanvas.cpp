@@ -296,9 +296,6 @@ void SkNWayCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) 
 }
 
 void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices,
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-                                        const SkVertices::Bone bones[], int boneCount,
-#endif
                                         SkBlendMode bmode, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

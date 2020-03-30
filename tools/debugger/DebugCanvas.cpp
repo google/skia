@@ -490,24 +490,12 @@ void DebugCanvas::onDrawPatch(const SkPoint  cubics[12],
     this->addDrawCommand(new DrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTS_VIRTUAL
-void DebugCanvas::onDrawVerticesObject(const SkVertices*      vertices,
-                                       const SkVertices::Bone bones[],
-                                       int                    boneCount,
-                                       SkBlendMode            bmode,
-                                       const SkPaint&         paint) {
-    // TODO: ANIMATION NOT LOGGED
-    this->addDrawCommand(
-            new DrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode, paint));
-}
-#else
 void DebugCanvas::onDrawVerticesObject(const SkVertices*      vertices,
                                        SkBlendMode            bmode,
                                        const SkPaint&         paint) {
     this->addDrawCommand(
             new DrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode, paint));
 }
-#endif
 
 void DebugCanvas::onDrawAtlas(const SkImage*  image,
                               const SkRSXform xform[],
