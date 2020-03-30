@@ -22,29 +22,29 @@ private:
     class Resource;
 
 public:
-    GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state,
-                         GrBackendObjectOwnership ownership = GrBackendObjectOwnership::kOwned)
+    GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state)
             : fInfo(info)
             , fState(std::move(state))
             , fStateExplicitlySet(true)
-            , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership)
             , fResource(new Resource(fInfo.fResource)) {
-        if (fIsBorrowed) {
-            fInfo.fResource->AddRef();
-        }
+        // gr_cp will implicitly ref the ID3D12Resource for us, so we don't need to worry about
+        // whether it's borrowed or not
     }
     virtual ~GrD3DTextureResource();
 
-    const Resource* resource() const {
+    ID3D12Resource* d3dResource() const {
         SkASSERT(fResource);
-        return fResource.get();
+        return fInfo.fResource;
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
         return GrBackendFormat::MakeDxgi(this->dxgiFormat());
     }
+    const Resource* resource() const {
+        SkASSERT(fResource);
+        return fResource.get();
+    }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
-    bool isBorrowed() const { return fIsBorrowed; }
 
     sk_sp<GrD3DResourceState> grD3DResourceState() const { return fState; }
 
@@ -64,8 +64,8 @@ public:
 
     static bool InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc, GrProtected,
                                         GrD3DTextureResourceInfo*);
-    // Destroys the internal ID3D12Resource in the GrD3DTextureResourceInfo
-    static void DestroyTextureResourceInfo(GrD3DTextureResourceInfo*);
+    // Releases the internal ID3D12Resource in the GrD3DTextureResourceInfo
+    static void ReleaseTextureResourceInfo(GrD3DTextureResourceInfo*);
 
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 
@@ -75,7 +75,6 @@ protected:
     GrD3DTextureResourceInfo fInfo;
     sk_sp<GrD3DResourceState> fState;
     bool fStateExplicitlySet;
-    bool fIsBorrowed;
 
 private:
     class Resource : public GrTextureResource {
@@ -86,7 +85,6 @@ private:
 
         Resource(ID3D12Resource* textureResource)
             : fResource(textureResource) {
-            fResource->AddRef();
         }
 
         ~Resource() override {}
@@ -100,7 +98,7 @@ private:
     private:
         void freeGPUData() const override;
 
-        ID3D12Resource* fResource;
+        mutable gr_cp<ID3D12Resource> fResource;
 
         typedef GrTextureResource INHERITED;
     };

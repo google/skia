@@ -9,6 +9,9 @@
 
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
+#include "src/gpu/d3d/GrD3DTexture.h"
+#include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
+#include "src/gpu/d3d/GrD3DUtil.h"
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrContext* context) {
@@ -133,8 +136,10 @@ void GrD3DGpu::checkForFinishedCommandLists() {
 }
 
 void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
+    SkASSERT(fCachedOpsRenderPass.get() == renderPass);
+
     // TODO: actually submit something here
-    delete renderPass;
+    fCachedOpsRenderPass.reset();
 }
 
 void GrD3DGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* sampleLocations) {
@@ -149,8 +154,57 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
                                            GrProtected isProtected,
                                            int mipLevelCount,
                                            uint32_t levelClearMask) {
-    // TODO
-    return nullptr;
+    DXGI_FORMAT dxgiFormat;
+    SkAssertResult(format.asDxgiFormat(&dxgiFormat));
+    SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
+
+    D3D12_RESOURCE_FLAGS usageFlags = D3D12_RESOURCE_FLAG_NONE;
+
+    if (renderable == GrRenderable::kYes) {
+        usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    }
+
+    // This desc refers to the texture that will be read by the client. Thus even if msaa is
+    // requested, this describes the resolved texture. Therefore we always have samples set
+    // to 1.
+    SkASSERT(mipLevelCount > 0);
+    D3D12_RESOURCE_DESC resourceDesc;
+    resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    // TODO: will use 4MB alignment for MSAA textures and 64KB for everything else
+    //       might want to manually set alignment to 4KB for smaller textures
+    resourceDesc.Alignment = 0;
+    resourceDesc.Width = dimensions.fWidth;
+    resourceDesc.Height = dimensions.fHeight;
+    resourceDesc.DepthOrArraySize = 1;
+    resourceDesc.MipLevels = mipLevelCount;
+    resourceDesc.Format = dxgiFormat;
+    resourceDesc.SampleDesc.Count = 1;
+    resourceDesc.SampleDesc.Quality = 0; // quality levels are only supported for tiled resources
+                                         // so ignore for now
+    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle for now
+    resourceDesc.Flags = usageFlags;
+
+    GrMipMapsStatus mipMapsStatus =
+        mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+
+    sk_sp<GrD3DTexture> tex;
+    if (renderable == GrRenderable::kYes) {
+        tex = GrD3DTextureRenderTarget::MakeNewTextureRenderTarget(
+                this, budgeted, dimensions, renderTargetSampleCnt, resourceDesc, isProtected,
+                mipMapsStatus);
+    } else {
+        tex = GrD3DTexture::MakeNewTexture(this, budgeted, dimensions, resourceDesc, isProtected,
+                                           mipMapsStatus);
+    }
+
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (levelClearMask) {
+        // TODO
+    }
+    return std::move(tex);
 }
 
 sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
@@ -163,17 +217,88 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     return nullptr;
 }
 
+static bool check_resource_info(const GrD3DCaps& caps,
+                                const GrD3DTextureResourceInfo& info,
+                                GrColorType colorType) {
+    if (!info.fResource) {
+        return false;
+    }
+
+    SkASSERTF(colorType == GrColorType::kUnknown ||
+              caps.areColorTypeAndFormatCompatible(colorType,
+                                                   GrBackendFormat::MakeDxgi(info.fFormat)),
+              "Direct3D format/colorType mismatch - format %d colorType %d\n",
+              info.fFormat, colorType);
+    return true;
+}
+
+static bool check_tex_resource_info(const GrD3DCaps& caps, const GrD3DTextureResourceInfo& info) {
+    if (!caps.isFormatTexturable(info.fFormat)) {
+        return false;
+    }
+    return true;
+}
+
+static bool check_rt_resource_info(const GrD3DCaps& caps, const GrD3DTextureResourceInfo& info,
+                                int sampleCnt) {
+    if (!caps.isFormatRenderable(info.fFormat, sampleCnt)) {
+        return false;
+    }
+    return true;
+}
+
 sk_sp<GrTexture> GrD3DGpu::onWrapBackendTexture(const GrBackendTexture& tex, GrColorType colorType,
-                                                GrWrapOwnership ownership,
-                                                GrWrapCacheable wrapType, GrIOType ioType) {
-    // TODO
-    return nullptr;
+                                                GrWrapOwnership, GrWrapCacheable wrapType,
+                                                GrIOType ioType) {
+    GrD3DTextureResourceInfo textureInfo;
+    if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
+        return nullptr;
+    }
+
+    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+        return nullptr;
+    }
+
+    if (!check_tex_resource_info(this->d3dCaps(), textureInfo)) {
+        return nullptr;
+    }
+
+    // TODO: support protected context
+    if (tex.isProtected()) {
+        return nullptr;
+    }
+
+    sk_sp<GrD3DResourceState> state = tex.getGrD3DResourceState();
+    SkASSERT(state);
+    return GrD3DTexture::MakeWrappedTexture(this, tex.dimensions(), wrapType, ioType, textureInfo,
+                                            std::move(state));
 }
 
 sk_sp<GrTexture> GrD3DGpu::onWrapCompressedBackendTexture(const GrBackendTexture& tex,
-                                                          GrWrapOwnership ownership,
+                                                          GrWrapOwnership,
                                                           GrWrapCacheable wrapType) {
-    return nullptr;
+    GrD3DTextureResourceInfo textureInfo;
+    if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
+        return nullptr;
+    }
+
+    if (!check_resource_info(this->d3dCaps(), textureInfo, GrColorType::kUnknown)) {
+        return nullptr;
+    }
+
+    if (!check_tex_resource_info(this->d3dCaps(), textureInfo)) {
+        return nullptr;
+    }
+
+    // TODO: support protected context
+    if (tex.isProtected()) {
+        return nullptr;
+    }
+
+    sk_sp<GrD3DResourceState> state = tex.getGrD3DResourceState();
+    SkASSERT(state);
+    return GrD3DTexture::MakeWrappedTexture(this, tex.dimensions(), wrapType, kRead_GrIOType,
+                                            textureInfo, std::move(state));
 }
 
 sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
@@ -181,21 +306,110 @@ sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture
                                                           GrColorType colorType,
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable) {
-    // TODO
-    return nullptr;
+    GrD3DTextureResourceInfo textureInfo;
+    if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
+        return nullptr;
+    }
+
+    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+        return nullptr;
+    }
+
+    if (!check_tex_resource_info(this->d3dCaps(), textureInfo)) {
+        return nullptr;
+    }
+    if (!check_rt_resource_info(this->d3dCaps(), textureInfo, sampleCnt)) {
+        return nullptr;
+    }
+
+    // TODO: support protected context
+    if (tex.isProtected()) {
+        return nullptr;
+    }
+
+    sampleCnt = this->d3dCaps().getRenderTargetSampleCount(sampleCnt, textureInfo.fFormat);
+
+    sk_sp<GrD3DResourceState> state = tex.getGrD3DResourceState();
+    SkASSERT(state);
+
+    return GrD3DTextureRenderTarget::MakeWrappedTextureRenderTarget(this, tex.dimensions(),
+                                                                    sampleCnt, cacheable,
+                                                                    textureInfo, std::move(state));
 }
 
 sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
                                                           GrColorType colorType) {
-    // TODO
-    return nullptr;
+    // Currently the Direct3D backend does not support wrapping of msaa render targets directly. In
+    // general this is not an issue since swapchain images in D3D are never multisampled. Thus if
+    // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
+    // creating and owning the MSAA images.
+    if (rt.sampleCnt() > 1) {
+        return nullptr;
+    }
+
+    GrD3DTextureResourceInfo info;
+    if (!rt.getD3DTextureResourceInfo(&info)) {
+        return nullptr;
+    }
+
+    if (!check_resource_info(this->d3dCaps(), info, colorType)) {
+        return nullptr;
+    }
+
+    if (!check_rt_resource_info(this->d3dCaps(), info, rt.sampleCnt())) {
+        return nullptr;
+    }
+
+    // TODO: support protected context
+    if (rt.isProtected()) {
+        return nullptr;
+    }
+
+    sk_sp<GrD3DResourceState> state = rt.getGrD3DResourceState();
+
+    sk_sp<GrD3DRenderTarget> tgt = GrD3DRenderTarget::MakeWrappedRenderTarget(
+            this, rt.dimensions(), 1, info, std::move(state));
+
+    // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
+    SkASSERT(!rt.stencilBits());
+    if (tgt) {
+        SkASSERT(tgt->canAttemptStencilAttachment());
+    }
+
+    return std::move(tgt);
 }
 
 sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                    int sampleCnt,
-                                                                    GrColorType colorType) {
-    // TODO
-    return nullptr;
+                                                                   int sampleCnt,
+                                                                   GrColorType colorType) {
+
+    GrD3DTextureResourceInfo textureInfo;
+    if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
+        return nullptr;
+    }
+    if (!check_resource_info(this->d3dCaps(), textureInfo, colorType)) {
+        return nullptr;
+    }
+
+    if (!check_rt_resource_info(this->d3dCaps(), textureInfo, sampleCnt)) {
+        return nullptr;
+    }
+
+    // TODO: support protected context
+    if (tex.isProtected()) {
+        return nullptr;
+    }
+
+    sampleCnt = this->d3dCaps().getRenderTargetSampleCount(sampleCnt, textureInfo.fFormat);
+    if (!sampleCnt) {
+        return nullptr;
+    }
+
+    sk_sp<GrD3DResourceState> state = tex.getGrD3DResourceState();
+    SkASSERT(state);
+
+    return GrD3DRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt,
+                                                      textureInfo, std::move(state));
 }
 
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
@@ -211,20 +425,20 @@ GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
 }
 
 GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
-                                                   const GrBackendFormat& format,
-                                                   GrRenderable,
-                                                   GrMipMapped mipMapped,
-                                                   GrProtected,
-                                                   const BackendTextureData*) {
+                                                  const GrBackendFormat& format,
+                                                  GrRenderable,
+                                                  GrMipMapped mipMapped,
+                                                  GrProtected,
+                                                  const BackendTextureData*) {
     // TODO
     return GrBackendTexture();
 }
 
 GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                             const GrBackendFormat& format,
-                                                             GrMipMapped mipMapped,
-                                                             GrProtected,
-                                                             const BackendTextureData*) {
+                                                            const GrBackendFormat& format,
+                                                            GrMipMapped mipMapped,
+                                                            GrProtected,
+                                                            const BackendTextureData*) {
     // TODO
     return GrBackendTexture();
 }
@@ -244,7 +458,7 @@ bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 }
 
 GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                      GrColorType colorType) {
+                                                                     GrColorType colorType) {
     // TODO
     return GrBackendRenderTarget();
 }

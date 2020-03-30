@@ -17,6 +17,9 @@
 struct ID3D12Resource;
 typedef int GrD3DResourceStateEnum;
 
+// Note: there is no notion of Borrowed or Adopted resources in the D3D backend,
+// so Ganesh will ref fResource once it's asked to wrap it.
+// Clients are responsible for releasing their own ref to avoid memory leaks.
 struct GrD3DTextureResourceInfo {
     ID3D12Resource*          fResource;
     GrD3DResourceStateEnum   fResourceState;

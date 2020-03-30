@@ -999,7 +999,7 @@ bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 #endif
 
 #ifdef SK_DIRECT3D
-bool GrBackendRenderTarget::getD3DTextureInfo(GrD3DTextureResourceInfo* outInfo) const {
+bool GrBackendRenderTarget::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
         *outInfo = fD3DInfo.snapTextureResourceInfo();
         return true;
