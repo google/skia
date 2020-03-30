@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "201284e0_1de84b87",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T21:21:23Z",
+      "side": 1,
+      "message": "Yeah, -isystem support in GN would be nice.\n\nThe rest sgtm.  Don\u0027t really care either way about using third_party() or spinning out the template.... whichever makes more sense to you when it\u0027s done.",
+      "parentUuid": "c116f43e_279fcff4",
+      "revId": "c77c3dc28ebd09c646c1fa47a5b2f7a006a6856e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ad9933a_3e2809b2",
         "filename": "third_party/shaderc/BUILD.gn",
         "patchSetId": 1

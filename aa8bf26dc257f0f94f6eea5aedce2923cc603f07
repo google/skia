@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "c808fa49_c4162dec",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T21:21:23Z",
+      "side": 0,
+      "message": "Yeah, just check in with Florin to see if he did this on purpose.\n\nIf you do have to mention the copy/move etc, let\u0027s try deleting them before defaulting them?  When I see a file like this it reads to me \"I never thought about copying or moving\" not necessarily \"I want default copies\", so I\u0027d prefer deleting anything that can be deleted... we can always undelete later.",
+      "parentUuid": "5a610980_d1aab9cf",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
@@ -72,6 +90,30 @@
       "side": 0,
       "message": "No, it\u0027s needed for other things to work. In particular the one test that really wanted a move only type for correctness. Seemed simpler to just add the rvalue push_back and make things obviously right.",
       "parentUuid": "38c98594_0f32bebd",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42d114f2_56d744b4",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T21:21:23Z",
+      "side": 0,
+      "message": "Ah, gotcha.  Might want to land this first?",
+      "parentUuid": "f60c30c9_ddef22eb",
       "range": {
         "startLine": 40,
         "startChar": 0,
