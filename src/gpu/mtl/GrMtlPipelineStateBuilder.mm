@@ -287,10 +287,6 @@ static MTLBlendFactor blend_coeff_to_mtl_blend(GrBlendCoeff coeff) {
             return MTLBlendFactorBlendColor;
         case kIConstC_GrBlendCoeff:
             return MTLBlendFactorOneMinusBlendColor;
-        case kConstA_GrBlendCoeff:
-            return MTLBlendFactorBlendAlpha;
-        case kIConstA_GrBlendCoeff:
-            return MTLBlendFactorOneMinusBlendAlpha;
         case kS2C_GrBlendCoeff:
             if (@available(macOS 10.12, iOS 11.0, *)) {
                 return MTLBlendFactorSource1Color;

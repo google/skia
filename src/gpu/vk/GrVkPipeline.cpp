@@ -329,51 +329,44 @@ static void setup_coverage_modulation_state(
 }
 
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
-    static const VkBlendFactor gTable[] = {
-        VK_BLEND_FACTOR_ZERO,                      // kZero_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE,                       // kOne_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC_COLOR,                 // kSC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,       // kISC_GrBlendCoeff
-        VK_BLEND_FACTOR_DST_COLOR,                 // kDC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,       // kIDC_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC_ALPHA,                 // kSA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,       // kISA_GrBlendCoeff
-        VK_BLEND_FACTOR_DST_ALPHA,                 // kDA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,       // kIDA_GrBlendCoeff
-        VK_BLEND_FACTOR_CONSTANT_COLOR,            // kConstC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,  // kIConstC_GrBlendCoeff
-        VK_BLEND_FACTOR_CONSTANT_ALPHA,            // kConstA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,  // kIConstA_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC1_COLOR,                // kS2C_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR,      // kIS2C_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC1_ALPHA,                // kS2A_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA,      // kIS2A_GrBlendCoeff
-        VK_BLEND_FACTOR_ZERO,                      // kIllegal_GrBlendCoeff
-    };
-    static_assert(SK_ARRAY_COUNT(gTable) == kGrBlendCoeffCnt);
-    static_assert(0 == kZero_GrBlendCoeff);
-    static_assert(1 == kOne_GrBlendCoeff);
-    static_assert(2 == kSC_GrBlendCoeff);
-    static_assert(3 == kISC_GrBlendCoeff);
-    static_assert(4 == kDC_GrBlendCoeff);
-    static_assert(5 == kIDC_GrBlendCoeff);
-    static_assert(6 == kSA_GrBlendCoeff);
-    static_assert(7 == kISA_GrBlendCoeff);
-    static_assert(8 == kDA_GrBlendCoeff);
-    static_assert(9 == kIDA_GrBlendCoeff);
-    static_assert(10 == kConstC_GrBlendCoeff);
-    static_assert(11 == kIConstC_GrBlendCoeff);
-    static_assert(12 == kConstA_GrBlendCoeff);
-    static_assert(13 == kIConstA_GrBlendCoeff);
-    static_assert(14 == kS2C_GrBlendCoeff);
-    static_assert(15 == kIS2C_GrBlendCoeff);
-    static_assert(16 == kS2A_GrBlendCoeff);
-    static_assert(17 == kIS2A_GrBlendCoeff);
-
-    SkASSERT((unsigned)coeff < kGrBlendCoeffCnt);
-    return gTable[coeff];
+    switch (coeff) {
+        case kZero_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ZERO;
+        case kOne_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE;
+        case kSC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_SRC_COLOR;
+        case kISC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case kDC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_DST_COLOR;
+        case kIDC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case kSA_GrBlendCoeff:
+            return VK_BLEND_FACTOR_SRC_ALPHA;
+        case kISA_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case kDA_GrBlendCoeff:
+            return VK_BLEND_FACTOR_DST_ALPHA;
+        case kIDA_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        case kConstC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_CONSTANT_COLOR;
+        case kIConstC_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+        case kS2C_GrBlendCoeff:
+            return VK_BLEND_FACTOR_SRC1_COLOR;
+        case kIS2C_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+        case kS2A_GrBlendCoeff:
+            return VK_BLEND_FACTOR_SRC1_ALPHA;
+        case kIS2A_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+        case kIllegal_GrBlendCoeff:
+            return VK_BLEND_FACTOR_ZERO;
+    }
+    SkUNREACHABLE;
 }
-
 
 static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
     static const VkBlendOp gTable[] = {
@@ -422,39 +415,8 @@ static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
     static_assert(17 == kHSLLuminosity_GrBlendEquation);
     static_assert(SK_ARRAY_COUNT(gTable) == kGrBlendEquationCnt);
 
-    SkASSERT((unsigned)equation < kGrBlendCoeffCnt);
+    SkASSERT((unsigned)equation < kGrBlendEquationCnt);
     return gTable[equation];
-}
-
-static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
-    static const bool gCoeffReferencesBlendConst[] = {
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-
-        // extended blend coeffs
-        false,
-        false,
-        false,
-        false,
-
-        // Illegal
-        false,
-    };
-    return gCoeffReferencesBlendConst[coeff];
-    static_assert(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
-    // Individual enum asserts already made in blend_coeff_to_vk_blend
 }
 
 static void setup_color_blend_state(const GrPipeline& pipeline,
@@ -701,7 +663,7 @@ void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
-    if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
+    if (GrBlendCoeffRefsConstant(srcCoeff) || GrBlendCoeffRefsConstant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         floatColors[0] = blendConst.fR;

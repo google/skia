@@ -119,8 +119,6 @@ static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ONE_MINUS_DST_ALPHA,
     GR_GL_CONSTANT_COLOR,
     GR_GL_ONE_MINUS_CONSTANT_COLOR,
-    GR_GL_CONSTANT_ALPHA,
-    GR_GL_ONE_MINUS_CONSTANT_ALPHA,
 
     // extended blend coeffs
     GR_GL_SRC1_COLOR,
@@ -131,59 +129,6 @@ static const GrGLenum gXfermodeCoeff2Blend[] = {
     // Illegal... needs to map to something.
     GR_GL_ZERO,
 };
-
-bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
-    static const bool gCoeffReferencesBlendConst[] = {
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-
-        // extended blend coeffs
-        false,
-        false,
-        false,
-        false,
-
-        // Illegal.
-        false,
-    };
-    return gCoeffReferencesBlendConst[coeff];
-    static_assert(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
-
-    static_assert(0 == kZero_GrBlendCoeff);
-    static_assert(1 == kOne_GrBlendCoeff);
-    static_assert(2 == kSC_GrBlendCoeff);
-    static_assert(3 == kISC_GrBlendCoeff);
-    static_assert(4 == kDC_GrBlendCoeff);
-    static_assert(5 == kIDC_GrBlendCoeff);
-    static_assert(6 == kSA_GrBlendCoeff);
-    static_assert(7 == kISA_GrBlendCoeff);
-    static_assert(8 == kDA_GrBlendCoeff);
-    static_assert(9 == kIDA_GrBlendCoeff);
-    static_assert(10 == kConstC_GrBlendCoeff);
-    static_assert(11 == kIConstC_GrBlendCoeff);
-    static_assert(12 == kConstA_GrBlendCoeff);
-    static_assert(13 == kIConstA_GrBlendCoeff);
-
-    static_assert(14 == kS2C_GrBlendCoeff);
-    static_assert(15 == kIS2C_GrBlendCoeff);
-    static_assert(16 == kS2A_GrBlendCoeff);
-    static_assert(17 == kIS2A_GrBlendCoeff);
-
-    // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
-    static_assert(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2595,7 +2540,7 @@ void GrGLGpu::flushBlendAndColorWrite(
             fHWBlendState.fDstCoeff = dstCoeff;
         }
 
-        if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
+        if ((GrBlendCoeffRefsConstant(srcCoeff) || GrBlendCoeffRefsConstant(dstCoeff))) {
             SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
             if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
                 GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
