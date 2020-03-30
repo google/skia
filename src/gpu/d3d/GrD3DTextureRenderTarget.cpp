@@ -20,11 +20,10 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    sk_sp<GrD3DResourceState> msaaState,
                                                    GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, state, GrBackendObjectOwnership::kOwned)
-        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus,
-                       GrBackendObjectOwnership::kOwned)
+        , GrD3DTextureResource(info, state)
+        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
         , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
-                           std::move(msaaState), GrBackendObjectOwnership::kOwned) {
+                            std::move(msaaState)) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCache(budgeted);
 }
@@ -36,10 +35,9 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    sk_sp<GrD3DResourceState> state,
                                                    GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, state, GrBackendObjectOwnership::kOwned)
-        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus,
-                      GrBackendObjectOwnership::kOwned)
-        , GrD3DRenderTarget(gpu, dimensions, info, state, GrBackendObjectOwnership::kOwned) {
+        , GrD3DTextureResource(info, state)
+        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
+        , GrD3DRenderTarget(gpu, dimensions, info, state) {
     this->registerWithCache(budgeted);
 }
 
@@ -51,13 +49,12 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    const GrD3DTextureResourceInfo& msaaInfo,
                                                    sk_sp<GrD3DResourceState> msaaState,
                                                    GrMipMapsStatus mipMapsStatus,
-                                                   GrBackendObjectOwnership ownership,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, state, ownership)
-        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus, ownership)
+        , GrD3DTextureResource(info, state)
+        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
         , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
-                            std::move(msaaState), ownership) {
+                            std::move(msaaState)) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCacheWrapped(cacheable);
 }
@@ -67,12 +64,11 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                                                    const GrD3DTextureResourceInfo& info,
                                                    sk_sp<GrD3DResourceState> state,
                                                    GrMipMapsStatus mipMapsStatus,
-                                                   GrBackendObjectOwnership ownership,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrD3DTextureResource(info, state, ownership)
-        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus, ownership)
-        , GrD3DRenderTarget(gpu, dimensions, info, state, ownership) {
+        , GrD3DTextureResource(info, state)
+        , GrD3DTexture(gpu, dimensions, info, state, mipMapsStatus)
+        , GrD3DRenderTarget(gpu, dimensions, info, state) {
     this->registerWithCacheWrapped(cacheable);
 }
 
@@ -116,8 +112,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         GrMipMapsStatus mipMapsStatus) {
 
     GrD3DTextureResourceInfo info;
-    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, isProtected,
-                                                       &info)) {
+    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, isProtected, &info)) {
         return nullptr;
     }
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(
@@ -129,12 +124,21 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
 
         std::tie(msInfo, msState) = create_msaa_resource(gpu, dimensions, sampleCnt, info);
 
-        return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
+        GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(state),
-                msInfo, std::move(msState), mipMapsStatus));
+                msInfo, std::move(msState), mipMapsStatus);
+
+        // The GrD3DTextureRenderTarget takes a ref on the textures so we need to release ours
+        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
+        GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
+
+        return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
-        return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
-                gpu, budgeted, dimensions, info, std::move(state), mipMapsStatus));
+        GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
+                gpu, budgeted, dimensions, info, std::move(state), mipMapsStatus);
+        // The GrD3DTextureRenderTarget takes a ref on the texture so we need to release ours
+        GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
+        return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }
 
@@ -142,7 +146,6 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
         GrD3DGpu* gpu,
         SkISize dimensions,
         int sampleCnt,
-        GrWrapOwnership wrapOwnership,
         GrWrapCacheable cacheable,
         const GrD3DTextureResourceInfo& info,
         sk_sp<GrD3DResourceState> state) {
@@ -154,19 +157,21 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
     GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kDirty
                                                          : GrMipMapsStatus::kNotAllocated;
 
-    GrBackendObjectOwnership ownership = kBorrow_GrWrapOwnership == wrapOwnership
-            ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     if (sampleCnt > 1) {
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
 
         std::tie(msInfo, msState) = create_msaa_resource(gpu, dimensions, sampleCnt, info);
-        return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
-                gpu, dimensions, sampleCnt, info, std::move(state), msInfo, msState, mipMapsStatus,
-                ownership, cacheable));
+        GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
+                gpu, dimensions, sampleCnt, info, std::move(state), msInfo, std::move(msState),
+                mipMapsStatus, cacheable);
+        // The GrD3DTexture takes a ref on the msaa texture so we need to release ours
+        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
+
+        return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
-                gpu, dimensions, info, std::move(state), mipMapsStatus, ownership, cacheable));
+                gpu, dimensions, info, std::move(state), mipMapsStatus, cacheable));
     }
 }
 
