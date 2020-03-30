@@ -953,10 +953,8 @@ GrSwizzle GrMtlCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType c
             return ctInfo.fReadSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
-
 GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     SkASSERT(mtlFormat != MTLPixelFormatInvalid);
@@ -967,8 +965,7 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
             return ctInfo.fOutputSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
 
 uint64_t GrMtlCaps::computeFormatKey(const GrBackendFormat& format) const {
