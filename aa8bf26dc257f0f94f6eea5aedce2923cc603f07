@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5a610980_d1aab9cf",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-30T21:13:11Z",
+      "side": 0,
+      "message": "Yes, it ends up implicitly declared inline. There are ~5 calls to make to do the destruction, so it\u0027s up to the compiler to decide if it wants to inline or not at any given call site. (This is in \u0027src\u0027 so it should always be statically linked against everything that uses it.) Could just declare all the copy and move bits and default them inline (or not) as well (zero or five).",
+      "parentUuid": "19d518ae_d965d99d",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2020-03-30T20:42:23Z",
       "side": 0,
       "message": "Unrelated?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f60c30c9_ddef22eb",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-30T21:13:11Z",
+      "side": 0,
+      "message": "No, it\u0027s needed for other things to work. In particular the one test that really wanted a move only type for correctness. Seemed simpler to just add the rvalue push_back and make things obviously right.",
+      "parentUuid": "38c98594_0f32bebd",
       "range": {
         "startLine": 40,
         "startChar": 0,

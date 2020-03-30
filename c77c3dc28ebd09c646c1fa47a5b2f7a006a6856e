@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c116f43e_279fcff4",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-30T21:13:11Z",
+      "side": 1,
+      "message": "Yeah, these don\u0027t appear to be named anywhere, so there is no need to name them like this, we can just inline it. However, it seems the file is this way because it\u0027s just lifted from the upstream BUILD.gn, which also doesn\u0027t seem to need all these names.\n\nSo it\u0027s kinda a trade-off on maintenance, since staying closer to upstream should make things wasier to update. We also only seem to have this target here for building dawn? I think what I want is gn to have a external_deps which causes includes from such deps to be prepended with \u0027-isystem\u0027 or \u0027/external:I\u0027 (which it can\u0027t really do since it\u0027s different on msvc and everywhere else, but maybe let the toolchain specify the prefix). This would have the benefit of allowing real \u0027public\u0027 header checking but also be able to ignore warnings from such headers.\n\nSince that\u0027s hard, I\u0027ll see about a third_party_config so these stay configs.",
+      "parentUuid": "7e9cad44_3d08156d",
+      "revId": "c77c3dc28ebd09c646c1fa47a5b2f7a006a6856e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ad9933a_3e2809b2",
         "filename": "third_party/shaderc/BUILD.gn",
         "patchSetId": 1
