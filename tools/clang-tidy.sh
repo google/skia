@@ -23,7 +23,7 @@ while [ "$1" ]; do
     fi
 done
 
-if [ "$src" ]; then
+if [ "$src" ] && [[ "$src" != *"third_party"* ]]; then
     clang-tidy -quiet -header-filter='.*' -warnings-as-errors='*' $src -- $args
 fi
 exec clang++ $args
