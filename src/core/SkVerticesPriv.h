@@ -20,6 +20,7 @@ struct SkVertices::Info {
 
     int             fVertexCount,
                     fIndexCount,
+                    fAttributeCount,
                     fPerVertexDataCount;
 
     const SkPoint*  fPositions;
@@ -30,7 +31,8 @@ struct SkVertices::Info {
     const SkColor*  fColors;    // may be null
 
     // new, per-vertex-data, version
-    const float*    fPerVertexData;
+    const AttributeType* fAttributes;
+    const float*         fPerVertexData;
 
     bool hasTexCoords() const { return fTexCoords != nullptr; }
     bool hasColors() const { return fColors != nullptr; }
@@ -46,6 +48,16 @@ public:
     static bool HasIndices(const SkVertices* v) { return v->fIndices != nullptr; }
 
     static SkVertices::VertexMode Mode(const SkVertices* v) { return v->fMode; }
+
+    static int AttributeWidth(SkVertices::AttributeType attr) {
+        switch (attr) {
+            case SkVertices::AttributeType::kFloat:       return 1;
+            case SkVertices::AttributeType::kFloat2:      return 2;
+            case SkVertices::AttributeType::kFloat3:      return 3;
+            case SkVertices::AttributeType::kFloat4:      return 4;
+            case SkVertices::AttributeType::kByte4_unorm: return 4;
+        }
+    }
 };
 
 #endif

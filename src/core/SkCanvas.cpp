@@ -1995,8 +1995,14 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     // If the vertices contain custom attributes, ensure they line up with the paint's shader
     const SkRuntimeEffect* effect =
             paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
-    if (info.fPerVertexDataCount != (effect ? effect->varyingCount() : 0)) {
+    if ((size_t)info.fAttributeCount != (effect ? effect->varyings().count() : 0)) {
         return;
+    }
+    int attrIndex = 0;
+    for (const auto& v : effect->varyings()) {
+        if (SkVerticesPriv::AttributeWidth(info.fAttributes[attrIndex++]) != v.fWidth) {
+            return;
+        }
     }
 
     this->onDrawVerticesObject(vertices, mode, paint);

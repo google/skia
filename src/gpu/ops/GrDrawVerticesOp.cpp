@@ -339,7 +339,6 @@ private:
     LocalCoordsType fLocalCoordsType;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    std::vector<int> fAttrWidths;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -367,15 +366,6 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
-
-    if (effect) {
-        SkASSERT(info.fPerVertexDataCount == effect->varyingCount());
-        for (const auto& v : effect->varyings()) {
-            fAttrWidths.push_back(v.fWidth);
-        }
-    } else {
-        SkASSERT(info.fPerVertexDataCount == 0);
-    }
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -570,7 +560,12 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
-    if (fAttrWidths != that->fAttrWidths) {
+    SkVertices::Info vThis, vThat;
+    this->fMeshes[0].fVertices->getInfo(&vThis);
+    that->fMeshes[0].fVertices->getInfo(&vThat);
+    if (vThis.fAttributeCount != vThat.fAttributeCount ||
+        !std::equal(vThis.fAttributes, vThis.fAttributes + vThis.fAttributeCount,
+                    vThat.fAttributes)) {
         return CombineResult::kCannotCombine;
     }
 
