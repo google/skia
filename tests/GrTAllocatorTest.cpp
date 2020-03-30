@@ -12,6 +12,8 @@ namespace {
 struct C {
     C() : fID(-1) { ++gInstCnt; }
     C(int id) : fID(id) { ++gInstCnt; }
+    C(C&&) = default;
+    C& operator=(C&&) = default;
     ~C() { --gInstCnt; }
     int fID;
 
