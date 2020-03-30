@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07d40460_29310d3f",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "This reads like \"maybe issue the inputs of x\".  You just want maybe_issue(inst.x) right?",
+      "range": {
+        "startLine": 572,
+        "startChar": 12,
+        "endLine": 572,
+        "endChar": 39
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b9b345_46e57c5d",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "???",
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53076820_31f1ef3e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "No need for this?",
+      "range": {
+        "startLine": 1507,
+        "startChar": 8,
+        "endLine": 1507,
+        "endChar": 23
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca2267a7_e70c480b",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "Looks like sources() is unused?  Let\u0027s leave it out until we at least test it?",
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c4f965_fb467fb1",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "Let\u0027s comment what each of these are?\n\nI think bool live(Val id) and liveInstructionCount() are pretty straightforward, but it\u0027s not clear by reading this interface whether or not sources() and sinks() contain only live instructions.  Presumably, only live?  And no dups in sources() and sinks() right?  How are they sorted?\n\nIs this maybe just a fancy looking function?  E.g.\n    \n    // Fill live and sinks each if non-null:\n    //    - (*live)[id]: notes whether each input instruction is live\n    //    - *sinks:      an unsorted set of live instructions with side effects (stores, assert_true)\n    // Returns the number of live instructions.\n    int liveness_analysis(const std::vector\u003cBuilder::Instruction\u003e\u0026,\n                          std::vector\u003cbool\u003e* live,    \n                          std::vector\u003cVal\u003e*  sinks);\n?",
+      "range": {
+        "startLine": 696,
+        "startChar": 1,
+        "endLine": 702,
+        "endChar": 63
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b7f22de_1b109547",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "This is Val, right?  Should we make this a hard typedef?",
+      "range": {
+        "startLine": 742,
+        "startChar": 20,
+        "endLine": 742,
+        "endChar": 23
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "845fe711_8ac7c73e",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-30T20:18:57Z",
+      "side": 1,
+      "message": "I think this would be easier to follow if we move all the implementation code and comments out of line, and leave just what the user needs to think about to read here.  E.g.\n\nclass Uses {\npublic:\n    Uses(std::vector\u003cBuilder::Instruction\u003e\u0026);\n\n    // Return an unordered span of Vals which use result of Instruction id.\n    SkSpan\u003cconst Val\u003e users(Val id) const;\n\n    // uses() and useCounts() can be implemented using users(), right?\n\nprivate:\n    std::vector\u003cint\u003e fIndex;\n    std::vector\u003cVal\u003e fTable;\n};\n\n\nUnlike liveness, I do think we\u0027re building up a complex enough data structure here that we\nreally should keep this one as a type to abstract over how the index and table interact.\n\nBut I also think that it would help to have an example to understand the data layout near\nthe implementation of the constructor and SkSpan method?\n\n   // For a given program we\u0027ll store each Instruction\u0027s users contiguously in a table,\n   // and track where each Instruction\u0027s span of users starts and ends in another index.\n   // Here\u0027s a simple program that loads x and stores kx+k:\n   //\n   //  v0 \u003d splat(k)\n   //  v1 \u003d load(...)\n   //  v2 \u003d add(v0, v1)\n   //  v3 \u003d mul(v2, v0)\n   //  v4 \u003d store(..., v3)\n   //   \n   // This program has 5 instructions v0-v4.\n   //    - v0 is used by v2 and v3\n   //    - v1 is used by v2\n   //    - v2 is used by v3\n   //    - v3 is used by v4\n   //    - v4 has a side-effect\n   //\n   // For this program we fill out these two arrays:\n   //     table:  [v2,v3, v2, v3, v4]\n   //     index:  [0,     2,  3,  4,  5]\n   //\n   // The table is just those \"is used by ...\" I wrote out above in order,\n   // and the index tracks where an Instruction\u0027s span of users starts, table[index[id]].\n   // The span continues up until the start of the next Instruction, table[index[id+1]].\n\n   SkSpan\u003cconst Val\u003e Uses::users(Val id) const {\n       int begin \u003d fIndex[id],\n             end \u003d fIndex[id+1];\n       return {fTable.data() + begin, end-begin};\n   }\n\n   Uses::Uses(...) {\n       ...\n   }",
+      "range": {
+        "startLine": 711,
+        "startChar": 1,
+        "endLine": 743,
+        "endChar": 6
+      },
+      "revId": "a703cf221b29d924fc802c0389acb01d7c4b9107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
