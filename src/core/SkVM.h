@@ -504,7 +504,6 @@ namespace skvm {
         F32 mad(F32  x, F32  y, F32  z) { return add(mul(x,y), z); }
         F32 mad(F32a x, F32a y, F32a z) { return mad(_(x), _(y), _(z)); }
 
-        F32    inv(F32 x) { return sub(1.0f, x); }
         F32 negate(F32 x) { return sub(0.0f, x); }
         F32   sqrt(F32);
 
