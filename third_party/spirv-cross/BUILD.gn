@@ -29,6 +29,8 @@ third_party("spirv_cross") {
                           "spirv_msl.hpp",
                           "spirv_parser.cpp",
                           "spirv_parser.hpp",
+                          "spirv_reflect.cpp",
+                          "spirv_reflect.hpp",
                         ],
                         ".",
                         "${spirv_cross}")

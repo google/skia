@@ -1,0 +1,11 @@
+# Copyright 2020 Google LLC.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+shaderc_glslang_dir = "//third_party/glslang/"
+shaderc_spirv_tools_dir = "//third_party/spirv-tools/"
+shaderc_spirv_cross_dir = "//third_party/spirv-cross/"
+shaderc_spirv_headers_dir = "//third_party/externals/spirv-headers/"
+
+shaderc_enable_spvc_parser = false
