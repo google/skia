@@ -1202,8 +1202,8 @@ namespace skvm {
         // Map min channel to 0, max channel to s, and scale the middle proportionally.
         auto scale = [&](auto c) {
             // TODO: better to divide and check for non-finite result?
-            return p->select(sat == 0.0f, 0.0f
-                                        , ((c - mn) * s) / sat);
+            return select(sat == 0.0f, 0.0f
+                                     , ((c - mn) * s) / sat);
         };
         *r = scale(*r);
         *g = scale(*g);
@@ -1212,9 +1212,9 @@ namespace skvm {
 
     static void set_lum(skvm::Builder* p, skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 lu) {
         auto diff = lu - luminance(p, *r, *g, *b);
-        *r = p->add(*r, diff);
-        *g = p->add(*g, diff);
-        *b = p->add(*b, diff);
+        *r += diff;
+        *g += diff;
+        *b += diff;
     }
 
     static void clip_color(skvm::Builder* p,
@@ -1224,10 +1224,10 @@ namespace skvm {
             lu = luminance(p, *r, *g, *b);
 
         auto clip = [&](auto c) {
-            c = p->select(mn >= 0, c
-                                 , lu + ((c-lu)*(  lu)) / (lu-mn));
-            c = p->select(mx >  a, lu + ((c-lu)*(a-lu)) / (mx-lu)
-                                 , c);
+            c = select(mn >= 0, c
+                              , lu + ((c-lu)*(  lu)) / (lu-mn));
+            c = select(mx >  a, lu + ((c-lu)*(a-lu)) / (mx-lu)
+                              , c);
             // Sometimes without this we may dip just a little negative.
             return max(c, 0.0f);
         };

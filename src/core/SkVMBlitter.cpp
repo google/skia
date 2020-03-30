@@ -117,11 +117,11 @@ namespace {
                 const SkShaderBase* sb = as_SB(shader);
                 skvm::Builder p;
 
-                skvm::I32 dx = p.sub(p.uniform32(uniforms->base, offsetof(BlitterUniforms, right)),
-                                     p.index()),
+                skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                             - p.index(),
                           dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-                skvm::F32 x = p.add(p.to_f32(dx), 0.5f),
-                          y = p.add(p.to_f32(dy), 0.5f);
+                skvm::F32 x = p.to_f32(dx) + 0.5f,
+                          y = p.to_f32(dy) + 0.5f;
 
                 skvm::Color paint = {
                     p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -196,11 +196,11 @@ namespace {
             //    - MaskLCD16: 565 coverage varying
             //    - UniformA8: 8-bit coverage uniform
 
-            skvm::I32 dx = sub(uniform32(uniforms->base, offsetof(BlitterUniforms, right)),
-                               index()),
+            skvm::I32 dx = uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                         - index(),
                       dy = uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-            skvm::F32 x = add(to_f32(dx), 0.5f),
-                      y = add(to_f32(dy), 0.5f);
+            skvm::F32 x = to_f32(dx) + 0.5f,
+                      y = to_f32(dy) + 0.5f;
 
             skvm::Color paint = {
                 uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
@@ -270,8 +270,8 @@ namespace {
                     case Coverage::MaskLCD16:
                         SkASSERT(dst_loaded);
                         *cov = unpack_565(load16(varying<uint16_t>()));
-                        cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g, cov->b))
-                                                        , max(cov->r, max(cov->g, cov->b)));
+                        cov->a = select(src.a < dst.a, min(cov->r, min(cov->g, cov->b))
+                                                     , max(cov->r, max(cov->g, cov->b)));
                         break;
                 }
 
@@ -281,10 +281,10 @@ namespace {
                                                                    params.quality, params.dst,
                                                                    uniforms, alloc);
                     SkAssertResult(clip);
-                    cov->r = mul(cov->r, clip.a);  // We use the alpha channel of clip for all four.
-                    cov->g = mul(cov->g, clip.a);
-                    cov->b = mul(cov->b, clip.a);
-                    cov->a = mul(cov->a, clip.a);
+                    cov->r *= clip.a;  // We use the alpha channel of clip for all four.
+                    cov->g *= clip.a;
+                    cov->b *= clip.a;
+                    cov->a *= clip.a;
                     return true;
                 }
 
@@ -299,10 +299,10 @@ namespace {
                                                    params.coverage == Coverage::MaskLCD16)) {
                 skvm::Color cov;
                 if (load_coverage(&cov)) {
-                    src.r = mul(src.r, cov.r);
-                    src.g = mul(src.g, cov.g);
-                    src.b = mul(src.b, cov.b);
-                    src.a = mul(src.a, cov.a);
+                    src.r *= cov.r;
+                    src.g *= cov.g;
+                    src.b *= cov.b;
+                    src.a *= cov.a;
                 }
                 lerp_coverage_post_blend = false;
             }
@@ -337,23 +337,23 @@ namespace {
             if (params.dst.isOpaque()) {
                 dst.a = splat(1.0f);
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
-                premul(&dst.r, &dst.g, &dst.b, dst.a);
+                dst = premul(dst);
             }
 
             src = this->blend(params.blendMode, src, dst);
 
             // Lerp with coverage post-blend if needed.
             if (skvm::Color cov; lerp_coverage_post_blend && load_coverage(&cov)) {
-                src.r = mad(sub(src.r, dst.r), cov.r, dst.r);
-                src.g = mad(sub(src.g, dst.g), cov.g, dst.g);
-                src.b = mad(sub(src.b, dst.b), cov.b, dst.b);
-                src.a = mad(sub(src.a, dst.a), cov.a, dst.a);
+                src.r = lerp(dst.r, src.r, cov.r);
+                src.g = lerp(dst.g, src.g, cov.g);
+                src.b = lerp(dst.b, src.b, cov.b);
+                src.a = lerp(dst.a, src.a, cov.a);
             }
 
             if (params.dst.isOpaque()) {
                 src.a = splat(1.0f);
             } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
-                unpremul(&src.r, &src.g, &src.b, src.a);
+                src = unpremul(src);
             }
 
             // Clamp to fit destination color format if needed.
@@ -363,10 +363,10 @@ namespace {
                 // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
                 skvm::F32 lo = bit_cast(splat(0xb400'0000)),
                           hi = bit_cast(splat(0x3f80'0001));
-                assert_true(eq(src.r, clamp(src.r, lo, hi)), src.r);
-                assert_true(eq(src.g, clamp(src.g, lo, hi)), src.g);
-                assert_true(eq(src.b, clamp(src.b, lo, hi)), src.b);
-                assert_true(eq(src.a, clamp(src.a, lo, hi)), src.a);
+                assert_true(src.r == clamp(src.r, lo, hi), src.r);
+                assert_true(src.g == clamp(src.g, lo, hi), src.g);
+                assert_true(src.b == clamp(src.b, lo, hi), src.b);
+                assert_true(src.a == clamp(src.a, lo, hi), src.a);
             } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
                 src.r = clamp01(src.r);
                 src.g = clamp01(src.g);
@@ -469,17 +469,17 @@ namespace {
 
             // See SkRasterPipeline dither stage.
             // This is 8x8 ordered dithering.  From here we'll only need dx and dx^dy.
-            skvm::I32 X =               p->trunc(p->sub(x, 0.5f)),
-                      Y = p->bit_xor(X, p->trunc(p->sub(y, 0.5f)));
+            skvm::I32 X =     trunc(x - 0.5f),
+                      Y = X ^ trunc(y - 0.5f);
 
             // If X's low bits are abc and Y's def, M is fcebda,
             // 6 bits producing all values [0,63] shuffled over an 8x8 grid.
-            skvm::I32 M = p->bit_or(p->shl(p->bit_and(Y, 1), 5),
-                          p->bit_or(p->shl(p->bit_and(X, 1), 4),
-                          p->bit_or(p->shl(p->bit_and(Y, 2), 2),
-                          p->bit_or(p->shl(p->bit_and(X, 2), 1),
-                          p->bit_or(p->shr(p->bit_and(Y, 4), 1),
-                                    p->shr(p->bit_and(X, 4), 2))))));
+            skvm::I32 M = shl(Y & 1, 5)
+                        | shl(X & 1, 4)
+                        | shl(Y & 2, 2)
+                        | shl(X & 2, 1)
+                        | shr(Y & 4, 1)
+                        | shr(X & 4, 2);
 
             // Scale to [0,1) by /64, then to (-0.5,0.5) using 63/128 (~0.492) as 0.5-ε,
             // and finally scale all that by rate.  We keep dither strength strictly
@@ -489,15 +489,14 @@ namespace {
             // we can bake it in without hurting the cache hit rate.
             float scale = rate * (  2/128.0f),
                   bias  = rate * (-63/128.0f);
-            skvm::F32 dither = p->mad(p->to_f32(M), scale, bias);
+            skvm::F32 dither = to_f32(M) * scale + bias;
+            c.r += dither;
+            c.g += dither;
+            c.b += dither;
 
-            c.r = p->add(c.r, dither);
-            c.g = p->add(c.g, dither);
-            c.b = p->add(c.b, dither);
-
-            c.r = p->clamp(c.r, 0.0f, c.a);
-            c.g = p->clamp(c.g, 0.0f, c.a);
-            c.b = p->clamp(c.b, 0.0f, c.a);
+            c.r = clamp(c.r, 0.0f, c.a);
+            c.g = clamp(c.g, 0.0f, c.a);
+            c.b = clamp(c.b, 0.0f, c.a);
             return c;
         }
     };

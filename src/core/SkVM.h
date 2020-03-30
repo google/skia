@@ -349,12 +349,14 @@ namespace skvm {
         Builder* builder = nullptr;
         Val      id      = NA;
         explicit operator bool() const { return id != NA; }
+        Builder* operator->()    const { return builder; }
     };
 
     struct F32 {
         Builder* builder = nullptr;
         Val      id      = NA;
         explicit operator bool() const { return id != NA; }
+        Builder* operator->()    const { return builder; }
     };
 
     // Some operations make sense with immediate arguments,
@@ -787,75 +789,75 @@ namespace skvm {
     // TODO: control flow
     // TODO: 64-bit values?
 
-    static inline I32 operator+(I32 x, I32a y) { return x.builder->add(x,y); }
-    static inline I32 operator+(int x, I32  y) { return y.builder->add(x,y); }
+    static inline I32 operator+(I32 x, I32a y) { return x->add(x,y); }
+    static inline I32 operator+(int x, I32  y) { return y->add(x,y); }
 
-    static inline I32 operator-(I32 x, I32a y) { return x.builder->sub(x,y); }
-    static inline I32 operator-(int x, I32  y) { return y.builder->sub(x,y); }
+    static inline I32 operator-(I32 x, I32a y) { return x->sub(x,y); }
+    static inline I32 operator-(int x, I32  y) { return y->sub(x,y); }
 
-    static inline I32 operator*(I32 x, I32a y) { return x.builder->mul(x,y); }
-    static inline I32 operator*(int x, I32  y) { return y.builder->mul(x,y); }
+    static inline I32 operator*(I32 x, I32a y) { return x->mul(x,y); }
+    static inline I32 operator*(int x, I32  y) { return y->mul(x,y); }
 
-    static inline I32 min(I32 x, I32a y) { return x.builder->min(x,y); }
-    static inline I32 min(int x, I32  y) { return y.builder->min(x,y); }
+    static inline I32 min(I32 x, I32a y) { return x->min(x,y); }
+    static inline I32 min(int x, I32  y) { return y->min(x,y); }
 
-    static inline I32 max(I32 x, I32a y) { return x.builder->max(x,y); }
-    static inline I32 max(int x, I32  y) { return y.builder->max(x,y); }
+    static inline I32 max(I32 x, I32a y) { return x->max(x,y); }
+    static inline I32 max(int x, I32  y) { return y->max(x,y); }
 
-    static inline I32 operator==(I32 x, I32a y) { return x.builder->eq(x,y); }
-    static inline I32 operator==(int x, I32  y) { return y.builder->eq(x,y); }
+    static inline I32 operator==(I32 x, I32a y) { return x->eq(x,y); }
+    static inline I32 operator==(int x, I32  y) { return y->eq(x,y); }
 
-    static inline I32 operator!=(I32 x, I32a y) { return x.builder->neq(x,y); }
-    static inline I32 operator!=(int x, I32  y) { return y.builder->neq(x,y); }
+    static inline I32 operator!=(I32 x, I32a y) { return x->neq(x,y); }
+    static inline I32 operator!=(int x, I32  y) { return y->neq(x,y); }
 
-    static inline I32 operator< (I32 x, I32a y) { return x.builder->lt(x,y); }
-    static inline I32 operator< (int x, I32  y) { return y.builder->lt(x,y); }
+    static inline I32 operator< (I32 x, I32a y) { return x->lt(x,y); }
+    static inline I32 operator< (int x, I32  y) { return y->lt(x,y); }
 
-    static inline I32 operator<=(I32 x, I32a y) { return x.builder->lte(x,y); }
-    static inline I32 operator<=(int x, I32  y) { return y.builder->lte(x,y); }
+    static inline I32 operator<=(I32 x, I32a y) { return x->lte(x,y); }
+    static inline I32 operator<=(int x, I32  y) { return y->lte(x,y); }
 
-    static inline I32 operator> (I32 x, I32a y) { return x.builder->gt(x,y); }
-    static inline I32 operator> (int x, I32  y) { return y.builder->gt(x,y); }
+    static inline I32 operator> (I32 x, I32a y) { return x->gt(x,y); }
+    static inline I32 operator> (int x, I32  y) { return y->gt(x,y); }
 
-    static inline I32 operator>=(I32 x, I32a y) { return x.builder->gte(x,y); }
-    static inline I32 operator>=(int x, I32  y) { return y.builder->gte(x,y); }
+    static inline I32 operator>=(I32 x, I32a y) { return x->gte(x,y); }
+    static inline I32 operator>=(int x, I32  y) { return y->gte(x,y); }
 
 
-    static inline F32 operator+(F32   x, F32a y) { return x.builder->add(x,y); }
-    static inline F32 operator+(float x, F32  y) { return y.builder->add(x,y); }
+    static inline F32 operator+(F32   x, F32a y) { return x->add(x,y); }
+    static inline F32 operator+(float x, F32  y) { return y->add(x,y); }
 
-    static inline F32 operator-(F32   x, F32a y) { return x.builder->sub(x,y); }
-    static inline F32 operator-(float x, F32  y) { return y.builder->sub(x,y); }
+    static inline F32 operator-(F32   x, F32a y) { return x->sub(x,y); }
+    static inline F32 operator-(float x, F32  y) { return y->sub(x,y); }
 
-    static inline F32 operator*(F32   x, F32a y) { return x.builder->mul(x,y); }
-    static inline F32 operator*(float x, F32  y) { return y.builder->mul(x,y); }
+    static inline F32 operator*(F32   x, F32a y) { return x->mul(x,y); }
+    static inline F32 operator*(float x, F32  y) { return y->mul(x,y); }
 
-    static inline F32 operator/(F32   x, F32  y) { return x.builder->div(x,y); }
-    static inline F32 operator/(float x, F32  y) { return y.builder->div(x,y); }
+    static inline F32 operator/(F32   x, F32  y) { return x->div(x,y); }
+    static inline F32 operator/(float x, F32  y) { return y->div(x,y); }
 
-    static inline F32 min(F32   x, F32a y) { return x.builder->min(x,y); }
-    static inline F32 min(float x, F32  y) { return y.builder->min(x,y); }
+    static inline F32 min(F32   x, F32a y) { return x->min(x,y); }
+    static inline F32 min(float x, F32  y) { return y->min(x,y); }
 
-    static inline F32 max(F32   x, F32a y) { return x.builder->max(x,y); }
-    static inline F32 max(float x, F32  y) { return y.builder->max(x,y); }
+    static inline F32 max(F32   x, F32a y) { return x->max(x,y); }
+    static inline F32 max(float x, F32  y) { return y->max(x,y); }
 
-    static inline I32 operator==(F32   x, F32a y) { return x.builder->eq(x,y); }
-    static inline I32 operator==(float x, F32  y) { return y.builder->eq(x,y); }
+    static inline I32 operator==(F32   x, F32a y) { return x->eq(x,y); }
+    static inline I32 operator==(float x, F32  y) { return y->eq(x,y); }
 
-    static inline I32 operator!=(F32   x, F32a y) { return x.builder->neq(x,y); }
-    static inline I32 operator!=(float x, F32  y) { return y.builder->neq(x,y); }
+    static inline I32 operator!=(F32   x, F32a y) { return x->neq(x,y); }
+    static inline I32 operator!=(float x, F32  y) { return y->neq(x,y); }
 
-    static inline I32 operator< (F32   x, F32a y) { return x.builder->lt(x,y); }
-    static inline I32 operator< (float x, F32  y) { return y.builder->lt(x,y); }
+    static inline I32 operator< (F32   x, F32a y) { return x->lt(x,y); }
+    static inline I32 operator< (float x, F32  y) { return y->lt(x,y); }
 
-    static inline I32 operator<=(F32   x, F32a y) { return x.builder->lte(x,y); }
-    static inline I32 operator<=(float x, F32  y) { return y.builder->lte(x,y); }
+    static inline I32 operator<=(F32   x, F32a y) { return x->lte(x,y); }
+    static inline I32 operator<=(float x, F32  y) { return y->lte(x,y); }
 
-    static inline I32 operator> (F32   x, F32a y) { return x.builder->gt(x,y); }
-    static inline I32 operator> (float x, F32  y) { return y.builder->gt(x,y); }
+    static inline I32 operator> (F32   x, F32a y) { return x->gt(x,y); }
+    static inline I32 operator> (float x, F32  y) { return y->gt(x,y); }
 
-    static inline I32 operator>=(F32   x, F32a y) { return x.builder->gte(x,y); }
-    static inline I32 operator>=(float x, F32  y) { return y.builder->gte(x,y); }
+    static inline I32 operator>=(F32   x, F32a y) { return x->gte(x,y); }
+    static inline I32 operator>=(float x, F32  y) { return y->gte(x,y); }
 
 
     static inline I32& operator+=(I32& x, I32a y) { return (x = x + y); }
@@ -869,6 +871,103 @@ namespace skvm {
     static inline I32 operator-(I32 x) { return 0-x; }
     static inline F32 operator-(F32 x) { return 0-x; }
 
+    static inline void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
+    static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
+    static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
+
+    static inline void store8 (Arg ptr, I32 val) { val->store8 (ptr, val); }
+    static inline void store16(Arg ptr, I32 val) { val->store16(ptr, val); }
+    static inline void store32(Arg ptr, I32 val) { val->store32(ptr, val); }
+    static inline void storeF (Arg ptr, F32 val) { val->storeF (ptr, val); }
+
+    static inline I32 gather8 (Arg ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
+    static inline I32 gather16(Arg ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
+    static inline I32 gather32(Arg ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
+    static inline F32 gatherF (Arg ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
+
+    static inline I32 gather8 (Builder::Uniform u, I32 ix) { return ix->gather8 (u, ix); }
+    static inline I32 gather16(Builder::Uniform u, I32 ix) { return ix->gather16(u, ix); }
+    static inline I32 gather32(Builder::Uniform u, I32 ix) { return ix->gather32(u, ix); }
+    static inline F32 gatherF (Builder::Uniform u, I32 ix) { return ix->gatherF (u, ix); }
+
+    static inline F32        sqrt(F32 x) { return x->       sqrt(x); }
+    static inline F32 approx_log2(F32 x) { return x->approx_log2(x); }
+    static inline F32 approx_pow2(F32 x) { return x->approx_pow2(x); }
+    static inline F32 approx_log (F32 x) { return x->approx_log (x); }
+    static inline F32 approx_exp (F32 x) { return x->approx_exp (x); }
+
+    static inline F32 approx_powf(F32   base, F32a exp) { return base->approx_powf(base, exp); }
+    static inline F32 approx_powf(float base, F32  exp) { return  exp->approx_powf(base, exp); }
+
+    static inline F32 clamp01(F32 x) { return x->clamp01(x); }
+    static inline F32     abs(F32 x) { return x->    abs(x); }
+    static inline F32   fract(F32 x) { return x->  fract(x); }
+    static inline F32   floor(F32 x) { return x->  floor(x); }
+
+    static inline I32    trunc(F32 x) { return x->   trunc(x); }
+    static inline I32    round(F32 x) { return x->   round(x); }
+    static inline I32 bit_cast(F32 x) { return x->bit_cast(x); }
+    static inline F32 bit_cast(I32 x) { return x->bit_cast(x); }
+    static inline F32   to_f32(I32 x) { return x->  to_f32(x); }
+
+    static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
+    static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
+    static inline F32 lerp(float lo, float hi, F32  t) { return  t->lerp(lo,hi,t); }
+
+    static inline F32 clamp(F32   x, F32a  lo, F32a hi) { return  x->clamp(x,lo,hi); }
+    static inline F32 clamp(float x, F32   lo, F32a hi) { return lo->clamp(x,lo,hi); }
+    static inline F32 clamp(float x, float lo, F32  hi) { return hi->clamp(x,lo,hi); }
+
+    static inline F32 norm(F32   x, F32a y) { return x->norm(x,y); }
+    static inline F32 norm(float x, F32  y) { return y->norm(x,y); }
+
+    static inline I32 operator<<(I32 x, int bits) { return x->shl(x, bits); }
+    static inline I32        shl(I32 x, int bits) { return x->shl(x, bits); }
+    static inline I32        shr(I32 x, int bits) { return x->shr(x, bits); }
+    static inline I32        sra(I32 x, int bits) { return x->sra(x, bits); }
+
+    static inline I32 operator&(I32 x, I32a y) { return x->bit_and(x,y); }
+    static inline I32 operator&(int x, I32  y) { return y->bit_and(x,y); }
+
+    static inline I32 operator|(I32 x, I32a y) { return x->bit_or (x,y); }
+    static inline I32 operator|(int x, I32  y) { return y->bit_or (x,y); }
+
+    static inline I32 operator^(I32 x, I32a y) { return x->bit_xor(x,y); }
+    static inline I32 operator^(int x, I32  y) { return y->bit_xor(x,y); }
+
+    static inline I32& operator&=(I32& x, I32a y) { return (x = x & y); }
+    static inline I32& operator|=(I32& x, I32a y) { return (x = x | y); }
+    static inline I32& operator^=(I32& x, I32a y) { return (x = x ^ y); }
+
+    static inline I32 select(I32 cond, I32a t, I32a f) { return cond->select(cond,t,f); }
+    static inline F32 select(I32 cond, F32a t, F32a f) { return cond->select(cond,t,f); }
+
+    static inline I32 bytes(I32 x, int control) { return x->bytes(x,control); }
+
+    static inline I32 extract(I32 x, int bits, I32a z) { return x->extract(x,bits,z); }
+    static inline I32 extract(int x, int bits, I32  z) { return z->extract(x,bits,z); }
+    static inline I32 pack   (I32 x, I32a y, int bits) { return x->pack   (x,y,bits); }
+    static inline I32 pack   (int x, I32  y, int bits) { return y->pack   (x,y,bits); }
+
+    static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
+    static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
+
+    static inline  Color unpack_1010102(I32 rgba) { return rgba->unpack_1010102(rgba); }
+    static inline  Color unpack_8888   (I32 rgba) { return rgba->unpack_8888   (rgba); }
+    static inline  Color unpack_565    (I32 bgr ) { return bgr ->unpack_565    (bgr ); }
+
+    static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->premul(r,g,b,a); }
+    static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->premul(r,g,b,a); }
+
+    static inline Color   premul(Color c) {   premul(&c.r, &c.g, &c.b, c.a); return c; }
+    static inline Color unpremul(Color c) { unpremul(&c.r, &c.g, &c.b, c.a); return c; }
+
+    static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
+
+    static inline Color blend(SkBlendMode m, Color s, Color d) { return s.a->blend(m,s,d); }
+
+    static inline HSLA  to_hsla(Color c) { return c.a->to_hsla(c); }
+    static inline Color to_rgba(HSLA  c) { return c.a->to_rgba(c); }
 }
 
 #endif//SkVM_DEFINED
