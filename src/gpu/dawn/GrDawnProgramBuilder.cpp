@@ -40,40 +40,38 @@ static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString
 
 static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
     switch (coeff) {
-    case kZero_GrBlendCoeff:
-        return wgpu::BlendFactor::Zero;
-    case kOne_GrBlendCoeff:
-        return wgpu::BlendFactor::One;
-    case kSC_GrBlendCoeff:
-        return wgpu::BlendFactor::SrcColor;
-    case kISC_GrBlendCoeff:
-        return wgpu::BlendFactor::OneMinusSrcColor;
-    case kDC_GrBlendCoeff:
-        return wgpu::BlendFactor::DstColor;
-    case kIDC_GrBlendCoeff:
-        return wgpu::BlendFactor::OneMinusDstColor;
-    case kSA_GrBlendCoeff:
-        return wgpu::BlendFactor::SrcAlpha;
-    case kISA_GrBlendCoeff:
-        return wgpu::BlendFactor::OneMinusSrcAlpha;
-    case kDA_GrBlendCoeff:
-        return wgpu::BlendFactor::DstAlpha;
-    case kIDA_GrBlendCoeff:
-        return wgpu::BlendFactor::OneMinusDstAlpha;
-    case kConstC_GrBlendCoeff:
-        return wgpu::BlendFactor::BlendColor;
-    case kIConstC_GrBlendCoeff:
-        return wgpu::BlendFactor::OneMinusBlendColor;
-    case kConstA_GrBlendCoeff:
-    case kIConstA_GrBlendCoeff:
-    case kS2C_GrBlendCoeff:
-    case kIS2C_GrBlendCoeff:
-    case kS2A_GrBlendCoeff:
-    case kIS2A_GrBlendCoeff:
-    default:
-        SkASSERT(!"unsupported blend coefficient");
-        return wgpu::BlendFactor::One;
-    }
+        case kZero_GrBlendCoeff:
+            return wgpu::BlendFactor::Zero;
+        case kOne_GrBlendCoeff:
+            return wgpu::BlendFactor::One;
+        case kSC_GrBlendCoeff:
+            return wgpu::BlendFactor::SrcColor;
+        case kISC_GrBlendCoeff:
+            return wgpu::BlendFactor::OneMinusSrcColor;
+        case kDC_GrBlendCoeff:
+            return wgpu::BlendFactor::DstColor;
+        case kIDC_GrBlendCoeff:
+            return wgpu::BlendFactor::OneMinusDstColor;
+        case kSA_GrBlendCoeff:
+            return wgpu::BlendFactor::SrcAlpha;
+        case kISA_GrBlendCoeff:
+            return wgpu::BlendFactor::OneMinusSrcAlpha;
+        case kDA_GrBlendCoeff:
+            return wgpu::BlendFactor::DstAlpha;
+        case kIDA_GrBlendCoeff:
+            return wgpu::BlendFactor::OneMinusDstAlpha;
+        case kConstC_GrBlendCoeff:
+            return wgpu::BlendFactor::BlendColor;
+        case kIConstC_GrBlendCoeff:
+            return wgpu::BlendFactor::OneMinusBlendColor;
+        case kS2C_GrBlendCoeff:
+        case kIS2C_GrBlendCoeff:
+        case kS2A_GrBlendCoeff:
+        case kIS2A_GrBlendCoeff:
+        default:
+            SkASSERT(!"unsupported blend coefficient");
+            return wgpu::BlendFactor::One;
+        }
 }
 
 static wgpu::BlendFactor to_dawn_blend_factor_for_alpha(GrBlendCoeff coeff) {
