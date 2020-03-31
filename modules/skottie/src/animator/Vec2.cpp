@@ -132,14 +132,14 @@ private:
         , fValues(std::move(vs))
         , fTarget(target_value) {}
 
-    bool update(const Vec2Value& new_value) {
-        const auto updated = (new_value != *fTarget);
+    StateChanged update(const Vec2Value& new_value) {
+        const auto changed = (new_value != *fTarget);
         *fTarget = new_value;
 
-        return updated;
+        return changed;
     }
 
-    bool onSeek(float t) override {
+    StateChanged onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
         const auto& v0 = fValues[lerp_info.vrec0.idx];
