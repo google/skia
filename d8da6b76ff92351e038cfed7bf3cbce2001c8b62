@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "af790883_96c6a0f2",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T20:29:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd44937c_385eee1d",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95debb3e_3fedd3e5",
         "filename": "third_party/third_party.gni",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "e0a038fa_06b5c3b1",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T20:29:31Z",
+      "side": 1,
+      "message": "Yeah, probably should also do public_includes for completeness, but not needed right now.",
+      "parentUuid": "95debb3e_3fedd3e5",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 50
+      },
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a34e6d89_3647a7ad",
         "filename": "third_party/third_party.gni",
         "patchSetId": 2
@@ -53,6 +95,24 @@
       "writtenOn": "2020-03-31T19:25:29Z",
       "side": 1,
       "message": "use third_party_config here?",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6adea90f_ea4b4b2d",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T20:29:31Z",
+      "side": 1,
+      "message": "I tried that, but invoker doesn\u0027t seem to pass through. Would I need invoker.invoker? Also, I\u0027m not updating \u0027public_include_dirs\u0027 anymore (just \u0027include_dirs\u0027).",
+      "parentUuid": "a34e6d89_3647a7ad",
       "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
