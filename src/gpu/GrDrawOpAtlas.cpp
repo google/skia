@@ -408,6 +408,11 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     return ErrorCode::kSucceeded;
 }
 
+bool GrDrawOpAtlas::has(const GrGlyph& g) const {
+
+    return false;
+}
+
 void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;

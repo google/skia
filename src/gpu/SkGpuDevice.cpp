@@ -1034,7 +1034,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
     SkASSERT(vertices);
 
-    SkVerticesPriv info(vertices->priv());
+    SkVerticesPriv info = vertices->priv();
 
     const SkRuntimeEffect* effect =
             paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;

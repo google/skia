@@ -141,15 +141,15 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
 
 void GrTextStrike::removeID(GrDrawOpAtlas::PlotLocator plotLocator) {
     fCache.foreach([this, plotLocator](GrGlyph** glyph){
-        if ((*glyph)->fPlotLocator == plotLocator) {
-            (*glyph)->fPlotLocator = GrDrawOpAtlas::kInvalidPlotLocator;
+        if ((*glyph)->fPlotLocator1 == plotLocator) {
+            (*glyph)->fPlotLocator1 = GrDrawOpAtlas::kInvalidPlotLocator;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
     });
 }
 
-GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
+GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas1(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
                                                        bool isScaledGlyph,
                                                        GrResourceProvider* resourceProvider,
@@ -185,24 +185,24 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-            resourceProvider, &grGlyph->fPlotLocator, target, expectedMaskFormat,
+            resourceProvider, &grGlyph->fPlotLocator1, target, expectedMaskFormat,
             width, height,
-            storage.get(), &grGlyph->fAtlasLocation);
+            storage.get(), &grGlyph->fAtlasLocation1);
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
-            grGlyph->fAtlasLocation.fX += 1;
-            grGlyph->fAtlasLocation.fY += 1;
+            grGlyph->fAtlasLocation1.fX += 1;
+            grGlyph->fAtlasLocation1.fY += 1;
         }
-        SkASSERT(grGlyph->fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
+        SkASSERT(grGlyph->fPlotLocator1 != GrDrawOpAtlas::kInvalidPlotLocator);
         fAtlasedGlyphs++;
     }
     return result;
 }
 
-GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
+GrGlyph* GrTextStrike::getGlyph1(const SkGlyph& skGlyph) {
     GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
     if (grGlyph == nullptr) {
-        grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+        grGlyph = fAlloc1.make<GrGlyph>(skGlyph, false);
         fCache.set(grGlyph);
     }
     return grGlyph;
