@@ -312,7 +312,7 @@ namespace skvm {
         o->writeText(" registers, ");
         o->writeDecAsText(fImpl->instructions.size());
         o->writeText(" instructions:\n");
-        for (int i = 0; i < (int)fImpl->instructions.size(); i++) {
+        for (Val i = 0; i < (Val)fImpl->instructions.size(); i++) {
             if (i == fImpl->loop) { write(o, "loop:\n"); }
             o->writeDecAsText(i);
             o->writeText("\t");
@@ -427,7 +427,7 @@ namespace skvm {
         // If requested, first specialize for our JIT backend.
         auto specialize_for_jit = [&]() -> std::vector<Instruction> {
             Builder specialized;
-            for (int i = 0; i < (int)fProgram.size(); i++) {
+            for (Val i = 0; i < (Val)fProgram.size(); i++) {
                 Instruction inst = fProgram[i];
 
                 #if defined(SK_CPU_X86)
@@ -507,7 +507,7 @@ namespace skvm {
             return pressure;
         };
 
-        auto compare = [&](const Val& lhs, const Val& rhs) {
+        auto compare = [&](Val lhs, Val rhs) {
             SkASSERT(lhs != rhs);
             int lhs_change = pressure_change(lhs);
             int rhs_change = pressure_change(rhs);
