@@ -12,11 +12,12 @@
 #include "src/gpu/d3d/GrD3D12.h"
 #include <memory>
 
+class GrD3DGpu;
 class GrProgramInfo;
 
 class GrD3DPipelineState {
 public:
-    static std::unique_ptr<GrD3DPipelineState> Make(const GrProgramInfo&);
+    static std::unique_ptr<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&);
 
 private:
     GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState);

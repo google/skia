@@ -346,8 +346,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOff = (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
-                    kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+    bool blendOff = GrBlendShouldDisable(equation, srcCoeff, dstCoeff);
 
     mtlColorAttachment.blendingEnabled = !blendOff;
     if (!blendOff) {

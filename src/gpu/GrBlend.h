@@ -112,6 +112,12 @@ static constexpr bool GrBlendCoeffRefsConstant(const GrBlendCoeff coeff) {
     return coeff == kConstC_GrBlendCoeff || coeff == kIConstC_GrBlendCoeff;
 }
 
+static constexpr bool GrBlendShouldDisable(GrBlendEquation equation, GrBlendCoeff srcCoeff,
+                                           GrBlendCoeff dstCoeff) {
+    return (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
+           kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+}
+
 /**
  * Advanced blend equations can always tweak alpha for coverage. (See GrCustomXfermode.cpp)
  *
