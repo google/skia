@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70733d95_e803d786",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T17:48:58Z",
+      "side": 1,
+      "message": "with all our warnings I\u0027m surprised this isn\u0027t some release build that complains this isn\u0027t used.\n\nAlong the same lines I\u0027m not thrilled that GetFallbackColorTypeAndFormat returns the format purely for the one assert here. Nothing that actually calls the function needs the format. But I\u0027m not sure what the better way to verify we\u0027re doing the correct thing is.",
+      "range": {
+        "startLine": 243,
+        "startChar": 21,
+        "endLine": 243,
+        "endChar": 35
+      },
+      "revId": "f57127459aecd6559e6b2f4b1438d7965cb84e42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
