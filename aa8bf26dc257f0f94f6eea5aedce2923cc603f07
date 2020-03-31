@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "ed0dd0b5_6ddcce31",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T17:23:46Z",
+      "side": 0,
+      "message": "+1 to \u003d delete.",
+      "parentUuid": "4cbad638_6ee95d4a",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
