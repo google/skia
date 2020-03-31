@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/GrD3DTypesPriv.h"
-#include "src/gpu/d3d/GrD3D12.h"
 
 #include "src/gpu/d3d/GrD3DResourceState.h"
+
+GrD3DBackendSurfaceInfo::GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo& info,
+                                                 GrD3DResourceState* state)
+    : fTextureResourceInfo(new GrD3DTextureResourceInfo(info))
+    , fResourceState(state) {}
 
 void GrD3DBackendSurfaceInfo::cleanup() {
     SkSafeUnref(fResourceState);
@@ -16,7 +21,7 @@ void GrD3DBackendSurfaceInfo::cleanup() {
 };
 
 void GrD3DBackendSurfaceInfo::assign(const GrD3DBackendSurfaceInfo& that, bool isThisValid) {
-    fTextureResourceInfo = that.fTextureResourceInfo;
+    fTextureResourceInfo.reset(new GrD3DTextureResourceInfo(*that.fTextureResourceInfo));
     GrD3DResourceState* oldLayout = fResourceState;
     fResourceState = SkSafeRef(that.fResourceState);
     if (isThisValid) {
@@ -35,13 +40,17 @@ sk_sp<GrD3DResourceState> GrD3DBackendSurfaceInfo::getGrD3DResourceState() const
 }
 
 GrD3DTextureResourceInfo GrD3DBackendSurfaceInfo::snapTextureResourceInfo() const {
-    return GrD3DTextureResourceInfo(fTextureResourceInfo, fResourceState->getResourceState());
+    return GrD3DTextureResourceInfo(*fTextureResourceInfo, fResourceState->getResourceState());
+}
+
+bool GrD3DBackendSurfaceInfo::isProtected() const {
+    return fTextureResourceInfo->fProtected == GrProtected::kYes;
 }
 
 #if GR_TEST_UTILS
 bool GrD3DBackendSurfaceInfo::operator==(const GrD3DBackendSurfaceInfo& that) const {
-    GrD3DTextureResourceInfo cpyInfoThis = fTextureResourceInfo;
-    GrD3DTextureResourceInfo cpyInfoThat = that.fTextureResourceInfo;
+    GrD3DTextureResourceInfo cpyInfoThis = *fTextureResourceInfo;
+    GrD3DTextureResourceInfo cpyInfoThat = *that.fTextureResourceInfo;
     // We don't care about the fResourceState here since we require they use the same
     // GrD3DResourceState.
     cpyInfoThis.fResourceState = D3D12_RESOURCE_STATE_COMMON;

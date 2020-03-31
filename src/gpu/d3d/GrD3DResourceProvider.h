@@ -8,8 +8,8 @@
 #ifndef GrD3DResourceProvider_DEFINED
 #define GrD3DResourceProvider_DEFINED
 
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkTArray.h"
-#include "src/gpu/d3d/GrD3D12.h"
 
 #include <memory>
 

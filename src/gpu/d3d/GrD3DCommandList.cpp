@@ -24,7 +24,7 @@ void GrD3DCommandList::close() {
 
 void GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
     SkASSERT(!fIsActive);
-    ID3D12CommandList* ppCommandLists[] = { fCommandList.Get() };
+    ID3D12CommandList* ppCommandLists[] = { fCommandList.get() };
     queue->ExecuteCommandLists(1, ppCommandLists);
 }
 
@@ -32,7 +32,7 @@ void GrD3DCommandList::reset() {
     SkASSERT(!fIsActive);
     SkDEBUGCODE(HRESULT hr = ) fAllocator->Reset();
     SkASSERT(SUCCEEDED(hr));
-    SkDEBUGCODE(hr = ) fCommandList->Reset(fAllocator.Get(), nullptr);
+    SkDEBUGCODE(hr = ) fCommandList->Reset(fAllocator.get(), nullptr);
     SkASSERT(SUCCEEDED(hr));
 
     SkDEBUGCODE(fIsActive = true;)
@@ -72,8 +72,8 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 
     gr_cp<ID3D12GraphicsCommandList> commandList;
     SkDEBUGCODE(hr = ) device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                                         allocator.Get(), nullptr,
-                                                         IID_PPV_ARGS(&commandList));
+                                                 allocator.get(), nullptr,
+                                                 IID_PPV_ARGS(&commandList));
     SkASSERT(SUCCEEDED(hr));
 
     auto grCL = new GrD3DDirectCommandList(std::move(allocator), std::move(commandList));
@@ -94,7 +94,7 @@ std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(ID3D12Device* d
     SkASSERT(SUCCEEDED(hr));
 
     gr_cp<ID3D12GraphicsCommandList> commandList;
-    SkDEBUGCODE(hr = ) device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, allocator.Get(),
+    SkDEBUGCODE(hr = ) device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, allocator.get(),
                                                  nullptr, IID_PPV_ARGS(&commandList));
     SkASSERT(SUCCEEDED(hr));
     auto grCL = new GrD3DCopyCommandList(std::move(allocator), std::move(commandList));

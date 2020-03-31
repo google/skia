@@ -9,7 +9,7 @@
 #ifndef GrD3DTextureRenderTarget_DEFINED
 #define GrD3DTextureRenderTarget_DEFINED
 
-#include "src/gpu/d3d/GrD3D12.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 

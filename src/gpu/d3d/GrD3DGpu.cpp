@@ -33,8 +33,8 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
         , fResourceProvider(this)
         , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt) {
     fCaps.reset(new GrD3DCaps(contextOptions,
-                              backendContext.fAdapter.Get(),
-                              backendContext.fDevice.Get()));
+                              backendContext.fAdapter.get(),
+                              backendContext.fDevice.get()));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
     SkASSERT(fCurrentDirectCommandList);
@@ -97,12 +97,12 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
 void GrD3DGpu::submitDirectCommandList() {
     SkASSERT(fCurrentDirectCommandList);
 
-    fCurrentDirectCommandList->submit(fQueue.Get());
+    fCurrentDirectCommandList->submit(fQueue.get());
 
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
             std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
 
-    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.Get(), fCurrentFenceValue);
+    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), fCurrentFenceValue);
     SkASSERT(SUCCEEDED(hr));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
@@ -220,7 +220,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
 static bool check_resource_info(const GrD3DCaps& caps,
                                 const GrD3DTextureResourceInfo& info,
                                 GrColorType colorType) {
-    if (!info.fResource) {
+    if (!info.fResource.get()) {
         return false;
     }
 
