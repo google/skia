@@ -31,7 +31,7 @@ class GrGLTextureParameters;
 #endif
 
 #ifdef SK_DIRECT3D
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/d3d/GrD3DTypesMinimal.h"
 #include "include/private/GrD3DTypesPriv.h"
 class GrD3DResourceState;
 #endif
