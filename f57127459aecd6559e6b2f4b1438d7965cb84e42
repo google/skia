@@ -22,6 +22,30 @@
       "revId": "f57127459aecd6559e6b2f4b1438d7965cb84e42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e630ce97_97d34922",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-03-31T17:56:24Z",
+      "side": 1,
+      "message": "We could make the return of format useful by deleting MakeWithFallback and have all callers do GetFallbakColorTypeAndFormat() and then just call Make(). I\u0027m not sure it\u0027s an improvement, though.",
+      "parentUuid": "70733d95_e803d786",
+      "range": {
+        "startLine": 243,
+        "startChar": 21,
+        "endLine": 243,
+        "endChar": 35
+      },
+      "revId": "f57127459aecd6559e6b2f4b1438d7965cb84e42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
