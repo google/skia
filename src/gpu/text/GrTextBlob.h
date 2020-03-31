@@ -28,7 +28,7 @@
 
 class GrAtlasManager;
 class GrAtlasTextOp;
-struct GrGlyph;
+class GrGlyph;
 
 class SkTextBlob;
 class SkTextBlobRunIterator;
