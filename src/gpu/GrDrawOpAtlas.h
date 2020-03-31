@@ -19,6 +19,7 @@
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+class GrGlyph;
 class GrOnFlushResourceProvider;
 
 
@@ -167,6 +168,8 @@ public:
     const GrSurfaceProxyView* getViews() const { return fViews; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
+
+    bool has(const GrGlyph& g) const;
 
     bool hasID(PlotLocator plotLocator) {
         if (kInvalidPlotLocator == plotLocator) {
