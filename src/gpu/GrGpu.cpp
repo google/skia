@@ -26,6 +26,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStagingBuffer.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfacePriv.h"
@@ -657,6 +658,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
     }
 
+    this->unmapStagingBuffers();
+
     // We always want to try flushing, so do that before checking if we failed semaphore creation.
     if (!this->onFinishFlush(proxies, n, access, info, externalRequests) ||
         failedSemaphoreCreation) {
@@ -680,6 +683,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
     }
 
+    this->mapStagingBuffers();
     return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }
@@ -897,4 +901,48 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
 
     return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped,
                                                   isProtected, data);
+}
+
+GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
+    for (const auto &b : fStagingBuffers) {
+        if (!b->busy() && b->remaining() >= size) {
+            return b.get();
+        }
+    }
+    return nullptr;
+}
+
+GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
+    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size);
+    if (!stagingBuffer) {
+        std::unique_ptr<GrStagingBuffer> b = this->onCreateStagingBuffer(size);
+        stagingBuffer = b.get();
+        fStagingBuffers.push_back(std::move(b));
+    }
+    return stagingBuffer->allocate(size);
+}
+
+void GrGpu::unmapStagingBuffers() {
+    // Unmap all non-empty, non-busy buffers.
+    for (const auto &b : fStagingBuffers) {
+        GrStagingBuffer* buffer = b.get();
+        if (!buffer->empty() && !buffer->busy()) {
+            buffer->unmap();
+            fStagingBufferBusyCount++;
+        }
+    }
+}
+
+void GrGpu::mapStagingBuffers() {
+    // Map all non-empty, non-busy buffers.
+    for (const auto &b : fStagingBuffers) {
+        GrStagingBuffer* buffer = b.get();
+        if (!buffer->empty() && !buffer->busy()) {
+            buffer->mapAsync();
+        }
+    }
+}
+
+void GrGpu::markStagingBufferReady() {
+    fStagingBufferBusyCount--;
 }
