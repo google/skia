@@ -536,7 +536,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         fb[stops.size()] = { 0.0f, color_lo };
 
         // We'll gather FBs from that array we just created.
-        skvm::Builder::Uniform fbs = uniforms->pushPtr(fb);
+        skvm::Uniform fbs = uniforms->pushPtr(fb);
 
         // Find the two stops we need to interpolate.
         skvm::I32 ix;
