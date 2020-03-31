@@ -155,6 +155,18 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 }
 
+bool GrContext::isContextLost() {
+    if (this->abandoned()) {
+        return true;
+    }
+
+    if (fGpu->isDeviceLost()) {
+        this->abandonContext();
+        return true;
+    }
+    return false;
+}
+
 void GrContext::resetGLTextureBindings() {
     if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
         return;
