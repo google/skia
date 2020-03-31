@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "ddacf60d_29fd2c2c",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-31T18:55:25Z",
+      "side": 1,
+      "message": "If there isn\u0027t a current program now, what happens if they call draw later on? Should we always defer binding in that case? Or should we assert that there is a current program?",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9ceae95_2d97f904",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-31T18:55:25Z",
+      "side": 1,
+      "message": "Could we clean this up to:\n\n   if (caps check) {\n      this-\u003ebindVertexBuffer(..., baseVertex);\n      baseVertex \u003d 0;\n      // fall through\n   }\n\n   fGpu-\u003edrawArrays(...);",
+      "range": {
+        "startLine": 137,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 0
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c75b93b4_35359fef",
         "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
         "patchSetId": 4
