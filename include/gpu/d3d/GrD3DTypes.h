@@ -9,33 +9,28 @@
 #ifndef GrD3DTypes_DEFINED
 #define GrD3DTypes_DEFINED
 
-#include <dxgiformat.h>
-
-#include <functional>
-#include "include/gpu/GrTypes.h"
-
-struct ID3D12Resource;
-typedef int GrD3DResourceStateEnum;
+#include "include/gpu/d3d/GrD3DTypesMinimal.h"
+#include <d3d12.h>
 
 // Note: there is no notion of Borrowed or Adopted resources in the D3D backend,
 // so Ganesh will ref fResource once it's asked to wrap it.
 // Clients are responsible for releasing their own ref to avoid memory leaks.
 struct GrD3DTextureResourceInfo {
     ID3D12Resource*          fResource;
-    GrD3DResourceStateEnum   fResourceState;
+    D3D12_RESOURCE_STATES    fResourceState;
     DXGI_FORMAT              fFormat;
     uint32_t                 fLevelCount;
     GrProtected              fProtected;
 
     GrD3DTextureResourceInfo()
             : fResource(nullptr)
-            , fResourceState(0) // D3D_RESOURCE_STATES_COMMON
+            , fResourceState(D3D12_RESOURCE_STATE_COMMON)
             , fFormat(DXGI_FORMAT_UNKNOWN)
             , fLevelCount(0)
             , fProtected(GrProtected::kNo) {}
 
     GrD3DTextureResourceInfo(ID3D12Resource* resource,
-                             GrD3DResourceStateEnum resourceState,
+                             D3D12_RESOURCE_STATES resourceState,
                              DXGI_FORMAT format,
                              uint32_t levelCount,
                              GrProtected isProtected = GrProtected::kNo)
@@ -48,7 +43,7 @@ struct GrD3DTextureResourceInfo {
     GrD3DTextureResourceInfo(const GrD3DTextureResourceInfo& info,
                              GrD3DResourceStateEnum resourceState)
             : fResource(info.fResource)
-            , fResourceState(resourceState)
+            , fResourceState(static_cast<D3D12_RESOURCE_STATES>(resourceState))
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
             , fProtected(info.fProtected) {}
