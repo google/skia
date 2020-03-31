@@ -10,9 +10,9 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrManagedResource.h"
-#include "src/gpu/d3d/GrD3D12.h"
 #include "src/gpu/d3d/GrD3DResourceState.h"
 
 class GrD3DGpu;
@@ -34,7 +34,7 @@ public:
 
     ID3D12Resource* d3dResource() const {
         SkASSERT(fResource);
-        return fInfo.fResource;
+        return fInfo.fResource.get();
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
@@ -83,7 +83,7 @@ private:
             : fResource(nullptr) {
         }
 
-        Resource(ID3D12Resource* textureResource)
+        Resource(const gr_cp<ID3D12Resource>& textureResource)
             : fResource(textureResource) {
         }
 
@@ -91,7 +91,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.Get(), this->getRefCnt());
+            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.get(), this->getRefCnt());
         }
 #endif
 
