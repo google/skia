@@ -2163,15 +2163,6 @@ void SkCanvas::legacy_drawImageRect(const SkImage* image, const SkRect* src, con
                             dst, paint, constraint);
     }
 }
-void SkCanvas::legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint, SrcRectConstraint constraint) {
-    if (src) {
-        this->drawBitmapRect(bitmap, *src, dst, paint, constraint);
-    } else {
-        this->drawBitmapRect(bitmap, SkRect::MakeIWH(bitmap.width(), bitmap.height()),
-                             dst, paint, constraint);
-    }
-}
 
 void SkCanvas::private_draw_shadow_rec(const SkPath& path, const SkDrawShadowRec& rec) {
     TRACE_EVENT0("skia", TRACE_FUNC);
