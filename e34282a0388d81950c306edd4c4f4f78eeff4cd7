@@ -93,6 +93,30 @@
       "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91870697_a30954b9",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T15:52:05Z",
+      "side": 1,
+      "message": "Goot point on reverse subtract. I like the shared function.",
+      "parentUuid": "fe7be7d8_d00ba509",
+      "range": {
+        "startLine": 173,
+        "startChar": 9,
+        "endLine": 173,
+        "endChar": 17
+      },
+      "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
