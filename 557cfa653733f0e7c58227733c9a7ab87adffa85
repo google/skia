@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60a5db2a_6b4237aa",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-31T15:28:00Z",
+      "side": 1,
+      "message": "This code is symptomatic of having source and display coordinates.",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 9
+      },
+      "revId": "557cfa653733f0e7c58227733c9a7ab87adffa85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
