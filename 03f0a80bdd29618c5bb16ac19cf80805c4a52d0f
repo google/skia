@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d41bc0eb_234d39da",
+        "filename": "include/gpu/d3d/GrD3DBackendContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T21:07:03Z",
+      "side": 1,
+      "message": "If we put this here, which I realize GrD3D12 was here before, we need to put the big warning about windows.h here as well (and anyone that include GrD3DBackendContext as well, but I would be surprised if any include did).",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 39
+      },
+      "revId": "03f0a80bdd29618c5bb16ac19cf80805c4a52d0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
