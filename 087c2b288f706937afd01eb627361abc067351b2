@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e411538_906460e5",
+        "filename": "src/core/SkVerticesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T20:35:21Z",
+      "side": 1,
+      "message": "// Never called due to RVO in priv(), but must exist for MSVC 2017.\n\n?",
+      "revId": "087c2b288f706937afd01eb627361abc067351b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
