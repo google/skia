@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3bf1bdd2_c575747f",
+        "filename": "src/gpu/gl/GrGLInterfaceAutogen.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T17:09:03Z",
+      "side": 1,
+      "message": "Just landed https://chromium-review.googlesource.com/c/chromium/src/+/2128453",
+      "parentUuid": "af4c2206_cc94d683",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 246,
+        "endChar": 9
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bf92e2b_3517434e",
         "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "79200832_e4ce8b84",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T17:09:03Z",
+      "side": 1,
+      "message": "There actually is no such thing as baseVertex support without baseInstance. glDrawElementsInstanced has neither baseVertex nor baseInstance, and ARB_base_instance/EXT_base_instance introduce both. So, since we don\u0027t know which draw call the client intends to make, we need to just defer everything.\n\n(The baseVertex in glDrawArrays actually isn\u0027t even an extension. This has been core functionality all along, so it\u0027s not even an extension that\u0027s broken there.)",
+      "parentUuid": "8bf92e2b_3517434e",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7df33921_8d355203",
         "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2020-03-31T16:41:10Z",
       "side": 1,
       "message": "Should the caps for drawArraysBaseVertexIsBroken apply here too?",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 172,
+        "endChar": 60
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a6956de_1f82a464",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T17:09:03Z",
+      "side": 1,
+      "message": "I don\u0027t think so. This is the way Skia has always worked and we haven\u0027t encountered any driver bugs that we know of. That cap is for glDrawArrays specifically.",
+      "parentUuid": "7df33921_8d355203",
       "range": {
         "startLine": 169,
         "startChar": 12,
