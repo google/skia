@@ -1046,7 +1046,7 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
                                                          OpszVariation opsz)
 {
     SkUniqueCFRef<CFMutableDictionaryRef> attr(
-    CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks));
 
