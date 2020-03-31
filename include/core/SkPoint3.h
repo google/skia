@@ -33,6 +33,7 @@ struct SK_API SkPoint3 {
         return !(a == b);
     }
 
+private:
     /** Returns the Euclidian distance from (0,0,0) to (x,y,z)
     */
     static SkScalar Length(SkScalar x, SkScalar y, SkScalar z);
@@ -47,6 +48,7 @@ struct SK_API SkPoint3 {
     */
     bool normalize();
 
+public:
     /** Return a new point whose X, Y and Z coordinates are scaled.
     */
     SkPoint3 makeScale(SkScalar scale) const {
