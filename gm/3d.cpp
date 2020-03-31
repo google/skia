@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkData.h"
 #include "include/core/SkCanvas.h"
 
 struct Info {
