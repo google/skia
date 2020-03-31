@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50fa9c47_8ecf711c",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T17:23:27Z",
+      "side": 1,
+      "message": "Don\u0027t you need to do some sort of force sync here before you start calling callbacks?",
+      "range": {
+        "startLine": 488,
+        "startChar": 16,
+        "endLine": 489,
+        "endChar": 8
+      },
+      "revId": "7a607a1d1da1f8c3e3437572a41dc401808f52bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7177b70_c8cb1b0e",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T17:23:27Z",
+      "side": 1,
+      "message": "should we not be pushing these back onto the fFenceBuffers array? And should that array just store fence objects instead of just the buffers (would need a \"reset\" type call to do the asyn map call again).",
+      "range": {
+        "startLine": 660,
+        "startChar": 8,
+        "endLine": 660,
+        "endChar": 59
+      },
+      "revId": "7a607a1d1da1f8c3e3437572a41dc401808f52bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
