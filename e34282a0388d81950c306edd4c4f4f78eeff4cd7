@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "75241490_eb4f4c53",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T13:17:36Z",
+      "side": 1,
+      "message": "Yeah",
+      "parentUuid": "e376a728_255b4b65",
+      "range": {
+        "startLine": 138,
+        "startChar": 34,
+        "endLine": 138,
+        "endChar": 35
+      },
+      "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7aa0522f_342a3f8e",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-30T21:31:36Z",
       "side": 1,
       "message": "Maybe a comment about why we don\u0027t care about reverse-subtract? I understand this was probably copied from somewhere else, but I say we could maybe either go in all the way and include reverse-subtract, or else just look for the simple case of (add, one, zero).",
+      "range": {
+        "startLine": 173,
+        "startChar": 9,
+        "endLine": 173,
+        "endChar": 17
+      },
+      "revId": "e34282a0388d81950c306edd4c4f4f78eeff4cd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe7be7d8_d00ba509",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-03-31T13:17:36Z",
+      "side": 1,
+      "message": "So I\u0027m not sure there is a way for us to turn of blending with reverse subtract. Turning off blending means we want to just write out the src color. So with reverse subtract the closest we can get to that is -Src. If we want to just turn off of writing any colors and keep the dst, that is controled by the blendInfo.fWriteColor below.\n\nRegardless I moved the Disable check to a shared function that all the backends now use.",
+      "parentUuid": "7aa0522f_342a3f8e",
       "range": {
         "startLine": 173,
         "startChar": 9,
