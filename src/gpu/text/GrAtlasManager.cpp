@@ -28,9 +28,9 @@ void GrAtlasManager::freeAll() {
     }
 }
 
-bool GrAtlasManager::hasGlyph(GrMaskFormat format, GrGlyph* glyph) {
+bool GrAtlasManager::hasGlyph1(GrMaskFormat format, GrGlyph* glyph) {
     SkASSERT(glyph);
-    return this->getAtlas(format)->hasID(glyph->fPlotLocator);
+    return this->getAtlas(format)->hasID(glyph->fPlotLocator1);
 }
 
 // add to texture atlas that matches this format
@@ -43,12 +43,12 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
             resourceProvider, plotLocator, target, width, height, image, loc);
 }
 
-void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
+void GrAtlasManager::addGlyphToBulkAndSetUseToken1(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
                                                   GrMaskFormat format, GrGlyph* glyph,
                                                   GrDeferredUploadToken token) {
     SkASSERT(glyph);
-    if (updater->add(glyph->fPlotLocator)) {
-        this->getAtlas(format)->setLastUseToken(glyph->fPlotLocator, token);
+    if (updater->add(glyph->fPlotLocator1)) {
+        this->getAtlas(format)->setLastUseToken(glyph->fPlotLocator1, token);
     }
 }
 

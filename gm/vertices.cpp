@@ -352,7 +352,7 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
                        {256, 256}, {171, 256}, {85, 256}, {0, 256}, {0, 171},  {0, 85}};
 
     auto patchVerts = SkPatchUtils::MakeVertices(pts, nullptr, nullptr, 12, 12);
-    SkVerticesPriv pv(patchVerts->priv());
+    SkVerticesPriv pv = patchVerts->priv();
 
     SkVertices::CustomLayout customLayout { 1 };
     SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), customLayout);
