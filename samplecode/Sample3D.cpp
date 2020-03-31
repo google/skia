@@ -260,7 +260,9 @@ public:
         return this->Sample3DView::onChar(uni);
     }
 
-    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
+    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront, bool drawShadow) = 0;
+
+    virtual SkM44 shadowM() { return SkM44(); }
 
     void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
         auto l2d = canvas->getLocalToDevice();
@@ -289,8 +291,18 @@ public:
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
                 SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
+                canvas->save();
+                {
+                    SkM44 s = this->shadowM();
+                    canvas->concat44(trans * s * m * inv(trans));
+                    this->drawContent(canvas, f.fColor, index, drawFront, true);
+                }
+                canvas->restore();
+
                 canvas->concat44(trans * m * inv(trans));
-                this->drawContent(canvas, f.fColor, index++, drawFront);
+                this->drawContent(canvas, f.fColor, index, drawFront, false);
+
+                index += 1;
             }
         }
 
@@ -414,8 +426,9 @@ public:
         fEffect = effect;
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->getLocalToDevice())) {
+    void drawContent(SkCanvas* canvas, SkColor color, int index,
+                     bool drawFront, bool drawShadow) override {
+        if (!drawFront || !front(canvas->getLocalToDevice()) || drawShadow) {
             return;
         }
 
@@ -473,8 +486,8 @@ public:
         }
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
-        if (!drawFront || !front(canvas->getLocalToDevice())) {
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront, bool drawShadow) override {
+        if (!drawFront || !front(canvas->getLocalToDevice()) || drawShadow) {
             return;
         }
 
@@ -495,3 +508,119 @@ public:
     }
 };
 DEF_SAMPLE( return new SampleSkottieCube; )
+
+static bool shadow_matrix(SkM44* m, SkV4 light, SkV4 plane) {
+    float d = light.dot(plane);
+    if (d <= 0) {
+        return false;
+    }
+
+    *m = SkM44::Cols(SkV4{d, 0, 0, 0} - light.x * plane,
+                     SkV4{0, d, 0, 0} - light.y * plane,
+                     SkV4{0, 0, d, 0} - light.z * plane,
+                     SkV4{0, 0, 0, d} - light.w * plane);
+    return true;
+}
+
+static SkV4 make4(SkV3 v, float w) { return {v.x, v.y, v.z, w}; }
+
+class SampleShadow3D : public Sample {
+    SkRRect fRR;
+
+    float   fNear = 0.05f;
+    float   fFar = 4;
+    float   fAngle = SK_ScalarPI / 12;
+
+    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkV3    fCOA { 0, 0, 0 };
+    SkV3    fUp  { 0, 1, 0 };
+
+    void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
+        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
+              perspective = Sk3Perspective(fNear, fFar, fAngle),
+              viewport = SkM44::Translate(area.centerX(), area.centerY(), 0) *
+                         SkM44::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
+
+        // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+        // as part of our "camera".
+        canvas->experimental_saveCamera(viewport * perspective, camera * inv(viewport));
+    }
+
+public:
+    SampleShadow3D() {}
+
+    SkString name() override { return SkString("shadow3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({-0.5, -0.5, 0.5, 0.5}, 0.1f, 0.1f);
+    }
+
+    void draw(SkCanvas* canvas, bool shadow) {
+        SkM44 mv = SkM44::Translate(0, 0, fMVZ);
+        if (false) {
+            auto v = mv * SkV4{0, 0, 0, 1};
+            SkDebugf("%d [%g %g %g %g]\n", shadow, v.x, v.y, v.z, v.w);
+        }
+        canvas->concat44(mv);
+
+        SkPaint p;
+        if (shadow) {
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeWidth(3.0f/200);
+//            p.setColor(0x88CCCCCC);
+        } else {
+            p.setColor(0x88FF0000);
+            return;
+        }
+        canvas->drawRRect(fRR, p);
+}
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint p;
+
+        SkV4 light = {0, 0, 8, 1},
+             plane = {0, 0, 1, 0};
+
+        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
+              perspective = Sk3Perspective(fNear, fFar, fAngle);
+
+        canvas->translate(300, 300);
+        canvas->scale(200, 200);
+        p.setColor(SK_ColorBLUE);
+        canvas->drawRRect(fRR, p);
+
+        canvas->experimental_saveCamera(perspective, camera);
+
+        SkM44 shm;
+        if (shadow_matrix(&shm, light, plane)) {
+            canvas->save();
+            canvas->concat44(shm);
+            shm.dump();
+            this->draw(canvas, true);
+            canvas->restore();
+        }
+        this->draw(canvas, false);
+    }
+
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'u': fMVZ += 0.1f; return true;
+            case 'd': fMVZ -= 0.1f; return true;
+        }
+        return this->Sample::onChar(uni);
+    }
+
+    float fMVZ = 0;
+};
+DEF_SAMPLE( return new SampleShadow3D; )
+
+
+#if 0
+SkM44 shadowM() override {
+    SkM44 s;
+    if (shadow_matrix(&s, make4(fLight.computeWorldPos(fSphere), 0), {0, 0, 1, 0})) {
+        return s;
+    }
+    return SkM44::Scale(0, 0, 0);
+}
+#endif
