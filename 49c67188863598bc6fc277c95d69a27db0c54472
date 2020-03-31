@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c75b93b4_35359fef",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T18:44:18Z",
+      "side": 1,
+      "message": "Wondering if Brian can weigh in on skipping drawRangeElements()? I think you\u0027re most familiar with why this was added and where it\u0027s helpful.",
+      "range": {
+        "startLine": 152,
+        "startChar": 18,
+        "endLine": 152,
+        "endChar": 61
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

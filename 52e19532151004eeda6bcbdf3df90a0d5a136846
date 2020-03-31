@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "53ba64eb_c7a5bb8a",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T18:44:18Z",
+      "side": 1,
+      "message": "Actually we do have some knowledge about which draw call they will use, based on indexBuffer. Updated accordingly.",
+      "parentUuid": "d159fccd_7f83af1a",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7df33921_8d355203",
         "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
         "patchSetId": 3
