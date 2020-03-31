@@ -280,6 +280,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// ANGLE bot *only* runs the angle configs
 		if b.extraConfig("ANGLE") {
+			configs = []string{"dawn"}
+		}
+
+		// Dawn bot *only* runs the dawn config
+		if b.extraConfig("ANGLE") {
 			configs = []string{"angle_d3d11_es2",
 				"angle_d3d9_es2",
 				"angle_gl_es2",
