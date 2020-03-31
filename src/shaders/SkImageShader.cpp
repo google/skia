@@ -730,7 +730,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
                   clamped_y = clamp(sy, pm.height());
 
         // Load pixels from pm.addr()[(int)sx + (int)sy*stride].
-        skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
+        skvm::Uniform img = uniforms->pushPtr(pm.addr());
         skvm::I32 index = p->add(p->trunc(clamped_x),
                           p->mul(p->trunc(clamped_y),
                                  p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));

@@ -425,10 +425,10 @@ namespace skvm {
 
     std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
         // If requested, first specialize for our JIT backend.
-        auto specialize_for_jit = [&]() -> std::vector<Builder::Instruction> {
+        auto specialize_for_jit = [&]() -> std::vector<Instruction> {
             Builder specialized;
             for (int i = 0; i < (int)fProgram.size(); i++) {
-                Builder::Instruction inst = fProgram[i];
+                Instruction inst = fProgram[i];
 
                 #if defined(SK_CPU_X86)
                 switch (Op imm_op; inst.op) {
@@ -478,8 +478,7 @@ namespace skvm {
             }
             return specialized.fProgram;
         };
-        const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
-                                                                   : fProgram;
+        const std::vector<Instruction>& program = for_jit ? specialize_for_jit() : fProgram;
 
         std::vector<bool> live_instructions;
         std::vector<Val> frontier;
@@ -496,7 +495,7 @@ namespace skvm {
 
         auto pressure_change = [&](Val id) -> int {
             int pressure = 0;
-            Builder::Instruction inst = program[id];
+            Instruction inst = program[id];
 
             // If this is not a sink, then it takes up a register
             if (inst.op > Op::store32) { pressure += 1; }
@@ -550,7 +549,7 @@ namespace skvm {
             Val id = frontier.back();
             frontier.pop_back();
             new_index[id] = i;
-            Builder::Instruction inst = program[id];
+            Instruction inst = program[id];
             SkASSERT(remaining_uses[id] == 0);
 
             // Use the old indices, and fix them up later.
@@ -648,7 +647,7 @@ namespace skvm {
         return (uint64_t)lo | (uint64_t)hi << 32;
     }
 
-    static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
+    bool operator==(const Instruction& a, const Instruction& b) {
         return a.op   == b.op
             && a.x    == b.x
             && a.y    == b.y
@@ -657,7 +656,7 @@ namespace skvm {
             && a.immz == b.immz;
     }
 
-    uint32_t Builder::InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
+    uint32_t InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
         return SkOpts::hash(&inst, sizeof(inst), seed);
     }
 
@@ -1426,7 +1425,7 @@ namespace skvm {
     //    - (*live)[id]: notes whether each input instruction is live
     //    - *sinks: an unsorted set of live instructions with side effects (stores, assert_true)
     // Returns the number of live instructions.
-    int liveness_analysis(const std::vector<Builder::Instruction>& instructions,
+    int liveness_analysis(const std::vector<Instruction>& instructions,
                           std::vector<bool>* live,
                           std::vector<Val>*  sinks) {
         int instruction_count = instructions.size();
@@ -1436,7 +1435,7 @@ namespace skvm {
           if (!(*live)[id]) {
               (*live)[id] = true;
               liveInstructionCount++;
-              Builder::Instruction inst = instructions[id];
+              Instruction inst = instructions[id];
               if (inst.x != NA) { recurse(inst.x, recurse); }
               if (inst.y != NA) { recurse(inst.y, recurse); }
               if (inst.z != NA) { recurse(inst.z, recurse); }
@@ -1483,7 +1482,7 @@ namespace skvm {
         return SkMakeSpan(fTable.data() + begin, end - begin);
     }
 
-    Uses::Uses(const std::vector<Builder::Instruction>& instructions,
+    Uses::Uses(const std::vector<Instruction>& instructions,
                const std::vector<bool>& liveness) {
         int instruction_count = instructions.size();
 
@@ -1492,7 +1491,7 @@ namespace skvm {
         out_edge_count.resize(instruction_count);
         for (Val id = 0; id < instruction_count; id++) {
             if (liveness[id]) {
-                Builder::Instruction inst = instructions[id];
+                Instruction inst = instructions[id];
                 if (inst.x != NA) {
                     out_edge_count[inst.x] += 1;
                 }
@@ -1522,7 +1521,7 @@ namespace skvm {
         std::vector<int> edge_cursor{fIndex};
         for (Val id = 0; id < instruction_count; id++) {
             if (liveness[id]) {
-                Builder::Instruction inst = instructions[id];
+                Instruction inst = instructions[id];
                 if (inst.x != NA) {
                     fTable[edge_cursor[inst.x]] = id;
                     edge_cursor[inst.x] += 1;
