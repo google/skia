@@ -190,11 +190,11 @@ sk_sp<SkVertices> SkVertices::Builder::detach() {
 }
 
 int SkVertices::Builder::vertexCount() const {
-    return fVertices ? fVertices->vertexCount() : 0;
+    return fVertices ? fVertices->fVertexCount : 0;
 }
 
 int SkVertices::Builder::indexCount() const {
-    return fVertices ? fVertices->indexCount() : 0;
+    return fVertices ? fVertices->fIndexCount : 0;
 }
 
 int SkVertices::Builder::perVertexDataCount() const {
@@ -202,7 +202,7 @@ int SkVertices::Builder::perVertexDataCount() const {
 }
 
 SkPoint* SkVertices::Builder::positions() {
-    return fVertices ? const_cast<SkPoint*>(fVertices->positions()) : nullptr;
+    return fVertices ? const_cast<SkPoint*>(fVertices->fPositions) : nullptr;
 }
 
 float* SkVertices::Builder::perVertexData() {
@@ -210,11 +210,11 @@ float* SkVertices::Builder::perVertexData() {
 }
 
 SkPoint* SkVertices::Builder::texCoords() {
-    return fVertices ? const_cast<SkPoint*>(fVertices->texCoords()) : nullptr;
+    return fVertices ? const_cast<SkPoint*>(fVertices->fTexs) : nullptr;
 }
 
 SkColor* SkVertices::Builder::colors() {
-    return fVertices ? const_cast<SkColor*>(fVertices->colors()) : nullptr;
+    return fVertices ? const_cast<SkColor*>(fVertices->fColors) : nullptr;
 }
 
 uint16_t* SkVertices::Builder::indices() {
@@ -224,7 +224,7 @@ uint16_t* SkVertices::Builder::indices() {
     if (fIntermediateFanIndices) {
         return reinterpret_cast<uint16_t*>(fIntermediateFanIndices.get());
     }
-    return const_cast<uint16_t*>(fVertices->indices());
+    return const_cast<uint16_t*>(fVertices->fIndices);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,10 +255,7 @@ size_t SkVertices::approximateSize() const {
 }
 
 SkVertices::Sizes SkVertices::getSizes() const {
-    Sizes sizes({
-        fMode, fVertexCount, fIndexCount, fPerVertexDataCount,
-        this->hasTexCoords(), this->hasColors()
-    });
+    Sizes sizes({fMode, fVertexCount, fIndexCount, fPerVertexDataCount, !!fTexs, !!fColors});
     SkASSERT(sizes.isValid());
     return sizes;
 }
@@ -307,10 +304,10 @@ sk_sp<SkData> SkVertices::encode() const {
     // packed has room for addtional flags in the future (e.g. versioning)
     uint32_t packed = static_cast<uint32_t>(fMode);
     SkASSERT((packed & ~kMode_Mask) == 0);  // our mode fits in the mask bits
-    if (this->hasTexCoords()) {
+    if (fTexs) {
         packed |= kHasTexs_Mask;
     }
-    if (this->hasColors()) {
+    if (fColors) {
         packed |= kHasColors_Mask;
     }
     packed |= kCurrent_Version << kVersion_Shift;

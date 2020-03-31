@@ -21,10 +21,10 @@ class SkVerticesPriv {
 public:
     SkVertices::VertexMode mode() const { return fVertices->fMode; }
 
-    bool hasColors() const { return fVertices->hasColors(); }
-    bool hasTexCoords() const { return fVertices->hasTexCoords(); }
-    bool hasIndices() const { return fVertices->hasIndices(); }
-    bool hasPerVertexData() const { return fVertices->hasPerVertexData(); }
+    bool hasPerVertexData() const { return SkToBool(fVertices->fPerVertexData); }
+    bool hasColors() const { return SkToBool(fVertices->fColors); }
+    bool hasTexCoords() const { return SkToBool(fVertices->fTexs); }
+    bool hasIndices() const { return SkToBool(fVertices->fIndices); }
 
     int vertexCount() const { return fVertices->fVertexCount; }
     int indexCount() const { return fVertices->fIndexCount; }

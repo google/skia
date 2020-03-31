@@ -16,6 +16,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkVertState.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkComposeShader.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -260,14 +261,15 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
                                  const SkPaint& paint, const SkMatrix& ctmInv,
                                  const SkPoint dev2[], const SkPoint3 dev3[],
                                  SkArenaAlloc* outerAlloc) const {
-    SkASSERT(vertices->perVertexDataCount() == 0);
+    SkVerticesPriv info(vertices->priv());
+    SkASSERT(!info.hasPerVertexData());
 
-    const int vertexCount = vertices->vertexCount();
-    const int indexCount = vertices->indexCount();
-    const SkPoint* positions = vertices->positions();
-    const SkPoint* textures = vertices->texCoords();
-    const uint16_t* indices = vertices->indices();
-    const SkColor* colors = vertices->colors();
+    const int vertexCount = info.vertexCount();
+    const int indexCount = info.indexCount();
+    const SkPoint* positions = info.positions();
+    const SkPoint* textures = info.texCoords();
+    const uint16_t* indices = info.indices();
+    const SkColor* colors = info.colors();
 
     // make textures and shader mutually consistent
     SkShader* shader = paint.getShader();
@@ -307,7 +309,7 @@ void SkDraw::draw_fixed_vertices(const SkVertices* vertices, SkBlendMode bmode,
     const bool usePerspective = fMatrix->hasPerspective();
 
     VertState       state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(vertices->mode());
+    VertState::Proc vertProc = state.chooseProc(info.mode());
 
     // Draw hairlines to show the skeleton
     if (!(colors || textures)) {
@@ -436,20 +438,21 @@ void SkDraw::draw_vdata_vertices(const SkVertices* vt, const SkPaint& paint,
     SkASSERT(!!dev2 != !!dev3);
     SkASSERT(!ctmInv.hasPerspective() || dev3 != nullptr);
 
-    VertState       state(vt->vertexCount(), vt->indices(), vt->indexCount());
-    VertState::Proc vertProc = state.chooseProc(vt->mode());
+    SkVerticesPriv info(vt->priv());
+    VertState       state(info.vertexCount(), info.indices(), info.indexCount());
+    VertState::Proc vertProc = state.chooseProc(info.mode());
 
     SkPaint p(paint);
 
-    if (vt->perVertexDataCount() >= 4) {  // hack, treat as colors
+    if (info.perVertexDataCount() >= 4) {  // hack, treat as colors
         auto triShader = outerAlloc->make<SkTriColorShader>(false, dev3 != nullptr);
         p.setShader(sk_ref_sp(triShader));
 
         auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, outerAlloc,
                                                      this->fRC->clipShader());
-        auto colors = (const SkPMColor4f*)vt->perVertexData();
+        auto colors = (const SkPMColor4f*)info.perVertexData();
         while (vertProc(&state)) {
-            if (triShader->update(ctmInv, vt->positions(), colors, state.f0, state.f1, state.f2)) {
+            if (triShader->update(ctmInv, info.positions(), colors, state.f0, state.f1, state.f2)) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
         }
@@ -458,9 +461,10 @@ void SkDraw::draw_vdata_vertices(const SkVertices* vt, const SkPaint& paint,
 
 void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                           const SkPaint& paint) const {
-    const int vertexCount = vertices->vertexCount();
-    const int indexCount = vertices->indexCount();
-    const int perVertexDataCount = vertices->perVertexDataCount();
+    SkVerticesPriv info(vertices->priv());
+    const int vertexCount = info.vertexCount();
+    const int indexCount = info.indexCount();
+    const int perVertexDataCount = info.perVertexDataCount();
 
     // abort early if there is nothing to draw
     if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
@@ -482,14 +486,14 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
 
     if (fMatrix->hasPerspective()) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fMatrix->mapHomogeneousPoints(dev3, vertices->positions(), vertexCount);
+        fMatrix->mapHomogeneousPoints(dev3, info.positions(), vertexCount);
         // similar to the bounds check for 2d points (below)
         if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {
         dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fMatrix->mapPoints(dev2, vertices->positions(), vertexCount);
+        fMatrix->mapPoints(dev2, info.positions(), vertexCount);
 
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
