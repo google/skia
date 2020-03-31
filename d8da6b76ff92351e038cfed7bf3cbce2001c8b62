@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "b46854fc_ae28b82b",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T21:43:53Z",
+      "side": 1,
+      "message": "In fact public_include_dirs is not on the list of flags for config in the documentation. It would be nice if gn actually gave an error on that (trying to propagate public_includes out of a config into a target).",
+      "parentUuid": "e89c0107_2067c60c",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 50
+      },
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a34e6d89_3647a7ad",
         "filename": "third_party/third_party.gni",
         "patchSetId": 2
@@ -158,6 +182,24 @@
       "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fd7d406_15f2f1df",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T21:43:53Z",
+      "side": 1,
+      "message": "Ah, I see, just forward the bit we actually want.",
+      "parentUuid": "ffcd2a23_6d1484ca",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
