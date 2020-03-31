@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af4c2206_cc94d683",
+        "filename": "src/gpu/gl/GrGLInterfaceAutogen.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-31T16:41:10Z",
+      "side": 1,
+      "message": "Are we ready to mark it as non-optional? Does chrome set these functions when they manually make an interface? If not, we\u0027ll need to keep them optional and check for the function presence when setting whether or not the base instance is supported in GrGLCaps.",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 246,
+        "endChar": 9
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bf92e2b_3517434e",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-31T16:41:10Z",
+      "side": 1,
+      "message": "Maybe it\u0027s more complicated than its worth, but if we have baseVertex support but not baseInstance, can we defer just the instance buffer binding?",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df33921_8d355203",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-03-31T16:41:10Z",
+      "side": 1,
+      "message": "Should the caps for drawArraysBaseVertexIsBroken apply here too?",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 172,
+        "endChar": 60
+      },
+      "revId": "52e19532151004eeda6bcbdf3df90a0d5a136846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
