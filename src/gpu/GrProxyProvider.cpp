@@ -23,6 +23,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -227,6 +228,24 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     // createWrapped should've added this for us
     SkASSERT(fUniquelyKeyedProxies.find(key));
     return result;
+}
+
+GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const GrUniqueKey& key,
+                                                                         GrSurfaceOrigin origin,
+                                                                         GrColorType ct) {
+    auto proxy = this->findOrCreateProxyByUniqueKey(key);
+    if (!proxy) {
+        return {};
+    }
+    // Assume that we used a fallback color type if and only if the proxy is renderable.
+    if (proxy->asRenderTargetProxy()) {
+        GrBackendFormat expectedFormat;
+        std::tie(ct, expectedFormat) =
+                GrRenderTargetContext::GetFallbackColorTypeAndFormat(fImageContext, ct);
+        SkASSERT(expectedFormat == proxy->backendFormat());
+    }
+    GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);
+    return {std::move(proxy), origin, swizzle};
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,

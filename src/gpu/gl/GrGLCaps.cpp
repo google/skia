@@ -4331,8 +4331,10 @@ GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
             return ctInfo.fReadSwizzle;
         }
     }
-    return GrSwizzle::RGBA();
+    SkDEBUGFAIL("Illegal color type/format combination.");
+    return {};
 }
+
 GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     const auto& info = this->getFormatInfo(format.asGLFormat());
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
@@ -4341,7 +4343,8 @@ GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
             return ctInfo.fOutputSwizzle;
         }
     }
-    return GrSwizzle::RGBA();
+    SkDEBUGFAIL("Illegal color type/format combination.");
+    return {};
 }
 
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {

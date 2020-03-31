@@ -89,6 +89,9 @@ public:
             SkBudgeted = SkBudgeted::kYes,
             const SkSurfaceProps* = nullptr);
 
+    static std::tuple<GrColorType, GrBackendFormat> GetFallbackColorTypeAndFormat(GrImageContext*,
+                                                                                  GrColorType);
+
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per
     // channel as the passed in GrColorType. It may also swizzle the changes (e.g., BGRA -> RGBA).
