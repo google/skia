@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "e89c0107_2067c60c",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T20:53:02Z",
+      "side": 1,
+      "message": "includes in a config _is_ public_includes, no?\n\nAre you thinking configs vs. public_configs?",
+      "parentUuid": "e0a038fa_06b5c3b1",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 50
+      },
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a34e6d89_3647a7ad",
         "filename": "third_party/third_party.gni",
         "patchSetId": 2
@@ -113,6 +137,24 @@
       "side": 1,
       "message": "I tried that, but invoker doesn\u0027t seem to pass through. Would I need invoker.invoker? Also, I\u0027m not updating \u0027public_include_dirs\u0027 anymore (just \u0027include_dirs\u0027).",
       "parentUuid": "a34e6d89_3647a7ad",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffcd2a23_6d1484ca",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T20:53:02Z",
+      "side": 1,
+      "message": "Try replacing this config(target_name + \"_public\") {} block with\n\n    third_party_config(target_name + \"_public\") {\n      if (enabled) {\n        if (defined(invoker.public_defines)) {\n          defines \u003d invoker.public_defines\n        }\n        include_dirs \u003d invoker.public_include_dirs\n      } else {\n        not_needed(invoker, \"*\")\n      }\n    }\n\n?",
+      "parentUuid": "6adea90f_ea4b4b2d",
       "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
