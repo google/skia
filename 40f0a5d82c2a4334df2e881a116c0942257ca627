@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5aaa847_f98834d0",
+        "filename": "modules/skottie/src/layers/PrecompLayer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-03-31T01:14:14Z",
+      "side": 1,
+      "message": "maybe name this, instead of auto?",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 12
+      },
+      "revId": "40f0a5d82c2a4334df2e881a116c0942257ca627",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
