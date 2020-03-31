@@ -355,7 +355,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(vertices);
 
-    SkVerticesPriv info(vertices->priv());
+    SkVerticesPriv info = vertices->priv();
 
     fVertexCount = info.vertexCount();
     fIndexCount = info.indexCount();
@@ -479,7 +479,7 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
     int vertexOffset = 0;
 
     for (const auto& mesh : fMeshes) {
-        SkVerticesPriv info(mesh.fVertices->priv());
+        SkVerticesPriv info = mesh.fVertices->priv();
 
         // Copy data into the index buffer.
         if (indices) {
