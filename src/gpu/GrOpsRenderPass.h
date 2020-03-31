@@ -137,6 +137,12 @@ protected:
 private:
     virtual GrGpu* gpu() = 0;
 
+    void resetActiveBuffers() {
+        fActiveIndexBuffer.reset();
+        fActiveInstanceBuffer.reset();
+        fActiveVertexBuffer.reset();
+    }
+
     bool prepareToDraw();
 
     // overridden by backend-specific derived class to perform the rendering command.

@@ -34,9 +34,7 @@ void GrOpsRenderPass::begin() {
 
 void GrOpsRenderPass::end() {
     this->onEnd();
-    fActiveIndexBuffer.reset();
-    fActiveInstanceBuffer.reset();
-    fActiveVertexBuffer.reset();
+    this->resetActiveBuffers();
 }
 
 void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
@@ -85,6 +83,8 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();
 #endif
+
+    this->resetActiveBuffers();
 
     if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
         fDrawPipelineStatus = DrawPipelineStatus::kFailedToBind;
