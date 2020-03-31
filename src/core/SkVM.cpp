@@ -425,10 +425,10 @@ namespace skvm {
 
     std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
         // If requested, first specialize for our JIT backend.
-        auto specialize_for_jit = [&]() -> std::vector<Builder::Instruction> {
+        auto specialize_for_jit = [&]() -> std::vector<Instruction> {
             Builder specialized;
             for (int i = 0; i < (int)fProgram.size(); i++) {
-                Builder::Instruction inst = fProgram[i];
+                Instruction inst = fProgram[i];
 
                 #if defined(SK_CPU_X86)
                 switch (Op imm_op; inst.op) {
@@ -478,8 +478,7 @@ namespace skvm {
             }
             return specialized.fProgram;
         };
-        const std::vector<Builder::Instruction>& program = for_jit ? specialize_for_jit()
-                                                                   : fProgram;
+        const std::vector<Instruction>& program = for_jit ? specialize_for_jit() : fProgram;
 
         struct UseCount {
             int total = 0;
@@ -491,7 +490,7 @@ namespace skvm {
 
         int live_instructions = 0;
         auto count_uses = [&](Val id, auto& recurse) -> void {
-            Builder::Instruction inst = program[id];
+            Instruction inst = program[id];
             if (!use_counts[id].visited) {
                 use_counts[id].visited = true;
                 live_instructions += 1;
@@ -524,7 +523,7 @@ namespace skvm {
 
         auto pressure_change = [&](Val id) -> int {
             int pressure = 0;
-            Builder::Instruction inst = program[id];
+            Instruction inst = program[id];
 
             // If this is not a sink, then it takes up a register
             if (inst.op > Op::store32) { pressure += 1; }
@@ -586,7 +585,7 @@ namespace skvm {
             Val id = frontier.back();
             frontier.pop_back();
             new_index[id] = i;
-            Builder::Instruction inst = program[id];
+            Instruction inst = program[id];
             SkASSERT(use_counts[id].remaining_uses == 0);
 
             // Use the old indices, and fix them up later.
@@ -692,7 +691,7 @@ namespace skvm {
         return (uint64_t)lo | (uint64_t)hi << 32;
     }
 
-    static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
+    bool operator==(const Instruction& a, const Instruction& b) {
         return a.op   == b.op
             && a.x    == b.x
             && a.y    == b.y
@@ -701,7 +700,7 @@ namespace skvm {
             && a.immz == b.immz;
     }
 
-    uint32_t Builder::InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
+    uint32_t InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
         return SkOpts::hash(&inst, sizeof(inst), seed);
     }
 
