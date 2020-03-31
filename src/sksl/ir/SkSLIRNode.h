@@ -18,10 +18,10 @@ namespace SkSL {
  * version of the program (all types determined, everything validated), ready for code generation.
  */
 struct IRNode {
-    IRNode(int offset) : fOffset(offset) {}
-    IRNode(const IRNode&) = default;
-    IRNode& operator=(const IRNode&) = default;
-    virtual ~IRNode() = default;
+    IRNode(int offset)
+    : fOffset(offset) {}
+
+    virtual ~IRNode() {}
 
 #ifdef SK_DEBUG
     virtual String description() const = 0;

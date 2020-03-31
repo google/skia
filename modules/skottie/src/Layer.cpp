@@ -284,7 +284,6 @@ LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer)
     }
 }
 
-LayerBuilder::LayerBuilder(LayerBuilder&&) = default;
 LayerBuilder::~LayerBuilder() = default;
 
 bool LayerBuilder::isCamera() const {

@@ -139,6 +139,7 @@ private:
                 , fOriginalUniqueID(originalUniqueID)
                 , fImageInfo(ii) {
         }
+        ~PromiseImageInfo() {}
 
         int index() const { return fIndex; }
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
