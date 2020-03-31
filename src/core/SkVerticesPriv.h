@@ -38,7 +38,8 @@ public:
 
 private:
     explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
-    SkVerticesPriv(const SkVerticesPriv&) = delete;
+    // Never called due to RVO in priv(), but must exist for MSVC 2017.
+    SkVerticesPriv(const SkVerticesPriv&) = default;
     SkVerticesPriv& operator=(const SkVerticesPriv&) = delete;
 
     // No taking addresses of this type
