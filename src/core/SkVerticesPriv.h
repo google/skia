@@ -38,7 +38,7 @@ public:
 
 private:
     explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
-    SkVerticesPriv(const SkVerticesPriv&) = delete;
+    SkVerticesPriv(const SkVerticesPriv&) = default;
     SkVerticesPriv& operator=(const SkVerticesPriv&) = delete;
 
     // No taking addresses of this type
