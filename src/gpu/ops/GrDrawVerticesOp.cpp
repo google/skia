@@ -301,13 +301,13 @@ private:
         bool fIgnoreColors;
 
         bool hasPerVertexColors() const {
-            return SkVerticesPriv::HasColors(fVertices.get()) && !fIgnoreColors;
+            return fVertices->priv().hasColors() && !fIgnoreColors;
         }
     };
 
     bool isIndexed() const {
         // Consistency enforced in onCombineIfPossible.
-        return SkVerticesPriv::HasIndices(fMeshes[0].fVertices.get());
+        return fMeshes[0].fVertices->priv().hasIndices();
     }
 
     bool requiresPerVertexColors() const {
@@ -319,13 +319,10 @@ private:
     }
 
     size_t vertexStride() const {
-        SkVertices::Info info;
-        fMeshes[0].fVertices->getInfo(&info);
-
         return sizeof(SkPoint) +
                (this->requiresPerVertexColors() ? sizeof(uint32_t) : 0) +
                (this->requiresPerVertexLocalCoords() ? sizeof(SkPoint) : 0) +
-               info.fPerVertexDataCount * sizeof(float);
+               fMeshes[0].fVertices->priv().perVertexDataCount() * sizeof(float);
     }
 
     Helper fHelper;
@@ -358,23 +355,22 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(vertices);
 
-    SkVertices::Info info;
-    vertices->getInfo(&info);
+    SkVerticesPriv info(vertices->priv());
 
-    fVertexCount = info.fVertexCount;
-    fIndexCount = info.fIndexCount;
+    fVertexCount = info.vertexCount();
+    fIndexCount = info.indexCount();
     fColorArrayType = info.hasColors() ? ColorArrayType::kSkColor
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
 
     if (effect) {
-        SkASSERT(info.fPerVertexDataCount == effect->varyingCount());
+        SkASSERT(info.perVertexDataCount() == effect->varyingCount());
         for (const auto& v : effect->varyings()) {
             fAttrWidths.push_back(v.fWidth);
         }
     } else {
-        SkASSERT(info.fPerVertexDataCount == 0);
+        SkASSERT(info.perVertexDataCount() == 0);
     }
 
     Mesh& mesh = fMeshes.push_back();
@@ -483,22 +479,23 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
     int vertexOffset = 0;
 
     for (const auto& mesh : fMeshes) {
-        SkVertices::Info info;
-        mesh.fVertices->getInfo(&info);
+        SkVerticesPriv info(mesh.fVertices->priv());
+
         // Copy data into the index buffer.
         if (indices) {
-            int indexCount = info.fIndexCount;
+            int indexCount = info.indexCount();
             for (int i = 0; i < indexCount; ++i) {
-                *indices++ = info.fIndices[i] + vertexOffset;
+                *indices++ = info.indices()[i] + vertexOffset;
             }
         }
 
         // Copy data into the vertex buffer.
-        int vertexCount = info.fVertexCount;
-        const SkPoint* positions = info.fPositions;
-        const SkColor* colors = info.fColors;
-        const SkPoint* localCoords = info.fTexCoords ? info.fTexCoords : positions;
-        const float* custom = info.fPerVertexData;
+        int vertexCount = info.vertexCount();
+        const SkPoint* positions = info.positions();
+        const SkColor* colors = info.colors();
+        const SkPoint* localCoords = info.texCoords() ? info.texCoords() : positions;
+        const float* custom = info.perVertexData();
+        int customCount = info.perVertexDataCount();
 
         // TODO4F: Preserve float colors
         GrColor meshColor = mesh.fColor.toBytes_RGBA();
@@ -513,7 +510,7 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
             if (hasLocalCoordsAttribute) {
                 verts.write(localCoords[i]);
             }
-            for (int j = 0; j < info.fPerVertexDataCount; ++j) {
+            for (int j = 0; j < customCount; ++j) {
                 verts.write(*custom++);
             }
         }
@@ -643,8 +640,8 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  const SkRuntimeEffect* effect) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
-                         ? *overridePrimType
-                         : SkVertexModeToGrPrimitiveType(SkVerticesPriv::Mode(vertices.get()));
+                                       ? *overridePrimType
+                                       : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
                                                                    std::move(vertices),
                                                                    primType, aaType,

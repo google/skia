@@ -352,17 +352,16 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
                        {256, 256}, {171, 256}, {85, 256}, {0, 256}, {0, 171},  {0, 85}};
 
     auto patchVerts = SkPatchUtils::MakeVertices(pts, nullptr, nullptr, 12, 12);
-    SkVertices::Info info;
-    patchVerts->getInfo(&info);
+    SkVerticesPriv pv(patchVerts->priv());
 
     SkVertices::CustomLayout customLayout { 1 };
-    SkVertices::Builder builder(info.fMode, info.fVertexCount, info.fIndexCount, customLayout);
+    SkVertices::Builder builder(pv.mode(), pv.vertexCount(), pv.indexCount(), customLayout);
 
-    memcpy(builder.positions(), info.fPositions, info.fVertexCount * sizeof(SkPoint));
-    memcpy(builder.indices(), info.fIndices, info.fIndexCount * sizeof(uint16_t));
+    memcpy(builder.positions(), pv.positions(), pv.vertexCount() * sizeof(SkPoint));
+    memcpy(builder.indices(), pv.indices(), pv.indexCount() * sizeof(uint16_t));
 
     SkRandom rnd;
-    for (int i = 0; i < info.fVertexCount; ++i) {
+    for (int i = 0; i < pv.vertexCount(); ++i) {
         builder.perVertexData()[i] = rnd.nextBool() ? 1.0f : 0.0f;
     }
 

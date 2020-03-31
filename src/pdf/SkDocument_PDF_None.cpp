@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/docs/SkPDFDocument.h"
 
 class SkPDFArray {};

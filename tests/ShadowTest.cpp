@@ -26,9 +26,9 @@ void check_result(skiatest::Reporter* reporter, sk_sp<SkVertices> verts,
                expectSuccess ? "succeed" : "fail");
     }
     if (SkToBool(verts)) {
-        if (kDont_ExpectVerts == expectVerts && SkVerticesPriv::VertexCount(verts.get())) {
+        if (kDont_ExpectVerts == expectVerts && verts->priv().vertexCount()) {
             ERRORF(reporter, "Expected shadow tessellation to generate no vertices but it did.");
-        } else if (kDo_ExpectVerts == expectVerts && !SkVerticesPriv::VertexCount(verts.get())) {
+        } else if (kDo_ExpectVerts == expectVerts && !verts->priv().vertexCount()) {
             ERRORF(reporter, "Expected shadow tessellation to generate vertices but it didn't.");
         }
     }

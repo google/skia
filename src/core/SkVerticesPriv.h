@@ -14,38 +14,46 @@ struct SkVertices_DeprecatedBoneIndices { uint32_t values[4]; };
 struct SkVertices_DeprecatedBoneWeights {    float values[4]; };
 struct SkVertices_DeprecatedBone        {    float values[6]; };
 
-struct SkVertices::Info {
-    VertexMode      fMode;
-    bool            fIsVolatile;
-
-    int             fVertexCount,
-                    fIndexCount,
-                    fPerVertexDataCount;
-
-    const SkPoint*  fPositions;
-    const uint16_t* fIndices;
-
-    // old version
-    const SkPoint*  fTexCoords; // may be null
-    const SkColor*  fColors;    // may be null
-
-    // new, per-vertex-data, version
-    const float*    fPerVertexData;
-
-    bool hasTexCoords() const { return fTexCoords != nullptr; }
-    bool hasColors() const { return fColors != nullptr; }
-    bool hasPerVertexData() const { return fPerVertexData != nullptr; }
-};
-
+/** Class that adds methods to SkVertices that are only intended for use internal to Skia.
+    This class is purely a privileged window into SkVertices. It should never have additional
+    data members or virtual methods. */
 class SkVerticesPriv {
 public:
-    static int VertexCount(const SkVertices* v) { return v->fVertexCount; }
+    SkVertices::VertexMode mode() const { return fVertices->fMode; }
 
-    static bool HasTexCoords(const SkVertices* v) { return v->fTexs != nullptr; }
-    static bool HasColors(const SkVertices* v) { return v->fColors != nullptr; }
-    static bool HasIndices(const SkVertices* v) { return v->fIndices != nullptr; }
+    bool hasColors() const { return fVertices->hasColors(); }
+    bool hasTexCoords() const { return fVertices->hasTexCoords(); }
+    bool hasIndices() const { return fVertices->hasIndices(); }
+    bool hasPerVertexData() const { return fVertices->hasPerVertexData(); }
 
-    static SkVertices::VertexMode Mode(const SkVertices* v) { return v->fMode; }
+    int vertexCount() const { return fVertices->fVertexCount; }
+    int indexCount() const { return fVertices->fIndexCount; }
+    int perVertexDataCount() const { return fVertices->fPerVertexDataCount; }
+
+    const SkPoint* positions() const { return fVertices->fPositions; }
+    const float* perVertexData() const { return fVertices->fPerVertexData; }
+    const SkPoint* texCoords() const { return fVertices->fTexs; }
+    const SkColor* colors() const { return fVertices->fColors; }
+    const uint16_t* indices() const { return fVertices->fIndices; }
+
+private:
+    explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
+    SkVerticesPriv(const SkVerticesPriv&) = delete;
+    SkVerticesPriv& operator=(const SkVerticesPriv&) = delete;
+
+    // No taking addresses of this type
+    const SkVerticesPriv* operator&() const = delete;
+    SkVerticesPriv* operator&() = delete;
+
+    SkVertices* fVertices;
+
+    friend class SkVertices; // to construct this type
 };
+
+inline SkVerticesPriv SkVertices::priv() { return SkVerticesPriv(this); }
+
+inline const SkVerticesPriv SkVertices::priv() const {
+    return SkVerticesPriv(const_cast<SkVertices*>(this));
+}
 
 #endif

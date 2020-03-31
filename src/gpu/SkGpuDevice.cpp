@@ -1034,12 +1034,11 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
     SkASSERT(vertices);
 
-    SkVertices::Info info;
-    vertices->getInfo(&info);
+    SkVerticesPriv info(vertices->priv());
 
     const SkRuntimeEffect* effect =
             paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
-    SkASSERT(info.fPerVertexDataCount == (effect ? effect->varyingCount() : 0));
+    SkASSERT(info.perVertexDataCount() == (effect ? effect->varyingCount() : 0));
 
     // Pretend that we have tex coords when using custom per-vertex data. The shader is going to
     // use those (rather than local coords), but our paint conversion remains the same.
@@ -1048,9 +1047,8 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     bool hasTexs = info.hasTexCoords() || info.hasPerVertexData();
     if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
-        this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                                mode, vertices->indices(), vertices->indexCount(),
-                                paint);
+        this->wireframeVertices(info.mode(), info.vertexCount(), info.positions(), mode,
+                                info.indices(), info.indexCount(), paint);
         return;
     }
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorInfo(), paint,

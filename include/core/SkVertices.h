@@ -9,10 +9,12 @@
 #define SkVertices_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkData.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+
+class SkData;
+struct SkPoint;
+class SkVerticesPriv;
 
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
@@ -120,22 +122,19 @@ public:
      */
     sk_sp<SkData> encode() const;
 
-    struct Info;
-    void getInfo(Info*) const;
+    // Provides access to functions that aren't part of the public API.
+    SkVerticesPriv priv();
+    const SkVerticesPriv priv() const;
 
 private:
     SkVertices() {}
 
     friend class SkVerticesPriv;
     friend class SkDraw;
-    friend class SkGpuDevice;
 
     // these are needed since we've manually sized our allocation (see Builder::init)
     friend class SkNVRefCnt<SkVertices>;
     void operator delete(void* p);
-
-    static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
-                                   size_t* arraySize);
 
     Sizes getSizes() const;
 

@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 
 struct Info {
     float   fNear = 0.05f;
