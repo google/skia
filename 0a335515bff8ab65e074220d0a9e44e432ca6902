@@ -16,6 +16,24 @@
       "revId": "0a335515bff8ab65e074220d0a9e44e432ca6902",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6428432a_0a00f8f4",
+        "filename": "third_party/spirv-tools/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-03-31T17:31:49Z",
+      "side": 0,
+      "message": "Thanks for the save. New CL going up",
+      "parentUuid": "34e816a6_9393e1ac",
+      "revId": "0a335515bff8ab65e074220d0a9e44e432ca6902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
