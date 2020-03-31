@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd44937c_385eee1d",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T19:25:29Z",
+      "side": 1,
+      "message": "probably makes most sense to the user to name the config exactly target_name?",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95debb3e_3fedd3e5",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T19:25:29Z",
+      "side": 1,
+      "message": "Given this is now a config we\u0027re pulling from, makes more sense to work from invoker.include_dirs, invoker.defines?   (Though I think you don\u0027t need to mention invoker.defines at all now and instead just let those pass through.)",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 50
+      },
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a34e6d89_3647a7ad",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T19:25:29Z",
+      "side": 1,
+      "message": "use third_party_config here?",
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
