@@ -2446,9 +2446,6 @@ public:
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint,
                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint,
-                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
     /**
      *  Returns the global clip as a region. If the clip contains AA, then only the bounds
