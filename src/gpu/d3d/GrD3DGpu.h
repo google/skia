@@ -30,8 +30,8 @@ public:
 
     const GrD3DCaps& d3dCaps() const { return static_cast<const GrD3DCaps&>(*fCaps); }
 
-    ID3D12Device* device() const { return fDevice.Get(); }
-    ID3D12CommandQueue* queue() const { return fQueue.Get(); }
+    ID3D12Device* device() const { return fDevice.get(); }
+    ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
 
