@@ -36,10 +36,11 @@ public:
     const SkColor* colors() const { return fVertices->fColors; }
     const uint16_t* indices() const { return fVertices->fIndices; }
 
-private:
-    explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
     // Never called due to RVO in priv(), but must exist for MSVC 2017.
     SkVerticesPriv(const SkVerticesPriv&) = default;
+
+private:
+    explicit SkVerticesPriv(SkVertices* vertices) : fVertices(vertices) {}
     SkVerticesPriv& operator=(const SkVerticesPriv&) = delete;
 
     // No taking addresses of this type
