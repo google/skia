@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88f89a12_c724dbca",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T19:16:48Z",
+      "side": 1,
+      "message": "Good catch. If onBindPipeline succeeds, then we are guaranteed for there to be a program, and GrOpsRenderPass won\u0027t call into these later methods if onBindPipeline returns false. GrOpsRenderPass is also full of asserts to make sure bind* and draw* are called in the right order.",
+      "parentUuid": "ddacf60d_29fd2c2c",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9ceae95_2d97f904",
         "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "438dea3d_9c957aad",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T19:16:48Z",
+      "side": 1,
+      "message": "Done. I like this better.",
+      "parentUuid": "d9ceae95_2d97f904",
+      "range": {
+        "startLine": 137,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 0
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -92,6 +140,30 @@
       "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a3d06c0_fa555a03",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-03-31T19:16:48Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "d26fb08b_809a897d",
+      "range": {
+        "startLine": 152,
+        "startChar": 18,
+        "endLine": 152,
+        "endChar": 61
+      },
+      "revId": "49c67188863598bc6fc277c95d69a27db0c54472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
