@@ -589,7 +589,7 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                                 SkScalar tx, SkScalar ty, bool hasPerspective) {
-        if (SkVerticesPriv::VertexCount(vertices)) {
+        if (vertices->priv().vertexCount()) {
             // For perspective shadows we've already computed the shadow in world space,
             // and we can't translate it without changing it. Otherwise we concat the
             // change in translation from the cached version.

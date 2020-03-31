@@ -1986,16 +1986,13 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
 
-    SkVertices::Info info;
-    vertices->getInfo(&info);
-
     // We expect fans to be converted to triangles when building or deserializing SkVertices.
-    SkASSERT(info.fMode != SkVertices::kTriangleFan_VertexMode);
+    SkASSERT(vertices->priv().mode() != SkVertices::kTriangleFan_VertexMode);
 
     // If the vertices contain custom attributes, ensure they line up with the paint's shader
     const SkRuntimeEffect* effect =
             paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
-    if (info.fPerVertexDataCount != (effect ? effect->varyingCount() : 0)) {
+    if (vertices->priv().perVertexDataCount() != (effect ? effect->varyingCount() : 0)) {
         return;
     }
 
