@@ -8,13 +8,13 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/geometry/GrRect.h"
+//#include "include/gpu/GrTypes.h"
+//#include "src/gpu/GrDrawOpAtlas.h"
+//#include "src/gpu/geometry/GrRect.h"
 
-#include "include/core/SkPath.h"
-#include "include/private/SkChecksum.h"
-#include "include/private/SkFixed.h"
+//#include "include/core/SkPath.h"
+//#include "include/private/SkChecksum.h"
+//#include "include/private/SkFixed.h"
 
 class GrGlyph {
 public:
@@ -36,20 +36,28 @@ public:
         SkUNREACHABLE;
     }
 
-    GrGlyph(const SkGlyph& skGlyph)
+    GrGlyph() = default;
+    GrGlyph(const SkGlyph& skGlyph, bool foo)
             : fPackedID{skGlyph.getPackedID()}
             , fWidthHeight(SkIPoint16::Make(skGlyph.width(), skGlyph.height())) {
     }
 
+    const SkPackedGlyphID packedID() const { return fPackedID; }
     int width() const { return fWidthHeight.fX; }
     int height() const { return fWidthHeight.fY; }
-    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
+//    uint32_t pageIndex1() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator1); }
 
-    const SkPackedGlyphID      fPackedID;
-    const SkIPoint16           fWidthHeight{0, 0};
+    void operator=(const GrGlyph& that) {
+        fPackedID = that.fPackedID;
+        fWidthHeight = that.fWidthHeight;
+    }
 
-    SkIPoint16                 fAtlasLocation{0, 0};
-    GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+private:
+    SkPackedGlyphID      fPackedID;
+    SkIPoint16           fWidthHeight{0, 0};
+
+//    SkIPoint16                 fAtlasLocation1{0, 0};
+//    GrDrawOpAtlas::PlotLocator fPlotLocator1{GrDrawOpAtlas::kInvalidPlotLocator};
 };
 
 #endif

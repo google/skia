@@ -31,20 +31,20 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph);
+    GrGlyph getGlyph1(const SkGlyph& skGlyph);
 
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
     // mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas1(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
                                              bool isScaledGlyph,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*,
                                              GrAtlasManager*,
-                                             GrGlyph*);
+                                            GrDrawOpAtlas::Foo*);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
@@ -56,7 +56,7 @@ private:
     struct HashTraits {
         // GetKey and Hash for the the hash table.
         static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
-            return glyph->fPackedID;
+            return glyph->packedID();
         }
 
         static uint32_t Hash(SkPackedGlyphID key) {
@@ -65,7 +65,7 @@ private:
     };
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
     SkAutoDescriptor fFontScalerKey;
-    SkArenaAlloc fAlloc{512};
+    SkArenaAlloc fAlloc1{512};
 
     int fAtlasedGlyphs{0};
 

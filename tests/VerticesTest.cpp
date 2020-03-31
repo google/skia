@@ -13,7 +13,7 @@
 #include "tools/ToolUtils.h"
 
 static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
-    SkVerticesPriv v0(vert0->priv()), v1(vert1->priv());
+    SkVerticesPriv v0 = vert0->priv(), v1 = vert1->priv();
 
     if (v0.mode() != v1.mode()) {
         return false;
