@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "41948584_561712e6",
+        "filename": "third_party/shaderc/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T17:09:04Z",
+      "side": 1,
+      "message": "Opened https://bugs.chromium.org/p/gn/issues/detail?id\u003d157 .",
+      "parentUuid": "201284e0_1de84b87",
+      "revId": "c77c3dc28ebd09c646c1fa47a5b2f7a006a6856e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ad9933a_3e2809b2",
         "filename": "third_party/shaderc/BUILD.gn",
         "patchSetId": 1

@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "4cbad638_6ee95d4a",
+        "filename": "modules/skottie/src/Layer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-03-31T17:09:04Z",
+      "side": 0,
+      "message": "Turns out this class should only be move constructable. It doesn\u0027t need or want to be copyable, and you cannot actually assign to it since it contains a member which is a reference. I\u0027ll mark most of the specials here as deleted to make that obvious.",
+      "parentUuid": "9ba72eb9_efa4f246",
+      "revId": "aa8bf26dc257f0f94f6eea5aedce2923cc603f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38c98594_0f32bebd",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 1
