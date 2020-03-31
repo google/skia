@@ -2493,10 +2493,8 @@ void GrGLGpu::flushBlendAndColorWrite(
 
     // Any optimization to disable blending should have already been applied and
     // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
-    bool blendOff =
-        ((kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
-        kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff) ||
-        !blendInfo.fWriteColor;
+    bool blendOff = GrBlendShouldDisable(equation, srcCoeff, dstCoeff) ||
+                    !blendInfo.fWriteColor;
 
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {

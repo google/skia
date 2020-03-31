@@ -427,8 +427,7 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOff = (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
-                    kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+    bool blendOff = GrBlendShouldDisable(equation, srcCoeff, dstCoeff);
 
     memset(attachmentState, 0, sizeof(VkPipelineColorBlendAttachmentState));
     attachmentState->blendEnable = !blendOff;
