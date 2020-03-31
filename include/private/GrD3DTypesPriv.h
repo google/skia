@@ -9,7 +9,7 @@
 #define GrD3DTypesPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/d3d/GrD3DTypesMinimal.h"
 
 class GrD3DResourceState;
 
@@ -20,8 +20,7 @@ class GrD3DResourceState;
 // track the current D3D12_RESOURCE_STATES which can be shared with an internal GrD3DTextureResource
 // so that state updates can be seen by all users of the texture.
 struct GrD3DBackendSurfaceInfo {
-    GrD3DBackendSurfaceInfo(GrD3DTextureResourceInfo info, GrD3DResourceState* state)
-            : fTextureResourceInfo(info), fResourceState(state) {}
+    GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo& info, GrD3DResourceState* state);
 
     void cleanup();
 
@@ -37,13 +36,13 @@ struct GrD3DBackendSurfaceInfo {
 
     GrD3DTextureResourceInfo snapTextureResourceInfo() const;
 
-    bool isProtected() const { return fTextureResourceInfo.fProtected == GrProtected::kYes; }
+    bool isProtected() const;
 #if GR_TEST_UTILS
     bool operator==(const GrD3DBackendSurfaceInfo& that) const;
 #endif
 
 private:
-    GrD3DTextureResourceInfo fTextureResourceInfo;
+    std::unique_ptr<GrD3DTextureResourceInfo> fTextureResourceInfo;
     GrD3DResourceState* fResourceState;
 };
 
