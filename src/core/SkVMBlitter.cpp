@@ -135,7 +135,7 @@ namespace {
                 // precisely which value we'll treat as which channel.  Imagine the shader
                 // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
                 // We'll fold the hash of their IDs in order to disambiguate.
-                const int outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
+                const skvm::Val outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
                 hash ^= SkOpts::hash(outputs, sizeof(outputs));
             } else {
                 *ok = false;
