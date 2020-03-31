@@ -132,6 +132,30 @@
     },
     {
       "key": {
+        "uuid": "9fc7f2dd_199c90c4",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-03-31T21:49:25Z",
+      "side": 1,
+      "message": "public_include_dirs and public_defines are things I made up specifically for the third_party() template, only to make it convenient to define a source set and a public config with include_dirs and defines all in one place.  They\u0027re not part of GN.",
+      "parentUuid": "b46854fc_ae28b82b",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 50
+      },
+      "revId": "d8da6b76ff92351e038cfed7bf3cbce2001c8b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a34e6d89_3647a7ad",
         "filename": "third_party/third_party.gni",
         "patchSetId": 2
