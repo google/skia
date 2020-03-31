@@ -450,7 +450,7 @@ namespace skvm {
         Val x,y,z;
         int immy,immz;
 
-        int  death;
+        Val  death;
         bool can_hoist;
         bool used_in_loop;
     };
