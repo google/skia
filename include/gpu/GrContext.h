@@ -155,6 +155,14 @@ public:
      */
     virtual void releaseResourcesAndAbandonContext();
 
+    /**
+     * Returns true if the GrContext has already been abandoned or if the backend specific context
+     * has gotten into an unrecoverarble, lost state (e.g. in Vulkan backend if we've gotten a
+     * VK_ERROR_DEVICE_LOST). If the backend context is lost, this call will also abandon the
+     * GrContext.
+     */
+    bool isContextLost();
+
     ///////////////////////////////////////////////////////////////////////////
     // Resource Cache
 
