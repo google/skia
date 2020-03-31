@@ -9,7 +9,7 @@
 #define GrD3DPipelineState_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "src/gpu/d3d/GrD3D12.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include <memory>
 
 class GrD3DGpu;

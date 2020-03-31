@@ -9,8 +9,8 @@
 #define GrD3DCommandList_DEFINED
 
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrManagedResource.h"
-#include "src/gpu/d3d/GrD3D12.h"
 
 #include <memory>
 

@@ -7,7 +7,6 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/GrD3DTypesPriv.h"
-#include "src/gpu/d3d/GrD3D12.h"
 
 #include "src/gpu/d3d/GrD3DResourceState.h"
 

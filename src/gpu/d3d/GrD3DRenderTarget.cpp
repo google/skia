@@ -8,13 +8,12 @@
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
-
-#include "src/gpu/d3d/GrD3D12.h"
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
@@ -82,7 +81,7 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
             GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
             sk_sp<GrD3DResourceState> state) {
-    SkASSERT(info.fResource);
+    SkASSERT(info.fResource.get());
 
     SkASSERT(1 == info.fLevelCount);
     DXGI_FORMAT dxgiFormat = info.fFormat;
