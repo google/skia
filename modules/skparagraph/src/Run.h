@@ -42,12 +42,14 @@ struct RunShifts {
 class InternalLineMetrics;
 class Run {
 public:
+    Run() = default;
     Run(ParagraphImpl* master,
         const SkShaper::RunHandler::RunInfo& info,
         size_t firstChar,
         SkScalar lineHeight,
         size_t index,
         SkScalar shiftX);
+    ~Run() {}
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
 
