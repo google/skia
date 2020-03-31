@@ -28,13 +28,13 @@ class Animator : public SkRefCnt {
 public:
     virtual ~Animator() = default;
 
-    // Returns true if the state has changed.
-    bool seek(float t) { return this->onSeek(t); }
+    using StateChanged = bool;
+    StateChanged seek(float t) { return this->onSeek(t); }
 
 protected:
     Animator() = default;
 
-    virtual bool onSeek(float t) = 0;
+    virtual StateChanged onSeek(float t) = 0;
 
 private:
     Animator(const Animator&) = delete;
@@ -64,7 +64,7 @@ protected:
     void attachDiscardableAdapter(sk_sp<AnimatablePropertyContainer>);
 
 private:
-    bool onSeek(float) final;
+    StateChanged onSeek(float) final;
 
     bool bindImpl(const AnimationBuilder&,
                   const skjson::ObjectValue*,

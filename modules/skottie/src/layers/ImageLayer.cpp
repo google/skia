@@ -39,7 +39,7 @@ public:
         , fTimeScale(time_scale)
         , fIsMultiframe(fAsset->isMultiFrame()) {}
 
-    bool onSeek(float t) override {
+    StateChanged onSeek(float t) override {
         if (!fIsMultiframe && fImageNode->getImage()) {
             // Single frame already resolved.
             return false;

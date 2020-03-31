@@ -52,7 +52,7 @@ public:
         , fTimeBias(time_bias)
         , fTimeScale(time_scale) {}
 
-    bool onSeek(float t) override {
+    StateChanged onSeek(float t) override {
         if (fRemapper) {
             // When time remapping is active, |t| is fully driven externally.
             fRemapper->seek(t);
@@ -61,13 +61,13 @@ public:
             t = (t + fTimeBias) * fTimeScale;
         }
 
-        bool updated = false;
+        bool changed = false;
 
         for (const auto& anim : fAnimators) {
-            updated |= anim->seek(t);
+            changed |= anim->seek(t);
         }
 
-        return updated;
+        return changed;
     }
 
 private:
