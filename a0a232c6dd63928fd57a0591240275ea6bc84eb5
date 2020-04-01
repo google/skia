@@ -22,6 +22,30 @@
       "revId": "a0a232c6dd63928fd57a0591240275ea6bc84eb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00e1cbc4_1b9d4c32",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-01T18:20:51Z",
+      "side": 1,
+      "message": "Yeah, I had them there, and convinced myself that I wanted them directly on Attribute. No idea why. Moved them back.",
+      "parentUuid": "084450a6_59fd4478",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 0
+      },
+      "revId": "a0a232c6dd63928fd57a0591240275ea6bc84eb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
