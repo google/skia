@@ -29,7 +29,7 @@
     #include <llvm/Support/TargetSelect.h>
 #endif
 
-bool gSkVMJITViaDylib{false};
+bool gSkVMJITViaDylib{true};
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
 // uninitialized memory, and we'll not see the writes it makes as properly
@@ -1905,6 +1905,19 @@ namespace skvm {
     void Assembler::vpmovzxwd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x33, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
 
+    void Assembler::vmovups(int slot, Ymm src) {
+        int prefix = 0,
+            map    = 0x0f,
+            opcode = 0x11;
+
+        VEX v = vex(0, src>>3, 0, rsp>>3, map, 0, true/*256*/, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(mod(slot), src&7, 0b100 /*use sib*/));
+        this->byte(sib(ONE, 0b100 /*no index*/, rsp));
+        this->bytes(&slot, imm_bytes(mod(slot)));
+    }
+
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
     void Assembler::vmovups  (GP64 dst, Xmm src) {
         // Same as vmovups(GP64,YMM) and load_store() except ymm? is 0.
@@ -3481,6 +3494,12 @@ namespace skvm {
             #endif
             }
 
+            #if defined(__x86_64__)
+            if (op > Op::store32) {
+                a->vmovups(id * 8 * 4, r[id]);
+            }
+            #endif
+
             // Calls to tmp() or dst() might have flipped this false from its default true state.
             return ok;
         };
@@ -3509,6 +3528,8 @@ namespace skvm {
         A::Label body,
                  tail,
                  done;
+
+        a->sub(A::rsp, instructions.size() * K * 4);
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             if (!warmup(id)) {
@@ -3557,6 +3578,7 @@ namespace skvm {
 
         a->label(&done);
         {
+            a->add(A::rsp, instructions.size() * K * 4);
             exit();
         }
 
