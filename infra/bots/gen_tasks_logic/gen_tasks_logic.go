@@ -38,7 +38,8 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
+	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
+	LINUX_GCE_OS_IN_JOB  = "Debian10"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
@@ -461,10 +462,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = "Debian9"
+			task_os = LINUX_GCE_OS_IN_JOB
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = "Debian9"
+			task_os = LINUX_GCE_OS_IN_JOB
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -475,7 +476,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// version to compile as to test.
 			ec = append(ec, "Docker")
 		} else if b.matchOs("Ubuntu", "Debian") {
-			task_os = "Debian9"
+			task_os = LINUX_GCE_OS_IN_JOB
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
@@ -1077,7 +1078,7 @@ func (b *jobBuilder) compile() string {
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
 	if !In(name, b.jobs) {
-		log.Fatalf("Job %q is missing from the jobs list!", name)
+		log.Fatalf("Job %q is missing from the jobs list! Derived from: %q", name, b.Name)
 	}
 
 	return name
