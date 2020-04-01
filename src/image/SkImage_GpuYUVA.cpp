@@ -381,7 +381,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         }
 
         auto proxy = MakePromiseImageLazyProxy(
-                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(), colorType,
+                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(),
                 yuvaFormats[texIdx], GrMipMapped::kNo, textureFulfillProc, textureReleaseProc,
                 promiseDoneProc, textureContexts[texIdx], version);
         ++proxiesCreated;
