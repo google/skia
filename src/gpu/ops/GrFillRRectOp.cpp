@@ -102,7 +102,7 @@ private:
     // Create a GrProgramInfo object in the provided arena
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) final;
 
@@ -863,13 +863,13 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
 
 void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       SkArenaAlloc* arena,
-                                      const GrSurfaceProxyView* outputView,
+                                      const GrSurfaceProxyView* writeView,
                                       GrAppliedClip&& appliedClip,
                                       const GrXferProcessor::DstProxyView& dstProxyView) {
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
     SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
 
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, GrPrimitiveType::kTriangles);
 }
 

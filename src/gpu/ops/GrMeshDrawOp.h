@@ -38,10 +38,10 @@ protected:
 
     void createProgramInfo(const GrCaps* caps,
                            SkArenaAlloc* arena,
-                           const GrSurfaceProxyView* outputView,
+                           const GrSurfaceProxyView* writeView,
                            GrAppliedClip&& appliedClip,
                            const GrXferProcessor::DstProxyView& dstProxyView) {
-        this->onCreateProgramInfo(caps, arena, outputView, std::move(appliedClip), dstProxyView);
+        this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView);
     }
 
     void createProgramInfo(Target* target);
@@ -100,7 +100,7 @@ protected:
     }
 
     virtual void onPrePrepareDraws(GrRecordingContext*,
-                                   const GrSurfaceProxyView* outputView,
+                                   const GrSurfaceProxyView* writeView,
                                    GrAppliedClip*,
                                    const GrXferProcessor::DstProxyView&);
 
@@ -110,15 +110,15 @@ private:
     // by this op.
     virtual void onCreateProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
-                                     const GrSurfaceProxyView* outputView,
+                                     const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&) = 0;
 
     void onPrePrepare(GrRecordingContext* context,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView) final {
-        this->onPrePrepareDraws(context, outputView, clip, dstProxyView);
+        this->onPrePrepareDraws(context, writeView, clip, dstProxyView);
     }
     void onPrepare(GrOpFlushState* state) final;
 
@@ -195,7 +195,7 @@ public:
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
-    virtual const GrSurfaceProxyView* outputView() const = 0;
+    virtual const GrSurfaceProxyView* writeView() const = 0;
 
     virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;

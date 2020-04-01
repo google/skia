@@ -299,7 +299,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
 
@@ -331,7 +331,7 @@ private:
         }
 
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->outputView()->origin(),
+                                  state->proxy()->backendFormat(), state->writeView()->origin(),
                                   &pipeline, shader.get(), GrPrimitiveType::kPatches,
                                   tessellationPatchVertexCount);
 

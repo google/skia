@@ -146,7 +146,7 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
     void onPrepare(GrOpFlushState*) override {}
@@ -164,7 +164,7 @@ private:
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->proxy()->backendFormat(),
-                                  flushState->outputView()->origin(),
+                                  flushState->writeView()->origin(),
                                   &pipeline,
                                   geomProc,
                                   GrPrimitiveType::kTriangleStrip);

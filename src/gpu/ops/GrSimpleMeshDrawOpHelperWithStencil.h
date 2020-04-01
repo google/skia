@@ -24,7 +24,7 @@ public:
 
     const GrPipeline* createPipelineWithStencil(const GrCaps*,
                                                 SkArenaAlloc*,
-                                                GrSwizzle outputViewSwizzle,
+                                                GrSwizzle writeViewSwizzle,
                                                 GrAppliedClip&&,
                                                 const GrXferProcessor::DstProxyView&);
 
@@ -32,7 +32,7 @@ public:
 
     GrProgramInfo* createProgramInfoWithStencil(const GrCaps*,
                                                 SkArenaAlloc*,
-                                                const GrSurfaceProxyView* outputView,
+                                                const GrSurfaceProxyView* writeViewSwizzle,
                                                 GrAppliedClip&&,
                                                 const GrXferProcessor::DstProxyView&,
                                                 GrGeometryProcessor*,

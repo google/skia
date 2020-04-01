@@ -60,7 +60,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         class GP : public GrGeometryProcessor {
@@ -127,7 +127,7 @@ private:
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
                                                                    arena,
-                                                                   outputView,
+                                                                   writeView,
                                                                    std::move(appliedClip),
                                                                    dstProxyView,
                                                                    gp,

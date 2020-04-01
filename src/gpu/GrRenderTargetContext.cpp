@@ -151,13 +151,13 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
 
     const GrBackendFormat& format = proxy->backendFormat();
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-    GrSwizzle outSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
+    GrSwizzle writeSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
 
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
-    GrSurfaceProxyView outputView(std::move(proxy), origin, outSwizzle);
+    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
     return std::make_unique<GrRenderTargetContext>(context, std::move(readView),
-                                                   std::move(outputView), colorType,
+                                                   std::move(writeView), colorType,
                                                    std::move(colorSpace), surfaceProps, managedOps);
 }
 
@@ -346,19 +346,19 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromVulkanSeco
 // when the renderTargetContext attempts to use it (via getOpsTask).
 GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              GrSurfaceProxyView readView,
-                                             GrSurfaceProxyView outputView,
+                                             GrSurfaceProxyView writeView,
                                              GrColorType colorType,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpsTask)
         : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
                            std::move(colorSpace))
-        , fOutputView(std::move(outputView))
+        , fWriteView(std::move(writeView))
         , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask) {
-    SkASSERT(this->asSurfaceProxy() == fOutputView.proxy());
-    SkASSERT(this->origin() == fOutputView.origin());
+    SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
+    SkASSERT(this->origin() == fWriteView.origin());
 
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
@@ -367,7 +367,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
 #ifdef SK_DEBUG
 void GrRenderTargetContext::onValidate() const {
     if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(fOutputView.proxy()->getLastRenderTask() == fOpsTask.get());
+        SkASSERT(fWriteView.proxy()->getLastRenderTask() == fOpsTask.get());
     }
 }
 #endif
@@ -401,7 +401,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
 
     if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask =
-                this->drawingManager()->newOpsTask(this->outputSurfaceView(), fManagedOpsTask);
+                this->drawingManager()->newOpsTask(this->writeSurfaceView(), fManagedOpsTask);
         if (fOpsTask && fNumStencilSamples > 0) {
             // Store the stencil values in memory upon completion of fOpsTask.
             fOpsTask->setMustPreserveStencil();

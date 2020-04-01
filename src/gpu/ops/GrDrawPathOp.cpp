@@ -93,7 +93,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
     GrProgramInfo programInfo(proxy->numSamples(),
                               proxy->numStencilSamples(),
                               proxy->backendFormat(),
-                              flushState->outputView()->origin(),
+                              flushState->writeView()->origin(),
                               pipeline,
                               pathProc.get(),
                               GrPrimitiveType::kPath);
