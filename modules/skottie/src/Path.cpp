@@ -27,14 +27,16 @@ private:
     void onSync() override {
         const auto& path_node = this->node();
 
-        auto path = ValueTraits<ShapeValue>::As<SkPath>(fShape);
+        SkPath path = fShape;
 
         // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
         path.setFillType(path_node->getFillType());
+        path.setIsVolatile(!this->isStatic());
+
         path_node->setPath(path);
     }
 
-    ShapeValue fShape;
+    PathValue fShape;
 
     using INHERITED = DiscardableAdapterBase<PathAdapter, sksg::Path>;
 };

@@ -143,12 +143,6 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
 }
 
 template <>
-bool ValueTraits<TextValue>::CanLerp(const TextValue&, const TextValue&) {
-    // Text values are never interpolated, but we pretend that they could be.
-    return true;
-}
-
-template <>
 bool ValueTraits<TextValue>::Lerp(const TextValue& v0, const TextValue&, float, TextValue* result) {
     // Text value keyframes are treated as selectors, not as interpolated values.
     if (v0 != *result) {
