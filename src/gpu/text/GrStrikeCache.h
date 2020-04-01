@@ -46,12 +46,6 @@ public:
                                              GrAtlasManager*,
                                              GrGlyph*);
 
-    // testing
-    int countGlyphs() const { return fCache.count(); }
-
-    // remove any references to this plot
-    void removeID(GrDrawOpAtlas::PlotLocator);
-
 private:
     struct HashTraits {
         // GetKey and Hash for the the hash table.
@@ -66,8 +60,6 @@ private:
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fAlloc{512};
-
-    int fAtlasedGlyphs{0};
 
     friend class GrStrikeCache;
 };

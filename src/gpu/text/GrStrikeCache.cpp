@@ -139,16 +139,6 @@ static void get_packed_glyph_image(
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-void GrTextStrike::removeID(GrDrawOpAtlas::PlotLocator plotLocator) {
-    fCache.foreach([this, plotLocator](GrGlyph** glyph){
-        if ((*glyph)->fPlotLocator == plotLocator) {
-            (*glyph)->fPlotLocator = GrDrawOpAtlas::kInvalidPlotLocator;
-            fAtlasedGlyphs--;
-            SkASSERT(fAtlasedGlyphs >= 0);
-        }
-    });
-}
-
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
                                                        bool isScaledGlyph,
@@ -194,7 +184,6 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
             grGlyph->fAtlasLocation.fY += 1;
         }
         SkASSERT(grGlyph->fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
-        fAtlasedGlyphs++;
     }
     return result;
 }

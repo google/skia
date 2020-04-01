@@ -531,7 +531,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 target->drawShape(clip, runPaint, ctm, shape);
             }
         } else {
-            int glyphCount = subRun->fGlyphs.size();
+            int glyphCount = subRun->fGlyphs.count();
             if (0 == glyphCount) {
                 continue;
             }
@@ -853,7 +853,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
         auto [success, glyphsPlacedInAtlas] = this->updateTextureCoordinates(begin, end);
 
         // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == (int)fSubRun->fGlyphs.size()) {
+        if (success && begin + glyphsPlacedInAtlas == fSubRun->fGlyphs.count()) {
             // Need to get the freshest value of the atlas' generation because
             // updateTextureCoordinates may have changed it.
             fSubRun->fAtlasGeneration = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
@@ -861,7 +861,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
         return {success, glyphsPlacedInAtlas};
     } else {
         // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == (int)fSubRun->fGlyphs.size()) {
+        if (end == fSubRun->fGlyphs.count()) {
             // The atlas hasn't changed and the texture coordinates are all still valid. Update
             // all the plots used to the new use token.
             fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),

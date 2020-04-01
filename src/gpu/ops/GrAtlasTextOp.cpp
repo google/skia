@@ -367,7 +367,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
-        int subRunEnd = subRunBegin + (int)subRun->fGlyphs.size();
+        int subRunEnd = subRunBegin + subRun->fGlyphs.count();
 
         // Draw all the glyphs in the subRun.
         while (totalGlyphsRegened < subRunEnd) {
@@ -379,7 +379,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             auto[ok, glyphsRegenerated] = regenerator.regenerate(drawBegin, drawEnd);
 
             // There was a problem allocating the glyph in the atlas. Bail.
-            if(!ok) { return; }
+            if (!ok) {
+                return;
+            }
 
             // Update all the vertices for glyphsRegenerate glyphs.
             if (glyphsRegenerated > 0) {
