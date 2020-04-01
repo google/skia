@@ -11,7 +11,5 @@ import("../third_party.gni")
 third_party("native_app_glue") {
   public_include_dirs = [ "$ndk/sources/android/native_app_glue" ]
 
-  sources = [
-    "$ndk/sources/android/native_app_glue/android_native_app_glue.c",
-  ]
+  sources = [ "$ndk/sources/android/native_app_glue/android_native_app_glue.c" ]
 }

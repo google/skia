@@ -36,14 +36,11 @@ if (skia_use_system_icu) {
   }
   action("make_data_assembly") {
     if (target_cpu == "wasm") {
-      _u_icu_version_major_num = "65"  # defined in source/common/unicode/uvernum.h
+      _u_icu_version_major_num =
+          "65"  # defined in source/common/unicode/uvernum.h
       script = "make_data_cpp.py"
-      inputs = [
-        "$data_dir/icudtl.dat",
-      ]
-      outputs = [
-        data_assembly,
-      ]
+      inputs = [ "$data_dir/icudtl.dat" ]
+      outputs = [ data_assembly ]
       args = [
         "icudt${_u_icu_version_major_num}_dat",
         rebase_path(inputs[0], root_build_dir),
@@ -51,12 +48,8 @@ if (skia_use_system_icu) {
       ]
     } else {
       script = "../externals/icu/scripts/make_data_assembly.py"
-      inputs = [
-        "$data_dir/icudtl.dat",
-      ]
-      outputs = [
-        "$data_assembly",
-      ]
+      inputs = [ "$data_dir/icudtl.dat" ]
+      outputs = [ "$data_assembly" ]
       args = [
         rebase_path(inputs[0], root_build_dir),
         rebase_path(data_assembly, root_build_dir),
@@ -92,9 +85,7 @@ if (skia_use_system_icu) {
     }
     sources = icu_sources
     if (is_win) {
-      deps = [
-        ":icudata",
-      ]
+      deps = [ ":icudata" ]
       public_defines += [
         "U_NOEXCEPT=",
         "U_STATIC_IMPLEMENTATION",
@@ -106,21 +97,13 @@ if (skia_use_system_icu) {
       ]
     } else {
       sources += [ "$data_assembly" ]
-      deps = [
-        ":make_data_assembly",
-      ]
+      deps = [ ":make_data_assembly" ]
     }
   }
 
   copy("icudata") {
-    sources = [
-      "../externals/icu/common/icudtl.dat",
-    ]
-    outputs = [
-      "$root_out_dir/icudtl.dat",
-    ]
-    data = [
-      "$root_out_dir/icudtl.dat",
-    ]
+    sources = [ "../externals/icu/common/icudtl.dat" ]
+    outputs = [ "$root_out_dir/icudtl.dat" ]
+    data = [ "$root_out_dir/icudtl.dat" ]
   }
 }

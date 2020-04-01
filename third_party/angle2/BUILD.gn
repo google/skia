@@ -70,18 +70,14 @@ config("common") {
 commit_id_output_file = "$root_gen_dir/angle2/commit.h"
 action("commit_id") {
   script = "$angle_root/src/commit_id.py"
-  outputs = [
-    commit_id_output_file,
-  ]
+  outputs = [ commit_id_output_file ]
 
   # Add ANGLE git as a dependency if it is available.
   angle_git_is_present =
       exec_script("$angle_root/src/commit_id.py", [ "check" ], "value") == 1
   if (angle_git_is_present) {
     # commit id should depend on angle's HEAD revision
-    inputs = [
-      "$angle_root/.git/HEAD",
-    ]
+    inputs = [ "$angle_root/.git/HEAD" ]
   }
 
   args = [
@@ -97,9 +93,7 @@ shared_library("libGLESv2") {
     "LIBANGLE_IMPLEMENTATION",
     "LIBGLESV2_IMPLEMENTATION",
   ]
-  deps = [
-    ":commit_id",
-  ]
+  deps = [ ":commit_id" ]
   libs = []
   sources =
       rebase_path(
@@ -150,9 +144,7 @@ shared_library("libEGL") {
   configs += [ ":common" ]
   configs -= [ "//gn:warnings" ]
   defines = [ "LIBEGL_IMPLEMENTATION" ]
-  deps = [
-    ":libGLESv2",
-  ]
+  deps = [ ":libGLESv2" ]
   sources = rebase_path(libegl_sources, ".", angle_root)
   if (is_win) {
     sources += [ "$angle_root/src/libEGL/libEGL.def" ]

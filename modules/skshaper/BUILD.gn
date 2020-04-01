@@ -26,9 +26,7 @@ if (skia_enable_skshaper) {
     import("skshaper.gni")
     public_configs = [ ":public_config" ]
     public = skia_shaper_public
-    deps = [
-      "../..:skia",
-    ]
+    deps = [ "../..:skia" ]
     defines = [ "SKSHAPER_IMPLEMENTATION=1" ]
     sources = skia_shaper_primitive_sources
     if (skia_use_icu && skia_use_harfbuzz) {
