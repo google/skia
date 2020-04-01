@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19954900_9877faae",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-01T14:20:43Z",
+      "side": 1,
+      "message": "I see no need for this abstraction. Just pull it of of fGlyphs.\n\nMaybe we add int count() const to SkSpan? This will fit into the Skia int world.",
+      "range": {
+        "startLine": 337,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 52
+      },
+      "revId": "88dad4a075e8dafde29d4a5139189e2703292448",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
