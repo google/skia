@@ -11,6 +11,7 @@
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/animator/Vector.h"
 #include "src/core/SkSafeMath.h"
 
 #include <algorithm>
@@ -59,94 +60,6 @@ namespace {
 //
 class VectorKeyframeAnimator final : public KeyframeAnimatorBase {
 public:
-    class Builder final : public KeyframeAnimatorBuilder {
-    public:
-        sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder& abuilder,
-                                         const skjson::ArrayValue& jkfs,
-                                         void* target_value) override {
-            SkASSERT(jkfs.size() > 0);
-
-            // peek at the first keyframe array value to find our vector length
-            const skjson::ObjectValue* jkf0 = jkfs[0];
-            const skjson::ArrayValue*  ja   = jkf0
-                    ? static_cast<const skjson::ArrayValue*>((*jkf0)["s"])
-                    : nullptr;
-            if (!ja) {
-                return nullptr;
-            }
-
-            fVecLen = ja->size();
-
-            SkSafeMath safe;
-            // total elements: vector length x number vectors
-            const auto total_size = safe.mul(fVecLen, jkfs.size());
-
-            // we must be able to store all offsets in Keyframe::Value::idx (uint32_t)
-            if (!safe || !SkTFitsIn<uint32_t>(total_size)) {
-                return nullptr;
-            }
-            fStorage.resize(total_size);
-
-            if (!this->parseKeyframes(abuilder, jkfs)) {
-                return nullptr;
-            }
-
-            // parseKFValue() might have stored fewer vectors thanks to tail-deduping.
-            SkASSERT(fCurrentVec <= jkfs.size());
-            fStorage.resize(fCurrentVec * fVecLen);
-            fStorage.shrink_to_fit();
-
-            return sk_sp<VectorKeyframeAnimator>(
-                        new VectorKeyframeAnimator(std::move(fKFs),
-                                                   std::move(fCMs),
-                                                   std::move(fStorage),
-                                                   fVecLen,
-                                                   static_cast<VectorValue*>(target_value)));
-        }
-
-        bool parseValue(const AnimationBuilder& abuilder,
-                        const skjson::Value& jv,
-                        void* v) const override {
-            return ValueTraits<VectorValue>::FromJSON(jv, &abuilder, static_cast<VectorValue*>(v));
-        }
-
-    private:
-        bool parseKFValue(const AnimationBuilder&,
-                          const skjson::ObjectValue&,
-                          const skjson::Value& jv,
-                          Keyframe::Value* kfv) override {
-            auto offset = fCurrentVec * fVecLen;
-            SkASSERT(offset + fVecLen <= fStorage.size());
-
-            if (!parse_array(jv, fStorage.data() + offset, fVecLen)) {
-                return false;
-            }
-
-            SkASSERT(!fCurrentVec || offset >= fVecLen);
-            // compare with previous vector value
-            if (fCurrentVec > 0 && !memcmp(fStorage.data() + offset,
-                                           fStorage.data() + offset - fVecLen,
-                                           fVecLen * sizeof(float))) {
-                // repeating value -> use prev offset (dedupe)
-                offset -= fVecLen;
-            } else {
-                // new value -> advance the current index
-                fCurrentVec += 1;
-            }
-
-            // Keyframes record the storage-offset for a given vector value.
-            kfv->idx = SkToU32(offset);
-
-            return true;
-        }
-
-        std::vector<float> fStorage;
-        size_t             fVecLen,         // size of individual vector values we store
-                           fCurrentVec = 0; // vector value index being parsed (corresponding
-                                            // storage offset is fCurrentVec * fVecLen)
-    };
-
-private:
     VectorKeyframeAnimator(std::vector<Keyframe> kfs,
                            std::vector<SkCubicMap> cms,
                            std::vector<float> storage,
@@ -161,6 +74,7 @@ private:
         fTarget->resize(fVecLen);
     }
 
+private:
     StateChanged onSeek(float t) override {
         const auto& lerp_info = this->getLERPInfo(t);
 
@@ -216,6 +130,91 @@ private:
 
 } // namespace
 
+VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(VectorLenParser  parse_len,
+                                                             VectorDataParser parse_data)
+    : fParseLen(parse_len)
+    , fParseData(parse_data) {}
+
+sk_sp<KeyframeAnimatorBase> VectorKeyframeAnimatorBuilder::make(const AnimationBuilder& abuilder,
+                                                                const skjson::ArrayValue& jkfs,
+                                                                void* target_value) {
+    SkASSERT(jkfs.size() > 0);
+
+    // peek at the first keyframe value to find our vector length
+    const skjson::ObjectValue* jkf0 = jkfs[0];
+    if (!jkf0 || !fParseLen((*jkf0)["s"], &fVecLen)) {
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    // total elements: vector length x number vectors
+    const auto total_size = safe.mul(fVecLen, jkfs.size());
+
+    // we must be able to store all offsets in Keyframe::Value::idx (uint32_t)
+    if (!safe || !SkTFitsIn<uint32_t>(total_size)) {
+        return nullptr;
+    }
+    fStorage.resize(total_size);
+
+    if (!this->parseKeyframes(abuilder, jkfs)) {
+        return nullptr;
+    }
+
+    // parseKFValue() might have stored fewer vectors thanks to tail-deduping.
+    SkASSERT(fCurrentVec <= jkfs.size());
+    fStorage.resize(fCurrentVec * fVecLen);
+    fStorage.shrink_to_fit();
+
+    return sk_sp<VectorKeyframeAnimator>(
+                new VectorKeyframeAnimator(std::move(fKFs),
+                                           std::move(fCMs),
+                                           std::move(fStorage),
+                                           fVecLen,
+                                           static_cast<VectorValue*>(target_value)));
+}
+
+bool VectorKeyframeAnimatorBuilder::parseValue(const AnimationBuilder&,
+                                               const skjson::Value& jv,
+                                               void* raw_v) const {
+    size_t vec_len;
+    if (!this->fParseLen(jv, &vec_len)) {
+        return false;
+    }
+
+    auto* v = static_cast<VectorValue*>(raw_v);
+    v->resize(vec_len);
+    return fParseData(jv, vec_len, v->data());
+}
+
+bool VectorKeyframeAnimatorBuilder::parseKFValue(const AnimationBuilder&,
+                                                 const skjson::ObjectValue&,
+                                                 const skjson::Value& jv,
+                                                 Keyframe::Value* kfv) {
+    auto offset = fCurrentVec * fVecLen;
+    SkASSERT(offset + fVecLen <= fStorage.size());
+
+    if (!fParseData(jv, fVecLen, fStorage.data() + offset)) {
+        return false;
+    }
+
+    SkASSERT(!fCurrentVec || offset >= fVecLen);
+    // compare with previous vector value
+    if (fCurrentVec > 0 && !memcmp(fStorage.data() + offset,
+                                   fStorage.data() + offset - fVecLen,
+                                   fVecLen * sizeof(float))) {
+        // repeating value -> use prev offset (dedupe)
+        offset -= fVecLen;
+    } else {
+        // new value -> advance the current index
+        fCurrentVec += 1;
+    }
+
+    // Keyframes record the storage-offset for a given vector value.
+    kfv->idx = SkToU32(offset);
+
+    return true;
+}
+
 template <>
 bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abuilder,
                                                     const skjson::ObjectValue* jprop,
@@ -226,7 +225,20 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
 
     if (!ParseDefault<bool>((*jprop)["s"], false)) {
         // Regular (static or keyframed) vector value.
-        VectorKeyframeAnimator::Builder builder;
+        VectorKeyframeAnimatorBuilder builder(
+                    // Len parser.
+                    [](const skjson::Value& jv, size_t* len) -> bool {
+                        if (const skjson::ArrayValue* ja = jv) {
+                            *len = ja->size();
+                            return true;
+                        }
+                        return false;
+                    },
+                    // Data parser.
+                    [](const skjson::Value& jv, size_t len, float* data) {
+                        return parse_array(jv, data, len);
+                    });
+
         return this->bindImpl(abuilder, jprop, builder, v);
     }
 
