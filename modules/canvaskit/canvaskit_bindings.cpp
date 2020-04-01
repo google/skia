@@ -803,29 +803,23 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                                int count, SkTileMode mode, uint32_t flags,
+                                uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
-        const SkColor4f* colors    = reinterpret_cast<const SkColor4f*>(cPtr);
-        const SkScalar*  positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
+        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
 
+        if (nineMatrixValues) {
+            SkMatrix localMatrix;
+            localMatrix.set9(nineMatrixValues);
+            return SkGradientShader::MakeLinear(points, colors, SkColorSpace::MakeSRGB(), positions, count,
+                                                mode, flags, &localMatrix);
+        }
         // TODO(nifong): do not assume color space. Support and test wide gamut color gradients
         return SkGradientShader::MakeLinear(points, colors, SkColorSpace::MakeSRGB(), positions, count,
                                             mode, flags, nullptr);
-    }), allow_raw_pointers());
-    function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
-                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkTileMode mode, uint32_t flags,
-                                const SimpleMatrix& lm)->sk_sp<SkShader> {
-        SkPoint points[] = { start, end };
-        // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
-
-        SkMatrix localMatrix = toSkMatrix(lm);
-
-        return SkGradientShader::MakeLinear(points, colors, SkColorSpace::MakeSRGB(), positions, count,
-                                            mode, flags, &localMatrix);
     }), allow_raw_pointers());
 #ifdef SK_SERIALIZE_SKP
     function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
@@ -839,89 +833,64 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                                int count, SkTileMode mode, uint32_t flags,
+                                uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
+        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
 
+        if (nineMatrixValues) {
+            SkMatrix localMatrix;
+            localMatrix.set9(nineMatrixValues);
+            return SkGradientShader::MakeRadial(center, radius, colors, SkColorSpace::MakeSRGB(), positions, count,
+                                                mode, flags, &localMatrix);
+        }
         return SkGradientShader::MakeRadial(center, radius, colors, SkColorSpace::MakeSRGB(), positions, count,
                                             mode, flags, nullptr);
-    }), allow_raw_pointers());
-    function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
-                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkTileMode mode, uint32_t flags,
-                                const SimpleMatrix& lm)->sk_sp<SkShader> {
-        // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
-
-        SkMatrix localMatrix = toSkMatrix(lm);
-        return SkGradientShader::MakeRadial(center, radius, colors, SkColorSpace::MakeSRGB(), positions, count,
-                                            mode, flags, &localMatrix);
     }), allow_raw_pointers());
     function("_MakeSweepGradientShader", optional_override([](SkScalar cx, SkScalar cy,
                                 uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode,
                                 SkScalar startAngle, SkScalar endAngle,
                                 uint32_t flags,
-                                const SimpleMatrix& lm)->sk_sp<SkShader> {
+                                uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
+        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*>(cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
 
-        SkMatrix localMatrix = toSkMatrix(lm);
+        if (nineMatrixValues) {
+            SkMatrix localMatrix;
+            localMatrix.set9(nineMatrixValues);
+            return SkGradientShader::MakeSweep(cx, cy, colors, SkColorSpace::MakeSRGB(), positions, count,
+                                               mode, startAngle, endAngle, flags,
+                                               &localMatrix);
+        }
         return SkGradientShader::MakeSweep(cx, cy, colors, SkColorSpace::MakeSRGB(), positions, count,
-                                           mode, startAngle, endAngle, flags,
-                                           &localMatrix);
-    }), allow_raw_pointers());
-    function("_MakeSweepGradientShader", optional_override([](SkScalar cx, SkScalar cy,
-                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, uint32_t flags,
-                                const SimpleMatrix& lm)->sk_sp<SkShader> {
-        // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
-
-        SkMatrix localMatrix = toSkMatrix(lm);
-        return SkGradientShader::MakeSweep(cx, cy, colors, SkColorSpace::MakeSRGB(), positions, count,
-                                           flags, &localMatrix);
-    }), allow_raw_pointers());
-    function("_MakeSweepGradientShader", optional_override([](SkScalar cx, SkScalar cy,
-                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count)->sk_sp<SkShader> {
-        // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
-
-        return SkGradientShader::MakeSweep(cx, cy, colors, SkColorSpace::MakeSRGB(), positions, count);
+                                           mode, startAngle, endAngle, flags, nullptr);
     }), allow_raw_pointers());
     function("_MakeTwoPointConicalGradientShader", optional_override([](
-                SkPoint start, SkScalar startRadius,
-                SkPoint end, SkScalar endRadius,
-                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                                SkPoint start, SkScalar startRadius,
+                                SkPoint end, SkScalar endRadius,
+                                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                                int count, SkTileMode mode, uint32_t flags,
+                                uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
         const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+        const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
 
+        if (nineMatrixValues) {
+            SkMatrix localMatrix;
+            localMatrix.set9(nineMatrixValues);
+            return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                         colors, SkColorSpace::MakeSRGB(), positions, count, mode,
+                                                         flags, &localMatrix);
+        }
         return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
                                                      colors, SkColorSpace::MakeSRGB(), positions, count, mode,
                                                      flags, nullptr);
-    }), allow_raw_pointers());
-    function("_MakeTwoPointConicalGradientShader", optional_override([](
-                SkPoint start, SkScalar startRadius,
-                SkPoint end, SkScalar endRadius,
-                uintptr_t /* SkColor4f*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                int count, SkTileMode mode, uint32_t flags,
-                const SimpleMatrix& lm)->sk_sp<SkShader> {
-        // See comment above for uintptr_t explanation
-        const SkColor4f*  colors  = reinterpret_cast<const SkColor4f*> (cPtr);
-        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
-
-        SkMatrix localMatrix = toSkMatrix(lm);
-        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
-                                                     colors, SkColorSpace::MakeSRGB(), positions, count, mode,
-                                                     flags, &localMatrix);
     }), allow_raw_pointers());
 
 #ifdef SK_GL
@@ -1274,17 +1243,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("width", &SkImage::width)
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
         .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData))
-            // Allow localMatrix to be optional, so we have 2 declarations of these shaders
-        .function("_makeShader", optional_override([](sk_sp<SkImage> self,
-                                SkTileMode tx, SkTileMode ty)->sk_sp<SkShader> {
-            return self->makeShader(tx, ty, nullptr);
-        }), allow_raw_pointers())
         .function("_makeShader", optional_override([](sk_sp<SkImage> self,
                                  SkTileMode tx, SkTileMode ty,
-                                 const SimpleMatrix& lm)->sk_sp<SkShader> {
-            SkMatrix localMatrix = toSkMatrix(lm);
-
-            return self->makeShader(tx, ty, &localMatrix);
+                                 uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
+            const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
+            if (nineMatrixValues) {
+                SkMatrix localMatrix;
+                localMatrix.set9(nineMatrixValues);
+                return self->makeShader(tx, ty, &localMatrix);
+            }
+            return self->makeShader(tx, ty, nullptr);
         }), allow_raw_pointers())
         .function("_readPixels", optional_override([](sk_sp<SkImage> self,
                                  SimpleImageInfo sii, uintptr_t /* uint8_t*  */ pPtr,

@@ -806,12 +806,10 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
-    if (localMatrix) {
-      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
-      return this._makeShader(xTileMode, yTileMode, localMatrix);
-    } else {
-      return this._makeShader(xTileMode, yTileMode);
-    }
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
+    var shader = this._makeShader(xTileMode, yTileMode, localMatrixPtr);
+    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    return shader;
   }
 
   CanvasKit.SkImage.prototype.readPixels = function(imageInfo, srcX, srcY) {
@@ -858,7 +856,7 @@ CanvasKit.onRuntimeInitialized = function() {
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.
-  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of Canvaskit.SimpleColor4f
+  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of CanvasKit.SimpleColor4f
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
@@ -887,14 +885,14 @@ CanvasKit.onRuntimeInitialized = function() {
       dstXformPtr = copy1dArray(dstXforms, CanvasKit.HEAPF32);
     }
 
-    var colorPtr = 0; // enscriptem doesn't like undefined for nullptr
+    var colorPtr = nullptr;
     if (colors) {
       if (colors.build) {
         colorPtr = colors.build();
       } else {
         if (!isCanvasKitColor(colors[0])) {
           SkDebug('DrawAtlas color argument expected to be CanvasKit.SkRectBuilder or array of ' +
-            'Canvaskit.SimpleColor4f, but got '+colors);
+            'CanvasKit.SimpleColor4f, but got '+colors);
           return;
         }
         // convert here
@@ -1066,43 +1064,42 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   }
 
-  function prepare3x3MatrixForGoingToWasm(matr) {
+  var defaultPerspective = Float32Array.of(0, 0, 1);
+
+  function copy3x3MatrixToWasm(matr) {
     if (!matr) {
-      return [
-               1, 0, 0,
-               0, 1, 0,
-               0, 0, 1,
-              ];
+      return nullptr;
     }
-    if (Array.isArray(matr)) {
-      // Add perspective args if not provided.
+    var mPtr = CanvasKit._malloc(9 * 4); // 9 matrix scalars, each at 4 bytes.
+    if (matr.length) {
+      // This should be an array or typed array.
+      // have to divide the pointer by 4 to "cast" it from bytes to float.
+      CanvasKit.HEAPF32.set(matr, mPtr / 4);
       if (matr.length === 6) {
-        matr.push(0, 0, 1);
+          CanvasKit.HEAPF32.set(defaultPerspective, 6 + mPtr / 4);
       }
-      return matr;
-    }
-    // DOMMatrix, which has their values in column major order.
-    return [
+    } else {
+      // Try a DOMMatrix?
+      var floats = Float32Array.of(
              matr.a, matr.c, matr.e,
              matr.b, matr.d, matr.f,
-             0, 0, 1,
-            ];
+             0, 0, 1);
+       // have to divide the pointer by 4 to "cast" it from bytes to float.
+      CanvasKit.HEAPF32.set(floats, mPtr / 4);
+    }
+    return mPtr;
   }
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    if (localMatrix) {
-      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
-      var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                    colors.length, mode, flags, localMatrix);
-    } else {
-      var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                    colors.length, mode, flags);
-    }
+    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
+                                                  colors.length, mode, flags, localMatrixPtr);
 
+    localMatrixPtr && CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return lgs;
@@ -1112,16 +1109,12 @@ CanvasKit.onRuntimeInitialized = function() {
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    if (localMatrix) {
-      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
-      var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                    colors.length, mode, flags, localMatrix);
-    } else {
-      var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                    colors.length, mode, flags);
-    }
+    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
+                                                  colors.length, mode, flags, localMatrixPtr);
 
+    localMatrixPtr && CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return rgs;
@@ -1133,35 +1126,31 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
-    localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
     var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
-                                                  colors.length, mode,
-                                                  startAngle, endAngle, flags,
-                                                  localMatrix);
+                                                 colors.length, mode,
+                                                 startAngle, endAngle, flags,
+                                                 localMatrixPtr);
 
+    localMatrixPtr && CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return sgs;
   }
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
-                                                         colors, pos, mode, localMatrix, flags) {
+                                                            colors, pos, mode, localMatrix, flags) {
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    if (localMatrix) {
-      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
-      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+    var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
                           start, startRadius, end, endRadius,
-                          colorPtr, posPtr, colors.length, mode, flags, localMatrix);
-    } else {
-      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
-                          start, startRadius, end, endRadius,
-                          colorPtr, posPtr, colors.length, mode, flags);
-    }
+                          colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr);
 
+    localMatrixPtr && CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return rgs;
