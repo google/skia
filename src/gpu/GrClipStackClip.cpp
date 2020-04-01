@@ -352,6 +352,12 @@ static void add_invalidate_on_pop_message(GrRecordingContext* context,
     SkDEBUGFAIL("Gen ID was not found in stack.");
 }
 
+static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
+
+static GrSurfaceProxyView find_mask(GrProxyProvider* provider, const GrUniqueKey& key) {
+    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8);
+}
+
 GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* context,
                                                         const GrReducedClip& reducedClip) const {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -359,16 +365,14 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                   GrColorType::kAlpha_8);
-        return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+    if (auto cachedView = find_mask(context->priv().proxyProvider(), key)) {
+        return cachedView;
     }
 
     auto rtc = GrRenderTargetContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox,
             {reducedClip.width(), reducedClip.height()}, 1, GrMipMapped::kNo, GrProtected::kNo,
-            kTopLeft_GrSurfaceOrigin);
+            kMaskOrigin);
     if (!rtc) {
         return {};
     }
@@ -382,7 +386,7 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
         return {};
     }
 
-    SkASSERT(result.origin() == kTopLeft_GrSurfaceOrigin);
+    SkASSERT(result.origin() == kMaskOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, result.asTextureProxy());
     add_invalidate_on_pop_message(context, *fStack, reducedClip.maskGenID(), key);
 
@@ -471,12 +475,9 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
                          reducedClip.numAnalyticFPs(), &key);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    const GrCaps* caps = context->priv().caps();
 
-    if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                   GrColorType::kAlpha_8);
-        return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+    if (auto cachedView = find_mask(proxyProvider, key)) {
+        return cachedView;
     }
 
     // The mask texture may be larger than necessary. We round out the clip bounds and pin the top
@@ -490,6 +491,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
 
     GrSurfaceProxyView view;
     if (taskGroup && renderTargetContext) {
+        const GrCaps* caps = context->priv().caps();
         // Create our texture proxy
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);
@@ -525,7 +527,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
         taskGroup->add(std::move(drawAndUploadMask));
         proxy->texPriv().setDeferredUploader(std::move(uploader));
 
-        view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+        view = {std::move(proxy), kMaskOrigin, swizzle};
     } else {
         GrSWMaskHelper helper;
         if (!helper.init(maskSpaceIBounds)) {
@@ -539,7 +541,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     }
 
     SkASSERT(view);
-    SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
+    SkASSERT(view.origin() == kMaskOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
     add_invalidate_on_pop_message(context, *fStack, reducedClip.maskGenID(), key);
     return view;
