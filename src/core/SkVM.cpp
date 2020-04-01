@@ -483,11 +483,11 @@ namespace skvm {
         std::vector<bool> live_instructions;
         std::vector<Val> frontier;
         int liveInstructionCount = liveness_analysis(program, &live_instructions, &frontier);
-        skvm::Uses uses{program, live_instructions};
+        skvm::Usage usage{program, live_instructions};
 
         std::vector<int> remaining_uses;
         for (Val id = 0; id < (Val)program.size(); id++) {
-            remaining_uses.push_back((int)uses.users(id).size());
+            remaining_uses.push_back((int)usage.users(id).size());
         }
 
         // Map old Val index to rewritten index in optimized.
@@ -1476,71 +1476,45 @@ namespace skvm {
     // The table is just those "is used by ..." I wrote out above in order,
     // and the index tracks where an Instruction's span of users starts, table[index[id]].
     // The span continues up until the start of the next Instruction, table[index[id+1]].
-    SkSpan<const Val> Uses::users(Val id) const {
+    SkSpan<const Val> Usage::users(Val id) const {
         int begin = fIndex[id];
         int end   = fIndex[id + 1];
         return SkMakeSpan(fTable.data() + begin, end - begin);
     }
 
-    Uses::Uses(const std::vector<Instruction>& instructions,
-               const std::vector<bool>& liveness) {
-        int instruction_count = instructions.size();
-
-        // Count up all the uses.
-        std::vector<int> out_edge_count;
-        out_edge_count.resize(instruction_count);
-        for (Val id = 0; id < instruction_count; id++) {
-            if (liveness[id]) {
-                Instruction inst = instructions[id];
-                if (inst.x != NA) {
-                    out_edge_count[inst.x] += 1;
-                }
-                if (inst.y != NA) {
-                    out_edge_count[inst.y] += 1;
-                }
-                if (inst.z != NA) {
-                    out_edge_count[inst.z] += 1;
-                }
+    Usage::Usage(const std::vector<Instruction>& program, const std::vector<bool>& live) {
+        // uses[id] counts the number of times each Instruction is used.
+        std::vector<int> uses(program.size(), 0);
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (live[id]) {
+                Instruction inst = program[id];
+                if (inst.x != NA) { ++uses[inst.x]; }
+                if (inst.y != NA) { ++uses[inst.y]; }
+                if (inst.z != NA) { ++uses[inst.z]; }
             }
         }
 
-        // Create index into the edge vector.
-        fIndex.resize(instruction_count + 1);
-        int total_edge_count = 0;
-        for (int i = 0; i < instruction_count; i++) {
-            fIndex[i] = total_edge_count;
-            total_edge_count += out_edge_count[i];
+        // Build our index into fTable, with an extra entry marking the final Instruction's end.
+        fIndex.reserve(program.size() + 1);
+        int total_uses = 0;
+        for (int n : uses) {
+            fIndex.push_back(total_uses);
+            total_uses += n;
         }
-        // Total number of edges.
-        fIndex.back() = total_edge_count;
+        fIndex.push_back(total_uses);
 
-        // Create all the edges
-        fTable.resize(total_edge_count);
-
-        // Use a copy of edge_index as the cursor into edges of each Val.
-        std::vector<int> edge_cursor{fIndex};
-        for (Val id = 0; id < instruction_count; id++) {
-            if (liveness[id]) {
-                Instruction inst = instructions[id];
-                if (inst.x != NA) {
-                    fTable[edge_cursor[inst.x]] = id;
-                    edge_cursor[inst.x] += 1;
-                }
-                if (inst.y != NA) {
-                    fTable[edge_cursor[inst.y]] = id;
-                    edge_cursor[inst.y] += 1;
-                }
-                if (inst.z != NA) {
-                    fTable[edge_cursor[inst.z]] = id;
-                    edge_cursor[inst.z] += 1;
-                }
+        // Tick down each Instruction's uses to fill in fTable.
+        fTable.resize(total_uses, NA);
+        for (Val id = (Val)program.size(); id --> 0; ) {
+            if (live[id]) {
+                Instruction inst = program[id];
+                if (inst.x != NA) { fTable[fIndex[inst.x] + --uses[inst.x]] = id; }
+                if (inst.y != NA) { fTable[fIndex[inst.y] + --uses[inst.y]] = id; }
+                if (inst.z != NA) { fTable[fIndex[inst.z] + --uses[inst.z]] = id; }
             }
         }
-
-        // Make sure all the edges are accounted for.
-        for (int i = 0; i < instruction_count; i++) {
-            SkASSERT(edge_cursor[i] == fIndex[i+1]);
-        }
+        for (int n  : uses  ) { (void)n;  SkASSERT(n  == 0 ); }
+        for (Val id : fTable) { (void)id; SkASSERT(id != NA); }
     }
 
     // ~~~~ Program::eval() and co. ~~~~ //
