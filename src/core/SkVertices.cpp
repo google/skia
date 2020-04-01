@@ -229,14 +229,6 @@ sk_sp<SkVertices> SkVertices::Builder::detach() {
     return nullptr;
 }
 
-int SkVertices::Builder::vertexCount() const {
-    return fVertices ? fVertices->fVertexCount : 0;
-}
-
-int SkVertices::Builder::indexCount() const {
-    return fVertices ? fVertices->fIndexCount : 0;
-}
-
 SkPoint* SkVertices::Builder::positions() {
     return fVertices ? const_cast<SkPoint*>(fVertices->fPositions) : nullptr;
 }
@@ -464,8 +456,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
     reader.read(builder.indices(), isize);
     if (indexCount > 0) {
-        // validate that the indicies are in range
-        SkASSERT(indexCount == builder.indexCount());
+        // validate that the indices are in range
         const uint16_t* indices = builder.indices();
         for (int i = 0; i < indexCount; ++i) {
             if (indices[i] >= (unsigned)vertexCount) {
@@ -474,7 +465,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
         }
     }
 
-    if (!safe.ok()) {
+    if (!safe_math.ok()) {
         return nullptr;
     }
     return builder.detach();
