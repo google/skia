@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d8de474_d722afcb",
+        "filename": "modules/skottie/src/animator/Shape.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T16:15:45Z",
+      "side": 1,
+      "message": "Is there a way we can encode this in-band, e.g. duplicating the first point when closed?",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 65
+      },
+      "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
