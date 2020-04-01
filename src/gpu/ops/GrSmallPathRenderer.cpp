@@ -518,13 +518,12 @@ private:
 
     bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
                     int width, int height, const void* image,
-                    GrDrawOpAtlas::PlotLocator* plotLocator, SkIPoint16* atlasLocation) const {
+                    GrDrawOpAtlas::Foo* foo) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
 
-        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, plotLocator,
-                                                          uploadTarget, width, height,
-                                                          image, atlasLocation);
+        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, uploadTarget,
+                                                          width, height, image, foo);
         if (GrDrawOpAtlas::ErrorCode::kError == code) {
             return false;
         }
@@ -532,8 +531,7 @@ private:
         if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
             this->flush(target, flushInfo);
 
-            code = atlas->addToAtlas(resourceProvider, plotLocator, uploadTarget, width, height,
-                                     image, atlasLocation);
+            code = atlas->addToAtlas(resourceProvider, uploadTarget, width, height, image, foo);
         }
 
         return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
@@ -623,17 +621,15 @@ private:
         }
 
         // add to atlas
-        SkIPoint16 atlasLocation;
-        GrDrawOpAtlas::PlotLocator plotLocator;
+        GrDrawOpAtlas::Foo foo;
 
-        if (!this->addToAtlas(target, flushInfo, atlas,
-                              width, height, dfStorage.get(), &plotLocator, &atlasLocation)) {
+        if (!this->addToAtlas(target, flushInfo, atlas, width, height, dfStorage.get(), &foo)) {
             return false;
         }
 
         // add to cache
         shapeData->fKey.set(shape, dimension);
-        shapeData->fPlotLocator = plotLocator;
+        shapeData->fPlotLocator = foo.fPlotLocator;
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
@@ -643,13 +639,13 @@ private:
         shapeData->fBounds.fBottom /= scale;
 
         // Pack the page index into the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
+        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(foo.fPlotLocator);
         uint16_t left, top, right, bottom;
         std::tie(left, top, right, bottom) =
-                std::make_tuple(atlasLocation.fX + SK_DistanceFieldPad,
-                                atlasLocation.fY + SK_DistanceFieldPad,
-                                atlasLocation.fX + SK_DistanceFieldPad + devPathBounds.width(),
-                                atlasLocation.fY + SK_DistanceFieldPad + devPathBounds.height());
+                std::make_tuple(foo.fLoc.fX + SK_DistanceFieldPad,
+                                foo.fLoc.fY + SK_DistanceFieldPad,
+                                foo.fLoc.fX + SK_DistanceFieldPad + devPathBounds.width(),
+                                foo.fLoc.fY + SK_DistanceFieldPad + devPathBounds.height());
         std::tie(left, top) =
                 GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
         std::tie(right, bottom) =
@@ -727,27 +723,26 @@ private:
         draw.drawPathCoverage(path, paint);
 
         // add to atlas
-        SkIPoint16 atlasLocation;
-        GrDrawOpAtlas::PlotLocator plotLocator;
+        GrDrawOpAtlas::Foo foo;
 
         if (!this->addToAtlas(target, flushInfo, atlas, dst.width(), dst.height(),
-                dst.addr(), &plotLocator, &atlasLocation)) {
+                              dst.addr(), &foo)) {
             return false;
         }
 
         // add to cache
         shapeData->fKey.set(shape, ctm);
-        shapeData->fPlotLocator = plotLocator;
+        shapeData->fPlotLocator = foo.fPlotLocator;
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
         // Pack the page index into the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
+        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(foo.fPlotLocator);
         uint16_t left, top, right, bottom;
-        std::tie(left, top, right, bottom) = std::make_tuple(atlasLocation.fX, atlasLocation.fY,
-                                                             atlasLocation.fX+width,
-                                                             atlasLocation.fY+height);
+        std::tie(left, top, right, bottom) = std::make_tuple(foo.fLoc.fX, foo.fLoc.fY,
+                                                             foo.fLoc.fX+width,
+                                                             foo.fLoc.fY+height);
         std::tie(left, top) =
                 GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
         std::tie(right, bottom) =

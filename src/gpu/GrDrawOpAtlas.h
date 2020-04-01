@@ -19,6 +19,7 @@
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+class GrGlyph;
 class GrOnFlushResourceProvider;
 
 
@@ -160,9 +161,20 @@ public:
         kTryAgain
     };
 
-    ErrorCode addToAtlas(GrResourceProvider*, PlotLocator*, GrDeferredUploadTarget*,
-                         int width, int height,
-                         const void* image, SkIPoint16* loc);
+    struct Foo {
+        // Is this resident in the atlas?
+        bool notResident() const { return false; }
+
+        uint32_t pageIndex1() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
+
+        PlotLocator fPlotLocator;
+        SkIPoint16  fLoc;
+    };
+
+    Foo* findFoo(SkPackedGlyphID);
+
+    ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
+                         int width, int height, const void* image, Foo*);
 
     const GrSurfaceProxyView* getViews() const { return fViews; }
 
@@ -407,9 +419,9 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(const GrCaps&, unsigned int pageIdx, PlotLocator* plotLocator,
-                      GrDeferredUploadTarget* target, int width, int height, const void* image,
-                      SkIPoint16* loc);
+    bool uploadToPage(const GrCaps&, unsigned int pageIdx, GrDeferredUploadTarget* target,
+                      int width, int height, const void* image,
+                      Foo*);
 
     bool createPages(GrProxyProvider*, GenerationCounter*);
     bool activateNewPage(GrResourceProvider*);
