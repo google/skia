@@ -28,6 +28,8 @@ public:
     using CoordTransformRange   = GrFragmentProcessor::PipelineCoordTransformRange;
 
     struct TransformVar {
+        // FIXME doc this
+        SkString fMatrixName;
         // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
         // {scaleX, transX, scaleY, transY}. For explicitly sampled FPs this is visible in the
         // FS. This is not available for NV_path_rendering with non-explicitly sampled FPs.
@@ -60,9 +62,10 @@ public:
         FPCoordTransformHandler& operator++();
 
         // 'args' are constructor params to GrShaderVar.
-        void specifyCoordsForCurrCoordTransform(GrShaderVar transformVar, GrShaderVar varyingVar) {
+        void specifyCoordsForCurrCoordTransform(const SkString& name, GrShaderVar transformVar,
+                                                GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back({transformVar, varyingVar});
+            fTransformedCoordVars->push_back({name, transformVar, varyingVar});
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
@@ -72,7 +75,12 @@ public:
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
+        const GrPipeline& pipeline() {
+            return fPipeline;
+        }
+
     private:
+        const GrPipeline&                       fPipeline;
         GrFragmentProcessor::CoordTransformIter fIter;
         SkDEBUGCODE(bool                        fAddedCoord = false;)
         SkTArray<TransformVar>*                 fTransformedCoordVars;
@@ -122,6 +130,9 @@ public:
      * This allows the effect subclass to emit vertex code.
      */
     virtual void emitCode(EmitArgs&) = 0;
+
+    virtual void emitTransformCode(GrGLSLVertexBuilder* vb,
+                                   GrGLSLUniformHandler* uniformHandler) {}
 
     /**
      * A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that

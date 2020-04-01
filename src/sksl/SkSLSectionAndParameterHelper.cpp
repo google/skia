@@ -236,4 +236,163 @@ bool SectionAndParameterHelper::hasCoordOverrides(const Statement& s, const Vari
     return false;
 }
 
+SampleMatrix SectionAndParameterHelper::getMatrix(const Variable& fp) {
+    SampleMatrix result;
+    for (const auto& pe : fProgram) {
+        result.merge(this->getMatrix(pe, fp));
+    }
+    return result;
+}
+
+SampleMatrix SectionAndParameterHelper::getMatrix(const ProgramElement& pe, const Variable& fp) {
+    if (pe.fKind == ProgramElement::kFunction_Kind) {
+        return this->getMatrix(*((const FunctionDefinition&) pe).fBody, fp);
+    }
+    return SampleMatrix();
+}
+
+SampleMatrix SectionAndParameterHelper::getMatrix(const Expression& e, const Variable& fp) {
+    switch (e.fKind) {
+        case Expression::kFunctionCall_Kind: {
+            const FunctionCall& fc = (const FunctionCall&) e;
+            const FunctionDeclaration& f = fc.fFunction;
+            if (f.fBuiltin && f.fName == "sample" && fc.fArguments.size() >= 2 &&
+                fc.fArguments.back()->fType == *fProgram.fContext->fFloat3x3_Type &&
+                fc.fArguments[0]->fKind == Expression::kVariableReference_Kind &&
+                &((VariableReference&) *fc.fArguments[0]).fVariable == &fp) {
+                if (fc.fArguments.back()->isConstantOrUniform()) {
+                    return SampleMatrix(SampleMatrix::Kind::kConstantOrUniform, nullptr,
+                                        fc.fArguments.back()->description());
+                } else {
+                    return SampleMatrix(SampleMatrix::Kind::kVariable);
+                }
+            }
+            SampleMatrix result;
+            for (const auto& e : fc.fArguments) {
+                result.merge(this->getMatrix(*e, fp));
+            }
+            return result;
+        }
+        case Expression::kConstructor_Kind: {
+            SampleMatrix result;
+            const Constructor& c = (const Constructor&) e;
+            for (const auto& e : c.fArguments) {
+                result.merge(this->getMatrix(*e, fp));
+            }
+            return result;
+        }
+        case Expression::kFieldAccess_Kind: {
+            return this->getMatrix(*((const FieldAccess&) e).fBase, fp);
+        }
+        case Expression::kSwizzle_Kind:
+            return this->getMatrix(*((const Swizzle&) e).fBase, fp);
+        case Expression::kBinary_Kind: {
+            const BinaryExpression& b = (const BinaryExpression&) e;
+            return this->getMatrix(*b.fLeft, fp).merge(this->getMatrix(*b.fRight, fp));
+        }
+        case Expression::kIndex_Kind: {
+            const IndexExpression& idx = (const IndexExpression&) e;
+            return this->getMatrix(*idx.fBase, fp).merge(this->getMatrix(*idx.fIndex, fp));
+        }
+        case Expression::kPrefix_Kind:
+            return this->getMatrix(*((const PrefixExpression&) e).fOperand, fp);
+        case Expression::kPostfix_Kind:
+            return this->getMatrix(*((const PostfixExpression&) e).fOperand, fp);
+        case Expression::kTernary_Kind: {
+            const TernaryExpression& t = (const TernaryExpression&) e;
+            return this->getMatrix(*t.fTest, fp).merge(this->getMatrix(*t.fIfTrue, fp)).merge(
+                                                                  this->getMatrix(*t.fIfFalse, fp));
+        }
+        case Expression::kVariableReference_Kind:
+            return SampleMatrix();
+        case Expression::kBoolLiteral_Kind:
+        case Expression::kDefined_Kind:
+        case Expression::kExternalFunctionCall_Kind:
+        case Expression::kExternalValue_Kind:
+        case Expression::kFloatLiteral_Kind:
+        case Expression::kFunctionReference_Kind:
+        case Expression::kIntLiteral_Kind:
+        case Expression::kNullLiteral_Kind:
+        case Expression::kSetting_Kind:
+        case Expression::kTypeReference_Kind:
+            return SampleMatrix();
+    }
+    SkASSERT(false);
+    return SampleMatrix();
+}
+
+SampleMatrix SectionAndParameterHelper::getMatrix(const Statement& s, const Variable& fp) {
+    switch (s.fKind) {
+        case Statement::kBlock_Kind: {
+            SampleMatrix result;
+            for (const auto& child : ((const Block&) s).fStatements) {
+                result.merge(this->getMatrix(*child, fp));
+            }
+            return result;
+        }
+        case Statement::kVarDeclaration_Kind: {
+            const VarDeclaration& var = (const VarDeclaration&) s;
+            if (var.fValue) {
+                return this->getMatrix(*var.fValue, fp);
+            }
+            return SampleMatrix();
+        }
+        case Statement::kVarDeclarations_Kind: {
+            const VarDeclarations& decls = *((const VarDeclarationsStatement&) s).fDeclaration;
+            SampleMatrix result;
+            for (const auto& stmt : decls.fVars) {
+                result.merge(this->getMatrix(*stmt, fp));
+            }
+            return result;
+        }
+        case Statement::kExpression_Kind:
+            return this->getMatrix(*((const ExpressionStatement&) s).fExpression, fp);
+        case Statement::kReturn_Kind: {
+            const ReturnStatement& r = (const ReturnStatement&) s;
+            if (r.fExpression) {
+                return this->getMatrix(*r.fExpression, fp);
+            }
+            return SampleMatrix();
+        }
+        case Statement::kIf_Kind: {
+            const IfStatement& i = (const IfStatement&) s;
+            return this->getMatrix(*i.fTest, fp).merge(this->getMatrix(*i.fIfTrue, fp)).merge(
+                                  (i.fIfFalse ? this->getMatrix(*i.fIfFalse, fp) : SampleMatrix()));
+        }
+        case Statement::kFor_Kind: {
+            const ForStatement& f = (const ForStatement&) s;
+            return this->getMatrix(*f.fInitializer, fp).merge(
+                   this->getMatrix(*f.fTest, fp).merge(
+                   this->getMatrix(*f.fNext, fp).merge(
+                   this->getMatrix(*f.fStatement, fp))));
+        }
+        case Statement::kWhile_Kind: {
+            const WhileStatement& w = (const WhileStatement&) s;
+            return this->getMatrix(*w.fTest, fp).merge(this->getMatrix(*w.fStatement, fp));
+        }
+        case Statement::kDo_Kind: {
+            const DoStatement& d = (const DoStatement&) s;
+            return this->getMatrix(*d.fTest, fp).merge(this->getMatrix(*d.fStatement, fp));
+        }
+        case Statement::kSwitch_Kind: {
+            SampleMatrix result;
+            const SwitchStatement& sw = (const SwitchStatement&) s;
+            for (const auto& c : sw.fCases) {
+                for (const auto& st : c->fStatements) {
+                    result.merge(this->getMatrix(*st, fp));
+                }
+            }
+            return result.merge(this->getMatrix(*sw.fValue, fp));
+        }
+        case Statement::kBreak_Kind:
+        case Statement::kContinue_Kind:
+        case Statement::kDiscard_Kind:
+        case Statement::kGroup_Kind:
+        case Statement::kNop_Kind:
+            return SampleMatrix();
+    }
+    SkASSERT(false);
+    return SampleMatrix();
+}
+
 }

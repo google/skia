@@ -11,6 +11,7 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
+#include "src/sksl/SkSLSampleMatrix.h"
 
 class GrGLSLFragmentProcessor;
 class GrPaint;
@@ -146,6 +147,7 @@ public:
     }
 
     void setSampledWithExplicitCoords(bool value) {
+        SkASSERT(value);
         if (value) {
             fFlags |= kSampledWithExplicitCoords;
         } else {
@@ -153,6 +155,32 @@ public:
         }
         for (auto& child : fChildProcessors) {
             child->setSampledWithExplicitCoords(value);
+        }
+    }
+
+    SkSL::SampleMatrix sampleMatrix() const {
+        return fMatrix;
+    }
+
+    void setSampleMatrix(SkSL::SampleMatrix matrix) {
+        if (matrix == fMatrix) {
+            return;
+        }
+        SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
+        if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+            SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
+                     (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
+                      matrix.fExpression == fMatrix.fExpression));
+            fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
+                                         fMatrix.fExpression);
+        } else {
+            SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
+            fMatrix = matrix;
+        }
+        if (matrix.fKind == SkSL::SampleMatrix::Kind::kVariable) {
+            for (auto& child : fChildProcessors) {
+                child->setSampleMatrix(matrix);
+            }
         }
     }
 
@@ -456,6 +484,7 @@ private:
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
         kHasCoordTransforms_Flag = kFirstPrivateFlag,
         kSampledWithExplicitCoords = kFirstPrivateFlag << 1,
+        kHasMatrix_Flag = kFirstPrivateFlag << 2,
     };
 
     uint32_t fFlags = 0;
@@ -465,6 +494,8 @@ private:
     SkSTArray<4, GrCoordTransform*, true> fCoordTransforms;
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
+
+    SkSL::SampleMatrix fMatrix;
 
     typedef GrProcessor INHERITED;
 };

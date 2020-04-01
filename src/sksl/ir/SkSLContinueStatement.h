@@ -24,11 +24,9 @@ struct ContinueStatement : public Statement {
         return std::unique_ptr<Statement>(new ContinueStatement(fOffset));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return String("continue;");
     }
-#endif
 
     typedef Statement INHERITED;
 };

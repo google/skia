@@ -100,7 +100,8 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));
-
+    SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
+             fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform);
     return index;
 }
 
