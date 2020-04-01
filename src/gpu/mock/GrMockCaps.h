@@ -164,13 +164,11 @@ public:
         return {};
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
-        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
+    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override {
+        return GrSwizzle();
     }
     GrSwizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
-        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
+        return GrSwizzle();
     }
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
