@@ -393,11 +393,13 @@ namespace skvm {
     struct Color {
         skvm::F32 r,g,b,a;
         explicit operator bool() const { return r && g && b && a; }
+        Builder* operator->()    const { return a.operator->(); }
     };
 
     struct HSLA {
         skvm::F32 h,s,l,a;
         explicit operator bool() const { return h && s && l && a; }
+        Builder* operator->()    const { return a.operator->(); }
     };
 
     struct Uniform {
@@ -982,15 +984,15 @@ namespace skvm {
     static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
     static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
 
-    static inline Color   premul(Color c) { return c.a->  premul(c); }
-    static inline Color unpremul(Color c) { return c.a->unpremul(c); }
+    static inline Color   premul(Color c) { return c->  premul(c); }
+    static inline Color unpremul(Color c) { return c->unpremul(c); }
 
     static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
 
-    static inline Color blend(SkBlendMode m, Color s, Color d) { return s.a->blend(m,s,d); }
+    static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
 
-    static inline HSLA  to_hsla(Color c) { return c.a->to_hsla(c); }
-    static inline Color to_rgba(HSLA  c) { return c.a->to_rgba(c); }
+    static inline HSLA  to_hsla(Color c) { return c->to_hsla(c); }
+    static inline Color to_rgba(HSLA  c) { return c->to_rgba(c); }
 }
 
 #endif//SkVM_DEFINED
