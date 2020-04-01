@@ -29,12 +29,12 @@ bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
 skvm::Color SkLumaColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                                          SkColorSpace* dstCS,
                                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    auto a = p->mad(c.r, p->splat(0.2126f),
-             p->mad(c.g, p->splat(0.7152f),
-             p->mul(c.b, p->splat(0.0722f))));
-    c.a = p->clamp(a, p->splat(0.0f), p->splat(1.0f));
-    c.r = c.g = c.b = p->splat(0.0f);
-    return c;
+    return {
+        p->splat(0.0f),
+        p->splat(0.0f),
+        p->splat(0.0f),
+        clamp01(c.r * 0.2126f + c.g * 0.7152f + c.b * 0.0722f),
+    };
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
