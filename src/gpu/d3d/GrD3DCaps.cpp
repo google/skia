@@ -944,8 +944,7 @@ GrSwizzle GrD3DCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType c
             return ctInfo.fReadSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
 
 GrSwizzle GrD3DCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
@@ -958,8 +957,7 @@ GrSwizzle GrD3DCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType 
             return ctInfo.fWriteSwizzle;
         }
     }
-    SkDEBUGFAIL("Illegal color type/format combination.");
-    return {};
+    return GrSwizzle::RGBA();
 }
 
 uint64_t GrD3DCaps::computeFormatKey(const GrBackendFormat& format) const {
