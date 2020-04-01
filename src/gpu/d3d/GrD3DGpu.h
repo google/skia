@@ -8,7 +8,6 @@
 #ifndef GrD3DGpu_DEFINED
 #define GrD3DGpu_DEFINED
 
-#include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/private/SkDeque.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
+struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
@@ -30,8 +30,8 @@ public:
 
     const GrD3DCaps& d3dCaps() const { return static_cast<const GrD3DCaps&>(*fCaps); }
 
-    ID3D12Device* device() const { return fDevice.Get(); }
-    ID3D12CommandQueue* queue() const { return fQueue.Get(); }
+    ID3D12Device* device() const { return fDevice.get(); }
+    ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
 
