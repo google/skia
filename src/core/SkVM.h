@@ -144,6 +144,9 @@ namespace skvm {
         void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
+        enum Direction {Load, Store};
+        void stackMover(Direction direction, Ymm reg, int offset);
+        void vmovups  (Ymm dst, int offset);   // dst = *(sp + offset)
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
         void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
@@ -152,6 +155,7 @@ namespace skvm {
         enum Scale { ONE, TWO, FOUR, EIGHT };
         void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
+        void vmovups(int offset, Ymm src);     // *(sp + offset) = src
         void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
         void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit

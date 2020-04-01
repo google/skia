@@ -628,7 +628,7 @@ namespace {
                       "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
-            if (false) {
+            if (true) {
                 static std::atomic<int> missed{0},
                                          total{0};
                 if (!program.hasJIT()) {
