@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ed57e24_c5ae7510",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "If you want to go really nuts now, most of these APIs no longer need to take an explicit skvm::Builder*, since it\u0027s now implied by the inputs: skvm::Color channels, the skvm::F32 x,y coordinates, etc.\n\nUnclear to me whether that makes things clearer or less clear, and definitely something for a separate CL.",
+      "range": {
+        "startLine": 221,
+        "startChar": 22,
+        "endLine": 221,
+        "endChar": 38
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27615c3d_1fe6cad3",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "In case you\u0027re seeing diffs, this did change the math order.  Used to be r*R + (g*G + b*B), now (r*R + g*G) + b*B.",
+      "range": {
+        "startLine": 150,
+        "startChar": 2,
+        "endLine": 152,
+        "endChar": 46
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd3f71e0_447f81d9",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "Same here I think.",
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb2e6358_2ae171ff",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "I\u0027d probably inline byte now?",
+      "range": {
+        "startLine": 133,
+        "startChar": 1,
+        "endLine": 134,
+        "endChar": 39
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0da718a_790d5a8b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "This is so much more readable than the left side.  You can drop the p-\u003e on floor() too I think?\n\nProbably makes sense as `v - floor(v * I) * S;` to match the comment?\nOr just leave it as `v - S * floor(v * I)` and drop the comment now?",
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b534547c_c9ffd2d6",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "This one too?",
+      "range": {
+        "startLine": 725,
+        "startChar": 19,
+        "endLine": 725,
+        "endChar": 22
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c268c29_017a0207",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "mask \u0026\u003d ?",
+      "range": {
+        "startLine": 772,
+        "startChar": 52,
+        "endLine": 772,
+        "endChar": 58
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32329e82_d9aaf377",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "these padding aren\u0027t needed anymore",
+      "range": {
+        "startLine": 823,
+        "startChar": 26,
+        "endLine": 823,
+        "endChar": 27
+      },
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f0923de_8d7298f0",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T15:40:42Z",
+      "side": 1,
+      "message": "I think we can probably do more here?\n\n  skvm::F32 x \u003d -2.26661229133605957031f;\n  x \u003d c.a * x +  2.89795351028442382812f;\n  x \u003d c.a * x +  0.21345567703247070312f;\n  x \u003d c.a * x +  0.15489584207534790039f;\n  x \u003d c.a * x +  0.00030726194381713867f;\n\n?  Something like that?",
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
