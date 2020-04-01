@@ -57,7 +57,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override;
 
@@ -200,7 +200,7 @@ SkString DrawAtlasOp::dumpInfo() const {
 
 void DrawAtlasOp::onCreateProgramInfo(const GrCaps* caps,
                                       SkArenaAlloc* arena,
-                                      const GrSurfaceProxyView* outputView,
+                                      const GrSurfaceProxyView* writeView,
                                       GrAppliedClip&& appliedClip,
                                       const GrXferProcessor::DstProxyView& dstProxyView) {
     // Setup geometry processor
@@ -209,7 +209,7 @@ void DrawAtlasOp::onCreateProgramInfo(const GrCaps* caps,
                                       this->color(),
                                       this->viewMatrix());
 
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, GrPrimitiveType::kTriangles);
 }
 

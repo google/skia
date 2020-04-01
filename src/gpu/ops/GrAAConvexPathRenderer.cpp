@@ -743,7 +743,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         SkMatrix invert;
@@ -755,7 +755,7 @@ private:
                                                                   fHelper.usesLocalCoords(),
                                                                   fWideColor);
 
-        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip),
                                                             dstProxyView, quadProcessor,
                                                             GrPrimitiveType::kTriangles);

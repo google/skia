@@ -430,7 +430,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp;
@@ -449,7 +449,7 @@ private:
 
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
 
-        fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+        fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                              std::move(appliedClip),
                                                              dstProxyView, gp, this->primType());
 

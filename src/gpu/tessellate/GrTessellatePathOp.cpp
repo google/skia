@@ -24,7 +24,7 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
 }
 
 void GrTessellatePathOp::onPrePrepare(GrRecordingContext*,
-                                      const GrSurfaceProxyView* outputView,
+                                      const GrSurfaceProxyView* writeView,
                                       GrAppliedClip*,
                                       const GrXferProcessor::DstProxyView&) {
 }
@@ -140,7 +140,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* state) {
 
     if (fStencilPathShader) {
         SkASSERT(fPathVertexBuffer);
-        GrPathShader::ProgramInfo programInfo(state->outputView(), &pipeline, fStencilPathShader);
+        GrPathShader::ProgramInfo programInfo(state->writeView(), &pipeline, fStencilPathShader);
         state->bindPipelineAndScissorClip(programInfo, this->bounds());
         state->bindBuffers(nullptr, nullptr, fPathVertexBuffer.get());
         state->draw(fPathVertexCount, fBasePathVertex);
@@ -149,7 +149,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* state) {
     if (fCubicInstanceBuffer) {
         // Here we treat the cubic instance buffer as tessellation patches to stencil the curves.
         GrStencilCubicShader shader(fViewMatrix);
-        GrPathShader::ProgramInfo programInfo(state->outputView(), &pipeline, &shader);
+        GrPathShader::ProgramInfo programInfo(state->writeView(), &pipeline, &shader);
         state->bindPipelineAndScissorClip(programInfo, this->bounds());
         // Bind instancedBuff as vertex.
         state->bindBuffers(nullptr, nullptr, fCubicInstanceBuffer.get());
@@ -236,7 +236,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state) {
             SkASSERT(!pipeline.hasStencilClip());
             pipeline.setUserStencil(&kFillOrInvertStencil);
         }
-        GrPathShader::ProgramInfo programInfo(state->outputView(), &pipeline, fFillPathShader);
+        GrPathShader::ProgramInfo programInfo(state->writeView(), &pipeline, fFillPathShader);
         state->bindPipelineAndScissorClip(programInfo, this->bounds());
         state->bindTextures(*fFillPathShader, nullptr, pipeline);
         state->bindBuffers(nullptr, nullptr, fPathVertexBuffer.get());
@@ -248,7 +248,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state) {
             // remaining samples and reset the stencil buffer.
             pipeline.setUserStencil(&kTestAndResetStencil);
             GrFillCubicHullShader shader(fViewMatrix, fColor);
-            GrPathShader::ProgramInfo programInfo(state->outputView(), &pipeline, &shader);
+            GrPathShader::ProgramInfo programInfo(state->writeView(), &pipeline, &shader);
             state->bindPipelineAndScissorClip(programInfo, this->bounds());
             state->bindTextures(shader, nullptr, pipeline);
             state->bindBuffers(nullptr, fCubicInstanceBuffer.get(), nullptr);
@@ -258,7 +258,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* state) {
         // There is not a fill shader for the path. Just draw a bounding box.
         pipeline.setUserStencil(&kTestAndResetStencil);
         GrFillBoundingBoxShader shader(fViewMatrix, fColor, fPath.getBounds());
-        GrPathShader::ProgramInfo programInfo(state->outputView(), &pipeline, &shader);
+        GrPathShader::ProgramInfo programInfo(state->writeView(), &pipeline, &shader);
         state->bindPipelineAndScissorClip(programInfo, this->bounds());
         state->bindTextures(shader, nullptr, pipeline);
         state->bindBuffers(nullptr, nullptr, nullptr);

@@ -325,7 +325,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp;
@@ -367,7 +367,7 @@ private:
         GrPrimitiveType primitiveType = TRIANGULATOR_WIREFRAME ? GrPrimitiveType::kLines
                                                                : GrPrimitiveType::kTriangles;
 
-        fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+        fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                              std::move(appliedClip), dstProxyView,
                                                              gp, primitiveType);
     }

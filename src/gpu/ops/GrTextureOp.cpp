@@ -625,7 +625,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         SkASSERT(fDesc);
@@ -650,13 +650,13 @@ private:
                 GrPipeline::InputFlags::kHWAntialias : GrPipeline::InputFlags::kNone;
 
         fDesc->fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-                caps, arena, outputView, std::move(appliedClip), dstProxyView, gp,
+                caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
                 GrProcessorSet::MakeEmptySet(), fDesc->fVertexSpec.primitiveType(),
                 pipelineFlags);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
-                           const GrSurfaceProxyView* outputView,
+                           const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -672,7 +672,7 @@ private:
         FillInVertices(*context->priv().caps(), this, fDesc, fDesc->fPrePreparedVertices);
 
         // This will call onCreateProgramInfo and register the created program with the DDL.
-        this->INHERITED::onPrePrepareDraws(context, outputView, clip, dstProxyView);
+        this->INHERITED::onPrePrepareDraws(context, writeView, clip, dstProxyView);
     }
 
     static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {

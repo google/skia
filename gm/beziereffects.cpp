@@ -93,7 +93,7 @@ protected:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         auto gp = this->makeGP(*caps, arena);
@@ -103,7 +103,7 @@ protected:
 
         GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone;
 
-        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+        fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                                    std::move(appliedClip),
                                                                    dstProxyView, gp,
                                                                    std::move(fProcessorSet),

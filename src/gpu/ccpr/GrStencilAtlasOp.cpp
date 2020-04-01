@@ -150,8 +150,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
-                              flushState->proxy()->backendFormat(),
-                              flushState->outputView()->origin(), &resolvePipeline, &primProc,
+                              flushState->proxy()->backendFormat(), flushState->writeView()->origin(), &resolvePipeline, &primProc,
                               GrPrimitiveType::kTriangleStrip);
 
     flushState->bindPipeline(programInfo, SkRect::Make(drawBoundsRect));

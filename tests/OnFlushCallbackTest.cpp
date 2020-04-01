@@ -101,7 +101,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         using namespace GrDefaultGeoProcFactory;
@@ -118,7 +118,7 @@ private:
             return;
         }
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(appliedClip),
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles);
     }
 

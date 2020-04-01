@@ -58,7 +58,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
 GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkArenaAlloc* arena,
-                                 const GrSurfaceProxyView* outputView,
+                                 const GrSurfaceProxyView* writeView,
                                  GrAppliedClip&& appliedClip,
                                  const GrXferProcessor::DstProxyView& dstProxyView,
                                  GrGeometryProcessor* geomProc,
@@ -77,7 +77,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                      *caps, GrClampType::kAuto, &analysisColor);
     SkASSERT(!analysis.requiresDstTexture());
 
-    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, outputView,
+    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                        std::move(appliedClip), dstProxyView,
                                                        geomProc, std::move(processors),
                                                        primitiveType, flags, stencilSettings);
