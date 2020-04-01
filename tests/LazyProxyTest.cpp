@@ -112,7 +112,7 @@ public:
             return GrProcessorSet::EmptySetAnalysis();
         }
         void onPrePrepare(GrRecordingContext*,
-                          const GrSurfaceProxyView* outputView,
+                          const GrSurfaceProxyView* writeView,
                           GrAppliedClip*,
                           const GrXferProcessor::DstProxyView&) override {}
 
@@ -363,7 +363,7 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
     void onPrepare(GrOpFlushState*) override {}

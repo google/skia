@@ -208,7 +208,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp = create_lines_only_gp(arena,
@@ -221,7 +221,7 @@ private:
             return;
         }
 
-        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, outputView,
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip), dstProxyView,
                                                             gp, GrPrimitiveType::kTriangles);
     }

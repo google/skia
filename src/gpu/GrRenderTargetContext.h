@@ -130,7 +130,7 @@ public:
             const SkSurfaceProps*);
 
     GrRenderTargetContext(GrRecordingContext*, GrSurfaceProxyView readView,
-                          GrSurfaceProxyView outputView, GrColorType, sk_sp<SkColorSpace>,
+                          GrSurfaceProxyView writeView, GrColorType, sk_sp<SkColorSpace>,
                           const SkSurfaceProps*, bool managedOpsTask = true);
 
     ~GrRenderTargetContext() override;
@@ -561,7 +561,7 @@ public:
 
     // TODO: See if it makes sense for this to return a const& instead and require the callers to
     // make a copy (which refs the proxy) if needed.
-    GrSurfaceProxyView outputSurfaceView() { return fOutputView; }
+    GrSurfaceProxyView writeSurfaceView() { return fWriteView; }
 
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
@@ -694,7 +694,7 @@ private:
 
     std::unique_ptr<GrTextTarget> fTextTarget;
 
-    GrSurfaceProxyView fOutputView;
+    GrSurfaceProxyView fWriteView;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.

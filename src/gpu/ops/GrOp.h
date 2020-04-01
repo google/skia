@@ -297,7 +297,7 @@ private:
 
     // TODO: the parameters to onPrePrepare mirror GrOpFlushState::OpArgs - fuse the two?
     virtual void onPrePrepare(GrRecordingContext*,
-                              const GrSurfaceProxyView* outputView,
+                              const GrSurfaceProxyView* writeView,
                               GrAppliedClip*,
                               const GrXferProcessor::DstProxyView&) = 0;
     virtual void onPrepare(GrOpFlushState*) = 0;

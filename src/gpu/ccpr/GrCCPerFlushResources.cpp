@@ -59,7 +59,7 @@ protected:
 
 private:
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) final {}
     void onPrepare(GrOpFlushState*) final {}

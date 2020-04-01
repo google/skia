@@ -322,7 +322,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* outputView,
+                      const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
     void onPrepare(GrOpFlushState* state) override {
@@ -465,7 +465,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
                                                          hasVertexBuffer);
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(), fState->proxy()->numStencilSamples(),
-                              fState->proxy()->backendFormat(), fState->outputView()->origin(),
+                              fState->proxy()->backendFormat(), fState->writeView()->origin(),
                               pipeline, mtp, primitiveType);
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));

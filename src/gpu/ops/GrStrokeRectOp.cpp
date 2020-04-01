@@ -185,7 +185,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& clip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp;
@@ -202,7 +202,7 @@ private:
         GrPrimitiveType primType = (fStrokeWidth > 0) ? GrPrimitiveType::kTriangleStrip
                                                       : GrPrimitiveType::kLineStrip;
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, outputView, std::move(clip),
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(clip),
                                                  dstProxyView, gp, primType);
     }
 
@@ -462,7 +462,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* outputView,
+                             const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&) override;
 
@@ -518,7 +518,7 @@ private:
 
 void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
                                          SkArenaAlloc* arena,
-                                         const GrSurfaceProxyView* outputView,
+                                         const GrSurfaceProxyView* writeView,
                                          GrAppliedClip&& appliedClip,
                                          const GrXferProcessor::DstProxyView& dstProxyView) {
 
@@ -534,7 +534,7 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
 
     fProgramInfo = fHelper.createProgramInfo(caps,
                                              arena,
-                                             outputView,
+                                             writeView,
                                              std::move(appliedClip),
                                              dstProxyView,
                                              gp,
