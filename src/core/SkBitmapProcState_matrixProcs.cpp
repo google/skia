@@ -246,14 +246,6 @@ static unsigned clamp(SkFixed fx, int max) {
     return SkTPin(fx >> 16, 0, max);
 }
 
-#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
- // For use with extract_low_bits_general(), where clamp() above expects extract_low_bits_clamp_clamp()
-static unsigned general_clamp(SkFixed fx, int max)
-{
-    return repeat(SkTPin(fx, 0, 0xFFFF), max);
-}
-#endif
-
 static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
     nofilter_scale <clamp, clamp, true>, filter_scale <clamp, clamp, extract_low_bits_clamp_clamp, true>,
     nofilter_affine<clamp, clamp>,       filter_affine<clamp, clamp, extract_low_bits_clamp_clamp>,
@@ -472,52 +464,6 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 }
 
 
-#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
-
-// below table is arranged as given below
-// first special optimized translate only MatrixProcs are put for all tilex and tiley configurations
-// then nofilter_scale MatrixProcs are put for all tilex and tiley configurations
-// then filter_scale MatrixProcs are put for all tilex and tiley configurations
-// then nofilter_affine MatrixProcs are put for all tilex and tiley configurations
-// then filter_affine MatrixProcs are put for all tilex and tiley configurations
-static const SkBitmapProcState::MatrixProc GeneralProcs[] = {
-        // below entries are configured using translateOnlyMatrixProcType<tiley>
-        clampx_nofilter_trans<int_repeat>,
-        clampx_nofilter_trans<int_mirror>,
-        repeatx_nofilter_trans<int_clamp>,
-        repeatx_nofilter_trans<int_mirror>,
-        mirrorx_nofilter_trans<int_clamp>,
-        mirrorx_nofilter_trans<int_repeat>,
-        // below proc entries are configured using nofilter_scale< tilex, tiley, tryDecal >
-        nofilter_scale< general_clamp, repeat, false>,
-        nofilter_scale< general_clamp, mirror, false>,
-        nofilter_scale< repeat,        general_clamp, false>,
-        nofilter_scale< repeat,        mirror, false>,
-        nofilter_scale< mirror,        general_clamp, false>,
-        nofilter_scale< mirror,        repeat, false>,
-        // below proc entries are configured using filter_scale< tilex, tiley, extract_low_bits, tryDecal >
-        filter_scale<   general_clamp, repeat,        extract_low_bits_general, false>,
-        filter_scale<   general_clamp, mirror,        extract_low_bits_general, false>,
-        filter_scale<   repeat,        general_clamp, extract_low_bits_general, false>,
-        filter_scale<   repeat,        mirror,        extract_low_bits_general, false>,
-        filter_scale<   mirror,        general_clamp, extract_low_bits_general, false>,
-        filter_scale<   mirror,        repeat,        extract_low_bits_general, false>,
-        // below proc entries are configured using nofilter_affine< tilex, tiley >
-        nofilter_affine<general_clamp, repeat>,
-        nofilter_affine<general_clamp, mirror>,
-        nofilter_affine<repeat,        general_clamp>,
-        nofilter_affine<repeat,        mirror>,
-        nofilter_affine<mirror,        general_clamp>,
-        nofilter_affine<mirror,        repeat>,
-        // below proc entries are configured using filter_affine< tilex, tiley, extract_low_bits >
-        filter_affine<  general_clamp, repeat,        extract_low_bits_general>,
-        filter_affine<  general_clamp, mirror,        extract_low_bits_general>,
-        filter_affine<  repeat,        general_clamp, extract_low_bits_general>,
-        filter_affine<  repeat,        mirror,        extract_low_bits_general>,
-        filter_affine<  mirror,        general_clamp, extract_low_bits_general>,
-        filter_affine<  mirror,        repeat,        extract_low_bits_general>};
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // The main entry point to the file, choosing between everything above.
 
@@ -560,38 +506,6 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
         return MirrorX_MirrorY_Procs[index];
     }
 
-
-#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
-
-    int index = translate_only_matrix && kNone_SkFilterQuality == fFilterQuality ? 0 : 6;
-
-    index += ( fFilterQuality > kNone_SkFilterQuality ? 6 : 0 );
-
-    if (!fInvMatrix.isScaleTranslate()) {
-        index += 2 * 6;
-    }
-
-    if (fTileModeX == SkTileMode::kRepeat) {
-        index = index + 2;
-    }
-    else if (fTileModeX == SkTileMode::kMirror) {
-        index = index + 4;
-    }
-
-    if (fTileModeY == SkTileMode::kMirror ||
-        (fTileModeY == SkTileMode::kRepeat && fTileModeX == SkTileMode::kMirror)) {
-        index += 1;
-    }
-
-    fFilterOneX = SK_Fixed1 / fPixmap.width();
-    fFilterOneY = SK_Fixed1 / fPixmap.height();
-
-    return GeneralProcs[ index ];
-
-#else
-
     SkASSERT(fTileModeX == fTileModeY);
     return nullptr;
-
-#endif
 }
