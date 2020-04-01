@@ -38,7 +38,7 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
+	DEFAULT_OS_LINUX_GCE = "Debian-10"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
