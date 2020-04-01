@@ -47,17 +47,16 @@ uniform half blurRadius;
         }
         builder.finish();
 
-        static constexpr auto kMaskOrigin = kBottomLeft_GrSurfaceOrigin;
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-        if (auto view = proxyProvider->findCachedProxyWithColorTypeFallback(
-                key, kMaskOrigin, GrColorType::kAlpha_8)) {
-            return view;
+        if (sk_sp<GrTextureProxy> mask = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
+            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mask->backendFormat(),
+                                                                       GrColorType::kAlpha_8);
+            return {std::move(mask), kBottomLeft_GrSurfaceOrigin, swizzle};
         }
 
         auto rtc = GrRenderTargetContext::MakeWithFallback(
-                context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
-                GrMipMapped::kNo, GrProtected::kNo, kMaskOrigin);
+                context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions);
         if (!rtc) {
             return {};
         }
