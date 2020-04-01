@@ -22,6 +22,30 @@
       "revId": "0da923e96855a1d1d769392842be995e230c0791",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bd3671b_1c5426c9",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3546,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-01T16:46:37Z",
+      "side": 1,
+      "message": "The latter.. d3d9 doesn\u0027t have ANGLE_base_vertex_base_instance",
+      "parentUuid": "1eaa67a4_fb42f668",
+      "range": {
+        "startLine": 3546,
+        "startChar": 8,
+        "endLine": 3546,
+        "endChar": 58
+      },
+      "revId": "0da923e96855a1d1d769392842be995e230c0791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
