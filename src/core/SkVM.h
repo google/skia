@@ -733,15 +733,14 @@ namespace skvm {
                           std::vector<bool>* live,
                           std::vector<Val>*  sinks);
 
-    class Uses {
+    class Usage {
     public:
-        Uses(const std::vector<Instruction>&, const std::vector<bool>&);
+        Usage(const std::vector<Instruction>&, const std::vector<bool>&);
 
-        // Return an unordered span of Vals which use result of Instruction id.
+        // Return a sorted span of Vals which use result of Instruction id.
         SkSpan<const Val> users(Val id) const;
 
     private:
-        // The start of use edges for each instruction
         std::vector<int> fIndex;
         std::vector<Val> fTable;
     };
