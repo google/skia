@@ -7,6 +7,7 @@
 
 #include "src/utils/SkPatchUtils.h"
 
+#include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"

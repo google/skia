@@ -12,6 +12,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkVertices.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkClipStackDevice.h"

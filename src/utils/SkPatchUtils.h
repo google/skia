@@ -9,10 +9,10 @@
 #define SkPatchUtils_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
 
 class SkColorSpace;
+class SkVertices;
 
 class SkPatchUtils {
 
