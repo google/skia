@@ -8,6 +8,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 
 #include "include/core/SkDrawable.h"
+#include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"

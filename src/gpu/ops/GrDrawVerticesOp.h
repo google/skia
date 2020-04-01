@@ -9,7 +9,6 @@
 #define GrDrawVerticesOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkVertices.h"
 #include "include/private/GrTypesPriv.h"
 
 class GrColorSpaceXform;
