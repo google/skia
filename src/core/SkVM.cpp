@@ -29,7 +29,7 @@
     #include <llvm/Support/TargetSelect.h>
 #endif
 
-bool gSkVMJITViaDylib{false};
+bool gSkVMJITViaDylib{true};
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
 // uninitialized memory, and we'll not see the writes it makes as properly
@@ -751,7 +751,7 @@ namespace skvm {
     }
 
     void Builder::assert_true(I32 cond, I32 debug) {
-    #ifdef SK_DEBUG
+    #if defined(SK_DEBUG) && 0
         int imm;
         if (this->allImm(cond.id,&imm)) { SkASSERT(imm); return; }
         (void)push(Op::assert_true, cond.id,debug.id,NA);
@@ -1902,6 +1902,24 @@ namespace skvm {
     void Assembler::vpmovzxwd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x33, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
 
+    void Assembler::stackMover(Direction direction, Ymm reg, int offset) {
+        int prefix = 0,
+            map    = 0x0f,
+            opcode = direction == Store ? 0x11 : 0x10;
+
+        VEX v = vex(0, reg>>3, 0, rsp>>3, map, 0, true/*256*/, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(mod(offset), reg&7, 0b100 /*use sib*/));
+        this->byte(sib(ONE, 0b100 /*no index*/, rsp));
+        if (offset > 0) {
+            this->bytes(&offset, imm_bytes(mod(offset)));
+        }
+    }
+
+    void Assembler::vmovups(int offset, Ymm src) { this->stackMover(Store, src, offset); }
+    void Assembler::vmovups(Ymm dst, int offset) { this->stackMover(Load,  dst, offset); }
+
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
     void Assembler::vmovups  (GP64 dst, Xmm src) {
         // Same as vmovups(GP64,YMM) and load_store() except ymm? is 0.
@@ -2908,7 +2926,7 @@ namespace skvm {
         using A = Assembler;
 
         auto debug_dump = [&] {
-        #if 0
+        #if 1
             SkDebugfStream stream;
             this->dump(&stream);
             return true;
@@ -2958,6 +2976,8 @@ namespace skvm {
         auto emit = [&](Val id, bool scalar) {
             const OptimizedInstruction& inst = instructions[id];
 
+            SkASSERT(avail == 0xffff);
+
             Op op = inst.op;
             Val x = inst.x,
                 y = inst.y,
@@ -2982,6 +3002,33 @@ namespace skvm {
 
             bool ok = true;   // Set to false if we need to assign a register and none's available.
 
+            auto src = [&](Val v){
+            if (int found = __builtin_ffs(avail)) {
+                Reg reg = (Reg)(found - 1);
+                avail ^= 1 << reg;
+                r[v] = reg;
+            } else {
+                // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                if (debug_dump()) {
+                    SkDebugf("\nCould not find source register for %d\n", v);
+                }
+                ok = false;
+            }
+            };
+
+            if (x != NA) {
+              src(x);
+              a->vmovups(r[x], x * 8 * 4);
+            }
+            if (y != NA) {
+              src(y);
+              a->vmovups(r[y], y * 8 * 4);
+            }
+            if (z != NA) {
+              src(z);
+              a->vmovups(r[z], z * 8 * 4);
+            }
+
             // First lock in how to choose tmp if we need to based on the registers
             // available before this instruction, not including any of its input registers.
             auto tmp = [&,avail/*important, closing over avail's current value*/]{
@@ -2994,6 +3041,7 @@ namespace skvm {
                     } else {
                         // We needed a tmp register but couldn't find one available. :'(
                         // This will cause emit() to return false, in turn causing jit() to fail.
+                        SkDebugf("Avail: %x", avail);
                         if (debug_dump()) {
                             SkDebugf("\nCould not find a register to hold tmp\n");
                         }
@@ -3056,9 +3104,10 @@ namespace skvm {
             // Now let's actually assemble the instruction!
             switch (op) {
                 default:
-                    if (debug_dump()) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
+                    SkDebugf("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    //if (debug_dump()) {
+                    //    SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    //}
                     return false;  // TODO: many new ops
 
             #if defined(__x86_64__)
@@ -3377,6 +3426,17 @@ namespace skvm {
             #endif
             }
 
+            #if defined(__x86_64__)
+            if (!has_side_effect(op)) {
+                a->vmovups(id * 8 * 4, r[id]);
+                avail |= 1 << r[id];
+            }
+            for (Val arg : {x, y, z}) {
+                if (arg != NA) { avail |= 1 << r[arg]; }
+            }
+
+            #endif
+            SkASSERT(avail = 0xffff);
             // Calls to tmp() or dst() might have flipped this false from its default true state.
             return ok;
         };
@@ -3405,6 +3465,8 @@ namespace skvm {
         A::Label body,
                  tail,
                  done;
+
+        a->sub(A::rsp, instructions.size() * K * 4);
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             if (hoisted(id) && !emit(id, /*scalar=*/false)) {
@@ -3450,6 +3512,7 @@ namespace skvm {
 
         a->label(&done);
         {
+            a->add(A::rsp, instructions.size() * K * 4);
             exit();
         }
 
