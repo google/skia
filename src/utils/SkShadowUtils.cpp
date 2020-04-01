@@ -68,7 +68,7 @@ protected:
         skvm::F32 c1 = p->splat( 0.15489584207534790039f);
         skvm::F32 c0 = p->splat( 0.00030726194381713867f);
         skvm::F32 x = c.a;
-        x = p->mad(x, p->mad(x, p->mad(x, p->mad(x, c4, c3), c2), c1), c0);
+        x = x * (x * (x * (x * c4 + c3) + c2) + c1) + c0;
         return {x, x, x, x};
     }
 
