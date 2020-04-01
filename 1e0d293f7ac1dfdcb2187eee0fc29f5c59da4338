@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68bd831b_b9ca0af8",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-01T16:37:25Z",
+      "side": 1,
+      "message": "return SkTo\u003cint\u003e(fSize);",
+      "range": {
+        "startLine": 39,
+        "startChar": 41,
+        "endLine": 39,
+        "endChar": 46
+      },
+      "revId": "1e0d293f7ac1dfdcb2187eee0fc29f5c59da4338",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
