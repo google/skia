@@ -646,6 +646,18 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
 
 } // anonymous namespace
 
+static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode) {
+    switch (mode) {
+        case SkVertices::kTriangles_VertexMode:
+            return GrPrimitiveType::kTriangles;
+        case SkVertices::kTriangleStrip_VertexMode:
+            return GrPrimitiveType::kTriangleStrip;
+        case SkVertices::kTriangleFan_VertexMode:
+            break;
+    }
+    SK_ABORT("Invalid mode");
+}
+
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,

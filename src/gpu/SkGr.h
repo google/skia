@@ -13,7 +13,6 @@
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkVertices.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkBlendModePriv.h"
@@ -131,20 +130,6 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int image
                                                        const SkMatrix& localM,
                                                        bool sharpenMipmappedTextures,
                                                        bool* doBicubic);
-
-//////////////////////////////////////////////////////////////////////////////
-
-static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode) {
-    switch (mode) {
-        case SkVertices::kTriangles_VertexMode:
-            return GrPrimitiveType::kTriangles;
-        case SkVertices::kTriangleStrip_VertexMode:
-            return GrPrimitiveType::kTriangleStrip;
-        case SkVertices::kTriangleFan_VertexMode:
-            break;
-    }
-    SK_ABORT("Invalid mode");
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -14,7 +14,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/core/SkVertices.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
 
@@ -28,6 +27,7 @@ class SkRegion;
 class SkRasterClip;
 struct SkRect;
 class SkRRect;
+class SkVertices;
 
 class SkDraw : public SkGlyphRunListPainter::BitmapDevicePainter {
 public:
