@@ -887,7 +887,7 @@ CanvasKit.onRuntimeInitialized = function() {
       dstXformPtr = copy1dArray(dstXforms, CanvasKit.HEAPF32);
     }
 
-    var colorPtr = 0; // enscriptem doesn't like undefined for nullptr
+    var colorPtr = nullptr;
     if (colors) {
       if (colors.build) {
         colorPtr = colors.build();
@@ -1089,6 +1089,32 @@ CanvasKit.onRuntimeInitialized = function() {
             ];
   }
 
+  var defaultPerspective = Float32Array.of(0, 0, 1);
+
+  function prepare3x3MatrixForGoingToWasm2(matr) {
+    if (!matr) {
+      return nullptr;
+    }
+    var mPtr = CanvasKit._malloc(9 * 4); // 9 matrix scalars, each at 4 bytes.
+    if (matr.length) {
+      // This should be an array or typed array.
+      // have to divide the pointer by 4 to "cast" it from bytes to float.
+      CanvasKit.HEAPF32.set(matr, mPtr / 4);
+      if (matr.length === 6) {
+          CanvasKit.HEAPF32.set(defaultPerspective, 6 + mPtr / 4);
+      }
+    } else {
+      // Try a DOMMatrix?
+      var floats = Float32Array.of(
+             matr.a, matr.c, matr.e,
+             matr.b, matr.d, matr.f,
+             0, 0, 1);
+       // have to divide the pointer by 4 to "cast" it from bytes to float.
+      CanvasKit.HEAPF32.set(floats, mPtr / 4);
+    }
+    return mPtr;
+  }
+
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
@@ -1133,7 +1159,7 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
-    localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
+    localMatrix = prepare3x3MatrixForGoingToWasm2(localMatrix);
 
     var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
                                                   colors.length, mode,
