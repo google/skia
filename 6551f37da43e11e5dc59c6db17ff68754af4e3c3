@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "9fd9e598_3dd7439e",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-01T14:16:13Z",
+      "side": 1,
+      "message": "Yup. This might be a little too auto-magic (and could cause some unexpected errors where your shader could succeed/fail depending on the attribute type you use). For internal uses, we always do this (colors are typically sent as bytes, and we use half in the shader).",
+      "parentUuid": "b1a6ec5d_e9118115",
+      "range": {
+        "startLine": 70,
+        "startChar": 40,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6b5da07e_7b0f86cc",
         "filename": "src/core/SkVertices.cpp",
         "patchSetId": 15
@@ -59,6 +83,30 @@
       "writtenOn": "2020-04-01T13:54:57Z",
       "side": 1,
       "message": "I think it\u0027d be fine to explicitly store fCustomSize here (size_t, mul of 4).\n\nDuring deserialization, we\u0027d have it up front (so we can prealloc everything at once), plus we can use it as a sanity check: after decode, ensure that the deserialized attibutes compute the same byte-size.",
+      "range": {
+        "startLine": 87,
+        "startChar": 16,
+        "endLine": 87,
+        "endChar": 27
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60a361b9_d3ab2447",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-01T14:16:13Z",
+      "side": 1,
+      "message": "Yeah, I was torn on just computing it and storing it in the vertices. I\u0027ll give that a shot.",
+      "parentUuid": "6b5da07e_7b0f86cc",
       "range": {
         "startLine": 87,
         "startChar": 16,
