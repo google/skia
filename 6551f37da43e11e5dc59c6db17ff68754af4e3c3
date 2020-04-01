@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3af91a3_a527c933",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-01T13:54:57Z",
+      "side": 1,
+      "message": "wonder if its worth naming this union...?\n\nunion CustomData {\n    float f;\n    uint32_t b4;\n};\n\nJust a thought",
+      "range": {
+        "startLine": 117,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 14
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1a6ec5d_e9118115",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-01T13:54:57Z",
+      "side": 1,
+      "message": "Ah, so this means ganesh already knows to map unorm-bytes to norm_bytes_vertexattr to half4_sltypes?",
+      "range": {
+        "startLine": 70,
+        "startChar": 40,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b5da07e_7b0f86cc",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-01T13:54:57Z",
+      "side": 1,
+      "message": "I think it\u0027d be fine to explicitly store fCustomSize here (size_t, mul of 4).\n\nDuring deserialization, we\u0027d have it up front (so we can prealloc everything at once), plus we can use it as a sanity check: after decode, ensure that the deserialized attibutes compute the same byte-size.",
+      "range": {
+        "startLine": 87,
+        "startChar": 16,
+        "endLine": 87,
+        "endChar": 27
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
