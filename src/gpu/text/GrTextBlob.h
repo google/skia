@@ -334,6 +334,7 @@ public:
     GrTextStrike* strike() const;
 
     GrMaskFormat maskFormat() const;
+    int numGlyphs() const { return fGlyphs.size(); }
 
     size_t vertexStride() const;
     size_t colorOffset() const;
