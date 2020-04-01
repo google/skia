@@ -47,7 +47,7 @@ public:
                                              GrGlyph*);
 
     // testing
-    int countGlyphs() const { return fCache.count(); }
+    //int countGlyphs() const { return fCache.count(); }
 
     // remove any references to this plot
     void removeID(GrDrawOpAtlas::PlotLocator);
@@ -67,7 +67,7 @@ private:
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fAlloc{512};
 
-    int fAtlasedGlyphs{0};
+    //int fAtlasedGlyphs{0};
 
     friend class GrStrikeCache;
 };
