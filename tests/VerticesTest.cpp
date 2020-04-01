@@ -94,8 +94,6 @@ DEF_TEST(Vertices, reporter) {
             uint32_t flags = texF | colF;
 
             SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount, flags);
-            REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
-            REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
 
             for (int i = 0; i < vCount; ++i) {
                 float x = (float)i;
@@ -107,7 +105,7 @@ DEF_TEST(Vertices, reporter) {
                     builder.colors()[i] = SkColorSetARGB(0xFF, i, 0x80, 0);
                 }
             }
-            for (int i = 0; i < builder.indexCount(); ++i) {
+            for (int i = 0; i < iCount; ++i) {
                 builder.indices()[i] = i % vCount;
             }
             self_test(builder.detach(), reporter);
@@ -134,18 +132,16 @@ DEF_TEST(Vertices, reporter) {
     for (const auto& test : attrTests) {
         SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount,
                                     test.attrs, test.count);
-        REPORTER_ASSERT(reporter, builder.vertexCount() == vCount);
-        REPORTER_ASSERT(reporter, builder.indexCount() == iCount);
 
         float* customData = (float*)builder.customData();
         int customDataCount = test.expected_size / sizeof(float);
-        for (int i = 0; i < builder.vertexCount(); ++i) {
+        for (int i = 0; i < vCount; ++i) {
             builder.positions()[i].set((float)i, 1);
             for (int j = 0; j < customDataCount; ++j) {
                 customData[i * customDataCount + j] = (float)j;
             }
         }
-        for (int i = 0; i < builder.indexCount(); ++i) {
+        for (int i = 0; i < iCount; ++i) {
             builder.indices()[i] = i % vCount;
         }
         self_test(builder.detach(), reporter);
