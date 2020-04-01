@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e29d208e_13f47c8d",
+        "filename": "modules/canvaskit/perf/matrix.bench.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-01T21:12:22Z",
+      "side": 1,
+      "message": "is it fair to alloc a new point each time? Can\u0027t we just transform a given point over and over again (to focus the time on the matrix, not the allocator)?",
+      "range": {
+        "startLine": 76,
+        "startChar": 51,
+        "endLine": 76,
+        "endChar": 59
+      },
+      "revId": "d7a9152c364a60afb6dd8401eef2c6b19073edfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
