@@ -368,6 +368,24 @@
       "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7f90b12_b699f26b",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-01T17:19:02Z",
+      "side": 1,
+      "message": "Done (w/ needed splat at the beginning)",
+      "parentUuid": "8f0923de_8d7298f0",
+      "revId": "46f49ec3721389932dbb645ac8472886aafc5fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
