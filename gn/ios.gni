@@ -127,7 +127,7 @@ if (is_ios) {
         "$gen_path/${app_name}_Info.plist",
       ]
       outputs = [
-        "{{bundle_root_dir}}/Info.plist",
+        "{{bundle_resources_dir}}/Info.plist",
       ]
     }
 
