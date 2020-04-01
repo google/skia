@@ -31,7 +31,7 @@ void GrImageContext::abandonContext() {
     fAbandoned = true;
 }
 
-bool GrImageContext::abandoned() const {
+bool GrImageContext::abandoned() {
     ASSERT_SINGLE_OWNER
 
     return fAbandoned;
