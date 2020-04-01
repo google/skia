@@ -226,7 +226,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
 
     public:
         void emitCode(EmitArgs& args) override {
-            auto te = args.fFp.cast<GrTextureEffect>();
+            auto& te = args.fFp.cast<GrTextureEffect>();
             const char* coords;
             if (args.fFp.isSampledWithExplicitCoords()) {
                 coords = "_coords";
