@@ -226,8 +226,7 @@ describe('Core canvas behavior', function() {
             const canvas = surface.getCanvas();
             const paint = new CanvasKit.SkPaint();
             const shader = CanvasKit.SkShader.MakeSweepGradient(
-                100,
-                100,
+                100, 100, // X, Y coordinates
                 [CanvasKit.GREEN, CanvasKit.BLUE],
                 [0.0, 1.0],
                 CanvasKit.TileMode.Clamp,
@@ -761,5 +760,41 @@ describe('Core canvas behavior', function() {
             done();
         }));
     });
+
+    describe('DOMMatrix support', function() {
+      it('can supply a DOMMatrix to make a shader', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            const shader = CanvasKit.SkShader.MakeSweepGradient(
+                100, 100, // x y coordinates
+                [CanvasKit.GREEN, CanvasKit.BLUE],
+                [0.0, 1.0],
+                CanvasKit.TileMode.Clamp,
+                new DOMMatrix().translate(-10, 100),
+            );
+            expect(shader).toBeTruthy('Could not make shader');
+            if (!shader) {
+                done();
+                return;
+            }
+
+            paint.setShader(shader);
+            canvas.drawPaint(paint);
+            surface.flush();
+
+            paint.delete();
+            shader.delete();
+
+            reportSurface(surface, 'sweep_gradient_dommatrix', done);
+        }));
+      });
+    })
 
 });

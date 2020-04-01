@@ -150,7 +150,7 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   // Accept any number 3x3 of matrices as arguments, multiply them together.
-  // Matrix multiplication is associative but not commutatieve. the order of the arguments
+  // Matrix multiplication is associative but not commutative. the order of the arguments
   // matters, but it does not matter that this implementation multiplies them left to right.
   CanvasKit.SkMatrix.multiply = function() {
     return multiplyMany(3, arguments);
@@ -807,10 +807,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     if (localMatrix) {
-      // Add perspective args if not provided.
-      if (localMatrix.length === 6) {
-        localMatrix.push(0, 0, 1);
-      }
+      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
       return this._makeShader(xTileMode, yTileMode, localMatrix);
     } else {
       return this._makeShader(xTileMode, yTileMode);
@@ -1069,16 +1066,36 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   }
 
+  function prepare3x3MatrixForGoingToWasm(matr) {
+    if (!matr) {
+      return [
+               1, 0, 0,
+               0, 1, 0,
+               0, 0, 1,
+              ];
+    }
+    if (Array.isArray(matr)) {
+      // Add perspective args if not provided.
+      if (matr.length === 6) {
+        matr.push(0, 0, 1);
+      }
+      return matr;
+    }
+    // DOMMatrix, which has their values in column major order.
+    return [
+             matr.a, matr.c, matr.e,
+             matr.b, matr.d, matr.f,
+             0, 0, 1,
+            ];
+  }
+
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags) {
     var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
 
     if (localMatrix) {
-      // Add perspective args if not provided.
-      if (localMatrix.length === 6) {
-        localMatrix.push(0, 0, 1);
-      }
+      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
       var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
                                                     colors.length, mode, flags, localMatrix);
     } else {
@@ -1097,10 +1114,7 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
 
     if (localMatrix) {
-      // Add perspective args if not provided.
-      if (localMatrix.length === 6) {
-        localMatrix.push(0, 0, 1);
-      }
+      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
       var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
                                                     colors.length, mode, flags, localMatrix);
     } else {
@@ -1119,16 +1133,7 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
-    localMatrix = localMatrix || [
-                                   1, 0, 0,
-                                   0, 1, 0,
-                                   0, 0, 1,
-                                 ];
-
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
+    localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
 
     var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
                                                   colors.length, mode,
@@ -1147,10 +1152,7 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
 
     if (localMatrix) {
-      // Add perspective args if not provided.
-      if (localMatrix.length === 6) {
-        localMatrix.push(0, 0, 1);
-      }
+      localMatrix = prepare3x3MatrixForGoingToWasm(localMatrix);
       var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
                           start, startRadius, end, endRadius,
                           colorPtr, posPtr, colors.length, mode, flags, localMatrix);

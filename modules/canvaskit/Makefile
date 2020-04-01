@@ -80,6 +80,10 @@ test-continuous:
 	echo "Also assuming make debug or release has also been run by a user (if needed)"
 	npx karma start ./karma.conf.js --no-single-run --watch-poll
 
+.PHONY: perf
+perf:
+	npx karma start ./karma.bench.conf.js --single-run
+
 node-example:
 	node ./canvaskit/node.example.js --expose-wasm
 
