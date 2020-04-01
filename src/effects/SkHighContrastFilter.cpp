@@ -147,9 +147,9 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     c = sk_program_transfer_fn(p, uniforms, tf, c);
 
     if (fConfig.fGrayscale) {
-        skvm::F32 gray = p->mad(p->splat(SK_LUM_COEFF_R),c.r,
-                         p->mad(p->splat(SK_LUM_COEFF_G),c.g,
-                         p->mul(p->splat(SK_LUM_COEFF_B),c.b)));
+        skvm::F32 gray = c.r * SK_LUM_COEFF_R
+                       + c.g * SK_LUM_COEFF_G
+                       + c.b * SK_LUM_COEFF_B;
         c = {gray, gray, gray, c.a};
     }
 
@@ -165,10 +165,14 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
         const float b = (-0.5f * m + 0.5f);
         skvm::F32   M = p->uniformF(uniforms->pushF(m));
         skvm::F32   B = p->uniformF(uniforms->pushF(b));
-        c = {p->mad(M,c.r, B), p->mad(M,c.g, B), p->mad(M,c.b, B), c.a};
+        c.r = c.r * M + B;
+        c.g = c.g * M + B;
+        c.b = c.b * M + B;
     }
 
-    c = {p->clamp01(c.r), p->clamp01(c.g), p->clamp01(c.b), c.a};
+    c.r = clamp01(c.r);
+    c.g = clamp01(c.g);
+    c.b = clamp01(c.b);
 
     // Re-encode back from linear.
     if (dstCS) {
