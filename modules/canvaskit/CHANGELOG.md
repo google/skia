@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Support for DOMMatrix in addition to the SkMatrix currently supported by some APIs. [WIP]
+
 ### Removed
  - Previously deprecated functions MakeSkDashPathEffect, MakeLinearGradientShader,
    MakeRadialGradientShader, MakeTwoPointConicalGradientShader, MakeSkCornerPathEffect,
@@ -16,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
  - SkPaint.setColorf is obsolete and removed. setColor accepts a CanvasKit color which is
-   always composed of floats. 
+   always composed of floats.
  - localmatrix option for `SkShader.Lerp` and `SkShader.Blend`.
 
 
