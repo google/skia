@@ -7,6 +7,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#include "include/core/SkCanvas.h"
 #include "tools/viewer/SampleSlide.h"
 #include <string>
 
