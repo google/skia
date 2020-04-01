@@ -68,6 +68,10 @@ public:
     // before GrContext.
     virtual void disconnect(DisconnectType);
 
+    // Called by GrContext::isContextLost. Returns true if the backend Gpu object has gotten into an
+    // unrecoverable, lost state.
+    virtual bool isDeviceLost() const { return false; }
+
     /**
      * The GrGpu object normally assumes that no outsider is setting state
      * within the underlying 3D API's context/device/whatever. This call informs
