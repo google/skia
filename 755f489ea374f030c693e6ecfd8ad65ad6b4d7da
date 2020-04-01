@@ -70,6 +70,30 @@
       "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fda4013_b0fe7d01",
+        "filename": "modules/skottie/src/animator/Shape.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-01T17:05:40Z",
+      "side": 1,
+      "message": "\u003e I thought a closed path is just, we\u0027ll lineTo back there implicitly?\n\nThere\u0027s some more to it, e.g. when it comes to stroke caps/joins: https://fiddle.skia.org/c/fc7264a0d7342e1a0d44a57de08edad3",
+      "parentUuid": "389486d3_13dbf9e1",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 65
+      },
+      "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
