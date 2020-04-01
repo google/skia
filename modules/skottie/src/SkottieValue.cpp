@@ -93,157 +93,46 @@ SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
     return SkSize::Make(pt.x(), pt.y());
 }
 
-namespace {
+PathValue::operator SkPath() const {
+    const auto vertex_count = fData.size() / 6;
 
-bool ParsePointVec(const skjson::Value& jv, std::vector<SkPoint>* pts) {
-    if (!jv.is<skjson::ArrayValue>())
-        return false;
-    const auto& av = jv.as<skjson::ArrayValue>();
-
-    pts->clear();
-    pts->reserve(av.size());
-
-    std::vector<float> vec;
-    for (size_t i = 0; i < av.size(); ++i) {
-        if (!Parse(av[i], &vec) || vec.size() != 2)
-            return false;
-        pts->push_back(SkPoint::Make(vec[0], vec[1]));
-    }
-
-    return true;
-}
-
-} // namespace
-
-template <>
-bool ValueTraits<ShapeValue>::FromJSON(const skjson::Value& jv,
-                                       const internal::AnimationBuilder* abuilder,
-                                       ShapeValue* v) {
-    SkASSERT(v->fVertices.empty());
-
-    // Some versions wrap values as single-element arrays.
-    if (const skjson::ArrayValue* av = jv) {
-        if (av->size() == 1) {
-            return FromJSON((*av)[0], abuilder, v);
-        }
-    }
-
-    if (!jv.is<skjson::ObjectValue>())
-        return false;
-    const auto& ov = jv.as<skjson::ObjectValue>();
-
-    std::vector<SkPoint> verts,  // Cubic Bezier vertices.
-                         inPts,  // Cubic Bezier "in" control points, relative to vertices.
-                         outPts; // Cubic Bezier "out" control points, relative to vertices.
-
-    if (!ParsePointVec(ov["v"], &verts)) {
-        // Vertices are required.
-        return false;
-    }
-
-    // In/out points are optional.
-    ParsePointVec(ov["i"], &inPts);
-    if (!inPts.empty() && inPts.size() != verts.size()) {
-        return false;
-    }
-    inPts.resize(verts.size(), { 0, 0 });
-
-    ParsePointVec(ov["o"], &outPts);
-    if (!outPts.empty() && outPts.size() != verts.size()) {
-        return false;
-    }
-    outPts.resize(verts.size(), { 0, 0 });
-
-    v->fVertices.reserve(inPts.size());
-    for (size_t i = 0; i < inPts.size(); ++i) {
-        v->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
-    }
-    v->fClosed = ParseDefault<bool>(ov["c"], false);
-
-    return true;
-}
-
-template <>
-bool ValueTraits<ShapeValue>::CanLerp(const ShapeValue& v1, const ShapeValue& v2) {
-    return v1.fVertices.size() == v2.fVertices.size()
-        && v1.fClosed == v2.fClosed;
-}
-
-static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
-    const auto v2f0 = Sk2f::Load(&v0),
-               v2f1 = Sk2f::Load(&v1);
-
-    SkPoint v;
-    (v2f0 + (v2f1 - v2f0) * t).store(&v);
-
-    return v;
-}
-
-template <>
-bool ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t,
-                                   ShapeValue* result) {
-    SkASSERT(v0.fVertices.size() == v1.fVertices.size());
-    SkASSERT(v0.fClosed == v1.fClosed);
-
-    auto updated = (result->fClosed != v0.fClosed || !result->fVolatile);
-
-    result->fClosed   = v0.fClosed;
-    result->fVolatile = true; // interpolated values are volatile
-
-    const auto t2f = Sk2f(t);
-    result->fVertices.resize(v0.fVertices.size());
-
-    for (size_t i = 0; i < v0.fVertices.size(); ++i) {
-        const auto v = BezierVertex({
-            lerp_point(v0.fVertices[i].fInPoint , v1.fVertices[i].fInPoint , t2f),
-            lerp_point(v0.fVertices[i].fOutPoint, v1.fVertices[i].fOutPoint, t2f),
-            lerp_point(v0.fVertices[i].fVertex  , v1.fVertices[i].fVertex  , t2f)
-        });
-
-        updated |= (v != result->fVertices[i]);
-        result->fVertices[i] = v;
-    }
-
-    return updated;
-}
-
-template <>
-template <>
-SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& shape) {
     SkPath path;
 
-    if (!shape.fVertices.empty()) {
+    if (vertex_count) {
         // conservatively assume all cubics
-        path.incReserve(1 + SkToU32(shape.fVertices.size() * 3));
+        path.incReserve(1 + SkToU32(vertex_count * 3));
 
-        path.moveTo(shape.fVertices.front().fVertex);
+        path.moveTo(fData[0], fData[1]);
     }
 
     const auto& addCubic = [&](size_t from, size_t to) {
-        const auto c0 = shape.fVertices[from].fVertex + shape.fVertices[from].fOutPoint,
-                   c1 = shape.fVertices[to].fVertex   + shape.fVertices[to].fInPoint;
+        const auto from_index = from * 6,
+                     to_index =   to * 6;
 
-        if (c0 == shape.fVertices[from].fVertex &&
-            c1 == shape.fVertices[to].fVertex) {
+        const SkPoint v0 = SkPoint{ fData[from_index + 0], fData[from_index + 1] },
+                      v1 = SkPoint{ fData[  to_index + 0], fData[  to_index + 1] },
+                      c0 = SkPoint{ fData[from_index + 4], fData[from_index + 5] } + v0,
+                      c1 = SkPoint{ fData[  to_index + 2], fData[  to_index + 3] } + v1;
+
+        if (c0 == v0 && c1 == v1) {
             // If the control points are coincident, we can power-reduce to a straight line.
             // TODO: we could also do that when the controls are on the same line as the
             //       vertices, but it's unclear how common that case is.
-            path.lineTo(shape.fVertices[to].fVertex);
+            path.lineTo(v1);
         } else {
-            path.cubicTo(c0, c1, shape.fVertices[to].fVertex);
+            path.cubicTo(c0, c1, v1);
         }
     };
 
-    for (size_t i = 1; i < shape.fVertices.size(); ++i) {
+    for (size_t i = 1; i < vertex_count; ++i) {
         addCubic(i - 1, i);
     }
 
-    if (!shape.fVertices.empty() && shape.fClosed) {
-        addCubic(shape.fVertices.size() - 1, 0);
+    if (vertex_count && fData.back() != 0) {
+        addCubic(vertex_count - 1, 0);
         path.close();
     }
 
-    path.setIsVolatile(shape.fVolatile);
     path.shrinkToFit();
 
     return path;
