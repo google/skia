@@ -8,7 +8,17 @@
 #ifndef GrD3DBackendContext_DEFINED
 #define GrD3DBackendContext_DEFINED
 
-#include "src/gpu/d3d/GrD3D12.h"
+// GrD3DTypes.h includes d3d12.h, which in turn includes windows.h, which redefines many
+// common identifiers such as:
+// * interface
+// * small
+// * near
+// * far
+// * CreateSemaphore
+// * MemoryBarrier
+//
+// You should only include GrD3DBackendContext.h if you are prepared to rename those identifiers.
+#include "include/gpu/d3d/GrD3DTypes.h"
 
 #include "include/gpu/GrTypes.h"
 
