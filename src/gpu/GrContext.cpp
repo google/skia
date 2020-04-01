@@ -111,7 +111,7 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
-    if (this->abandoned()) {
+    if (INHERITED::abandoned()) {
         return;
     }
 
@@ -135,7 +135,7 @@ void GrContext::abandonContext() {
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
-    if (this->abandoned()) {
+    if (INHERITED::abandoned()) {
         return;
     }
 
@@ -153,6 +153,18 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fResourceCache->releaseAll();
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
+}
+
+bool GrContext::abandoned() {
+    if (INHERITED::abandoned()) {
+        return true;
+    }
+
+    if (fGpu && fGpu->isDeviceLost()) {
+        this->abandonContext();
+        return true;
+    }
+    return false;
 }
 
 void GrContext::resetGLTextureBindings() {
