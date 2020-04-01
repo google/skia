@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daac04be_6f4fbefb",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-01T17:19:43Z",
+      "side": 1,
+      "message": "nit: Let\u0027s call this something like COMPILE_TASK_NAME_OS_LINUX?  It\u0027s cumbersome though.",
+      "range": {
+        "startLine": 42,
+        "startChar": 1,
+        "endLine": 42,
+        "endChar": 20
+      },
+      "revId": "acd1370ba0f9fef7f47dfe2a1f71c124993fbb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
