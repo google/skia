@@ -36,6 +36,7 @@ public:
     constexpr auto crbegin() const { return std::make_reverse_iterator(this->cend()); }
     constexpr auto crend() const { return std::make_reverse_iterator(this->cbegin()); }
     constexpr T* data() const { return fPtr; }
+    constexpr int count() const { return SkTo<int>(fSize); }
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return fSize == 0; }
     constexpr size_t size_bytes() const { return fSize * sizeof(T); }
