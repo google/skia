@@ -265,7 +265,8 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
             return;
         }
         const Variable& var = *((VarDeclaration&) *decls.fVars[0]).fVar;
-        if (var.fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
+        if (var.fModifiers.fFlags &
+                    (Modifiers::kIn_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag) ||
             -1 != var.fModifiers.fLayout.fBuiltin) {
             return;
         }
