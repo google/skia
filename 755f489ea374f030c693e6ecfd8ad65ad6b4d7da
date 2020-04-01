@@ -46,6 +46,30 @@
       "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389486d3_13dbf9e1",
+        "filename": "modules/skottie/src/animator/Shape.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-01T16:34:08Z",
+      "side": 1,
+      "message": "I thought a closed path is just, we\u0027ll lineTo back there implicitly?\n\nBut if there are additional complications, let\u0027s drop this idea.",
+      "parentUuid": "f25fac0d_d4fb46c0",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 65
+      },
+      "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
