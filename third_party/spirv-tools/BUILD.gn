@@ -121,9 +121,7 @@ template("spvtools_glsl_tables") {
       debuginfo_insts_file,
       cldebuginfo100_insts_file,
     ]
-    outputs = [
-      glsl_insts_file,
-    ]
+    outputs = [ glsl_insts_file ]
   }
 }
 
@@ -163,9 +161,7 @@ template("spvtools_opencl_tables") {
       debuginfo_insts_file,
       cldebuginfo100_insts_file,
     ]
-    outputs = [
-      opencl_insts_file,
-    ]
+    outputs = [ opencl_insts_file ]
   }
 }
 
@@ -184,12 +180,8 @@ template("spvtools_language_header") {
       "--extinst-output-path",
       rebase_path(extinst_output_path, root_build_dir),
     ]
-    inputs = [
-      invoker.grammar_file,
-    ]
-    outputs = [
-      "${extinst_output_path}",
-    ]
+    inputs = [ invoker.grammar_file ]
+    outputs = [ "${extinst_output_path}" ]
   }
 }
 
@@ -212,12 +204,8 @@ template("spvtools_vendor_table") {
       "--vendor-operand-kind-prefix",
       invoker.operand_kind_prefix,
     ]
-    inputs = [
-      extinst_vendor_grammar,
-    ]
-    outputs = [
-      extinst_file,
-    ]
+    inputs = [ extinst_vendor_grammar ]
+    outputs = [ extinst_file ]
   }
 }
 
@@ -228,12 +216,8 @@ action("spvtools_generators_inc") {
   xml_file = "${spirv_headers}/include/spirv/spir-v.xml"
   inc_file = "${target_gen_dir}/generators.inc"
 
-  sources = [
-    xml_file,
-  ]
-  outputs = [
-    inc_file,
-  ]
+  sources = [ xml_file ]
+  outputs = [ inc_file ]
   args = [
     "--xml",
     rebase_path(xml_file, root_build_dir),
@@ -248,9 +232,7 @@ action("spvtools_build_version") {
   src_dir = "${spirv_tools}"
   inc_file = "${target_gen_dir}/build-version.inc"
 
-  outputs = [
-    inc_file,
-  ]
+  outputs = [ inc_file ]
   args = [
     rebase_path(src_dir, root_build_dir),
     rebase_path(inc_file, root_build_dir),
@@ -502,9 +484,7 @@ third_party("spvtools_val") {
     ":spvtools_language_header_cldebuginfo100",
     ":spvtools_language_header_debuginfo",
   ]
-  public_deps = [
-    ":spvtools_headers",
-  ]
+  public_deps = [ ":spvtools_headers" ]
 
   configs += [ ":spvtools_internal_config" ]
 }
@@ -734,9 +714,7 @@ third_party("spvtools_opt") {
     ":spvtools_language_header_debuginfo",
     ":spvtools_vendor_tables_spv-amd-shader-ballot",
   ]
-  public_deps = [
-    ":spvtools_headers",
-  ]
+  public_deps = [ ":spvtools_headers" ]
 
   configs += [ ":spvtools_internal_config" ]
 }
