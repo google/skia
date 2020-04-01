@@ -113,13 +113,8 @@ public:
                            GrGLsizei indexCount, GrGLenum indexType, const void* indices);
     void drawArraysInstanced(GrPrimitiveType, GrGLint baseVertex, GrGLsizei vertexCount,
                              GrGLsizei instanceCount);
-    void drawArraysInstancedBaseInstance(GrPrimitiveType, GrGLint baseVertex, GrGLsizei vertexCount,
-                                         GrGLsizei instanceCount, GrGLuint baseInstance);
     void drawElementsInstanced(GrPrimitiveType, GrGLsizei indexCount, GrGLenum indexType,
                                const void* indices, GrGLsizei instanceCount);
-    void drawElementsInstancedBaseVertexBaseInstance(
-            GrPrimitiveType, GrGLsizei indexCount, GrGLenum indexType, const void* indices,
-            GrGLsizei instanceCount, GrGLint baseVertex, GrGLuint baseInstance);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function

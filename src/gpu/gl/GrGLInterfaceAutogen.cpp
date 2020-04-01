@@ -240,10 +240,7 @@ bool GrGLInterface::validate() const {
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_EXT_base_instance") ||
           fExtensions.has("GL_ANGLE_base_vertex_base_instance")))) {
-        if (!fFunctions.fDrawArraysInstancedBaseInstance ||
-            !fFunctions.fDrawElementsInstancedBaseVertexBaseInstance) {
-            RETURN_FALSE_INTERFACE;
-        }
+        // all functions were marked optional or test_only
     }
 
     if (GR_IS_GR_GL(fStandard) ||
