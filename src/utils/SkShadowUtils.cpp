@@ -62,13 +62,11 @@ protected:
         // exp(-x * x * 4) - 0.018f;
         // ... now approximate with quartic
         //
-        skvm::F32 c4 = p->splat(-2.26661229133605957031f);
-        skvm::F32 c3 = p->splat( 2.89795351028442382812f);
-        skvm::F32 c2 = p->splat( 0.21345567703247070312f);
-        skvm::F32 c1 = p->splat( 0.15489584207534790039f);
-        skvm::F32 c0 = p->splat( 0.00030726194381713867f);
-        skvm::F32 x = c.a;
-        x = p->mad(x, p->mad(x, p->mad(x, p->mad(x, c4, c3), c2), c1), c0);
+        skvm::F32 x = p->splat(-2.26661229133605957031f);
+                  x = c.a * x + 2.89795351028442382812f;
+                  x = c.a * x + 0.21345567703247070312f;
+                  x = c.a * x + 0.15489584207534790039f;
+                  x = c.a * x + 0.00030726194381713867f;
         return {x, x, x, x};
     }
 
