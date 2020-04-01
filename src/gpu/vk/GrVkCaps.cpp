@@ -1586,6 +1586,13 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
 GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     VkFormat vkFormat;
     SkAssertResult(format.asVkFormat(&vkFormat));
+    const auto* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+        // We allow these to work with any color type and never swizzle. See
+        // onAreColorTypeAndFormatCompatible.
+        return GrSwizzle{"rgba"};
+    }
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1593,7 +1600,8 @@ GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
             return ctInfo.fReadSwizzle;
         }
     }
-    return GrSwizzle::RGBA();
+    SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType, vkFormat);
+    return {};
 }
 
 GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
@@ -1606,7 +1614,8 @@ GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
             return ctInfo.fWriteSwizzle;
         }
     }
-    return GrSwizzle::RGBA();
+    SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType, vkFormat);
+    return {};
 }
 
 uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {

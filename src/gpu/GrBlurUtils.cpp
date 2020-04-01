@@ -31,6 +31,12 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);
 }
 
+static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
+
+static GrSurfaceProxyView find_filtered_mask(GrProxyProvider* provider, const GrUniqueKey& key) {
+    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8);
+}
+
 // Draw a mask using the supplied paint. Since the coverage/geometry
 // is already burnt into the mask this boils down to a rect draw.
 // Return true if the mask was successfully drawn.
@@ -81,18 +87,11 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
                                                     : SkStrokeRec::kFill_InitStyle;
 
     if (key.isValid()) {
-        // TODO: this cache look up is duplicated in draw_shape_with_mask_filter for gpu
-        static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
-        auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key);
-        if (filteredMask) {
-            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
-                    filteredMask->backendFormat(), GrColorType::kAlpha_8);
-            filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kCacheOrigin, swizzle);
-        }
+        filteredMaskView = find_filtered_mask(proxyProvider, key);
     }
 
     SkIRect drawRect;
-    if (filteredMaskView.proxy()) {
+    if (filteredMaskView) {
         SkRect devBounds = shape.bounds();
         viewMatrix.mapRect(&devBounds);
 
@@ -157,7 +156,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
             return false;
         }
 
-        SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMaskView.origin());
+        SkASSERT(kMaskOrigin == filteredMaskView.origin());
 
         drawRect = dstM.fBounds;
 
@@ -188,7 +187,7 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
     auto rtContext = GrRenderTargetContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, sampleCnt,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            GrMipMapped::kNo, GrProtected::kNo, kMaskOrigin);
     if (!rtContext) {
         return nullptr;
     }
@@ -202,8 +201,8 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
     GrFixedClip clip(clipRect);
 
-    // Draw the mask into maskTexture with the path's integerized top-left at
-    // the origin using maskPaint.
+    // Draw the mask into maskTexture with the path's integerized top-left at the origin using
+    // maskPaint.
     SkMatrix viewMatrix = origViewMatrix;
     viewMatrix.postTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     rtContext->drawShape(clip, std::move(maskPaint), GrAA::kYes, viewMatrix, shape);
@@ -398,18 +397,10 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         if (maskKey.isValid()) {
-            // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
-            static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
-            auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(maskKey);
-            if (filteredMask) {
-                GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
-                        filteredMask->backendFormat(), GrColorType::kAlpha_8);
-                filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kCacheOrigin,
-                                                      swizzle);
-            }
+            filteredMaskView = find_filtered_mask(proxyProvider, maskKey);
         }
 
-        if (!filteredMaskView.proxy()) {
+        if (!filteredMaskView) {
             std::unique_ptr<GrRenderTargetContext> maskRTC(create_mask_GPU(
                                                            context,
                                                            maskRect,
@@ -431,7 +422,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
             }
         }
 
-        if (filteredMaskView.proxy()) {
+        if (filteredMaskView) {
             if (draw_mask(renderTargetContext, clip, viewMatrix, maskRect, std::move(paint),
                           std::move(filteredMaskView))) {
                 // This path is completely drawn
