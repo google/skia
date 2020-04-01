@@ -22,6 +22,30 @@
       "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f25fac0d_d4fb46c0",
+        "filename": "modules/skottie/src/animator/Shape.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-01T16:32:00Z",
+      "side": 1,
+      "message": "Hmm, possibly, although I\u0027m not sure about all the implications - e.g. does a closed SkPath behave the same as a non-closed one when the first/last point are the same?\n\nThe biggest issue though is this flag is *per keyframe* - so encoding in-band may yield different-length keyframe values.",
+      "parentUuid": "1d8de474_d722afcb",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 65
+      },
+      "revId": "755f489ea374f030c693e6ecfd8ad65ad6b4d7da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
