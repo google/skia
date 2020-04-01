@@ -98,9 +98,6 @@ public:
 
         bool isValid() const { return fVertices != nullptr; }
 
-        // if the builder is invalid, these will return 0
-        int vertexCount() const;
-        int indexCount() const;
         SkPoint* positions();
         uint16_t* indices();        // returns null if there are no indices
 
