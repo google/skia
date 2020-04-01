@@ -508,7 +508,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     }
 
     callDone.clear();
-    auto proxy = MakePromiseImageLazyProxy(context, width, height, grColorType, backendFormat,
+    auto proxy = MakePromiseImageLazyProxy(context, width, height, backendFormat,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
                                            textureDoneProc, textureContext, version);
     if (!proxy) {
