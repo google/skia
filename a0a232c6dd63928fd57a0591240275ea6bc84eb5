@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "084450a6_59fd4478",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-01T17:36:57Z",
+      "side": 1,
+      "message": "This could all live in the GrDrawVerticesOp, right? I don\u0027t feel strongly but then you wouldn\u0027t need the #ifs and GrTypesPriv include in SkVertices.h.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 0
+      },
+      "revId": "a0a232c6dd63928fd57a0591240275ea6bc84eb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
