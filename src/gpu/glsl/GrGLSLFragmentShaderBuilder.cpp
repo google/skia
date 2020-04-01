@@ -187,7 +187,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                              GrShaderVar("_coords", kFloat2_GrSLType) };
     SkString result;
     this->emitFunction(kHalf4_GrSLType,
-                       "stage",
+                       args.fFp.name(),
                        args.fFp.isSampledWithExplicitCoords() ? 2 : 1,
                        params,
                        this->code().c_str(),

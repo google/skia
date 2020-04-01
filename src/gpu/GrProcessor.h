@@ -176,7 +176,7 @@ public:
     virtual ~GrProcessor() = default;
 
     /** Human-meaningful string to identify this prcoessor; may be embedded in generated shader
-        code. */
+        code and must be a legal identifier. */
     virtual const char* name() const = 0;
 
     /** Human-readable dump of all information */

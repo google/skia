@@ -66,7 +66,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new BigKeyProcessor);
     }
 
-    const char* name() const override { return "Big Ole Key"; }
+    const char* name() const override { return "Big_Ole_Key"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLBigKeyProcessor;
