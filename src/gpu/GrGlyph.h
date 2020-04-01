@@ -8,13 +8,10 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/geometry/GrRect.h"
-
-#include "include/core/SkPath.h"
-#include "include/private/SkChecksum.h"
-#include "include/private/SkFixed.h"
+#include "include/core/SkPoint.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
 
 class GrGlyph {
 public:
@@ -36,20 +33,21 @@ public:
         SkUNREACHABLE;
     }
 
-    GrGlyph(const SkGlyph& skGlyph)
+    GrGlyph() = default;
+    GrGlyph(const SkGlyph& skGlyph, bool foo)
             : fPackedID{skGlyph.getPackedID()}
             , fWidthHeight(SkIPoint16::Make(skGlyph.width(), skGlyph.height())) {
     }
 
+    const SkPackedGlyphID packedID() const { return fPackedID; }
     int width() const { return fWidthHeight.fX; }
     int height() const { return fWidthHeight.fY; }
-    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
 
-    const SkPackedGlyphID      fPackedID;
-    const SkIPoint16           fWidthHeight{0, 0};
+    GrGlyph& operator=(const GrGlyph& that) = default;
 
-    SkIPoint16                 fAtlasLocation{0, 0};
-    GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+private:
+    SkPackedGlyphID      fPackedID;
+    SkIPoint16           fWidthHeight{0, 0};
 };
 
 #endif
