@@ -9,7 +9,6 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/private/GrImageContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/utils/SkShadowUtils.h"
@@ -33,7 +32,6 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrPathRenderer.h"
@@ -242,19 +240,6 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
     }
 }
 
-std::tuple<GrColorType, GrBackendFormat> GrRenderTargetContext::GetFallbackColorTypeAndFormat(
-        GrImageContext* context, GrColorType colorType) {
-    do {
-        auto format =
-                context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
-        if (format.isValid()) {
-            return {colorType, format};
-        }
-        colorType = color_type_fallback(colorType);
-    } while (colorType != GrColorType::kUnknown);
-    return {GrColorType::kUnknown, {}};
-}
-
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         GrRecordingContext* context,
         GrColorType colorType,
@@ -267,12 +252,14 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
         const SkSurfaceProps* surfaceProps) {
-    auto [ct, format] = GetFallbackColorTypeAndFormat(context, colorType);
-    if (ct == GrColorType::kUnknown) {
-        return nullptr;
-    }
-    return GrRenderTargetContext::Make(context, ct, colorSpace, fit, dimensions, sampleCnt,
-                                       mipMapped, isProtected, origin, budgeted, surfaceProps);
+    std::unique_ptr<GrRenderTargetContext> rtc;
+    do {
+        rtc = GrRenderTargetContext::Make(context, colorType, colorSpace, fit, dimensions,
+                                          sampleCnt, mipMapped, isProtected, origin, budgeted,
+                                          surfaceProps);
+        colorType = color_type_fallback(colorType);
+    } while (!rtc && colorType != GrColorType::kUnknown);
+    return rtc;
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTexture(
