@@ -226,6 +226,7 @@ uint32_t KeyframeAnimatorBuilder::parseMapping(const skjson::ObjectValue& jkf) {
 namespace  {
 
 // Stores generic Ts in dedicated storage, and uses indices to track in keyframes.
+// TODO: we only have one instantiation left (TextValue) - specialize explicitly.
 template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
@@ -260,8 +261,7 @@ public:
                           const skjson::Value& jv,
                           Keyframe::Value* v) override {
             T val;
-            if (!ValueTraits<T>::FromJSON(jv, &abuilder, &val) ||
-                (!fValues.empty() && !ValueTraits<T>::CanLerp(val, fValues.back()))) {
+            if (!ValueTraits<T>::FromJSON(jv, &abuilder, &val)) {
                 return false;
             }
 
@@ -311,14 +311,6 @@ private:
 };
 
 } // namespace
-
-template <>
-bool AnimatablePropertyContainer::bind<ShapeValue>(const AnimationBuilder& abuilder,
-                                                   const skjson::ObjectValue* jprop,
-                                                   ShapeValue* v) {
-    KeyframeAnimator<ShapeValue>::Builder builder;
-    return this->bindImpl(abuilder, jprop, builder, v);
-}
 
 template <>
 bool AnimatablePropertyContainer::bind<TextValue>(const AnimationBuilder& abuilder,
