@@ -103,7 +103,7 @@ private:
 
     inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const SkMatrix&, const Sampling&);
 
-    GrTextureEffect(const GrTextureEffect& src);
+    explicit GrTextureEffect(const GrTextureEffect& src);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
