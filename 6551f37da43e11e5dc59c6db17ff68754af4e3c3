@@ -116,6 +116,30 @@
       "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "726357cb_1a793915",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-01T18:31:54Z",
+      "side": 1,
+      "message": "Hmm. Played with this. Problems: We end up with redundant state in Desc/Vertices, which I usually try to avoid. It means we need to pre-compute the size before creating any Desc, then carry both things around. It also doesn\u0027t help that much with serialization we trade the current bit of complexity for a possibly misaligned buffer, which requires different complexity to handle.",
+      "parentUuid": "60a361b9_d3ab2447",
+      "range": {
+        "startLine": 87,
+        "startChar": 16,
+        "endLine": 87,
+        "endChar": 27
+      },
+      "revId": "6551f37da43e11e5dc59c6db17ff68754af4e3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
