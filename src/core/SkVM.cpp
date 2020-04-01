@@ -1921,6 +1921,24 @@ namespace skvm {
     void Assembler::vpmovzxwd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x33, dst,src); }
     void Assembler::vpmovzxbd(Ymm dst, GP64 src) { this->load_store(0x66,0x380f,0x31, dst,src); }
 
+    void Assembler::stackMover(Direction direction, Ymm reg, int offset) {
+        int prefix = 0,
+            map    = 0x0f,
+            opcode = direction == Store ? 0x11 : 0x10;
+
+        VEX v = vex(0, reg>>3, 0, rsp>>3, map, 0, true/*256*/, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(mod(offset), reg&7, 0b100 /*use sib*/));
+        this->byte(sib(ONE, 0b100 /*no index*/, rsp));
+        if (offset > 0) {
+            this->bytes(&offset, imm_bytes(mod(offset)));
+        }
+    }
+
+    void Assembler::vmovups(int offset, Ymm src) { this->stackMover(Store, src, offset); }
+    void Assembler::vmovups(Ymm dst, int offset) { this->stackMover(Load,  dst, offset); }
+
     void Assembler::vmovups  (GP64 dst, Ymm src) { this->load_store(0   ,  0x0f,0x11, src,dst); }
     void Assembler::vmovups  (GP64 dst, Xmm src) {
         // Same as vmovups(GP64,YMM) and load_store() except ymm? is 0.
@@ -2974,7 +2992,35 @@ namespace skvm {
         SkTHashMap<int, LabelAndReg> constants;    // All constants share the same pool.
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
+        #if defined(__x86_64__)
+            const int K = 8;
+            const int RegSize = K * 4;
+            auto jump_if_less = [&](A::Label* l) { a->jl (l); };
+            auto jump         = [&](A::Label* l) { a->jmp(l); };
+
+            auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
+            auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
+
+            auto enter = [&] { a->sub(A::rsp, instructions.size() * RegSize); };
+            auto exit = [&] {
+                a->add(A::rsp, instructions.size() * RegSize);
+                a->vzeroupper();
+                a->ret();
+            };
+        #elif defined(__aarch64__)
+            const int K = 4;
+            const int RegSize = K * 4;
+            auto jump_if_less = [&](A::Label* l) { a->blt(l); };
+            auto jump         = [&](A::Label* l) { a->b  (l); };
+
+            auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
+            auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
+            auto enter = [&] {};
+            auto exit = [&] { a->ret(A::x30); };
+        #endif
+
         auto emit = [&](Val id, bool scalar) {
+            SkASSERT(avail == 0xffff);
             const OptimizedInstruction& inst = instructions[id];
 
             Op op = inst.op;
@@ -3000,6 +3046,26 @@ namespace skvm {
             Reg tmp_reg = (Reg)0;  // This initial value won't matter... anything legal is fine.
 
             bool ok = true;   // Set to false if we need to assign a register and none's available.
+
+            auto src = [&](Val v){
+            if (int found = __builtin_ffs(avail)) {
+                Reg reg = (Reg)(found - 1);
+                avail ^= 1 << reg;
+                r[v] = reg;
+            } else {
+                // Same deal as with tmp... all the registers are occupied.  Time to fail!
+                if (debug_dump()) {
+                    SkDebugf("\nCould not find source register for %d\n", v);
+                }
+                ok = false;
+            }
+            };
+            for (Val arg : {x, y, z}) {
+                if (arg != NA) {
+                    src(arg);
+                    a->vmovups(r[arg], arg * RegSize);
+                }
+            }
 
             // First lock in how to choose tmp if we need to based on the registers
             // available before this instruction, not including any of its input registers.
@@ -3396,34 +3462,26 @@ namespace skvm {
             #endif
             }
 
+            #if defined(__x86_64__)
+                if (!has_side_effect(op)) {
+                    a->vmovups(id * RegSize, r[id]);
+                    avail |= 1 << r[id];
+                }
+                for (Val arg : {x, y, z}) {
+                    if (arg != NA) { avail |= 1 << r[arg]; }
+                }
+            #endif
+
+            SkASSERT(avail = 0xffff);
             // Calls to tmp() or dst() might have flipped this false from its default true state.
             return ok;
         };
 
-
-        #if defined(__x86_64__)
-            const int K = 8;
-            auto jump_if_less = [&](A::Label* l) { a->jl (l); };
-            auto jump         = [&](A::Label* l) { a->jmp(l); };
-
-            auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
-            auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
-
-            auto exit = [&]{ a->vzeroupper(); a->ret(); };
-        #elif defined(__aarch64__)
-            const int K = 4;
-            auto jump_if_less = [&](A::Label* l) { a->blt(l); };
-            auto jump         = [&](A::Label* l) { a->b  (l); };
-
-            auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
-            auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
-
-            auto exit = [&]{ a->ret(A::x30); };
-        #endif
-
         A::Label body,
                  tail,
                  done;
+
+        enter();
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             if (hoisted(id) && !emit(id, /*scalar=*/false)) {
