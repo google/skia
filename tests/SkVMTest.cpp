@@ -272,7 +272,7 @@ DEF_TEST(SkVM, r) {
     });
 }
 
-DEF_TEST(SkVM_UsesAndLiveness, r) {
+DEF_TEST(SkVM_UsageAndLiveness, r) {
     {
         skvm::Builder b;
         {
@@ -287,7 +287,7 @@ DEF_TEST(SkVM_UsesAndLiveness, r) {
         std::vector<bool> live;
         std::vector<skvm::Val> sinks;
         skvm::liveness_analysis(b.program(), &live, &sinks);
-        skvm::Uses u{b.program(), live};
+        skvm::Usage u{b.program(), live};
         REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
         REPORTER_ASSERT(r, u.users(0).size() == 2);
         REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
@@ -308,7 +308,7 @@ DEF_TEST(SkVM_UsesAndLiveness, r) {
         std::vector<bool> live;
         std::vector<skvm::Val> sinks;
         skvm::liveness_analysis(b.program(), &live, &sinks);
-        skvm::Uses u{b.program(), live};
+        skvm::Usage u{b.program(), live};
         REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
         REPORTER_ASSERT(r, u.users(0).size() == 0);
         REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
