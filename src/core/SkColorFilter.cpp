@@ -218,7 +218,7 @@ public:
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        return p->premul(fSteps.program(p, uniforms, p->unpremul(c)));
+        return premul(fSteps.program(p, uniforms, unpremul(c)));
     }
 
 protected:
@@ -310,7 +310,7 @@ public:
         skvm::Color c0 =        fCF0->program(p, c, dstCS, uniforms, alloc);
         skvm::Color c1 = fCF1 ? fCF1->program(p, c, dstCS, uniforms, alloc) : c;
         return (c0 && c1)
-               ? p->lerp(c0, c1, p->uniformF(uniforms->pushF(fWeight)))
+               ? lerp(c0, c1, p->uniformF(uniforms->pushF(fWeight)))
                : skvm::Color{};
     }
 
