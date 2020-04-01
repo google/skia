@@ -690,8 +690,11 @@ namespace skvm {
 
         uint64_t hash() const;
 
+        Val push(Instruction);
     private:
-        Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
+        Val push(Op op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0) {
+            return this->push(Instruction{op, x,y,z, immy,immz});
+        }
 
         I32 _(I32a x) {
             if (x.id != NA) {
@@ -724,6 +727,11 @@ namespace skvm {
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
     };
+
+    // Optimization passes and data structures normally used by Builder::optimize(),
+    // extracted here so they can be unit tested.
+
+    void specialize_for_jit(std::vector<Instruction>* program);
 
     // Fill live and sinks each if non-null:
     //    - (*live)[id]: notes whether each input instruction is live

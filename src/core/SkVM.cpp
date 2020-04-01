@@ -423,62 +423,69 @@ namespace skvm {
         }
     }
 
-    std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
-        // If requested, first specialize for our JIT backend.
-        auto specialize_for_jit = [&]() -> std::vector<Instruction> {
-            Builder specialized;
-            for (Val i = 0; i < (Val)fProgram.size(); i++) {
-                Instruction inst = fProgram[i];
+    void specialize_for_jit(std::vector<Instruction>* program) {
+        Builder specialized;
+        for (Val i = 0; i < (Val)program->size(); i++) {
+            Instruction inst = (*program)[i];
 
-                #if defined(SK_CPU_X86)
-                switch (Op imm_op; inst.op) {
-                    default: break;
+            #if defined(SK_CPU_X86)
+            auto is_imm = [&](Val id, int* bits) {
+                *bits = (*program)[id].immy;
+                return  (*program)[id].op == Op::splat;
+            };
 
-                    case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
-                    case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
-                    case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
-                    case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
-                    case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
-                    case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
-                    case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
+            switch (Op imm_op; inst.op) {
+                default: break;
 
-                    try_imm_x_and_y:
-                        if (int bits; this->allImm(inst.x, &bits)) {
-                            inst.op   = imm_op;
-                            inst.x    = inst.y;
-                            inst.y    = NA;
-                            inst.immy = bits;
-                        } else if (int bits; this->allImm(inst.y, &bits)) {
-                            inst.op   = imm_op;
-                            inst.y    = NA;
-                            inst.immy = bits;
-                        } break;
+                case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
+                case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
+                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
+                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
+                case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
+                case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
+                case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
 
-                    case Op::sub_f32:
-                        if (int bits; this->allImm(inst.y, &bits)) {
-                            inst.op   = Op::sub_f32_imm;
-                            inst.y    = NA;
-                            inst.immy = bits;
-                        } break;
+                try_imm_x_and_y:
+                    if (int bits; is_imm(inst.x, &bits)) {
+                        inst.op   = imm_op;
+                        inst.x    = inst.y;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } else if (int bits; is_imm(inst.y, &bits)) {
+                        inst.op   = imm_op;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } break;
 
-                    case Op::bit_clear:
-                        if (int bits; this->allImm(inst.y, &bits)) {
-                            inst.op   = Op::bit_and_imm;
-                            inst.y    = NA;
-                            inst.immy = ~bits;
-                        } break;
-                }
-                #endif
-                SkDEBUGCODE(Val id =) specialized.push(inst.op,
-                                                       inst.x,inst.y,inst.z,
-                                                       inst.immy,inst.immz);
-                // If we replace single instructions with multiple, this will start breaking,
-                // and we'll need a table to remap them like we have in optimize().
-                SkASSERT(id == i);
+                case Op::sub_f32:
+                    if (int bits; is_imm(inst.y, &bits)) {
+                        inst.op   = Op::sub_f32_imm;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } break;
+
+                case Op::bit_clear:
+                    if (int bits; is_imm(inst.y, &bits)) {
+                        inst.op   = Op::bit_and_imm;
+                        inst.y    = NA;
+                        inst.immy = ~bits;
+                    } break;
             }
-            return specialized.fProgram;
-        };
-        const std::vector<Instruction>& program = for_jit ? specialize_for_jit() : fProgram;
+            #endif
+            SkDEBUGCODE(Val id =) specialized.push(inst);
+            // If we replace single instructions with multiple, this will start breaking,
+            // and we'll need a table to remap them like we have in optimize().
+            SkASSERT(id == i);
+        }
+
+        *program = specialized.program();
+    }
+
+    std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
+        std::vector<Instruction> program = this->program();
+        if (for_jit) {
+            specialize_for_jit(&program);
+        }
 
         std::vector<bool> live_instructions;
         std::vector<Val> frontier;
@@ -663,9 +670,7 @@ namespace skvm {
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
-    Val Builder::push(Op op, Val x, Val y, Val z, int immy, int immz) {
-        Instruction inst{op, x, y, z, immy, immz};
-
+    Val Builder::push(Instruction inst) {
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
         if (Val* id = fIndex.find(inst)) {
