@@ -54,9 +54,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp",
     ]
 
-    deps = [
-      ":libwebp_sse41",
-    ]
+    deps = [ ":libwebp_sse41" ]
     if (is_android) {
       deps += [ "//third_party/cpu-features" ]
     }

@@ -86,9 +86,7 @@ if (dawn_enable_opengl) {
 # Public libdawn_native headers so they can be publically visible for
 # dependencies of libdawn_native
 source_set("libdawn_native_headers") {
-  public_deps = [
-    ":dawncpp_headers",
-  ]
+  public_deps = [ ":dawncpp_headers" ]
   sources = rebase_path(
           [
             "src/include/dawn_native/DawnNative.h",
@@ -442,7 +440,9 @@ static_library("libdawn_native") {
   configs -= [ "//gn:warnings" ]
   if (dawn_enable_vulkan) {
     configs += [ "//:our_vulkan_headers" ]
-    include_dirs = [ "../.." ]  # for "include/third_party/vulkan/vulkan/vk_platform.h" in vulkan.h
+    include_dirs =
+        [ "../.." ]  # for "include/third_party/vulkan/vulkan/vk_platform.h" in
+                     # vulkan.h
     sources += rebase_path(
             [
               "src/dawn_native/vulkan/AdapterVk.cpp",
@@ -607,9 +607,7 @@ static_library("dawn_common") {
                         "$dawn_root/src/common")
 
   configs += [ ":dawn_internal" ]
-  deps = [
-    ":dawn_headers",
-  ]
+  deps = [ ":dawn_headers" ]
   if (dawn_enable_vulkan) {
     configs += [ "//:our_vulkan_headers" ]
   }
@@ -629,9 +627,7 @@ dawn_json_generator("dawn_headers_gen") {
 
 source_set("dawn_headers") {
   public_configs = [ ":libdawn_public" ]
-  public_deps = [
-    ":dawn_headers_gen",
-  ]
+  public_deps = [ ":dawn_headers_gen" ]
 
   sources = get_target_outputs(":dawn_headers_gen")
   sources += [
@@ -646,9 +642,7 @@ source_set("dawn_headers") {
 
 dawn_json_generator("dawncpp_headers_gen") {
   target = "dawncpp_headers"
-  outputs = [
-    "src/include/dawn/webgpu_cpp.h",
-  ]
+  outputs = [ "src/include/dawn/webgpu_cpp.h" ]
 }
 
 source_set("dawncpp_headers") {
@@ -667,9 +661,7 @@ source_set("dawncpp_headers") {
 
 dawn_json_generator("dawncpp_gen") {
   target = "dawncpp"
-  outputs = [
-    "src/dawn/webgpu_cpp.cpp",
-  ]
+  outputs = [ "src/dawn/webgpu_cpp.cpp" ]
 }
 
 source_set("dawncpp") {
@@ -686,18 +678,12 @@ source_set("dawncpp") {
 
 dawn_json_generator("libdawn_proc_gen") {
   target = "dawn_proc"
-  outputs = [
-    "src/dawn/dawn_proc.c",
-  ]
+  outputs = [ "src/dawn/dawn_proc.c" ]
 }
 
 static_library("libdawn_proc") {
-  public_deps = [
-    ":dawn_headers",
-  ]
-  deps = [
-    ":libdawn_proc_gen",
-  ]
+  public_deps = [ ":dawn_headers" ]
+  deps = [ ":libdawn_proc_gen" ]
   sources = get_target_outputs(":libdawn_proc_gen")
   sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
   cflags = [ "-Wno-strict-prototypes" ]

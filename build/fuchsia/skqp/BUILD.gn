@@ -107,13 +107,9 @@ action("append_assets_to_manifest") {
   pkg_manifest = "${pkg_dir}/${pkg_name}.manifest"
   assets_path = "//platform_tools/android/apps/skqp/src/main/assets"
 
-  inputs = [
-    assets_path,
-  ]
+  inputs = [ assets_path ]
 
-  outputs = [
-    pkg_manifest,
-  ]
+  outputs = [ pkg_manifest ]
 
   manifest_deps = "$target_out_dir/skqp_manifest.d"
 
@@ -130,8 +126,6 @@ action("append_assets_to_manifest") {
     rebase_path(root_out_dir),
   ]
 
-  deps = [
-    ":base_manifest",
-  ]
+  deps = [ ":base_manifest" ]
   depfile = manifest_deps
 }

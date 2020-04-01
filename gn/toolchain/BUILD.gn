@@ -100,9 +100,8 @@ toolchain("msvc") {
       _ml += "64"
     }
     command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "assemble {{source}}"
   }
 
@@ -113,9 +112,8 @@ toolchain("msvc") {
     # Label names may have spaces so pdbname must be quoted.
     command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "compile {{source}}"
   }
 
@@ -126,9 +124,8 @@ toolchain("msvc") {
     # Label names may have spaces so pdbname must be quoted.
     command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "compile {{source}}"
   }
 
@@ -187,9 +184,7 @@ toolchain("msvc") {
     command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
-    outputs = [
-      exename,
-    ]
+    outputs = [ exename ]
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
@@ -220,9 +215,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -230,9 +224,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -240,9 +233,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -250,9 +242,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objcc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -260,9 +251,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "assemble {{source}}"
     }
 
@@ -279,9 +269,8 @@ template("gcc_like_toolchain") {
         command = "$ar rcs {{output}} @$rspfile"
       }
 
-      outputs = [
-        "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-      ]
+      outputs =
+          [ "{{root_out_dir}}/{{target_output_name}}{{output_extension}}" ]
       default_output_extension = ".a"
       output_prefix = "lib"
       description = "link {{output}}"
@@ -312,9 +301,7 @@ template("gcc_like_toolchain") {
       }
 
       command = "$cxx -shared {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
-      outputs = [
-        "{{root_out_dir}}/$soname",
-      ]
+      outputs = [ "{{root_out_dir}}/$soname" ]
       output_prefix = "lib"
       default_output_extension = ".so"
       description = "link {{output}}"
@@ -339,9 +326,7 @@ template("gcc_like_toolchain") {
       }
       command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
 
-      outputs = [
-        "$exe_name",
-      ]
+      outputs = [ "$exe_name" ]
       description = "link {{output}}"
     }
 

@@ -45,7 +45,5 @@ third_party("wuffs") {
     "WUFFS_CONFIG__MODULE__LZW",
   ]
 
-  sources = [
-    "../externals/wuffs/release/c/wuffs-v0.2.c",
-  ]
+  sources = [ "../externals/wuffs/release/c/wuffs-v0.2.c" ]
 }

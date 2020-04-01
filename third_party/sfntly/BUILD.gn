@@ -14,9 +14,7 @@ if (skia_use_icu) {
     _src = "../externals/sfntly/cpp/src"
     public_include_dirs = [ _src ]
     defines = [ "SFNTLY_NO_EXCEPTION" ]
-    public_deps = [
-      "//third_party/icu",
-    ]
+    public_deps = [ "//third_party/icu" ]
     deps = []
     if (is_win) {
       defines += [ "WIN32" ]

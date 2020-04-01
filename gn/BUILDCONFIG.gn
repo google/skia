@@ -124,7 +124,8 @@ if (target_os == "win") {
   if (win_vc == "") {
     win_vc = exec_script("//gn/find_msvc.py", [], "trim string")
   }
-  assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
+  assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC
+                        # directory.
 }
 
 if (target_os == "win") {

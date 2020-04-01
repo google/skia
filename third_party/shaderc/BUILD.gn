@@ -161,9 +161,7 @@ source_set("libshaderc_spvc_sources") {
                         ".",
                         "$shaderc_root")
 
-  public_deps = [
-    "${spirv_cross_dir}:spirv_cross",
-  ]
+  public_deps = [ "${spirv_cross_dir}:spirv_cross" ]
 
   deps = [
     "${spirv_tools_dir}:spvtools",

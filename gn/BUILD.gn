@@ -338,18 +338,23 @@ config("warnings") {
       # Disable a bunch of warnings:
       "/wd4244",  # conversion from 'float' to 'int', possible loss of data
       "/wd4267",  # conversion from 'size_t' to 'int', possible loss of data
-      "/wd4800",  # forcing value to bool 'true' or 'false' (performance warning)
+      "/wd4800",  # forcing value to bool 'true' or 'false' (performance
+                  # warning)
 
       # Probably only triggers when /EHsc is enabled.
       "/wd4291",  # no matching operator delete found;
-                  # memory will not be freed if initialization throws an exception
+                  # memory will not be freed if initialization throws an
+                  # exception
 
       # These only show up in shared builds:
-      "/wd4251",  # class 'type' needs to have dll-interface to be used by clients of class 'type2'
-      "/wd4275",  # non dll-interface class 'base' used as base for dll-interface class 'derived'
+      "/wd4251",  # class 'type' needs to have dll-interface to be used by
+                  # clients of class 'type2'
+      "/wd4275",  # non dll-interface class 'base' used as base for
+                  # dll-interface class 'derived'
 
       # It'd be nice to fix these and turn this on:
-      "/wd5041",  # out-of-line definition for constexpr static data member is not needed and is deprecated in C++17
+      "/wd5041",  # out-of-line definition for constexpr static data member is
+                  # not needed and is deprecated in C++17
     ]
   } else {
     cflags += [
@@ -374,7 +379,8 @@ config("warnings") {
     cflags += [
       "-fcolor-diagnostics",
       "-Weverything",
-      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs'
+                                      # warnings.
     ]
 
     if (target_cpu == "arm" && is_ios) {
@@ -578,7 +584,8 @@ config("executable") {
   } else if (is_win) {
     ldflags = [
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
-      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
+      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link
+                          # by never trying to.
     ]
   }
 }

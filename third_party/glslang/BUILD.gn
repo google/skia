@@ -134,7 +134,5 @@ third_party("glslang_sources") {
     defines += [ "GLSLANG_OSINCLUDE_UNIX" ]
   }
 
-  deps = [
-    "${spirv_tools_dir}:spvtools_val",
-  ]
+  deps = [ "${spirv_tools_dir}:spvtools_val" ]
 }

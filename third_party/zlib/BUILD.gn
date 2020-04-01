@@ -17,9 +17,7 @@ if (skia_use_system_zlib) {
   third_party("zlib") {
     public_include_dirs = [ "../externals/zlib" ]
 
-    deps = [
-      ":zlib_x86",
-    ]
+    deps = [ ":zlib_x86" ]
     sources = [
       "../externals/zlib/adler32.c",
       "../externals/zlib/compress.c",
@@ -55,8 +53,6 @@ third_party("zlib_x86") {
       ]
     }
   } else {
-    sources = [
-      "../externals/zlib/simd_stub.c",
-    ]
+    sources = [ "../externals/zlib/simd_stub.c" ]
   }
 }
