@@ -25,7 +25,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkVertices.h"
 #include "include/private/SkDeque.h"
 #include "include/private/SkMacros.h"
 
@@ -54,6 +53,7 @@ struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
+class SkVertices;
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
