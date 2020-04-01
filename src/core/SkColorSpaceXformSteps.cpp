@@ -208,7 +208,7 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
 skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,
                                             skvm::Color c) const {
     if (flags.unpremul) {
-        c = p->unpremul(c);
+        c = unpremul(c);
     }
     if (flags.linearize) {
         c = sk_program_transfer_fn(p, uniforms, srcTF, c);
@@ -227,7 +227,7 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
         c = sk_program_transfer_fn(p, uniforms, dstTFInv, c);
     }
     if (flags.premul) {
-        c = p->premul(c);
+        c = premul(c);
     }
     return c;
 }

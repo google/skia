@@ -76,8 +76,8 @@ bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
 skvm::Color SkOverdrawColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                                              SkColorSpace* /*dstCS*/, skvm::Uniforms* uniforms,
                                              SkArenaAlloc* alloc) const {
-    skvm::I32 index = p->min(p->to_unorm(8,c.a), p->splat(kNumColors - 1));
-    c = p->unpack_8888(p->gather32(uniforms->pushPtr(fColors), index));
+    skvm::I32 index = min(to_unorm(8,c.a), kNumColors - 1);
+    c = unpack_8888(gather32(uniforms->pushPtr(fColors), index));
     std::swap(c.r, c.b);  // The SkColors in fColors are BGRA, but we want RGBA
     return c;
 }

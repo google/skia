@@ -128,15 +128,12 @@ public:
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
 
         auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
-            c = p->clamp(c, p->splat(0.f), p->splat(1.0f));
-            skvm::I32 index = p->to_unorm(8, c);
-
+            skvm::I32     index = to_unorm(8, clamp01(c));
             skvm::Uniform table = uniforms->pushPtr(bytePtr);
-            skvm::I32 byte = p->gather8(table, index);
-            return p->from_unorm(8, byte);
+            return from_unorm(8, gather8(table, index));
         };
 
-        c = p->unpremul(c);
+        c = unpremul(c);
 
         const uint8_t* ptr = fStorage;
         if (fFlags & kA_Flag) {
@@ -154,7 +151,7 @@ public:
         if (fFlags & kB_Flag) {
             c.b = apply_table_to_component(c.b, ptr);
         }
-        return p->premul(c);
+        return premul(c);
     }
 
 protected:
