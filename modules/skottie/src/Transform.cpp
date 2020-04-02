@@ -145,22 +145,22 @@ void TransformAdapter3D::onSync() {
 }
 
 SkV3 TransformAdapter3D::anchor_point() const {
-    return ValueTraits<VectorValue>::As<SkV3>(fAnchorPoint);
+    return fAnchorPoint;
 }
 
 SkV3 TransformAdapter3D::position() const {
-    return ValueTraits<VectorValue>::As<SkV3>(fPosition);
+    return fPosition;
 }
 
 SkV3 TransformAdapter3D::rotation() const {
     // orientation and axis-wise rotation map onto the same property.
-    return ValueTraits<VectorValue>::As<SkV3>(fOrientation) + SkV3{ fRx, fRy, fRz };
+    return static_cast<SkV3>(fOrientation) + SkV3{ fRx, fRy, fRz };
 }
 
 SkM44 TransformAdapter3D::totalMatrix() const {
     const auto anchor_point = this->anchor_point(),
                position     = this->position(),
-               scale        = ValueTraits<VectorValue>::As<SkV3>(fScale),
+               scale        = static_cast<SkV3>(fScale),
                rotation     = this->rotation();
 
     return SkM44::Translate(position.x, position.y, position.z)
