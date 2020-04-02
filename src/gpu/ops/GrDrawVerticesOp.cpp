@@ -145,6 +145,16 @@ public:
             // Add varyings and globals for all custom attributes
             for (size_t i = kFirstCustomIndex; i < gp.fAttributes.size(); ++i) {
                 const auto& attr(gp.fAttributes[i]);
+                auto usage = gp.fUsages[i - kFirstCustomIndex];
+
+                GrSLType varyingType = attr.gpuType();
+                switch (usage) {
+                    case SkVertices::Attribute::Usage::kRaw:
+                        break;
+                    case SkVertices::Attribute::Usage::kVector:
+                        varyingType = kFloat3_GrSLType;
+                }
+
                 GrGLSLVarying varying(attr.gpuType());
                 args.fVaryingHandler->addVarying(attr.name(), &varying);
                 args.fVertBuilder->codeAppendf("%s = %s;", varying.vsOut(), attr.name());
@@ -167,6 +177,14 @@ public:
             key |= ComputePosKey(vgp.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
+
+            uint32_t usageKey = 0;
+            SkASSERT(vgp.fUsages.size() <= 8);
+            for (size_t i = 0; i < vgp.fUsages.size(); ++i) {
+                SkASSERT((uint32_t)vgp.fUsages[i] < (1 << 4));
+                usageKey = (usageKey << 4) | (uint32_t)vgp.fUsages[i];
+            }
+            b->add32(usageKey);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -238,6 +256,7 @@ private:
             fAttributes.push_back({fAttrNames.back().c_str(),
                                    SkVerticesAttributeToGrVertexAttribType(attrs[i]),
                                    SkVerticesAttributeToGrSLType(attrs[i])});
+            fUsages.push_back(attrs[i].fUsage);
         }
 
         this->setVertexAttributes(fAttributes.data(), fAttributes.size());
@@ -252,6 +271,7 @@ private:
 
     std::vector<SkString> fAttrNames;
     std::vector<Attribute> fAttributes;
+    std::vector<SkVertices::Attribute::Usage> fUsages;
     ColorArrayType fColorArrayType;
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
