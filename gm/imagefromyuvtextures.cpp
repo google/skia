@@ -169,12 +169,17 @@ protected:
                 {3, SkColorChannel::kR},
         };
         this->createYUVTextures(fYUVABmps, context, yuvaTextures);
-        auto image1 = SkImage::MakeFromYUVATextures(context,
-                                                    kJPEG_SkYUVColorSpace,
-                                                    yuvaTextures,
-                                                    kIndices,
-                                                    fRGBABmp.dimensions(),
-                                                    kTopLeft_GrSurfaceOrigin);
+
+        // We remake this image before each draw because if any draw flattens it to RGBA then
+        // all subsequent draws use the RGBA texture.
+        auto makeImage1 = [&]() {
+            return SkImage::MakeFromYUVATextures(context,
+                                                 kJPEG_SkYUVColorSpace,
+                                                 yuvaTextures,
+                                                 kIndices,
+                                                 fRGBABmp.dimensions(),
+                                                 kTopLeft_GrSurfaceOrigin);
+        };
 
         GrBackendTexture resultTexture;
         this->createResultTexture(context, fRGBABmp.dimensions(), &resultTexture);
@@ -233,7 +238,7 @@ protected:
                                 kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s1 = draw(image1.get(), fq);
+                        auto s1 = draw(makeImage1().get(), fq);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
                     canvas->save();
