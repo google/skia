@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
- - Support for DOMMatrix in addition to the SkMatrix currently supported by some APIs. [WIP]
+ - Support for DOMMatrix on all APIs that take SkMatrix (i.e. arrays or Float32Arrays of length 9).
 
 ### Removed
  - Previously deprecated functions MakeSkDashPathEffect, MakeLinearGradientShader,

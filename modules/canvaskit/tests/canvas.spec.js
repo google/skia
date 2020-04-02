@@ -761,4 +761,28 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             reportSurface(surface, 'drawvertices_texture_canvas', done);
         });
     });
+
+    it('can change the matrix on the canvas and read it back', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const canvas = new CanvasKit.SkCanvas();
+
+            let matr = canvas.getTotalMatrix();
+            expect(matr).toEqual(CanvasKit.SkMatrix.identity());
+
+            canvas.concat(CanvasKit.SkMatrix.rotated(Math.PI/4));
+            const d = new DOMMatrix().translate(20, 10);
+            canvas.concat(d);
+
+            matr = canvas.getTotalMatrix();
+            const expected = CanvasKit.SkMatrix.multiply(
+                CanvasKit.SkMatrix.rotated(Math.PI/4),
+                CanvasKit.SkMatrix.translated(20, 10)
+            );
+            expect(matr.length).toEqual(expected.length);
+            for (let i = 0; i < matr.length; i++) {
+                expect(matr[i]).toBeCloseTo(expected[i], 5);
+            }
+            done();
+        }));
+    })
 });
