@@ -38,17 +38,16 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
         }
     }
 
-    GrSurfaceProxyView copyView = GrCopyBaseMipMapToTextureProxy(
-            this->context(), fOriginal.proxy(), fOriginal.origin(), this->colorType());
-    if (!copyView) {
+    auto copy =
+            GrCopyBaseMipMapToTextureProxy(this->context(), fOriginal.proxy(), fOriginal.origin());
+    if (!copy) {
         return {};
     }
     if (mipMappedKey.isValid()) {
-        SkASSERT(copyView.origin() == fOriginal.origin());
         // TODO: If we move listeners up from SkImage_Lazy to SkImage_Base then add one here.
-        proxyProvider->assignUniqueKeyToProxy(mipMappedKey, copyView.asTextureProxy());
+        proxyProvider->assignUniqueKeyToProxy(mipMappedKey, copy->asTextureProxy());
     }
-    return copyView;
+    return {std::move(copy), fOriginal.origin(), fOriginal.swizzle()};
 }
 
 GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {

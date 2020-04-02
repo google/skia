@@ -440,12 +440,12 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
         auto copy = GrCopyBaseMipMapToTextureProxy(context->priv().asRecordingContext(),
                                                    view->proxy(),
                                                    view->origin(),
-                                                   SkColorTypeToGrColorType(this->colorType()),
                                                    budgeted);
         if (!copy) {
             return nullptr;
         }
-        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), this->uniqueID(), std::move(copy),
+        GrSurfaceProxyView copyView(std::move(copy), view->origin(), view->swizzle());
+        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), this->uniqueID(), std::move(copyView),
                                        this->colorType(), this->alphaType(), this->refColorSpace());
     }
 

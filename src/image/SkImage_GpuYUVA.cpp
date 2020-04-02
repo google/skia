@@ -97,12 +97,12 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
         if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
                                                     fViews[i].asTextureProxy(),
                                                     GrSamplerState::Filter::kMipMap)) {
-            auto mippedView = GrCopyBaseMipMapToTextureProxy(context, fViews[i].asTextureProxy(),
-                                                             fOrigin, fProxyColorTypes[i]);
-            if (!mippedView.proxy()) {
+            auto mippedCopy =
+                    GrCopyBaseMipMapToTextureProxy(context, fViews[i].asTextureProxy(), fOrigin);
+            if (!mippedCopy) {
                 return false;
             }
-            fViews[i] = std::move(mippedView);
+            fViews[i] = {std::move(mippedCopy), fViews[i].origin(), fViews[i].swizzle()};
         }
     }
     return true;
@@ -174,16 +174,13 @@ GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) c
     }
 
     // need to generate mips for the proxy
-    GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-    GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(context, fRGBView.proxy(),
-                                                                   fRGBView.origin(), srcColorType);
-    if (mippedView) {
-        fRGBView = std::move(mippedView);
-        return fRGBView;
+    auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fRGBView.proxy(), fRGBView.origin());
+    if (!mippedProxy) {
+        return {};
     }
 
-    // failed to generate mips
-    return {};
+    fRGBView = {std::move(mippedProxy), fRGBView.origin(), fRGBView.swizzle()};
+    return fRGBView;
 }
 
 const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {
