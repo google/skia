@@ -97,9 +97,8 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
         if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
                                                     fViews[i].asTextureProxy(),
                                                     GrSamplerState::Filter::kMipMap)) {
-            auto mippedView = GrCopyBaseMipMapToTextureProxy(context, fViews[i].asTextureProxy(),
-                                                             fOrigin, fProxyColorTypes[i]);
-            if (!mippedView.proxy()) {
+            auto mippedView = GrCopyBaseMipMapToView(context, fViews[i]);
+            if (!mippedView) {
                 return false;
             }
             fViews[i] = std::move(mippedView);
@@ -174,16 +173,13 @@ GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) c
     }
 
     // need to generate mips for the proxy
-    GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-    GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(context, fRGBView.proxy(),
-                                                                   fRGBView.origin(), srcColorType);
-    if (mippedView) {
-        fRGBView = std::move(mippedView);
-        return fRGBView;
+    auto mippedView = GrCopyBaseMipMapToView(context, fRGBView);
+    if (!mippedView) {
+        return {};
     }
 
-    // failed to generate mips
-    return {};
+    fRGBView = std::move(mippedView);
+    return fRGBView;
 }
 
 const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {

@@ -131,25 +131,31 @@ sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
     return std::move(listener);
 }
 
-GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
-                                                  GrSurfaceProxy* baseProxy,
-                                                  GrSurfaceOrigin origin,
-                                                  GrColorType srcColorType,
-                                                  SkBudgeted budgeted) {
+sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
+                                                     GrSurfaceProxy* baseProxy,
+                                                     GrSurfaceOrigin origin,
+                                                     SkBudgeted budgeted) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return {};
     }
-    GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx,
-                                                   baseProxy,
-                                                   origin,
-                                                   srcColorType,
-                                                   GrMipMapped::kYes,
-                                                   SkBackingFit::kExact,
-                                                   budgeted);
-    SkASSERT(!view.proxy() || view.asTextureProxy());
-    return view;
+    auto copy = GrSurfaceProxy::Copy(ctx, baseProxy, origin, GrMipMapped::kYes,
+                                     SkBackingFit::kExact, budgeted);
+    if (!copy) {
+        return {};
+    }
+    SkASSERT(copy->asTextureProxy());
+    return copy;
+}
+
+GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
+                                          GrSurfaceProxyView src,
+                                          SkBudgeted budgeted) {
+    auto origin = src.origin();
+    auto swizzle = src.swizzle();
+    auto* proxy = src.proxy();
+    return {GrCopyBaseMipMapToTextureProxy(context, proxy, origin, budgeted), origin, swizzle};
 }
 
 GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
