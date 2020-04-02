@@ -395,7 +395,7 @@ public:
 
             void main(float2 p, inout half4 color) {
                 float3 norm = convert_normal_sample(sample(normal_map, p));
-                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+                float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
                 float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
                 float3 light_dir = normalize(lightPos - plane_pos);
@@ -420,8 +420,12 @@ public:
         }
 
         auto adj_inv = [](const SkM44& m) {
-            SkM44 inv;
-            SkAssertResult(m.invert(&inv));
+            SkM44 rot_scale(m.rc(0, 0), m.rc(0, 1), m.rc(0, 2), 0,
+                            m.rc(1, 0), m.rc(1, 1), m.rc(1, 2), 0,
+                            m.rc(2, 0), m.rc(2, 1), m.rc(2, 2), 0,
+                                     0,          0,          0, 1);
+            SkM44 inv(SkM44::kUninitialized_Constructor);
+            SkAssertResult(rot_scale.invert(&inv));
             return inv.transpose();
         };
 
