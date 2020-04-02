@@ -40,8 +40,8 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void setupGeometry(const GrBuffer* vertexBuffer, int baseVertex, const GrBuffer* instanceBuffer,
-                       int baseInstance);
+    void bindInstanceBuffer(const GrBuffer*, int baseInstance);
+    void bindVertexBuffer(const GrBuffer*, int baseVertex);
 
     const void* offsetForBaseIndex(int baseIndex) const {
         if (!fIndexPointer) {
