@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/animator/Keyframe.h"
+#include "modules/skottie/src/animator/VectorKeyframeAnimator.h"
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkNx.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
-#include "modules/skottie/src/animator/Vector.h"
 #include "src/core/SkSafeMath.h"
 
 #include <algorithm>
@@ -34,16 +34,36 @@ static bool parse_array(const skjson::ArrayValue* ja, float* a, size_t count) {
     return true;
 }
 
-template <>
-bool ValueTraits<VectorValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
-                                        VectorValue* v) {
-    if (const skjson::ArrayValue* ja = jv) {
-        const auto size = ja->size();
-        v->resize(size);
-        return parse_array(ja, v->data(), size);
-    }
+VectorValue::operator SkV3() const {
+    // best effort to turn this into a 3D point
+    return SkV3 {
+        this->size() > 0 ? (*this)[0] : 0,
+        this->size() > 1 ? (*this)[1] : 0,
+        this->size() > 2 ? (*this)[2] : 0,
+    };
+}
 
-    return false;
+VectorValue::operator SkColor() const {
+    // best effort to turn this into a color
+    const auto r = this->size() > 0 ? (*this)[0] : 0,
+               g = this->size() > 1 ? (*this)[1] : 0,
+               b = this->size() > 2 ? (*this)[2] : 0,
+               a = this->size() > 3 ? (*this)[3] : 1;
+
+    return SkColorSetARGB(SkScalarRoundToInt(SkTPin(a, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(r, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(g, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(b, 0.0f, 1.0f) * 255));
+}
+
+VectorValue::operator SkColor4f() const {
+    // best effort to turn a vector into a color
+    const auto r = this->size() > 0 ? SkTPin((*this)[0], 0.0f, 1.0f) : 0,
+               g = this->size() > 1 ? SkTPin((*this)[1], 0.0f, 1.0f) : 0,
+               b = this->size() > 2 ? SkTPin((*this)[2], 0.0f, 1.0f) : 0,
+               a = this->size() > 3 ? SkTPin((*this)[3], 0.0f, 1.0f) : 1;
+
+    return { r, g, b, a };
 }
 
 namespace internal {
@@ -58,7 +78,7 @@ namespace {
 //           ^               ^                    ^
 // fKFs[]: .idx            .idx       ...       .idx
 //
-class VectorKeyframeAnimator final : public KeyframeAnimatorBase {
+class VectorKeyframeAnimator final : public KeyframeAnimator {
 public:
     VectorKeyframeAnimator(std::vector<Keyframe> kfs,
                            std::vector<SkCubicMap> cms,
@@ -125,7 +145,7 @@ private:
 
     VectorValue*             fTarget;
 
-    using INHERITED = KeyframeAnimatorBase;
+    using INHERITED = KeyframeAnimator;
 };
 
 } // namespace
@@ -135,9 +155,9 @@ VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(VectorLenParser  pa
     : fParseLen(parse_len)
     , fParseData(parse_data) {}
 
-sk_sp<KeyframeAnimatorBase> VectorKeyframeAnimatorBuilder::make(const AnimationBuilder& abuilder,
-                                                                const skjson::ArrayValue& jkfs,
-                                                                void* target_value) {
+sk_sp<KeyframeAnimator> VectorKeyframeAnimatorBuilder::make(const AnimationBuilder& abuilder,
+                                                            const skjson::ArrayValue& jkfs,
+                                                            void* target_value) {
     SkASSERT(jkfs.size() > 0);
 
     // peek at the first keyframe value to find our vector length
