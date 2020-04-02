@@ -16,7 +16,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLInterpreter.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -357,8 +356,6 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static constexpr int kVectorWidth = SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH;
-
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
     SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs,
@@ -390,18 +387,17 @@ public:
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = false;
 
-        SkAutoMutexExclusive ama(fInterpreterMutex);
-        if (!fInterpreter) {
+        SkAutoMutexExclusive ama(fByteCodeMutex);
+        if (!fByteCode) {
             auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;
             }
-            fMain = byteCode->getFunction("main");
-            fInterpreter.reset(new SkSL::Interpreter<kVectorWidth>(std::move(byteCode)));
+            fByteCode = std::move(byteCode);
         }
-        ctx->fn = fMain;
-        ctx->interpreter = fInterpreter.get();
+        ctx->byteCode = fByteCode.get();
+        ctx->fn = ctx->byteCode->getFunction("main");
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
     }
@@ -431,9 +427,8 @@ private:
     sk_sp<SkData> fInputs;
     std::vector<sk_sp<SkColorFilter>> fChildren;
 
-    mutable SkMutex fInterpreterMutex;
-    mutable std::unique_ptr<SkSL::Interpreter<kVectorWidth>> fInterpreter;
-    mutable const SkSL::ByteCodeFunction* fMain;
+    mutable SkMutex fByteCodeMutex;
+    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -511,18 +506,17 @@ public:
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = true;
 
-        SkAutoMutexExclusive ama(fInterpreterMutex);
-        if (!fInterpreter) {
+        SkAutoMutexExclusive ama(fByteCodeMutex);
+        if (!fByteCode) {
             auto[byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;
             }
-            fMain = byteCode->getFunction("main");
-            fInterpreter.reset(new SkSL::Interpreter<kVectorWidth>(std::move(byteCode)));
+            fByteCode = std::move(byteCode);
         }
-        ctx->fn = fMain;
-        ctx->interpreter = fInterpreter.get();
+        ctx->byteCode = fByteCode.get();
+        ctx->fn = ctx->byteCode->getFunction("main");
 
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append_matrix(rec.fAlloc, inverse);
@@ -571,9 +565,8 @@ private:
     sk_sp<SkData> fInputs;
     std::vector<sk_sp<SkShader>> fChildren;
 
-    mutable SkMutex fInterpreterMutex;
-    mutable std::unique_ptr<SkSL::Interpreter<kVectorWidth>> fInterpreter;
-    mutable const SkSL::ByteCodeFunction* fMain;
+    mutable SkMutex fByteCodeMutex;
+    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 };
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
