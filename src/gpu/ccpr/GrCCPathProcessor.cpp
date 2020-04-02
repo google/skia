@@ -242,5 +242,5 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
     }
 
-    f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+    f->codeAppendf("%s = half4(.25+.75*coverage);", args.fOutputCoverage);
 }
