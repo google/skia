@@ -443,20 +443,19 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
             break;
 
         case SkTileMode::kDecal:
-            mask = p->bit_and(mask, p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f))));
+            mask &= (t == clamp01(t));
             break;
 
         case SkTileMode::kRepeat:
-            t = p->sub(t, p->floor(t));
+            t -= floor(t);
             break;
 
         case SkTileMode::kMirror: {
             // t = | (t-1) - 2*(floor( (t-1)*0.5 )) - 1 |
             //       {-A-}      {--------B-------}
-            skvm::F32 A = p->sub(t, p->splat(1.0f)),
-                      B = p->floor( p->mul(A, p->splat(0.5f)));
-            t = p->abs(p->sub(p->sub(A, p->add(B,B)),
-                              p->splat(1.0f)));
+            skvm::F32 A = t - 1.0f,
+                      B = p->floor(A * 0.5f);
+            t = abs(A - (B + B) - 1.0f);
         } break;
     }
 
@@ -489,12 +488,13 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         F4 F = hi - lo,
            B = lo;
 
-        auto T = p->clamp(t, p->splat(0.0f), p->splat(1.0f));
+        auto uniform = [&](float x) { return p->uniformF(uniforms->pushF(x)); };
+        auto T = p->clamp01(t);
         color = {
-            p->mad(T, p->uniformF(uniforms->pushF(F[0])), p->uniformF(uniforms->pushF(B[0]))),
-            p->mad(T, p->uniformF(uniforms->pushF(F[1])), p->uniformF(uniforms->pushF(B[1]))),
-            p->mad(T, p->uniformF(uniforms->pushF(F[2])), p->uniformF(uniforms->pushF(B[2]))),
-            p->mad(T, p->uniformF(uniforms->pushF(F[3])), p->uniformF(uniforms->pushF(B[3]))),
+            T * uniform(F[0]) + uniform(B[0]),
+            T * uniform(F[1]) + uniform(B[1]),
+            T * uniform(F[2]) + uniform(B[2]),
+            T * uniform(F[3]) + uniform(B[3]),
         };
     } else {
         // To handle clamps in search we add a conceptual stop at t=-inf, so we
@@ -563,36 +563,37 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
 
         // A scale factor and bias for each lane, 8 total.
         // TODO: simpler, faster, tidier to push 8 uniform pointers, one for each struct lane?
-        ix = p->shl(ix, 3);            skvm::F32 Fr = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fg = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fb = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Fa = p->gatherF(fbs, ix);
+        ix = shl(ix, 3);
+        skvm::F32 Fr = gatherF(fbs, ix + 0);
+        skvm::F32 Fg = gatherF(fbs, ix + 1);
+        skvm::F32 Fb = gatherF(fbs, ix + 2);
+        skvm::F32 Fa = gatherF(fbs, ix + 3);
 
-        ix = p->add(ix, p->splat(1));  skvm::F32 Br = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Bg = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Bb = p->gatherF(fbs, ix);
-        ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->gatherF(fbs, ix);
+        skvm::F32 Br = gatherF(fbs, ix + 4);
+        skvm::F32 Bg = gatherF(fbs, ix + 5);
+        skvm::F32 Bb = gatherF(fbs, ix + 6);
+        skvm::F32 Ba = gatherF(fbs, ix + 7);
 
         // This is what we've been building towards!
         color = {
-            p->mad(t, Fr, Br),
-            p->mad(t, Fg, Bg),
-            p->mad(t, Fb, Bb),
-            p->mad(t, Fa, Ba),
+            t * Fr + Br,
+            t * Fg + Bg,
+            t * Fb + Bb,
+            t * Fa + Ba,
         };
     }
 
     // If we interpolated unpremul, premul now to match our output convention.
     if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)
             && !fColorsAreOpaque) {
-        color = p->premul(color);
+        color = premul(color);
     }
 
     return {
-        p->bit_cast(p->bit_and(mask, p->bit_cast(color.r))),
-        p->bit_cast(p->bit_and(mask, p->bit_cast(color.g))),
-        p->bit_cast(p->bit_and(mask, p->bit_cast(color.b))),
-        p->bit_cast(p->bit_and(mask, p->bit_cast(color.a))),
+        bit_cast(mask & bit_cast(color.r)),
+        bit_cast(mask & bit_cast(color.g)),
+        bit_cast(mask & bit_cast(color.b)),
+        bit_cast(mask & bit_cast(color.a)),
     };
 }
 
