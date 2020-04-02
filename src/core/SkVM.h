@@ -339,6 +339,10 @@ namespace skvm {
     #undef M
     };
 
+    static inline bool has_side_effect(Op op) {
+        return op <= Op::store32;
+    }
+
     using Val = int;
     // We reserve an impossibe Val ID as a sentinel
     // NA meaning none, n/a, null, nil, etc.
@@ -730,20 +734,12 @@ namespace skvm {
 
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
-
-    void specialize_for_jit(std::vector<Instruction>* program);
-
-    // Fill live and sinks each if non-null:
-    //    - (*live)[id]: notes whether each input instruction is live
-    //    - *sinks:      an unsorted set of live instructions with side effects (stores, assert_true)
-    // Returns the number of live instructions.
-    int liveness_analysis(const std::vector<Instruction>&,
-                          std::vector<bool>* live,
-                          std::vector<Val>*  sinks);
+    void specialize_for_jit (std::vector<Instruction>*);
+    void eliminate_dead_code(std::vector<Instruction>*);
 
     class Usage {
     public:
-        Usage(const std::vector<Instruction>&, const std::vector<bool>&);
+        Usage(const std::vector<Instruction>&);
 
         // Return a sorted span of Vals which use result of Instruction id.
         SkSpan<const Val> users(Val id) const;
