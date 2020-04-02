@@ -9,7 +9,6 @@
 #include "include/utils/SkRandom.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 // Without this build flag, this bench isn't runnable.
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
@@ -23,8 +22,6 @@ public:
         , fCount(pixels) {}
 
 protected:
-    static constexpr int VecWidth = 16;
-
     const char* onGetName() override {
         return fName.c_str();
     }
@@ -38,10 +35,9 @@ protected:
         SkSL::Program::Settings settings;
         auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, fSrc, settings);
         SkASSERT(compiler.errorCount() == 0);
-        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-        fMain = byteCode->getFunction("main");
-        fInterpreter.reset(new SkSL::Interpreter<VecWidth>(std::move(byteCode)));
+        fByteCode = compiler.toByteCode(*program);
         SkASSERT(compiler.errorCount() == 0);
+        fMain = fByteCode->getFunction("main");
 
         SkRandom rnd;
         fPixels.resize(fCount * 4);
@@ -59,14 +55,14 @@ protected:
                 fPixels.data() + 3 * fCount,
             };
 
-            fInterpreter->runStriped(fMain, fCount, (float**) args);
+            SkAssertResult(fByteCode->runStriped(fMain, fCount, args, 4, nullptr, 0, nullptr, 0));
         }
     }
 
 private:
     SkString fName;
     SkSL::String fSrc;
-    std::unique_ptr<SkSL::Interpreter<VecWidth>> fInterpreter;
+    std::unique_ptr<SkSL::ByteCode> fByteCode;
     const SkSL::ByteCodeFunction* fMain;
 
     int fCount;
