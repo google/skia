@@ -2661,9 +2661,11 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
                                     const SkPaint& paint) {
     DRAW_BEGIN(paint, nullptr)
 
+    SkM44 localToWorld(this->experimental_getLocalToWorld());
+
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVertices(vertices, bmode, draw.paint());
+        iter.fDevice->drawVertices(vertices, bmode, draw.paint(), &localToWorld);
     }
 
     DRAW_END

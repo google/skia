@@ -1138,7 +1138,7 @@ void SkXPSDevice::drawPoints(SkCanvas::PointMode mode,
     //TODO
 }
 
-void SkXPSDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
+void SkXPSDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&, const SkM44*) {
     //TODO
 }
 

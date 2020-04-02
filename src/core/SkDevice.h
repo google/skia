@@ -24,6 +24,7 @@ class SkGlyphRun;
 class SkGlyphRunList;
 class SkImageFilterCache;
 struct SkIRect;
+class SkM44;
 class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
@@ -250,7 +251,8 @@ protected:
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
 
-    virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
+    virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&,
+                              const SkM44* localToWorld = nullptr) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
     virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
@@ -487,7 +489,7 @@ protected:
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&, const SkM44*) override {}
 
 private:
     typedef SkBaseDevice INHERITED;

@@ -553,7 +553,7 @@ void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-                                  const SkPaint& paint) {
+                                  const SkPaint& paint, const SkM44* /*localToWorld*/) {
     BDDraw(this).drawVertices(vertices, bmode, paint);
 }
 

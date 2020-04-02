@@ -1026,7 +1026,10 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        &primitiveType);
 }
 
-void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
+void SkGpuDevice::drawVertices(const SkVertices* vertices,
+                               SkBlendMode mode,
+                               const SkPaint& paint,
+                               const SkM44* localToWorld) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
     SkASSERT(vertices);
@@ -1053,7 +1056,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)), nullptr,
-                                       effect);
+                                       effect, localToWorld);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
