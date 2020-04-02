@@ -21,7 +21,7 @@ struct FunctionDeclaration;
 
 // GCC and Clang support the "labels as values" extension which we need to implement the interpreter
 // using threaded code. Otherwise, we fall back to using a switch statement in a for loop.
-#if defined(__GNUC__) || defined(__clang__)
+#if 0 //defined(__GNUC__) || defined(__clang__)
     #define SKSLC_THREADED_CODE
     using instruction = void*;
 #else
