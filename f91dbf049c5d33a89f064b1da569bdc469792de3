@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d8fdaa5_b10f6b7d",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-02T18:52:24Z",
+      "side": 1,
+      "message": "Idea for alternate pattern to handle optional mPtr...\n\nstruct OptionalMatrix : SkMatrix {\n    OptionalMatrix(uintptr ptr) {\n        if (ptr) {\n            this-\u003eset9(reinterpret_cast\u003cconst float*\u003e(ptr));\n        } // else we\u0027re already identity\n    };\n};\n\n... now at each call-site\n\nOptionalMatrix localMatrix(mPtr);\nreturn SkGradientShader::MakeLinear(..., \u0026localMatrix);",
+      "range": {
+        "startLine": 794,
+        "startChar": 12,
+        "endLine": 794,
+        "endChar": 28
+      },
+      "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91516634_c2b0e22c",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-02T18:52:24Z",
+      "side": 1,
+      "message": "If a 4x4 matrix looked like this...\n\n[a b c d]\n[e f g h]\n[i j k l]\n[m n o p]\n\nThen the corresponding 3x3 would be\n\n[a b d]\n[e f h]\n[m n p]\n\nBasically, we ignore the 3rd row and col",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 287,
+        "endChar": 20
+      },
+      "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
