@@ -19,24 +19,6 @@
 
 namespace  skottie {
 
-template <>
-bool ValueTraits<ScalarValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
-                                        ScalarValue* v) {
-    return Parse(jv, v);
-}
-
-template <>
-bool ValueTraits<Vec2Value>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
-                                      Vec2Value* v) {
-    return Parse(jv, v);
-}
-
-template <>
-template <>
-SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
-    return v;
-}
-
 // DEPRECATED: remove after converting everything to SkColor4f
 template <>
 template <>
@@ -67,16 +49,6 @@ SkColor4f ValueTraits<VectorValue>::As<SkColor4f>(const VectorValue& v) {
 
 template <>
 template <>
-SkPoint ValueTraits<VectorValue>::As<SkPoint>(const VectorValue& vec) {
-    // best effort to turn this into a 2D point
-    return SkPoint {
-        vec.size() > 0 ? vec[0] : 0,
-        vec.size() > 1 ? vec[1] : 0,
-    };
-}
-
-template <>
-template <>
 SkV3 ValueTraits<VectorValue>::As<SkV3>(const VectorValue& vec) {
     // best effort to turn this into a 3D point
     return SkV3 {
@@ -84,13 +56,6 @@ SkV3 ValueTraits<VectorValue>::As<SkV3>(const VectorValue& vec) {
         vec.size() > 1 ? vec[1] : 0,
         vec.size() > 2 ? vec[2] : 0,
     };
-}
-
-template <>
-template <>
-SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
-    const auto pt = ValueTraits::As<SkPoint>(vec);
-    return SkSize::Make(pt.x(), pt.y());
 }
 
 } // namespace skottie
