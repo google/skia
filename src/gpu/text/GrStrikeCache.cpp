@@ -148,8 +148,6 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrGlyph* grGlyph) {
     SkASSERT(grGlyph != nullptr);
     SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
-    SkASSERT(grGlyph->width() == skGlyph.width());
-    SkASSERT(grGlyph->height() == skGlyph.height());
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
@@ -175,16 +173,18 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-            resourceProvider, &grGlyph->fPlotLocator, target, expectedMaskFormat,
+            resourceProvider, target, expectedMaskFormat,
             width, height,
-            storage.get(), &grGlyph->fAtlasLocation);
+            storage.get(), &grGlyph->fAtlasLocator);
+    grGlyph->fAddPad = addPad;
+#if 0
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
             grGlyph->fAtlasLocation.fX += 1;
             grGlyph->fAtlasLocation.fY += 1;
         }
-        SkASSERT(grGlyph->fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
     }
+#endif
     return result;
 }
 
