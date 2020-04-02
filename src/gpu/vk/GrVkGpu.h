@@ -12,12 +12,11 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/vk/GrVkCaps.h"
-#include "src/gpu/vk/GrVkIndexBuffer.h"
 #include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
-#include "src/gpu/vk/GrVkVertexBuffer.h"
 
 class GrPipeline;
 

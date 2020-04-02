@@ -29,9 +29,9 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkImage.h"
-#include "src/gpu/vk/GrVkIndexBuffer.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
+#include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkOpsRenderPass.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
@@ -41,7 +41,6 @@
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/vk/GrVkTransferBuffer.h"
-#include "src/gpu/vk/GrVkVertexBuffer.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -390,14 +389,11 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
     sk_sp<GrGpuBuffer> buff;
     switch (type) {
         case GrGpuBufferType::kVertex:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
-                     kStatic_GrAccessPattern == accessPattern);
-            buff = GrVkVertexBuffer::Make(this, size, kDynamic_GrAccessPattern == accessPattern);
-            break;
         case GrGpuBufferType::kIndex:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
-            buff = GrVkIndexBuffer::Make(this, size, kDynamic_GrAccessPattern == accessPattern);
+            buff = GrVkMeshBuffer::Make(this, type, size,
+                                        kDynamic_GrAccessPattern == accessPattern);
             break;
         case GrGpuBufferType::kXferCpuToGpu:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
