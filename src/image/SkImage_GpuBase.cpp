@@ -143,16 +143,14 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
     const GrSurfaceProxyView* view = this->view(context);
     SkASSERT(view && view->proxy());
 
-    GrColorType grColorType = SkColorTypeToGrColorType(this->colorType());
+    auto copy = GrSurfaceProxy::Copy(context, view->proxy(), view->origin(), GrMipMapped::kNo,
+                                     subset, SkBackingFit::kExact, view->proxy()->isBudgeted());
 
-    GrSurfaceProxyView copyView = GrSurfaceProxy::Copy(
-            context, view->proxy(), view->origin(), grColorType, GrMipMapped::kNo, subset,
-            SkBackingFit::kExact, view->proxy()->isBudgeted());
-
-    if (!copyView.proxy()) {
+    if (!copy) {
         return nullptr;
     }
 
+    GrSurfaceProxyView copyView(std::move(copy), view->origin(), view->swizzle());
     // MDB: this call is okay bc we know 'sContext' was kExact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, std::move(copyView),
                                    this->colorType(), this->alphaType(), this->refColorSpace());

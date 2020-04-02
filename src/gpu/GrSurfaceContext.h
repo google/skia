@@ -65,6 +65,7 @@ public:
     // make a copy (which refs the proxy) if needed.
     GrSurfaceProxyView readSurfaceView() { return fReadView; }
 
+    SkISize dimensions() const { return fReadView.dimensions(); }
     int width() const { return fReadView.proxy()->width(); }
     int height() const { return fReadView.proxy()->height(); }
 
@@ -120,13 +121,12 @@ public:
     const GrSurfaceContextPriv surfPriv() const;
 
 #if GR_TEST_UTILS
-    bool testCopy(GrSurfaceProxy* src, GrSurfaceOrigin origin, const SkIRect& srcRect,
-                  const SkIPoint& dstPoint) {
-        return this->copy(src, origin, srcRect, dstPoint);
+    bool testCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+        return this->copy(src, srcRect, dstPoint);
     }
 
-    bool testCopy(GrSurfaceProxy* src, GrSurfaceOrigin origin) {
-        return this->copy(src, origin, SkIRect::MakeSize(src->dimensions()),  SkIPoint::Make(0, 0));
+    bool testCopy(GrSurfaceProxy* src) {
+        return this->copy(src, SkIRect::MakeSize(src->dimensions()), {0, 0});
     }
 #endif
 
@@ -173,7 +173,6 @@ private:
      * Currently only writePixels and replaceRenderTarget call this directly. All other copies
      * should go through GrSurfaceProxy::Copy.
      * @param src       src of pixels
-     * @param srcRect   the subset of 'src' to copy
      * @param dstPoint  the origin of the 'srcRect' in the destination coordinate space
      * @return          true if the copy succeeded; false otherwise
      *
@@ -183,8 +182,7 @@ private:
      *       regions will not be shifted. The 'src' must have the same origin as the backing proxy
      *       of fSurfaceContext.
      */
-    bool copy(GrSurfaceProxy* src, GrSurfaceOrigin origin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint);
+    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     GrColorInfo fColorInfo;
 
