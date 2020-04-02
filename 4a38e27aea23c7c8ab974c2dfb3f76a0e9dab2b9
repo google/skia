@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6703b325_a6453787",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-02T16:24:04Z",
+      "side": 1,
+      "message": "Out of curiosity, what\u0027s the speed/size effect of the threaded interpreter?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 30
+      },
+      "revId": "4a38e27aea23c7c8ab974c2dfb3f76a0e9dab2b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
