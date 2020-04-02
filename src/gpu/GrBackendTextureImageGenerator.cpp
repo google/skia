@@ -219,7 +219,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                                       ? SkBudgeted::kNo
                                       : SkBudgeted::kYes;
 
-        return GrSurfaceProxy::Copy(context, proxy.get(), fSurfaceOrigin, grColorType, mipMapped,
-                                    subset, SkBackingFit::kExact, budgeted);
+        auto copy = GrSurfaceProxy::Copy(context, proxy.get(), fSurfaceOrigin, mipMapped, subset,
+                                         SkBackingFit::kExact, budgeted);
+        return {std::move(copy), fSurfaceOrigin, readSwizzle};
     }
 }

@@ -210,9 +210,9 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
                                   ? SkBudgeted::kNo
                                   : SkBudgeted::kYes;
 
-    GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
-    return GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(), grColorType,
-                                mipMapped, subset, SkBackingFit::kExact, budgeted);
+    auto copy = GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(),
+                                     mipMapped, subset, SkBackingFit::kExact, budgeted);
+    return {std::move(copy), texProxyView.origin(), texProxyView.swizzle()};
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {

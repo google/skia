@@ -171,11 +171,17 @@ GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, G
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
-GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
-                                                  GrSurfaceProxy* baseProxy,
-                                                  GrSurfaceOrigin origin,
-                                                  GrColorType srcColorType,
-                                                  SkBudgeted = SkBudgeted::kYes);
+sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
+                                                     GrSurfaceProxy* baseProxy,
+                                                     GrSurfaceOrigin origin,
+                                                     SkBudgeted = SkBudgeted::kYes);
+/**
+ * Same as GrCopyBaseMipMapToTextureProxy but takes the src as a view and returns a view with same
+ * origin and swizzle as the src view.
+ */
+GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
+                                          GrSurfaceProxyView,
+                                          SkBudgeted = SkBudgeted::kYes);
 
 /*
  * Create a texture proxy from the provided bitmap and add it to the texture cache

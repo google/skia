@@ -285,23 +285,25 @@ public:
     // The copy is is not a render target and not multisampled.
     //
     // The intended use of this copy call is simply to copy exact pixel values from one proxy to a
-    // new one. Thus there isn't a need for a swizzle when doing the copy. Also, there shouldn't be
-    // an assumed "view" of the copy. However, even though not really needed for the swizzle, we
-    // still pass in a srcColorType since it is required for making a GrSurface/RenderTargetContext.
-    // Additionally, almost all callers of this will immediately put the resulting proxy into a view
-    // which is compatible with the srcColorType and origin passed in here. Thus for now we just
-    // return the GrSurfaceProxyView that is already stored on the internal GrSurfaceContext. If we
-    // later decide to not pass in a srcColorType (and assume some default color type based on the
-    // backend format) then we should go back to returning a proxy here and have the callers decide
-    // what view they want of the proxy.
-    static GrSurfaceProxyView Copy(GrRecordingContext*, GrSurfaceProxy* src,
-                                   GrSurfaceOrigin, GrColorType srcColorType, GrMipMapped,
-                                   SkIRect srcRect, SkBackingFit, SkBudgeted,
-                                   RectsMustMatch = RectsMustMatch::kNo);
+    // new one. Thus, there isn't a need for a swizzle when doing the copy. The format of the copy
+    // will be the same as the src. Therefore, the copy can be used in a view with the same swizzle
+    // as the original for use with a given color type.
+    static sk_sp<GrSurfaceProxy> Copy(GrRecordingContext*,
+                                      GrSurfaceProxy* src,
+                                      GrSurfaceOrigin,
+                                      GrMipMapped,
+                                      SkIRect srcRect,
+                                      SkBackingFit,
+                                      SkBudgeted,
+                                      RectsMustMatch = RectsMustMatch::kNo);
 
     // Same as above Copy but copies the entire 'src'
-    static GrSurfaceProxyView Copy(GrRecordingContext*, GrSurfaceProxy* src, GrSurfaceOrigin,
-                                   GrColorType srcColorType, GrMipMapped, SkBackingFit, SkBudgeted);
+    static sk_sp<GrSurfaceProxy> Copy(GrRecordingContext*,
+                                      GrSurfaceProxy* src,
+                                      GrSurfaceOrigin,
+                                      GrMipMapped,
+                                      SkBackingFit,
+                                      SkBudgeted);
 
 #if GR_TEST_UTILS
     int32_t testingOnly_getBackingRefCnt() const;
