@@ -5,24 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/animator/Keyframe.h"
-
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/animator/KeyframeAnimator.h"
 
 namespace skottie::internal {
 
 namespace  {
 
 // Scalar specialization: stores scalar values (floats) inline in keyframes.
-class ScalarKeyframeAnimator final : public KeyframeAnimatorBase {
+class ScalarKeyframeAnimator final : public KeyframeAnimator {
 public:
     class Builder final : public KeyframeAnimatorBuilder {
     public:
-        sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder& abuilder,
-                                         const skjson::ArrayValue& jkfs,
-                                         void* target_value) override {
+        sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
+                                     const skjson::ArrayValue& jkfs,
+                                     void* target_value) override {
             SkASSERT(jkfs.size() > 0);
             if (!this->parseKeyframes(abuilder, jkfs)) {
                 return nullptr;
@@ -65,7 +64,7 @@ private:
 
     ScalarValue* fTarget;
 
-    using INHERITED = KeyframeAnimatorBase;
+    using INHERITED = KeyframeAnimator;
 };
 
 } // namespace

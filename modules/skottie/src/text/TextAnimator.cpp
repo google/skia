@@ -117,11 +117,11 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     auto modulated_props = props;
 
     // Transform props compose.
-    modulated_props.position += ValueTraits<VectorValue>::As<SkV3>(fTextProps.position) * amount;
+    modulated_props.position += static_cast<SkV3>(fTextProps.position) * amount;
     modulated_props.rotation += fTextProps.rotation * amount;
     modulated_props.tracking += fTextProps.tracking * amount;
     modulated_props.scale    *= SkV3{1,1,1} +
-            (ValueTraits<VectorValue>::As<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
+            (static_cast<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
     // ... as does blur
     modulated_props.blur += fTextProps.blur * amount;
@@ -139,11 +139,11 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     // Colors and opacity are overridden, and use a clamped amount value.
     const auto clamped_amount = std::max(amount, 0.0f);
     if (fHasFillColor) {
-        const auto fc = ValueTraits<VectorValue>::As<SkColor>(fTextProps.fill_color);
+        const auto fc = static_cast<SkColor>(fTextProps.fill_color);
         modulated_props.fill_color = lerp_color(props.fill_color, fc, clamped_amount);
     }
     if (fHasStrokeColor) {
-        const auto sc = ValueTraits<VectorValue>::As<SkColor>(fTextProps.stroke_color);
+        const auto sc = static_cast<SkColor>(fTextProps.stroke_color);
         modulated_props.stroke_color = lerp_color(props.stroke_color, sc, clamped_amount);
     }
     modulated_props.opacity *= 1 + (fTextProps.opacity * 0.01f - 1) * clamped_amount; // 100-based
