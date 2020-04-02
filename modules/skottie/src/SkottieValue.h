@@ -8,13 +8,8 @@
 #ifndef SkottieValue_DEFINED
 #define SkottieValue_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkString.h"
-#include "include/private/SkNoncopyable.h"
 
 #include <vector>
 
@@ -31,8 +26,6 @@ struct ValueTraits {
 
     template <typename U>
     static U As(const T&);
-
-    static bool Lerp(const T&, const T&, float, T*);
 };
 
 using ScalarValue = SkScalar;
