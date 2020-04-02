@@ -435,17 +435,17 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
                 // We need a mipped proxy, but we found a cached proxy that wasn't mipped. Thus we
                 // generate a new mipped surface and copy the original proxy into the base layer. We
                 // will then let the gpu generate the rest of the mips.
-                GrSurfaceProxyView mippedView = GrCopyBaseMipMapToTextureProxy(
-                        ctx, view.proxy(), kTopLeft_GrSurfaceOrigin, ct);
-                if (mippedView) {
-                    proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
-                    installKey(mippedView);
-                    return mippedView;
+                auto mippedCopy = GrCopyBaseMipMapToTextureProxy(ctx, view.proxy(), view.origin());
+                if (!mippedCopy) {
+                    // We failed to make a mipped proxy with the base copied into it. This could
+                    // have been from failure to make the proxy or failure to do the copy. Thus we
+                    // will fall back to just using the non mipped proxy; See skbug.com/7094.
+                    return view;
                 }
-                // We failed to make a mipped proxy with the base copied into it. This could have
-                // been from failure to make the proxy or failure to do the copy. Thus we will fall
-                // back to just using the non mipped proxy; See skbug.com/7094.
-                return view;
+                GrSurfaceProxyView mippedView(std::move(mippedCopy), view.origin(), view.swizzle());
+                proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
+                installKey(mippedView);
+                return mippedView;
             }
         }
     }

@@ -81,11 +81,11 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
                          GrColorType colorType,
                          uint32_t expectedPixelValues[],
                          const char* testName) {
-    GrSurfaceProxyView view = GrSurfaceProxy::Copy(context, proxy, origin, colorType,
-                                                   GrMipMapped::kNo, SkBackingFit::kExact,
-                                                   SkBudgeted::kYes);
-    SkASSERT(view.asTextureProxy());
-
+    auto copy = GrSurfaceProxy::Copy(context, proxy, origin, GrMipMapped::kNo, SkBackingFit::kExact,
+                                     SkBudgeted::kYes);
+    SkASSERT(copy && copy->asTextureProxy());
+    auto swizzle = context->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
+    GrSurfaceProxyView view(std::move(copy), origin, swizzle);
     auto dstContext = GrSurfaceContext::Make(context, std::move(view), colorType,
                                              kPremul_SkAlphaType, nullptr);
     SkASSERT(dstContext);
