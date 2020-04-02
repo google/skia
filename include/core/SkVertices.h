@@ -66,16 +66,41 @@ public:
             kByte4_unorm,
         };
 
-        Attribute() : fType(Type::kFloat) {}
-        Attribute(Type t) : fType(t) {}
+        enum class Usage : uint8_t {
+            // Raw values passed directly to effect
+            kRaw,
 
-        bool operator==(const Attribute& that) const { return fType == that.fType; }
+            // sRGB colors, transformed to destination color space (3 or 4 channels)
+//           kColor,
+
+            // Local vector, transformed to world (2 or 3 channels)
+            kVector,
+
+            // Normal vector (or any other bivector), transformed to world (2 or 3 channels)
+            kNormalVector,
+
+            // Local position, transformed to world (2 or 3 channels)
+            kPosition,
+        };
+
+        Attribute(Type t = Type::kFloat, Usage u = Usage::kRaw)
+            : fType(t)
+            , fUsage(u) {}
+
+        bool operator==(const Attribute& that) const {
+            return fType == that.fType && fUsage == that.fUsage;
+        }
         bool operator!=(const Attribute& that) const { return !(*this == that); }
 
+        // Number of channels that will be produced for the SkRuntimeEffect to consume.
+        // May not match the number of channels in fType. For example, kVector Attributes always
+        // produce three channels, even if the input is kFloat2.
         int channelCount() const;
         size_t bytesPerVertex() const;
+        bool isValid() const;
 
         Type fType;
+        Usage fUsage;
     };
 
     enum BuilderFlags {

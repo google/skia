@@ -28,6 +28,13 @@ static int32_t next_id() {
 }
 
 int SkVertices::Attribute::channelCount() const {
+    SkASSERT(this->isValid());
+    switch (fUsage) {
+        case Usage::kRaw:          break;
+        case Usage::kVector:       return 3;
+        case Usage::kNormalVector: return 3;
+        case Usage::kPosition:     return 3;
+    }
     switch (fType) {
         case Type::kFloat:       return 1;
         case Type::kFloat2:      return 2;
@@ -45,6 +52,18 @@ size_t SkVertices::Attribute::bytesPerVertex() const {
         case Type::kFloat3:      return 3 * sizeof(float);
         case Type::kFloat4:      return 4 * sizeof(float);
         case Type::kByte4_unorm: return 4 * sizeof(uint8_t);
+    }
+    SkUNREACHABLE;
+}
+
+bool SkVertices::Attribute::isValid() const {
+    switch (fUsage) {
+        case Usage::kRaw:
+            return true;
+        case Usage::kVector:
+        case Usage::kNormalVector:
+        case Usage::kPosition:
+            return fType == Type::kFloat2 || fType == Type::kFloat3;
     }
     SkUNREACHABLE;
 }
@@ -75,6 +94,13 @@ struct SkVertices::Desc {
 struct SkVertices::Sizes {
     Sizes(const Desc& desc) {
         desc.validate();
+
+        for (int i = 0; i < desc.fAttributeCount; ++i) {
+            if (!desc.fAttributes[i].isValid()) {
+                return;
+            }
+        }
+
         SkSafeMath safe;
 
         fVSize = safe.mul(desc.fVertexCount, sizeof(SkPoint));
@@ -291,6 +317,20 @@ SkVertices::Sizes SkVertices::getSizes() const {
 
 size_t SkVerticesPriv::customDataSize() const {
     return custom_data_size(fVertices->fAttributes, fVertices->fAttributeCount);
+}
+
+bool SkVerticesPriv::usesLocalToWorldMatrix() const {
+    for (int i = 0; i < fVertices->fAttributeCount; ++i) {
+        switch (fVertices->fAttributes[i].fUsage) {
+            case SkVertices::Attribute::Usage::kVector:
+            case SkVertices::Attribute::Usage::kNormalVector:
+            case SkVertices::Attribute::Usage::kPosition:
+                return true;
+            default:
+                break;
+        }
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
