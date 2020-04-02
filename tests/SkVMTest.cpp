@@ -284,7 +284,7 @@ DEF_TEST(SkVM_eliminate_dead_code, r) {
     std::vector<skvm::Instruction> program = b.program();
     REPORTER_ASSERT(r, program.size() == 4);
 
-    skvm::eliminate_dead_code(&program);
+    program = skvm::eliminate_dead_code(program);
     REPORTER_ASSERT(r, program.size() == 0);
 }
 

@@ -737,10 +737,10 @@ namespace skvm {
 
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
-    void specialize_for_jit (std::vector<Instruction>*);
-    void eliminate_dead_code(std::vector<Instruction>*);
-    void schedule           (std::vector<Instruction>*);
-    std::vector<OptimizedInstruction> finalize(const std::vector<Instruction>& program);
+    std::vector<Instruction>          specialize         (std::vector<Instruction>, bool for_jit);
+    std::vector<Instruction>          eliminate_dead_code(std::vector<Instruction>);
+    std::vector<Instruction>          schedule           (std::vector<Instruction>);
+    std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
 
     class Usage {
     public:
