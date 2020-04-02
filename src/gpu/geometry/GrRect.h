@@ -60,6 +60,13 @@ struct GrIRect16 {
         fRight  = SkToS16(r.fRight);
         fBottom = SkToS16(r.fBottom);
     }
+
+    void offset(int16_t dx, int16_t dy) {
+        fLeft   += dx;
+        fTop    += dy;
+        fRight  += dx;
+        fBottom += dy;
+    }
 };
 
 /** Returns true if the rectangles have a nonzero area of overlap. It assumed that rects can be
