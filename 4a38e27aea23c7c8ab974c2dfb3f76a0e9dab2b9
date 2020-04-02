@@ -22,6 +22,30 @@
       "revId": "4a38e27aea23c7c8ab974c2dfb3f76a0e9dab2b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9bc0f4c_e6cec519",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-02T17:17:02Z",
+      "side": 1,
+      "message": "Ah, yeah. I mentioned this in an email to Ethan:\n\"If/when we do get the jit working, I\u0027d be tempted to go even further and remove more of the optimizations in the interpreter that cost us code size -- shrink the default vector width, some of the vectorized instructions for 2/3/4 component ops, threaded code (not sure if that one actually costs us, though - and it\u0027s probably a bigger bang for the buck than some of the others).\"\n\nI would like to do some experiments to figure out the answer on this one in particular (as there\u0027s a lot of boilerplate to support it).",
+      "parentUuid": "6703b325_a6453787",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 30
+      },
+      "revId": "4a38e27aea23c7c8ab974c2dfb3f76a0e9dab2b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
