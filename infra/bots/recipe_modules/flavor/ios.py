@@ -64,8 +64,24 @@ time.sleep(2)
     image_info = self._run('list mounted image',
                            'ideviceimagemounter', '--list')
     image_info_out = image_info.stdout.strip() if image_info.stdout else ''
-    if ('ImagePresent: true' not in image_info_out and
-        'ImageSignature:' not in image_info_out):
+
+
+
+
+
+    # Print some debugging information - DO NOT SUBMIT
+    self._run('print previous command output', 'echo', 'output begins', image_info_out, 'output ends') # pragma: nocover
+    self._run('print previous command raw output', 'echo', 'raw output begins', str(image_info), 'raw output ends') # pragma: nocover
+    self._run('is ImageSignature in image_info_out', 'echo', str('ImageSignature' in image_info_out)) # pragma: nocover
+
+
+
+
+    # Potential fix (do not submit just yet):
+    if 'ImageSignature' not in image_info_out:
+
+    # if ('ImagePresent: true' not in image_info_out and
+    #     'ImageSignature:' not in image_info_out):
       image_pkgs = self.m.file.glob_paths('locate ios-dev-image package',
                                           self.m.path['start_dir'],
                                           'ios-dev-image*',
