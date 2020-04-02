@@ -38,8 +38,7 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
-	COMPILE_TASK_NAME_OS_LINUX  = "Debian10"
+	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
@@ -462,10 +461,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = "Debian9"
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = "Debian9"
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -476,7 +475,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// version to compile as to test.
 			ec = append(ec, "Docker")
 		} else if b.matchOs("Ubuntu", "Debian") {
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = "Debian9"
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
@@ -535,7 +534,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
 			"Debian9":  DEFAULT_OS_DEBIAN,
-			"Debian10": DEFAULT_OS_LINUX_GCE,
+			"Debian10": DEFAULT_OS_DEBIAN, // Runs in Docker.
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
 			"Mac10.14": "Mac-10.14.3",
@@ -730,7 +729,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_LINUX_GCE {
+		if d["os"] == DEFAULT_OS_DEBIAN {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 				return
@@ -1078,7 +1077,7 @@ func (b *jobBuilder) compile() string {
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
 	if !In(name, b.jobs) {
-		log.Fatalf("Job %q is missing from the jobs list! Derived from: %q", name, b.Name)
+		log.Fatalf("Job %q is missing from the jobs list!", name)
 	}
 
 	return name
