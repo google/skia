@@ -62,10 +62,11 @@ time.sleep(2)
 
     # Mount developer image.
     image_info = self._run('list mounted image',
-                           'ideviceimagemounter', '--list')
+                           'ideviceimagemounter', '--list',
+                           stdout=self.m.raw_io.output())
     image_info_out = image_info.stdout.strip() if image_info.stdout else ''
-    if ('ImagePresent: true' not in image_info_out and
-        'ImageSignature:' not in image_info_out):
+
+    if 'ImageSignature' not in image_info_out:
       image_pkgs = self.m.file.glob_paths('locate ios-dev-image package',
                                           self.m.path['start_dir'],
                                           'ios-dev-image*',
