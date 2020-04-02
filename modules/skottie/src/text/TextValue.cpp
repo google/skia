@@ -124,7 +124,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         }
 
         VectorValue color_vec;
-        if (!ValueTraits<VectorValue>::FromJSON(*jcolor, abuilder, &color_vec)) {
+        if (!Parse(*jcolor, &color_vec)) {
             return false;
         }
 
@@ -140,16 +140,6 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     }
 
     return true;
-}
-
-template <>
-bool ValueTraits<TextValue>::Lerp(const TextValue& v0, const TextValue&, float, TextValue* result) {
-    // Text value keyframes are treated as selectors, not as interpolated values.
-    if (v0 != *result) {
-        *result = v0;
-        return true;
-    }
-    return false;
 }
 
 } // namespace skottie

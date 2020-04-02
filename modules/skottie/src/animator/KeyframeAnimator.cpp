@@ -5,21 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/animator/Keyframe.h"
+#include "modules/skottie/src/animator/KeyframeAnimator.h"
 
 #include "modules/skottie/src/SkottieJson.h"
-#include "modules/skottie/src/SkottiePriv.h"
-#include "modules/skottie/src/SkottieValue.h"
-#include "modules/skottie/src/animator/Animator.h"
-#include "modules/skottie/src/text/TextValue.h"
 
 #define DUMP_KF_RECORDS 0
 
 namespace skottie::internal {
 
-KeyframeAnimatorBase::~KeyframeAnimatorBase() = default;
+KeyframeAnimator::~KeyframeAnimator() = default;
 
-KeyframeAnimatorBase::LERPInfo KeyframeAnimatorBase::getLERPInfo(float t) const {
+KeyframeAnimator::LERPInfo KeyframeAnimator::getLERPInfo(float t) const {
     SkASSERT(!fKFs.empty());
 
     if (t <= fKFs.front().t) {
@@ -49,7 +45,7 @@ KeyframeAnimatorBase::LERPInfo KeyframeAnimatorBase::getLERPInfo(float t) const 
     };
 }
 
-KeyframeAnimatorBase::KFSegment KeyframeAnimatorBase::find_segment(float t) const {
+KeyframeAnimator::KFSegment KeyframeAnimator::find_segment(float t) const {
     SkASSERT(fKFs.size() > 1);
     SkASSERT(t > fKFs.front().t);
     SkASSERT(t < fKFs.back().t);
@@ -74,7 +70,7 @@ KeyframeAnimatorBase::KFSegment KeyframeAnimatorBase::find_segment(float t) cons
     return {kf0, kf1};
 }
 
-float KeyframeAnimatorBase::compute_weight(const KFSegment &seg, float t) const {
+float KeyframeAnimator::compute_weight(const KFSegment &seg, float t) const {
     SkASSERT(seg.contains(t));
 
     // Linear weight.
@@ -221,103 +217,6 @@ uint32_t KeyframeAnimatorBuilder::parseMapping(const skjson::ObjectValue& jkf) {
 
     SkASSERT(!fCMs.empty());
     return SkToU32(fCMs.size()) - 1 + Keyframe::kCubicIndexOffset;
-}
-
-namespace  {
-
-// Stores generic Ts in dedicated storage, and uses indices to track in keyframes.
-// TODO: we only have one instantiation left (TextValue) - specialize explicitly.
-template <typename T>
-class KeyframeAnimator final : public KeyframeAnimatorBase {
-public:
-    class Builder final : public KeyframeAnimatorBuilder {
-    public:
-        sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder& abuilder,
-                                         const skjson::ArrayValue& jkfs,
-                                         void* target_value) override {
-            SkASSERT(jkfs.size() > 0);
-
-            fValues.reserve(jkfs.size());
-            if (!this->parseKeyframes(abuilder, jkfs)) {
-                return nullptr;
-            }
-            fValues.shrink_to_fit();
-
-            return sk_sp<KeyframeAnimatorBase>(
-                        new KeyframeAnimator(std::move(fKFs),
-                                             std::move(fCMs),
-                                             std::move(fValues),
-                                             static_cast<T*>(target_value)));
-        }
-
-        bool parseValue(const AnimationBuilder& abuilder,
-                          const skjson::Value& jv, void* v) const override {
-            return ValueTraits<T>::FromJSON(jv, &abuilder, static_cast<T*>(v));
-        }
-
-    private:
-        bool parseKFValue(const AnimationBuilder& abuilder,
-                          const skjson::ObjectValue&,
-                          const skjson::Value& jv,
-                          Keyframe::Value* v) override {
-            T val;
-            if (!ValueTraits<T>::FromJSON(jv, &abuilder, &val)) {
-                return false;
-            }
-
-            // TODO: full deduping?
-            if (fValues.empty() || val != fValues.back()) {
-                fValues.push_back(std::move(val));
-            }
-
-            v->idx = SkToU32(fValues.size() - 1);
-
-            return true;
-        }
-
-        std::vector<T> fValues;
-    };
-
-private:
-    KeyframeAnimator(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms,
-                     std::vector<T> vs, T* target_value)
-        : INHERITED(std::move(kfs), std::move(cms))
-        , fValues(std::move(vs))
-        , fTarget(target_value) {}
-
-    StateChanged onSeek(float t) override {
-        const auto& lerp_info = this->getLERPInfo(t);
-
-        bool changed;
-        if (lerp_info.isConstant()) {
-            changed = (*fTarget != fValues[SkToSizeT(lerp_info.vrec0.idx)]);
-            if (changed) {
-                *fTarget = fValues[SkToSizeT(lerp_info.vrec0.idx)];
-            }
-        } else {
-            changed = ValueTraits<T>::Lerp(fValues[lerp_info.vrec0.idx],
-                                           fValues[lerp_info.vrec1.idx],
-                                           lerp_info.weight,
-                                           fTarget);
-        }
-
-        return changed;
-    }
-
-    const std::vector<T> fValues;
-    T*                   fTarget;
-
-    using INHERITED = KeyframeAnimatorBase;
-};
-
-} // namespace
-
-template <>
-bool AnimatablePropertyContainer::bind<TextValue>(const AnimationBuilder& abuilder,
-                                                  const skjson::ObjectValue* jprop,
-                                                  TextValue* v) {
-    KeyframeAnimator<TextValue>::Builder builder;
-    return this->bindImpl(abuilder, jprop, builder, v);
 }
 
 } // namespace skottie::internal
