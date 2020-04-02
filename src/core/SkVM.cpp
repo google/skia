@@ -478,16 +478,16 @@ namespace skvm {
         return program;
     }
 
-    std::vector<Instruction> eliminate_dead_code(const std::vector<Instruction> program) {
+    std::vector<Instruction> eliminate_dead_code(std::vector<Instruction> program) {
         // Determine which Instructions are live by working back from side effects.
         std::vector<bool> live(program.size(), false);
         auto mark_live = [&](Val id, auto& recurse) -> void {
             if (live[id] == false) {
                 live[id] =  true;
                 Instruction inst = program[id];
-                if (inst.x != NA) { recurse(inst.x, recurse); }
-                if (inst.y != NA) { recurse(inst.y, recurse); }
-                if (inst.z != NA) { recurse(inst.z, recurse); }
+                for (Val arg : {inst.x, inst.y, inst.z}) {
+                    if (arg != NA) { recurse(arg, recurse); }
+                }
             }
         };
         for (Val id = 0; id < (Val)program.size(); id++) {
@@ -496,22 +496,29 @@ namespace skvm {
             }
         }
 
-        // Construct a new program with only live Instructions.
-        std::vector<Instruction> only_live;
-        only_live.reserve(program.size());
+        // Rewrite the program with only live Instructions:
+        //   - remap IDs in live Instructions to what they'll be once dead Instructions are removed;
+        //   - then actually remove the dead Instructions.
         std::vector<Val> new_id(program.size(), NA);
-        for (Val id = 0; id < (Val)program.size(); id++) {
+        for (Val id = 0, next = 0; id < (Val)program.size(); id++) {
             if (live[id]) {
-                Instruction inst = program[id];
-                if (inst.x != NA) { inst.x = new_id[inst.x]; SkASSERT(inst.x != NA); }
-                if (inst.y != NA) { inst.y = new_id[inst.y]; SkASSERT(inst.y != NA); }
-                if (inst.z != NA) { inst.z = new_id[inst.z]; SkASSERT(inst.z != NA); }
-
-                new_id[id] = (Val)only_live.size();
-                only_live.push_back(inst);
+                Instruction& inst = program[id];
+                for (Val* arg : {&inst.x, &inst.y, &inst.z}) {
+                    if (*arg != NA) {
+                        *arg = new_id[*arg];
+                        SkASSERT(*arg != NA);
+                    }
+                }
+                new_id[id] = next++;
             }
         }
-        return only_live;
+        auto it = std::remove_if(program.begin(), program.end(), [&](const Instruction& inst) {
+            Val id = (Val)(&inst - program.data());
+            return !live[id];
+        });
+        program.erase(it, program.end());
+
+        return program;
     }
 
     std::vector<Instruction> schedule(const std::vector<Instruction> program) {
