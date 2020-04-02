@@ -19,6 +19,7 @@
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+class GrGlyph;
 class GrOnFlushResourceProvider;
 
 
@@ -160,15 +161,21 @@ public:
         kTryAgain
     };
 
-    ErrorCode addToAtlas(GrResourceProvider*, PlotLocator*, GrDeferredUploadTarget*,
-                         int width, int height,
-                         const void* image, SkIPoint16* loc);
+    struct Foo {
+        uint32_t pageIndex1() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
+
+        PlotLocator fPlotLocator;
+        SkIPoint16  fLoc;
+    };
+
+    ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
+                         int width, int height, const void* image, Foo*);
 
     const GrSurfaceProxyView* getViews() const { return fViews; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    bool hasID(PlotLocator plotLocator) {
+    bool hasID1(PlotLocator plotLocator) const {
         if (kInvalidPlotLocator == plotLocator) {
             return false;
         }
@@ -182,7 +189,7 @@ public:
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
     void setLastUseToken(PlotLocator plotLocator, GrDeferredUploadToken token) {
-        SkASSERT(this->hasID(plotLocator));
+        SkASSERT(this->hasID1(plotLocator));
         uint32_t plotIdx = GetPlotIndexFromID(plotLocator);
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = GetPageIndexFromID(plotLocator);
@@ -407,9 +414,9 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(const GrCaps&, unsigned int pageIdx, PlotLocator* plotLocator,
-                      GrDeferredUploadTarget* target, int width, int height, const void* image,
-                      SkIPoint16* loc);
+    bool uploadToPage(const GrCaps&, unsigned int pageIdx, GrDeferredUploadTarget* target,
+                      int width, int height, const void* image,
+                      Foo*);
 
     bool createPages(GrProxyProvider*, GenerationCounter*);
     bool activateNewPage(GrResourceProvider*);
@@ -452,6 +459,7 @@ private:
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
+
 };
 
 // There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
