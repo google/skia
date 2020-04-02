@@ -428,6 +428,7 @@ namespace skvm {
             return program;
         }
 
+        // Using a Builder so our new Instructions participate in common sub-expression elimination.
         Builder b;
         for (Val i = 0; i < (Val)program.size(); i++) {
             Instruction inst = program[i];
@@ -504,7 +505,8 @@ namespace skvm {
         }
 
         // Construct a new program with only live Instructions.
-        Builder b;
+        std::vector<Instruction> only_live;
+        only_live.reserve(program.size());
         std::vector<Val> new_id(program.size(), NA);
         for (Val id = 0; id < (Val)program.size(); id++) {
             if (live[id]) {
@@ -512,10 +514,12 @@ namespace skvm {
                 if (inst.x != NA) { inst.x = new_id[inst.x]; SkASSERT(inst.x != NA); }
                 if (inst.y != NA) { inst.y = new_id[inst.y]; SkASSERT(inst.y != NA); }
                 if (inst.z != NA) { inst.z = new_id[inst.z]; SkASSERT(inst.z != NA); }
-                new_id[id] = b.push(inst);
+
+                new_id[id] = (Val)only_live.size();
+                only_live.push_back(inst);
             }
         }
-        return b.program();
+        return only_live;
     }
 
     std::vector<Instruction> schedule(const std::vector<Instruction> program) {
