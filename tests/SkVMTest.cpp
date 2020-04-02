@@ -272,52 +272,42 @@ DEF_TEST(SkVM, r) {
     });
 }
 
-DEF_TEST(SkVM_UsageAndLiveness, r) {
+DEF_TEST(SkVM_eliminate_dead_code, r) {
+    skvm::Builder b;
     {
-        skvm::Builder b;
-        {
-            skvm::Arg arg = b.varying<int>(),
-                      buf = b.varying<int>();
-            skvm::I32 l = b.load32(arg);
-            skvm::I32 a = b.add(l, l);
-            skvm::I32 s = b.add(a, b.splat(7));
-            b.store32(buf, s);
-        }
+        skvm::Arg arg = b.varying<int>();
+        skvm::I32 l = b.load32(arg);
+        skvm::I32 a = b.add(l, l);
+        b.add(a, b.splat(7));
+    }
 
-        std::vector<bool> live;
-        std::vector<skvm::Val> sinks;
-        skvm::liveness_analysis(b.program(), &live, &sinks);
-        skvm::Usage u{b.program(), live};
-        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
-        REPORTER_ASSERT(r, u.users(0).size() == 2);
-        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
-        REPORTER_ASSERT(r, u.users(1).size() == 1);
-        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
-        REPORTER_ASSERT(r, u.users(2).size() == 1);
-        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
-        REPORTER_ASSERT(r, u.users(3).size() == 1);
-    }
+    std::vector<skvm::Instruction> program = b.program();
+    REPORTER_ASSERT(r, program.size() == 4);
+
+    skvm::eliminate_dead_code(&program);
+    REPORTER_ASSERT(r, program.size() == 0);
+}
+
+DEF_TEST(SkVM_Usage, r) {
+    skvm::Builder b;
     {
-        skvm::Builder b;
-        {
-            skvm::Arg arg = b.varying<int>();
-            skvm::I32 l = b.load32(arg);
-            skvm::I32 a = b.add(l, l);
-            b.add(a, b.splat(7));
-        }
-        std::vector<bool> live;
-        std::vector<skvm::Val> sinks;
-        skvm::liveness_analysis(b.program(), &live, &sinks);
-        skvm::Usage u{b.program(), live};
-        REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
-        REPORTER_ASSERT(r, u.users(0).size() == 0);
-        REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
-        REPORTER_ASSERT(r, u.users(1).size() == 0);
-        REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
-        REPORTER_ASSERT(r, u.users(2).size() == 0);
-        REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
-        REPORTER_ASSERT(r, u.users(3).size() == 0);
+        skvm::Arg arg = b.varying<int>(),
+                  buf = b.varying<int>();
+        skvm::I32 l = b.load32(arg);
+        skvm::I32 a = b.add(l, l);
+        skvm::I32 s = b.add(a, b.splat(7));
+        b.store32(buf, s);
     }
+
+    skvm::Usage u{b.program()};
+    REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
+    REPORTER_ASSERT(r, u.users(0).size() == 2);
+    REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
+    REPORTER_ASSERT(r, u.users(1).size() == 1);
+    REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
+    REPORTER_ASSERT(r, u.users(2).size() == 1);
+    REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
+    REPORTER_ASSERT(r, u.users(3).size() == 1);
 }
 
 DEF_TEST(SkVM_Pointless, r) {

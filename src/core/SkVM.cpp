@@ -424,7 +424,7 @@ namespace skvm {
     }
 
     void specialize_for_jit(std::vector<Instruction>* program) {
-        Builder specialized;
+        Builder b;
         for (Val i = 0; i < (Val)program->size(); i++) {
             Instruction inst = (*program)[i];
 
@@ -472,13 +472,46 @@ namespace skvm {
                     } break;
             }
             #endif
-            SkDEBUGCODE(Val id =) specialized.push(inst);
+            SkDEBUGCODE(Val id =) b.push(inst);
             // If we replace single instructions with multiple, this will start breaking,
             // and we'll need a table to remap them like we have in optimize().
             SkASSERT(id == i);
         }
 
-        *program = specialized.program();
+        *program = b.program();
+    }
+
+    void eliminate_dead_code(std::vector<Instruction>* program) {
+        // Determine which Instructions are live by working back from side effects.
+        std::vector<bool> live(program->size(), false);
+        auto mark_live = [&](Val id, auto& recurse) -> void {
+            if (live[id] == false) {
+                live[id] =  true;
+                Instruction inst = (*program)[id];
+                if (inst.x != NA) { recurse(inst.x, recurse); }
+                if (inst.y != NA) { recurse(inst.y, recurse); }
+                if (inst.z != NA) { recurse(inst.z, recurse); }
+            }
+        };
+        for (Val id = 0; id < (Val)program->size(); id++) {
+            if (has_side_effect((*program)[id].op)) {
+                mark_live(id, mark_live);
+            }
+        }
+
+        // Construct a new program with only live Instructions.
+        Builder b;
+        std::vector<Val> new_id(program->size(), NA);
+        for (Val id = 0; id < (Val)program->size(); id++) {
+            if (live[id]) {
+                Instruction inst = (*program)[id];
+                if (inst.x != NA) { inst.x = new_id[inst.x]; SkASSERT(inst.x != NA); }
+                if (inst.y != NA) { inst.y = new_id[inst.y]; SkASSERT(inst.y != NA); }
+                if (inst.z != NA) { inst.z = new_id[inst.z]; SkASSERT(inst.z != NA); }
+                new_id[id] = b.push(inst);
+            }
+        }
+        *program = b.program();
     }
 
     std::vector<OptimizedInstruction> Builder::optimize(bool for_jit) const {
@@ -486,15 +519,20 @@ namespace skvm {
         if (for_jit) {
             specialize_for_jit(&program);
         }
+        eliminate_dead_code(&program);
 
-        std::vector<bool> live_instructions;
-        std::vector<Val> frontier;
-        int liveInstructionCount = liveness_analysis(program, &live_instructions, &frontier);
-        skvm::Usage usage{program, live_instructions};
+        skvm::Usage usage{program};
 
         std::vector<int> remaining_uses;
         for (Val id = 0; id < (Val)program.size(); id++) {
             remaining_uses.push_back((int)usage.users(id).size());
+        }
+
+        std::vector<Val> frontier;
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (has_side_effect(program[id].op)) {
+                frontier.push_back(id);
+            }
         }
 
         // Map old Val index to rewritten index in optimized.
@@ -505,7 +543,7 @@ namespace skvm {
             Instruction inst = program[id];
 
             // If this is not a sink, then it takes up a register
-            if (inst.op > Op::store32) { pressure += 1; }
+            if (!has_side_effect(inst.op)) { pressure += 1; }
 
             // If this is the last use of the value, then that register will be free.
             if (inst.x != NA && remaining_uses[inst.x] == 1) { pressure -= 1; }
@@ -548,9 +586,8 @@ namespace skvm {
         // Schedule the instructions last to first from the DAG. Produce a schedule that executes
         // instructions that reduce register pressure before ones that increase register
         // pressure.
-        std::vector<OptimizedInstruction> optimized;
-        optimized.resize(liveInstructionCount);
-        for (int i = liveInstructionCount; i-- > 0;) {
+        std::vector<OptimizedInstruction> optimized(program.size());
+        for (int i = (int)program.size(); i-- > 0;) {
             SkASSERT(!frontier.empty());
             std::pop_heap(frontier.begin(), frontier.end(), compare);
             Val id = frontier.back();
@@ -596,7 +633,7 @@ namespace skvm {
         for (Val id = 0; id < (Val)optimized.size(); id++) {
             OptimizedInstruction& inst = optimized[id];
             // Stores don't really produce values.  Just mark them as dying on issue.
-            if (inst.op <= Op::store32) {
+            if (has_side_effect(inst.op)) {
                 inst.death = id;
             }
             // Extend the lifetime of this instruction's inputs to live until it issues.
@@ -1426,37 +1463,6 @@ namespace skvm {
         }
     }
 
-    // Fill live and sinks each if non-null:
-    //    - (*live)[id]: notes whether each input instruction is live
-    //    - *sinks: an unsorted set of live instructions with side effects (stores, assert_true)
-    // Returns the number of live instructions.
-    int liveness_analysis(const std::vector<Instruction>& instructions,
-                          std::vector<bool>* live,
-                          std::vector<Val>*  sinks) {
-        int instruction_count = instructions.size();
-        live->resize(instruction_count, false);
-        int liveInstructionCount = 0;
-        auto trace = [&](Val id, auto& recurse) -> void {
-          if (!(*live)[id]) {
-              (*live)[id] = true;
-              liveInstructionCount++;
-              Instruction inst = instructions[id];
-              if (inst.x != NA) { recurse(inst.x, recurse); }
-              if (inst.y != NA) { recurse(inst.y, recurse); }
-              if (inst.z != NA) { recurse(inst.z, recurse); }
-          }
-        };
-
-        // For all the sink instructions.
-        for (Val id = 0; id < instruction_count; id++) {
-            if (instructions[id].op <= skvm::Op::store32) {
-                sinks->push_back(id);
-                trace(id, trace);
-            }
-        }
-        return liveInstructionCount;
-    }
-
     // For a given program we'll store each Instruction's users contiguously in a table,
     // and track where each Instruction's span of users starts and ends in another index.
     // Here's a simple program that loads x and stores kx+k:
@@ -1487,16 +1493,14 @@ namespace skvm {
         return SkMakeSpan(fTable.data() + begin, end - begin);
     }
 
-    Usage::Usage(const std::vector<Instruction>& program, const std::vector<bool>& live) {
+    Usage::Usage(const std::vector<Instruction>& program) {
         // uses[id] counts the number of times each Instruction is used.
         std::vector<int> uses(program.size(), 0);
         for (Val id = 0; id < (Val)program.size(); id++) {
-            if (live[id]) {
-                Instruction inst = program[id];
-                if (inst.x != NA) { ++uses[inst.x]; }
-                if (inst.y != NA) { ++uses[inst.y]; }
-                if (inst.z != NA) { ++uses[inst.z]; }
-            }
+            Instruction inst = program[id];
+            if (inst.x != NA) { ++uses[inst.x]; }
+            if (inst.y != NA) { ++uses[inst.y]; }
+            if (inst.z != NA) { ++uses[inst.z]; }
         }
 
         // Build our index into fTable, with an extra entry marking the final Instruction's end.
@@ -1511,12 +1515,10 @@ namespace skvm {
         // Tick down each Instruction's uses to fill in fTable.
         fTable.resize(total_uses, NA);
         for (Val id = (Val)program.size(); id --> 0; ) {
-            if (live[id]) {
-                Instruction inst = program[id];
-                if (inst.x != NA) { fTable[fIndex[inst.x] + --uses[inst.x]] = id; }
-                if (inst.y != NA) { fTable[fIndex[inst.y] + --uses[inst.y]] = id; }
-                if (inst.z != NA) { fTable[fIndex[inst.z] + --uses[inst.z]] = id; }
-            }
+            Instruction inst = program[id];
+            if (inst.x != NA) { fTable[fIndex[inst.x] + --uses[inst.x]] = id; }
+            if (inst.y != NA) { fTable[fIndex[inst.y] + --uses[inst.y]] = id; }
+            if (inst.z != NA) { fTable[fIndex[inst.z] + --uses[inst.z]] = id; }
         }
         for (int n  : uses  ) { (void)n;  SkASSERT(n  == 0 ); }
         for (Val id : fTable) { (void)id; SkASSERT(id != NA); }
