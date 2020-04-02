@@ -267,6 +267,8 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
 
         int width = glyph->width();
         int height = glyph->height();
+        GrURect16 uvs = glyph->fAtlasLocator.uvs(this->drawAsDistanceFields());
+#if 0
         uint16_t u0, v0, u1, v1;
         if (this->drawAsDistanceFields()) {
             u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
@@ -284,18 +286,19 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
         uint32_t pageIndex = glyph->pageIndex();
         std::tie(u0, v0) = GrDrawOpAtlas::PackIndexInTexCoords(u0, v0, pageIndex);
         std::tie(u1, v1) = GrDrawOpAtlas::PackIndexInTexCoords(u1, v1, pageIndex);
+#endif
 
-        textureCoords[0] = u0;
-        textureCoords[1] = v0;
+        textureCoords[0] = uvs.fLeft;
+        textureCoords[1] = uvs.fBottom;
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u0;
-        textureCoords[1] = v1;
+        textureCoords[0] = uvs.fLeft;
+        textureCoords[1] = uvs.fTop;
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u1;
-        textureCoords[1] = v0;
+        textureCoords[0] = uvs.fRight;
+        textureCoords[1] = uvs.fBottom;
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u1;
-        textureCoords[1] = v1;
+        textureCoords[0] = uvs.fRight;
+        textureCoords[1] = uvs.fTop;
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
     }
 }

@@ -13,6 +13,10 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
 
+struct GrURect16 {
+    uint16_t fLeft, fTop, fRight, fBottom;
+};
+
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
 
@@ -59,6 +63,13 @@ struct GrIRect16 {
         fTop    = SkToS16(r.fTop);
         fRight  = SkToS16(r.fRight);
         fBottom = SkToS16(r.fBottom);
+    }
+
+    void offset(int16_t dx, int16_t dy) {
+        fLeft   += dx;
+        fTop    += dy;
+        fRight  += dx;
+        fBottom += dy;
     }
 };
 

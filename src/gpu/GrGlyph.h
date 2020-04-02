@@ -43,13 +43,19 @@ public:
 
     int width() const { return fWidthHeight.fX; }
     int height() const { return fWidthHeight.fY; }
-    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
 
-    const SkPackedGlyphID      fPackedID;
-    const SkIPoint16           fWidthHeight{0, 0};
+    const SkPackedGlyphID       fPackedID;  // 32 bits
+
+    const SkIPoint16            fWidthHeight{0, 0};
+
+#if 0
+    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
 
     SkIPoint16                 fAtlasLocation{0, 0};
     GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+#else
+    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+#endif
 };
 
 #endif
