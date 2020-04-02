@@ -14,6 +14,7 @@
 
 import("../externals/dawn/generator/dawn_generator.gni")
 import("../externals/dawn/scripts/dawn_features.gni")
+import("../third_party.gni")
 
 ###############################################################################
 # dawn_platform
@@ -533,7 +534,7 @@ static_library("libdawn_native") {
   }
 }
 
-config("libdawn_public") {
+third_party_config("libdawn_public") {
   include_dirs = [
     "$dawn_gen_root/src/include",
     "$dawn_gen_root/src",
