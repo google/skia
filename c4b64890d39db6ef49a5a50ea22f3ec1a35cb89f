@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b520bbd8_a32bf593",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-02T18:06:14Z",
+      "side": 1,
+      "message": "can this be:\nif (for_jit) {\n   program \u003d specialize(std::move(program));\n}\n\nInstead of having the function just return if for_jit is true? This way I can see the program flow in one place.",
+      "range": {
+        "startLine": 667,
+        "startChar": 8,
+        "endLine": 667,
+        "endChar": 67
+      },
+      "revId": "c4b64890d39db6ef49a5a50ea22f3ec1a35cb89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
