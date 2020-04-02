@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/core/SkReader32.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
@@ -379,6 +380,8 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
                                                         const GrProgramDesc& desc,
                                                         const GrProgramInfo& programInfo) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
 
