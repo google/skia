@@ -38,9 +38,9 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas1(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
-                                             bool isScaledGlyph,
+                                             bool needsPadding,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*,
                                              GrAtlasManager*,
