@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1ee46643_8931bf43",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-02T19:25:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d8fdaa5_b10f6b7d",
+      "range": {
+        "startLine": 794,
+        "startChar": 12,
+        "endLine": 794,
+        "endChar": 28
+      },
+      "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63e9f77a_be3078bd",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "de3b0985_bdc4bf1c",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-02T19:25:17Z",
+      "side": 1,
+      "message": "Done. Can handle 16 \"downsample\" in a following CL.",
+      "parentUuid": "63e9f77a_be3078bd",
+      "range": {
+        "startLine": 278,
+        "startChar": 14,
+        "endLine": 278,
+        "endChar": 21
+      },
+      "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91516634_c2b0e22c",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 10
@@ -68,6 +116,30 @@
       "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34050355_8d271efa",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-02T19:25:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91516634_c2b0e22c",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 287,
+        "endChar": 20
+      },
+      "revId": "f91dbf049c5d33a89f064b1da569bdc469792de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
