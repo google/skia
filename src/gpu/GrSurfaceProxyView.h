@@ -76,6 +76,20 @@ public:
         *this = {};
     }
 
+    // Helper that copies a rect of a src view'' proxy and then creates a view for the copy with
+    // the same origin and swizzle as the src view.
+    static GrSurfaceProxyView Copy(GrRecordingContext* context,
+                                   GrSurfaceProxyView src,
+                                   GrMipMapped mipMapped,
+                                   SkIRect srcRect,
+                                   SkBackingFit fit,
+                                   SkBudgeted budgeted) {
+        auto origin = src.origin();
+        auto* proxy = src.proxy();
+        auto copy = GrSurfaceProxy::Copy(context, proxy, origin, mipMapped, srcRect, fit, budgeted);
+        return {std::move(copy), src.origin(), src.swizzle()};
+    }
+
     // This does not reset the origin or swizzle, so the View can still be used to access those
     // properties associated with the detached proxy.
     sk_sp<GrSurfaceProxy> detachProxy() {

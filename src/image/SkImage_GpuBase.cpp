@@ -143,13 +143,10 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
     const GrSurfaceProxyView* view = this->view(context);
     SkASSERT(view && view->proxy());
 
-    GrColorType grColorType = SkColorTypeToGrColorType(this->colorType());
+    auto copyView = GrSurfaceProxyView::Copy(context, *view, GrMipMapped::kNo, subset,
+                                             SkBackingFit::kExact, view->proxy()->isBudgeted());
 
-    GrSurfaceProxyView copyView = GrSurfaceProxy::Copy(
-            context, view->proxy(), view->origin(), grColorType, GrMipMapped::kNo, subset,
-            SkBackingFit::kExact, view->proxy()->isBudgeted());
-
-    if (!copyView.proxy()) {
+    if (!copyView) {
         return nullptr;
     }
 
