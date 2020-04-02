@@ -259,6 +259,38 @@ function copy3dArray(arr, dest, ptr) {
   return ptr;
 }
 
+var defaultPerspective = Float32Array.of(0, 0, 1);
+
+// Copies the given DOMMatrix/Array/TypedArray to the CanvasKit heap and
+// returns a pointer to the memory. This memory is a float* of length 9.
+// If the passed in matrix is null/undefined, we return 0 (nullptr). All calls
+// on the C++ side should check for nullptr where appropriate. It is generally
+// the responsibility of the JS side code to call CanvasKit._free on the
+// allocated memory before returning to the user code.
+function copy3x3MatrixToWasm(matr) {
+  if (!matr) {
+    return nullptr;
+  }
+  var mPtr = CanvasKit._malloc(9 * 4); // 9 matrix scalars, each at 4 bytes.
+  if (matr.length) {
+    // This should be an array or typed array.
+    // have to divide the pointer by 4 to "cast" it from bytes to float.
+    CanvasKit.HEAPF32.set(matr, mPtr / 4);
+    if (matr.length === 6) {
+        CanvasKit.HEAPF32.set(defaultPerspective, 6 + mPtr / 4);
+    }
+  } else {
+    // Try a DOMMatrix or something that looks like it.
+    var floats = Float32Array.of(
+           matr.a, matr.c, matr.e,
+           matr.b, matr.d, matr.f,
+           0, 0, 1);
+     // have to divide the pointer by 4 to "cast" it from bytes to float.
+    CanvasKit.HEAPF32.set(floats, mPtr / 4);
+  }
+  return mPtr;
+}
+
 // Caching the Float32Arrays can save having to reallocate them
 // over and over again.
 var Float32ArrayCache = {};
