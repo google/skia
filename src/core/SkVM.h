@@ -342,6 +342,9 @@ namespace skvm {
     static inline bool has_side_effect(Op op) {
         return op <= Op::store32;
     }
+    static inline bool is_always_varying(Op op) {
+        return op <= Op::gather32 && op != Op::assert_true;
+    }
 
     using Val = int;
     // We reserve an impossibe Val ID as a sentinel
@@ -736,13 +739,15 @@ namespace skvm {
     // extracted here so they can be unit tested.
     void specialize_for_jit (std::vector<Instruction>*);
     void eliminate_dead_code(std::vector<Instruction>*);
+    void schedule           (std::vector<Instruction>*);
+    std::vector<OptimizedInstruction> finalize(const std::vector<Instruction>& program);
 
     class Usage {
     public:
         Usage(const std::vector<Instruction>&);
 
         // Return a sorted span of Vals which use result of Instruction id.
-        SkSpan<const Val> users(Val id) const;
+        SkSpan<const Val> operator[](Val id) const;
 
     private:
         std::vector<int> fIndex;
