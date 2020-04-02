@@ -107,7 +107,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
   function isnumber(val) { return val !== NaN; };
 
-  // gereralized iterative algorithm for multiplying two matrices.
+  // generalized iterative algorithm for multiplying two matrices.
   function multiply(m1, m2, size) {
 
     if (skIsDebug && (!m1.every(isnumber) || !m2.every(isnumber))) {
