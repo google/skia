@@ -548,17 +548,17 @@ void GrVkOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffe
     // Here our vertex and instance inputs need to match the same 0-based bindings they were
     // assigned in GrVkPipeline. That is, vertex first (if any) followed by instance.
     uint32_t binding = 0;
-    if (auto* vkVertexBuffer = static_cast<const GrVkVertexBuffer*>(vertexBuffer)) {
+    if (auto* vkVertexBuffer = static_cast<const GrVkMeshBuffer*>(vertexBuffer)) {
         SkASSERT(!vkVertexBuffer->isCpuBuffer());
         SkASSERT(!vkVertexBuffer->isMapped());
         currCmdBuf->bindInputBuffer(fGpu, binding++, vkVertexBuffer);
     }
-    if (auto* vkInstanceBuffer = static_cast<const GrVkVertexBuffer*>(instanceBuffer)) {
+    if (auto* vkInstanceBuffer = static_cast<const GrVkMeshBuffer*>(instanceBuffer)) {
         SkASSERT(!vkInstanceBuffer->isCpuBuffer());
         SkASSERT(!vkInstanceBuffer->isMapped());
         currCmdBuf->bindInputBuffer(fGpu, binding++, vkInstanceBuffer);
     }
-    if (auto* vkIndexBuffer = static_cast<const GrVkIndexBuffer*>(indexBuffer)) {
+    if (auto* vkIndexBuffer = static_cast<const GrVkMeshBuffer*>(indexBuffer)) {
         SkASSERT(!vkIndexBuffer->isCpuBuffer());
         SkASSERT(!vkIndexBuffer->isMapped());
         currCmdBuf->bindIndexBuffer(fGpu, vkIndexBuffer);

@@ -16,14 +16,13 @@
 
 class GrVkBuffer;
 class GrVkFramebuffer;
-class GrVkIndexBuffer;
 class GrVkImage;
+class GrVkMeshBuffer;
 class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkTransferBuffer;
-class GrVkVertexBuffer;
 
 class GrVkCommandBuffer {
 public:
@@ -47,9 +46,9 @@ public:
                          BarrierType barrierType,
                          void* barrier);
 
-    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkVertexBuffer* vbuffer);
+    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkMeshBuffer* vbuffer);
 
-    void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer);
+    void bindIndexBuffer(GrVkGpu* gpu, const GrVkMeshBuffer* ibuffer);
 
     void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
 
