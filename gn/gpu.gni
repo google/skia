@@ -668,13 +668,13 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkImageLayout.h",
   "$_src/gpu/vk/GrVkImageView.cpp",
   "$_src/gpu/vk/GrVkImageView.h",
-  "$_src/gpu/vk/GrVkIndexBuffer.cpp",
-  "$_src/gpu/vk/GrVkIndexBuffer.h",
   "$_src/gpu/vk/GrVkInterface.cpp",
   "$_src/gpu/vk/GrVkInterface.h",
   "$_src/gpu/vk/GrVkManagedResource.h",
   "$_src/gpu/vk/GrVkMemory.cpp",
   "$_src/gpu/vk/GrVkMemory.h",
+  "$_src/gpu/vk/GrVkMeshBuffer.cpp",
+  "$_src/gpu/vk/GrVkMeshBuffer.h",
   "$_src/gpu/vk/GrVkOpsRenderPass.cpp",
   "$_src/gpu/vk/GrVkOpsRenderPass.h",
   "$_src/gpu/vk/GrVkPipeline.cpp",
@@ -717,8 +717,6 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkUtil.h",
   "$_src/gpu/vk/GrVkVaryingHandler.cpp",
   "$_src/gpu/vk/GrVkVaryingHandler.h",
-  "$_src/gpu/vk/GrVkVertexBuffer.cpp",
-  "$_src/gpu/vk/GrVkVertexBuffer.h",
 ]
 
 skia_direct3d_sources = [

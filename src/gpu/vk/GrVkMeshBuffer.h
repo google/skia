@@ -5,25 +5,24 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVkVertexBuffer_DEFINED
-#define GrVkVertexBuffer_DEFINED
+#ifndef GrVkMeshBuffer_DEFINED
+#define GrVkMeshBuffer_DEFINED
 
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/vk/GrVkBuffer.h"
 
 class GrVkGpu;
 
-class GrVkVertexBuffer : public GrGpuBuffer, public GrVkBuffer {
+class GrVkMeshBuffer : public GrGpuBuffer, public GrVkBuffer {
 public:
-    static sk_sp<GrVkVertexBuffer> Make(GrVkGpu* gpu, size_t size, bool dynamic);
+    static sk_sp<GrVkMeshBuffer> Make(GrVkGpu* gpu, GrGpuBufferType, size_t size, bool dynamic);
 
 protected:
     void onAbandon() override;
     void onRelease() override;
 
 private:
-    GrVkVertexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
-                     const GrVkBuffer::Resource* resource);
+    GrVkMeshBuffer(GrVkGpu*, GrGpuBufferType, const GrVkBuffer::Desc&, const GrVkBuffer::Resource*);
 
     void onMap() override;
     void onUnmap() override;
