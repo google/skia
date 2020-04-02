@@ -157,11 +157,12 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+    fInnerRectUniform = uniformHandler->addUniform(&crre, kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                    "innerRect", &rectName);
     // x is (r + .5) and y is 1/(r + .5)
-    fRadiusPlusHalfUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                        "radiusPlusHalf", &radiusPlusHalfName);
+    fRadiusPlusHalfUniform = uniformHandler->addUniform(&crre, kFragment_GrShaderFlag,
+                                                        kHalf2_GrSLType, "radiusPlusHalf",
+                                                        &radiusPlusHalfName);
 
     // If we're on a device where float != fp32 then the length calculation could overflow.
     SkString clampedCircleDistance;
@@ -503,7 +504,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
-    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+    fInnerRectUniform = uniformHandler->addUniform(&erre, kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                    "innerRect", &rectName);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -527,15 +528,16 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // radii uniform values are already in this normalized space.
     const char* scaleName = nullptr;
     if (!args.fShaderCaps->floatIs32Bits()) {
-        fScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "scale",
-                                                   &scaleName);
+        fScaleUniform = uniformHandler->addUniform(&erre, kFragment_GrShaderFlag, kHalf2_GrSLType,
+                                                   "scale", &scaleName);
     }
 
     // The uniforms with the inv squared radii are highp to prevent underflow.
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
-            fInvRadiiSqdUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(&erre,
+                                                             kFragment_GrShaderFlag,
                                                              kFloat2_GrSLType,
                                                              "invRadiiXY",
                                                              &invRadiiXYSqdName);
@@ -549,7 +551,8 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         }
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
-            fInvRadiiSqdUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(&erre,
+                                                             kFragment_GrShaderFlag,
                                                              kFloat4_GrSLType,
                                                              "invRadiiLTRB",
                                                              &invRadiiLTRBSqdName);

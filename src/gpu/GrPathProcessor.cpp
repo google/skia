@@ -42,7 +42,8 @@ public:
 
         // Setup uniform color
         const char* stagedLocalVarName;
-        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+        fColorUniform = args.fUniformHandler->addUniform(nullptr,
+                                                         kFragment_GrShaderFlag,
                                                          kHalf4_GrSLType,
                                                          "Color",
                                                          &stagedLocalVarName);
@@ -81,7 +82,8 @@ public:
                         uni.fType = kFloat3x3_GrSLType;
                     }
                     uni.fHandle = uniformHandler
-                                          ->addUniform(kFragment_GrShaderFlag,
+                                          ->addUniform(nullptr,
+                                                       kFragment_GrShaderFlag,
                                                        uni.fType,
                                                        strUniName.c_str(),
                                                        &name)

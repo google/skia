@@ -25,8 +25,8 @@ public:
         (void)_outer;
         auto weight = _outer.weight;
         (void)weight;
-        weightVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
+        weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kFloat_GrSLType, "weight");
         SkString _sample290;
         if (_outer.child1_index >= 0) {
             _sample290 = this->invokeChild(_outer.child1_index, args);

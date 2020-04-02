@@ -79,7 +79,8 @@ public:
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
         for (const auto& v : fp.fEffect->inputs()) {
             if (v.fQualifier == SkRuntimeEffect::Variable::Qualifier::kUniform) {
-                auto handle = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
+                auto handle = args.fUniformHandler->addUniformArray(&fp,
+                                                                    kFragment_GrShaderFlag,
                                                                     v.fGPUType,
                                                                     v.fName.c_str(),
                                                                     v.isArray() ? v.fCount : 0);
