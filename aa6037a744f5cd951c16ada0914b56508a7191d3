@@ -22,6 +22,30 @@
       "revId": "aa6037a744f5cd951c16ada0914b56508a7191d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a926dcae_bf2ac364",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-02T16:37:00Z",
+      "side": 1,
+      "message": "Me too.  :)  You can do it anywhere you\u0027re not changing x,y,z.  I guess maybe you could do `Val\u0026 arg : {inst.x, inst.y, inst.z}` even then?  Not sure..",
+      "parentUuid": "db0650f6_0024df3f",
+      "range": {
+        "startLine": 532,
+        "startChar": 27,
+        "endLine": 532,
+        "endChar": 51
+      },
+      "revId": "aa6037a744f5cd951c16ada0914b56508a7191d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
