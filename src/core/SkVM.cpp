@@ -423,14 +423,16 @@ namespace skvm {
         }
     }
 
-    std::vector<Instruction> specialize(const std::vector<Instruction> program, bool for_jit) {
+    std::vector<Instruction> specialize(std::vector<Instruction> program, bool for_jit) {
         if (!for_jit) {
             return program;
         }
 
-        Builder b;
+        // We could use a temporary Builder to let new Instructions participate in common
+        // sub-expression elimination, but there's only a tiny chance of hitting anything valuable
+        // with the specializations we've got today.  Worth keeping in mind for the future though.
         for (Val i = 0; i < (Val)program.size(); i++) {
-            Instruction inst = program[i];
+            Instruction& inst = program[i];
 
             #if defined(SK_CPU_X86)
             auto is_imm = [&](Val id, int* bits) {
@@ -476,13 +478,8 @@ namespace skvm {
                     } break;
             }
             #endif
-            SkDEBUGCODE(Val id =) b.push(inst);
-            // If we replace single instructions with multiple, this will start breaking,
-            // and we'll need a table to remap them like we have in optimize().
-            SkASSERT(id == i);
         }
-
-        return b.program();
+        return program;
     }
 
     std::vector<Instruction> eliminate_dead_code(const std::vector<Instruction> program) {
@@ -504,7 +501,8 @@ namespace skvm {
         }
 
         // Construct a new program with only live Instructions.
-        Builder b;
+        std::vector<Instruction> only_live;
+        only_live.reserve(program.size());
         std::vector<Val> new_id(program.size(), NA);
         for (Val id = 0; id < (Val)program.size(); id++) {
             if (live[id]) {
@@ -512,10 +510,12 @@ namespace skvm {
                 if (inst.x != NA) { inst.x = new_id[inst.x]; SkASSERT(inst.x != NA); }
                 if (inst.y != NA) { inst.y = new_id[inst.y]; SkASSERT(inst.y != NA); }
                 if (inst.z != NA) { inst.z = new_id[inst.z]; SkASSERT(inst.z != NA); }
-                new_id[id] = b.push(inst);
+
+                new_id[id] = (Val)only_live.size();
+                only_live.push_back(inst);
             }
         }
-        return b.program();
+        return only_live;
     }
 
     std::vector<Instruction> schedule(const std::vector<Instruction> program) {
