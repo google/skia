@@ -41,7 +41,8 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
+	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
+	COMPILE_TASK_NAME_OS_LINUX  = "Debian10"
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
@@ -378,20 +379,20 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			if !util.In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if task_os == "Chromecast" {
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if task_os == "iOS" {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
-			task_os = "Debian9"
+			task_os = COMPILE_TASK_NAME_OS_LINUX
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
@@ -445,6 +446,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
+			"Debian10":   DEFAULT_OS_LINUX_GCE,
 			"Mac":        DEFAULT_OS_MAC,
 			"Mac10.13":   DEFAULT_OS_MAC,
 			"Mac10.14":   "Mac-10.14.3",
@@ -505,7 +507,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device"] = device
 		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
-			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
+			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_LINUX_GCE || parts["cpu_or_gpu_value"] != "SwiftShader" {
 				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = "x86-64-Haswell_GCE"
