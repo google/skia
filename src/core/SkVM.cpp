@@ -580,7 +580,7 @@ namespace skvm {
             }
             // Having eliminated dead code, the only Instructions that should start
             // with no users remaining to schedule are those with side effects.
-            SkASSERT(has_side_effect(inst.op) == usage[id].empty());
+            SkASSERT(has_side_effect(inst.op) == (uses[id] == 0));
         }
         std::make_heap(frontier.begin(), frontier.end(), compare);
 
@@ -622,19 +622,20 @@ namespace skvm {
     }
 
     std::vector<OptimizedInstruction> finalize(const std::vector<Instruction> program) {
-        Usage usage{program};
-
         std::vector<OptimizedInstruction> optimized(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
-
-            // Instructions with side effects don't produce values; just mark them dying on issue.
-            SkASSERT(has_side_effect(inst.op) == usage[id].empty());
-            Val death = has_side_effect(inst.op) ? id
-                                                 : usage[id].back();
-
             optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immy,inst.immz,
-                             death, /*can_hoist=*/true, /*used_in_loop=*/false};
+                             /*death=*/id, /*can_hoist=*/true, /*used_in_loop=*/false};
+        }
+
+        // Each Instruction's inputs need to live at least until that Instruction issues.
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
+            for (Val arg : {inst.x, inst.y, inst.z}) {
+                // (We're walking in order, so this is the same as max()ing with the existing Val.)
+                if (arg != NA) { optimized[arg].death = id; }
+            }
         }
 
         // Mark which values don't depend on the loop and can be hoisted.
@@ -648,17 +649,17 @@ namespace skvm {
 
             // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
             if (inst.can_hoist) {
-                if (inst.x != NA) { inst.can_hoist &= optimized[inst.x].can_hoist; }
-                if (inst.y != NA) { inst.can_hoist &= optimized[inst.y].can_hoist; }
-                if (inst.z != NA) { inst.can_hoist &= optimized[inst.z].can_hoist; }
+                for (Val arg : {inst.x, inst.y, inst.z}) {
+                    if (arg != NA) { inst.can_hoist &= optimized[arg].can_hoist; }
+                }
             }
 
             // We'll want to know if hoisted values are used in the loop;
             // if not, we can recycle their registers like we do loop values.
             if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
-                if (inst.x != NA) { optimized[inst.x].used_in_loop = true; }
-                if (inst.y != NA) { optimized[inst.y].used_in_loop = true; }
-                if (inst.z != NA) { optimized[inst.z].used_in_loop = true; }
+                for (Val arg : {inst.x, inst.y, inst.z}) {
+                    if (arg != NA) { optimized[arg].used_in_loop = true; }
+                }
             }
         }
 
