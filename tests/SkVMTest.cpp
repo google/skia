@@ -299,15 +299,15 @@ DEF_TEST(SkVM_Usage, r) {
         b.store32(buf, s);
     }
 
-    skvm::Usage u{b.program()};
+    skvm::Usage usage{b.program()};
     REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
-    REPORTER_ASSERT(r, u.users(0).size() == 2);
+    REPORTER_ASSERT(r, usage[0].size() == 2);
     REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, u.users(1).size() == 1);
+    REPORTER_ASSERT(r, usage[1].size() == 1);
     REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
-    REPORTER_ASSERT(r, u.users(2).size() == 1);
+    REPORTER_ASSERT(r, usage[2].size() == 1);
     REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, u.users(3).size() == 1);
+    REPORTER_ASSERT(r, usage[3].size() == 1);
 }
 
 DEF_TEST(SkVM_Pointless, r) {
