@@ -158,7 +158,6 @@ var CanvasKit = {
     clipPath: function() {},
     clipRRect: function() {},
     clipRect: function() {},
-    concat: function() {},
     drawAnimatedImage: function() {},
     drawArc: function() {},
     drawCircle: function() {},
@@ -182,7 +181,6 @@ var CanvasKit = {
     drawVertices: function() {},
     flush: function() {},
     getSaveCount: function() {},
-    getTotalMatrix: function() {},
     makeSurface: function() {},
     restore: function() {},
     restoreToCount: function() {},
@@ -194,9 +192,11 @@ var CanvasKit = {
     translate: function() {},
 
     // private API
+    _concat: function() {},
     _drawAtlas: function() {},
     _drawPoints: function() {},
     _drawSimpleText: function() {},
+    _getTotalMatrix: function() {},
     _readPixels: function() {},
     _writePixels: function() {},
     delete: function() {},
@@ -278,6 +278,9 @@ var CanvasKit = {
     MakeColorFilter: function() {},
     MakeCompose: function() {},
     MakeMatrixTransform: function() {},
+
+    // private API
+    _MakeMatrixTransform: function() {},
   },
 
   // These are defined in interface.js
@@ -834,9 +837,11 @@ CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function() {};
 CanvasKit.SkImage.prototype.encodeToData = function() {};
 CanvasKit.SkImage.prototype.makeShader = function() {};
 
+CanvasKit.SkCanvas.prototype.concat = function() {};
 CanvasKit.SkCanvas.prototype.drawAtlas = function() {};
 CanvasKit.SkCanvas.prototype.drawPoints = function() {};
 CanvasKit.SkCanvas.prototype.drawText = function() {};
+CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {};
 /** @return {Uint8Array} */
 CanvasKit.SkCanvas.prototype.readPixels = function() {};
 CanvasKit.SkCanvas.prototype.writePixels = function() {};
