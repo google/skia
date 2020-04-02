@@ -115,8 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
-                                    result = dstContext->testCopy(src.get(), sOrigin, srcRect,
-                                                                  dstPoint);
+                                    result = dstContext->testCopy(src.get(), srcRect, dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
                                     GrSwizzle srcSwizzle = context->priv().caps()->getReadSwizzle(
