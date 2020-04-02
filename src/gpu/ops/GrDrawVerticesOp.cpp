@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkM44.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVerticesPriv.h"
@@ -65,9 +66,11 @@ public:
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
                                      const SkVertices::Attribute* attrs,
-                                     int attrCount) {
+                                     int attrCount,
+                                     const SkM44& localToWorld) {
         return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
-                                       std::move(colorSpaceXform), viewMatrix, attrs, attrCount);
+                                       std::move(colorSpaceXform), viewMatrix, attrs, attrCount,
+                                       localToWorld);
     }
 
     const char* name() const override { return "VerticesGP"; }
@@ -145,14 +148,74 @@ public:
             // Add varyings and globals for all custom attributes
             for (size_t i = kFirstCustomIndex; i < gp.fAttributes.size(); ++i) {
                 const auto& attr(gp.fAttributes[i]);
-                GrGLSLVarying varying(attr.gpuType());
-                args.fVaryingHandler->addVarying(attr.name(), &varying);
-                args.fVertBuilder->codeAppendf("%s = %s;", varying.vsOut(), attr.name());
+                const int customIdx = i - kFirstCustomIndex;
+                auto usage = gp.fUsages[customIdx];
 
-                GrShaderVar var(SkStringPrintf("_vtx_attr_%d", int(i - kFirstCustomIndex)),
-                                attr.gpuType());
-                args.fFragBuilder->declareGlobal(var);
-                args.fFragBuilder->codeAppendf("%s = %s;", var.c_str(), varying.fsIn());
+                GrSLType varyingType = attr.gpuType();
+                SkString varyingIn(attr.name());
+
+                switch (usage) {
+                    case SkVertices::Attribute::Usage::kRaw:
+                        break;
+                    case SkVertices::Attribute::Usage::kVector: {
+                        if (!fLocalToWorldMatrixUniform.isValid()) {
+                            fLocalToWorldMatrixUniform =
+                                    uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                               kFloat4x4_GrSLType, "localToWorld");
+                        }
+                        if (attr.gpuType() == kFloat2_GrSLType) {
+                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                        }
+                        varyingIn = SkStringPrintf(
+                                "normalize((%s * float4(%s, 0)).xyz)",
+                                uniformHandler->getUniformCStr(fLocalToWorldMatrixUniform),
+                                varyingIn.c_str());
+                        varyingType = kFloat3_GrSLType;
+                        break;
+                    }
+                    case SkVertices::Attribute::Usage::kNormalVector: {
+                        if (!fNormalMatrixUniform.isValid()) {
+                            fNormalMatrixUniform = uniformHandler->addUniform(
+                                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType,
+                                    "localToWorld_IT");
+                        }
+                        if (attr.gpuType() == kFloat2_GrSLType) {
+                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                        }
+                        varyingIn = SkStringPrintf(
+                                "normalize(%s * %s)",
+                                uniformHandler->getUniformCStr(fNormalMatrixUniform),
+                                varyingIn.c_str());
+                        varyingType = kFloat3_GrSLType;
+                        break;
+                    }
+                    case SkVertices::Attribute::Usage::kPosition: {
+                        if (!fLocalToWorldMatrixUniform.isValid()) {
+                            fLocalToWorldMatrixUniform =
+                                    uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                               kFloat4x4_GrSLType, "localToWorld");
+                        }
+                        if (attr.gpuType() == kFloat2_GrSLType) {
+                            varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
+                        }
+                        vertBuilder->codeAppendf(
+                                "float4 _tmp_pos_%d = %s * float4(%s, 1);",
+                                customIdx,
+                                uniformHandler->getUniformCStr(fLocalToWorldMatrixUniform),
+                                varyingIn.c_str());
+                        varyingIn = SkStringPrintf("_tmp_pos_%d.xyz / _tmp_pos_%d.w",
+                                                   customIdx, customIdx);
+                        varyingType = kFloat3_GrSLType;
+                    }
+                }
+
+                GrGLSLVarying varying(varyingType);
+                varyingHandler->addVarying(attr.name(), &varying);
+                vertBuilder->codeAppendf("%s = %s;", varying.vsOut(), varyingIn.c_str());
+
+                GrShaderVar var(SkStringPrintf("_vtx_attr_%d", customIdx), varyingType);
+                fragBuilder->declareGlobal(var);
+                fragBuilder->codeAppendf("%s = %s;", var.c_str(), varying.fsIn());
             }
 
             fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -167,6 +230,14 @@ public:
             key |= ComputePosKey(vgp.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
+
+            uint32_t usageKey = 0;
+            SkASSERT(vgp.fUsages.size() <= 8);
+            for (size_t i = 0; i < vgp.fUsages.size(); ++i) {
+                SkASSERT((uint32_t)vgp.fUsages[i] < (1 << 4));
+                usageKey = (usageKey << 4) | (uint32_t)vgp.fUsages[i];
+            }
+            b->add32(usageKey);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -188,6 +259,25 @@ public:
             this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
 
             fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
+
+            if (fLocalToWorldMatrixUniform.isValid()) {
+                pdman.setSkM44(fLocalToWorldMatrixUniform, vgp.fLocalToWorldMatrix);
+            }
+
+            if (fNormalMatrixUniform.isValid()) {
+                // Get the upper-left 3x3 (rotation + scale) of local to world:
+                SkM44 mtx(vgp.fLocalToWorldMatrix);
+                mtx.setCol(3, {0, 0, 0, 1});
+                mtx.setRow(3, {0, 0, 0, 1});
+                // Invert it...
+                SkAssertResult(mtx.invert(&mtx));
+                // We want the inverse transpose, but we're going to feed it as a 3x3 column major
+                // matrix to the uniform. So copy the (not-yet-transposed) values out in row order.
+                float l2wIT[9] = { mtx.rc(0, 0), mtx.rc(0, 1), mtx.rc(0, 2),
+                                   mtx.rc(1, 0), mtx.rc(1, 1), mtx.rc(1, 2),
+                                   mtx.rc(2, 0), mtx.rc(2, 1), mtx.rc(2, 2) };
+                pdman.setMatrix3f(fNormalMatrixUniform, l2wIT);
+            }
         }
 
     private:
@@ -196,6 +286,9 @@ public:
         UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
+
+        UniformHandle fLocalToWorldMatrixUniform;
+        UniformHandle fNormalMatrixUniform;
 
         typedef GrGLSLGeometryProcessor INHERITED;
     };
@@ -217,12 +310,14 @@ private:
                sk_sp<GrColorSpaceXform> colorSpaceXform,
                const SkMatrix& viewMatrix,
                const SkVertices::Attribute* attrs,
-               int attrCount)
+               int attrCount,
+               const SkM44& localToWorld)
             : INHERITED(kVerticesGP_ClassID)
             , fColorArrayType(colorArrayType)
             , fColor(color)
             , fViewMatrix(viewMatrix)
-            , fColorSpaceXform(std::move(colorSpaceXform)) {
+            , fColorSpaceXform(std::move(colorSpaceXform))
+            , fLocalToWorldMatrix(localToWorld) {
         constexpr Attribute missingAttr;
         fAttributes.push_back({"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
         fAttributes.push_back(fColorArrayType != ColorArrayType::kUnused
@@ -238,6 +333,7 @@ private:
             fAttributes.push_back({fAttrNames.back().c_str(),
                                    SkVerticesAttributeToGrVertexAttribType(attrs[i]),
                                    SkVerticesAttributeToGrSLType(attrs[i])});
+            fUsages.push_back(attrs[i].fUsage);
         }
 
         this->setVertexAttributes(fAttributes.data(), fAttributes.size());
@@ -252,10 +348,12 @@ private:
 
     std::vector<SkString> fAttrNames;
     std::vector<Attribute> fAttributes;
+    std::vector<SkVertices::Attribute::Usage> fUsages;
     ColorArrayType fColorArrayType;
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    SkM44 fLocalToWorldMatrix;
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -269,7 +367,7 @@ public:
 
     DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
                    GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix,
-                   const SkRuntimeEffect*);
+                   const SkRuntimeEffect*, const SkM44* localToWorld);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -355,6 +453,7 @@ private:
     LocalCoordsType fLocalCoordsType;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    SkM44 fLocalToWorld;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -365,7 +464,8 @@ private:
 DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                                sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
                                GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
-                               const SkMatrix& viewMatrix, const SkRuntimeEffect* effect)
+                               const SkMatrix& viewMatrix, const SkRuntimeEffect* effect,
+                               const SkM44* localToWorld)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
         , fPrimitiveType(primitiveType)
@@ -381,6 +481,11 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
+    if (localToWorld) {
+        fLocalToWorld = *localToWorld;
+    } else {
+        fLocalToWorld.setIdentity();
+    }
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -446,7 +551,8 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
     SkVerticesPriv info(fMeshes[0].fVertices->priv());
 
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
-                               std::move(csxform), vm, info.attributes(), info.attributeCount());
+                               std::move(csxform), vm, info.attributes(), info.attributeCount(),
+                               fLocalToWorld);
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
@@ -587,6 +693,10 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
+    if (vThis.usesLocalToWorldMatrix() && this->fLocalToWorld != that->fLocalToWorld) {
+        return CombineResult::kCannotCombine;
+    }
+
     // We can't mix draws that use SkColor vertex colors with those that don't. We can mix uniform
     // color draws with GrColor draws (by expanding the uniform color into vertex color).
     if ((fColorArrayType == ColorArrayType::kSkColor) !=
@@ -665,16 +775,15 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrAAType aaType,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType,
-                                                 const SkRuntimeEffect* effect) {
+                                                 const SkRuntimeEffect* effect,
+                                                 const SkM44* localToWorld) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType
                                        : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
-    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
-                                                                   std::move(vertices),
-                                                                   primType, aaType,
-                                                                   std::move(colorSpaceXform),
-                                                                   viewMatrix, effect);
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(
+            context, std::move(paint), std::move(vertices), primType, aaType,
+            std::move(colorSpaceXform), viewMatrix, effect, localToWorld);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -795,8 +904,8 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices),
-                                  viewMatrix, aaType, std::move(colorSpaceXform), &type);
+    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), viewMatrix,
+                                  aaType, std::move(colorSpaceXform), &type, nullptr, nullptr);
 }
 
 #endif

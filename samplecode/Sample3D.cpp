@@ -9,6 +9,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkVertices.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
@@ -453,6 +454,91 @@ public:
     }
 };
 DEF_SAMPLE( return new SampleBump3D; )
+
+class SampleVerts3D : public SampleCubeBase {
+    sk_sp<SkRuntimeEffect> fEffect;
+    sk_sp<SkVertices>      fVertices;
+
+public:
+    SampleVerts3D() : SampleCubeBase(kShowLightDome) {}
+
+    SkString name() override { return SkString("verts3d"); }
+
+    void onOnceBeforeDraw() override {
+        using Attr = SkVertices::Attribute;
+        Attr attrs[] = {
+            Attr(Attr::Type::kFloat3, Attr::Usage::kNormalVector),
+        };
+
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 66, 0, attrs, 1);
+
+        SkPoint* pos = builder.positions();
+        SkV3* nrm = (SkV3*)builder.customData();
+
+        SkPoint center = { 200, 200 };
+        SkScalar radius = 200;
+
+        pos[0] = center;
+        nrm[0] = { 0, 0, 1 };
+
+        for (int i = 0; i < 65; ++i) {
+            SkScalar t = (i / 64.0f) * 2 * SK_ScalarPI;
+            SkScalar s = SkScalarSin(t),
+                     c = SkScalarCos(t);
+            pos[i + 1] = center + SkPoint { c * radius, s * radius };
+            nrm[i + 1] = { c, s, 0 };
+        }
+
+        fVertices = builder.detach();
+
+        const char code[] = R"(
+            varying float3 vtx_normal;
+            uniform float4x4 localToWorld;
+            uniform float3   lightPos;
+
+            void main(float2 p, inout half4 color) {
+                float3 norm = normalize(vtx_normal);
+                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
+
+                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
+                float3 light_dir = normalize(lightPos - plane_pos);
+
+                float ambient = 0.2;
+                float dp = dot(plane_norm, light_dir);
+                float scale = min(ambient + max(dp, 0), 1);
+
+                color = half4(0.7, 0.9, 0.3, 1) * half4(float4(scale, scale, scale, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+        if (!drawFront || !front(canvas->getLocalToDevice())) {
+            return;
+        }
+
+        struct Uniforms {
+            SkM44  fLocalToWorld;
+            SkV3   fLightPos;
+        } uni;
+        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLightPos = fLight.computeWorldPos(fSphere);
+
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+
+        SkPaint paint;
+        paint.setColor(color);
+        paint.setShader(fEffect->makeShader(data, nullptr, 0, nullptr, true));
+
+        canvas->drawVertices(fVertices, paint);
+    }
+};
+DEF_SAMPLE( return new SampleVerts3D; )
 
 #include "modules/skottie/include/Skottie.h"
 

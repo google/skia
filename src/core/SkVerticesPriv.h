@@ -26,6 +26,8 @@ public:
     bool hasTexCoords() const { return SkToBool(fVertices->fTexs); }
     bool hasIndices() const { return SkToBool(fVertices->fIndices); }
 
+    bool usesLocalToWorldMatrix() const;
+
     int vertexCount() const { return fVertices->fVertexCount; }
     int indexCount() const { return fVertices->fIndexCount; }
     int attributeCount() const { return fVertices->fAttributeCount; }

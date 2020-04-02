@@ -139,6 +139,8 @@ public:
         fInvCamera = invc;
     }
 
+    SkM44 localToWorld() const;
+
     void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
