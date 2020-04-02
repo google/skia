@@ -23,9 +23,6 @@ class SK_API SkVertices : public SkNVRefCnt<SkVertices> {
     struct Desc;
     struct Sizes;
 public:
-    // DEPRECATED -- remove when we've updated canvas virtuals to not mention bones
-    struct Bone { float values[6]; };
-
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
