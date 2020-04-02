@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottieKeyframe_DEFINED
-#define SkottieKeyframe_DEFINED
+#ifndef SkottieKeyframeAnimator_DEFINED
+#define SkottieKeyframeAnimator_DEFINED
 
 #include "include/core/SkCubicMap.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkNoncopyable.h"
 #include "modules/skottie/src/animator/Animator.h"
-#include "modules/sksg/include/SkSGScene.h"
 
 #include <vector>
 
@@ -54,9 +53,9 @@ struct Keyframe {
     static constexpr uint32_t kCubicIndexOffset = 2;
 };
 
-class KeyframeAnimatorBase : public Animator {
+class KeyframeAnimator : public Animator {
 public:
-    virtual ~KeyframeAnimatorBase() override;
+    virtual ~KeyframeAnimator() override;
 
     bool isConstant() const {
         SkASSERT(!fKFs.empty());
@@ -66,7 +65,7 @@ public:
     }
 
 protected:
-    KeyframeAnimatorBase(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms)
+    KeyframeAnimator(std::vector<Keyframe> kfs, std::vector<SkCubicMap> cms)
         : fKFs(std::move(kfs))
         , fCMs(std::move(cms)) {}
 
@@ -109,9 +108,9 @@ class KeyframeAnimatorBuilder : public SkNoncopyable {
 public:
     virtual ~KeyframeAnimatorBuilder();
 
-    virtual sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder&,
-                                             const skjson::ArrayValue&,
-                                             void* target_value) = 0;
+    virtual sk_sp<KeyframeAnimator> make(const AnimationBuilder&,
+                                         const skjson::ArrayValue&,
+                                         void* target_value) = 0;
 
     virtual bool parseValue(const AnimationBuilder&, const skjson::Value&, void*) const = 0;
 
@@ -139,4 +138,4 @@ T Lerp(const T& a, const T& b, float t) { return a + (b - a) * t; }
 
 } // namespace skottie::internal
 
-#endif // SkottieKeyframe_DEFINED
+#endif // SkottieKeyframeAnimator_DEFINED

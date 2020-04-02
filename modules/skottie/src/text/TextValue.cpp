@@ -11,12 +11,9 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 
-namespace skottie {
+namespace skottie::internal {
 
-template <>
-bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
-                                       const internal::AnimationBuilder* abuilder,
-                                       TextValue* v) {
+bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, TextValue* v) {
     const skjson::ObjectValue* jtxt = jv;
     if (!jtxt) {
         return false;
@@ -30,9 +27,9 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         return false;
     }
 
-    const auto* font = abuilder->findFont(SkString(font_name->begin(), font_name->size()));
+    const auto* font = abuilder.findFont(SkString(font_name->begin(), font_name->size()));
     if (!font) {
-        abuilder->log(Logger::Level::kError, nullptr, "Unknown font: \"%s\".", font_name->begin());
+        abuilder.log(Logger::Level::kError, nullptr, "Unknown font: \"%s\".", font_name->begin());
         return false;
     }
 
@@ -86,7 +83,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         Shaper::VAlign::kVisualBottom, // 'sk_vj': 2
     };
     size_t sk_vj;
-    if (Parse((*jtxt)["sk_vj"], &sk_vj)) {
+    if (skottie::Parse((*jtxt)["sk_vj"], &sk_vj)) {
         if (sk_vj < SK_ARRAY_COUNT(gVAlignMap)) {
             v->fVAlign = gVAlignMap[sk_vj];
         } else {
@@ -104,7 +101,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
                 v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
                 break;
             default:
-                abuilder->log(Logger::Level::kWarning, nullptr,
+                abuilder.log(Logger::Level::kWarning, nullptr,
                               "Ignoring unknown 'sk_vj' value: %zu", sk_vj);
                 break;
             }
@@ -112,44 +109,33 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     }
 
     if (v->fResize != Shaper::ResizePolicy::kNone && v->fBox.isEmpty()) {
-        abuilder->log(Logger::Level::kWarning, jtxt, "Auto-scaled text requires a paragraph box.");
+        abuilder.log(Logger::Level::kWarning, jtxt, "Auto-scaled text requires a paragraph box.");
         v->fResize = Shaper::ResizePolicy::kNone;
     }
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
-                                  const internal::AnimationBuilder* abuilder,
                                   SkColor* c) {
         if (!jcolor) {
             return false;
         }
 
         VectorValue color_vec;
-        if (!ValueTraits<VectorValue>::FromJSON(*jcolor, abuilder, &color_vec)) {
+        if (!skottie::Parse(*jcolor, &color_vec)) {
             return false;
         }
 
-        *c = ValueTraits<VectorValue>::As<SkColor>(color_vec);
+        *c = color_vec;
         return true;
     };
 
-    v->fHasFill   = parse_color((*jtxt)["fc"], abuilder, &v->fFillColor);
-    v->fHasStroke = parse_color((*jtxt)["sc"], abuilder, &v->fStrokeColor);
+    v->fHasFill   = parse_color((*jtxt)["fc"], &v->fFillColor);
+    v->fHasStroke = parse_color((*jtxt)["sc"], &v->fStrokeColor);
 
     if (v->fHasStroke) {
         v->fStrokeWidth = ParseDefault((*jtxt)["s"], 0.0f);
     }
 
     return true;
-}
-
-template <>
-bool ValueTraits<TextValue>::Lerp(const TextValue& v0, const TextValue&, float, TextValue* result) {
-    // Text value keyframes are treated as selectors, not as interpolated values.
-    if (v0 != *result) {
-        *result = v0;
-        return true;
-    }
-    return false;
 }
 
 } // namespace skottie

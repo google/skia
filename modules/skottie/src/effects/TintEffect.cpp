@@ -51,8 +51,8 @@ private:
     }
 
     void onSync() override {
-        fColorNode0->setColor(ValueTraits<VectorValue>::As<SkColor>(fMapBlackTo));
-        fColorNode1->setColor(ValueTraits<VectorValue>::As<SkColor>(fMapWhiteTo));
+        fColorNode0->setColor(fMapBlackTo);
+        fColorNode1->setColor(fMapWhiteTo);
 
         fFilterNode->setWeight(fAmount / 100); // 100-based
     }

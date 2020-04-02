@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottieVector_DEFINED
-#define SkottieVector_DEFINED
+#ifndef SkottieVectorKeyframeAnimator_DEFINED
+#define SkottieVectorKeyframeAnimator_DEFINED
 
-#include "modules/skottie/src/animator/Keyframe.h"
+#include "modules/skottie/src/animator/KeyframeAnimator.h"
 
 #include <vector>
 
@@ -21,9 +21,9 @@ public:
 
     VectorKeyframeAnimatorBuilder(VectorLenParser, VectorDataParser);
 
-    sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder&,
-                                     const skjson::ArrayValue&,
-                                     void*) override;
+    sk_sp<KeyframeAnimator> make(const AnimationBuilder&,
+                                 const skjson::ArrayValue&,
+                                 void*) override;
 
 private:
     bool parseValue(const AnimationBuilder&,
@@ -46,4 +46,4 @@ private:
 
 } // namespace skottie::internal
 
-#endif // SkottieVector_DEFINED
+#endif // SkottieVectorKeyframeAnimator_DEFINED

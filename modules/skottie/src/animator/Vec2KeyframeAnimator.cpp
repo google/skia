@@ -5,19 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/animator/Keyframe.h"
-
 #include "include/core/SkContourMeasure.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/animator/KeyframeAnimator.h"
 
 namespace skottie::internal {
 
 namespace  {
 
 // Spatial 2D specialization: stores SkV2s and optional contour interpolators externally.
-class Vec2KeyframeAnimator final : public KeyframeAnimatorBase {
+class Vec2KeyframeAnimator final : public KeyframeAnimator {
     struct SpatialValue {
         Vec2Value               v2;
         sk_sp<SkContourMeasure> cmeasure;
@@ -26,7 +25,7 @@ class Vec2KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
     class Builder final : public KeyframeAnimatorBuilder {
     public:
-        sk_sp<KeyframeAnimatorBase> make(const AnimationBuilder& abuilder,
+        sk_sp<KeyframeAnimator> make(const AnimationBuilder& abuilder,
                                          const skjson::ArrayValue& jkfs,
                                          void* target_value) override {
             SkASSERT(jkfs.size() > 0);
@@ -37,7 +36,7 @@ public:
             }
             fValues.shrink_to_fit();
 
-            return sk_sp<KeyframeAnimatorBase>(
+            return sk_sp<Vec2KeyframeAnimator>(
                         new Vec2KeyframeAnimator(std::move(fKFs),
                                                  std::move(fCMs),
                                                  std::move(fValues),
@@ -159,7 +158,7 @@ private:
     const std::vector<SpatialValue> fValues;
     Vec2Value*                      fTarget;
 
-    using INHERITED = KeyframeAnimatorBase;
+    using INHERITED = KeyframeAnimator;
 };
 
 } // namespace

@@ -54,7 +54,7 @@ private:
     }
 
     void onSync() override {
-        const auto c = ValueTraits<VectorValue>::As<SkColor>(fColor);
+        const auto c = static_cast<SkColor>(fColor);
         const auto a =
                 sk_float_round2int_no_saturate(SkColorGetA(c) * SkTPin(fOpacity, 0.0f, 1.0f));
         fColorNode->setColor(SkColorSetA(c, a));

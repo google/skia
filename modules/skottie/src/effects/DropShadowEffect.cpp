@@ -70,7 +70,7 @@ private:
 
     void onSync() override {
         // fColor -> RGB, fOpacity -> A
-        const auto color = ValueTraits<VectorValue>::As<SkColor>(fColor);
+        const SkColor color = fColor;
         fDropShadow->setColor(SkColorSetA(color,
                                           SkScalarRoundToInt(SkTPin(fOpacity / this->maxOpacity(),
                                                                     0.0f, 1.0f) * 255)));

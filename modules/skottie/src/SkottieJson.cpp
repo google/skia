@@ -107,7 +107,7 @@ bool Parse<SkPoint>(const Value& v, SkPoint* pt) {
 }
 
 template <>
-bool Parse<std::vector<float>>(const Value& v, std::vector<float>* vec) {
+bool Parse<VectorValue>(const Value& v, VectorValue* vec) {
     if (!v.is<ArrayValue>())
         return false;
     const auto& av = v.as<ArrayValue>();

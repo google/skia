@@ -10,38 +10,34 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkString.h"
-#include "include/private/SkNoncopyable.h"
 
+#include <initializer_list>
 #include <vector>
 
 namespace skjson { class Value; }
 
 namespace skottie {
-namespace internal {
-class AnimationBuilder;
-} // namespace internal
-
-template <typename T>
-struct ValueTraits {
-    static bool FromJSON(const skjson::Value&, const internal::AnimationBuilder*, T*);
-
-    template <typename U>
-    static U As(const T&);
-
-    static bool Lerp(const T&, const T&, float, T*);
-};
 
 using ScalarValue = SkScalar;
 using   Vec2Value = SkV2;
-using VectorValue = std::vector<float>;
 
-struct ShapeValue {
-    std::vector<float> fData;
+class VectorValue final : public std::vector<float> {
+public:
+    VectorValue() = default;
 
+    VectorValue(std::initializer_list<float> l) : INHERITED(l) {}
+
+    operator SkV3()      const;
+    operator SkColor()   const;
+    operator SkColor4f() const;
+
+private:
+    using INHERITED = std::vector<float>;
+};
+
+class ShapeValue final : public std::vector<float> {
+public:
     operator SkPath() const;
 };
 

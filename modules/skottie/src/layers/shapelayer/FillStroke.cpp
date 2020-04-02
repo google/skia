@@ -73,7 +73,7 @@ private:
 
         if (fShaderType == ShaderType::kColor) {
             auto* color_node = static_cast<sksg::Color*>(this->node().get());
-            color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(fColor));
+            color_node->setColor(fColor);
         }
     }
 
