@@ -6,6 +6,7 @@
 */
 
 #include "include/gpu/GrContext.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
@@ -150,6 +151,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                       VkRenderPass compatibleRenderPass) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
