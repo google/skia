@@ -22,6 +22,30 @@
       "revId": "c4b64890d39db6ef49a5a50ea22f3ec1a35cb89f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1f140c0_eeb63371",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-02T18:09:41Z",
+      "side": 1,
+      "message": "Yeah, will send a follow up.\n\nI was thinking specialize() would be a good spot to do other specializations that don\u0027t care about the JIT backend per-se (like mul-add fusion), but now that we\u0027re refactored, it\u0027d be way clearer now to add new specializations as their own passes, leaving specialize() just as specialize_for_jit().",
+      "parentUuid": "b520bbd8_a32bf593",
+      "range": {
+        "startLine": 667,
+        "startChar": 8,
+        "endLine": 667,
+        "endChar": 67
+      },
+      "revId": "c4b64890d39db6ef49a5a50ea22f3ec1a35cb89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
