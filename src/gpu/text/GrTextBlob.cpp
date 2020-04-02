@@ -196,9 +196,13 @@ bool GrTextBlob::SubRun::drawAsDistanceFields() const { return fType == kTransfo
 bool GrTextBlob::SubRun::drawAsPaths() const { return fType == kTransformedPath; }
 
 bool GrTextBlob::SubRun::needsTransform() const {
-    return fType == kTransformedPath
-           || fType == kTransformedMask
-           || fType == kTransformedSDFT;
+    return fType == kTransformedPath ||
+           fType == kTransformedMask ||
+           fType == kTransformedSDFT;
+}
+
+bool GrTextBlob::SubRun::needsPadding() const {
+    return fType == kTransformedPath || fType == kTransformedMask;
 }
 
 bool GrTextBlob::SubRun::hasW() const {
@@ -265,37 +269,21 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
         GrGlyph* glyph = this->fGlyphs[i];
         SkASSERT(glyph != nullptr);
 
-        int width = glyph->width();
-        int height = glyph->height();
-        uint16_t u0, v0, u1, v1;
-        if (this->drawAsDistanceFields()) {
-            u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-            v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-            u1 = u0 + width - 2 * SK_DistanceFieldInset;
-            v1 = v0 + height - 2 * SK_DistanceFieldInset;
-        } else {
-            u0 = glyph->fAtlasLocation.fX;
-            v0 = glyph->fAtlasLocation.fY;
-            u1 = u0 + width;
-            v1 = v0 + height;
-        }
+        int pad = this->drawAsDistanceFields() ? SK_DistanceFieldInset
+                                               : (this->needsPadding() ? 1 : 0);
+        std::array<uint16_t, 4> uvs = glyph->fAtlasLocator.getUVs(pad);
 
-        // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint32_t pageIndex = glyph->pageIndex();
-        std::tie(u0, v0) = GrDrawOpAtlas::PackIndexInTexCoords(u0, v0, pageIndex);
-        std::tie(u1, v1) = GrDrawOpAtlas::PackIndexInTexCoords(u1, v1, pageIndex);
-
-        textureCoords[0] = u0;
-        textureCoords[1] = v0;
+        textureCoords[0] = uvs[0];
+        textureCoords[1] = uvs[1];
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u0;
-        textureCoords[1] = v1;
+        textureCoords[0] = uvs[0];
+        textureCoords[1] = uvs[3];
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u1;
-        textureCoords[1] = v0;
+        textureCoords[0] = uvs[2];
+        textureCoords[1] = uvs[1];
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-        textureCoords[0] = u1;
-        textureCoords[1] = v1;
+        textureCoords[0] = uvs[2];
+        textureCoords[1] = uvs[3];
         textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
     }
 }
@@ -823,10 +811,9 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
             if (skGlyph.image() == nullptr) {
                 return {false, 0};
             }
-            code = grStrike->addGlyphToAtlas(skGlyph,
-                    fSubRun->maskFormat(),
-                    fSubRun->needsTransform(),
-                    fResourceProvider, fUploadTarget, fFullAtlasManager, grGlyph);
+            code = grStrike->addGlyphToAtlas(skGlyph, fSubRun->maskFormat(),
+                                             fSubRun->needsPadding(), fResourceProvider,
+                                             fUploadTarget, fFullAtlasManager, grGlyph);
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 break;
             }

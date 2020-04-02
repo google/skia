@@ -124,6 +124,10 @@ struct GrVertexWriter {
         return { r.fLeft, r.fTop, r.fRight, r.fBottom };
     }
 
+    static TriStrip<uint16_t> TriStripFromUVs(const std::array<uint16_t, 4>& rect) {
+        return { rect[0], rect[1], rect[2], rect[3] };
+    }
+
     template <typename T>
     struct TriFan { T l, t, r, b; };
 
