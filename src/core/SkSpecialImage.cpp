@@ -484,7 +484,6 @@ public:
                                                    fAlphaType);
     }
 
-    // TODO: move all the logic here into the subset-flavor GrSurfaceProxy::copy?
     sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
         GrSurfaceProxy* proxy = fView.proxy();
         if (subset) {
@@ -495,15 +494,14 @@ public:
                                            fColorSpace);
             }
 
-            GrSurfaceProxyView subsetView =
-                    GrSurfaceProxy::Copy(fContext, proxy, fView.origin(), fColorType,
-                                         GrMipMapped::kNo, *subset, SkBackingFit::kExact,
-                                         SkBudgeted::kYes);
-            if (!subsetView.proxy()) {
+            auto copy = GrSurfaceProxy::Copy(fContext, proxy, fView.origin(), GrMipMapped::kNo,
+                                             *subset, SkBackingFit::kExact, SkBudgeted::kYes);
+            if (!copy) {
                 return nullptr;
             }
-            SkASSERT(subsetView.asTextureProxy());
-            SkASSERT(subsetView.proxy()->priv().isExact());
+            SkASSERT(copy->asTextureProxy());
+            SkASSERT(copy->priv().isExact());
+            GrSurfaceProxyView subsetView(std::move(copy), fView.origin(), fView.swizzle());
 
             // MDB: this is acceptable (wrapping subsetProxy in an SkImage) bc Copy will
             // return a kExact-backed proxy
