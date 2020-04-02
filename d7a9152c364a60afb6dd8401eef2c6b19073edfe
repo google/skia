@@ -22,6 +22,30 @@
       "revId": "d7a9152c364a60afb6dd8401eef2c6b19073edfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed9ea3a8_8503a985",
+        "filename": "modules/canvaskit/perf/matrix.bench.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-02T11:52:05Z",
+      "side": 1,
+      "message": "No matter what, we have to allocate the return value point (no API to mutate in place). \n\nas is: 70 us\nwith a fixed point: 40 us\nre-using the same point loop after loop: 50 us\n\nIt looks like that allocation was pretty meaningful. I\u0027ll update the benchmark in a future CL to do reuse an allocated input point.\n\n(SkMatrix in JS: 0.9 us)",
+      "parentUuid": "e29d208e_13f47c8d",
+      "range": {
+        "startLine": 76,
+        "startChar": 51,
+        "endLine": 76,
+        "endChar": 59
+      },
+      "revId": "d7a9152c364a60afb6dd8401eef2c6b19073edfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
