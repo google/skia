@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db0650f6_0024df3f",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-02T16:35:58Z",
+      "side": 1,
+      "message": "I like this.",
+      "range": {
+        "startLine": 532,
+        "startChar": 27,
+        "endLine": 532,
+        "endChar": 51
+      },
+      "revId": "aa6037a744f5cd951c16ada0914b56508a7191d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
