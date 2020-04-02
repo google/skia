@@ -90,6 +90,11 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) con
     return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
+SkM44 SkBaseDevice::localToWorld() const {
+    // fInvCamera == GlobalToWorld
+    return fInvCamera * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
+}
+
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {
     switch (tileUsage) {
         case kPossible_TileUsage:
