@@ -18,6 +18,7 @@
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#incldue "src/gpu/mtl/GrMtlCppUtil.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #if !__has_feature(objc_arc)
@@ -943,8 +944,8 @@ GrSwizzle GrMtlCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType c
             return ctInfo.fReadSwizzle;
         }
     }
-    SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType,
-                 static_cast<int>(mtlFormat));
+    SkDEBUGFAILF("Illegal color type (%d) and format (%s) combination.", colorType,
+                 GrMtlFormatToStr(static_cast<GrMTLPixelFormat>(mtlFormat)));
     return {};
 }
 
@@ -958,8 +959,8 @@ GrSwizzle GrMtlCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType 
             return ctInfo.fWriteSwizzle;
         }
     }
-    SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType,
-                 static_cast<int>(mtlFormat));
+    SkDEBUGFAILF("Illegal color type (%d) and format (%s) combination.", colorType,
+                 GrMtlFormatToStr(static_cast<GrMTLPixelFormat>(mtlFormat)));
     return {};
 }
 
