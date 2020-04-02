@@ -14,7 +14,6 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
-#include "src/gpu/dawn/GrDawnStagingManager.h"
 
 #include <unordered_map>
 
@@ -65,6 +64,7 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
     void flush();
+    std::unique_ptr<GrStagingBuffer> onCreateStagingBuffer(size_t size) override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -103,11 +103,11 @@ public:
     wgpu::Sampler getOrCreateSampler(GrSamplerState samplerState);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
-    GrDawnStagingBuffer* getStagingBuffer(size_t size);
-    GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
     wgpu::CommandEncoder getCopyEncoder();
     void flushCopyEncoder();
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
+    void incStagingBufferWaitingCount() { fStagingBufferWaitingCount++; }
+    void decStagingBufferWaitingCount() { fStagingBufferWaitingCount--; }
 
 private:
     void onResetContext(uint32_t resetBits) override {}
@@ -173,6 +173,8 @@ private:
     bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
+    void mapStagingBuffers();
+
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
@@ -195,7 +197,7 @@ private:
 
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
     std::unordered_map<GrSamplerState, wgpu::Sampler, SamplerHash> fSamplers;
-    GrDawnStagingManager fStagingManager;
+    int fStagingBufferWaitingCount = 0;
 
     typedef GrGpu INHERITED;
 };
