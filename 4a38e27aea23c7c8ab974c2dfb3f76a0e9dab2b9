@@ -46,6 +46,30 @@
       "revId": "4a38e27aea23c7c8ab974c2dfb3f76a0e9dab2b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e6bb408_d57abbdf",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-02T18:14:25Z",
+      "side": 1,
+      "message": "I ran through various benchmarks that exercise the interpreter (sksl_interp... and runtime...). The speedup ((Base - Threaded) / Base) was anywhere from 5 - 13%.\n\nI\u0027m not seeing a code size impact on flutter, which may be because they didn\u0027t have the interpreter compiled in at the time we switched things over. I did do release builds locally with and without threaded code, and looked at the change in the size of .text in SkSLByteCode.obj: Turning it on adds about 10.5 KB (46,408 -\u003e 57,357).",
+      "parentUuid": "b9bc0f4c_e6cec519",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 30
+      },
+      "revId": "4a38e27aea23c7c8ab974c2dfb3f76a0e9dab2b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
