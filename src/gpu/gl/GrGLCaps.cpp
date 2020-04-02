@@ -3547,6 +3547,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fBaseInstanceSupport = false;
     }
 
+    // http://anglebug.com/4538
+    if (fBaseInstanceSupport && !fInstanceAttribSupport) {
+        fBaseInstanceSupport = false;
+    }
+
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
     // Galaxy S7.
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.
