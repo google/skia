@@ -51,7 +51,7 @@ uniform half blurRadius;
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         if (auto view = proxyProvider->findCachedProxyWithColorTypeFallback(
-                key, kMaskOrigin, GrColorType::kAlpha_8)) {
+                key, kMaskOrigin, GrColorType::kAlpha_8, 1)) {
             return view;
         }
 
