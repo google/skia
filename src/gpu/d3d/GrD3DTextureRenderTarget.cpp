@@ -127,17 +127,10 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(state),
                 msInfo, std::move(msState), mipMapsStatus);
-
-        // The GrD3DTextureRenderTarget takes a ref on the textures so we need to release ours
-        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
-        GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
-
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, info, std::move(state), mipMapsStatus);
-        // The GrD3DTextureRenderTarget takes a ref on the texture so we need to release ours
-        GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }
@@ -165,9 +158,6 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, dimensions, sampleCnt, info, std::move(state), msInfo, std::move(msState),
                 mipMapsStatus, cacheable);
-        // The GrD3DTexture takes a ref on the msaa texture so we need to release ours
-        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
-
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
