@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03ee58b8_3d997eac",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-03T19:27:26Z",
+      "side": 1,
+      "message": "spelling",
+      "range": {
+        "startLine": 440,
+        "startChar": 78,
+        "endLine": 440,
+        "endChar": 85
+      },
+      "revId": "fb63042253bd12a086894578d9a0628b0f7cc9fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
