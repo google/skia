@@ -36,20 +36,10 @@ public:
         SkUNREACHABLE;
     }
 
-    GrGlyph(const SkGlyph& skGlyph)
-            : fPackedID{skGlyph.getPackedID()}
-            , fWidthHeight(SkIPoint16::Make(skGlyph.width(), skGlyph.height())) {
-    }
+    GrGlyph(const SkGlyph& skGlyph) : fPackedID(skGlyph.getPackedID()) {}
 
-    int width() const { return fWidthHeight.fX; }
-    int height() const { return fWidthHeight.fY; }
-    uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fPlotLocator); }
-
-    const SkPackedGlyphID      fPackedID;
-    const SkIPoint16           fWidthHeight{0, 0};
-
-    SkIPoint16                 fAtlasLocation{0, 0};
-    GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+    const SkPackedGlyphID       fPackedID;
+    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
 };
 
 #endif
