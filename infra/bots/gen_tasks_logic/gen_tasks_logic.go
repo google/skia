@@ -37,7 +37,7 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.4"
+	DEFAULT_OS_DEBIAN    = "Debian-10.3"
 	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
 	COMPILE_TASK_NAME_OS_LINUX  = "Debian10"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
