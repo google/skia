@@ -1,18 +1,17 @@
 describe('Runtime shader effects', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const CANVAS_WIDTH = 600;
-    const CANVAS_HEIGHT = 600;
+    let container;
 
     beforeEach(async () => {
         await LoadCanvasKit;
+        container = document.createElement('div');
         container.innerHTML = `
             <canvas width=600 height=600 id=test></canvas>
             <canvas width=600 height=600 id=report></canvas>`;
+        document.body.appendChild(container);
     });
 
-    afterEach(function() {
-        container.innerHTML = '';
+    afterEach(() => {
+        document.body.removeChild(container);
     });
 
     // On the SW backend, atan is not supported - a shader is returned, but
@@ -34,6 +33,7 @@ void main(float2 p, inout half4 color) {
     color = half4(mix(in_colors0, in_colors1, t));
 }`;
 
+    // TODO(kjlubick) rewrite testRTShader and callers to use gm.
     const testRTShader = (name, done, localMatrix) => {
         const surface = CanvasKit.MakeCanvasSurface('test');
         expect(surface).toBeTruthy('Could not make surface');
@@ -98,6 +98,7 @@ void main(float2 xy, inout half4 color) {
     color = mix(before, after, half(m));
 }`;
 
+    // TODO(kjlubick) rewrite testChildrenShader and callers to use gm.
     const testChildrenShader = (name, done, localMatrix) => {
         Promise.all([loadBrick, loadMandrill]).then((values) => {
             catchException(done, () => {

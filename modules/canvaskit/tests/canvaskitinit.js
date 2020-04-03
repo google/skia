@@ -3,7 +3,7 @@
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 let CanvasKit = null;
-const LoadCanvasKit = new Promise(function(resolve, reject) {
+const LoadCanvasKit = new Promise((resolve, reject) => {
     console.log('canvaskit loading', new Date());
     CanvasKitInit({
         locateFile: (file) => '/canvaskit/'+file,
