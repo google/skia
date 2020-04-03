@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "202960b8_543a248e",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-03T13:45:49Z",
+      "side": 1,
+      "message": "could this use the new view copy?",
+      "range": {
+        "startLine": 213,
+        "startChar": 3,
+        "endLine": 215,
+        "endChar": 75
+      },
+      "revId": "75a0cf69cb2a8d7d27061dffce77b9e4c34a661c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
