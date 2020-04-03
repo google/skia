@@ -199,8 +199,8 @@ protected:
             policy == GrImageTexGenPolicy::kDraw) {
             return fView;
         }
-        auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted ? SkBudgeted::kYes
-                                                                              : SkBudgeted::kNo;
+        auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted ? SkBudgeted::kNo
+                                                                                : SkBudgeted::kYes;
         return GrSurfaceProxyView::Copy(
                 fCtx.get(), fView, mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
