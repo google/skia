@@ -29,7 +29,6 @@ skia_effects_public = [
 
 skia_effects_sources = [
   "$_src/c/sk_effects.cpp",
-
   "$_src/effects/Sk1DPathEffect.cpp",
   "$_src/effects/Sk2DPathEffect.cpp",
   "$_src/effects/SkColorMatrix.cpp",
@@ -51,7 +50,6 @@ skia_effects_sources = [
   "$_src/effects/SkTableColorFilter.cpp",
   "$_src/effects/SkTableMaskFilter.cpp",
   "$_src/effects/SkTrimPathEffect.cpp",
-
   "$_src/shaders/SkPerlinNoiseShader.cpp",
   "$_src/shaders/gradients/Sk4fGradientBase.cpp",
   "$_src/shaders/gradients/Sk4fGradientBase.h",
@@ -64,8 +62,8 @@ skia_effects_sources = [
   "$_src/shaders/gradients/SkLinearGradient.h",
   "$_src/shaders/gradients/SkRadialGradient.cpp",
   "$_src/shaders/gradients/SkRadialGradient.h",
-  "$_src/shaders/gradients/SkTwoPointConicalGradient.cpp",
-  "$_src/shaders/gradients/SkTwoPointConicalGradient.h",
   "$_src/shaders/gradients/SkSweepGradient.cpp",
   "$_src/shaders/gradients/SkSweepGradient.h",
+  "$_src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+  "$_src/shaders/gradients/SkTwoPointConicalGradient.h",
 ]

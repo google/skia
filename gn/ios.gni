@@ -75,9 +75,7 @@ if (is_ios) {
     }
 
     compile_ib_files(_compile_ib_file) {
-      sources = [
-        invoker.source,
-      ]
+      sources = [ invoker.source ]
       output_extension = _output_extension
       visibility = [ ":$_target_name" ]
       ibtool_flags = [
@@ -101,9 +99,7 @@ if (is_ios) {
 
       sources = get_target_outputs(":$_compile_ib_file")
 
-      outputs = [
-        "{{bundle_resources_dir}}/{{source_file_part}}",
-      ]
+      outputs = [ "{{bundle_resources_dir}}/{{source_file_part}}" ]
     }
   }
 
@@ -113,22 +109,14 @@ if (is_ios) {
 
     action("${app_name}_generate_info_plist") {
       script = "//gn/gen_plist_ios.py"
-      outputs = [
-        "$gen_path/${app_name}_Info.plist",
-      ]
+      outputs = [ "$gen_path/${app_name}_Info.plist" ]
       args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
     }
 
     bundle_data("${app_name}_bundle_info_plist") {
-      public_deps = [
-        ":${app_name}_generate_info_plist",
-      ]
-      sources = [
-        "$gen_path/${app_name}_Info.plist",
-      ]
-      outputs = [
-        "{{bundle_resources_dir}}/Info.plist",
-      ]
+      public_deps = [ ":${app_name}_generate_info_plist" ]
+      sources = [ "$gen_path/${app_name}_Info.plist" ]
+      outputs = [ "{{bundle_resources_dir}}/Info.plist" ]
     }
 
     if (defined(invoker.data_sources)) {
@@ -136,9 +124,7 @@ if (is_ios) {
         sources = invoker.data_sources
 
         # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
-        outputs = [
-          "{{bundle_resources_dir}}/data/{{source_file_part}}",
-        ]
+        outputs = [ "{{bundle_resources_dir}}/data/{{source_file_part}}" ]
       }
     }
 
@@ -165,20 +151,14 @@ if (is_ios) {
     }
 
     action("${app_name}_dsymutil") {
-      public_deps = [
-        ":${app_name}_generate_executable",
-      ]
-      sources = [
-        "$gen_path/$app_name",
-      ]
+      public_deps = [ ":${app_name}_generate_executable" ]
+      sources = [ "$gen_path/$app_name" ]
       script = "//gn/call.py"
       args = [
         "dsymutil",
         rebase_path("$gen_path/$app_name"),
       ]
-      outputs = [
-        "$gen_path/${app_name}.dSYM",
-      ]
+      outputs = [ "$gen_path/${app_name}.dSYM" ]
       testonly = defined(invoker.testonly) && invoker.testonly
       pool = "//gn/toolchain:dsymutil_pool($default_toolchain)"
     }
@@ -192,9 +172,7 @@ if (is_ios) {
         "$gen_path/${app_name}",
         "$gen_path/${app_name}.dSYM",
       ]
-      outputs = [
-        "{{bundle_executable_dir}}/{{source_file_part}}",
-      ]
+      outputs = [ "{{bundle_executable_dir}}/{{source_file_part}}" ]
       testonly = defined(invoker.testonly) && invoker.testonly
     }
 
