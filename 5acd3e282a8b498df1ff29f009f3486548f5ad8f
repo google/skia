@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "189e5e64_fb28d9fe",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T15:38:03Z",
+      "side": 1,
+      "message": "I don\u0027t mind removing them?",
+      "revId": "5acd3e282a8b498df1ff29f009f3486548f5ad8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
