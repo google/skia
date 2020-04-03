@@ -279,11 +279,7 @@ void GrCCPerFlushResources::recordCopyPathInstance(
 
     // Write the instance at the back of the array.
     int currentInstanceIdx = fNextCopyInstanceIdx++;
-    constexpr uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
-                                (((uint64_t) SK_Half1) << 16) |
-                                (((uint64_t) SK_Half1) << 32) |
-                                (((uint64_t) SK_Half1) << 48);
-    fPathInstanceBuffer[currentInstanceIdx].set(entry, newAtlasOffset, kWhite, fillRule);
+    fPathInstanceBuffer[currentInstanceIdx].set(entry, newAtlasOffset, SK_PMColor4fWHITE, fillRule);
 
     // Percolate the instance forward until it's contiguous with other instances that share the same
     // proxy.
