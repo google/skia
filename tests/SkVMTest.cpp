@@ -522,10 +522,10 @@ DEF_TEST(SkVM_bitops, r) {
 
         skvm::I32 x = b.load32(ptr);
 
-        x = b.bit_and  (x, b.splat(0xf1));  // 0x40
-        x = b.bit_or   (x, b.splat(0x80));  // 0xc0
-        x = b.bit_xor  (x, b.splat(0xfe));  // 0x3e
-        x = b.bit_clear(x, b.splat(0x30));  // 0x0e
+        x = b.bit_and  (x, b.splat( 0xf1));  // 0x40
+        x = b.bit_or   (x, b.splat( 0x80));  // 0xc0
+        x = b.bit_xor  (x, b.splat( 0xfe));  // 0x3e
+        x = b.bit_and  (x, b.splat(~0x30));  // 0x0e
 
         x = b.shl(x, 28);  // 0xe000'0000
         x = b.sra(x, 28);  // 0xffff'fffe
