@@ -1247,6 +1247,7 @@ if (skia_enable_tools) {
   }
 
   template("test_app") {
+    output_dir = root_build_dir
     if (is_ios) {
       ios_app_bundle(target_name) {
         forward_variables_from(invoker,
