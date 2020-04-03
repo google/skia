@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e1560cc4_1c220f4f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T17:34:52Z",
+      "side": 1,
+      "message": "I really like, in particular, using \u0026 and \u0026\u003d in this new world. I am deliberately (usually) keeping the outer parens for cases like this: I like the reminder to think about what a conditional is actually returning.",
+      "parentUuid": "8bdc91aa_fe275c4e",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e208c018_6a732de8",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2020-04-03T17:12:26Z",
       "side": 1,
       "message": "t \u003d fract(t) may be clearer?",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "316037ef_45423b58",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T17:34:52Z",
+      "side": 1,
+      "message": "oops, yes, forgot about fract.\ndone.",
+      "parentUuid": "e208c018_6a732de8",
       "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "8c26375b_93e9efb4",
+        "filename": "src/shaders/gradients/SkRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T17:34:52Z",
+      "side": 1,
+      "message": "actually, I agree. the explicit sqrt is very clear.\ndone.",
+      "parentUuid": "fd69b202_f4362822",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ffa609fd_ae54844e",
         "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
         "patchSetId": 4
@@ -64,6 +118,30 @@
       "writtenOn": "2020-04-03T17:12:26Z",
       "side": 1,
       "message": "can drop this maybe?",
+      "range": {
+        "startLine": 276,
+        "startChar": 32,
+        "endLine": 276,
+        "endChar": 37
+      },
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bee431d_2b346e4f",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T17:34:52Z",
+      "side": 1,
+      "message": "good point.\ndone",
+      "parentUuid": "ffa609fd_ae54844e",
       "range": {
         "startLine": 276,
         "startChar": 32,

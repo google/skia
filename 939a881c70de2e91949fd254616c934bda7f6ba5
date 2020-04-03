@@ -22,6 +22,30 @@
       "revId": "939a881c70de2e91949fd254616c934bda7f6ba5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f082256b_1709e12f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T17:34:52Z",
+      "side": 0,
+      "message": "I wondered about that. I know its different (at the detail level). I think the new one is more readable, but if it proves slower/etc. happy to go back to the other pattern.",
+      "parentUuid": "3b9f9f73_80dd8166",
+      "range": {
+        "startLine": 566,
+        "startChar": 1,
+        "endLine": 574,
+        "endChar": 74
+      },
+      "revId": "939a881c70de2e91949fd254616c934bda7f6ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
