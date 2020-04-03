@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b93bdc7_f277e28b",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-03T15:23:57Z",
+      "side": 1,
+      "message": "Ok. I proposed the name AtlasLocator to Jim, and I think we came up with PlotLocator. :-/",
+      "range": {
+        "startLine": 183,
+        "startChar": 21,
+        "endLine": 183,
+        "endChar": 33
+      },
+      "revId": "5b2b410464ea01b2cb51b66dcf6a8dc434db3a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
