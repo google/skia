@@ -134,6 +134,11 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
+    // The inverse of the CTM up to and including the Camera matrix.
+    void setInvCamera(const SkM44& invc) {
+        fInvCamera = invc;
+    }
+
     void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
@@ -432,6 +437,7 @@ private:
     // This is the device CTM, not the global CTM. This transform maps from local space to the
     // device's coordinate space; fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
     SkMatrix             fLocalToDevice;
+    SkM44                fInvCamera;    // inverse of ctm up to and including camera
 
     typedef SkRefCnt INHERITED;
 };

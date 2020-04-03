@@ -734,11 +734,21 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
+void SkCanvas::notifyCameraChanged() {
+    SkM44 invc; // start with identity
+    if (!fCameraStack.empty()) {
+        invc = fCameraStack.back().fInvPostCamera;
+    }
+    FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
+}
+
 int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
     this->concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
+    this->notifyCameraChanged();
+
     return n;
 }
 
@@ -1280,6 +1290,7 @@ void SkCanvas::internalRestore() {
 
     if (!fCameraStack.empty() && fCameraStack.back().fMCRec == fMCRec) {
         fCameraStack.pop_back();
+        this->notifyCameraChanged();
     }
 
     // now do the normal restore()
