@@ -88,6 +88,13 @@ public:
     void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                               int baseVertex);
 
+    // Executes multiple draws from an array of GrDrawIndirectCommand in the provided buffer.
+    void drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset, int drawCount);
+
+    // Executes multiple draws from an array of GrDrawIndexedIndirectCommand in the provided buffer.
+    void drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                             int drawCount);
+
     // This is a helper method for drawing a repeating pattern of vertices. The bound index buffer
     // is understood to contain 'maxPatternRepetitionsInIndexBuffer' repetitions of the pattern.
     // If more repetitions are required, then we loop.
@@ -162,6 +169,12 @@ private:
                                  int baseVertex) = 0;
     virtual void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                         int baseInstance, int baseVertex) = 0;
+    virtual void onDrawIndirect(const GrBuffer*, size_t offset, int drawCount) {
+        SK_ABORT("Not implemented.");  // Only called if caps.nativeDrawIndirectSupport().
+    }
+    virtual void onDrawIndexedIndirect(const GrBuffer*, size_t offset, int drawCount) {
+        SK_ABORT("Not implemented.");  // Only called if caps.nativeDrawIndirectSupport().
+    }
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
     virtual void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}

@@ -71,6 +71,25 @@ enum class GrPrimitiveRestart : bool {
     kYes = true
 };
 
+struct GrDrawIndirectCommand {
+    uint32_t fVertexCount;
+    uint32_t fInstanceCount;
+    uint32_t fBaseVertex;
+    uint32_t fBaseInstance;
+};
+
+static_assert(sizeof(GrDrawIndirectCommand) == 16);
+
+struct GrDrawIndexedIndirectCommand {
+    uint32_t fIndexCount;
+    uint32_t fInstanceCount;
+    uint32_t fBaseIndex;
+    int32_t fBaseVertex;
+    uint32_t fBaseInstance;
+};
+
+static_assert(sizeof(GrDrawIndexedIndirectCommand) == 20);
+
 /**
  * Should a created surface be texturable?
  */
@@ -651,6 +670,7 @@ enum GrIOType {
 enum class GrGpuBufferType {
     kVertex,
     kIndex,
+    kDrawIndirect,
     kXferCpuToGpu,
     kXferGpuToCpu,
 };

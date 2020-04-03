@@ -43,6 +43,8 @@ private:
     void onDrawIndexed(int, int, uint16_t, uint16_t, int) override { this->dummyDraw(); }
     void onDrawInstanced(int, int, int, int) override { this->dummyDraw(); }
     void onDrawIndexedInstanced(int, int, int, int, int) override { this->dummyDraw(); }
+    void onDrawIndirect(const GrBuffer*, size_t, int) override { this->dummyDraw(); }
+    void onDrawIndexedIndirect(const GrBuffer*, size_t, int) override { this->dummyDraw(); }
     void onClear(const GrFixedClip&, const SkPMColor4f&) override { this->markRenderTargetDirty(); }
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
     void dummyDraw() {
