@@ -29,6 +29,11 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
+#if 0
+#include "tools/ToolUtils.h"
+#define WRITE_PNG_CONTEXT_TYPE kANGLE_D3D11_ES3_ContextType
+#endif
+
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 static constexpr int kBoxSize = 2;
@@ -91,7 +96,14 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn);
 
+#ifdef WRITE_PNG_CONTEXT_TYPE
+static bool IsContextTypeForOutputPNGs(skiatest::GrContextFactoryContextType type) {
+    return type == skiatest::GrContextFactoryContextType::WRITE_PNG_CONTEXT_TYPE;
+}
+DEF_GPUTEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxInfo, nullptr) {
+#else
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
+#endif
     GrContext* context = ctxInfo.grContext();
 
     auto rtc = GrRenderTargetContext::Make(
@@ -491,7 +503,19 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
     rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
                GrRenderTargetContext::CanClearFullscreen::kYes);
     rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(context, prepareFn, executeFn));
+
     rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});
+
+#ifdef WRITE_PNG_CONTEXT_TYPE
+#define STRINGIFY(X) #X
+#define TOSTRING(X) STRINGIFY(X)
+    SkString filename;
+    filename.printf("GrMeshTest_%s_%s.png", TOSTRING(WRITE_PNG_CONTEXT_TYPE), testName);
+    SkDebugf("writing %s...\n", filename.c_str());
+    ToolUtils::EncodeImageToFile(filename.c_str(), SkPixmap(gold.info(), resultPx, rowBytes),
+                                 SkEncodedImageFormat::kPNG, 100);
+#endif
+
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t expected = goldPx[y * kImageWidth + x];
