@@ -355,7 +355,8 @@ static void add_invalidate_on_pop_message(GrRecordingContext* context,
 static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 
 static GrSurfaceProxyView find_mask(GrProxyProvider* provider, const GrUniqueKey& key) {
-    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8);
+    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8,
+                                                          1);
 }
 
 GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* context,

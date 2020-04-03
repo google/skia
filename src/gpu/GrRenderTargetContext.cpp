@@ -244,11 +244,13 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
 }
 
 std::tuple<GrColorType, GrBackendFormat> GrRenderTargetContext::GetFallbackColorTypeAndFormat(
-        GrImageContext* context, GrColorType colorType) {
+        GrImageContext* context, GrColorType colorType, int sampleCnt) {
+    auto caps = context->priv().caps();
     do {
-        auto format =
-                context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
-        if (format.isValid()) {
+        auto format = caps->getDefaultBackendFormat(colorType, GrRenderable::kYes);
+        // We continue to the fallback color type if there no default renderable format or we
+        // requested msaa and the format doesn't support msaa.
+        if (format.isValid() && caps->isFormatRenderable(format, sampleCnt)) {
             return {colorType, format};
         }
         colorType = color_type_fallback(colorType);
@@ -268,7 +270,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
         const SkSurfaceProps* surfaceProps) {
-    auto [ct, format] = GetFallbackColorTypeAndFormat(context, colorType);
+    auto [ct, format] = GetFallbackColorTypeAndFormat(context, colorType, sampleCnt);
     if (ct == GrColorType::kUnknown) {
         return nullptr;
     }
