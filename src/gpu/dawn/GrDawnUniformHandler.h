@@ -39,18 +39,21 @@ private:
     const char* samplerVariable(SamplerHandle handle) const override;
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override;
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
                                           int arrayCount,
                                           const char** outName) override;
 
-    UniformInfoArray     fUniforms;
-    UniformInfoArray     fSamplers;
-    UniformInfoArray     fTextures;
-    SkTArray<GrSwizzle>  fSamplerSwizzles;
-    SkTArray<SkString>   fSamplerReferences;
+
+    UniformInfoArray            fUniforms;
+    std::vector<UniformMapping> fUniformMappings;
+    UniformInfoArray            fSamplers;
+    UniformInfoArray            fTextures;
+    SkTArray<GrSwizzle>         fSamplerSwizzles;
+    SkTArray<SkString>          fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;
     uint32_t fRTHeightOffset = 0;
