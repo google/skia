@@ -5,6 +5,23 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 83
+------------
+
+  * Remove localmatrix option from SkShaders::[Blend, Lerp]
+
+  * Fill out Direct3D parameters for backend textures and backend rendertargets.
+
+  * SkImage::makeTextureImage() takes an optional SkBudgeted param
+
+  * Made non-GL builds of GPU backend more robust.
+    https://review.skia.org/277456
+
+  * MoltenVK support removed. Use Metal backend instead.
+    https://review.skia.org/277612
+
+* * *
+
 Milestone 82
 ------------
 
