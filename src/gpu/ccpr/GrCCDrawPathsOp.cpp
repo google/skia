@@ -362,8 +362,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                     fCacheEntry->cachedAtlas()->coverageType());
             op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
-            resources->appendDrawPathInstance().set(
-                    *fCacheEntry, fCachedMaskShift, SkPMColor4f_toFP16(fColor), fillRule);
+            resources->appendDrawPathInstance().set(*fCacheEntry, fCachedMaskShift, fColor,
+                                                    fillRule);
 #ifdef SK_DEBUG
             if (fWasCountedAsRender) {
                 // A path mask didn't exist for this path at the beginning of flush, but we have one
@@ -389,8 +389,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
         auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                 resources->renderedPathCoverageType());
         op->recordInstance(coverageMode, atlas->textureProxy(), resources->nextPathInstanceIdx());
-        resources->appendDrawPathInstance().set(
-                octoBounds, devToAtlasOffset, SkPMColor4f_toFP16(fColor), fillRule);
+        resources->appendDrawPathInstance().set(octoBounds, devToAtlasOffset, fColor, fillRule);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);

@@ -271,7 +271,7 @@ private:
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
-                                                 uint64_t color, GrFillRule);  // To access data.
+                                                 const SkPMColor4f&, GrFillRule);
 
 public:
     int testingOnly_peekOnFlushRefCnt() const;
@@ -363,7 +363,7 @@ inline void GrCCPathCache::HashNode::operator=(HashNode&& node) {
 }
 
 inline void GrCCPathProcessor::Instance::set(
-        const GrCCPathCacheEntry& entry, const SkIVector& shift, uint64_t color,
+        const GrCCPathCacheEntry& entry, const SkIVector& shift, const SkPMColor4f& color,
         GrFillRule fillRule) {
     float dx = (float)shift.fX, dy = (float)shift.fY;
     this->set(entry.fOctoBounds.makeOffset(dx, dy), entry.fAtlasOffset - shift, color, fillRule);
