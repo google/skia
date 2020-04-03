@@ -12,6 +12,8 @@
 #include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include <vector>
+
 // TODO: this class is basically copy and pasted from GrVkUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for
 // the Ganesh Vulkan backend, so it should all work. There might be better ways to do things in
@@ -50,7 +52,8 @@ private:
         , fCurrentUBOMaxAlignment(0x0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
@@ -80,9 +83,10 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray            fUniforms;
+    std::vector<UniformMapping> fUniformMappings;
+    UniformInfoArray            fSamplers;
+    SkTArray<GrSwizzle>         fSamplerSwizzles;
 
     uint32_t            fCurrentUBOOffset;
     uint32_t            fCurrentUBOMaxAlignment;

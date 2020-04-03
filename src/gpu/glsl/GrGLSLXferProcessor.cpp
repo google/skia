@@ -59,11 +59,13 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
             const char* dstTopLeftName;
             const char* dstCoordScaleName;
 
-            fDstTopLeftUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+            fDstTopLeftUni = uniformHandler->addUniform(nullptr,
+                                                        kFragment_GrShaderFlag,
                                                         kHalf2_GrSLType,
                                                         "DstTextureUpperLeft",
                                                         &dstTopLeftName);
-            fDstScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+            fDstScaleUni = uniformHandler->addUniform(nullptr,
+                                                      kFragment_GrShaderFlag,
                                                       kHalf2_GrSLType,
                                                       "DstTextureCoordScale",
                                                       &dstCoordScaleName);

@@ -38,7 +38,8 @@ public:
         varyingHandler->emitAttributes(dfTexEffect);
 
         const char* atlasDimensionsInvName;
-        fAtlasDimensionsInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+        fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
+                                                                kVertex_GrShaderFlag,
                                                                 kFloat2_GrSLType,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
@@ -46,8 +47,9 @@ public:
         // adjust based on gamma
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
-        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                        "DistanceAdjust", &distanceAdjustUniName);
+        fDistanceAdjustUni = uniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                        kHalf_GrSLType, "DistanceAdjust",
+                                                        &distanceAdjustUniName);
 #endif
 
         // Setup pass through color
@@ -334,7 +336,8 @@ public:
         varyingHandler->emitAttributes(dfPathEffect);
 
         const char* atlasDimensionsInvName;
-        fAtlasDimensionsInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+        fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
+                                                                kVertex_GrShaderFlag,
                                                                 kFloat2_GrSLType,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
@@ -618,7 +621,8 @@ public:
         varyingHandler->emitAttributes(dfTexEffect);
 
         const char* atlasDimensionsInvName;
-        fAtlasDimensionsInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+        fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
+                                                                kVertex_GrShaderFlag,
                                                                 kFloat2_GrSLType,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
@@ -722,8 +726,9 @@ public:
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
-        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf3_GrSLType,
-                                                        "DistanceAdjust", &distanceAdjustUniName);
+        fDistanceAdjustUni = uniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                        kHalf3_GrSLType, "DistanceAdjust",
+                                                        &distanceAdjustUniName);
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
 
         // To be strictly correct, we should compute the anti-aliasing factor separately

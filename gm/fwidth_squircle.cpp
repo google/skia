@@ -96,8 +96,8 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
         const auto& proc = args.fGP.cast<FwidthSquircleTestProcessor>();
 
         auto* uniforms = args.fUniformHandler;
-        fViewMatrixHandle =
-                uniforms->addUniform(kVertex_GrShaderFlag, kFloat3x3_GrSLType, "viewmatrix");
+        fViewMatrixHandle = uniforms->addUniform(nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType,
+                                                 "viewmatrix");
 
         auto* varyings = args.fVaryingHandler;
         varyings->emitAttributes(proc);
