@@ -74,10 +74,9 @@ public:
     }
 
     // add to texture atlas that matches this format
-    GrDrawOpAtlas::ErrorCode addToAtlas(
-            GrResourceProvider*,
-            GrDrawOpAtlas::PlotLocator*, GrDeferredUploadTarget*, GrMaskFormat,
-            int width, int height, const void* image, SkIPoint16* loc);
+    GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrMaskFormat,
+                                        int width, int height, const void* image,
+                                        GrDrawOpAtlas::AtlasLocator*);
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
