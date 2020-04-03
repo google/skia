@@ -92,9 +92,7 @@ template("_fuchsia_fidl_library") {
 
     library_name_slashes = string_replace(library_name, ".", "/")
 
-    inputs = [
-      invoker.meta,
-    ]
+    inputs = [ invoker.meta ]
 
     outputs = [
       "$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h",
@@ -105,11 +103,11 @@ template("_fuchsia_fidl_library") {
 
     args = [
       "--fidlc-bin",
-        rebase_path("$fuchsia_sdk_path/tools/fidlc"),
+      rebase_path("$fuchsia_sdk_path/tools/fidlc"),
       "--fidlgen-bin",
-        rebase_path("$fuchsia_sdk_path/tools/fidlgen"),
+      rebase_path("$fuchsia_sdk_path/tools/fidlgen"),
       "--sdk-base",
-        rebase_path("$fuchsia_sdk_path"),
+      rebase_path("$fuchsia_sdk_path"),
       "--root",
       rebase_path(invoker.meta),
       "--json",
@@ -121,8 +119,7 @@ template("_fuchsia_fidl_library") {
       "--output-c-header",
       rebase_path("$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h"),
       "--output-c-tables",
-      rebase_path(
-          "$target_gen_dir/fuchsia/$library_name_slashes/c/tables.c"),
+      rebase_path("$target_gen_dir/fuchsia/$library_name_slashes/c/tables.c"),
     ]
   }
 
@@ -131,9 +128,7 @@ template("_fuchsia_fidl_library") {
 
     sources = get_target_outputs(":$fidl_gen_target_name")
 
-    deps = [
-      ":$fidl_gen_target_name",
-    ]
+    deps = [ ":$fidl_gen_target_name" ]
 
     public_deps = _deps
   }
@@ -305,9 +300,7 @@ template("fuchsia_package") {
 
     pm_binary = rebase_path("$fuchsia_sdk_path/tools/pm")
 
-    inputs = [
-      pm_binary,
-    ]
+    inputs = [ pm_binary ]
 
     outputs = [
       pkg_id_path,
@@ -340,18 +333,12 @@ template("fuchsia_package") {
       testonly = invoker.testonly
     }
 
-    sources = [
-      pkg_archive,
-    ]
+    sources = [ pkg_archive ]
 
     output_name = "${root_out_dir}/far/${pkg_name}.far"
-    outputs = [
-      output_name,
-    ]
+    outputs = [ output_name ]
 
-    deps = [
-      ":$gen_far_target_name",
-    ]
+    deps = [ ":$gen_far_target_name" ]
   }
 }
 
@@ -372,9 +359,7 @@ template("fuchsia_repo") {
     pm_binary = rebase_path("$fuchsia_sdk_path/tools/pm")
     repo_directory = invoker.repo
 
-    inputs = [
-      pm_binary,
-    ]
+    inputs = [ pm_binary ]
 
     archive_flags = []
 
@@ -388,9 +373,7 @@ template("fuchsia_repo") {
       ]
     }
 
-    outputs = [
-      repo_directory,
-    ]
+    outputs = [ repo_directory ]
 
     args = [
              "--pm-bin",
