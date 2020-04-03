@@ -22,6 +22,30 @@
       "revId": "fb63042253bd12a086894578d9a0628b0f7cc9fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "245ad71a_df7f4bef",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-03T19:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03ee58b8_3d997eac",
+      "range": {
+        "startLine": 440,
+        "startChar": 78,
+        "endLine": 440,
+        "endChar": 85
+      },
+      "revId": "fb63042253bd12a086894578d9a0628b0f7cc9fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
