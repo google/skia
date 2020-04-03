@@ -607,8 +607,8 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const char* alpha;
-        fAlphaUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         "alpha", &alpha);
+        fAlphaUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                         kHalf_GrSLType, "alpha", &alpha);
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
         // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
         // value of the src color. We know that there are no color stages (or we wouldn't have

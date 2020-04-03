@@ -25,12 +25,13 @@ bool valid_name(const char* name) {
 }
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
@@ -47,6 +48,10 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, fUniforms.count(), SkString(name),
+                                                   resolvedName.c_str(), type });
+    }
 
     UniformInfo& uni = fUniforms.push_back(GrGLProgramDataManager::UniformInfo{
         GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform, arrayCount},

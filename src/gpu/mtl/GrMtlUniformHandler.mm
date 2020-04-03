@@ -200,12 +200,13 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 }
 
 GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     GrSLTypeIsFloatType(type);
 
@@ -221,6 +222,10 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, fUniforms.count(), SkString(name),
+                                                   resolvedName.c_str(), type });
+    }
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, &fCurrentUBOMaxAlignment,
                                              type, arrayCount);
