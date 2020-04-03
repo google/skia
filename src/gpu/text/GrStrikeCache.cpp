@@ -139,20 +139,21 @@ static void get_packed_glyph_image(
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
+GrDrawOpAtlas::ErrorCode GrTextStrike::AddGlyphToAtlas1(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
                                                        bool isScaledGlyph,
                                                        GrResourceProvider* resourceProvider,
                                                        GrDeferredUploadTarget* target,
                                                        GrAtlasManager* fullAtlasManager,
-                                                       GrGlyph* grGlyph) {
-    SkASSERT(grGlyph != nullptr);
-    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
-    SkASSERT(grGlyph->width() == skGlyph.width());
-    SkASSERT(grGlyph->height() == skGlyph.height());
+                                                       GrAtlasManager::Bar* bar) {
     SkASSERT(skGlyph.image() != nullptr);
 
+    int f1 = sizeof(SkAutoDescriptor);
+
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
+
+    SkASSERT(!fullAtlasManager->hasID(expectedMaskFormat, bar));
+
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
     bool isSDFGlyph = skGlyph.maskFormat() == SkMask::kSDF_Format;
@@ -174,26 +175,30 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
 
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
-    GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-            resourceProvider, &grGlyph->fPlotLocator, target, expectedMaskFormat,
-            width, height,
-            storage.get(), &grGlyph->fAtlasLocation);
+    GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(resourceProvider, target,
+                                                                   expectedMaskFormat,
+                                                                   width, height, storage.get(),
+                                                                   bar);
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
-            grGlyph->fAtlasLocation.fX += 1;
-            grGlyph->fAtlasLocation.fY += 1;
+            bar->fFoo.fLoc.fX += 1;
+            bar->fFoo.fLoc.fY += 1;
         }
-        SkASSERT(grGlyph->fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
+        SkASSERT(bar->fFoo.fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
     }
+
     return result;
 }
 
-GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
-    GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
-    if (grGlyph == nullptr) {
-        grGlyph = fAlloc.make<GrGlyph>(skGlyph);
-        fCache.set(grGlyph);
-    }
-    return grGlyph;
-}
+#if 0
+GrGlyph GrTextStrike::getGlyph1(const SkGlyph& skGlyph) {
+    return GrGlyph(skGlyph, true);
 
+//    GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
+//    if (grGlyph == nullptr) {
+//        grGlyph = fAlloc1.make<GrGlyph>(skGlyph, false);
+//        fCache.set(grGlyph);
+//    }
+//    return grGlyph;
+}
+#endif

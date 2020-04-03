@@ -15,7 +15,8 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
 
-class GrAtlasManager;
+#include "src/gpu/text/GrAtlasManager.h"
+
 class GrGpu;
 class GrStrikeCache;
 class SkBulkGlyphMetricsAndImages;
@@ -31,26 +32,27 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph);
+    GrGlyph getGlyph1(const SkGlyph& skGlyph) { return GrGlyph(skGlyph, true); }
 
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
     // mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                             GrMaskFormat expectedMaskFormat,
-                                             bool isScaledGlyph,
-                                             GrResourceProvider*,
-                                             GrDeferredUploadTarget*,
-                                             GrAtlasManager*,
-                                             GrGlyph*);
+    static GrDrawOpAtlas::ErrorCode AddGlyphToAtlas1(const SkGlyph&,
+                                                    GrMaskFormat expectedMaskFormat,
+                                                    bool isScaledGlyph,
+                                                    GrResourceProvider*,
+                                                    GrDeferredUploadTarget*,
+                                                    GrAtlasManager*,
+                                                    GrGlyph*);
 
 private:
+#if 0
     struct HashTraits {
         // GetKey and Hash for the the hash table.
         static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
-            return glyph->fPackedID;
+            return glyph->packedID();
         }
 
         static uint32_t Hash(SkPackedGlyphID key) {
@@ -58,8 +60,9 @@ private:
         }
     };
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
+#endif
     SkAutoDescriptor fFontScalerKey;
-    SkArenaAlloc fAlloc{512};
+//    SkArenaAlloc fAlloc1{512};
 
     friend class GrStrikeCache;
 };

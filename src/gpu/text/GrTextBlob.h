@@ -240,7 +240,7 @@ private:
 
     // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
-    GrStrikeCache* const fStrikeCache;
+    GrStrikeCache* const fStrikeCache1;
 
     // The initial view matrix and its inverse. This is used for moving additional draws of this
     // same text blob. We record the initial view matrix and initial offsets(x,y), because we
@@ -296,11 +296,11 @@ public:
                       GrDeferredUploadTarget*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> regenerate(int begin, int end);
+    std::tuple<bool, int> regenerate1(int begin, int end);
 
 private:
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
+    std::tuple<bool, int> updateTextureCoordinates1(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -319,7 +319,7 @@ public:
            GrTextBlob* textBlob,
            const SkStrikeSpec& strikeSpec,
            GrMaskFormat format,
-           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
+           const SkSpan<GrGlyph>& glyphs, const SkSpan<char>& vertexData,
            sk_sp<GrTextStrike>&& grStrike);
 
     // SubRun for paths
@@ -334,6 +334,7 @@ public:
     GrTextStrike* strike() const;
 
     GrMaskFormat maskFormat() const;
+    int numGlyphs() const {return fGlyphs3.size();}
 
     size_t vertexStride() const;
     size_t colorOffset() const;
@@ -350,7 +351,7 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
-    void updateTexCoords(int begin, int end);
+    void updateTexCoords1(int begin, int end, const GrAtlasManager::Bar*);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -364,7 +365,7 @@ public:
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
-    const SkSpan<GrGlyph*> fGlyphs;
+    const SkSpan<GrGlyph> fGlyphs3;
     const SkSpan<char> fVertexData;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
