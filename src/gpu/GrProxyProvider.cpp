@@ -232,7 +232,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
 
 GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const GrUniqueKey& key,
                                                                          GrSurfaceOrigin origin,
-                                                                         GrColorType ct) {
+                                                                         GrColorType ct,
+                                                                         int sampleCnt) {
     auto proxy = this->findOrCreateProxyByUniqueKey(key);
     if (!proxy) {
         return {};
@@ -241,7 +242,7 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
     if (proxy->asRenderTargetProxy()) {
         GrBackendFormat expectedFormat;
         std::tie(ct, expectedFormat) =
-                GrRenderTargetContext::GetFallbackColorTypeAndFormat(fImageContext, ct);
+                GrRenderTargetContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
         SkASSERT(expectedFormat == proxy->backendFormat());
     }
     GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);

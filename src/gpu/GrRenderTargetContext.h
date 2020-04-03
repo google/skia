@@ -90,7 +90,8 @@ public:
             const SkSurfaceProps* = nullptr);
 
     static std::tuple<GrColorType, GrBackendFormat> GetFallbackColorTypeAndFormat(GrImageContext*,
-                                                                                  GrColorType);
+                                                                                  GrColorType,
+                                                                                  int sampleCnt);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per

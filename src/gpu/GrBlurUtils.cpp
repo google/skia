@@ -34,7 +34,8 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
 static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 
 static GrSurfaceProxyView find_filtered_mask(GrProxyProvider* provider, const GrUniqueKey& key) {
-    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8);
+    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8,
+                                                          1);
 }
 
 // Draw a mask using the supplied paint. Since the coverage/geometry
