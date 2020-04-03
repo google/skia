@@ -145,7 +145,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
 
     const GrCaps* caps = ctx->priv().caps();
 
-    if (!caps->instanceAttribSupport()) {
+    if (!caps->drawInstancedSupport()) {
         return nullptr;
     }
 
