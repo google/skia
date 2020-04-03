@@ -243,6 +243,7 @@ void GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minInd
 
 void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int vertexCount,
                                     int baseVertex) {
+    SkASSERT(this->gpu()->caps()->instanceAttribSupport());
     if (!this->prepareToDraw()) {
         return;
     }
@@ -254,6 +255,7 @@ void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int ver
 
 void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                            int baseInstance, int baseVertex) {
+    SkASSERT(this->gpu()->caps()->instanceAttribSupport());
     if (!this->prepareToDraw()) {
         return;
     }
