@@ -130,6 +130,14 @@ public:
     uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
                                     sk_sp<const GrBuffer>*, int* startIndex,
                                     int* actualIndexCount) final;
+    GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                                 size_t* offset) {
+        return fDrawIndirectPool.makeSpace(drawCount, buffer, offset);
+    }
+    GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
+            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
+        return fDrawIndirectPool.makeIndexedSpace(drawCount, buffer, offset);
+    }
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
     const GrSurfaceProxyView* writeView() const final { return this->drawOpArgs().writeView(); }
@@ -211,6 +219,12 @@ public:
         fOpsRenderPass->drawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance,
                                              baseVertex);
     }
+    void drawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) {
+        fOpsRenderPass->drawIndirect(drawIndirectBuffer, offset, drawCount);
+    }
+    void drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) {
+        fOpsRenderPass->drawIndexedIndirect(drawIndirectBuffer, offset, drawCount);
+    }
     void drawIndexPattern(int patternIndexCount, int patternRepeatCount,
                           int maxPatternRepetitionsInIndexBuffer, int patternVertexCount,
                           int baseVertex) {
@@ -251,6 +265,7 @@ private:
     // Store vertex and index data on behalf of ops that are flushed.
     GrVertexBufferAllocPool fVertexPool;
     GrIndexBufferAllocPool fIndexPool;
+    GrDrawIndirectBufferAllocPool fDrawIndirectPool;
 
     // Data stored on behalf of the ops being flushed.
     SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;

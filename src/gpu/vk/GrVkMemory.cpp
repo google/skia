@@ -18,6 +18,7 @@ static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
     switch (type) {
         case GrVkBuffer::kVertex_Type: // fall through
         case GrVkBuffer::kIndex_Type: // fall through
+        case GrVkBuffer::kIndirect_Type: // fall through
         case GrVkBuffer::kTexel_Type:
             return dynamic ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
         case GrVkBuffer::kUniform_Type:
