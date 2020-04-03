@@ -299,4 +299,8 @@ struct GrPrepareForExternalIORequests {
     bool hasRequests() const { return fNumImages || fNumSurfaces; }
 };
 
+#ifndef SK_ENABLE_DUMP_GPU
+#define SK_ENABLE_DUMP_GPU 1
+#endif
+
 #endif
