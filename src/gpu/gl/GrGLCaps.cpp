@@ -33,7 +33,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fVertexArrayObjectSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fDrawInstancedSupport = false;
     fDrawIndirectSupport = false;
     fDrawRangeElementsSupport = false;
     fMultiDrawIndirectSupport = false;
@@ -205,18 +204,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
         // instanced arrays, but we could make this more granular if we wanted
-        fInstanceAttribSupport =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 2) ||
                 (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
                  ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fInstanceAttribSupport =
+        fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 0) ||
                 (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }  else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL 2.0 has DrawArraysInstanced and drawElementsInstanced
-        fInstanceAttribSupport = version >= GR_GL_VER(2, 0);
+        fDrawInstancedSupport = version >= GR_GL_VER(2, 0);
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -3547,7 +3546,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://anglebug.com/4538
-    if (fBaseVertexBaseInstanceSupport && !fInstanceAttribSupport) {
+    if (fBaseVertexBaseInstanceSupport && !fDrawInstancedSupport) {
         fBaseVertexBaseInstanceSupport = false;
     }
 
