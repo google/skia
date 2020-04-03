@@ -101,6 +101,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
         fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
 
+    SkDebugf("@@@@@@@@@> Context Dump:\n %s\n", this->dump().c_str());
+
     return true;
 }
 

@@ -83,6 +83,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
     GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
                       &args.fDriver, &args.fDriverVersion);
+    SkDebugf("@@@@@@@> GrGLDriver=%u, version=0x%x\n", args.fDriver, args.fDriverVersion);
 
     args.fContextOptions = &options;
     args.fInterface = std::move(interface);
