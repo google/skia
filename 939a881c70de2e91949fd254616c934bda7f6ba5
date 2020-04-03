@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b9f9f73_80dd8166",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T17:12:26Z",
+      "side": 0,
+      "message": "This may change the JIT-ability of this, but I\u0027m fine with that.  We\u0027ll get it eventually.",
+      "range": {
+        "startLine": 566,
+        "startChar": 1,
+        "endLine": 574,
+        "endChar": 74
+      },
+      "revId": "939a881c70de2e91949fd254616c934bda7f6ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

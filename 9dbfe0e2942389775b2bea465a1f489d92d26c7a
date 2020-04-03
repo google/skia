@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bdc91aa_fe275c4e",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T17:12:26Z",
+      "side": 1,
+      "message": "beautiful",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e208c018_6a732de8",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T17:12:26Z",
+      "side": 1,
+      "message": "t \u003d fract(t) may be clearer?",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd69b202_f4362822",
+        "filename": "src/shaders/gradients/SkRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T17:12:26Z",
+      "side": 1,
+      "message": "think this is clear enough or even clearer without norm now, sqrt(x*x + y*y)?",
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffa609fd_ae54844e",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-03T17:12:26Z",
+      "side": 1,
+      "message": "can drop this maybe?",
+      "range": {
+        "startLine": 276,
+        "startChar": 32,
+        "endLine": 276,
+        "endChar": 37
+      },
+      "revId": "9dbfe0e2942389775b2bea465a1f489d92d26c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
