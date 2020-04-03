@@ -168,38 +168,37 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
 
     auto apply = [&](skvm::F32 v) -> skvm::F32 {
         // Strip off the sign bit and save it for later.
-        skvm::I32 bits = p->bit_cast(v),
-                  sign = p->bit_and(bits,p->splat(0x80000000));
-        v = p->bit_cast(p->bit_xor(bits, sign));
+        skvm::I32 bits = bit_cast(v),
+                  sign = bits & 0x80000000;
+        v = bit_cast(bits ^ sign);
 
         switch (classify_transfer_fn(tf)) {
             case Bad_TF: SkASSERT(false); break;
 
             case sRGBish_TF:
-                v = p->select(p->lte(v,D), p->mad(C, v, F)
-                                         , p->add(p->approx_powf(p->mad(A, v, B), G), E));
+                v = select(v <= D, C*v + F
+                                 , approx_powf(A*v + B, G) + E);
                 break;
 
-            case PQish_TF:
-                v = p->approx_powf(p->div(p->max(p->mad(B, p->approx_powf(v, C), A), p->splat(0.f)),
-                                                 p->mad(E, p->approx_powf(v, C), D)),
-                                   F);
-                break;
+            case PQish_TF: {
+                auto vC = approx_powf(v, C);
+                v = approx_powf(max(B * vC + A, 0.0f) / (E * vC + D), F);
+            } break;
 
             case HLGish_TF: {
-                auto vA = p->mul(v,A);
-                v = p->select(p->lte(vA,p->splat(1.0f)), p->approx_powf(vA, B)
-                                                       , p->approx_exp(p->mad(p->sub(v,E),C, D)));
+                auto vA = v * A;
+                v = select(vA <= 1.0f, approx_powf(vA, B)
+                                     , approx_exp((v-E) * C + D));
             } break;
 
             case HLGinvish_TF:
-                v = p->select(p->lte(v,p->splat(1.0f)), p->mul(A, p->approx_powf(v, B))
-                                                      , p->mad(C, p->approx_log(p->sub(v,D)), E));
+                v = select(v <= 1.0f, A * approx_powf(v, B)
+                                    , C * approx_log(v-D) + E);
                 break;
         }
 
         // Re-apply the original sign bit on our way out the door.
-        return p->bit_cast(p->bit_or(sign, p->bit_cast(v)));
+        return bit_cast(sign | bit_cast(v));
     };
 
     return {apply(c.r), apply(c.g), apply(c.b), c.a};
@@ -214,13 +213,12 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
         c = sk_program_transfer_fn(p, uniforms, srcTF, c);
     }
     if (flags.gamut_transform) {
-        skvm::F32 m[9];
-        for (int i = 0; i < 9; ++i) {
-            m[i] = p->uniformF(uniforms->pushF(src_to_dst_matrix[i]));
-        }
-        auto R = p->mad(c.r,m[0], p->mad(c.g,m[3], p->mul(c.b,m[6]))),
-             G = p->mad(c.r,m[1], p->mad(c.g,m[4], p->mul(c.b,m[7]))),
-             B = p->mad(c.r,m[2], p->mad(c.g,m[5], p->mul(c.b,m[8])));
+        auto m = [&](int index) {
+            return p->uniformF(uniforms->pushF(src_to_dst_matrix[index]));
+        };
+        auto R = c.r * m(0) + c.g * m(3) + c.b * m(6),
+             G = c.r * m(1) + c.g * m(4) + c.b * m(7),
+             B = c.r * m(2) + c.g * m(5) + c.b * m(8);
         c = {R, G, B, c.a};
     }
     if (flags.encode) {
