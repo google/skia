@@ -521,7 +521,7 @@ namespace skvm {
         return program;
     }
 
-    std::vector<Instruction> schedule(const std::vector<Instruction> program) {
+    std::vector<Instruction> schedule(std::vector<Instruction> program) {
         Usage usage{program};
 
         std::vector<int> uses(program.size());
@@ -584,9 +584,8 @@ namespace skvm {
         }
         std::make_heap(frontier.begin(), frontier.end(), compare);
 
-        std::vector<Instruction> scheduled(program.size());
+        // Figure out our new Instruction schedule.
         std::vector<Val> new_id(program.size(), NA);
-
         for (Val n = (Val)program.size(); n --> 0;) {
             SkASSERT(!frontier.empty());
             std::pop_heap(frontier.begin(), frontier.end(), compare);
@@ -596,7 +595,6 @@ namespace skvm {
             SkASSERT(ready_to_schedule(id));
 
             Instruction inst = program[id];
-            scheduled[n] = inst;
             new_id[id] = n;
 
             for (Val arg : {inst.x, inst.y, inst.z}) {
@@ -611,14 +609,26 @@ namespace skvm {
         }
         SkASSERT(frontier.empty());
 
-        for (Val id = 0; id < (Val)scheduled.size(); id++) {
-            Instruction& inst = scheduled[id];
-            if (inst.x != NA) { inst.x = new_id[inst.x]; SkASSERT(inst.x != NA); }
-            if (inst.y != NA) { inst.y = new_id[inst.y]; SkASSERT(inst.y != NA); }
-            if (inst.z != NA) { inst.z = new_id[inst.z]; SkASSERT(inst.y != NA); }
+        // Remap each Instruction's arguments to their new IDs.
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            Instruction& inst = program[id];
+            for (Val* arg : {&inst.x, &inst.y, &inst.z}) {
+                if (*arg != NA) {
+                    *arg = new_id[*arg];
+                    SkASSERT(*arg != NA);
+                }
+            }
         }
 
-        return scheduled;
+        // Finally, reorder the Instructions themselves according to the new schedule.
+        // This is O(N)... wish I had a good reference link breaking it down.
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            while (id != new_id[id]) {
+                std::swap(program[id], program[new_id[id]]);
+                std::swap( new_id[id],  new_id[new_id[id]]);
+            }
+        }
+        return program;
     }
 
     std::vector<OptimizedInstruction> finalize(const std::vector<Instruction> program) {
