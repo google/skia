@@ -22,6 +22,30 @@
       "revId": "5984ba3af15d5a4e2e7191ab15d9e43b03466b07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5313581_73892608",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-03T13:07:34Z",
+      "side": 1,
+      "message": "Yeah, it needs to be only the upper 3x3 part.",
+      "parentUuid": "612cd027_e0e6982d",
+      "range": {
+        "startLine": 423,
+        "startChar": 29,
+        "endLine": 423,
+        "endChar": 30
+      },
+      "revId": "5984ba3af15d5a4e2e7191ab15d9e43b03466b07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
