@@ -11,6 +11,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkVM_fwd.h"
@@ -78,7 +79,7 @@ namespace skvm {
         struct Label {
             int                                      offset = 0;
             enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            std::vector<int>                         references;
+            SkSTArray<1, int>                        references;
         };
 
         struct YmmOrLabel {
