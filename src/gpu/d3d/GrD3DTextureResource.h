@@ -64,8 +64,6 @@ public:
 
     static bool InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc, GrProtected,
                                         GrD3DTextureResourceInfo*);
-    // Releases the internal ID3D12Resource in the GrD3DTextureResourceInfo
-    static void ReleaseTextureResourceInfo(GrD3DTextureResourceInfo*);
 
     void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 

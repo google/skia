@@ -71,9 +71,6 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
     GrD3DTexture* tex = new GrD3DTexture(gpu, budgeted, dimensions, info, std::move(state),
                                          mipMapsStatus);
 
-    // The GrD3DTexture takes a ref on the texture so we need to release ours
-    GrD3DTextureResource::ReleaseTextureResourceInfo(&info);
-
     return sk_sp<GrD3DTexture>(tex);
 }
 

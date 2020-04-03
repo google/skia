@@ -114,8 +114,6 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
                                       std::move(msState));
-        // The render target takes a ref on the color texture so we need to release ours
-        GrD3DTextureResource::ReleaseTextureResourceInfo(&msInfo);
     } else {
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state));
     }
