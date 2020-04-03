@@ -2623,6 +2623,8 @@ private:
                                                                 : kNotOpaque_ShaderOverrideOpacity);
     }
 
+    void notifyCameraChanged();
+
     SkBaseDevice* getDevice() const;
 
     class MCRec;
