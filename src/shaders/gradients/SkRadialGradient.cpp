@@ -65,7 +65,7 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
 
 skvm::F32 SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
                                        skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
-    return p->norm(x,y);
+    return sqrt(x*x + y*y);
 }
 
 /////////////////////////////////////////////////////////////////////

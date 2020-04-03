@@ -71,11 +71,10 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
 
 skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
                                       skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
-    skvm::F32 xabs = p->abs(x),
-              yabs = p->abs(y),
-             slope = p->div(p->min(xabs, yabs),
-                            p->max(xabs, yabs));
-    skvm::F32 s = p->mul(slope, slope);
+    skvm::F32 xabs = abs(x),
+              yabs = abs(y),
+             slope = min(xabs, yabs) / max(xabs, yabs);
+    skvm::F32 s = slope * slope;
 
     // Use a 7th degree polynomial to approximate atan.
     // This was generated using sollya.gforge.inria.fr.
@@ -91,16 +90,16 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
                                             p->splat(C)),
                                             p->splat(B)),
                                             p->splat(A)));
-    phi = p->select(p->lt (xabs, yabs)       , p->sub(p->splat(1/4.0f), phi), phi);
-    phi = p->select(p->lt (x, p->splat(0.0f)), p->sub(p->splat(1/2.0f), phi), phi);
-    phi = p->select(p->lt (y, p->splat(0.0f)), p->sub(p->splat(1/1.0f), phi), phi);
+    phi = select(xabs < yabs, (1/4.0f) - phi, phi);
+    phi = select(   x < 0.0f, (1/2.0f) - phi, phi);
+    phi = select(   y < 0.0f, (1/1.0f) - phi, phi);
 
     skvm::F32 t = p->bit_cast(p->bit_and(p->bit_cast(phi),   // t = phi if phi != NaN
                                          p->eq(phi, phi)));
 
     if (fTScale != 1.0f || fTBias != 0.0f) {
-        t = p->mad(t, p->uniformF(uniforms->pushF(fTScale))
-                    , p->uniformF(uniforms->pushF(fTScale*fTBias)));
+        t = t * p->uniformF(uniforms->pushF(fTScale))
+              + p->uniformF(uniforms->pushF(fTScale*fTBias));
     }
     return t;
 }

@@ -244,16 +244,15 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
         float denom = 1.0f / (fRadius2 - fRadius1),
               scale = std::max(fRadius1, fRadius2) * denom,
                bias =                  -fRadius1 * denom;
-        return p->mad(p->norm(x,y), p->uniformF(uniforms->pushF(scale))
-                                  , p->uniformF(uniforms->pushF(bias )));
+        return norm(x,y) * p->uniformF(uniforms->pushF(scale))
+                         + p->uniformF(uniforms->pushF(bias ));
     }
 
     if (fType == Type::kStrip) {
         float r = fRadius1 / this->getCenterX1();
-        skvm::F32 t = p->add(x, p->sqrt(p->sub(p->splat(r*r),
-                                        p->mul(y,y))));
+        skvm::F32 t = x + sqrt(p->splat(r*r) - y*y);
 
-        *mask = p->eq(t,t);   // t != NaN
+        *mask = (t == t);   // t != NaN
         return t;
     }
 
@@ -261,27 +260,26 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
 
     skvm::F32 t;
     if (fFocalData.isFocalOnCircle()) {
-        t = p->mad(p->div(y,x),y,x);       // (x^2 + y^2) / x  ~~>  x + y^2/x  ~~>  y/x * y + x
+        t = (y/x) * y + x;       // (x^2 + y^2) / x  ~~>  x + y^2/x  ~~>  y/x * y + x
     } else if (fFocalData.isWellBehaved()) {
-        t = p->sub(p->norm(x,y), p->mul(x, invR1));
+        t = norm(x,y) - x*invR1;
     } else {
-        skvm::F32 k = p->sqrt(p->sub(p->mul(x,x),
-                                     p->mul(y,y)));
+        skvm::F32 k = sqrt(x*x - y*y);
         if (fFocalData.isSwapped() || 1 - fFocalData.fFocalX < 0) {
             k = -k;
         }
-        t = p->sub(k, p->mul(x, invR1));
+        t = k - x*invR1;
     }
 
     if (!fFocalData.isWellBehaved()) {
         // TODO: not sure why we consider t == 0 degenerate
-        *mask = p->gt(t, p->splat(0.0f));  // t > 0 and implicitly, t != NaN
+        *mask = (t > 0.0f);  // and implicitly, t != NaN
     }
 
     const skvm::F32 focalX = p->uniformF(uniforms->pushF(fFocalData.fFocalX));
     if (1 - fFocalData.fFocalX < 0)    { t = -t; }
-    if (!fFocalData.isNativelyFocal()) { t = p->add(t, focalX); }
-    if (fFocalData.isSwapped())        { t = p->sub(p->splat(1.0f), t); }
+    if (!fFocalData.isNativelyFocal()) { t += focalX; }
+    if ( fFocalData.isSwapped())       { t = 1.0f - t; }
     return t;
 }
 
