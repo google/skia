@@ -8,6 +8,7 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
@@ -404,9 +405,13 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBacke
 }
 
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
-                                             GrAccessPattern accessPattern, const void*) {
-    // TODO
-    return nullptr;
+                                             GrAccessPattern accessPattern, const void* data) {
+    sk_sp<GrD3DBuffer> buffer = GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);
+    if (data && buffer) {
+        buffer->updateData(data, sizeInBytes);
+    }
+
+    return std::move(buffer);
 }
 
 GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
