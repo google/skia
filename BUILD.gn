@@ -1269,6 +1269,7 @@ if (skia_enable_tools) {
     } else {
       # !is_ios
 
+      output_dir = root_build_dir
       if (defined(invoker.is_shared_library) && invoker.is_shared_library) {
         shared_library("lib" + target_name) {
           forward_variables_from(invoker, "*", [ "is_shared_library" ])
