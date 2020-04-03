@@ -37,7 +37,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDrawIndirectSupport = false;
     fDrawRangeElementsSupport = false;
     fMultiDrawIndirectSupport = false;
-    fBaseInstanceSupport = false;
+    fBaseVertexBaseInstanceSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
@@ -625,18 +625,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
-        fBaseInstanceSupport = version >= GR_GL_VER(4,2);
+        fBaseVertexBaseInstanceSupport = version >= GR_GL_VER(4,2) ||
+                                         ctxInfo.hasExtension("GL_ARB_base_instance");
         fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    (fDrawIndirectSupport &&
-                                     !fBaseInstanceSupport && // The ARB extension has no base inst.
-                                     ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
+                                    ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = fDrawIndirectSupport &&
                                     ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
-        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance") ||
-                               ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance");
+        fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance") ||
+                                         ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance");
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL lacks indirect support, but drawRange was added in WebGL 2.0
@@ -1184,7 +1183,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Debug support", fDebugSupport);
     writer->appendBool("Draw indirect support", fDrawIndirectSupport);
     writer->appendBool("Multi draw indirect support", fMultiDrawIndirectSupport);
-    writer->appendBool("Base instance support", fBaseInstanceSupport);
+    writer->appendBool("Base (vertex base) instance support", fBaseVertexBaseInstanceSupport);
     writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
     writer->appendBool("Partial FBO read is slow", fPartialFBOReadIsSlow);
     writer->appendBool("Bind uniform location support", fBindUniformLocationSupport);
@@ -3544,12 +3543,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // http://anglebug.com/4536
     if (ctxInfo.driver() == kANGLE_GrGLDriver &&
         ctxInfo.angleBackend() != GrGLANGLEBackend::kOpenGL) {
-        fBaseInstanceSupport = false;
+        fBaseVertexBaseInstanceSupport = false;
     }
 
     // http://anglebug.com/4538
-    if (fBaseInstanceSupport && !fInstanceAttribSupport) {
-        fBaseInstanceSupport = false;
+    if (fBaseVertexBaseInstanceSupport && !fInstanceAttribSupport) {
+        fBaseVertexBaseInstanceSupport = false;
     }
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
