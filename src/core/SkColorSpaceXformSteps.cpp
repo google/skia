@@ -176,8 +176,8 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
             case Bad_TF: SkASSERT(false); break;
 
             case sRGBish_TF:
-                v = p->select(p->lte(v,D), p->mad(C, v, F)
-                                         , p->add(p->approx_powf(p->mad(A, v, B), G), E));
+                v = select(v <= D, C*v + F
+                                 , approx_powf(A*v + B, G) + E);
                 break;
 
             case PQish_TF:
