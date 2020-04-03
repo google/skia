@@ -739,6 +739,13 @@ int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& came
     int n = this->save();
     this->concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
+
+    SkM44 invc;
+    if (!fCameraStack.empty()) {
+        invc = fCameraStack.back().fInvPostCamera;
+    }
+    FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
+
     return n;
 }
 
