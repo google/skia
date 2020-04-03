@@ -64,10 +64,6 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     return true;
 }
 
-void GrD3DTextureResource::ReleaseTextureResourceInfo(GrD3DTextureResourceInfo* info) {
-    info->fResource->Release();
-}
-
 GrD3DTextureResource::~GrD3DTextureResource() {
     // Should have been reset() before
     SkASSERT(!fResource);
