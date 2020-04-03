@@ -602,12 +602,14 @@ GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface* gl) {
 GrGLVendor GrGLGetVendor(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VENDOR));
+    SkDebugf("@@@@@@@> GL_VENDOR=%s\n", v);
     return GrGLGetVendorFromString((const char*) v);
 }
 
 GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     const GrGLubyte* rendererString;
     GR_GL_CALL_RET(gl, rendererString, GetString(GR_GL_RENDERER));
+    SkDebugf("@@@@@@@> GL_RENDERER=%s\n", rendererString);
 
     return GrGLGetRendererFromStrings((const char*)rendererString, gl->fExtensions);
 }

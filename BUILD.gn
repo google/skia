@@ -623,9 +623,7 @@ optional("gpu") {
     sources += skia_atlas_text_sources
   }
 
-  if (is_debug) {
-    public_defines += [ "SK_ENABLE_DUMP_GPU" ]
-  }
+  public_defines += [ "SK_ENABLE_DUMP_GPU" ]
 }
 
 optional("gif") {
