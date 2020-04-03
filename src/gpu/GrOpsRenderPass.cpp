@@ -65,7 +65,7 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     // place (i.e., the target renderTargetProxy) they had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
     if (programInfo.primProc().hasInstanceAttributes()) {
-         SkASSERT(this->gpu()->caps()->instanceAttribSupport());
+         SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     }
     if (programInfo.pipeline().usesConservativeRaster()) {
         SkASSERT(this->gpu()->caps()->conservativeRasterSupport());
@@ -243,7 +243,7 @@ void GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minInd
 
 void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int vertexCount,
                                     int baseVertex) {
-    SkASSERT(this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     if (!this->prepareToDraw()) {
         return;
     }
@@ -255,7 +255,7 @@ void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int ver
 
 void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                            int baseInstance, int baseVertex) {
-    SkASSERT(this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     if (!this->prepareToDraw()) {
         return;
     }

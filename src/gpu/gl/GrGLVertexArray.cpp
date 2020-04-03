@@ -85,7 +85,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                size_t offsetInBytes,
                                int divisor) {
     SkASSERT(index >= 0 && index < fAttribArrayStates.count());
-    SkASSERT(0 == divisor || gpu->caps()->instanceAttribSupport());
+    SkASSERT(0 == divisor || gpu->caps()->drawInstancedSupport());
     AttribArrayState* array = &fAttribArrayStates[index];
     const char* offsetAsPtr;
     bool bufferChanged = false;
@@ -134,7 +134,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         array->fStride = stride;
         array->fOffset = offsetAsPtr;
     }
-    if (gpu->caps()->instanceAttribSupport() && array->fDivisor != divisor) {
+    if (gpu->caps()->drawInstancedSupport() && array->fDivisor != divisor) {
         SkASSERT(0 == divisor || 1 == divisor); // not necessarily a requirement but what we expect.
         GR_GL_CALL(gpu->glInterface(), VertexAttribDivisor(index, divisor));
         array->fDivisor = divisor;

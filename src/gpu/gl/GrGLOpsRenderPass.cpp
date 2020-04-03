@@ -143,7 +143,7 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
                                       uint16_t maxIndexValue, int baseVertex) {
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
-        SkASSERT(fGpu->glCaps().instanceAttribSupport());
+        SkASSERT(fGpu->glCaps().drawInstancedSupport());
         SkASSERT(!fActiveVertexBuffer);
         if (baseVertex != 0) {
             GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(
