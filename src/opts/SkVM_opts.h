@@ -252,26 +252,11 @@ namespace SK_OPTS_NS {
                     CASE(Op::bit_and  ): r(d).i32 = r(x).i32 &  r(y).i32; break;
                     CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;
                     CASE(Op::bit_xor  ): r(d).i32 = r(x).i32 ^  r(y).i32; break;
-                    CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
                     CASE(Op::select): r(d).i32 = skvx::if_then_else(r(x).i32, r(y).i32, r(z).i32);
                                       break;
 
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << immz); break;
-
-                    CASE(Op::bytes): {
-                        const U32 table[] = {
-                            0,
-                            (r(x).u32      ) & 0xff,
-                            (r(x).u32 >>  8) & 0xff,
-                            (r(x).u32 >> 16) & 0xff,
-                            (r(x).u32 >> 24) & 0xff,
-                        };
-                        r(d).u32 = table[(immy >>  0) & 0xf] <<  0
-                                 | table[(immy >>  4) & 0xf] <<  8
-                                 | table[(immy >>  8) & 0xf] << 16
-                                 | table[(immy >> 12) & 0xf] << 24;
-                    } break;
 
                     CASE(Op::floor):  r(d).f32 =                   skvx::floor(r(x).f32) ; break;
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(            r(x).i32 ); break;

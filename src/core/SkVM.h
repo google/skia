@@ -326,11 +326,10 @@ namespace skvm {
         M(bit_and)                            \
         M(bit_or)                             \
         M(bit_xor)                            \
-        M(bit_clear)                          \
         M(bit_and_imm)                        \
         M(bit_or_imm)                         \
         M(bit_xor_imm)                        \
-        M(select) M(bytes) M(pack)            \
+        M(select) M(pack)                     \
     // End of SKVM_OPS
 
     enum class Op : int {
@@ -626,7 +625,6 @@ namespace skvm {
         I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }
         I32 bit_or   (I32, I32);  I32 bit_or   (I32a x, I32a y) { return bit_or   (_(x), _(y)); }
         I32 bit_xor  (I32, I32);  I32 bit_xor  (I32a x, I32a y) { return bit_xor  (_(x), _(y)); }
-        I32 bit_clear(I32, I32);  I32 bit_clear(I32a x, I32a y) { return bit_clear(_(x), _(y)); }
 
         I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
         I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
@@ -642,29 +640,6 @@ namespace skvm {
 
         I32 select(I32a cond, I32a t, I32a f) { return select(_(cond), _(t), _(f)); }
         F32 select(I32a cond, F32a t, F32a f) { return select(_(cond), _(t), _(f)); }
-
-        // More complex operations...
-
-        // Shuffle the bytes in x according to each nibble of control, as if
-        //
-        //    uint8_t bytes[] = {
-        //        0,
-        //        ((uint32_t)x      ) & 0xff,
-        //        ((uint32_t)x >>  8) & 0xff,
-        //        ((uint32_t)x >> 16) & 0xff,
-        //        ((uint32_t)x >> 24) & 0xff,
-        //    };
-        //    return (uint32_t)bytes[(control >>  0) & 0xf] <<  0
-        //         | (uint32_t)bytes[(control >>  4) & 0xf] <<  8
-        //         | (uint32_t)bytes[(control >>  8) & 0xf] << 16
-        //         | (uint32_t)bytes[(control >> 12) & 0xf] << 24;
-        //
-        // So, e.g.,
-        //    - bytes(x, 0x1111) splats the low byte of x to all four bytes
-        //    - bytes(x, 0x4321) is x, an identity
-        //    - bytes(x, 0x0000) is 0
-        //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
-        I32 bytes  (I32 x, int control);
 
         I32 extract(I32 x, int bits, I32 z);   // (x>>bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
@@ -974,8 +949,6 @@ namespace skvm {
 
     static inline I32 select(I32 cond, I32a t, I32a f) { return cond->select(cond,t,f); }
     static inline F32 select(I32 cond, F32a t, F32a f) { return cond->select(cond,t,f); }
-
-    static inline I32 bytes(I32 x, int control) { return x->bytes(x,control); }
 
     static inline I32 extract(I32 x, int bits, I32a z) { return x->extract(x,bits,z); }
     static inline I32 extract(int x, int bits, I32  z) { return z->extract(x,bits,z); }

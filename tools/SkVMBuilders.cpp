@@ -125,10 +125,10 @@ SrcoverBuilder_I32::SrcoverBuilder_I32() {
     auto load = [&](skvm::Arg ptr,
                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
         skvm::I32 rgba = load32(ptr);
-        *r = bit_and(rgba, splat(0xff));
-        *g = bytes  (rgba, 0x0002);
-        *b = bytes  (rgba, 0x0003);
-        *a = shr    (rgba, 24);
+        *r = extract(rgba,  0, splat(0xff));
+        *g = extract(rgba,  8, splat(0xff));
+        *b = extract(rgba, 16, splat(0xff));
+        *a = extract(rgba, 24, splat(0xff));
     };
 
     skvm::I32 r,g,b,a;
@@ -169,7 +169,8 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
     // The s += d*invA adds won't overflow,
     // so we don't have to unpack s beyond grabbing the alpha channel.
     skvm::I32 s = load32(src),
-            ax2 = bytes(s, 0x0404);  // rgba -> a0a0
+            ax2 = extract(s, 24, splat(0x000000ff))
+                | extract(s,  8, splat(0x00ff0000));
 
     // We'll use the same approximation math as above, this time making sure to
     // use both i16 multiplies to our benefit, one for r/g, the other for b/a.
@@ -181,7 +182,7 @@ SrcoverBuilder_I32_SWAR::SrcoverBuilder_I32_SWAR() {
 
     rb = shr_16x2(mul_16x2(rb, invAx2), 8);  // Put the high 8 bits back in the low lane.
     ga =          mul_16x2(ga, invAx2);      // Keep the high 8 bits up high...
-    ga = bit_clear(ga, splat(0x00ff00ff));     // ...and mask off the low bits.
+    ga = bit_and(ga, splat(0xff00ff00));     // ...and mask off the low bits.
 
     store32(dst, add(s, bit_or(rb, ga)));
 }

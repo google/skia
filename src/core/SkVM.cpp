@@ -284,14 +284,12 @@ namespace skvm {
                 case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
-                case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
 
                 case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
                 case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
                 case Op::bit_xor_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
 
                 case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
-                case Op::bytes:   write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
                 case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}); break;
 
                 case Op::floor:  write(o, V{id}, "=", op, V{x}); break;
@@ -404,14 +402,12 @@ namespace skvm {
                 case Op::bit_and  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_or   : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_xor  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
-                case Op::bit_clear: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
 
                 case Op::bit_and_imm: write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
                 case Op::bit_or_imm : write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
                 case Op::bit_xor_imm: write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
 
                 case Op::select:  write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
-                case Op::bytes:   write(o, R{d}, "=", op,  R{x}, Hex{immy}); break;
                 case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
                 case Op::floor:  write(o, R{d}, "=", op, R{x}); break;
@@ -425,8 +421,8 @@ namespace skvm {
 
     std::vector<Instruction> specialize_for_jit(std::vector<Instruction> program) {
         // We could use a temporary Builder to let new Instructions participate in common
-        // sub-expression elimination, but there's only a tiny chance of hitting anything valuable
-        // with the specializations we've got today.  Worth keeping in mind for the future though.
+        // sub-expression elimination, but we'll never hit anything valuable with the
+        // specializations we've got today.  Worth keeping in mind for the future though.
         for (Val i = 0; i < (Val)program.size(); i++) {
         #if defined(SK_CPU_X86)
             Instruction& inst = program[i];
@@ -464,13 +460,6 @@ namespace skvm {
                         inst.op   = Op::sub_f32_imm;
                         inst.y    = NA;
                         inst.immy = bits;
-                    } break;
-
-                case Op::bit_clear:
-                    if (int bits; is_imm(inst.y, &bits)) {
-                        inst.op   = Op::bit_and_imm;
-                        inst.y    = NA;
-                        inst.immy = ~bits;
                     } break;
             }
         #endif
@@ -1020,14 +1009,6 @@ namespace skvm {
         if (this->isImm(x.id, 0)) { return y; }   // (false ^ y) == y
         return {this, push(Op::bit_xor, x.id, y.id)};
     }
-    I32 Builder::bit_clear(I32 x, I32 y) {
-        int X,Y;
-        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&~Y); }
-        if (this->isImm(y.id, 0)) { return x; }                // (x & ~false) == x
-        if (this->isImm(y.id,~0)) { return this->splat(0); }   // (x & ~true) == false
-        if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & ~y) == false
-        return {this, push(Op::bit_clear, x.id, y.id)};
-    }
 
     I32 Builder::select(I32 x, I32 y, I32 z) {
         int X,Y,Z;
@@ -1046,10 +1027,6 @@ namespace skvm {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|(Y<<bits)); }
         return {this, push(Op::pack, x.id,y.id,NA, 0,bits)};
-    }
-
-    I32 Builder::bytes(I32 x, int control) {
-        return {this, push(Op::bytes, x.id,NA,NA, control)};
     }
 
     F32 Builder::floor(F32 x) {
@@ -2440,7 +2417,6 @@ namespace skvm {
                 case Op::bit_and:   vals[i] = b->CreateAnd(vals[x], vals[y]); break;
                 case Op::bit_or :   vals[i] = b->CreateOr (vals[x], vals[y]); break;
                 case Op::bit_xor:   vals[i] = b->CreateXor(vals[x], vals[y]); break;
-                case Op::bit_clear: vals[i] = b->CreateAnd(vals[x], b->CreateNot(vals[y])); break;
 
                 case Op::pack: vals[i] = b->CreateOr(vals[x], b->CreateShl(vals[y], immz)); break;
 
@@ -2548,36 +2524,6 @@ namespace skvm {
                 case Op::gte_i16x2:
                     vals[i] = I(S(I16x2, b->CreateICmpSGE(x2(vals[x]), x2(vals[y]))));
                     break;
-
-                case Op::bytes: {
-                    int N = vals[x]->getType()->isVectorTy() ? K : 1;
-
-                    uint32_t off = 0;
-                    auto nibble_to_mask = [&](uint8_t n) -> uint32_t {
-                        switch (n) {
-                            case 0: return       4*N;   // Select any byte in the second (zero) arg.
-                            case 1: return off +   0;   // 1st byte in this arg.
-                            case 2: return off +   1;   // 2nd ...
-                            case 3: return off +   2;   // 3rd ...
-                            case 4: return off +   3;   // 4th byte in this arg.
-                        }
-                        SkUNREACHABLE;
-                        return 0;
-                    };
-
-                    std::vector<uint32_t> mask(N*4);
-                    for (int i = 0; i < N; i++) {
-                        mask[4*i+0] = nibble_to_mask( (immy >>  0) & 0xf );
-                        mask[4*i+1] = nibble_to_mask( (immy >>  4) & 0xf );
-                        mask[4*i+2] = nibble_to_mask( (immy >>  8) & 0xf );
-                        mask[4*i+3] = nibble_to_mask( (immy >> 12) & 0xf );
-                        off += 4;
-                    }
-
-                    llvm::Value* input =  b->CreateBitCast(vals[x], I8x4);
-                    llvm::Value* zero  = llvm::Constant::getNullValue(I8x4);
-                    vals[i] = I(b->CreateShuffleVector(input, zero, mask));
-                } break;
             }
             return true;
         };
@@ -2930,39 +2876,6 @@ namespace skvm {
 
 #if defined(SKVM_JIT)
 
-    // Just so happens that we can translate the immediate control for our bytes() op
-    // to a single 128-bit mask that can be consumed by both AVX2 vpshufb and NEON tbl!
-    static void bytes_control(int imm, int mask[4]) {
-        auto nibble_to_vpshufb = [](uint8_t n) -> uint8_t {
-            // 0 -> 0xff,    Fill with zero
-            // 1 -> 0x00,    Select byte 0
-            // 2 -> 0x01,         "      1
-            // 3 -> 0x02,         "      2
-            // 4 -> 0x03,         "      3
-            return n - 1;
-        };
-        uint8_t control[] = {
-            nibble_to_vpshufb( (imm >>  0) & 0xf ),
-            nibble_to_vpshufb( (imm >>  4) & 0xf ),
-            nibble_to_vpshufb( (imm >>  8) & 0xf ),
-            nibble_to_vpshufb( (imm >> 12) & 0xf ),
-        };
-        for (int i = 0; i < 4; i++) {
-            mask[i] = (int)control[0] <<  0
-                    | (int)control[1] <<  8
-                    | (int)control[2] << 16
-                    | (int)control[3] << 24;
-
-            // Update each byte that refers to a byte index by 4 to
-            // point into the next 32-bit lane, but leave any 0xff
-            // that fills with zero alone.
-            control[0] += control[0] == 0xff ? 0 : 4;
-            control[1] += control[1] == 0xff ? 0 : 4;
-            control[2] += control[2] == 0xff ? 0 : 4;
-            control[3] += control[3] == 0xff ? 0 : 4;
-        }
-    }
-
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
                       const bool try_hoisting,
                       Assembler* a) const {
@@ -3013,37 +2926,8 @@ namespace skvm {
             A::Label label;
             Reg      reg;
         };
-        SkTHashMap<int, LabelAndReg> constants,    // All constants share the same pool.
-                                     bytes_masks;  // These vary per-lane.
+        SkTHashMap<int, LabelAndReg> constants;    // All constants share the same pool.
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
-
-        auto warmup = [&](Val id) {
-            const OptimizedInstruction& inst = instructions[id];
-
-            switch (inst.op) {
-                default: break;
-
-                case Op::bytes: if (!bytes_masks.find(inst.immy)) {
-                                    bytes_masks.set(inst.immy, {});
-                                    if (try_hoisting) {
-                                        // vpshufb can always work with the mask from memory,
-                                        // but it helps to hoist the mask to a register for tbl.
-                                    #if defined(__aarch64__)
-                                        LabelAndReg* entry = bytes_masks.find(inst.immy);
-                                        if (int found = __builtin_ffs(avail)) {
-                                            entry->reg = (Reg)(found-1);
-                                            avail ^= 1 << entry->reg;
-                                            a->ldrq(entry->reg, &entry->label);
-                                        } else {
-                                            return false;
-                                        }
-                                    #endif
-                                    }
-                                }
-                                break;
-            }
-            return true;
-        };
 
         auto emit = [&](Val id, bool scalar) {
             const OptimizedInstruction& inst = instructions[id];
@@ -3312,7 +3196,6 @@ namespace skvm {
                 case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
                 case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
-                case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
                 case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy].label); break;
@@ -3339,9 +3222,6 @@ namespace skvm {
                 case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
-
-                case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(immy)->label);
-                                break;
 
             #elif defined(__aarch64__)
                 case Op::assert_true: {
@@ -3440,7 +3320,6 @@ namespace skvm {
                 case Op::bit_and  : a->and16b(dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->orr16b(dst(), r[x], r[y]); break;
                 case Op::bit_xor  : a->eor16b(dst(), r[x], r[y]); break;
-                case Op::bit_clear: a->bic16b(dst(), r[x], r[y]); break;
 
                 case Op::select: // bsl16b is x = x ? y : z
                     if (avail & (1<<r[x])) { set_dst(r[x]); a->bsl16b( r[x],  r[y],  r[z]); }
@@ -3467,12 +3346,6 @@ namespace skvm {
                 case Op::round:  a->fcvtns4s(dst(), r[x]); break;
                 // TODO: fcvtns.4s rounds to nearest even.
                 // I think we actually want frintx -> fcvtzs to round to current mode.
-
-                case Op::bytes:
-                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(immy)->reg); }
-                    else              { a->ldrq(tmp(), &bytes_masks.find(immy)->label);
-                                        a->tbl (dst(), r[x], tmp()); }
-                                        break;
             #endif
             }
 
@@ -3506,9 +3379,6 @@ namespace skvm {
                  done;
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (!warmup(id)) {
-                return false;
-            }
             if (hoisted(id) && !emit(id, /*scalar=*/false)) {
                 return false;
             }
@@ -3566,18 +3436,6 @@ namespace skvm {
             for (int i = 0; i < K; i++) {
                 a->word(imm);
             }
-        });
-
-        bytes_masks.foreach([&](int imm, LabelAndReg* entry) {
-            // One 16-byte pattern for ARM tbl, that same pattern twice for x86-64 vpshufb.
-            a->align(4);
-            a->label(&entry->label);
-            int mask[4];
-            bytes_control(imm, mask);
-            a->bytes(mask, sizeof(mask));
-        #if defined(__x86_64__)
-            a->bytes(mask, sizeof(mask));
-        #endif
         });
 
         if (!iota.label.references.empty()) {
