@@ -121,6 +121,10 @@ extern bool IsMetalContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLOrMetalContextType(GrContextFactoryContextType);
 extern bool IsMockContextType(GrContextFactoryContextType);
+template<GrContextFactoryContextType T>
+bool IsSpecificContextFactoryContextType(GrContextFactoryContextType type) {
+    return T == type;
+}
 void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
                             const GrContextOptions&);
 
