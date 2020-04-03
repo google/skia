@@ -57,15 +57,26 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(GrMaskFormat, GrGlyph*);
+    struct Baz {
+
+    };
+
+    struct Bar {
+        SkPackedGlyphID             fGlyphID;
+        GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    };
+
+    Bar* getBar(GrMaskFormat, SkPackedGlyphID);
+
+    bool hasID(GrMaskFormat, Bar*) const;
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater*, GrMaskFormat, GrGlyph*,
-                                      GrDeferredUploadToken);
+    void addGlyphToBulkAndSetUseToken1(GrDrawOpAtlas::BulkUseTokenUpdater*, GrMaskFormat,
+                                       Bar*, GrDeferredUploadToken);
 
     void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
                          GrDeferredUploadToken token,
@@ -74,10 +85,9 @@ public:
     }
 
     // add to texture atlas that matches this format
-    GrDrawOpAtlas::ErrorCode addToAtlas(
-            GrResourceProvider*,
-            GrDrawOpAtlas::PlotLocator*, GrDeferredUploadTarget*, GrMaskFormat,
-            int width, int height, const void* image, SkIPoint16* loc);
+    GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrMaskFormat,
+                                        int width, int height, const void* image,
+                                        Bar*);
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
@@ -137,8 +147,21 @@ private:
     static_assert(kMaskFormatCount == 3);
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
-    GrStrikeCache* fGlyphCache;
+    GrStrikeCache* fGlyphCache1;
     GrDrawOpAtlasConfig fAtlasConfig;
+
+    struct HashTraits {
+        // GetKey and Hash for the the hash table.
+        static const SkPackedGlyphID& GetKey(const Bar* bar) {
+            return bar->fGlyphID;
+        }
+
+        static uint32_t Hash(SkPackedGlyphID key) {
+            return SkChecksum::Mix(key.hash());
+        }
+    };
+    SkTHashTable<Bar*, SkPackedGlyphID, HashTraits> fMaps[kMaskFormatCount];
+    SkArenaAlloc fAlloc1{512};
 
     typedef GrOnFlushCallbackObject INHERITED;
 };
