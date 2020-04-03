@@ -85,7 +85,7 @@ private:
             {"devbounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"devbounds45", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"dev_to_atlas_offset", kInt2_GrVertexAttribType, kInt2_GrSLType},
-            {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType}
+            {"color", kFloat4_GrVertexAttribType, kHalf4_GrSLType}
     };
     static constexpr int kColorAttribIdx = 3;
     static constexpr Attribute kCornersAttrib =
