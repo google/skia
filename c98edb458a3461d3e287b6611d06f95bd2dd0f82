@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3b2f0c4d_1eeb286c",
+        "filename": "modules/canvaskit/tests/util.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-03T19:11:59Z",
+      "side": 1,
+      "message": "Done. Added docs to the user-facing ones.",
+      "parentUuid": "ce4d2aa5_07bcbd1e",
+      "revId": "c98edb458a3461d3e287b6611d06f95bd2dd0f82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0dd736c_d2148a7b",
         "filename": "modules/canvaskit/tests/util.js",
         "patchSetId": 4
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "0deed17b_5f05cc62",
+        "filename": "modules/canvaskit/tests/util.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-03T19:11:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0dd736c_d2148a7b",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 11
+      },
+      "revId": "c98edb458a3461d3e287b6611d06f95bd2dd0f82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92d1e410_369aa7ca",
         "filename": "modules/canvaskit/tests/util.js",
         "patchSetId": 4
@@ -62,6 +104,30 @@
       "revId": "c98edb458a3461d3e287b6611d06f95bd2dd0f82",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d2118b7_9b111573",
+        "filename": "modules/canvaskit/tests/util.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-03T19:11:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92d1e410_369aa7ca",
+      "range": {
+        "startLine": 71,
+        "startChar": 6,
+        "endLine": 71,
+        "endChar": 29
+      },
+      "revId": "c98edb458a3461d3e287b6611d06f95bd2dd0f82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
