@@ -265,6 +265,58 @@ void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int in
     this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance, baseVertex);
 }
 
+void GrOpsRenderPass::drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                                   int drawCount) {
+    SkASSERT(drawIndirectBuffer->isCpuBuffer() ||
+             !static_cast<const GrGpuBuffer*>(drawIndirectBuffer)->isMapped());
+    if (!this->gpu()->caps()->nativeDrawIndirectSupport()) {
+        // Polyfill indirect draws with looping instanced calls.
+        SkASSERT(drawIndirectBuffer->isCpuBuffer());
+        auto cpuIndirectBuffer = static_cast<const GrCpuBuffer*>(drawIndirectBuffer);
+        auto cmd = reinterpret_cast<const GrDrawIndirectCommand*>(
+                cpuIndirectBuffer->data() + bufferOffset);
+        auto end = cmd + drawCount;
+        for (; cmd != end; ++cmd) {
+            this->drawInstanced(cmd->fInstanceCount, cmd->fBaseInstance, cmd->fVertexCount,
+                                cmd->fBaseVertex);
+        }
+        return;
+    }
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(!fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDrawIndirect(drawIndirectBuffer, bufferOffset, drawCount);
+}
+
+void GrOpsRenderPass::drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                                          int drawCount) {
+    SkASSERT(drawIndirectBuffer->isCpuBuffer() ||
+             !static_cast<const GrGpuBuffer*>(drawIndirectBuffer)->isMapped());
+    if (!this->gpu()->caps()->nativeDrawIndirectSupport()) {
+        // Polyfill indexedIndirect draws with looping indexedInstanced calls.
+        SkASSERT(drawIndirectBuffer->isCpuBuffer());
+        auto cpuIndirectBuffer = static_cast<const GrCpuBuffer*>(drawIndirectBuffer);
+        auto cmd = reinterpret_cast<const GrDrawIndexedIndirectCommand*>(
+                cpuIndirectBuffer->data() + bufferOffset);
+        auto end = cmd + drawCount;
+        for (; cmd != end; ++cmd) {
+            this->drawIndexedInstanced(cmd->fIndexCount, cmd->fBaseIndex, cmd->fInstanceCount,
+                                       cmd->fBaseInstance, cmd->fBaseVertex);
+        }
+        return;
+    }
+    if (!this->prepareToDraw()) {
+        return;
+    }
+    SkASSERT(fHasIndexBuffer);
+    SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
+    SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
+    this->onDrawIndexedIndirect(drawIndirectBuffer, bufferOffset, drawCount);
+}
+
 void GrOpsRenderPass::drawIndexPattern(int patternIndexCount, int patternRepeatCount,
                                        int maxPatternRepetitionsInIndexBuffer,
                                        int patternVertexCount, int baseVertex) {
