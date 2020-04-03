@@ -63,10 +63,11 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
 
     return true;
 }
-
+#if 0
 void GrD3DTextureResource::ReleaseTextureResourceInfo(GrD3DTextureResourceInfo* info) {
     info->fResource->Release();
 }
+#endif
 
 GrD3DTextureResource::~GrD3DTextureResource() {
     // Should have been reset() before
