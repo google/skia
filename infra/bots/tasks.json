@@ -3873,7 +3873,8 @@
         "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
-        "pool:Skia"
+        "pool:Skia",
+        "id:skia-e-gce-300"
       ],
       "env_prefixes": {
         "PATH": [
