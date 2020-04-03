@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdde8ad1_5a3fb907",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-03T11:30:25Z",
+      "side": 1,
+      "message": "If you moved this code to after this readPixels, I think you could skip making your own SkBitmap, and just write the contents of gold? (It\u0027s verified to have the same dimensions as the rtc above, etc...)",
+      "revId": "1c7d38e17df951ed466cf1ff24d0d542771143ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a046c927_740572a4",
+        "filename": "tests/Test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-03T11:30:25Z",
+      "side": 1,
+      "message": "I wanted to say that you could skip adding this (and changing the macro used for the test) by just checking the context type inside the test... Then I remembered that we don\u0027t expose that information in ctxInfo. Sigh.",
+      "revId": "1c7d38e17df951ed466cf1ff24d0d542771143ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
