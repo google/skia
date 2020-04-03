@@ -231,7 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
              });
 
     for (bool indexed : {false, true}) {
-        if (!context->priv().caps()->instanceAttribSupport()) {
+        if (!context->priv().caps()->drawInstancedSupport()) {
             break;
         }
 
