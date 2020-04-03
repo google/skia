@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02c1d0d9_7adac877",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-03T16:31:18Z",
+      "side": 1,
+      "message": "Would it make sense to store one of these for every uniform and have it repreent the common info that all backends store (visiblity, GrShaderVar)?\n\nThen the various GrGLSLUniformHandler subclasses could either store vectors of types derived from this or parallel array of the additional info.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 6
+      },
+      "revId": "1b571c631214059d2891510e1061b304209d0cf3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
