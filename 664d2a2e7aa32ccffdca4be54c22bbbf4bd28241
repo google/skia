@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dffcc34_8e524049",
+        "filename": "infra/bots/recipe_modules/build/skqp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-03T15:05:01Z",
+      "side": 1,
+      "message": "I can\u0027t tell what\u0027s going on in the script, but we may need to add skia/bin to PATH somewhere.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 47
+      },
+      "revId": "664d2a2e7aa32ccffdca4be54c22bbbf4bd28241",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
