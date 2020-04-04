@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4afc3f57_373d920e",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-04T21:15:23Z",
+      "side": 1,
+      "message": "oops, how 2011 of me... we can now do this all in one go!\n\n    // ax + b, ax^2 + bx + c, ax^3 + bx^2 + cx + d, etc.\n    template \u003ctypename... Rest\u003e\n    static inline F32 poly(F32 x, F32a a, F32a b, Rest... rest) {\n        if constexpr (sizeof...(rest) \u003d\u003d 0) {\n            return x*a+b;\n        } else {\n            return poly(x, x*a+b, rest...);\n        }\n    }",
+      "parentUuid": "79f7d80e_40580a5e",
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc524614_124cadee",
         "filename": "src/shaders/gradients/SkSweepGradient.cpp",
         "patchSetId": 2
