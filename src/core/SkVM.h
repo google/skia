@@ -975,6 +975,23 @@ namespace skvm {
 
     static inline HSLA  to_hsla(Color c) { return c->to_hsla(c); }
     static inline Color to_rgba(HSLA  c) { return c->to_rgba(c); }
+
+    // return ax + b
+    static inline F32 poly(F32 x, F32a a, F32a b) {
+        return x * a + b;
+    }
+    // return ax^2 + bx + c
+    static inline F32 poly(F32 x, F32a a, F32a b, F32a c) {
+        return x * (x * a + b) + c;
+    }
+    // return ax^3 + bx^2 + cx + d
+    static inline F32 poly(F32 x, F32a a, F32a b, F32a c, F32a d) {
+        return x * (x * (x * a + b) + c) + d;
+    }
+    // return ax^4 + bx^3 + cx^2 + dx + e
+    static inline F32 poly(F32 x, F32a a, F32a b, F32a c, F32a d, F32a e) {
+        return x * (x * (x * (x * a + b) + c) + d) + e;
+    }
 }
 
 #endif//SkVM_DEFINED
