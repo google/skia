@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc524614_124cadee",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-04T19:51:20Z",
+      "side": 1,
+      "message": "wonder if we might encapsulate this sort of predicate... its like\n\nselect(is_nan(x), 0, x)\nor\nselect(is_finite(x), x, 0)",
+      "range": {
+        "startLine": 90,
+        "startChar": 27,
+        "endLine": 90,
+        "endChar": 35
+      },
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
