@@ -431,11 +431,19 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
 sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
     auto resourceProvider = fGpu->getContext()->priv().resourceProvider();
 
-    if (fGpu->caps()->preferClientSideDynamicBuffers()) {
+    bool needsCpuBuffer = fGpu->caps()->preferClientSideDynamicBuffers();
+    if (fBufferType == GrGpuBufferType::kDrawIndirect &&
+        !fGpu->caps()->nativeDrawIndirectSupport()) {
+        // Ganesh will polyfill indirect draws with looping instanced calls instead, so the indirect
+        // commands must therefore reside in a CPU buffer.
+        needsCpuBuffer = true;
+    }
+    if (needsCpuBuffer) {
         bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
         return fCpuBufferCache ? fCpuBufferCache->makeBuffer(size, mustInitialize)
                                : GrCpuBuffer::Make(size);
     }
+
     return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern);
 }
 
