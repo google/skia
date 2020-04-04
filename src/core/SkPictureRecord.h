@@ -158,6 +158,7 @@ protected:
     void onFlush() override;
 
     void willSave() override;
+    void onSaveCamera(const SkM44&, const SkM44&) override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
