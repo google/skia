@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "79f7d80e_40580a5e",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-04T20:57:47Z",
+      "side": 1,
+      "message": "I think we can get all these in a base case and a recursive one?\n\n// ax + b...\nstatic inline F32 poly(F32 x, F32a a, F32a b) {\n    return a*x+b;\n}\n\n// ... ax^2 + bx + c, ax^3 + bx^2 + cx + d, etc.\ntemplate \u003ctypename... Rest\u003e\nstatic inline F32 poly(F32 x, F32a a, F32a b, Rest... rest) {\n    return poly(x, poly(x,a,b), rest...);\n}",
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc524614_124cadee",
         "filename": "src/shaders/gradients/SkSweepGradient.cpp",
         "patchSetId": 2
@@ -13,6 +30,30 @@
       "writtenOn": "2020-04-04T19:51:20Z",
       "side": 1,
       "message": "wonder if we might encapsulate this sort of predicate... its like\n\nselect(is_nan(x), 0, x)\nor\nselect(is_finite(x), x, 0)",
+      "range": {
+        "startLine": 90,
+        "startChar": 27,
+        "endLine": 90,
+        "endChar": 35
+      },
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc1f4b08_36b6eaa3",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-04T20:57:47Z",
+      "side": 1,
+      "message": "Oh, sure.   Why don\u0027t you try to implement the TODOs in Builder::select() in SkVM.cpp?\nThat\u0027d let us use select() a lot more freely, and I agree select() often reads much more naturally.\n\nI don\u0027t have much preference about whether to test is_nan or is_finite or x\u003d\u003dx here... whatever you think reads best.  Though, just so I make sure I remember this, we only really have to protect against NaN here right?  Tiling will handle infs?",
+      "parentUuid": "cc524614_124cadee",
       "range": {
         "startLine": 90,
         "startChar": 27,
