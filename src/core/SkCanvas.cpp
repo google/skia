@@ -742,22 +742,26 @@ void SkCanvas::notifyCameraChanged() {
     FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
 }
 
-int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
-    // TODO: add a virtual for this, and update clients (e.g. chrome)
-    int n = this->save();
-    this->concat44(projection * camera);
+// Don't trigger other virtuals from onSaveCamera
+void SkCanvas::onSaveCamera(const SkM44& projection, const SkM44& camera) {
+    auto m = projection * camera;
+
+    (void)this->save();
+    this->doConcat44(SkMatrixPriv::M44ColMajor(m));
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     this->notifyCameraChanged();
-
-    return n;
 }
 
-int SkCanvas::experimental_saveCamera(const SkScalar projection[16],
-                                      const SkScalar camera[16]) {
+int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
+    this->onSaveCamera(projection, camera);
+    return this->getSaveCount();
+}
+
+int SkCanvas::experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]) {
     SkM44 proj, cam;
     proj.setColMajor(projection);
     cam.setColMajor(camera);
-    return this->experimental_saveCamera(proj, cam);
+    return this->saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
@@ -1532,7 +1536,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::concat44(const SkScalar colMajor[16]) {
+void SkCanvas::doConcat44(const SkScalar colMajor[16]) {
     this->checkForDeferredSave();
 
     fMCRec->fMatrix.preConcat16(colMajor);
@@ -1540,8 +1544,11 @@ void SkCanvas::concat44(const SkScalar colMajor[16]) {
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+}
 
-    this->didConcat44(colMajor);
+void SkCanvas::concat44(const SkScalar colMajor[16]) {
+    this->doConcat44(colMajor);
+    this->didConcat44(colMajor);    // notify subclasses
 }
 
 void SkCanvas::concat44(const SkM44& m) {

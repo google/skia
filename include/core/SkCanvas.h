@@ -756,7 +756,11 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int experimental_saveCamera(const SkM44& projection, const SkM44& camera);
+    int saveCamera(const SkM44& projection, const SkM44& camera);
+
+    int experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
+        return this->saveCamera(projection, camera);
+    }
     int experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
@@ -2480,6 +2484,8 @@ protected:
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& ) {
         return kFullLayer_SaveLayerStrategy;
     }
+    virtual void onSaveCamera(const SkM44& projection, const SkM44& camera);
+
     // returns true if we should actually perform the saveBehind, or false if we should just save.
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
@@ -2667,6 +2673,7 @@ private:
     SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
 
     void doSave();
+    void doConcat44(const SkScalar[16]);
     void checkForDeferredSave();
     void internalSetMatrix(const SkMatrix&);
 

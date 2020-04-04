@@ -26,6 +26,7 @@ protected:
     SkTDArray<SkCanvas*> fList;
 
     void willSave() override;
+    void onSaveCamera(const SkM44& projection, const SkM44& camera) override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
