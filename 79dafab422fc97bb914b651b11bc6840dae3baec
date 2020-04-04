@@ -37,6 +37,29 @@
     },
     {
       "key": {
+        "uuid": "39eb2665_aa13a48a",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-04T21:21:18Z",
+      "side": 1,
+      "message": "Might be clearer to see that this is a 7th-order poly by passing slope*slope here directly rather than naming it \u0027s\u0027?",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 34
+      },
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc524614_124cadee",
         "filename": "src/shaders/gradients/SkSweepGradient.cpp",
         "patchSetId": 2
