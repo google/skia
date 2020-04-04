@@ -742,7 +742,7 @@ void SkCanvas::notifyCameraChanged() {
     FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
 }
 
-int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
+int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
     this->concat44(projection * camera);
@@ -750,14 +750,6 @@ int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& came
     this->notifyCameraChanged();
 
     return n;
-}
-
-int SkCanvas::experimental_saveCamera(const SkScalar projection[16],
-                                      const SkScalar camera[16]) {
-    SkM44 proj, cam;
-    proj.setColMajor(projection);
-    cam.setColMajor(camera);
-    return this->experimental_saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
