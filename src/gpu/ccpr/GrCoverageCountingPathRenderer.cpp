@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
 #include "include/pathops/SkPathOps.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -43,7 +42,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
     if (!caps.driverBlacklistMSAACCPR() &&
         caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
-        shaderCaps.sampleVariablesStencilSupport()) {
+        shaderCaps.sampleMaskSupport()) {
         if (coverageType) {
             *coverageType = CoverageType::kA8_Multisample;
         }
@@ -67,7 +66,7 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(
         CoverageType coverageType, AllowCaching allowCaching, uint32_t contextUniqueID)
         : fCoverageType(coverageType) {
     if (AllowCaching::kYes == allowCaching) {
-        fPathCache = skstd::make_unique<GrCCPathCache>(contextUniqueID);
+        fPathCache = std::make_unique<GrCCPathCache>(contextUniqueID);
     }
 }
 
@@ -224,7 +223,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
             CoverageType::kFP16_CoverageCount == fCoverageType);
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return skstd::make_unique<GrCCClipProcessor>(&clipPath, isCoverageCount, mustCheckBounds);
+    return std::make_unique<GrCCClipProcessor>(&clipPath, isCoverageCount, mustCheckBounds);
 }
 
 void GrCoverageCountingPathRenderer::preFlush(

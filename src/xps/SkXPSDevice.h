@@ -40,8 +40,8 @@ class SkGlyphRunList;
 */
 class SkXPSDevice : public SkClipStackDevice {
 public:
-    SK_API SkXPSDevice(SkISize);
-    SK_API ~SkXPSDevice() override;
+    SK_SPI SkXPSDevice(SkISize);
+    SK_SPI ~SkXPSDevice() override;
 
     bool beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory*);
     /**

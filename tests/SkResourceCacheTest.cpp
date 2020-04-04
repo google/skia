@@ -11,7 +11,6 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"
@@ -246,8 +245,8 @@ static void test_duplicate_add(SkResourceCache* cache, skiatest::Reporter* repor
 
     int flags0 = 0, flags1 = 0;
 
-    auto rec0 = skstd::make_unique<TestRec>(sharedID, data, &flags0);
-    auto rec1 = skstd::make_unique<TestRec>(sharedID, data, &flags1);
+    auto rec0 = std::make_unique<TestRec>(sharedID, data, &flags0);
+    auto rec1 = std::make_unique<TestRec>(sharedID, data, &flags1);
     SkASSERT(rec0->getKey() == rec1->getKey());
 
     TestRec* r0 = rec0.get();   // save the bare-pointer since we will release rec0

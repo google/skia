@@ -79,18 +79,76 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
+bool SkColorFilter_Matrix::program(skvm::Builder* p,
+                                   SkColorSpace* /*dstCS*/,
+                                   skvm::Uniforms* uniforms,
+                                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    // TODO: specialize generated code on the 0/1 values of fMatrix?
+    if (fDomain == Domain::kRGBA) {
+        // Unpremul.
+        skvm::F32 invA = p->div(p->splat(1.0f), *a),
+                  inf  = p->bit_cast(p->splat(0x7f800000));
+
+        // If *a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
+        invA = p->bit_cast(p->bit_and(p->lt(invA, inf),
+                                      p->bit_cast(invA)));
+        *r = p->mul(*r, invA);
+        *g = p->mul(*g, invA);
+        *b = p->mul(*b, invA);
+
+        // Apply matrix.
+        skvm::Builder::Uniform u = uniforms->pushF(fMatrix, 20);
+        auto m = [&](int i) { return p->uniformF(u.ptr, u.offset + 4*i); };
+
+        skvm::F32 rgba[4];
+        for (int j = 0; j < 4; j++) {
+            rgba[j] =        m(4+j*5);
+            rgba[j] = p->mad(m(3+j*5), *a, rgba[j]);
+            rgba[j] = p->mad(m(2+j*5), *b, rgba[j]);
+            rgba[j] = p->mad(m(1+j*5), *g, rgba[j]);
+            rgba[j] = p->mad(m(0+j*5), *r, rgba[j]);
+        }
+        *r = rgba[0];
+        *g = rgba[1];
+        *b = rgba[2];
+        *a = rgba[3];
+
+        // Premul.
+        *r = p->mul(*r, *a);
+        *g = p->mul(*g, *a);
+        *b = p->mul(*b, *a);
+
+        return true;
+    }
+    return false;
+}
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrHSLToRGBFilterEffect.h"
+#include "src/gpu/effects/generated/GrRGBToHSLFilterEffect.h"
 std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo&) const {
-    if (fDomain == Domain::kHSLA) {
-        // TODO
-        return nullptr;
+    switch (fDomain) {
+        case Domain::kRGBA:
+            return GrColorMatrixFragmentProcessor::Make(fMatrix,
+                                                        /* premulInput = */    true,
+                                                        /* clampRGBOutput = */ true,
+                                                        /* premulOutput = */   true);
+        case Domain::kHSLA: {
+            std::unique_ptr<GrFragmentProcessor> series[] = {
+                GrRGBToHSLFilterEffect::Make(),
+                GrColorMatrixFragmentProcessor::Make(fMatrix,
+                                                     /* premulInput = */    false,
+                                                     /* clampRGBOutput = */ false,
+                                                     /* premulOutput = */   false),
+                GrHSLToRGBFilterEffect::Make(),
+            };
+            return GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series));
+        }
     }
-    return GrColorMatrixFragmentProcessor::Make(fMatrix,
-                                                /* premulInput = */ true,
-                                                /* clampRGBOutput = */ true,
-                                                /* premulOutput = */ true);
+
+    SkUNREACHABLE;
 }
 
 #endif
@@ -109,7 +167,7 @@ sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
 }
 
 sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
-    return MakeMatrix(cm.fMat, SkColorFilter_Matrix::Domain::kRGBA);
+    return MakeMatrix(cm.fMat.data(), SkColorFilter_Matrix::Domain::kRGBA);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::HSLAMatrix(const float array[20]) {

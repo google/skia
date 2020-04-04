@@ -91,8 +91,8 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false, GrRenderable::kNo,
-                               fMipMapped, fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, 1, GrRenderable::kNo, fMipMapped,
+                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
@@ -102,9 +102,8 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    sk_sp<GrSurface> surface =
-            this->createSurfaceImpl(resourceProvider, 1,
-                                    /* needsStencil = */ false, GrRenderable::kNo, fMipMapped);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1, GrRenderable::kNo,
+                                                       fMipMapped);
     if (!surface) {
         return nullptr;
     }
@@ -131,11 +130,6 @@ void GrTextureProxyPriv::resetDeferredUploader() {
     fTextureProxy->fDeferredUploader.reset();
 }
 
-GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
-    return this->hasRestrictedSampling() ? GrSamplerState::Filter::kBilerp
-                                         : GrSamplerState::Filter::kMipMap;
-}
-
 GrMipMapped GrTextureProxy::mipMapped() const {
     if (this->isInstantiated()) {
         return this->peekTexture()->texturePriv().mipMapped();
@@ -144,14 +138,21 @@ GrMipMapped GrTextureProxy::mipMapped() const {
 }
 
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
-    return GrSurface::ComputeSize(caps, this->backendFormat(),  this->width(), this->height(),
-                                  1, this->proxyMipMapped(), !this->priv().isExact());
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(), 1,
+                                  this->proxyMipMapped(), !this->priv().isExact());
 }
 
-bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
-                                                        const GrTextureProxy* second) {
+GrSamplerState::Filter GrTextureProxy::HighestFilterMode(GrTextureType textureType) {
+    return GrTextureTypeHasRestrictedSampling(textureType) ? GrSamplerState::Filter::kBilerp
+                                                           : GrSamplerState::Filter::kMipMap;
+}
+
+bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
+                                                        const GrSurfaceProxy* second) {
+    // In order to be compatible, the proxies should also have the same texture type. This is
+    // checked explicitly since the GrBackendFormat == operator does not compare texture type
     return first->config() == second->config() &&
-           first->textureType() == second->textureType() &&
+           first->backendFormat().textureType() == second->backendFormat().textureType() &&
            first->backendFormat() == second->backendFormat();
 }
 

@@ -16,18 +16,20 @@ class GrGLGpu;
 
 class GrGLSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrGLSemaphore> Make(GrGLGpu* gpu, bool isOwned) {
-        return sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
+    static std::unique_ptr<GrGLSemaphore> Make(GrGLGpu* gpu, bool isOwned) {
+        return std::unique_ptr<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
     }
 
-    static sk_sp<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
-                                            GrGLsync sync,
-                                            GrWrapOwnership ownership) {
-        auto sema = sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu,
-                                                           kBorrow_GrWrapOwnership != ownership));
+    static std::unique_ptr<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
+                                                      GrGLsync sync,
+                                                      GrWrapOwnership ownership) {
+        auto sema = std::unique_ptr<GrGLSemaphore>(
+                new GrGLSemaphore(gpu, kBorrow_GrWrapOwnership != ownership));
         sema->setSync(sync);
         return sema;
     }
+
+    ~GrGLSemaphore() override;
 
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
@@ -41,9 +43,11 @@ public:
 private:
     GrGLSemaphore(GrGLGpu* gpu, bool isOwned);
 
-    void onRelease() override;
-    void onAbandon() override;
+    void setIsOwned() override {
+        fIsOwned = true;
+    }
 
+    GrGLGpu* fGpu;
     GrGLsync fSync;
     bool     fIsOwned;
 

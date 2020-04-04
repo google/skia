@@ -55,13 +55,14 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
             break;
 #endif
         case GrBackendApi::kMock:
-            fMockColorType = that.fMockColorType;
+            fMock = that.fMock;
             break;
         default:
             SK_ABORT("Unknown GrBackend");
     }
 }
 
+#ifdef SK_GL
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
         , fValid(true)
@@ -90,6 +91,7 @@ GrGLFormat GrBackendFormat::asGLFormat() const {
     }
     return GrGLFormat::kUnknown;
 }
+#endif
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
     SkASSERT(ycbcrInfo.isValid());
@@ -128,14 +130,14 @@ const GrVkYcbcrConversionInfo* GrBackendFormat::getVkYcbcrConversionInfo() const
 }
 
 #ifdef SK_DAWN
-GrBackendFormat::GrBackendFormat(dawn::TextureFormat format)
+GrBackendFormat::GrBackendFormat(wgpu::TextureFormat format)
         : fBackend(GrBackendApi::kDawn)
         , fValid(true)
         , fDawnFormat(format)
         , fTextureType(GrTextureType::k2D) {
 }
 
-bool GrBackendFormat::asDawnFormat(dawn::TextureFormat* format) const {
+bool GrBackendFormat::asDawnFormat(wgpu::TextureFormat* format) const {
     SkASSERT(format);
     if (this->isValid() && GrBackendApi::kDawn == fBackend) {
         *format = fDawnFormat;
@@ -162,19 +164,36 @@ GrMTLPixelFormat GrBackendFormat::asMtlFormat() const {
 }
 #endif
 
-GrBackendFormat::GrBackendFormat(GrColorType colorType)
+GrBackendFormat::GrBackendFormat(GrColorType colorType, SkImage::CompressionType compression)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
         , fTextureType(GrTextureType::k2D) {
-    fMockColorType = colorType;
+    fMock.fColorType = colorType;
+    fMock.fCompressionType = compression;
 }
 
 GrColorType GrBackendFormat::asMockColorType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return fMockColorType;
+        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone ||
+                 fMock.fColorType == GrColorType::kUnknown);
+
+        return fMock.fColorType;
     }
+
     return GrColorType::kUnknown;
 }
+
+SkImage::CompressionType GrBackendFormat::asMockCompressionType() const {
+    if (this->isValid() && GrBackendApi::kMock == fBackend) {
+        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone ||
+                 fMock.fColorType == GrColorType::kUnknown);
+
+        return fMock.fCompressionType;
+    }
+
+    return SkImage::CompressionType::kNone;
+}
+
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {
     GrBackendFormat copy = *this;
@@ -191,6 +210,11 @@ GrBackendFormat GrBackendFormat::makeTexture2D() const {
     return copy;
 }
 
+GrBackendFormat GrBackendFormat::MakeMock(GrColorType colorType,
+                                          SkImage::CompressionType compression) {
+    return GrBackendFormat(colorType, compression);
+}
+
 bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     // Invalid GrBackendFormats are never equal to anything.
     if (!fValid || !that.fValid) {
@@ -202,26 +226,30 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
+#ifdef SK_GL
         case GrBackendApi::kOpenGL:
             return fGLFormat == that.fGLFormat;
-        case GrBackendApi::kVulkan:
+            break;
+#endif
 #ifdef SK_VULKAN
+        case GrBackendApi::kVulkan:
             return fVk.fFormat == that.fVk.fFormat &&
                    fVk.fYcbcrConversionInfo == that.fVk.fYcbcrConversionInfo;
-#endif
             break;
+#endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             return fMtlFormat == that.fMtlFormat;
-#endif
             break;
-        case GrBackendApi::kDawn:
+#endif
 #ifdef SK_DAWN
+        case GrBackendApi::kDawn:
             return fDawnFormat == that.fDawnFormat;
-#endif
             break;
+#endif
         case GrBackendApi::kMock:
-            return fMockColorType == that.fMockColorType;
+            return fMock.fColorType == that.fMock.fColorType &&
+                   fMock.fCompressionType == that.fMock.fCompressionType;
         default:
             SK_ABORT("Unknown GrBackend");
     }
@@ -271,7 +299,9 @@ SkString GrBackendFormat::toStr() const {
 #endif
             break;
         case GrBackendApi::kMock:
-            str.append(GrColorTypeToStr(fMockColorType));
+            str.append(GrColorTypeToStr(fMock.fColorType));
+            str.appendf("-");
+            str.append(GrCompressionTypeToStr(fMock.fCompressionType));
             break;
     }
 
@@ -347,6 +377,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
+#ifdef SK_GL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
@@ -355,6 +386,7 @@ GrBackendTexture::GrBackendTexture(int width,
     // Make no assumptions about client's texture's parameters.
     this->glTextureParametersModified();
 }
+#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -490,7 +522,7 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
         // Specifically, tests that rely on CanvasResourceProviderTextureGpuMemoryBuffer.
         // If that code ever goes away (or ideally becomes backend-agnostic), this can go away.
         *outInfo = GrGLTextureInfo{ GR_GL_TEXTURE_2D,
-                                    static_cast<GrGLuint>(fMockInfo.fID),
+                                    static_cast<GrGLuint>(fMockInfo.id()),
                                     GR_GL_RGBA8 };
         return true;
     }
@@ -542,7 +574,7 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
             return this->fMtlInfo.fTexture == that.fMtlInfo.fTexture;
 #endif
         case GrBackendApi::kMock:
-            return fMockInfo.fID == that.fMockInfo.fID;
+            return fMockInfo.id() == that.fMockInfo.id();
         default:
             return false;
     }
@@ -691,6 +723,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
+#ifdef SK_GL
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -704,6 +737,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fGLInfo(glInfo) {
     fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
 }
+#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -749,14 +783,16 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
+#ifdef SK_GL
         case GrBackendApi::kOpenGL:
             fGLInfo = that.fGLInfo;
             break;
-        case GrBackendApi::kVulkan:
-#ifdef SK_VULKAN
-            fVkInfo.assign(that.fVkInfo, this->isValid());
 #endif
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan:
+            fVkInfo.assign(that.fVkInfo, this->isValid());
             break;
+#endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
             fDawnInfo = that.fDawnInfo;
@@ -824,6 +860,7 @@ bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 }
 #endif
 
+#ifdef SK_GL
 bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
         *outInfo = fGLInfo;
@@ -831,6 +868,7 @@ bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) c
     }
     return false;
 }
+#endif
 
 GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
     if (!this->isValid()) {

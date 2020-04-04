@@ -15,8 +15,12 @@
  */
 class GrSamplerState {
 public:
-    enum class Filter : uint8_t { kNearest, kBilerp, kMipMap };
-    enum class WrapMode : uint8_t { kClamp, kRepeat, kMirrorRepeat, kClampToBorder };
+    enum class Filter : uint8_t { kNearest, kBilerp, kMipMap, kLast = kMipMap };
+    enum class WrapMode : uint8_t { kClamp, kRepeat, kMirrorRepeat, kClampToBorder,
+                                    kLast = kClampToBorder };
+
+    static const int kFilterCount = static_cast<int>(Filter::kLast) + 1;
+    static const int kWrapModeCount = static_cast<int>(WrapMode::kLast) + 1;
 
     static constexpr GrSamplerState ClampNearest() { return GrSamplerState(); }
     static constexpr GrSamplerState ClampBilerp() {
@@ -61,6 +65,22 @@ public:
     }
 
     bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
+
+    static uint8_t GenerateKey(const GrSamplerState& samplerState) {
+        const int kTileModeXShift = 2;
+        const int kTileModeYShift = 4;
+
+        SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
+        uint8_t key = static_cast<uint8_t>(samplerState.filter());
+
+        SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
+        key |= (static_cast<uint8_t>(samplerState.wrapModeX()) << kTileModeXShift);
+
+        SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
+        key |= (static_cast<uint8_t>(samplerState.wrapModeY()) << kTileModeYShift);
+
+        return key;
+    }
 
 private:
     WrapMode fWrapModes[2];

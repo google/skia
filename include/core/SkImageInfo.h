@@ -178,10 +178,11 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     It can be used to visualize the YUV planes or to explicitly post process the YUV channels.
 */
 enum SkYUVColorSpace {
-    kJPEG_SkYUVColorSpace,                               //!< describes full range
-    kRec601_SkYUVColorSpace,                             //!< describes SDTV range
-    kRec709_SkYUVColorSpace,                             //!< describes HDTV range
-    kIdentity_SkYUVColorSpace,                           //!< maps Y->R, U->G, V->B
+    kJPEG_SkYUVColorSpace,                      //!< describes full range
+    kRec601_SkYUVColorSpace,                    //!< describes SDTV range
+    kRec709_SkYUVColorSpace,                    //!< describes HDTV range
+    kBT2020_SkYUVColorSpace,                    //!< describes UHDTV range, non-constant-luminance
+    kIdentity_SkYUVColorSpace,                  //!< maps Y->R, U->G, V->B
 
     kLastEnum_SkYUVColorSpace = kIdentity_SkYUVColorSpace, //!< last valid value
 };
@@ -266,6 +267,8 @@ public:
         Returns zero if colorType() is kUnknown_SkColorType.
 
         @return  bytes in pixel
+
+        example: https://fiddle.skia.org/c/@ImageInfo_bytesPerPixel
     */
     int bytesPerPixel() const;
 
@@ -273,6 +276,8 @@ public:
         Returns zero for kUnknown_SkColorType.
 
         @return  one of: 0, 1, 2, 3, 4; left shift to convert pixels to bytes
+
+        example: https://fiddle.skia.org/c/@ImageInfo_shiftPerPixel
     */
     int shiftPerPixel() const;
 
@@ -385,6 +390,8 @@ public:
                        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                        kUnpremul_SkAlphaType
         @return        created SkImageInfo
+
+        example: https://fiddle.skia.org/c/@ImageInfo_MakeS32
     */
     static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
 
@@ -415,11 +422,12 @@ public:
         Parameters are not validated to see if their values are legal, or that the
         combination is supported.
 
-        @param size  width and height, each must be zero or greater
-        @return      created SkImageInfo
+        @param dimensions  width and height, each must be zero or greater
+        @param cs          range of colors; may be nullptr
+        @return            created SkImageInfo
     */
-    static SkImageInfo MakeN32Premul(const SkISize& size) {
-        return MakeN32Premul(size.width(), size.height());
+    static SkImageInfo MakeN32Premul(SkISize dimensions, sk_sp<SkColorSpace> cs = nullptr) {
+        return Make(dimensions, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kAlpha_8_SkColorType,
@@ -431,6 +439,15 @@ public:
     */
     static SkImageInfo MakeA8(int width, int height) {
         return Make({width, height}, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+    }
+    /** Creates SkImageInfo from integral dimensions, kAlpha_8_SkColorType,
+        kPremul_SkAlphaType, with SkColorSpace set to nullptr.
+
+        @param dimensions   pixel row and column count; must be zero or greater
+        @return             created SkImageInfo
+    */
+    static SkImageInfo MakeA8(SkISize dimensions) {
+        return Make(dimensions, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kUnknown_SkColorType,
@@ -654,6 +671,8 @@ public:
         @param y         row index, zero or greater, and less than height()
         @param rowBytes  size of pixel row or larger
         @return          offset within pixel array
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeOffset
     */
     size_t computeOffset(int x, int y, size_t rowBytes) const;
 
@@ -685,6 +704,8 @@ public:
 
         @param rowBytes  size of pixel row or larger
         @return          memory required by pixel buffer
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeByteSize
     */
     size_t computeByteSize(size_t rowBytes) const;
 

@@ -127,6 +127,11 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
+  if 'CheckGeneratedFiles' in extra_tokens:
+    compiler = 'Clang'
+    args['skia_compile_processors'] = 'true'
+    args['skia_generate_workarounds'] = 'true'
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'
@@ -140,28 +145,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   elif compiler == 'Clang':
     cc, cxx = 'clang', 'clang++'
-  elif compiler == 'GCC':
-    if target_arch in ['mips64el', 'loongson3a']:
-      mips64el_toolchain_linux = str(api.vars.slave_dir.join(
-          'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
-      env['LD_LIBRARY_PATH'] = (
-          mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
-      extra_ldflags.append('-L' + mips64el_toolchain_linux +
-                           '/mips64el-linux-gnuabi64/lib')
-      extra_cflags.extend([
-          ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
-           api.run.asset_version('mips64el_toolchain_linux', skia_dir))
-      ])
-      args.update({
-        'skia_use_system_freetype2': 'false',
-        'skia_use_fontconfig':       'false',
-        'skia_enable_gpu':           'false',
-        'werror':                    'false',
-      })
-    else:
-      cc, cxx = 'gcc', 'g++'
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
@@ -242,8 +225,6 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_vulkan':        'false',
       'skia_use_zlib':          'false',
     })
-  if 'NoGPU' in extra_tokens:
-    args['skia_enable_gpu'] = 'false'
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
@@ -274,9 +255,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
-  if 'CheckGeneratedFiles' in extra_tokens:
-    args['skia_compile_processors'] = 'true'
-    args['skia_generate_workarounds'] = 'true'
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %

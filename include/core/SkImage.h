@@ -28,7 +28,6 @@ class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
-class SkString;
 class SkSurface;
 class GrBackendTexture;
 class GrContext;
@@ -72,6 +71,8 @@ public:
 
         @param pixmap  SkImageInfo, pixel address, and row bytes
         @return        copy of SkPixmap pixels, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_MakeRasterCopy
     */
     static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap);
 
@@ -134,6 +135,8 @@ public:
 
         @param bitmap  SkImageInfo, row bytes, and pixels
         @return        created SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_MakeFromBitmap
     */
     static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
 
@@ -175,6 +178,8 @@ public:
      *  @param length   the number of bytes of encoded data
      *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
      *  @return         created SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
@@ -227,10 +232,15 @@ public:
     }
 
     // Experimental
-    enum CompressionType {
-        kETC1_CompressionType,
-        kLast_CompressionType = kETC1_CompressionType,
+    enum class CompressionType {
+        kNone,
+        kETC1,
+        kLast = kETC1,
     };
+
+    static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
+
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
 
     /** Creates a GPU-backed SkImage from compressed data.
 
@@ -378,9 +388,7 @@ public:
         image.
 
         @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
@@ -403,9 +411,7 @@ public:
         image. 'backendTexture' is used to store the result of the flattening.
 
         @param context            GPU context
-        @param yuvColorSpace      How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace      How the YUV values are converted to RGB
         @param yuvaTextures       array of (up to four) YUVA textures on GPU which contain the,
                                   possibly interleaved, YUVA planes
         @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
@@ -436,9 +442,7 @@ public:
         via multitexturing.
 
         @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
@@ -468,9 +472,7 @@ public:
         Recognized GPU formats vary by platform and GPU back-end.
 
         @param context                GPU context
-        @param yuvColorSpace          How the YUV values are converted to RGB. One of:
-                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                            kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace          How the YUV values are converted to RGB
         @param yuvaPixmaps            array of (up to four) SkPixmap which contain the,
                                       possibly interleaved, YUVA planes
         @param yuvaIndices            array indicating which pixmap in yuvaPixmaps, and channel
@@ -514,8 +516,7 @@ public:
         yuvColorSpace describes how YUV colors convert to RGB colors.
 
         @param context         GPU context
-        @param yuvColorSpace   one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                               kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures    array of YUV textures on GPU
         @param imageOrigin     one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param imageColorSpace range of colors; may be nullptr
@@ -535,8 +536,7 @@ public:
         yuvColorSpace describes how YUV colors convert to RGB colors.
 
         @param context            GPU context
-        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                  kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures       array of YUV textures on GPU
         @param imageOrigin        one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param backendTexture     the resource that stores the final pixels
@@ -664,12 +664,16 @@ public:
         or was parsed from encoded data.
 
         @return  SkAlphaType in SkImage
+
+        example: https://fiddle.skia.org/c/@Image_alphaType
     */
     SkAlphaType alphaType() const;
 
     /** Returns SkColorType if known; otherwise, returns kUnknown_SkColorType.
 
         @return  SkColorType of SkImage
+
+        example: https://fiddle.skia.org/c/@Image_colorType
     */
     SkColorType colorType() const;
 
@@ -682,6 +686,8 @@ public:
         is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
         @return  SkColorSpace in SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_colorSpace
     */
     SkColorSpace* colorSpace() const;
 
@@ -696,6 +702,8 @@ public:
         is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
         @return  SkColorSpace in SkImage, or nullptr, wrapped in a smart pointer
+
+        example: https://fiddle.skia.org/c/@Image_refColorSpace
     */
     sk_sp<SkColorSpace> refColorSpace() const;
 
@@ -703,6 +711,8 @@ public:
         is packed in 8 bits as defined by kAlpha_8_SkColorType.
 
         @return  true if pixels represent a transparency mask
+
+        example: https://fiddle.skia.org/c/@Image_isAlphaOnly
     */
     bool isAlphaOnly() const;
 
@@ -723,6 +733,9 @@ public:
     */
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix& localMatrix) const {
+        return this->makeShader(tmx, tmy, &localMatrix);
+    }
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
@@ -734,6 +747,10 @@ public:
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
+    sk_sp<SkShader> makeShader(const SkMatrix& localMatrix) const {
+        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &localMatrix);
+    }
+
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return
@@ -741,6 +758,8 @@ public:
 
         @param pixmap  storage for pixel state if pixels are readable; otherwise, ignored
         @return        true if SkImage has direct access to pixels
+
+        example: https://fiddle.skia.org/c/@Image_peekPixels
     */
     bool peekPixels(SkPixmap* pixmap) const;
 
@@ -752,6 +771,8 @@ public:
         and is available as a GPU texture.
 
         @return  true if SkImage is a GPU texture
+
+        example: https://fiddle.skia.org/c/@Image_isTextureBacked
     */
     bool isTextureBacked() const;
 
@@ -765,6 +786,8 @@ public:
 
         @param context  GPU context
         @return         true if SkImage can be drawn
+
+        example: https://fiddle.skia.org/c/@Image_isValid
     */
     bool isValid(GrContext* context) const;
 
@@ -937,6 +960,8 @@ public:
                                    SkEncodedImageFormat::kWEBP
         @param quality             encoder specific metric with 100 equaling best
         @return                    encoded SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_encodeToData
     */
     sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
 
@@ -948,6 +973,8 @@ public:
         encoding fails.
 
         @return  encoded SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_encodeToData_2
     */
     sk_sp<SkData> encodeToData() const;
 
@@ -958,6 +985,8 @@ public:
         Returns nullptr if SkImage contents are not encoded.
 
         @return  encoded SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_refEncodedData
     */
     sk_sp<SkData> refEncodedData() const;
 
@@ -969,6 +998,8 @@ public:
 
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_makeSubset
     */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
@@ -995,6 +1026,8 @@ public:
         Returns nullptr if backed by GPU texture and copy fails.
 
         @return  raster image, lazy image, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_makeNonTextureImage
     */
     sk_sp<SkImage> makeNonTextureImage() const;
 
@@ -1005,6 +1038,8 @@ public:
         Returns nullptr if copy, decode, or pixel read fails.
 
         @return  raster image, or nullptr
+
+        example: https://fiddle.skia.org/c/@Image_makeRasterImage
     */
     sk_sp<SkImage> makeRasterImage() const;
 
@@ -1096,6 +1131,9 @@ public:
         and caches its pixels or texture on-demand.
 
         @return  true if SkImage is created as needed
+
+        example: https://fiddle.skia.org/c/@Image_isLazyGenerated_a
+        example: https://fiddle.skia.org/c/@Image_isLazyGenerated_b
     */
     bool isLazyGenerated() const;
 
@@ -1108,6 +1146,8 @@ public:
 
         @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
+
+        example: https://fiddle.skia.org/c/@Image_makeColorSpace
     */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 

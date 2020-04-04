@@ -242,7 +242,7 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrTextureProxy* texture,
+GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrSurfaceProxy* texture,
                                                                     const GrSamplerState&,
                                                                     const GrSwizzle& swizzle,
                                                                     const char* name,
@@ -252,7 +252,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrText
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
-    GrTextureType type = texture->textureType();
+    GrTextureType type = texture->backendFormat().textureType();
 
     UniformInfo& info = fSamplers.push_back();
     info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));

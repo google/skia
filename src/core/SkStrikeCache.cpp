@@ -32,21 +32,23 @@ public:
         return fStrike.roundingSpec();
     }
 
-    SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                 const SkPoint positions[],
-                                 size_t n,
-                                 int maxDimension,
-                                 SkGlyphPos results[]) override {
-        return fStrike.prepareForDrawingRemoveEmpty(packedGlyphIDs,
-                                                    positions,
-                                                    n,
-                                                    maxDimension,
-                                                    results);
-    }
-
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
+    }
+
+    void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForMaskDrawing(drawbles, rejects);
+    }
+
+    void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForSDFTDrawing(drawbles, rejects);
+    }
+
+    void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForPathDrawing(drawbles, rejects);
     }
 
     void onAboutToExitScope() override {
@@ -282,11 +284,11 @@ static bool loose_compare(const SkDescriptor& lhs, const SkDescriptor& rhs) {
     uint32_t size;
     auto ptr = lhs.findEntry(kRec_SkDescriptorTag, &size);
     SkScalerContextRec lhsRec;
-    std::memcpy(&lhsRec, ptr, size);
+    std::memcpy((void*)&lhsRec, ptr, size);
 
     ptr = rhs.findEntry(kRec_SkDescriptorTag, &size);
     SkScalerContextRec rhsRec;
-    std::memcpy(&rhsRec, ptr, size);
+    std::memcpy((void*)&rhsRec, ptr, size);
 
     // If these don't match, there's no way we can use these strikes interchangeably.
     // Note that a typeface from each renderer maps to a unique proxy typeface on the GPU,

@@ -14,10 +14,10 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
-                                                      const GrCoordTransform& coordTransform) {
+SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const GrCoordTransform& coordTransform,
+                                                      const SkMatrix& preMatrix) {
     SkMatrix combined;
-    combined.setConcat(coordTransform.getMatrix(), localMatrix);
+    combined.setConcat(coordTransform.matrix(), preMatrix);
     if (coordTransform.normalize()) {
         combined.postIDiv(coordTransform.peekTexture()->width(),
                           coordTransform.peekTexture()->height());
@@ -66,13 +66,19 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
 
 //////////////////////////////////////////////////////////////////////////////
 
-const GrCoordTransform* GrGLSLPrimitiveProcessor::FPCoordTransformHandler::nextCoordTransform() {
-#ifdef SK_DEBUG
-    SkASSERT(nullptr == fCurr || fAddedCoord);
-    fAddedCoord = false;
-    fCurr = fIter.next();
-    return fCurr;
-#else
-    return fIter.next();
-#endif
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
+        const GrPipeline& pipeline, SkTArray<TransformVar>* transformedCoordVars)
+        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
+
+std::pair<const GrCoordTransform&, const GrFragmentProcessor&>
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
+    return *fIter;
+}
+
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler&
+GrGLSLPrimitiveProcessor::FPCoordTransformHandler::operator++() {
+    SkASSERT(fAddedCoord);
+    ++fIter;
+    SkDEBUGCODE(fAddedCoord = false;)
+    return *this;
 }

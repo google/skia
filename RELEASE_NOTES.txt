@@ -4,14 +4,66 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
-  * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
-    https://skia-review.googlesource.com/246296
+Milestone 81
+
+<Insert new notes here- top is most recent.>
+
+* * *
+  * Added SkMatrix::MakeTrans(SkIVector)
+    https://review.skia.org/259804
+
+Milestone 80
+
+  * For Vulkan backend, we now require that the VkDevice, Queue, and Instance outlive
+    either the destruction or abandoning of the GrContext. Additionally, all
+    GrBackendTextures created via GrContext::createBackendTexture calls must be deleted
+    before destroying or abandoning the GrContext.
+    https://review.skia.org/257921
+
+  * Removed SkSize& SkSize::operator=(const SkISize&)
+    https://review.skia.org/257880
+
+  * SkISize width() and height() now constexpr
+    https://review.skia.org/257680
+
+  * Added SkMatrix::MakeTrans(SkVector) and SkRect::makeOffset(SkVector).
+    https://review.skia.org/255782
+
+  * Added SkImageInfo::MakeA8(SkISize) and added optional color space parameter to
+    SkImageInfo::MakeN32Premul(SkISize).
+
+  * Added dimensions() and getFrameCount() to SkAnimatedImage
+    https://review.skia.org/253542
+
+  * Removed SkMatrix44 version of toXYZD50 from SkColorSpace. Switched to skcms types in
+    transferFn, invTrasnferFn, and gamutTransformTo functions.
+    https://review.skia.org/252596
+
+  * Removed rotation and YUV support from SkColorMatrix
+    https://review.skia.org/252188
+
+  * Added kBT2020_SkYUVColorSpace. This is BT.2020's YCbCr conversion (non-constant-luminance).
+    https://review.skia.org/252160
+
+  * Remove old async read pixels APIs
+    https://review.skia.org/251198
+
+  * Expose SkBlendModeCoeff and SkBlendMode_AsCoeff for Porter-Duff blend modes.
+    https://review.skia.org/252600
+
+* * *
 
 Milestone 79
 
-[Insert new notes here.]
+  * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
+    https://skia-review.googlesource.com/246296
+
+  * Added support for PQ and HLG transfer functions to SkColorSpace.
+    https://skia-review.googlesource.com/c/skia/+/249000
+
   * Added new api on GrContext ComputeImageSize. This replaces the hold static helper
     ComputeTextureSize.
+    https://skia-review.googlesource.com/c/skia/+/247337
 
   * New versions of SkSurface async-rescale-and read APIs that allow client to extend
     the lifetime of the result data. Old versions are deprecated.
@@ -66,9 +118,6 @@ Milestone 79
 * * *
 
 Milestone 78
-
-  * Added RELEASE_NOTES.txt file
-    https://review.skia.org/229760
 
   * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
     https://review.skia.org/230579
@@ -147,3 +196,6 @@ Milestone 78
     https://review.skia.org/238856
 
   * Use GL_QCOM_TILED_RENDERING to explicitly discard stencil
+
+  * Added RELEASE_NOTES.txt file
+    https://review.skia.org/229760

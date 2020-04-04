@@ -11,8 +11,11 @@
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkStrikeSpec.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
@@ -20,40 +23,31 @@ GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
-    }
+    this->freeAll();
 }
 
 void GrStrikeCache::freeAll() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
-    }
-    fCache.rewind();
+    fCache.foreach([](sk_sp<GrTextStrike>* strike){
+        (*strike)->fIsAbandoned = true;
+    });
+    fCache.reset();
 }
 
 void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
-    StrikeHash::Iter iter(&grStrikeCache->fCache);
-    for (; !iter.done(); ++iter) {
-        GrTextStrike* strike = &*iter;
+    grStrikeCache->fCache.mutate([grStrikeCache, id](sk_sp<GrTextStrike>* cacheSlot){
+        GrTextStrike* strike = cacheSlot->get();
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != grStrikeCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            grStrikeCache->fCache.remove(GrTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
-            strike->unref();
+            return false;  // Remove this entry from the cache.
         }
-    }
+        return true;  // Keep this entry in the cache.
+    });
 }
 
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
@@ -80,12 +74,12 @@ static void expand_bits(INT_TYPE* dst,
     }
 }
 
-static bool get_packed_glyph_image(SkStrike* cache, SkGlyph* glyph, int width,
+static bool get_packed_glyph_image(const SkGlyph* glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
     SkASSERT(glyph->width() == width);
     SkASSERT(glyph->height() == height);
-    const void* src = cache->prepareImage(glyph);
+    const void* src = glyph->image();
     if (src == nullptr) {
         return false;
     }
@@ -173,15 +167,13 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
 void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
-    SkTDynamicHash<GrGlyph, SkPackedGlyphID>::Iter iter(&fCache);
-    while (!iter.done()) {
-        if (id == (*iter).fID) {
-            (*iter).fID = GrDrawOpAtlas::kInvalidAtlasID;
+    fCache.foreach([this, id](GrGlyph** glyph){
+        if ((*glyph)->fID == id) {
+            (*glyph)->fID = GrDrawOpAtlas::kInvalidAtlasID;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
-        ++iter;
-    }
+    });
 }
 
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
@@ -190,12 +182,12 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrStrikeCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
-                                   SkStrike* skStrikeCache,
+                                   SkBulkGlyphMetricsAndImages* metricsAndImages,
                                    GrMaskFormat expectedMaskFormat,
                                    bool isScaledGlyph) {
     SkASSERT(glyph);
-    SkASSERT(skStrikeCache);
-    SkASSERT(fCache.find(glyph->fPackedID));
+    SkASSERT(metricsAndImages);
+    SkASSERT(fCache.findOrNull(glyph->fPackedID));
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
@@ -215,13 +207,13 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     SkAutoSMalloc<1024> storage(size);
 
-    SkGlyph* skGlyph = skStrikeCache->glyph(glyph->fPackedID);
+    const SkGlyph* skGlyph = metricsAndImages->glyph(glyph->fPackedID);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
-    if (!get_packed_glyph_image(skStrikeCache, skGlyph, glyph->width(), glyph->height(),
+    if (!get_packed_glyph_image(skGlyph, glyph->width(), glyph->height(),
                                 rowBytes, expectedMaskFormat,
                                 dataPtr, glyphCache->getMasks())) {
         return GrDrawOpAtlas::ErrorCode::kError;
@@ -241,4 +233,26 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
         fAtlasedGlyphs++;
     }
     return result;
+}
+
+GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
+    GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
+    if (grGlyph == nullptr) {
+        grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+        fCache.set(grGlyph);
+    }
+    return grGlyph;
+}
+
+GrGlyph*
+GrTextStrike::getGlyph(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages) {
+    GrGlyph* grGlyph = fCache.findOrNull(packed);
+    if (grGlyph == nullptr) {
+        // We could return this to the caller, but in practice it adds code complexity for
+        // potentially little benefit(ie, if the glyph is not in our font cache, then its not
+        // in the atlas and we're going to be doing a texture upload anyways).
+        grGlyph = fAlloc.make<GrGlyph>(*metricsAndImages->glyph(packed));
+        fCache.set(grGlyph);
+    }
+    return grGlyph;
 }

@@ -12,8 +12,10 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Circle Data
@@ -189,8 +191,10 @@ public:
 
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
-                          float devRadius, bool isCircle, float blurRadius, float insetWidth)
-            : INHERITED(ClassID()) {
+                          float devRadius, bool isCircle, float blurRadius, float insetWidth,
+                          GrSurfaceProxyView falloffView)
+            : INHERITED(ClassID())
+            , fFalloffView(std::move(falloffView)) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
         SkScalar innerRadius = 0.0f;
@@ -536,7 +540,8 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
+        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
+                                                             fFalloffView);
 
         int instanceCount = fGeoData.count();
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
@@ -587,19 +592,25 @@ private:
             }
         }
 
+        auto fixedDynamicState = target->makeFixedDynamicState(1);
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = fFalloffView.proxy();
+
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(gp, mesh, 1, fixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, GrProcessorSet::MakeEmptySet());
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 GrProcessorSet::MakeEmptySet(),
+                                                                 GrPipeline::InputFlags::kNone);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         fVertCount += that->fVertCount;
@@ -607,9 +618,14 @@ private:
         return CombineResult::kMerged;
     }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        func(fFalloffView.proxy(), GrMipMapped(false));
+    }
+
     SkSTArray<1, Geometry, true> fGeoData;
     int fVertCount;
     int fIndexCount;
+    GrSurfaceProxyView fFalloffView;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -619,6 +635,49 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
+
+static sk_sp<GrTextureProxy> create_falloff_texture(GrProxyProvider* proxyProvider) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 0, "Shadow Gaussian Falloff");
+    builder.finish();
+
+    sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
+    if (!falloffTexture) {
+        static const int kWidth = 128;
+        static const size_t kRowBytes = kWidth*GrColorTypeBytesPerPixel(GrColorType::kAlpha_8);
+        SkImageInfo ii = SkImageInfo::MakeA8(kWidth, 1);
+
+        sk_sp<SkData> data = SkData::MakeUninitialized(kRowBytes);
+        if (!data) {
+            return nullptr;
+        }
+        unsigned char* values = (unsigned char*) data->writable_data();
+        for (int i = 0; i < 128; ++i) {
+            SkScalar d = SK_Scalar1 - i/SkIntToScalar(127);
+            values[i] = SkScalarRoundToInt((SkScalarExp(-4*d*d) - 0.018f)*255);
+        }
+
+        sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), kRowBytes);
+        if (!img) {
+            return nullptr;
+        }
+
+        falloffTexture = proxyProvider->createTextureProxy(std::move(img), 1, SkBudgeted::kYes,
+                                                           SkBackingFit::kExact);
+        if (!falloffTexture) {
+            return nullptr;
+        }
+
+        SkASSERT(falloffTexture->origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, falloffTexture.get());
+    }
+
+    return falloffTexture;
+}
+
+
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrColor color,
                                const SkMatrix& viewMatrix,
@@ -627,6 +686,15 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
+
+    sk_sp<GrTextureProxy> falloffTexture = create_falloff_texture(context->priv().proxyProvider());
+    if (!falloffTexture) {
+        return nullptr;
+    }
+    GrSwizzle swizzle = context->priv().caps()->getTextureSwizzle(falloffTexture->backendFormat(),
+                                                                  GrColorType::kAlpha_8);
+
+    GrSurfaceProxyView falloffView(std::move(falloffTexture), kTopLeft_GrSurfaceOrigin, swizzle);
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
@@ -649,7 +717,8 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                                  scaledRadius,
                                                  rrect.isOval(),
                                                  blurWidth,
-                                                 scaledInsetWidth);
+                                                 scaledInsetWidth,
+                                                 std::move(falloffView));
 }
 }
 
@@ -658,35 +727,42 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
 #if GR_TEST_UTILS
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
-    // create a similarity matrix
-    SkScalar rotate = random->nextSScalar1() * 360.f;
-    SkScalar translateX = random->nextSScalar1() * 1000.f;
-    SkScalar translateY = random->nextSScalar1() * 1000.f;
-    SkScalar scale;
+    // We may choose matrix and inset values that cause the factory to fail. We loop until we find
+    // an acceptable combination.
     do {
-        scale = random->nextSScalar1() * 100.f;
-    } while (scale == 0);
-    SkMatrix viewMatrix;
-    viewMatrix.setRotate(rotate);
-    viewMatrix.postTranslate(translateX, translateY);
-    viewMatrix.postScale(scale, scale);
-    SkScalar insetWidth = random->nextSScalar1() * 72.f;
-    SkScalar blurWidth = random->nextSScalar1() * 72.f;
-    bool isCircle = random->nextBool();
-    // This op doesn't use a full GrPaint, just a color.
-    GrColor color = paint.getColor4f().toBytes_RGBA();
-    if (isCircle) {
-        SkRect circle = GrTest::TestSquare(random);
-        SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth, insetWidth);
-    } else {
-        SkRRect rrect;
-        do {
-            // This may return a rrect with elliptical corners, which we don't support.
-            rrect = GrTest::TestRRectSimple(random);
-        } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth, insetWidth);
-    }
+        // create a similarity matrix
+        SkScalar rotate = random->nextSScalar1() * 360.f;
+        SkScalar translateX = random->nextSScalar1() * 1000.f;
+        SkScalar translateY = random->nextSScalar1() * 1000.f;
+        SkScalar scale = random->nextSScalar1() * 100.f;
+        SkMatrix viewMatrix;
+        viewMatrix.setRotate(rotate);
+        viewMatrix.postTranslate(translateX, translateY);
+        viewMatrix.postScale(scale, scale);
+        SkScalar insetWidth = random->nextSScalar1() * 72.f;
+        SkScalar blurWidth = random->nextSScalar1() * 72.f;
+        bool isCircle = random->nextBool();
+        // This op doesn't use a full GrPaint, just a color.
+        GrColor color = paint.getColor4f().toBytes_RGBA();
+        if (isCircle) {
+            SkRect circle = GrTest::TestSquare(random);
+            SkRRect rrect = SkRRect::MakeOval(circle);
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        } else {
+            SkRRect rrect;
+            do {
+                // This may return a rrect with elliptical corners, which will cause an assert.
+                rrect = GrTest::TestRRectSimple(random);
+            } while (!SkRRectPriv::IsSimpleCircular(rrect));
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        }
+    } while (true);
 }
 
 #endif

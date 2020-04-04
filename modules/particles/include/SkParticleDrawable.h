@@ -13,7 +13,8 @@
 class SkCanvas;
 struct SkParticles;
 class SkPaint;
-class SkString;
+
+namespace skresources { class ResourceProvider; }
 
 class SkParticleDrawable : public SkReflected {
 public:
@@ -21,11 +22,13 @@ public:
 
     virtual void draw(SkCanvas* canvas, const SkParticles& particles, int count,
                       const SkPaint& paint) = 0;
+    virtual void prepare(const skresources::ResourceProvider* resourceProvider) = 0;
 
     static void RegisterDrawableTypes();
 
     static sk_sp<SkParticleDrawable> MakeCircle(int radius);
-    static sk_sp<SkParticleDrawable> MakeImage(const SkString& path, int cols, int rows);
+    static sk_sp<SkParticleDrawable> MakeImage(const char* imagePath, const char* imageName,
+                                               int cols, int rows);
 };
 
 #endif // SkParticleEffect_DEFINED

@@ -12,6 +12,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -72,7 +73,7 @@ protected:
         SkASSERT(caps && !FPFactoryCache);
         SkASSERT(!fThreadSafeProxy);
 
-        FPFactoryCache.reset(new GrSkSLFPFactoryCache());
+        FPFactoryCache.reset(new GrSkSLFPFactoryCache(caps->refShaderCaps()));
         fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
                                                               this->options(),
                                                               this->contextID(),
@@ -122,6 +123,7 @@ private:
     typedef GrContext INHERITED;
 };
 
+#ifdef SK_GL
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(interface), defaultOptions);
@@ -150,6 +152,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     }
     return context;
 }
+#endif
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
     GrContextOptions defaultOptions;
@@ -168,6 +171,13 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     if (!context->init(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
+
+#if GR_TEST_UTILS
+    if (mockOptions && mockOptions->fFailTextureAllocations) {
+        context->testingOnly_setSuppressAllocationWarnings();
+    }
+#endif
+
     return context;
 }
 
@@ -222,12 +232,12 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 #endif
 
 #ifdef SK_DAWN
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
     GrContextOptions defaultOptions;
     return MakeDawn(device, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device, const GrContextOptions& options) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDawn, options));
 
     context->fGpu = GrDawnGpu::Make(device, options, context.get());

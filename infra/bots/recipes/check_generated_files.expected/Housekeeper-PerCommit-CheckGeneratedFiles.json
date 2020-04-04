@@ -1,6 +1,31 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git'])\nprint 'git was found at %s' % git\nif 'cipd_bin_packages' not in git:\n  print >> sys.stderr, 'Git must be obtained through CIPD.'\n  sys.exit(1)\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Assert that Git is from CIPD",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@which = 'where' if sys.platform == 'win32' else 'which'@@@",
+      "@@@STEP_LOG_LINE@python.inline@git = subprocess.check_output([which, 'git'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'git was found at %s' % git@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cipd_bin_packages' not in git:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print >> sys.stderr, 'Git must be obtained through CIPD.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -231,6 +256,25 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "infra_step": true,
+    "name": "Get clang_linux VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-gn"
@@ -262,7 +306,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/build/out/Release",
-      "--args=is_debug=false skia_compile_processors=true skia_generate_workarounds=true werror=true"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false skia_compile_processors=true skia_generate_workarounds=true werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

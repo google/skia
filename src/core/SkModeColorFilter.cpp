@@ -19,7 +19,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/utils/SkUTF.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

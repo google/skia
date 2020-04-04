@@ -27,7 +27,8 @@ public:
     GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
     void begin() override {
-        fGpu->beginCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+        fGpu->beginCommandBuffer(fRenderTarget, fContentBounds, fOrigin, fColorLoadAndStoreInfo,
+                                 fStencilLoadAndStoreInfo);
     }
 
     void end() override {
@@ -42,8 +43,8 @@ public:
         state->doUpload(upload);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&,
-             const StencilLoadAndStoreInfo&);
+    void set(GrRenderTarget*, const SkIRect& contentBounds, GrSurfaceOrigin,
+             const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;
@@ -65,9 +66,10 @@ private:
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
     }
 
-    GrGLGpu*                                 fGpu;
-    GrOpsRenderPass::LoadAndStoreInfo        fColorLoadAndStoreInfo;
-    GrOpsRenderPass::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
+    GrGLGpu*                fGpu;
+    SkIRect                 fContentBounds;
+    LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     typedef GrOpsRenderPass INHERITED;
 };

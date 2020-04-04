@@ -10,12 +10,12 @@
       "}",
       "",
       "void effectUpdate(inout Effect effect) {",
-      "  effect.pos.y = sin(effect.age * 6.28) * 40;",
       "}",
       ""
    ],
    "Code": [
       "void spawn(inout Particle p) {",
+      "  p.pos.y += sin(effect.age * 6.28) * 40;",
       "  p.lifetime = 2 + (rand * 2);",
       "  p.vel.x = (30 * rand) + 50;",
       "  p.vel.y = (20 * rand) - 10;",

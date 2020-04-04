@@ -45,36 +45,182 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
+    "cmd": [],
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
       "[START_DIR]/skia/resources",
-      "/sdcard/revenge_of_the_skiabot/resources"
+      "--recursive"
     ],
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.list [START_DIR]/skia/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/skia/resources/.file3",
+      "/sdcard/revenge_of_the_skiabot/resources/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/.file3",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
-      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
-      "@@@STEP_LOG_END@python.inline@@@",
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/skia/resources/file1",
+      "/sdcard/revenge_of_the_skiabot/resources/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.kill adb server after failure of 'push [START_DIR]/skia/resources/file1' (attempt 1)",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.wait for device after failure of 'push [START_DIR]/skia/resources/file1' (attempt 1)",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/skia/resources/file1",
+      "/sdcard/revenge_of_the_skiabot/resources/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1 (attempt 2)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.kill adb server after failure of 'push [START_DIR]/skia/resources/file1' (attempt 2)",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.wait for device after failure of 'push [START_DIR]/skia/resources/file1' (attempt 2)",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/skia/resources/file1",
+      "/sdcard/revenge_of_the_skiabot/resources/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1 (attempt 3)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -145,7 +291,7 @@
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources') (retcode: 1)"
+      "humanReason": "Infra Failure: Step('push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1 (attempt 3)') (retcode: 1)"
     },
     "name": "$result"
   }

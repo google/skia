@@ -26,7 +26,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skp VERSION"
+    "name": "Get skp VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -58,7 +62,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get skimage VERSION"
+    "name": "Get skimage VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -90,7 +98,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get svg VERSION"
+    "name": "Get svg VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -196,7 +208,6 @@
       "g8",
       "565",
       "pic-8888",
-      "tiles_rt-8888",
       "serialize-8888",
       "f16",
       "srgb",
@@ -593,14 +604,6 @@
       "gm",
       "_",
       "blurrect_compare",
-      "tiles_rt-8888",
-      "gm",
-      "_",
-      "complexclip4_bw",
-      "tiles_rt-8888",
-      "gm",
-      "_",
-      "complexclip4_aa",
       "--match",
       "~ReadWriteAlpha",
       "~RGBA4444TextureTest",

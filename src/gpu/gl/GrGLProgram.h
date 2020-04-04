@@ -122,7 +122,7 @@ public:
     void updateUniformsAndTextureBindings(const GrRenderTarget*, const GrProgramInfo&);
 
     void updatePrimitiveProcessorTextureBindings(const GrPrimitiveProcessor&,
-                                                 const GrTextureProxy* const[]);
+                                                 const GrSurfaceProxy* const[]);
 
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }

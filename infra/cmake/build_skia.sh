@@ -27,6 +27,8 @@ cd $SKIA_DIR
 gn gen out/CMAKE --args='is_debug=false' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 
 cd $SKIA_DIR/out/CMAKE
+export CC=/usr/local/bin/clang
+export CXX=/usr/local/bin/clang++
 cmake -G"CodeBlocks - Unix Makefiles" .
 cmake --build . --parallel 8
 

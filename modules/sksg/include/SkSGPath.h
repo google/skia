@@ -26,7 +26,20 @@ public:
     static sk_sp<Path> Make(const SkPath& r) { return sk_sp<Path>(new Path(r)); }
 
     SG_ATTRIBUTE(Path, SkPath, fPath)
-    SG_MAPPED_ATTRIBUTE(FillType, SkPath::FillType, fPath)
+
+    // Temporarily inlined for SkPathFillType staging
+    // SG_MAPPED_ATTRIBUTE(FillType, SkPathFillType, fPath)
+
+    SkPathFillType getFillType() const {
+        return fPath.getFillType();
+    }
+
+    void setFillType(SkPathFillType fillType) {
+        if (fillType != fPath.getFillType()) {
+            fPath.setFillType(fillType);
+            this->invalidate();
+        }
+    }
 
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;

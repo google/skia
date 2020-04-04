@@ -8,6 +8,7 @@
 #ifndef GrSwizzle_DEFINED
 #define GrSwizzle_DEFINED
 
+#include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrColor.h"
 
@@ -24,9 +25,6 @@ public:
 
     static constexpr GrSwizzle Concat(const GrSwizzle& a, const GrSwizzle& b);
 
-    /** Recreates a GrSwizzle from the output of asKey() */
-    constexpr void setFromKey(uint16_t key);
-
     constexpr bool operator==(const GrSwizzle& that) const { return fKey == that.fKey; }
     constexpr bool operator!=(const GrSwizzle& that) const { return !(*this == that); }
 
@@ -34,11 +32,12 @@ public:
     constexpr uint16_t asKey() const { return fKey; }
 
     /** 4 char null terminated string consisting only of chars 'r', 'g', 'b', 'a', '0', and '1'. */
-    constexpr const char* c_str() const { return fSwiz; }
+    SkString asString() const;
 
     constexpr char operator[](int i) const {
         SkASSERT(i >= 0 && i < 4);
-        return fSwiz[i];
+        int idx = (fKey >> (4U * i)) & 0xfU;
+        return IToC(idx);
     }
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
@@ -55,29 +54,23 @@ public:
     static constexpr GrSwizzle RGB1() { return GrSwizzle("rgb1"); }
 
 private:
+    explicit constexpr GrSwizzle(uint16_t key) : fKey(key) {}
+
     template <SkAlphaType AlphaType>
     static constexpr float ComponentIndexToFloat(const SkRGBA4f<AlphaType>& color, int idx);
     static constexpr int CToI(char c);
     static constexpr char IToC(int idx);
 
-    char fSwiz[5];
     uint16_t fKey;
 };
 
 constexpr GrSwizzle::GrSwizzle(const char c[4])
-        : fSwiz{c[0], c[1], c[2], c[3], '\0'}
-        , fKey((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) | (CToI(c[3]) << 12)) {}
+        : fKey((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) | (CToI(c[3]) << 12)) {}
 
 constexpr GrSwizzle::GrSwizzle(const GrSwizzle& that)
-        : fSwiz{that.fSwiz[0], that.fSwiz[1], that.fSwiz[2], that.fSwiz[3], '\0'}
-        , fKey(that.fKey) {}
+        : fKey(that.fKey) {}
 
 constexpr GrSwizzle& GrSwizzle::operator=(const GrSwizzle& that) {
-    fSwiz[0] = that.fSwiz[0];
-    fSwiz[1] = that.fSwiz[1];
-    fSwiz[2] = that.fSwiz[2];
-    fSwiz[3] = that.fSwiz[3];
-    SkASSERT(fSwiz[4] == '\0');
     fKey = that.fKey;
     return *this;
 }
@@ -98,16 +91,6 @@ constexpr SkRGBA4f<AlphaType> GrSwizzle::applyTo(const SkRGBA4f<AlphaType>& colo
     idx = (key & 15);
     float outA = ComponentIndexToFloat(color, idx);
     return { outR, outG, outB, outA };
-}
-
-/** Recreates a GrSwizzle from the output of asKey() */
-constexpr void GrSwizzle::setFromKey(uint16_t key) {
-    fKey = key;
-    for (int i = 0; i < 4; ++i) {
-        fSwiz[i] = IToC(key & 15);
-        key >>= 4;
-    }
-    SkASSERT(fSwiz[4] == '\0');
 }
 
 template <SkAlphaType AlphaType>
@@ -150,15 +133,16 @@ constexpr char GrSwizzle::IToC(int idx) {
 }
 
 constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
-    char swiz[4]{};
+    uint16_t key = 0;
     for (int i = 0; i < 4; ++i) {
         int idx = (b.fKey >> (4U * i)) & 0xfU;
-        switch (idx) {
-            case CToI('0'): swiz[i] = '0';          break;
-            case CToI('1'): swiz[i] = '1';          break;
-            default:        swiz[i] = a.fSwiz[idx]; break;
+        if (idx != CToI('0') && idx != CToI('1')) {
+            SkASSERT(idx >= 0 && idx < 4);
+            // Get the index value stored in a at location idx.
+            idx = ((a.fKey >> (4U * idx)) & 0xfU);
         }
+        key |= (idx << (4U * i));
     }
-    return GrSwizzle(swiz);
+    return GrSwizzle(key);
 }
 #endif

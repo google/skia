@@ -18,22 +18,21 @@
  * along with other resources. If more cases like this arise we could consider moving some of the
  * unused functionality off of GrGpuResource.
  */
-class GrSemaphore : public GrGpuResource {
+class GrSemaphore {
 public:
+    virtual ~GrSemaphore() {}
+
     // The derived class can return its GrBackendSemaphore. This is used when flushing with signal
     // semaphores so we can set the client's GrBackendSemaphore object after we've created the
     // internal semaphore.
     virtual GrBackendSemaphore backendSemaphore() const = 0;
 
-    const char* getResourceType() const override { return "semaphore"; }
-
-protected:
-    explicit GrSemaphore(GrGpu* gpu) : INHERITED(gpu) {}
-
 private:
-    size_t onGpuMemorySize() const override { return 0; }
-
-    typedef GrGpuResource INHERITED;
+    friend class GrGpu; // for setIsOwned
+    // This is only used in GrGpu to handle the case where we created a semaphore that was meant to
+    // be borrowed, but we failed to submit it. So we must go back and switch the semaphore to owned
+    // so that it gets deleted.
+    virtual void setIsOwned() = 0;
 };
 
 #endif

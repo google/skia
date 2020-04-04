@@ -35,6 +35,22 @@
 
 #define SK_WUFFS_CODEC_BUFFER_SIZE 4096
 
+// Configuring a Skia build with
+// SK_WUFFS_FAVORS_PERFORMANCE_OVER_ADDITIONAL_MEMORY_SAFETY can improve decode
+// performance by some fixed amount (independent of the image size), which can
+// be a noticeable proportional improvement if the input is relatively small.
+//
+// The Wuffs library is still memory-safe either way, in that there are no
+// out-of-bounds reads or writes, and the library endeavours not to read
+// uninitialized memory. There are just fewer compiler-enforced guarantees
+// against reading uninitialized memory. For more detail, see
+// https://github.com/google/wuffs/blob/master/doc/note/initialization.md#partial-zero-initialization
+#if defined(SK_WUFFS_FAVORS_PERFORMANCE_OVER_ADDITIONAL_MEMORY_SAFETY)
+#define SK_WUFFS_INITIALIZE_FLAGS WUFFS_INITIALIZE__LEAVE_INTERNAL_BUFFERS_UNINITIALIZED
+#else
+#define SK_WUFFS_INITIALIZE_FLAGS WUFFS_INITIALIZE__DEFAULT_OPTIONS
+#endif
+
 static bool fill_buffer(wuffs_base__io_buffer* b, SkStream* s) {
     b->compact();
     size_t num_read = s->read(b->data.ptr + b->meta.wi, b->data.len - b->meta.wi);
@@ -83,6 +99,57 @@ static SkCodecAnimation::DisposalMethod wuffs_disposal_to_skia_disposal(
     }
 }
 
+static SkAlphaType to_alpha_type(bool opaque) {
+    return opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+}
+
+static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       decoder,
+                                                     wuffs_base__image_config* imgcfg,
+                                                     wuffs_base__io_buffer*    b,
+                                                     SkStream*                 s) {
+    // Calling decoder->initialize will memset most or all of it to zero,
+    // depending on SK_WUFFS_INITIALIZE_FLAGS.
+    const char* status =
+        decoder->initialize(sizeof__wuffs_gif__decoder(), WUFFS_VERSION, SK_WUFFS_INITIALIZE_FLAGS);
+    if (status != nullptr) {
+        SkCodecPrintf("initialize: %s", status);
+        return SkCodec::kInternalError;
+    }
+    while (true) {
+        status = decoder->decode_image_config(imgcfg, b);
+        if (status == nullptr) {
+            break;
+        } else if (status != wuffs_base__suspension__short_read) {
+            SkCodecPrintf("decode_image_config: %s", status);
+            return SkCodec::kErrorInInput;
+        } else if (!fill_buffer(b, s)) {
+            return SkCodec::kIncompleteInput;
+        }
+    }
+
+    // A GIF image's natural color model is indexed color: 1 byte per pixel,
+    // indexing a 256-element palette.
+    //
+    // For Skia, we override that to decode to 4 bytes per pixel, BGRA or RGBA.
+    wuffs_base__pixel_format pixfmt = 0;
+    switch (kN32_SkColorType) {
+        case kBGRA_8888_SkColorType:
+            pixfmt = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
+            break;
+        case kRGBA_8888_SkColorType:
+            pixfmt = WUFFS_BASE__PIXEL_FORMAT__RGBA_NONPREMUL;
+            break;
+        default:
+            return SkCodec::kInternalError;
+    }
+    if (imgcfg) {
+        imgcfg->pixcfg.set(pixfmt, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, imgcfg->pixcfg.width(),
+                           imgcfg->pixcfg.height());
+    }
+
+    return SkCodec::kSuccess;
+}
+
 // -------------------------------- Class definitions
 
 class SkWuffsCodec;
@@ -128,16 +195,45 @@ public:
     SkWuffsCodec(SkEncodedInfo&&                                         encodedInfo,
                  std::unique_ptr<SkStream>                               stream,
                  std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> dec,
-                 std::unique_ptr<uint8_t, decltype(&sk_free)>            pixbuf_ptr,
                  std::unique_ptr<uint8_t, decltype(&sk_free)>            workbuf_ptr,
                  size_t                                                  workbuf_len,
                  wuffs_base__image_config                                imgcfg,
-                 wuffs_base__pixel_buffer                                pixbuf,
                  wuffs_base__io_buffer                                   iobuf);
 
     const SkWuffsFrame* frame(int i) const;
 
 private:
+    // It is valid, in terms of the SkCodec API, to call SkCodec::getFrameCount
+    // while in an incremental decode (after onStartIncrementalDecode returns
+    // and before the rest of the image is decoded). Some Skia users expect
+    // getFrameCount to increase, and the SkStream to advance, when given more
+    // data.
+    //
+    // On the other hand, while in an incremental decode, the underlying Wuffs
+    // object is suspended in a coroutine. To keep its internal proof-of-safety
+    // invariants consistent, there's only two things you can safely do with a
+    // suspended Wuffs object: resume the coroutine, or reset all state (memset
+    // to zero and start again).
+    //
+    // The Wuffs API provides a limited, optional form of seeking, to the start
+    // of an animation frame's data, but does not provide arbitrary save and
+    // load of its internal state whilst in the middle of an animation frame.
+    //
+    // SkWuffsCodec therefore uses two Wuffs decoders: a primary decoder
+    // (kIncrDecode) to support startIncrementalDecode / incrementalDecode, and
+    // a secondary decoder (kFrameCount) to support getFrameCount. The two
+    // decoders' states can change independently.
+    //
+    // As of Wuffs version 0.2, both of these decoders have the same type. A
+    // future Wuffs version might let us use a different type for kFrameCount,
+    // one that is much lighter weight (in terms of memory requirements), as it
+    // doesn't have to handle decompressing pixel data.
+    enum WhichDecoder {
+        kIncrDecode,
+        kFrameCount,
+        kNumDecoders,
+    };
+
     // SkCodec overrides.
     SkEncodedImageFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*) override;
@@ -151,46 +247,75 @@ private:
     bool                 onGetFrameInfo(int, FrameInfo*) const override;
     int                  onGetRepetitionCount() override;
 
-    void   readFrames();
-    Result seekFrame(int frameIndex);
+    // Two separate implementations of onStartIncrementalDecode and
+    // onIncrementalDecode, named "one pass" and "two pass" decoding. One pass
+    // decoding writes directly from the Wuffs image decoder to the dst buffer
+    // (the dst argument to onStartIncrementalDecode). Two pass decoding first
+    // writes into an intermediate buffer, and then composites and transforms
+    // the intermediate buffer into the dst buffer.
+    //
+    // In the general case, we need the two pass decoder, because of Skia API
+    // features that Wuffs doesn't support (e.g. color correction, scaling,
+    // RGB565). But as an optimization, we use one pass decoding (it's faster
+    // and uses less memory) if applicable (see the assignment to
+    // fIncrDecOnePass that calculates when we can do so).
+    Result onStartIncrementalDecodeOnePass(const SkImageInfo&       dstInfo,
+                                           uint8_t*                 dst,
+                                           size_t                   rowBytes,
+                                           const SkCodec::Options&  options,
+                                           wuffs_base__pixel_format pixelFormat,
+                                           size_t                   bytesPerPixel);
+    Result onStartIncrementalDecodeTwoPass();
+    Result onIncrementalDecodeOnePass();
+    Result onIncrementalDecodeTwoPass();
 
-    Result      resetDecoder();
-    const char* decodeFrameConfig();
-    const char* decodeFrame();
-    void        updateNumFullyReceivedFrames();
+    void        onGetFrameCountInternal();
+    Result      seekFrame(WhichDecoder which, int frameIndex);
+    Result      resetDecoder(WhichDecoder which);
+    const char* decodeFrameConfig(WhichDecoder which);
+    const char* decodeFrame(WhichDecoder which);
+    void        updateNumFullyReceivedFrames(WhichDecoder which);
 
-    SkWuffsFrameHolder                                      fFrameHolder;
-    std::unique_ptr<SkStream>                               fStream;
-    std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> fDecoder;
-    std::unique_ptr<uint8_t, decltype(&sk_free)>            fPixbufPtr;
-    std::unique_ptr<uint8_t, decltype(&sk_free)>            fWorkbufPtr;
-    size_t                                                  fWorkbufLen;
+    SkWuffsFrameHolder                           fFrameHolder;
+    std::unique_ptr<SkStream>                    fStream;
+    std::unique_ptr<uint8_t, decltype(&sk_free)> fWorkbufPtr;
+    size_t                                       fWorkbufLen;
+
+    std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> fDecoders[WhichDecoder::kNumDecoders];
 
     const uint64_t           fFirstFrameIOPosition;
-    wuffs_base__frame_config fFrameConfig;
+    wuffs_base__frame_config fFrameConfigs[WhichDecoder::kNumDecoders];
+    wuffs_base__pixel_config fPixelConfig;
     wuffs_base__pixel_buffer fPixelBuffer;
     wuffs_base__io_buffer    fIOBuffer;
 
     // Incremental decoding state.
     uint8_t* fIncrDecDst;
+    uint64_t fIncrDecReaderIOPosition;
     size_t   fIncrDecRowBytes;
+    bool     fIncrDecOnePass;
     bool     fFirstCallToIncrementalDecode;
 
+    // Lazily allocated intermediate pixel buffer, for two pass decoding.
+    std::unique_ptr<uint8_t, decltype(&sk_free)> fTwoPassPixbufPtr;
+    size_t                                       fTwoPassPixbufLen;
+
+    uint64_t                  fFrameCountReaderIOPosition;
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
     bool                      fFramesComplete;
 
-    // If calling an fDecoder method returns an incomplete status, then
-    // fDecoder is suspended in a coroutine (i.e. waiting on I/O or halted on a
-    // non-recoverable error). To keep its internal proof-of-safety invariants
-    // consistent, there's only two things you can safely do with a suspended
-    // Wuffs object: resume the coroutine, or reset all state (memset to zero
-    // and start again).
+    // If calling an fDecoders[which] method returns an incomplete status, then
+    // fDecoders[which] is suspended in a coroutine (i.e. waiting on I/O or
+    // halted on a non-recoverable error). To keep its internal proof-of-safety
+    // invariants consistent, there's only two things you can safely do with a
+    // suspended Wuffs object: resume the coroutine, or reset all state (memset
+    // to zero and start again).
     //
-    // If fDecoderIsSuspended, and we aren't sure that we're going to resume
-    // the coroutine, then we will need to call this->resetDecoder before
-    // calling other fDecoder methods.
-    bool fDecoderIsSuspended;
+    // If fDecoderIsSuspended[which], and we aren't sure that we're going to
+    // resume the coroutine, then we will need to call this->resetDecoder
+    // before calling other fDecoders[which] methods.
+    bool fDecoderIsSuspended[WhichDecoder::kNumDecoders];
 
     uint8_t fBuffer[SK_WUFFS_CODEC_BUFFER_SIZE];
 
@@ -246,11 +371,9 @@ const SkFrame* SkWuffsFrameHolder::onGetFrame(int i) const {
 SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                         encodedInfo,
                            std::unique_ptr<SkStream>                               stream,
                            std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> dec,
-                           std::unique_ptr<uint8_t, decltype(&sk_free)>            pixbuf_ptr,
                            std::unique_ptr<uint8_t, decltype(&sk_free)>            workbuf_ptr,
                            size_t                                                  workbuf_len,
                            wuffs_base__image_config                                imgcfg,
-                           wuffs_base__pixel_buffer                                pixbuf,
                            wuffs_base__io_buffer                                   iobuf)
     : INHERITED(std::move(encodedInfo),
                 skcms_PixelFormat_RGBA_8888,
@@ -260,20 +383,34 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
                 nullptr),
       fFrameHolder(),
       fStream(std::move(stream)),
-      fDecoder(std::move(dec)),
-      fPixbufPtr(std::move(pixbuf_ptr)),
       fWorkbufPtr(std::move(workbuf_ptr)),
       fWorkbufLen(workbuf_len),
+      fDecoders{
+          std::move(dec),
+          std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)>(nullptr, sk_free),
+      },
       fFirstFrameIOPosition(imgcfg.first_frame_io_position()),
-      fFrameConfig(wuffs_base__null_frame_config()),
-      fPixelBuffer(pixbuf),
+      fFrameConfigs{
+          wuffs_base__null_frame_config(),
+          wuffs_base__null_frame_config(),
+      },
+      fPixelConfig(imgcfg.pixcfg),
+      fPixelBuffer(wuffs_base__null_pixel_buffer()),
       fIOBuffer(wuffs_base__empty_io_buffer()),
       fIncrDecDst(nullptr),
+      fIncrDecReaderIOPosition(0),
       fIncrDecRowBytes(0),
+      fIncrDecOnePass(false),
       fFirstCallToIncrementalDecode(false),
+      fTwoPassPixbufPtr(nullptr, &sk_free),
+      fTwoPassPixbufLen(0),
+      fFrameCountReaderIOPosition(0),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
-      fDecoderIsSuspended(false) {
+      fDecoderIsSuspended{
+          false,
+          false,
+      } {
     fFrameHolder.init(this, imgcfg.pixcfg.width(), imgcfg.pixcfg.height());
 
     // Initialize fIOBuffer's fields, copying any outstanding data from iobuf to
@@ -325,12 +462,12 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     if (options.fFrameIndex > 0 && SkColorTypeIsAlwaysOpaque(dstInfo.colorType())) {
         return SkCodec::kInvalidConversion;
     }
-    SkCodec::Result result = this->seekFrame(options.fFrameIndex);
+    SkCodec::Result result = this->seekFrame(WhichDecoder::kIncrDecode, options.fFrameIndex);
     if (result != SkCodec::kSuccess) {
         return result;
     }
 
-    const char* status = this->decodeFrameConfig();
+    const char* status = this->decodeFrameConfig(WhichDecoder::kIncrDecode);
     if (status == wuffs_base__suspension__short_read) {
         return SkCodec::kIncompleteInput;
     } else if (status != nullptr) {
@@ -338,29 +475,130 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
         return SkCodec::kErrorInInput;
     }
 
-    uint32_t src_bits_per_pixel =
-        wuffs_base__pixel_format__bits_per_pixel(fPixelBuffer.pixcfg.pixel_format());
-    if ((src_bits_per_pixel == 0) || (src_bits_per_pixel % 8 != 0)) {
-        return SkCodec::kInternalError;
-    }
-    size_t src_bytes_per_pixel = src_bits_per_pixel / 8;
+    wuffs_base__pixel_format pixelFormat = WUFFS_BASE__PIXEL_FORMAT__INVALID;
+    size_t                   bytesPerPixel = 0;
 
-    // Zero-initialize Wuffs' buffer covering the frame rect.
-    wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
-    wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
-    for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
-        sk_bzero(pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bytes_per_pixel),
-                 frame_rect.width() * src_bytes_per_pixel);
+    switch (dstInfo.colorType()) {
+        case kBGRA_8888_SkColorType:
+            pixelFormat = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
+            bytesPerPixel = 4;
+            break;
+        case kRGBA_8888_SkColorType:
+            pixelFormat = WUFFS_BASE__PIXEL_FORMAT__RGBA_NONPREMUL;
+            bytesPerPixel = 4;
+            break;
+        default:
+            break;
+    }
+
+    // We can use "one pass" decoding if we have a Skia pixel format that Wuffs
+    // supports...
+    fIncrDecOnePass =
+        (pixelFormat != WUFFS_BASE__PIXEL_FORMAT__INVALID) &&
+        // ...and no color profile (as Wuffs does not support them)...
+        (!getEncodedInfo().profile()) &&
+        // ...and we have an independent frame (as Wuffs does not support the
+        // equivalent of SkBlendMode::kSrcOver)...
+        ((options.fFrameIndex == 0) ||
+         (this->frame(options.fFrameIndex)->getRequiredFrame() == SkCodec::kNoFrame)) &&
+        // ...and we use the identity transform (as Wuffs does not support
+        // scaling).
+        (this->dimensions() == dstInfo.dimensions());
+
+    result = fIncrDecOnePass ? this->onStartIncrementalDecodeOnePass(
+                                   dstInfo, static_cast<uint8_t*>(dst), rowBytes, options,
+                                   pixelFormat, bytesPerPixel)
+                             : this->onStartIncrementalDecodeTwoPass();
+    if (result != SkCodec::kSuccess) {
+        return result;
     }
 
     fIncrDecDst = static_cast<uint8_t*>(dst);
+    fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
     fIncrDecRowBytes = rowBytes;
     fFirstCallToIncrementalDecode = true;
     return SkCodec::kSuccess;
 }
 
-static SkAlphaType to_alpha_type(bool opaque) {
-    return opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+SkCodec::Result SkWuffsCodec::onStartIncrementalDecodeOnePass(const SkImageInfo&       dstInfo,
+                                                              uint8_t*                 dst,
+                                                              size_t                   rowBytes,
+                                                              const SkCodec::Options&  options,
+                                                              wuffs_base__pixel_format pixelFormat,
+                                                              size_t bytesPerPixel) {
+    wuffs_base__pixel_config pixelConfig;
+    pixelConfig.set(pixelFormat, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, dstInfo.width(),
+                    dstInfo.height());
+
+    wuffs_base__table_u8 table;
+    table.ptr = dst;
+    table.width = static_cast<size_t>(dstInfo.width()) * bytesPerPixel;
+    table.height = dstInfo.height();
+    table.stride = rowBytes;
+
+    const char* status = fPixelBuffer.set_from_table(&pixelConfig, table);
+    if (status != nullptr) {
+        SkCodecPrintf("set_from_table: %s", status);
+        return SkCodec::kInternalError;
+    }
+
+    SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
+    return SkCodec::kSuccess;
+}
+
+SkCodec::Result SkWuffsCodec::onStartIncrementalDecodeTwoPass() {
+    // Either re-use the previously allocated "two pass" pixel buffer (and
+    // memset to zero), or allocate (and zero initialize) a new one.
+    bool already_zeroed = false;
+
+    if (!fTwoPassPixbufPtr) {
+        uint64_t pixbuf_len = fPixelConfig.pixbuf_len();
+        void*    pixbuf_ptr_raw = (pixbuf_len <= SIZE_MAX)
+                                   ? sk_malloc_flags(pixbuf_len, SK_MALLOC_ZERO_INITIALIZE)
+                                   : nullptr;
+        if (!pixbuf_ptr_raw) {
+            return SkCodec::kInternalError;
+        }
+        fTwoPassPixbufPtr.reset(reinterpret_cast<uint8_t*>(pixbuf_ptr_raw));
+        fTwoPassPixbufLen = SkToSizeT(pixbuf_len);
+        already_zeroed = true;
+    }
+
+    const char* status = fPixelBuffer.set_from_slice(
+        &fPixelConfig, wuffs_base__make_slice_u8(fTwoPassPixbufPtr.get(), fTwoPassPixbufLen));
+    if (status != nullptr) {
+        SkCodecPrintf("set_from_slice: %s", status);
+        return SkCodec::kInternalError;
+    }
+
+    if (!already_zeroed) {
+        uint32_t src_bits_per_pixel =
+            wuffs_base__pixel_format__bits_per_pixel(fPixelConfig.pixel_format());
+        if ((src_bits_per_pixel == 0) || (src_bits_per_pixel % 8 != 0)) {
+            return SkCodec::kInternalError;
+        }
+        size_t src_bytes_per_pixel = src_bits_per_pixel / 8;
+
+        wuffs_base__rect_ie_u32 frame_rect = fFrameConfigs[WhichDecoder::kIncrDecode].bounds();
+        wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
+
+        uint8_t* ptr = pixels.ptr + (frame_rect.min_incl_y * pixels.stride) +
+                       (frame_rect.min_incl_x * src_bytes_per_pixel);
+        size_t len = frame_rect.width() * src_bytes_per_pixel;
+
+        // As an optimization, issue a single sk_bzero call, if possible.
+        // Otherwise, zero out each row separately.
+        if ((len == pixels.stride) && (frame_rect.min_incl_y < frame_rect.max_excl_y)) {
+            sk_bzero(ptr, len * (frame_rect.max_excl_y - frame_rect.min_incl_y));
+        } else {
+            for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
+                sk_bzero(ptr, len);
+                ptr += pixels.stride;
+            }
+        }
+    }
+
+    return SkCodec::kSuccess;
 }
 
 SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
@@ -368,11 +606,53 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
+    // If multiple SkCodec::incrementalDecode calls are made consecutively (or
+    // if SkCodec::incrementalDecode is called immediately after
+    // SkCodec::startIncrementalDecode), then this seek should be a no-op.
+    // However, it is possible to interleave SkCodec::getFrameCount calls in
+    // between SkCodec::incrementalDecode calls, and those other calls may
+    // advance the stream. This seek restores the stream to where the last
+    // SkCodec::startIncrementalDecode or SkCodec::incrementalDecode stopped.
+    if (!seek_buffer(&fIOBuffer, fStream.get(), fIncrDecReaderIOPosition)) {
+        return SkCodec::kInternalError;
+    }
+
+    if (rowsDecoded) {
+        *rowsDecoded = dstInfo().height();
+    }
+
+    SkCodec::Result result =
+        fIncrDecOnePass ? this->onIncrementalDecodeOnePass() : this->onIncrementalDecodeTwoPass();
+    if (result == SkCodec::kSuccess) {
+        fIncrDecDst = nullptr;
+        fIncrDecReaderIOPosition = 0;
+        fIncrDecRowBytes = 0;
+        fIncrDecOnePass = false;
+    } else {
+        fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
+    }
+    return result;
+}
+
+SkCodec::Result SkWuffsCodec::onIncrementalDecodeOnePass() {
+    const char* status = this->decodeFrame(WhichDecoder::kIncrDecode);
+    if (status != nullptr) {
+        if (status == wuffs_base__suspension__short_read) {
+            return SkCodec::kIncompleteInput;
+        } else {
+            SkCodecPrintf("decodeFrame: %s", status);
+            return SkCodec::kErrorInInput;
+        }
+    }
+    return SkCodec::kSuccess;
+}
+
+SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
     SkCodec::Result result = SkCodec::kSuccess;
-    const char*     status = this->decodeFrame();
-    bool independent;
-    SkAlphaType alphaType;
-    const int index = options().fFrameIndex;
+    const char*     status = this->decodeFrame(WhichDecoder::kIncrDecode);
+    bool            independent;
+    SkAlphaType     alphaType;
+    const int       index = options().fFrameIndex;
     if (index == 0) {
         independent = true;
         alphaType = to_alpha_type(getEncodedInfo().opaque());
@@ -403,7 +683,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     }
     size_t src_bytes_per_pixel = src_bits_per_pixel / 8;
 
-    wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
+    wuffs_base__rect_ie_u32 frame_rect = fFrameConfigs[WhichDecoder::kIncrDecode].bounds();
     if (fFirstCallToIncrementalDecode) {
         if (frame_rect.width() > (SIZE_MAX / src_bytes_per_pixel)) {
             return SkCodec::kInternalError;
@@ -415,8 +695,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         // If the frame rect does not fill the output, ensure that those pixels are not
         // left uninitialized.
         if (independent && (bounds != this->bounds() || result != kSuccess)) {
-            SkSampler::Fill(dstInfo(), fIncrDecDst, fIncrDecRowBytes,
-                            options().fZeroInitialized);
+            SkSampler::Fill(dstInfo(), fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
         }
         fFirstCallToIncrementalDecode = false;
     } else {
@@ -431,12 +710,8 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         SkASSERT(index == 0);
     }
 
-    if (rowsDecoded) {
-        *rowsDecoded = dstInfo().height();
-    }
-
     // If the frame's dirty rect is empty, no need to swizzle.
-    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
+    wuffs_base__rect_ie_u32 dirty_rect = fDecoders[WhichDecoder::kIncrDecode]->frame_dirty_rect();
     if (!dirty_rect.is_empty()) {
         wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
 
@@ -446,16 +721,16 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         //
         // To get from the start (in the X-direction) of the image to the start
         // of the dirty_rect, we adjust s by (dirty_rect.min_incl_x * src_bytes_per_pixel).
-        uint8_t* s = pixels.ptr + (dirty_rect.min_incl_y * pixels.stride)
-                                + (dirty_rect.min_incl_x * src_bytes_per_pixel);
+        uint8_t* s = pixels.ptr + (dirty_rect.min_incl_y * pixels.stride) +
+                     (dirty_rect.min_incl_x * src_bytes_per_pixel);
 
         // Currently, this is only used for GIF, which will never have an ICC profile. When it is
         // used for other formats that might have one, we will need to transform from profiles that
         // do not have corresponding SkColorSpaces.
         SkASSERT(!getEncodedInfo().profile());
 
-        auto srcInfo = getInfo().makeWH(dirty_rect.width(), dirty_rect.height())
-                                .makeAlphaType(alphaType);
+        auto srcInfo =
+            getInfo().makeWH(dirty_rect.width(), dirty_rect.height()).makeAlphaType(alphaType);
         SkBitmap src;
         src.installPixels(srcInfo, s, pixels.stride);
         SkPaint paint;
@@ -477,48 +752,91 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     }
 
     if (result == SkCodec::kSuccess) {
-        fIncrDecDst = nullptr;
-        fIncrDecRowBytes = 0;
+        // On success, we are done using the "two pass" pixel buffer for this
+        // frame. We have the option of releasing its memory, but there is a
+        // trade-off. If decoding a subsequent frame will also need "two pass"
+        // decoding, it would have to re-allocate the buffer instead of just
+        // re-using it. On the other hand, if there is no subsequent frame, and
+        // the SkWuffsCodec object isn't deleted soon, then we are holding
+        // megabytes of memory longer than we need to.
+        //
+        // For example, when the Chromium web browser decodes the <img> tags in
+        // a HTML page, the SkCodec object can live until navigating away from
+        // the page, which can be much longer than when the pixels are fully
+        // decoded, especially for a still (non-animated) image. Even for
+        // looping animations, caching the decoded frames (at the higher HTML
+        // renderer layer) may mean that each frame is only decoded once (at
+        // the lower SkCodec layer), in sequence.
+        //
+        // The heuristic we use here is to free the memory if we have decoded
+        // the last frame of the animation (or, for still images, the only
+        // frame). The output of the next decode request (if any) should be the
+        // same either way, but the steady state memory use should hopefully be
+        // lower than always keeping the fTwoPassPixbufPtr buffer up until the
+        // SkWuffsCodec destructor runs.
+        //
+        // This only applies to "two pass" decoding. "One pass" decoding does
+        // not allocate, free or otherwise use fTwoPassPixbufPtr.
+        if (fFramesComplete && (static_cast<size_t>(options().fFrameIndex) == fFrames.size() - 1)) {
+            fTwoPassPixbufPtr.reset(nullptr);
+            fTwoPassPixbufLen = 0;
+        }
     }
+
     return result;
 }
 
 int SkWuffsCodec::onGetFrameCount() {
-    // It is valid, in terms of the SkCodec API, to call SkCodec::getFrameCount
-    // while in an incremental decode (after onStartIncrementalDecode returns
-    // and before onIncrementalDecode returns kSuccess).
-    //
-    // We should not advance the SkWuffsCodec' stream while doing so, even
-    // though other SkCodec implementations can return increasing values from
-    // onGetFrameCount when given more data. If we tried to do so, the
-    // subsequent resume of the incremental decode would continue reading from
-    // a different position in the I/O stream, leading to an incorrect error.
-    //
-    // Other SkCodec implementations can move the stream forward during
-    // onGetFrameCount because they assume that the stream is rewindable /
-    // seekable. For example, an alternative GIF implementation may choose to
-    // store, for each frame walked past when merely counting the number of
-    // frames, the I/O position of each of the frame's GIF data blocks. (A GIF
-    // frame's compressed data can have multiple data blocks, each at most 255
-    // bytes in length). Obviously, this can require O(numberOfFrames) extra
-    // memory to store these I/O positions. The constant factor is small, but
-    // it's still O(N), not O(1).
-    //
-    // Wuffs and SkWuffsCodec tries to minimize relying on the rewindable /
-    // seekable assumption. By design, Wuffs per se aims for O(1) memory use
-    // (after any pixel buffers are allocated) instead of O(N), and its I/O
-    // type, wuffs_base__io_buffer, is not necessarily rewindable or seekable.
-    //
-    // The Wuffs API provides a limited, optional form of seeking, to the start
-    // of an animation frame's data, but does not provide arbitrary save and
-    // load of its internal state whilst in the middle of an animation frame.
-    bool incrementalDecodeIsInProgress = fIncrDecDst != nullptr;
-
-    if (!fFramesComplete && !incrementalDecodeIsInProgress) {
-        this->readFrames();
-        this->updateNumFullyReceivedFrames();
+    if (!fFramesComplete && seek_buffer(&fIOBuffer, fStream.get(), fFrameCountReaderIOPosition)) {
+        this->onGetFrameCountInternal();
+        fFrameCountReaderIOPosition =
+            fDecoders[WhichDecoder::kFrameCount] ? fIOBuffer.reader_io_position() : 0;
     }
     return fFrames.size();
+}
+
+void SkWuffsCodec::onGetFrameCountInternal() {
+    if (!fDecoders[WhichDecoder::kFrameCount]) {
+        void* decoder_raw = sk_malloc_canfail(sizeof__wuffs_gif__decoder());
+        if (!decoder_raw) {
+            return;
+        }
+        std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> decoder(
+            reinterpret_cast<wuffs_gif__decoder*>(decoder_raw), &sk_free);
+        reset_and_decode_image_config(decoder.get(), nullptr, &fIOBuffer, fStream.get());
+        fDecoders[WhichDecoder::kFrameCount] = std::move(decoder);
+    }
+
+    // Iterate through the frames, converting from Wuffs'
+    // wuffs_base__frame_config type to Skia's SkWuffsFrame type.
+    while (true) {
+        const char* status = this->decodeFrameConfig(WhichDecoder::kFrameCount);
+        if (status == nullptr) {
+            // No-op.
+        } else if (status == wuffs_base__warning__end_of_data) {
+            break;
+        } else {
+            return;
+        }
+
+        uint64_t i = fDecoders[WhichDecoder::kFrameCount]->num_decoded_frame_configs();
+        if (i > INT_MAX) {
+            break;
+        }
+        if ((i == 0) || (static_cast<size_t>(i - 1) != fFrames.size())) {
+            continue;
+        }
+        fFrames.emplace_back(&fFrameConfigs[WhichDecoder::kFrameCount]);
+        SkWuffsFrame* f = &fFrames[fFrames.size() - 1];
+        fFrameHolder.setAlphaAndRequiredFrame(f);
+    }
+
+    fFramesComplete = true;
+
+    // We've seen the end of the animation. There'll be no more frames, so we
+    // no longer need the kFrameCount decoder. Releasing it earlier than the
+    // SkWuffsCodec destructor might help peak memory use.
+    fDecoders[WhichDecoder::kFrameCount].reset(nullptr);
 }
 
 bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
@@ -537,7 +855,7 @@ int SkWuffsCodec::onGetRepetitionCount() {
     // number is how many times to play the loop. Skia's int number is how many
     // times to play the loop *after the first play*. Wuffs and Skia use 0 and
     // kRepetitionCountInfinite respectively to mean loop forever.
-    uint32_t n = fDecoder->num_animation_loops();
+    uint32_t n = fDecoders[WhichDecoder::kIncrDecode]->num_animation_loops();
     if (n == 0) {
         return SkCodec::kRepetitionCountInfinite;
     }
@@ -545,39 +863,9 @@ int SkWuffsCodec::onGetRepetitionCount() {
     return n < INT_MAX ? n : INT_MAX;
 }
 
-void SkWuffsCodec::readFrames() {
-    size_t n = fFrames.size();
-    int    i = n ? n - 1 : 0;
-    if (this->seekFrame(i) != SkCodec::kSuccess) {
-        return;
-    }
-
-    // Iterate through the frames, converting from Wuffs'
-    // wuffs_base__frame_config type to Skia's SkWuffsFrame type.
-    for (; i < INT_MAX; i++) {
-        const char* status = this->decodeFrameConfig();
-        if (status == nullptr) {
-            // No-op.
-        } else if (status == wuffs_base__warning__end_of_data) {
-            break;
-        } else {
-            return;
-        }
-
-        if (static_cast<size_t>(i) < fFrames.size()) {
-            continue;
-        }
-        fFrames.emplace_back(&fFrameConfig);
-        SkWuffsFrame* f = &fFrames[fFrames.size() - 1];
-        fFrameHolder.setAlphaAndRequiredFrame(f);
-    }
-
-    fFramesComplete = true;
-}
-
-SkCodec::Result SkWuffsCodec::seekFrame(int frameIndex) {
-    if (fDecoderIsSuspended) {
-        SkCodec::Result res = this->resetDecoder();
+SkCodec::Result SkWuffsCodec::seekFrame(WhichDecoder which, int frameIndex) {
+    if (fDecoderIsSuspended[which]) {
+        SkCodec::Result res = this->resetDecoder(which);
         if (res != SkCodec::kSuccess) {
             return res;
         }
@@ -597,7 +885,8 @@ SkCodec::Result SkWuffsCodec::seekFrame(int frameIndex) {
     if (!seek_buffer(&fIOBuffer, fStream.get(), pos)) {
         return SkCodec::kInternalError;
     }
-    const char* status = fDecoder->restart_frame(frameIndex, fIOBuffer.reader_io_position());
+    const char* status =
+        fDecoders[which]->restart_frame(frameIndex, fIOBuffer.reader_io_position());
     if (status != nullptr) {
         return SkCodec::kInternalError;
     }
@@ -663,102 +952,58 @@ SkCodec::Result SkWuffsCodec::seekFrame(int frameIndex) {
 // restart_frame, call decode_image_config. The io_buffer and its associated
 // stream will also need to be rewound.
 
-static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       decoder,
-                                                     wuffs_base__image_config* imgcfg,
-                                                     wuffs_base__io_buffer*    b,
-                                                     SkStream*                 s) {
-    // Calling decoder->initialize will memset it to zero.
-    const char* status = decoder->initialize(sizeof__wuffs_gif__decoder(), WUFFS_VERSION, 0);
-    if (status != nullptr) {
-        SkCodecPrintf("initialize: %s", status);
-        return SkCodec::kInternalError;
-    }
-    while (true) {
-        status = decoder->decode_image_config(imgcfg, b);
-        if (status == nullptr) {
-            break;
-        } else if (status != wuffs_base__suspension__short_read) {
-            SkCodecPrintf("decode_image_config: %s", status);
-            return SkCodec::kErrorInInput;
-        } else if (!fill_buffer(b, s)) {
-            return SkCodec::kIncompleteInput;
-        }
-    }
-
-    // A GIF image's natural color model is indexed color: 1 byte per pixel,
-    // indexing a 256-element palette.
-    //
-    // For Skia, we override that to decode to 4 bytes per pixel, BGRA or RGBA.
-    wuffs_base__pixel_format pixfmt = 0;
-    switch (kN32_SkColorType) {
-        case kBGRA_8888_SkColorType:
-            pixfmt = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
-            break;
-        case kRGBA_8888_SkColorType:
-            pixfmt = WUFFS_BASE__PIXEL_FORMAT__RGBA_NONPREMUL;
-            break;
-        default:
-            return SkCodec::kInternalError;
-    }
-    if (imgcfg) {
-        imgcfg->pixcfg.set(pixfmt, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, imgcfg->pixcfg.width(),
-                           imgcfg->pixcfg.height());
-    }
-
-    return SkCodec::kSuccess;
-}
-
-SkCodec::Result SkWuffsCodec::resetDecoder() {
+SkCodec::Result SkWuffsCodec::resetDecoder(WhichDecoder which) {
     if (!fStream->rewind()) {
         return SkCodec::kInternalError;
     }
     fIOBuffer.meta = wuffs_base__empty_io_buffer_meta();
 
     SkCodec::Result result =
-        reset_and_decode_image_config(fDecoder.get(), nullptr, &fIOBuffer, fStream.get());
+        reset_and_decode_image_config(fDecoders[which].get(), nullptr, &fIOBuffer, fStream.get());
     if (result == SkCodec::kIncompleteInput) {
         return SkCodec::kInternalError;
     } else if (result != SkCodec::kSuccess) {
         return result;
     }
 
-    fDecoderIsSuspended = false;
+    fDecoderIsSuspended[which] = false;
     return SkCodec::kSuccess;
 }
 
-const char* SkWuffsCodec::decodeFrameConfig() {
-    while (true) {
-        const char* status = fDecoder->decode_frame_config(&fFrameConfig, &fIOBuffer);
-        if ((status == wuffs_base__suspension__short_read) &&
-            fill_buffer(&fIOBuffer, fStream.get())) {
-            continue;
-        }
-        fDecoderIsSuspended = !wuffs_base__status__is_complete(status);
-        this->updateNumFullyReceivedFrames();
-        return status;
-    }
-}
-
-const char* SkWuffsCodec::decodeFrame() {
+const char* SkWuffsCodec::decodeFrameConfig(WhichDecoder which) {
     while (true) {
         const char* status =
-            fDecoder->decode_frame(&fPixelBuffer, &fIOBuffer,
-                                   wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
+            fDecoders[which]->decode_frame_config(&fFrameConfigs[which], &fIOBuffer);
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
         }
-        fDecoderIsSuspended = !wuffs_base__status__is_complete(status);
-        this->updateNumFullyReceivedFrames();
+        fDecoderIsSuspended[which] = !wuffs_base__status__is_complete(status);
+        this->updateNumFullyReceivedFrames(which);
         return status;
     }
 }
 
-void SkWuffsCodec::updateNumFullyReceivedFrames() {
+const char* SkWuffsCodec::decodeFrame(WhichDecoder which) {
+    while (true) {
+        const char* status = fDecoders[which]->decode_frame(
+            &fPixelBuffer, &fIOBuffer, wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen),
+            NULL);
+        if ((status == wuffs_base__suspension__short_read) &&
+            fill_buffer(&fIOBuffer, fStream.get())) {
+            continue;
+        }
+        fDecoderIsSuspended[which] = !wuffs_base__status__is_complete(status);
+        this->updateNumFullyReceivedFrames(which);
+        return status;
+    }
+}
+
+void SkWuffsCodec::updateNumFullyReceivedFrames(WhichDecoder which) {
     // num_decoded_frames's return value, n, can change over time, both up and
     // down, as we seek back and forth in the underlying stream.
     // fNumFullyReceivedFrames is the highest n we've seen.
-    uint64_t n = fDecoder->num_decoded_frames();
+    uint64_t n = fDecoders[which]->num_decoded_frames();
     if (fNumFullyReceivedFrames < n) {
         fNumFullyReceivedFrames = n;
     }
@@ -833,24 +1078,6 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     std::unique_ptr<uint8_t, decltype(&sk_free)> workbuf_ptr(
         reinterpret_cast<uint8_t*>(workbuf_ptr_raw), &sk_free);
 
-    uint64_t pixbuf_len = imgcfg.pixcfg.pixbuf_len();
-    void*    pixbuf_ptr_raw = pixbuf_len <= SIZE_MAX ? sk_malloc_canfail(pixbuf_len) : nullptr;
-    if (!pixbuf_ptr_raw) {
-        *result = SkCodec::kInternalError;
-        return nullptr;
-    }
-    std::unique_ptr<uint8_t, decltype(&sk_free)> pixbuf_ptr(
-        reinterpret_cast<uint8_t*>(pixbuf_ptr_raw), &sk_free);
-    wuffs_base__pixel_buffer pixbuf = wuffs_base__null_pixel_buffer();
-
-    const char* status = pixbuf.set_from_slice(
-        &imgcfg.pixcfg, wuffs_base__make_slice_u8(pixbuf_ptr.get(), SkToSizeT(pixbuf_len)));
-    if (status != nullptr) {
-        SkCodecPrintf("set_from_slice: %s", status);
-        *result = SkCodec::kInternalError;
-        return nullptr;
-    }
-
     SkEncodedInfo::Color color =
         (imgcfg.pixcfg.pixel_format() == WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL)
             ? SkEncodedInfo::kBGRA_Color
@@ -864,7 +1091,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     SkEncodedInfo encodedInfo = SkEncodedInfo::Make(width, height, color, alpha, 8);
 
     *result = SkCodec::kSuccess;
-    return std::unique_ptr<SkCodec>(new SkWuffsCodec(
-        std::move(encodedInfo), std::move(stream), std::move(decoder), std::move(pixbuf_ptr),
-        std::move(workbuf_ptr), workbuf_len, imgcfg, pixbuf, iobuf));
+    return std::unique_ptr<SkCodec>(new SkWuffsCodec(std::move(encodedInfo), std::move(stream),
+                                                     std::move(decoder), std::move(workbuf_ptr),
+                                                     workbuf_len, imgcfg, iobuf));
 }

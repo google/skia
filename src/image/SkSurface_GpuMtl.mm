@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrResourceProviderPriv.h"
+#include "src/image/SkSurface_Gpu.h"
 
 #if SK_SUPPORT_GPU
+
+#include "include/gpu/GrSurface.h"
+#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 
 #ifdef SK_METAL
 #import <Metal/Metal.h>
@@ -24,37 +34,78 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                                                  sk_sp<SkColorSpace> colorSpace,
                                                  const SkSurfaceProps* surfaceProps,
                                                  GrMTLHandle* drawable) {
-    // TODO: Apple recommends grabbing the drawable (which we're implicitly doing here)
-    // for as little time as possible. I'm not sure it matters for our test apps, but
-    // you can get better throughput by doing any offscreen renders, texture uploads, or
-    // other non-dependant tasks first before grabbing the drawable.
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    const GrCaps* caps = context->priv().caps();
+
     CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
-    id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
+    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalLayer.pixelFormat);
 
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge const void*)(currentDrawable.texture));
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    CGSize size = [metalLayer drawableSize];
-    sk_sp<SkSurface> surface;
-    if (sampleCnt <= 1) {
-        GrBackendRenderTarget backendRT(size.width,
-                                        size.height,
-                                        sampleCnt,
-                                        fbInfo);
-
-        surface = SkSurface::MakeFromBackendRenderTarget(context, backendRT, origin, colorType,
-                                                         colorSpace, surfaceProps);
-    } else {
-        GrBackendTexture backendTexture(size.width,
-                                        size.height,
-                                        GrMipMapped::kNo,
-                                        fbInfo);
-
-        surface = SkSurface::MakeFromBackendTexture(context, backendTexture, origin, sampleCnt,
-                                                    colorType, colorSpace, surfaceProps);
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, grColorType);
+    if (config == kUnknown_GrPixelConfig) {
+        return nullptr;
     }
-    *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
 
+    GrSurfaceDesc desc;
+    desc.fWidth = metalLayer.drawableSize.width;
+    desc.fHeight = metalLayer.drawableSize.height;
+    desc.fConfig = config;
+
+    GrProxyProvider::TextureInfo texInfo;
+    texInfo.fMipMapped = GrMipMapped::kNo;
+    texInfo.fTextureType = GrTextureType::k2D;
+
+    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
+            [layer, drawable, sampleCnt, config](GrResourceProvider* resourceProvider) {
+                CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
+                id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
+
+                GrSurfaceDesc desc;
+                desc.fWidth = metalLayer.drawableSize.width;
+                desc.fHeight = metalLayer.drawableSize.height;
+                desc.fConfig = config;
+
+                GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
+                sk_sp<GrRenderTarget> surface;
+                if (metalLayer.framebufferOnly) {
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
+                                      mtlGpu, desc, sampleCnt, currentDrawable.texture);
+                } else {
+                    surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
+                                      mtlGpu, desc, sampleCnt, currentDrawable.texture,
+                                      GrWrapCacheable::kNo);
+                }
+                if (surface && sampleCnt > 1) {
+                    surface->setRequiresManualMSAAResolve();
+                }
+
+                *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
+                return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
+            },
+            backendFormat,
+            desc,
+            sampleCnt,
+            origin,
+            sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
+                          : GrInternalSurfaceFlags::kNone,
+            metalLayer.framebufferOnly ? nullptr : &texInfo,
+            GrMipMapsStatus::kNotAllocated,
+            SkBackingFit::kExact,
+            SkBudgeted::kYes,
+            GrProtected::kNo,
+            false,
+            GrSurfaceProxy::UseAllocator::kYes);
+
+    auto c = context->priv().makeWrappedSurfaceContext(std::move(proxy),
+                                                       grColorType,
+                                                       kPremul_SkAlphaType,
+                                                       colorSpace,
+                                                       surfaceProps);
+    SkASSERT(c->asRenderTargetContext());
+    std::unique_ptr<GrRenderTargetContext> rtc(c.release()->asRenderTargetContext());
+
+    sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
     return surface;
 }
 #endif

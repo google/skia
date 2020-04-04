@@ -43,11 +43,11 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fRemovePowWithConstantExponent = false;
     fMustWriteToFragColor = false;
     fNoDefaultPrecisionForExternalSamplers = false;
+    fCanOnlyUseSampleMaskWithStencil = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
-    fSampleVariablesSupport = false;
-    fSampleVariablesStencilSupport = false;
+    fSampleMaskSupport = false;
     fExternalTextureSupport = false;
     fVertexIDSupport = false;
     fFPManipulationSupport = false;
@@ -120,12 +120,11 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Must write to sk_FragColor [workaround]", fMustWriteToFragColor);
     writer->appendBool("Don't add default precision statement for samplerExternalOES",
                        fNoDefaultPrecisionForExternalSamplers);
+    writer->appendBool("Can only use sample mask with stencil", fCanOnlyUseSampleMaskWithStencil);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
-    writer->appendBool("Sample variables support", fSampleVariablesSupport);
-    writer->appendBool("Sample variables stencil support [workaround]",
-                       fSampleVariablesStencilSupport);
+    writer->appendBool("Sample mask support", fSampleMaskSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
@@ -167,6 +166,11 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
     }
 #if GR_TEST_UTILS
-    fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
+    if (options.fSuppressDualSourceBlending) {
+        fDualSourceBlendingSupport = false;
+    }
+    if (options.fSuppressGeometryShaders) {
+        fGeometryShaderSupport = false;
+    }
 #endif
 }

@@ -52,8 +52,8 @@ const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat
         viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
     }
 
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateImageView(gpu->device(), &viewInfo,
-                                                                  nullptr, &imageView));
+    VkResult err;
+    GR_VK_CALL_RESULT(gpu, err, CreateImageView(gpu->device(), &viewInfo, nullptr, &imageView));
     if (err) {
         return nullptr;
     }
@@ -66,12 +66,6 @@ void GrVkImageView::freeGPUData(GrVkGpu* gpu) const {
 
     if (fYcbcrConversion) {
         fYcbcrConversion->unref(gpu);
-    }
-}
-
-void GrVkImageView::abandonGPUData() const {
-    if (fYcbcrConversion) {
-        fYcbcrConversion->unrefAndAbandon();
     }
 }
 

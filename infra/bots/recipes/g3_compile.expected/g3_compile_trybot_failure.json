@@ -8,8 +8,15 @@
       "--patchset",
       "12",
       "--output_file",
-      "[CLEANUP]/g3_try_tmp_1/output_file"
+      "[CLEANUP]/g3_try_tmp_1/output_file",
+      "--builder_name",
+      "Build-Debian9-Clang-TAP-Presubmit-G3_Framework"
     ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "name": "Trigger and wait for g3 compile task",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
@@ -29,6 +36,8 @@
     "infra_step": true,
     "name": "Read task json",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@output_file@{\"cl\": 12345}@@@",
+      "@@@STEP_LOG_END@output_file@@@",
       "@@@STEP_LINK@CL link@http://cl/12345@@@"
     ]
   },

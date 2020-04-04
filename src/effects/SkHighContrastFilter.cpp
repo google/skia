@@ -66,13 +66,13 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     // Linearize before applying high-contrast filter.
     auto tf = alloc->make<skcms_TransferFunction>();
     if (rec.fDstCS) {
-        rec.fDstCS->transferFn(&tf->g);
+        rec.fDstCS->transferFn(tf);
     } else {
         // Historically we approximate untagged destinations as gamma 2.
         // TODO: sRGB?
         *tf = {2,1, 0,0,0,0,0};
     }
-    p->append(SkRasterPipeline::parametric, tf);
+    p->append_transfer_function(*tf);
 
     if (fConfig.fGrayscale) {
         float r = SK_LUM_COEFF_R;
@@ -115,12 +115,12 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     // Re-encode back from linear.
     auto invTF = alloc->make<skcms_TransferFunction>();
     if (rec.fDstCS) {
-        rec.fDstCS->invTransferFn(&invTF->g);
+        rec.fDstCS->invTransferFn(invTF);
     } else {
         // See above... historically untagged == gamma 2 in this filter.
         *invTF ={0.5f,1, 0,0,0,0,0};
     }
-    p->append(SkRasterPipeline::parametric, invTF);
+    p->append_transfer_function(*invTF);
 
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::premul);

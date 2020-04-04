@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkSemaphore.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -165,7 +164,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            std::move(proxy), maskMatrix, GrSamplerState::Filter::kNearest));
+            std::move(proxy), kPremul_SkAlphaType, maskMatrix, GrSamplerState::Filter::kNearest));
     DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
 }
@@ -343,7 +342,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
-            auto uploader = skstd::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
+            auto uploader = std::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
                     *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
             GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 
@@ -385,10 +384,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                           *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
                           unclippedDevShapeBounds);
     }
-    DrawToTargetWithShapeMask(
-            std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
-            *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
-            SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
+    DrawToTargetWithShapeMask(std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
+                              *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
+                              SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 
     return true;
 }

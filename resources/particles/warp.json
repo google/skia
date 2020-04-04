@@ -23,11 +23,11 @@
       "",
       "void spawn(inout Particle p) {",
       "  p.lifetime = 30;",
-      "  p.pos = circle() * 40;",
+      "  p.pos += circle() * 40;",
       "}",
       "",
       "void update(inout Particle p) {",
-      "  p.vel += normalize(p.pos) * dt * 10;",
+      "  p.vel += normalize(p.pos - effect.pos) * dt * 10;",
       "  p.scale = mix(0.25, 3, p.age);",
       "}",
       ""

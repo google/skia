@@ -47,17 +47,17 @@ func init() {
 	flag.IntVar(gpuLimit, "g", *gpuLimit, "Alias for --gpuLimit.")
 }
 
-func listAllGMs(fm string) (gms []string, err error) {
-	// Query fm binary for list of all available GMs by running with no arguments.
-	cmd := exec.Command(fm)
+// Query fm binary for list of all available GMs/tests by running with --listGMs/--listTests.
+func listAll(flag string, fm string) (list []string, err error) {
+	cmd := exec.Command(fm, flag)
 	stdout, err := cmd.Output()
 	if err != nil {
 		return
 	}
-	// GM names are listed line-by-line.
+	// Names are listed line-by-line.
 	scanner := bufio.NewScanner(bytes.NewReader(stdout))
 	for scanner.Scan() {
-		gms = append(gms, scanner.Text())
+		list = append(list, scanner.Text())
 	}
 	err = scanner.Err()
 	return
@@ -68,7 +68,7 @@ type work struct {
 	Flags   []string
 }
 
-func parseWork(args []string, gms []string) (*work, error) {
+func parseWork(args []string, gms []string, tests []string) (*work, error) {
 	w := &work{}
 	for _, arg := range args {
 		// I wish we could parse flags here too, but it's too late.
@@ -90,6 +90,11 @@ func parseWork(args []string, gms []string) (*work, error) {
 			w.Sources = append(w.Sources, gms...)
 			continue
 		}
+		// Same for tests.
+		if arg == "test" || arg == "tests" {
+			w.Sources = append(w.Sources, tests...)
+			continue
+		}
 
 		// Is this an option to pass through to fm?
 		if parts := strings.Split(arg, "="); len(parts) == 2 {
@@ -103,15 +108,21 @@ func parseWork(args []string, gms []string) (*work, error) {
 			continue
 		}
 
-		// Is this argument naming a GM?
-		matchedAnyGM := false
+		// Is this argument naming a GM or test?
+		matched := false
 		for _, gm := range gms {
 			if (*exact && gm == arg) || (!*exact && strings.Contains(gm, arg)) {
 				w.Sources = append(w.Sources, gm)
-				matchedAnyGM = true
+				matched = true
 			}
 		}
-		if matchedAnyGM {
+		for _, test := range tests {
+			if (*exact && test == arg) || (!*exact && strings.Contains(test, arg)) {
+				w.Sources = append(w.Sources, test)
+				matched = true
+			}
+		}
+		if matched {
 			continue
 		}
 
@@ -148,9 +159,14 @@ func main() {
 	}
 	fm := flag.Args()[0]
 
-	gms, err := listAllGMs(fm)
+	gms, err := listAll("--listGMs", fm)
 	if err != nil {
 		log.Fatalln("Could not query", fm, "for GMs:", err)
+	}
+
+	tests, err := listAll("--listTests", fm)
+	if err != nil {
+		log.Fatalln("Could not query", fm, "for tests:", err)
 	}
 
 	// One job can comes right on the command line,
@@ -230,7 +246,7 @@ func main() {
 			continue
 		}
 
-		w, err := parseWork(job, gms)
+		w, err := parseWork(job, gms, tests)
 		if err != nil {
 			log.Fatal(err)
 		}

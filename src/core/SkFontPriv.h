@@ -76,6 +76,8 @@ public:
 
     static void Flatten(const SkFont&, SkWriteBuffer& buffer);
     static bool Unflatten(SkFont*, SkReadBuffer& buffer);
+
+    static inline uint8_t Flags(const SkFont& font) { return font.fFlags; }
 };
 
 class SkAutoToGlyphs {
@@ -86,6 +88,9 @@ public:
             fCount = length >> 1;
         } else {
             fCount = font.countText(text, length, encoding);
+            if (fCount < 0) {
+                fCount = 0;
+            }
             fStorage.reset(fCount);
             font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
             fGlyphs = fStorage.get();

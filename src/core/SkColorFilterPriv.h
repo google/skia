@@ -14,7 +14,7 @@
 
 using SkRuntimeColorFilterFn = void(*)(float[4], const void*);
 
-class SK_API SkRuntimeColorFilterFactory {
+class SK_SPI SkRuntimeColorFilterFactory {
 public:
     /**
      * Creates a factory which creates runtime color filters. The SkSL must define a 'main' function
@@ -41,6 +41,9 @@ public:
      * 'cpuFunc'.
      */
     sk_sp<SkColorFilter> make(sk_sp<SkData> inputs);
+
+    /** Can be used to test that the provided SkSL string compiles without error. */
+    bool testCompile() const;
 
 private:
     int fIndex;

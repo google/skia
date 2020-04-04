@@ -50,7 +50,8 @@ void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> text
     }
     auto task = static_cast<GrTextureResolveRenderTask*>(fDrawingMgr->fOnFlushRenderTasks.push_back(
             sk_make_sp<GrTextureResolveRenderTask>()).get());
-    task->addProxy(textureProxy, resolveFlags, *this->caps());
+    task->addProxy(GrSurfaceProxyView(textureProxy, textureProxy->origin(), GrSwizzle()),
+                   resolveFlags, *this->caps());
     task->makeClosed(*this->caps());
 }
 
@@ -132,3 +133,9 @@ uint32_t GrOnFlushResourceProvider::contextID() const {
 const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->priv().caps();
 }
+
+#if GR_TEST_UTILS
+bool GrOnFlushResourceProvider::testingOnly_getSuppressAllocationWarnings() const {
+    return fDrawingMgr->getContext()->testingOnly_getSuppressAllocationWarnings();
+}
+#endif

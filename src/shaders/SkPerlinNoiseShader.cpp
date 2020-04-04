@@ -12,7 +12,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -738,7 +737,7 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
+    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -1166,7 +1165,7 @@ public:
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     SkScalar z() const { return fZ; }
     int octaves() const { return fOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
+    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -1414,7 +1413,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
 
     std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData =
-        skstd::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
+        std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
                                                                   fSeed,
                                                                   fBaseFrequencyX,
                                                                   fBaseFrequencyY,

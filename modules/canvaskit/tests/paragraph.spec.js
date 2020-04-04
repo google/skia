@@ -22,6 +22,13 @@ describe('CanvasKit\'s Path Behavior', function() {
             notoSerifFontBuffer = buffer;
         });
 
+    let notoSerifBoldItalicFontBuffer = null;
+    const notoSerifBoldItalicFontLoaded = fetch('/assets/NotoSerif-BoldItalic.ttf').then(
+        (response) => response.arrayBuffer()).then(
+        (buffer) => {
+            notoSerifBoldItalicFontBuffer = buffer;
+        });
+
     let emojiFontBuffer = null;
     const emojiFontLoaded = fetch('/assets/NotoColorEmoji.ttf').then(
         (response) => response.arrayBuffer()).then(
@@ -55,6 +62,7 @@ describe('CanvasKit\'s Path Behavior', function() {
                 },
                 textAlign: CanvasKit.TextAlign.Center,
                 maxLines: 8,
+                ellipsis: '.._.',
             });
 
             const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
@@ -63,6 +71,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             const blueText = new CanvasKit.TextStyle({
                 backgroundColor: CanvasKit.Color(234, 208, 232), // light pink
                 color: CanvasKit.Color(48, 37, 199),
+                fontFamilies: ['Noto Serif'],
                 decoration: CanvasKit.LineThroughDecoration,
                 decorationThickness: 1.5, // multiplier based on font size
                 fontSize: 24,
@@ -76,7 +85,24 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             paragraph.layout(wrapTo);
 
-            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            expect(paragraph.didExceedMaxLines()).toBeTruthy();
+            expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(21.377, 3);
+            expect(paragraph.getHeight()).toEqual(240);
+            expect(paragraph.getIdeographicBaseline()).toBeCloseTo(27.236, 3);
+            expect(paragraph.getLongestLine()).toBeCloseTo(142.129, 3);
+            expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(1444.250, 3);
+            expect(paragraph.getMaxWidth()).toEqual(200);
+            expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(172.360, 3);
+            expect(paragraph.getWordBoundary(8)).toEqual({
+                start: 0,
+                end: 14,
+            });
+            expect(paragraph.getWordBoundary(25)).toEqual({
+                start: 25,
+                end: 26,
+            });
+
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
             canvas.drawParagraph(paragraph, 10, 10);
 
             surface.flush();
@@ -109,7 +135,6 @@ describe('CanvasKit\'s Path Behavior', function() {
                     color: CanvasKit.BLACK,
                     fontFamilies: ['Noto Serif'],
                     fontSize: 50,
-                    // TODO(kjlubick): font style
                 },
                 textAlign: CanvasKit.TextAlign.Left,
                 maxLines: 10,
@@ -167,6 +192,7 @@ describe('CanvasKit\'s Path Behavior', function() {
                 expect(rects.length).toEqual(test.expectedNum);
 
                 for (const rect of rects) {
+                    expect(rect.direction).toEqual(CanvasKit.TextDirection.LTR);
                     const p = new CanvasKit.SkPaint();
                     p.setColor(test.color);
                     p.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -181,8 +207,7 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
-    // Disabled until we can update CanvasKit's freetype.
-    xit('can draw emojis', function(done) {
+    it('can draw emojis', function(done) {
         Promise.all([LoadCanvasKit, notoSerifFontLoaded, emojiFontLoaded]).then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
@@ -193,25 +218,34 @@ describe('CanvasKit\'s Path Behavior', function() {
             const canvas = surface.getCanvas();
 
             const fontMgr = CanvasKit.SkFontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
-            fontMgr.dumpFamilies();
+            if (fontMgr.dumpFamilies) {
+                fontMgr.dumpFamilies();
+            }
 
             const wrapTo = 450;
 
             const paraStyle = new CanvasKit.ParagraphStyle({
                 textStyle: {
                     color: CanvasKit.BLACK,
-                    // Put emoji first, otherwise zero-space-joiner will be matched by serif,
-                    // and we don't get families or rainbow flags.
-                    fontFamilies: ['Noto Color Emoji', 'Noto Serif'],
+                    // Put text first, otherwise the "emoji space" is used and that looks bad.
+                    fontFamilies: ['Noto Serif', 'Noto Color Emoji'],
                     fontSize: 30,
                 },
                 textAlign: CanvasKit.TextAlign.Left,
                 maxLines: 10,
             });
+
+            const textStyle = new CanvasKit.TextStyle({
+                color: CanvasKit.BLACK,
+                    // The number 4 matches an emoji and looks strange w/o this additional style.
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 30,
+            });
+
             const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
-            // FIXME(kjlubick): We need one style that doesn't have emoji, otherwise the 4 will
-            // be "emoji 4".
+            builder.pushStyle(textStyle);
             builder.addText('4 flags on following line:\n');
+            builder.pop();
             builder.addText(`🏳️‍🌈 🇮🇹 🇱🇷 🇺🇸\n`);
             builder.addText('Rainbow Italy Liberia USA\n\n');
             builder.addText('Emoji below should wrap:\n');
@@ -222,8 +256,16 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             canvas.drawParagraph(paragraph, 10, 10);
 
+            const paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+
             surface.flush();
             fontMgr.delete();
+            paint.delete();
+            builder.delete();
+
             reportSurface(surface, 'paragraph_emoji', done);
         }));
     });
@@ -290,6 +332,182 @@ describe('CanvasKit\'s Path Behavior', function() {
             surface.flush();
             fontMgr.delete();
             reportSurface(surface, 'paragraph_hits', done);
+        }));
+    });
+
+    it('supports font styles', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded, notoSerifBoldItalicFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+            const wrapTo = 250;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 20,
+                    fontStyle: {
+                        weight: CanvasKit.FontWeight.Light,
+                    }
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                color: CanvasKit.RED,
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Bold,
+                    width: CanvasKit.FontWidth.Expanded,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(boldItalic)
+            builder.addText(`Bold, Expanded, Italic\n`)
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.clear(CanvasKit.Color(250, 250, 250));
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paint.delete();
+            fontMgr.delete();
+            reportSurface(surface, 'paragraph_styles', done);
+        }));
+    });
+
+    it('should not crash if we omit font family on pushed textStyle', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded, notoSerifBoldItalicFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+            const wrapTo = 250;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 20,
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Bold,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(boldItalic)
+            builder.addText(`Bold, Italic\n`); // doesn't show up, but we don't crash
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.clear(CanvasKit.Color(250, 250, 250));
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paragraph.delete();
+            paint.delete();
+            fontMgr.delete();
+            done();
+        }));
+    });
+
+    it('should not crash if we omit font family on paragraph style', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded, notoSerifBoldItalicFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+            const wrapTo = 250;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    fontSize: 20,
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Bold,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(boldItalic)
+            builder.addText(`Bold, Italic\n`);
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.clear(CanvasKit.Color(250, 250, 250));
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paragraph.delete();
+            paint.delete();
+            fontMgr.delete();
+            done();
         }));
     });
 

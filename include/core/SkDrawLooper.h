@@ -20,7 +20,6 @@ class  SkArenaAlloc;
 class  SkCanvas;
 class  SkPaint;
 struct SkRect;
-class  SkString;
 
 /** \class SkDrawLooper
     Subclasses of SkDrawLooper can be attached to a SkPaint. Where they are,

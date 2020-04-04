@@ -81,6 +81,10 @@ protected:
 
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
+
+        paint.setShader(nullptr);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawString("World", 0, 100, SkFont(nullptr, 50), paint);
     }
 
 private:

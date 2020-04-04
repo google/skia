@@ -15,6 +15,7 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkPngPriv.h"
+#include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
 #include <vector>
 
@@ -421,6 +422,8 @@ bool SkPngEncoder::onEncodeRows(int numRows) {
 
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int y = 0; y < numRows; y++) {
+        sk_msan_assert_initialized(srcRow,
+                                   (const uint8_t*)srcRow + (fSrc.width() << fSrc.shiftPerPixel()));
         fEncoderMgr->proc()((char*)fStorage.get(),
                             (const char*)srcRow,
                             fSrc.width(),

@@ -43,7 +43,9 @@ void GrVkVertexBuffer::onRelease() {
 }
 
 void GrVkVertexBuffer::onAbandon() {
-    this->vkAbandon();
+    if (!this->wasDestroyed()) {
+        this->vkRelease(this->getVkGpu());
+    }
     INHERITED::onAbandon();
 }
 

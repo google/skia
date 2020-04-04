@@ -97,8 +97,8 @@ private:
     void appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch&,
                                      const InstanceTallies* startIndices[2],
                                      int startScissorSubBatch, const SkIRect& drawBounds) const;
-    void flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor&, GrOpFlushState*, const
-                                      GrPipeline&, const SkIRect& drawBounds) const;
+    void flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor&, GrOpFlushState*,
+                                      const GrPipeline&, const SkIRect& drawBounds) const;
 
     template<int GrCCStrokeGeometry::InstanceTallies::* InstanceType>
     void drawConnectingGeometry(GrOpFlushState*, const GrPipeline&,

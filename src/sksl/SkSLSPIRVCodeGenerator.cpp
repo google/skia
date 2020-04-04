@@ -2713,6 +2713,22 @@ void SPIRVCodeGenerator::writePrecisionModifier(Precision precision, SpvId id) {
     }
 }
 
+bool is_dead(const Variable& var) {
+    if (var.fReadCount || var.fWriteCount) {
+        return false;
+    }
+    // not entirely sure what the rules are for when it's safe to elide interface variables, but it
+    // causes various problems to elide some of them even when dead. But it also causes problems
+    // *not* to elide sk_SampleMask when it's not being used.
+    if (!(var.fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                   Modifiers::kOut_Flag |
+                                   Modifiers::kUniform_Flag |
+                                   Modifiers::kBuffer_Flag))) {
+        return true;
+    }
+    return var.fModifiers.fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
+}
+
 #define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
                                          OutputStream& out) {
@@ -2725,10 +2741,10 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         SkASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
-                                           Modifiers::kWriteOnly_Flag |
-                                           Modifiers::kCoherent_Flag |
-                                           Modifiers::kVolatile_Flag |
-                                           Modifiers::kRestrict_Flag)));
+                                             Modifiers::kWriteOnly_Flag |
+                                             Modifiers::kCoherent_Flag |
+                                             Modifiers::kVolatile_Flag |
+                                             Modifiers::kRestrict_Flag)));
         if (var->fModifiers.fLayout.fBuiltin == BUILTIN_IGNORE) {
             continue;
         }
@@ -2737,13 +2753,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
             SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
             continue;
         }
-        if (!var->fReadCount && !var->fWriteCount &&
-                !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                            Modifiers::kOut_Flag |
-                                            Modifiers::kUniform_Flag |
-                                            Modifiers::kBuffer_Flag))) {
-            // variable is dead and not an input / output var (the Vulkan debug layers complain if
-            // we elide an interface var, even if it's dead)
+        if (is_dead(*var)) {
             continue;
         }
         SpvStorageClass_ storageClass;
@@ -3161,7 +3171,8 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             SpvId id = this->writeInterfaceBlock(intf);
             if (((intf.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) ||
                 (intf.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) &&
-                intf.fVariable.fModifiers.fLayout.fBuiltin == -1) {
+                intf.fVariable.fModifiers.fLayout.fBuiltin == -1 &&
+                !is_dead(intf.fVariable)) {
                 interfaceVars.insert(id);
             }
         }
@@ -3190,7 +3201,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         const Variable* var = entry.first;
         if (var->fStorage == Variable::kGlobal_Storage &&
             ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
-             (var->fModifiers.fFlags & Modifiers::kOut_Flag))) {
+             (var->fModifiers.fFlags & Modifiers::kOut_Flag)) && !is_dead(*var)) {
             interfaceVars.insert(entry.second);
         }
     }

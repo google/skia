@@ -125,8 +125,8 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const Context& 
 
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctx.ctm().mapVectors(&sigma, 1);
-    sigma.fX = SkMaxScalar(0, sigma.fX);
-    sigma.fY = SkMaxScalar(0, sigma.fY);
+    sigma.fX = SkScalarAbs(sigma.fX);
+    sigma.fY = SkScalarAbs(sigma.fY);
 
     SkPaint paint;
     paint.setAntiAlias(true);

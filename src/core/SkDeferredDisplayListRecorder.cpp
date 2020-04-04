@@ -61,7 +61,6 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrTexture.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"

@@ -998,9 +998,6 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
-    VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
-    VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
-
     VIA("ddl",       ViaDDL, 1, 3,         wrapped);
     VIA("ddl2",      ViaDDL, 2, 3,         wrapped);
 
@@ -1226,25 +1223,40 @@ struct Task {
             return SkString("untagged");
         }
 
-        skcms_TransferFunction tf;
-        if (cs->isNumericalTransferFn(&tf)) {
-            auto eq = [](skcms_TransferFunction x, skcms_TransferFunction y) {
-                return x.g == y.g
-                    && x.a == y.a
-                    && x.b == y.b
-                    && x.c == y.c
-                    && x.d == y.d
-                    && x.e == y.e
-                    && x.f == y.f;
-            };
+        auto eq = [](skcms_TransferFunction x, skcms_TransferFunction y) {
+            return x.g == y.g
+                && x.a == y.a
+                && x.b == y.b
+                && x.c == y.c
+                && x.d == y.d
+                && x.e == y.e
+                && x.f == y.f;
+        };
 
-            if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
-                return SkStringPrintf("gamma %.3g", tf.g);
-            }
-            if (eq(tf, SkNamedTransferFn::kSRGB   )) { return SkString("sRGB"); }
-            if (eq(tf, SkNamedTransferFn::kRec2020)) { return SkString("2020"); }
-            return SkStringPrintf("%.3g %.3g %.3g %.3g %.3g %.3g %.3g",
-                                  tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
+        skcms_TransferFunction tf;
+        cs->transferFn(&tf);
+        switch (classify_transfer_fn(tf)) {
+            case sRGBish_TF:
+                if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
+                    return SkStringPrintf("gamma %.3g", tf.g);
+                }
+                if (eq(tf, SkNamedTransferFn::kSRGB)) { return SkString("sRGB"); }
+                if (eq(tf, SkNamedTransferFn::kRec2020)) { return SkString("2020"); }
+                return SkStringPrintf("%.3g %.3g %.3g %.3g %.3g %.3g %.3g",
+                                        tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
+
+            case PQish_TF:
+                if (eq(tf, SkNamedTransferFn::kPQ)) { return SkString("PQ"); }
+                return SkStringPrintf("PQish %.3g %.3g %.3g %.3g %.3g %.3g",
+                                      tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
+
+            case HLGish_TF:
+                if (eq(tf, SkNamedTransferFn::kHLG)) { return SkString("HLG"); }
+                return SkStringPrintf("HLGish %.3g %.3g %.3g %.3g %.3g",
+                                      tf.a, tf.b, tf.c, tf.d, tf.e);
+
+            case HLGinvish_TF: break;
+            case Bad_TF: break;
         }
         return SkString("non-numeric");
     }

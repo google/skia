@@ -11,6 +11,8 @@
 #include "src/gpu/gl/GrGLDefines.h"
 #include "tests/Test.h"
 
+#ifdef SK_GL
+
 const GrGLubyte* simpleGetString(GrGLenum name) {
     return (const GrGLubyte*)(name == GR_GL_VERSION ? "3.0" : "");
 }
@@ -46,3 +48,5 @@ DEF_TEST(GrGLExtensionsTest_remove, reporter) {
     REPORTER_ASSERT(reporter, ext.remove("test_extension_1"));
     REPORTER_ASSERT(reporter, !ext.has("test_extension_1"));
 }
+
+#endif  // SK_GL

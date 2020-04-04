@@ -14,7 +14,7 @@
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
                                                       const char* rtAdjustName,
                                                       GrSLType devPosType) {
-    if (this->getProgramBuilder()->header().fSnapVerticesToPixelCenters) {
+    if (this->getProgramBuilder()->snapVerticesToPixelCenters()) {
         if (kFloat3_GrSLType == devPosType) {
             const char* p = devPos;
             out->appendf("{float2 _posTmp = float2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
@@ -37,8 +37,7 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
 void GrGLSLVertexBuilder::onFinalize() {
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
-    const GrProgramDesc::KeyHeader& header = this->getProgramBuilder()->desc()->header();
-    if (header.hasPointSize()) {
+    if (this->getProgramBuilder()->hasPointSize()) {
         this->codeAppend("sk_PointSize = 1.0;");
     }
     fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());

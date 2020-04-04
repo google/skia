@@ -19,7 +19,7 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& desc) {
+const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
     SkASSERT(!gpu->protectedContext() || (gpu->protectedContext() == desc.fDynamic));
     VkBuffer       buffer;
     GrVkAlloc      alloc;
@@ -114,16 +114,6 @@ void GrVkBuffer::Resource::freeGPUData(GrVkGpu* gpu) const {
 void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
     VALIDATE();
     fResource->recycle(const_cast<GrVkGpu*>(gpu));
-    fResource = nullptr;
-    if (!fDesc.fDynamic) {
-        delete[] (unsigned char*)fMapPtr;
-    }
-    fMapPtr = nullptr;
-    VALIDATE();
-}
-
-void GrVkBuffer::vkAbandon() {
-    fResource->unrefAndAbandon();
     fResource = nullptr;
     if (!fDesc.fDynamic) {
         delete[] (unsigned char*)fMapPtr;

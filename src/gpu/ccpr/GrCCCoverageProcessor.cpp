@@ -7,7 +7,6 @@
 
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -181,16 +180,16 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles:
-            shader = skstd::make_unique<TriangleShader>();
+            shader = std::make_unique<TriangleShader>();
             break;
         case PrimitiveType::kQuadratics:
-            shader = skstd::make_unique<GrCCQuadraticShader>();
+            shader = std::make_unique<GrCCQuadraticShader>();
             break;
         case PrimitiveType::kCubics:
-            shader = skstd::make_unique<GrCCCubicShader>();
+            shader = std::make_unique<GrCCCubicShader>();
             break;
         case PrimitiveType::kConics:
-            shader = skstd::make_unique<GrCCConicShader>();
+            shader = std::make_unique<GrCCConicShader>();
             break;
     }
     return this->onCreateGLSLInstance(std::move(shader));
@@ -203,12 +202,16 @@ void GrCCCoverageProcessor::draw(
     dynamicStateArrays.fScissorRects = scissorRects;
     GrOpsRenderPass* renderPass = flushState->opsRenderPass();
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              pipeline,
-                              *this,
+    GrPrimitiveType primitiveType = this->primType();
+
+    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                              flushState->proxy()->numStencilSamples(),
+                              flushState->proxy()->backendFormat(),
+                              flushState->view()->origin(),
+                              &pipeline,
+                              this,
                               nullptr,
-                              &dynamicStateArrays, 0);
+                              &dynamicStateArrays, 0, primitiveType);
 
 
     renderPass->draw(programInfo, meshes, meshCount, drawBounds);

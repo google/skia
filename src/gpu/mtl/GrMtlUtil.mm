@@ -142,14 +142,15 @@ void print_msl(const char* source) {
 }
 #endif
 
-id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const char* shaderString,
-                                         SkSL::Program::Kind kind,
-                                         const SkSL::Program::Settings& settings,
-                                         SkSL::Program::Inputs* outInputs) {
+id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
+                                          const SkSL::String& shaderString,
+                                          SkSL::Program::Kind kind,
+                                          const SkSL::Program::Settings& settings,
+                                          SkSL::String* mslShader,
+                                          SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program =
             gpu->shaderCompiler()->convertProgram(kind,
-                                                  SkSL::String(shaderString),
+                                                  shaderString,
                                                   settings);
 
     if (!program) {
@@ -159,13 +160,18 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     }
 
     *outInputs = program->fInputs;
-    SkSL::String code;
-    if (!gpu->shaderCompiler()->toMetal(*program, &code)) {
+    if (!gpu->shaderCompiler()->toMetal(*program, mslShader)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         SkASSERT(false);
         return nil;
     }
-    NSString* mtlCode = [[NSString alloc] initWithCString: code.c_str()
+
+    return GrCompileMtlShaderLibrary(gpu, *mslShader);
+}
+
+id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                         const SkSL::String& shaderString) {
+    NSString* mtlCode = [[NSString alloc] initWithCString: shaderString.c_str()
                                                  encoding: NSASCIIStringEncoding];
 #if PRINT_MSL
     print_msl([mtlCode cStringUsingEncoding: NSASCIIStringEncoding]);
@@ -188,7 +194,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                                    error: &error];
     if (error) {
         SkDebugf("Error compiling MSL shader: %s\n%s\n",
-                 code.c_str(),
+                 shaderString.c_str(),
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nil;
     }

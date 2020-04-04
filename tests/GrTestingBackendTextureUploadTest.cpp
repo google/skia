@@ -37,7 +37,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     if (doDataUpload) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
 
-        fill_pixel_data(kWidth, kHeight, expectedPixels.writable_addr32(0, 0));
+        FillPixelData(kWidth, kHeight, expectedPixels.writable_addr32(0, 0));
 
         backendTex = context->createBackendTexture(&expectedPixels, 1,
                                                    renderable, GrProtected::kNo);
@@ -81,9 +81,9 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
                                              {0, 0}, context);
 
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(expectedPixels.addr32(),
-                                                                     actualPixels.addr32(),
-                                                                     kWidth, kHeight));
+    REPORTER_ASSERT(reporter,
+                    DoesFullBufferContainCorrectColor(expectedPixels.addr32(),
+                                                      actualPixels.addr32(), kWidth, kHeight));
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, ctxInfo) {

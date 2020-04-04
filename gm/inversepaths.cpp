@@ -34,7 +34,7 @@ static SkPath generate_rect_line(SkScalar cx, SkScalar cy, SkScalar l) {
 
 static SkPath generate_circle(SkScalar cx, SkScalar cy, SkScalar d) {
     SkPath path;
-    path.addCircle(cx, cy, d/2, SkPath::kCW_Direction);
+    path.addCircle(cx, cy, d/2, SkPathDirection::kCW);
     return path;
 }
 
@@ -131,10 +131,10 @@ DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
                     canvas->clipRect(clipRect);
 
                     SkPath path = paths[pathIndex](cx, cy, size);
-                    path.setFillType(SkPath::kInverseWinding_FillType);
+                    path.setFillType(SkPathFillType::kInverseWinding);
                     canvas->drawPath(path, paint);
 
-                    path.setFillType(SkPath::kWinding_FillType);
+                    path.setFillType(SkPathFillType::kWinding);
                     canvas->drawPath(path, outlinePaint);
 
                     canvas->restore();

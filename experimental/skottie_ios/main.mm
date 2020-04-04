@@ -1,19 +1,32 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/skottie_ios/SkMetalViewBridge.h"
-#include "experimental/skottie_ios/SkottieMtkView.h"
+#include "include/core/SkTypes.h"
 
-#include "include/gpu/GrContext.h"
-#include "include/gpu/GrContextOptions.h"
+#ifdef SK_METAL
+    #include "experimental/skottie_ios/SkMetalViewBridge.h"
+    #include "experimental/skottie_ios/SkottieMtkView.h"
 
-#import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
+    #include "include/gpu/GrContext.h"
+    #include "include/gpu/GrContextOptions.h"
+
+    #import <Metal/Metal.h>
+    #import <MetalKit/MetalKit.h>
+#else
+    #include "experimental/skottie_ios/SkottieUIView.h"
+#endif
+
 #import <UIKit/UIKit.h>
 
+
+#ifdef SK_METAL
 static UIStackView* make_skottie_stack(CGFloat width,
                                        id<MTLDevice> metalDevice,
+                                       id<MTLCommandQueue> metalQueue,
                                        GrContext* grContext) {
+#else
+static UIStackView* make_skottie_stack(CGFloat width) {
+#endif
     UIStackView* stack = [[UIStackView alloc] init];
     [stack setAxis:UILayoutConstraintAxisVertical];
     [stack setDistribution:UIStackViewDistributionEqualSpacing];
@@ -30,17 +43,25 @@ static UIStackView* make_skottie_stack(CGFloat width,
             NSLog(@"'%@' not found", path);
             continue;
         }
+        #ifdef SK_METAL
         SkottieMtkView* skottieView = [[SkottieMtkView alloc] init];
+        #else
+        SkottieUIView* skottieView = [[SkottieUIView alloc] init];
+        #endif
+
         if (![skottieView loadAnimation:content]) {
             continue;
         }
+        #ifdef SK_METAL
         [skottieView setDevice:metalDevice];
+        [skottieView setQueue:metalQueue];
         [skottieView setGrContext:grContext];
         SkMtkViewConfigForSkia(skottieView);
+        [skottieView setPreferredFramesPerSecond:30];
+        #endif
         CGSize animSize = [skottieView size];
         CGFloat height = animSize.width ? (width * animSize.height / animSize.width) : 0;
         [skottieView setFrame:{{0, 0}, {width, height}}];
-        [skottieView setPreferredFramesPerSecond:30];
         [[[skottieView heightAnchor] constraintEqualToConstant:height] setActive:true];
         [[[skottieView widthAnchor] constraintEqualToConstant:width] setActive:true];
         [stack addArrangedSubview:skottieView];
@@ -51,17 +72,17 @@ static UIStackView* make_skottie_stack(CGFloat width,
 }
 
 @interface AppViewController : UIViewController
+    #ifdef SK_METAL
     @property (strong) id<MTLDevice> metalDevice;
+    @property (strong) id<MTLCommandQueue> metalQueue;
+    #endif
     @property (strong) UIStackView* stackView;
 @end
 
 @implementation AppViewController {
+    #ifdef SK_METAL
     sk_sp<GrContext> fGrContext;
-}
-
-- (void)dealloc {
-    fGrContext = nullptr;
-    [super dealloc];
+    #endif
 }
 
 - (void)loadView {
@@ -69,6 +90,7 @@ static UIStackView* make_skottie_stack(CGFloat width,
 }
 
 - (void)viewDidLoad {
+    #ifdef SK_METAL
     [super viewDidLoad];
     if (!fGrContext) {
         [self setMetalDevice:MTLCreateSystemDefaultDevice()];
@@ -76,12 +98,16 @@ static UIStackView* make_skottie_stack(CGFloat width,
             NSLog(@"Metal is not supported on this device");
             return;
         }
+        [self setMetalQueue:[[self metalDevice] newCommandQueue]];
         GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue],
+                                              grContextOptions);
     }
-
     [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width,
-                                          [self metalDevice], fGrContext.get())];
+                                          [self metalDevice], [self metalQueue], fGrContext.get())];
+    #else
+    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width)];
+    #endif
 
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     CGSize mainScreenSize = [[UIScreen mainScreen] bounds].size;
@@ -109,13 +135,22 @@ static UIStackView* make_skottie_stack(CGFloat width,
     NSArray<UIView*>* subviews = [[self stackView] subviews];
     for (NSUInteger i = 0; i < [subviews count]; ++i) {
         UIView* subview = [subviews objectAtIndex:i];
+        #ifdef SK_METAL
         if (![subview isKindOfClass:[SkottieMtkView class]]) {
             continue;
         }
         SkottieMtkView* skottieView = (SkottieMtkView*)subview;
+        #else
+        if (![subview isKindOfClass:[SkottieUIView class]]) {
+            continue;
+        }
+        SkottieUIView* skottieView = (SkottieUIView*)subview;
+        #endif
         BOOL paused = [skottieView togglePaused];
+        #ifdef SK_METAL
         [skottieView setEnableSetNeedsDisplay:paused];
         [skottieView setPaused:paused];
+        #endif
     }
 }
 @end

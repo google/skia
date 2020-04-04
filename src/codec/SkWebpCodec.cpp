@@ -16,7 +16,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkStreamPriv.h"
 
@@ -220,12 +219,15 @@ int SkWebpCodec::onGetRepetitionCount() {
         return 0;
     }
 
-    const int repCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
-    if (0 == repCount) {
+    int loopCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
+    if (0 == loopCount) {
         return kRepetitionCountInfinite;
     }
 
-    return repCount;
+#ifndef SK_LEGACY_WEBP_LOOP_COUNT
+    loopCount--;
+#endif
+    return loopCount;
 }
 
 int SkWebpCodec::onGetFrameCount() {

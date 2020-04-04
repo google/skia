@@ -228,9 +228,7 @@ DEF_TEST(SkEnumerate, reporter) {
     auto enumeration = SkMakeEnumerate(A);
 
     size_t check = 0;
-    for (auto t : enumeration) {
-        size_t i; int v;
-        std::tie(i, v) = t;
+    for (auto [i, v] : enumeration) {
         REPORTER_ASSERT(reporter, i == check);
         REPORTER_ASSERT(reporter, v == (int)check+1);
 
@@ -238,9 +236,7 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 
     check = 0;
-    for (auto t : SkMakeEnumerate(A)) {
-        size_t i; int v;
-        std::tie(i, v) = t;
+    for (auto [i, v] : SkMakeEnumerate(A)) {
         REPORTER_ASSERT(reporter, i == check);
         REPORTER_ASSERT(reporter, v == (int)check+1);
 
@@ -249,9 +245,7 @@ DEF_TEST(SkEnumerate, reporter) {
 
     check = 0;
     std::vector<int> vec = {1, 2, 3, 4};
-    for (auto t : SkMakeEnumerate(vec)) {
-        size_t i; int v;
-        std::tie(i, v) = t;
+    for (auto [i, v] : SkMakeEnumerate(vec)) {
         REPORTER_ASSERT(reporter, i == check);
         REPORTER_ASSERT(reporter, v == (int)check+1);
         check++;
@@ -259,9 +253,7 @@ DEF_TEST(SkEnumerate, reporter) {
     REPORTER_ASSERT(reporter, check == 4);
 
     check = 0;
-    for (auto t : SkMakeEnumerate(SkMakeSpan(vec))) {
-        size_t i; int v;
-        std::tie(i, v) = t;
+    for (auto [i, v] : SkMakeEnumerate(SkMakeSpan(vec))) {
         REPORTER_ASSERT(reporter, i == check);
         REPORTER_ASSERT(reporter, v == (int)check+1);
         check++;
@@ -302,9 +294,7 @@ DEF_TEST(SkZip, reporter) {
     {
         // Check ranged-for
         int i = 0;
-        for (auto t : z) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b, c, d, s) = t;
+        for (auto [a, b, c, d, s] : z) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -319,9 +309,7 @@ DEF_TEST(SkZip, reporter) {
     {
         // Check first(n)
         int i = 0;
-        for (auto t : z.first(2)) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b, c, d, s) = t;
+        for (auto [a, b, c, d, s] : z.first(2)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -333,14 +321,45 @@ DEF_TEST(SkZip, reporter) {
         REPORTER_ASSERT(reporter, i = 2);
     }
 
+    {
+        // Check last(n)
+        int i = 0;
+        for (auto t : z.last(2)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i + 2]);
+            REPORTER_ASSERT(reporter, b == B[i + 2]);
+            REPORTER_ASSERT(reporter, c == C[i + 2]);
+            REPORTER_ASSERT(reporter, d == D[i + 2]);
+            REPORTER_ASSERT(reporter, s == S[i + 2]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 2);
+    }
+
+    {
+        // Check subspan(offset, count)
+        int i = 0;
+        for (auto t : z.subspan(1, 2)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i + 1]);
+            REPORTER_ASSERT(reporter, b == B[i + 1]);
+            REPORTER_ASSERT(reporter, c == C[i + 1]);
+            REPORTER_ASSERT(reporter, d == D[i + 1]);
+            REPORTER_ASSERT(reporter, s == S[i + 1]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 2);
+    }
 
     {
         // Check copy.
         auto zz{z};
         int i = 0;
-        for (auto t : zz) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b, c, d, s) = t;
+        for (auto [a, b, c, d, s] : zz) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -356,9 +375,7 @@ DEF_TEST(SkZip, reporter) {
         // Check const restricting copy
         SkZip<const uint16_t, const float, const int, int, int> cz = z;
         int i = 0;
-        for (auto t : cz) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b, c, d, s) = t;
+        for (auto [a, b, c, d, s] : cz) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -386,26 +403,26 @@ DEF_TEST(SkZip, reporter) {
     // The following mutates the data.
     {
         // Check indexing
-        auto t = z[1];
-        REPORTER_ASSERT(reporter, std::get<0>(t) == 2);
-        REPORTER_ASSERT(reporter, std::get<1>(t) == 20.f);
-        REPORTER_ASSERT(reporter, std::get<2>(t) == 30);
-        REPORTER_ASSERT(reporter, std::get<3>(t) == 200);
-        REPORTER_ASSERT(reporter, std::get<4>(t) == 30);
+        auto [a, b, c, d, e] = z[1];
+        REPORTER_ASSERT(reporter, a == 2);
+        REPORTER_ASSERT(reporter, b == 20.f);
+        REPORTER_ASSERT(reporter, c == 30);
+        REPORTER_ASSERT(reporter, d == 200);
+        REPORTER_ASSERT(reporter, e == 30);
 
         // Check correct refs returned.
-        REPORTER_ASSERT(reporter, &std::get<0>(t) == &A[1]);
-        REPORTER_ASSERT(reporter, &std::get<1>(t) == &B[1]);
-        REPORTER_ASSERT(reporter, &std::get<2>(t) == &C[1]);
-        REPORTER_ASSERT(reporter, &std::get<3>(t) == &D[1]);
-        REPORTER_ASSERT(reporter, &std::get<4>(t) == &S[1]);
+        REPORTER_ASSERT(reporter, &a == &A[1]);
+        REPORTER_ASSERT(reporter, &b == &B[1]);
+        REPORTER_ASSERT(reporter, &c == &C[1]);
+        REPORTER_ASSERT(reporter, &d == &D[1]);
+        REPORTER_ASSERT(reporter, &e == &S[1]);
 
         // Check assignment
-        std::get<0>(t) = 20;
+        a = 20;
         // std::get<1>(t) = 300.f; // is const
-        std::get<2>(t) = 300;
-        std::get<3>(t) = 2000;
-        std::get<4>(t) = 300;
+        c = 300;
+        d = 2000;
+        e = 300;
 
         auto t1 = z[1];
         REPORTER_ASSERT(reporter, std::get<0>(t1) == 20);
@@ -428,9 +445,7 @@ DEF_TEST(SkMakeZip, reporter) {
         auto zz = SkMakeZip(&A[0], B, C, D, S, P);
 
         int i = 0;
-        for (auto t : zz) {
-            uint16_t a; float b; int c; int d; int s; uint16_t p;
-            std::tie(a, b ,c ,d, s, p) = t;
+        for (auto [a, b, c, d, s, p] : zz) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -446,9 +461,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkMakeZip in ranged for check OneSize calc of B.
         int i = 0;
-        for (auto t : SkMakeZip(&A[0], B, C, D, S)) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b ,c ,d, s) = t;
+        for (auto [a, b, c, d, s] : SkMakeZip(&A[0], B, C, D, S)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -463,9 +476,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkMakeZip in ranged for OneSize of C
         int i = 0;
-        for (auto t : SkMakeZip(&A[0], &B[0], C, D, S)) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(a, b ,c ,d, s) = t;
+        for (auto [a, b, c, d, s] : SkMakeZip(&A[0], &B[0], C, D, S)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -480,9 +491,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkMakeZip in ranged for OneSize for S
         int i = 0;
-        for (auto t : SkMakeZip(S, A, B, C, D)) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(s, a, b, c, d) = t;
+        for (auto [s, a, b, c, d] : SkMakeZip(S, A, B, C, D)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -497,9 +506,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkMakeZip in ranged for
         int i = 0;
-        for (auto t : SkMakeZip(C, S, A, B, D)) {
-            uint16_t a; float b; int c; int d; int s;
-            std::tie(c, s, a, b, d) = t;
+        for (auto [c, s, a, b, d] : SkMakeZip(C, S, A, B, D)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -514,10 +521,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkEnumerate and SkMakeZip in ranged for
         auto zz = SkMakeZip(A, B, C, D, S);
-        for (auto t : SkMakeEnumerate(zz)) {
-            int i;
-            uint16_t a; float b; int c; int d; int s;
-            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(zz)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -529,10 +533,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkEnumerate and SkMakeZip in ranged for
         const auto& zz = SkMakeZip(A, B, C, D, S);
-        for (auto t : SkMakeEnumerate(zz)) {
-            int i;
-            uint16_t a; float b; int c; int d; int s;
-            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(zz)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -543,10 +544,7 @@ DEF_TEST(SkMakeZip, reporter) {
 
     {
         // Check SkEnumerate and SkMakeZip in ranged for
-        for (auto t : SkMakeEnumerate(SkMakeZip(A, B, C, D, S))) {
-            int i;
-            uint16_t a; float b; int c; int d; int s;
-            std::forward_as_tuple(i, std::tie(a, b, c, d, s)) = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(SkMakeZip(A, B, C, D, S))) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);

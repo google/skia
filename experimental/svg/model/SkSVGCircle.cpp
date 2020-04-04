@@ -54,7 +54,7 @@ std::tuple<SkPoint, SkScalar> SkSVGCircle::resolve(const SkSVGLengthContext& lct
     return std::make_tuple(SkPoint::Make(cx, cy), r);
 }
 void SkSVGCircle::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                         const SkPaint& paint, SkPath::FillType) const {
+                         const SkPaint& paint, SkPathFillType) const {
     SkPoint pos;
     SkScalar r;
     std::tie(pos, r) = this->resolve(lctx);

@@ -19,8 +19,7 @@
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
                                            bool useDecal)
-        : INHERITED(context, bitmap.width(), bitmap.height(), bitmap.info().colorInfo(), useDecal)
-        , fBitmap(bitmap) {
+        : INHERITED(context, bitmap.info(), useDecal), fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
@@ -71,7 +70,9 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         // We need a mipped proxy, but we either found a proxy earlier that wasn't mipped or
         // generated a non mipped proxy. Thus we generate a new mipped surface and copy the original
         // proxy into the base layer. We will then let the gpu generate the rest of the mips.
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get())) {
+        GrColorType srcColorType = SkColorTypeToGrColorType(fBitmap.colorType());
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                                              srcColorType)) {
             SkASSERT(mippedProxy->origin() == kTopLeft_GrSurfaceOrigin);
             if (fOriginalKey.isValid()) {
                 // In this case we are stealing the key from the original proxy which should only

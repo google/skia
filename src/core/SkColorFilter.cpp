@@ -17,10 +17,12 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
@@ -41,6 +43,13 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecord
 
 bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
+}
+
+bool SkColorFilter::program(skvm::Builder*,
+                            SkColorSpace* dstCS,
+                            skvm::Uniforms* uniforms,
+                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    return false;
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -482,6 +491,14 @@ SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkString sksl,
 sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
     return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(fIndex, fSkSL, std::move(inputs),
                                                          fCpuFunc));
+}
+
+bool SkRuntimeColorFilterFactory::testCompile() const {
+    SkSL::Program::Settings settings;
+    SkSL::Compiler compiler;
+    auto program = compiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                           SkSL::String(fSkSL.c_str(), fSkSL.size()), settings);
+    return program && !compiler.errorCount();
 }
 
 #endif // SK_SUPPORT_GPU

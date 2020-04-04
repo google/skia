@@ -40,6 +40,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
+    fAvoidLargeIndexBufferDraws = false;
     fPerformStencilClearsAsDraws = false;
     fAllowCoverageCounting = false;
     fTransferBufferSupport = false;
@@ -80,7 +81,19 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDriverBugWorkarounds = options.fDriverBugWorkarounds;
 }
 
+void GrCaps::finishInitialization(const GrContextOptions& options) {
+    if (fMixedSamplesSupport) {
+        // We need multisample disable and dual source blending in order to support mixed samples.
+        fMixedSamplesSupport = this->multisampleDisableSupport() &&
+                               this->shaderCaps()->dualSourceBlendingSupport();
+    }
+
+    // Overrides happen last.
+    this->applyOptionsOverrides(options);
+}
+
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverBlacklistCCPR);
@@ -109,8 +122,10 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fMaxTileSizeOverride && options.fMaxTileSizeOverride < fMaxTextureSize) {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
-    if (options.fSuppressGeometryShaders) {
-        fShaderCaps->fGeometryShaderSupport = false;
+    if (options.fSuppressDualSourceBlending) {
+        // GrShaderCaps::applyOptionsOverrides already handled the rest; here we just need to make
+        // sure mixed samples gets disabled if dual source blending is suppressed.
+        fMixedSamplesSupport = false;
     }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
@@ -189,6 +204,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fDynamicStateArrayGeometryProcessorTextureSupport);
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
     writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
+    writer->appendBool("Avoid Large IndexBuffer Draws", fAvoidLargeIndexBufferDraws);
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
     writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
     writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
@@ -263,7 +279,7 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
-bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& format,
+bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
                                    GrPixelConfig config, GrRenderable renderable,
                                    int renderTargetSampleCnt, GrMipMapped mipped) const {
     if (!this->isFormatTexturable(format)) {
@@ -274,7 +290,7 @@ bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& f
         return false;
     }
 
-    if (size.width() < 1 || size.height() < 1) {
+    if (dimensions.width() < 1 || dimensions.height() < 1) {
         return false;
     }
 
@@ -283,7 +299,7 @@ bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& f
             return false;
         }
         int maxRTSize = this->maxRenderTargetSize();
-        if (size.width() > maxRTSize || size.height() > maxRTSize) {
+        if (dimensions.width() > maxRTSize || dimensions.height() > maxRTSize) {
             return false;
         }
     } else {
@@ -292,7 +308,7 @@ bool GrCaps::validateSurfaceParams(const SkISize& size, const GrBackendFormat& f
             return false;
         }
         int maxSize = this->maxTextureSize();
-        if (size.width() > maxSize || size.height() > maxSize) {
+        if (dimensions.width() > maxSize || dimensions.height() > maxSize) {
             return false;
         }
     }

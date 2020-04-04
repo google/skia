@@ -284,8 +284,6 @@ describe('CanvasKit\'s Canvas Behavior', function() {
                 return;
             }
             const canvas = surface.getCanvas();
-            const path = starPath(CanvasKit);
-
             const paint = new CanvasKit.SkPaint();
 
             const blue = CanvasKit.SkColorFilter.MakeBlend(
@@ -314,14 +312,12 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             CanvasKit.SkColorMatrix.postTranslate(cm, 20, 0, -10, 0);
 
             const mat = CanvasKit.SkColorFilter.MakeMatrix(cm);
-
             const final = CanvasKit.SkColorFilter.MakeCompose(mat, lerp);
 
             paint.setColorFilter(final)
             canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
             surface.flush();
-            path.delete();
             paint.delete();
             blue.delete();
             red.delete();
@@ -332,4 +328,190 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    it('can use Malloc to save a copy', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            const src = [
+                 0.8,   0.45,      2,   0,  20,
+                0.53, -0.918,  0.566,   0,   0,
+                0.53, -0.918, -0.566,   0, -10,
+                   0,      0,      0, 0.8,   0,
+            ]
+            const cm = new CanvasKit.Malloc(Float32Array, 20);
+            for (i in src) {
+                cm[i] = src[i];
+            }
+            const final = CanvasKit.SkColorFilter.MakeMatrix(cm);
+
+            paint.setColorFilter(final)
+            canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
+
+            surface.flush()
+            paint.delete();
+            final.delete();
+
+            reportSurface(surface, 'colorfilters_malloc_canvas', done);
+        }));
+    });
+
+    it('can clip using rrect and path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+            const paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.BLUE);
+            const rrect = CanvasKit.RRectXY(CanvasKit.LTRBRect(300, 300, 500, 500), 40, 40);
+
+            canvas.save();
+            // draw magenta around the outside edge of an rrect.
+            canvas.clipRRect(rrect, CanvasKit.ClipOp.Difference, true);
+            canvas.drawColor(CanvasKit.Color(250, 30, 240, 0.9), CanvasKit.BlendMode.SrcOver);
+            canvas.restore();
+
+            // draw grey inside of a star pattern, then the blue star on top
+            canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
+            canvas.drawColor(CanvasKit.Color(200, 200, 200, 1.0), CanvasKit.BlendMode.SrcOver);
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+            path.delete();
+
+            reportSurface(surface, 'clips_canvas', done);
+        }));
+    });
+
+    it('can save layer with SaveLayerRec-like things', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            // Note: fiddle.skia.org quietly draws a white background before doing
+            // other things, which is noticed in cases like this where we use saveLayer
+            // with the rec struct.
+            canvas.clear(CanvasKit.WHITE);
+            canvas.scale(8, 8);
+            const redPaint = new CanvasKit.SkPaint();
+            redPaint.setColor(CanvasKit.RED);
+            redPaint.setAntiAlias(true);
+            canvas.drawCircle(21, 21, 8, redPaint);
+
+            const bluePaint = new CanvasKit.SkPaint();
+            bluePaint.setColor(CanvasKit.BLUE);
+            canvas.drawCircle(31, 21, 8, bluePaint);
+
+            const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+
+            const count = canvas.saveLayer(null, blurIF, 0);
+            expect(count).toEqual(1);
+            canvas.scale(1/4, 1/4);
+            canvas.drawCircle(125, 85, 8, redPaint);
+            canvas.restore();
+
+            surface.flush();
+            blurIF.delete();
+            redPaint.delete();
+            bluePaint.delete();
+
+            reportSurface(surface, 'savelayerrec_canvas', done);
+        }));
+    });
+
+    it('can drawPoints', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setStrokeWidth(10);
+            paint.setColor(CanvasKit.Color(153, 204, 162, 0.82));
+
+            const points = [[32, 16], [48, 48], [16, 32]];
+
+            const caps = [CanvasKit.StrokeCap.Round, CanvasKit.StrokeCap.Square,
+                          CanvasKit.StrokeCap.Butt];
+            const joins = [CanvasKit.StrokeJoin.Round, CanvasKit.StrokeJoin.Miter,
+                           CanvasKit.StrokeJoin.Bevel];
+            const modes = [CanvasKit.PointMode.Points, CanvasKit.PointMode.Lines,
+                           CanvasKit.PointMode.Polygon];
+
+            for (let i = 0; i < caps.length; i++) {
+                paint.setStrokeCap(caps[i]);
+                paint.setStrokeJoin(joins[i]);
+
+                for (const m of modes) {
+                    canvas.drawPoints(m, points, paint);
+                    canvas.translate(64, 0);
+                }
+                // Try with the malloc approach. Note that the drawPoints
+                // will free the pointer when done.
+                const mPoints = CanvasKit.Malloc(Float32Array, 3*2);
+                mPoints.set([32, 16, 48, 48, 16, 32]);
+                canvas.drawPoints(CanvasKit.PointMode.Polygon, mPoints, paint);
+                canvas.translate(-192, 64);
+            }
+
+            surface.flush();
+            paint.delete();
+
+            reportSurface(surface, 'drawpoints_canvas', done);
+        }));
+    });
+
+    it('can stretch an image with drawImageNine', function(done) {
+        const imgPromise = fetch('/assets/mandrill_512.png')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const pngData = values[0];
+            expect(pngData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(pngData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.WHITE);
+                const paint = new CanvasKit.SkPaint();
+
+                canvas.drawImageNine(img, {
+                    fLeft: 40,
+                    fTop: 40,
+                    fRight: 400,
+                    fBottom: 300,
+                }, CanvasKit.LTRBRect(5, 5, 300, 650), paint);
+                surface.flush();
+                paint.delete();
+                img.delete();
+
+                reportSurface(surface, 'drawImageNine_canvas', done);
+            })();
+        });
+    });
 });

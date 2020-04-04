@@ -10,7 +10,6 @@
 
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -60,9 +59,8 @@ struct Vertex {
 
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
-    GrPipelineDynamicStateTestProcessor()
-            : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
-        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena) {
+        return arena->make<GrPipelineDynamicStateTestProcessor>();
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
@@ -75,6 +73,13 @@ public:
     const Attribute& inColor() const { return kAttributes[1]; }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GrPipelineDynamicStateTestProcessor()
+            : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
+        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    }
+
     static constexpr Attribute kAttributes[] = {
         {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType},
         {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType},
@@ -87,7 +92,7 @@ constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::k
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) final {}
+                 const CoordTransformRange&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =
@@ -153,14 +158,16 @@ private:
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;
 
-        GrPipelineDynamicStateTestProcessor primProc;
+        auto geomProc = GrPipelineDynamicStateTestProcessor::Make(flushState->allocator());
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
+        GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                                  flushState->proxy()->numStencilSamples(),
+                                  flushState->proxy()->backendFormat(),
+                                  flushState->view()->origin(),
+                                  &pipeline,
+                                  geomProc,
                                   nullptr,
-                                  &dynamicState, 0);
+                                  &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
 
         flushState->opsRenderPass()->draw(programInfo, meshes.begin(), 4,
                                           SkRect::MakeIWH(kScreenSize, kScreenSize));

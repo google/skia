@@ -17,8 +17,23 @@ class CheckoutApi(recipe_api.RecipeApi):
     """The default location for cached persistent checkouts."""
     return self.m.vars.cache_dir.join('work')
 
+  def assert_git_is_from_cipd(self):
+    """Fail if git is not obtained from CIPD."""
+    self.m.run(self.m.python.inline, 'Assert that Git is from CIPD', program='''
+import subprocess
+import sys
+
+which = 'where' if sys.platform == 'win32' else 'which'
+git = subprocess.check_output([which, 'git'])
+print 'git was found at %s' % git
+if 'cipd_bin_packages' not in git:
+  print >> sys.stderr, 'Git must be obtained through CIPD.'
+  sys.exit(1)
+''')
+
   def git(self, checkout_root):
     """Run the steps to perform a pure-git checkout without DEPS."""
+    self.assert_git_is_from_cipd()
     skia_dir = checkout_root.join('skia')
     self.m.git.checkout(
         self.m.properties['repository'], dir_path=skia_dir,
@@ -31,7 +46,7 @@ class CheckoutApi(recipe_api.RecipeApi):
 
   def bot_update(self, checkout_root, gclient_cache=None,
                  checkout_chromium=False, checkout_flutter=False,
-                 extra_gclient_env=None, parent_rev=False,
+                 extra_gclient_env=None,
                  flutter_android=False):
     """Run the steps to obtain a checkout using bot_update.
 
@@ -44,11 +59,9 @@ class CheckoutApi(recipe_api.RecipeApi):
           primary repo.
       extra_gclient_env: Map of extra environment variable names to their values
           to supply while running gclient.
-      parent_rev: If True, checks out the parent of the specified revision,
-          rather than the revision itself, ie. HEAD^ for normal jobs and HEAD
-          (no patch) for try jobs.
       flutter_android: Indicates that we're checking out flutter for Android.
     """
+    self.assert_git_is_from_cipd()
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')
     if not extra_gclient_env:
@@ -119,9 +132,6 @@ class CheckoutApi(recipe_api.RecipeApi):
                          entries_file)
 
     # Run bot_update.
-    if not self.m.vars.is_trybot and parent_rev:
-      main.revision = main.revision + '^'
-
     patch_refs = None
     patch_ref = self.m.properties.get('patch_ref')
     if patch_ref:
@@ -136,8 +146,8 @@ class CheckoutApi(recipe_api.RecipeApi):
           # The logic in ensure_checkout for this arg is fairly naive, so if
           # patch=False, we'll see "... (without patch)" in the step names, even
           # for non-trybot runs, which is misleading and confusing. Therefore,
-          # always specify patch=True for non-trybot runs.
-          patch=not (self.m.vars.is_trybot and parent_rev),
+          # always specify patch=True.
+          patch=True,
           patch_refs=patch_refs,
       )
 

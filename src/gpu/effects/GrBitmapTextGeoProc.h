@@ -8,11 +8,13 @@
 #ifndef GrBitmapTextGeoProc_DEFINED
 #define GrBitmapTextGeoProc_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
 
 class GrGLBitmapTextGeoProc;
 class GrInvariantOutput;
+class GrSurfaceProxyView;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
@@ -23,15 +25,15 @@ class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const SkPMColor4f& color, bool wideColor,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& p, GrMaskFormat format,
-                                           const SkMatrix& localMatrix, bool usesW) {
-        return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(caps, color, wideColor, proxies, numActiveProxies, p, format,
-                                    localMatrix, usesW));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const GrShaderCaps& caps,
+                                     const SkPMColor4f& color, bool wideColor,
+                                     const GrSurfaceProxyView* views,
+                                     int numActiveViews,
+                                     const GrSamplerState& p, GrMaskFormat format,
+                                     const SkMatrix& localMatrix, bool usesW) {
+        return arena->make<GrBitmapTextGeoProc>(caps, color, wideColor, views, numActiveViews,
+                                                p, format, localMatrix, usesW);
     }
 
     ~GrBitmapTextGeoProc() override {}
@@ -46,17 +48,19 @@ public:
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesW() const { return fUsesW; }
-    const SkISize& atlasSize() const { return fAtlasSize; }
+    const SkISize& atlasDimensions() const { return fAtlasDimensions; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
+    void addNewViews(const GrSurfaceProxyView*, int numActiveViews, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
-                        const sk_sp<GrTextureProxy>* proxies, int numProxies,
+                        const GrSurfaceProxyView* views, int numViews,
                         const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesW);
 
@@ -65,7 +69,7 @@ private:
     SkPMColor4f      fColor;
     SkMatrix         fLocalMatrix;
     bool             fUsesW;
-    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
+    SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
     TextureSampler   fTextureSamplers[kMaxTextures];
     Attribute        fInPosition;
     Attribute        fInColor;

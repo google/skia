@@ -10,7 +10,6 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkUtils.h"
 #include "src/utils/SkUTF.h"
 
@@ -255,7 +254,7 @@ private:
     };
 
     std::unique_ptr<Line> convertLine(int lineIndex) {
-        std::unique_ptr<Line> result = skstd::make_unique<Line>();
+        std::unique_ptr<Line> result = std::make_unique<Line>();
 
         const char* cursor = fText[lineIndex];
         size_t len = strlen(cursor);
@@ -294,7 +293,7 @@ private:
     std::vector<std::unique_ptr<Line>> fLines;
     std::vector<SkGlyphID> fGlyphIds;
     sk_sp<SkTypeface> fTypeface;
-    const char* (*fText);
+    const char** fText;
     int fLineCount;
     const char* fName;
 };

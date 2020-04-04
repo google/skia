@@ -14,7 +14,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkAntiRun.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
@@ -720,14 +719,10 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
 #ifndef SK_SUPPORT_LEGACY_COLORFILTER_NO_SHADER
-    if (paint->getColorFilter() && !paint->getShader()) {
-        // apply the filter to the paint's color, and then remove the filter
-        auto dstCS = device.colorSpace();
-        SkPaint* p = paint.writable();
-        p->setColor(p->getColorFilter()->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS),
-                    dstCS);
-        p->setColorFilter(nullptr);
+    if (paint->getColorFilter()) {
+        SkPaintPriv::RemoveColorFilter(paint.writable(), device.colorSpace());
     }
+    SkASSERT(!paint->getColorFilter());
 #endif
 
     if (drawCoverage) {

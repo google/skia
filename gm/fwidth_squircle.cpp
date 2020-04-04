@@ -46,6 +46,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include <memory>
 #include <utility>
@@ -65,19 +66,30 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 
 class FwidthSquircleTestProcessor : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
+        return arena->make<FwidthSquircleTestProcessor>(viewMatrix);
+    }
+
+    const char* name() const override { return "FwidthSquircleTestProcessor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
             : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID)
             , fViewMatrix(viewMatrix) {
         this->setVertexAttributes(&gVertex, 1);
     }
-    const char* name() const override { return "FwidthSquircleTestProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-private:
     const SkMatrix fViewMatrix;
 
     class Impl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
@@ -119,7 +131,7 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+                 const CoordTransformRange&) override {
         const auto& proc = primProc.cast<FwidthSquircleTestProcessor>();
         pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);
     }
@@ -153,11 +165,30 @@ private:
 
     const char* name() const override { return "FwidthSquircleTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(
-            const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState* flushState) override {
+
+    void onPrePrepare(GrRecordingContext* context,
+                      const GrSurfaceProxyView* dstView,
+                      GrAppliedClip* clip,
+                      const GrXferProcessor::DstProxyView& dstProxyView) final {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+        GrGeometryProcessor* geomProc = FwidthSquircleTestProcessor::Make(arena, fViewMatrix);
+
+        // TODO: need to also give this to the recording context
+        fProgramInfo = sk_gpu_test::CreateProgramInfo(context->priv().caps(), arena, dstView,
+                                                      std::move(appliedClip), dstProxyView,
+                                                      geomProc, SkBlendMode::kSrcOver,
+                                                      GrPrimitiveType::kTriangleStrip);
+    }
+
+    void onPrepare(GrOpFlushState* flushState) final {
         SkPoint vertices[4] = {
             {-1, -1},
             {+1, -1},
@@ -167,33 +198,50 @@ private:
         fVertexBuffer = flushState->resourceProvider()->createBuffer(
                 sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices);
     }
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {
         if (!fVertexBuffer) {
             return;
         }
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            flushState->drawOpArgs().outputSwizzle());
 
-        FwidthSquircleTestProcessor primProc(fViewMatrix);
+        if (!fProgramInfo) {
+            auto geomProc = FwidthSquircleTestProcessor::Make(flushState->allocator(),
+                                                              fViewMatrix);
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
-                                  nullptr, nullptr, 0);
+            fProgramInfo = sk_gpu_test::CreateProgramInfo(&flushState->caps(),
+                                                          flushState->allocator(),
+                                                          flushState->view(),
+                                                          flushState->detachAppliedClip(),
+                                                          flushState->dstProxyView(),
+                                                          geomProc, SkBlendMode::kSrcOver,
+                                                          GrPrimitiveType::kTriangleStrip);
+        }
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
-        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(kWidth, kHeight));
+
+        flushState->opsRenderPass()->draw(*fProgramInfo, &mesh, 1,
+                                          SkRect::MakeIWH(kWidth, kHeight));
+
     }
 
-    sk_sp<GrBuffer> fVertexBuffer;
-    const SkMatrix fViewMatrix;
     static const int kWidth = 200;
     static const int kHeight = 200;
 
+    sk_sp<GrBuffer> fVertexBuffer;
+    const SkMatrix  fViewMatrix;
+
+    // The program info (and both the GrPipeline and GrPrimitiveProcessor it relies on), when
+    // allocated, are allocated in either the ddl-record-time or flush-time arena. It is the
+    // arena's job to free up their memory so we just have a bare programInfo pointer here. We
+    // don't even store the GrPipeline and GrPrimitiveProcessor pointers here bc they are
+    // guaranteed to have the same lifetime as the program info.
+    GrProgramInfo*  fProgramInfo = nullptr;
+
     friend class ::GrOpMemoryPool; // for ctor
+
+    typedef GrDrawOp INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

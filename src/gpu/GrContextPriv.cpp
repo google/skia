@@ -20,6 +20,7 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/image/SkImage_Base.h"
@@ -38,10 +39,6 @@ sk_sp<const GrCaps> GrContextPriv::refCaps() const {
 
 sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
     return fContext->fpFactoryCache();
-}
-
-sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
-    return fContext->refOpMemoryPool();
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
@@ -284,14 +281,14 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
     }
 
     unsigned int numActiveProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numActiveProxies);
-    if (index >= numActiveProxies || !proxies || !proxies[index]) {
+    const GrSurfaceProxyView* views = atlasManager->getViews(format, &numActiveProxies);
+    if (index >= numActiveProxies || !views || !views[index].proxy()) {
         return nullptr;
     }
 
-    SkASSERT(proxies[index]->priv().isExact());
+    SkASSERT(views[index].proxy()->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         kPremul_SkAlphaType, proxies[index], nullptr));
+                                         kPremul_SkAlphaType, views[index], nullptr));
     return image;
 }
 

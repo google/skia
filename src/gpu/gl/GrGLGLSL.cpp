@@ -46,7 +46,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             *generation = k110_GrGLSLGeneration;
         }
         return true;
-    } else if (GR_IS_GR_GL_ES(gl->fStandard) || GR_IS_GR_WEBGL(gl->fStandard)) {
+    } else if (GR_IS_GR_GL_ES(gl->fStandard)) {
         SkASSERT(ver >= GR_GL_VER(1,00));
         if (ver >= GR_GLSL_VER(3,20)) {
             *generation = k320es_GrGLSLGeneration;
@@ -54,6 +54,14 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             *generation = k310es_GrGLSLGeneration;
         } else if (ver >= GR_GLSL_VER(3,00)) {
             *generation = k330_GrGLSLGeneration;
+        } else {
+            *generation = k110_GrGLSLGeneration;
+        }
+        return true;
+    } else if (GR_IS_GR_WEBGL(gl->fStandard)) {
+        SkASSERT(ver >= GR_GL_VER(1,0));
+        if (ver >= GR_GLSL_VER(2,0)) {
+            *generation = k330_GrGLSLGeneration;  // ES 3.0
         } else {
             *generation = k110_GrGLSLGeneration;
         }

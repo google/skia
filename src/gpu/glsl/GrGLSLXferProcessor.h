@@ -36,7 +36,7 @@ public:
                  const char* outputSecondary,
                  const SamplerHandle dstTextureSamplerHandle,
                  GrSurfaceOrigin dstTextureOrigin,
-                 uint16_t outputSwizzleKey)
+                 const GrSwizzle& outputSwizzle)
                 : fXPFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -46,8 +46,8 @@ public:
                 , fOutputPrimary(outputPrimary)
                 , fOutputSecondary(outputSecondary)
                 , fDstTextureSamplerHandle(dstTextureSamplerHandle)
-                , fDstTextureOrigin(dstTextureOrigin) {
-            fOutputSwizzle.setFromKey(outputSwizzleKey);
+                , fDstTextureOrigin(dstTextureOrigin)
+                , fOutputSwizzle(outputSwizzle) {
         }
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;

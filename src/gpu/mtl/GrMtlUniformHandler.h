@@ -61,7 +61,7 @@ private:
         fUniforms[u.toIndex()].fVisibility |= visibility;
     }
 
-    SamplerHandle addSampler(const GrTextureProxy*,
+    SamplerHandle addSampler(const GrSurfaceProxy*,
                              const GrSamplerState&,
                              const GrSwizzle&,
                              const char* name,

@@ -15,7 +15,7 @@ class GrDawnGpu;
 
 class GrDawnRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& size,
+    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                                  GrPixelConfig config, int sampleCnt,
                                                  const GrDawnImageInfo&);
 
@@ -27,28 +27,21 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
-    dawn::Texture texture() const { return fInfo.fTexture; }
+    wgpu::Texture texture() const { return fInfo.fTexture; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
-                       const SkISize& size,
+                       const SkISize& dimensions,
                        GrPixelConfig config,
                        int sampleCnt,
                        const GrDawnImageInfo& info);
-
-    GrDawnGpu* getDawnGpu() const;
 
     void onAbandon() override;
     void onRelease() override;
     void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
-    size_t onGpuMemorySize() const override {
-        // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
-        int numSamples = this->numSamples() + 1;
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numSamples, GrMipMapped::kNo);
-    }
+    size_t onGpuMemorySize() const override;
 
     static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
                                       const GrDawnImageInfo&);

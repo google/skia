@@ -28,6 +28,11 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrShaderCaps.h"
+#endif
+
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
 #endif
@@ -66,6 +71,32 @@ static const char* SKSL_PIPELINE_INCLUDE =
 ;
 
 namespace SkSL {
+
+static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
+               std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* target) {
+    for (auto& element : *src) {
+        switch (element->fKind) {
+            case ProgramElement::kFunction_Kind: {
+                FunctionDefinition& f = (FunctionDefinition&) *element;
+                StringFragment name = f.fDeclaration.fName;
+                SkASSERT(target->find(name) == target->end());
+                (*target)[name] = std::make_pair(std::move(element), false);
+                break;
+            }
+            case ProgramElement::kEnum_Kind: {
+                Enum& e = (Enum&) *element;
+                StringFragment name = e.fTypeName;
+                SkASSERT(target->find(name) == target->end());
+                (*target)[name] = std::make_pair(std::move(element), false);
+                break;
+            }
+            default:
+                printf("unsupported include file element\n");
+                SkASSERT(false);
+        }
+    }
+}
+
 
 Compiler::Compiler(Flags flags)
 : fFlags(flags)
@@ -223,9 +254,14 @@ Compiler::Compiler(Flags flags)
                                     *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
-    std::vector<std::unique_ptr<ProgramElement>> ignored;
+    fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+    std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
-                             symbols, &ignored, &fGpuSymbolTable);
+                             symbols, &gpuIntrinsics, &fGpuSymbolTable);
+    grab_intrinsics(&gpuIntrinsics, &fGPUIntrinsics);
+    // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
+    // remain valid
+    fGpuIncludeSource = std::move(fIRGenerator->fFile);
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
                              fGpuSymbolTable, &fVertexInclude, &fVertexSymbolTable);
     this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
@@ -235,9 +271,11 @@ Compiler::Compiler(Flags flags)
     this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
                              strlen(SKSL_PIPELINE_INCLUDE), fGpuSymbolTable, &fPipelineInclude,
                              &fPipelineSymbolTable);
+    std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
     this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
                              strlen(SKSL_INTERP_INCLUDE), symbols, &fInterpreterInclude,
                              &fInterpreterSymbolTable);
+    grab_intrinsics(&interpIntrinsics, &fInterpreterIntrinsics);
 }
 
 Compiler::~Compiler() {
@@ -248,8 +286,17 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t le
                                   std::shared_ptr<SymbolTable> base,
                                   std::vector<std::unique_ptr<ProgramElement>>* outElements,
                                   std::shared_ptr<SymbolTable>* outSymbolTable) {
+#ifdef SK_DEBUG
+    String source(src, length);
+    fSource = &source;
+#endif
     fIRGenerator->fSymbolTable = std::move(base);
     Program::Settings settings;
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+    GrContextOptions opts;
+    GrShaderCaps caps(opts);
+    settings.fCaps = &caps;
+#endif
     fIRGenerator->start(&settings, nullptr);
     fIRGenerator->convertProgram(kind, src, length, *fTypes, outElements);
     if (this->fErrorCount) {
@@ -258,6 +305,9 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t le
     SkASSERT(!fErrorCount);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     *outSymbolTable = fIRGenerator->fSymbolTable;
+#ifdef SK_DEBUG
+    fSource = nullptr;
+#endif
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -1290,7 +1340,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     // check for missing return
     if (f.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
-            this->error(f.fOffset, String("function can exit without returning a value"));
+            this->error(f.fOffset, String("function '" + String(f.fDeclaration.fName) +
+                                          "' can exit without returning a value"));
         }
     }
 }
@@ -1313,22 +1364,26 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
         case Program::kVertex_Kind:
             inherited = &fVertexInclude;
             fIRGenerator->fSymbolTable = fVertexSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragment_Kind:
             inherited = &fFragmentInclude;
             fIRGenerator->fSymbolTable = fFragmentSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kGeometry_Kind:
             inherited = &fGeometryInclude;
             fIRGenerator->fSymbolTable = fGeometrySymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragmentProcessor_Kind:
             inherited = nullptr;
             fIRGenerator->fSymbolTable = fGpuSymbolTable;
             fIRGenerator->start(&settings, nullptr);
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
                                          &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
@@ -1336,11 +1391,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
         case Program::kPipelineStage_Kind:
             inherited = &fPipelineInclude;
             fIRGenerator->fSymbolTable = fPipelineSymbolTable;
+            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kGeneric_Kind:
             inherited = &fInterpreterInclude;
             fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
+            fIRGenerator->fIntrinsics = &fInterpreterIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
     }

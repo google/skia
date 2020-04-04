@@ -17,7 +17,7 @@ class GrVkGpu;
 
 class GrVkSamplerYcbcrConversion : public GrVkResource {
 public:
-    static GrVkSamplerYcbcrConversion* Create(const GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
+    static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
 
     VkSamplerYcbcrConversion ycbcrConversion() const { return fYcbcrConversion; }
 

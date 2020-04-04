@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
-#include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
@@ -29,8 +29,8 @@ static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
 static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
 
-static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame_time) {
-    anim->seekFrameTime(frame_time);
+static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame) {
+    anim->seekFrame(frame);
     surf->getCanvas()->clear(SK_ColorWHITE);
     anim->render(surf->getCanvas());
 }
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     SkDebugf("assetPath %s\n", assetPath.c_str());
 
     auto animation = skottie::Animation::Builder()
-        .setResourceProvider(skottie_utils::FileResourceProvider::Make(assetPath))
+        .setResourceProvider(skresources::FileResourceProvider::Make(assetPath))
         .makeFromFile(FLAGS_input[0]);
     if (!animation) {
         SkDebugf("failed to load %s\n", FLAGS_input[0]);
@@ -73,12 +73,8 @@ int main(int argc, char** argv) {
 
     SkISize dim = animation->size().toRound();
     double duration = animation->duration();
-    int fps = FLAGS_fps;
-    if (fps < 1) {
-        fps = 1;
-    } else if (fps > 240) {
-        fps = 240;
-    }
+    int fps = SkTPin(FLAGS_fps, 1, 240);
+    double fps_scale = animation->fps() / fps;
 
     float scale = 1;
     if (FLAGS_set_dst_width > 0) {
@@ -130,24 +126,26 @@ int main(int argc, char** argv) {
         }
 
         for (int i = 0; i <= frames; ++i) {
-            double ts = i * 1.0 / fps;
+            const double frame = i * fps_scale;
             if (FLAGS_verbose) {
-                SkDebugf("rendering frame %d ts %g\n", i, ts);
+                SkDebugf("rendering frame %g\n", frame);
             }
 
-            double normal_time = i * 1.0 / frames;
-            double frame_time = normal_time * duration;
-
-            produce_frame(surf.get(), animation.get(), frame_time);
+            produce_frame(surf.get(), animation.get(), frame);
 
             AsyncRec asyncRec = { info, &encoder };
             if (context) {
+                auto read_pixels_cb = [](SkSurface::ReadPixelsContext ctx,
+                                         std::unique_ptr<const SkSurface::AsyncReadResult> result) {
+                    if (result && result->count() == 1) {
+                        AsyncRec* rec = reinterpret_cast<AsyncRec*>(ctx);
+                        rec->encoder->addFrame({rec->info, result->data(0), result->rowBytes(0)});
+                    }
+                };
                 surf->asyncRescaleAndReadPixels(info, {0, 0, info.width(), info.height()},
-                                                SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
-                                                [](void* ctx, const void* data, size_t rb) {
-                    AsyncRec* rec = (AsyncRec*)ctx;
-                    rec->encoder->addFrame({rec->info, data, rb});
-                }, &asyncRec);
+                                                SkSurface::RescaleGamma::kSrc,
+                                                kNone_SkFilterQuality,
+                                                read_pixels_cb, &asyncRec);
             } else {
                 SkPixmap pm;
                 SkAssertResult(surf->peekPixels(&pm));

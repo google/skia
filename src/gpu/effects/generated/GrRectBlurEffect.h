@@ -116,7 +116,7 @@ public:
     bool isFast;
 
 private:
-    GrRectBlurEffect(SkRect rect, sk_sp<GrTextureProxy> integral, float invSixSigma, bool isFast,
+    GrRectBlurEffect(SkRect rect, sk_sp<GrSurfaceProxy> integral, float invSixSigma, bool isFast,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)

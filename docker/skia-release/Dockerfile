@@ -1,26 +1,18 @@
 # Dockerfile for building Skia in release mode, using 3rd party libs from DEPS, with SwiftShader.
-FROM launcher.gcr.io/google/clang-debian9 AS build
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-  git \
-  python \
-  curl \
-  build-essential \
-  libfontconfig-dev \
-  libgl1-mesa-dev \
-  libglu1-mesa-dev \
-  && groupadd -g 2000 skia \
-  && useradd -u 2000 -g 2000 --home-dir /workspace/__cache skia
+FROM gcr.io/skia-public/skia-build-tools:latest
 
-ADD --chown=skia:skia https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
-ADD --chown=skia:skia  https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
 RUN cd /tmp \
-  && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
-  && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader \
-  && mkdir -p /tmp/skia \
-  && cd /tmp/skia \
-  && /tmp/depot_tools/fetch skia \
-  && cd skia
+  && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader
 
+# Checkout Skia.
+RUN mkdir -p /tmp/skia \
+  && cd /tmp/skia \
+  && fetch skia \
+  && cd skia \
+  && gclient sync \
+  && ./bin/fetch-gn
+
+# Write args.gn.
 RUN mkdir -p /tmp/skia/skia/out/Static
 RUN echo '  \n\
 cc = "clang"  \n\
@@ -39,9 +31,8 @@ extra_ldflags = [  \n\
   "-Wl,/usr/local/lib"  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
+# Build Skia.
 RUN cd /tmp/skia/skia \
-  && python tools/git-sync-deps \
-  && ./bin/fetch-gn \
   && ./bin/gn gen out/Static \
   && git rev-parse HEAD > VERSION \
   && /tmp/depot_tools/ninja -C out/Static \

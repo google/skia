@@ -181,6 +181,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
+        GET_PROC(VertexAttribDivisor);
+    }
+
+    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(VertexAttribIPointer);
     }
 
@@ -197,6 +201,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     GET_PROC(GetFramebufferAttachmentParameteriv);
     GET_PROC(GetRenderbufferParameteriv);
     GET_PROC(RenderbufferStorage);
+
+    if (glVer >= GR_GL_VER(2,0)) {
+        GET_PROC(BlitFramebuffer);
+    }
 
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(RenderbufferStorageMultisample);

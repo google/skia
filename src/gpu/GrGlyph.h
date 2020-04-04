@@ -83,15 +83,6 @@ struct GrGlyph {
     uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fID); }
     MaskStyle maskStyle() const { return fMaskStyle; }
 
-    // GetKey and Hash for the the hash table.
-    static const SkPackedGlyphID& GetKey(const GrGlyph& glyph) {
-        return glyph.fPackedID;
-    }
-
-    static uint32_t Hash(SkPackedGlyphID key) {
-        return SkChecksum::Mix(key.hash());
-    }
-
     const SkPackedGlyphID  fPackedID;
     const GrMaskFormat     fMaskFormat;
     const MaskStyle        fMaskStyle;

@@ -9,6 +9,11 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkStrikeForGPU.h"
 
+void SkSourceGlyphBuffer::reset() {
+    fRejectedGlyphIDs.reset();
+    fRejectedPositions.reset();
+}
+
 void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     if (size > fMaxSize) {
         fMultiBuffer.reset(size);
@@ -54,18 +59,14 @@ void SkDrawableGlyphBuffer::startDevice(
     matrix.mapPoints(fPositions, positions.data(), positions.size());
 
     // Mask for controlling axis alignment.
-    SkIPoint mask = roundingSpec.ignorePositionMask;
+    SkIPoint mask = roundingSpec.ignorePositionFieldMask;
 
     // Convert glyph ids and positions to packed glyph ids.
     SkZip<const SkGlyphID, const SkPoint> withMappedPos =
             SkMakeZip(source.get<0>(), fPositions.get());
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
-    for (auto t : withMappedPos) {
-        SkGlyphID glyphID; SkPoint pos;
-        std::tie(glyphID, pos) = t;
-        SkFixed subX = SkScalarToFixed(pos.x()) & mask.x(),
-                subY = SkScalarToFixed(pos.y()) & mask.y();
-        *packedIDCursor++ = SkPackedGlyphID{glyphID, subX, subY};
+    for (auto [glyphID, pos] : withMappedPos) {
+        *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
     }
     SkDEBUGCODE(fPhase = kInput);
 }

@@ -20,6 +20,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/SkGr.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
@@ -140,8 +141,7 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
         return nullptr;
     }
     return GrSkSLFP::Make(args.fContext, fUniqueID, "runtime-shader", fSkSL,
-                          fInputs->data(), fInputs->size(), SkSL::Program::kPipelineStage_Kind,
-                          &matrix);
+                          fInputs->data(), fInputs->size(), &matrix);
 }
 #endif
 

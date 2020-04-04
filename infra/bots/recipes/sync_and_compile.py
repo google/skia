@@ -31,7 +31,6 @@ def RunSteps(api):
   checkout_chromium = False
   checkout_flutter = False
   flutter_android = False
-  parent_rev = False
 
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
@@ -43,16 +42,13 @@ def RunSteps(api):
     checkout_flutter = True
     if 'Android' in api.vars.builder_name:
       flutter_android = True
-  if 'ParentRevision' in api.vars.builder_name:
-    parent_rev = True
 
   if bot_update:
     api.checkout.bot_update(
         checkout_root=checkout_root,
         checkout_chromium=checkout_chromium,
         checkout_flutter=checkout_flutter,
-        flutter_android=flutter_android,
-        parent_rev=parent_rev)
+        flutter_android=flutter_android)
   else:
     api.checkout.git(checkout_root=checkout_root)
 
@@ -68,8 +64,6 @@ def RunSteps(api):
 
     # TODO(borenet): Move this out of the try/finally.
     dst = api.vars.swarming_out_dir
-    if 'ParentRevision' in api.vars.builder_name:
-      dst = api.vars.swarming_out_dir.join('ParentRevision')
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
     if 'SKQP' in api.vars.extra_tokens:
       wlist = checkout_root.join(
@@ -94,8 +88,7 @@ for p in psutil.process_iter():
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-universal-devrel-Android_SKQP',
-  'Build-Debian9-Clang-x86_64-Release-ParentRevision',
-  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
+  'Build-Debian9-Clang-arm-Release-Flutter_Android',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Win10-Clang-x86_64-Release-NoDEPS',
 ]

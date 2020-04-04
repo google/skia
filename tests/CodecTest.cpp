@@ -38,7 +38,6 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkStreamPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
@@ -542,9 +541,9 @@ DEF_TEST(Codec_raw, r) {
 static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_t len) {
     // Neither of these calls should return a codec. Bots should catch us if we leaked anything.
     REPORTER_ASSERT(r, !SkCodec::MakeFromStream(
-                                        skstd::make_unique<SkMemoryStream>(stream, len, false)));
+                                        std::make_unique<SkMemoryStream>(stream, len, false)));
     REPORTER_ASSERT(r, !SkAndroidCodec::MakeFromStream(
-                                        skstd::make_unique<SkMemoryStream>(stream, len, false)));
+                                        std::make_unique<SkMemoryStream>(stream, len, false)));
 }
 
 // Ensure that SkCodec::NewFromStream handles freeing the passed in SkStream,
@@ -877,7 +876,7 @@ DEF_TEST(Codec_raw_notseekable, r) {
     }
 
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
-                                           skstd::make_unique<NotAssetMemStream>(std::move(data))));
+                                           std::make_unique<NotAssetMemStream>(std::move(data))));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
@@ -896,13 +895,13 @@ DEF_TEST(Codec_webp_peek, r) {
 
     // The limit is less than webp needs to peek or read.
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
-                                           skstd::make_unique<LimitedPeekingMemStream>(data, 25)));
+                                           std::make_unique<LimitedPeekingMemStream>(data, 25)));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 
     // Similarly, a stream which does not peek should still succeed.
-    codec = SkCodec::MakeFromStream(skstd::make_unique<LimitedPeekingMemStream>(data, 0));
+    codec = SkCodec::MakeFromStream(std::make_unique<LimitedPeekingMemStream>(data, 0));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);

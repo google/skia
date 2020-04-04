@@ -136,9 +136,9 @@ static void patheffect_slide(SkCanvas* canvas) {
 
     path.reset();
     SkRect r = { 0, 0, 250, 120 };
-    path.addOval(r, SkPath::kCW_Direction);
+    path.addOval(r, SkPathDirection::kCW);
     r.inset(50, 50);
-    path.addRect(r, SkPath::kCCW_Direction);
+    path.addRect(r, SkPathDirection::kCCW);
 
     canvas->translate(320, 20);
     for (i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {

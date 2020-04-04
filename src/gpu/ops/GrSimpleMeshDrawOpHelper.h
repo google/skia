@@ -54,10 +54,9 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
-    // noneAACompatibleWithCoverage should be set to true if the op can properly render a non-AA
-    // primitive merged into a coverage-based op.
+    // ignoreAAType should be set to true if the op already knows the AA settings are acceptible
     bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps&, const SkRect& thisBounds,
-                      const SkRect& thatBounds, bool noneAACompatibleWithCoverage = false) const;
+                      const SkRect& thatBounds, bool ignoreAAType = false) const;
 
     /**
      * Finalizes the processor set and determines whether the destination must be provided
@@ -120,14 +119,22 @@ public:
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
     void setAAType(GrAAType aaType) {
-      fAAType = static_cast<unsigned>(aaType);
+        fAAType = static_cast<unsigned>(aaType);
     }
 
-    void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
+    static const GrPipeline* CreatePipeline(
+            GrOpFlushState*,
+            GrProcessorSet&&,
+            GrPipeline::InputFlags fPipelineFlags,
+            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
-protected:
+    GrProcessorSet detachProcessorSet() {
+        return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
+    }
+
     GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
 
+protected:
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*,
             bool hasMixedSampledCoverage, GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
@@ -186,16 +193,18 @@ public:
     using GrSimpleMeshDrawOpHelper::isTrivial;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
     using GrSimpleMeshDrawOpHelper::compatibleWithCoverageAsAlpha;
+    using GrSimpleMeshDrawOpHelper::detachProcessorSet;
+    using GrSimpleMeshDrawOpHelper::pipelineFlags;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds,
-                      bool noneAACompatibleWithCoverage = false) const;
-
-    void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
+                      bool ignoreAAType = false) const;
 
 #ifdef SK_DEBUG
     SkString dumpInfo() const;
 #endif
+
+    const GrUserStencilSettings* stencilSettings() const { return fStencilSettings; }
 
 private:
     const GrUserStencilSettings* fStencilSettings;

@@ -24,10 +24,9 @@ class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     friend class GrYUVAImageTextureMaker;
 
-    SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex[4],
-                    GrSurfaceOrigin, sk_sp<SkColorSpace>);
-    ~SkImage_GpuYUVA() override;
+    SkImage_GpuYUVA(sk_sp<GrContext>, SkISize size, uint32_t uniqueID, SkYUVColorSpace,
+                    sk_sp<GrTextureProxy> proxies[], GrColorType proxyColorTypes[], int numProxies,
+                    const SkYUVAIndex[4], GrSurfaceOrigin, sk_sp<SkColorSpace>);
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
 
@@ -36,7 +35,12 @@ public:
     GrTextureProxy* peekProxy() const override;
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override;
 
-    virtual bool onIsTextureBacked() const override { return fProxies[0] || fRGBProxy; }
+    GrSurfaceProxyView asSurfaceProxyViewRef(GrRecordingContext* context) const override;
+
+    bool onIsTextureBacked() const override {
+        SkASSERT(fProxies[0] || fRGBProxy);
+        return true;
+    }
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                 SkColorType, sk_sp<SkColorSpace>) const final;
@@ -82,6 +86,7 @@ private:
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable sk_sp<GrTextureProxy>    fProxies[4];
+    mutable GrColorType              fProxyColorTypes[4];
     int                              fNumProxies;
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;

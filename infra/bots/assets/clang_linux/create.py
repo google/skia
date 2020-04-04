@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 
 REPO = "https://llvm.googlesource.com/"
-BRANCH = "release_80"
+BRANCH = "release_90"
 
 def create_asset(target_dir):
   # CMake will sometimes barf if we pass it a relative path.

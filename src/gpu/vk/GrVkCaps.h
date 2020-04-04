@@ -184,6 +184,12 @@ public:
     int getFragmentUniformBinding() const;
     int getFragmentUniformSet() const;
 
+    void addExtraSamplerKey(GrProcessorKeyBuilder*,
+                            const GrSamplerState&,
+                            const GrBackendFormat&) const override;
+
+    GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif

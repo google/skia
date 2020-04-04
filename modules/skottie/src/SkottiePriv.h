@@ -50,8 +50,8 @@ class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
                      sk_sp<Logger>, sk_sp<MarkerObserver>,
-                     Animation::Builder::Stats*, const SkSize& size,
-                     float duration, float framerate);
+                     Animation::Builder::Stats*, const SkSize& comp_size,
+                     float duration, float framerate, uint32_t flags);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
@@ -166,6 +166,9 @@ public:
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
 private:
+    friend class CompositionBuilder;
+    friend class LayerBuilder;
+
     struct AttachLayerContext;
     struct AttachShapeContext;
     struct ImageAssetInfo;
@@ -176,10 +179,6 @@ private:
                      const skjson::ArrayValue* jchars);
 
     void dispatchMarkers(const skjson::ArrayValue*) const;
-
-    sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&) const;
-    sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*,
-                                        AttachLayerContext*) const;
 
     sk_sp<sksg::RenderNode> attachBlendMode(const skjson::ObjectValue&,
                                             sk_sp<sksg::RenderNode>) const;
@@ -223,9 +222,10 @@ private:
     sk_sp<Logger>              fLogger;
     sk_sp<MarkerObserver>      fMarkerObserver;
     Animation::Builder::Stats* fStats;
-    const SkSize               fSize;
+    const SkSize               fCompSize;
     const float                fDuration,
                                fFrameRate;
+    const uint32_t             fFlags;
     mutable AnimatorScope*     fCurrentAnimatorScope;
     mutable const char*        fPropertyObserverContext;
     mutable bool               fHasNontrivialBlending : 1;
@@ -251,47 +251,6 @@ private:
     mutable SkTHashMap<SkString, ImageAssetInfo> fImageAssetCache;
 
     using INHERITED = SkNoncopyable;
-};
-
-struct AnimationBuilder::AttachLayerContext {
-    explicit AttachLayerContext(const skjson::ArrayValue&);
-    ~AttachLayerContext();
-
-    struct TransformRec {
-        sk_sp<sksg::Transform> fTransformNode;
-        AnimatorScope          fTransformScope;
-    };
-
-    const skjson::ArrayValue&     fLayerList;
-    SkTHashMap<int, TransformRec> fLayerTransformMap;
-    sk_sp<sksg::RenderNode>       fCurrentMatte;
-    sk_sp<sksg::Transform>        fCameraTransform;
-
-    size_t                        fMotionBlurSamples = 1;
-    float                         fMotionBlurAngle   = 0,
-                                  fMotionBlurPhase   = 0;
-
-    enum class TransformType { kLayer, kCamera };
-
-    TransformRec attachLayerTransform(const skjson::ObjectValue& jlayer,
-                                      const AnimationBuilder* abuilder,
-                                      TransformType type = TransformType::kLayer);
-
-    bool hasMotionBlur(const skjson::ObjectValue& jlayer) const;
-
-private:
-    sk_sp<sksg::Transform> attachParentLayerTransform(const skjson::ObjectValue& jlayer,
-                                                      const AnimationBuilder* abuilder,
-                                                      int layer_index);
-
-    sk_sp<sksg::Transform> attachTransformNode(const skjson::ObjectValue& jlayer,
-                                               const AnimationBuilder* abuilder,
-                                               sk_sp<sksg::Transform> parent_transform,
-                                               TransformType type) const;
-
-    TransformRec* attachLayerTransformImpl(const skjson::ObjectValue& jlayer,
-                                           const AnimationBuilder* abuilder,
-                                           TransformType type, int layer_index);
 };
 
 } // namespace internal

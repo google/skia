@@ -17,7 +17,6 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkTaskGroup.h"
@@ -128,6 +127,8 @@ static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG fil
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
                "defaulting to one extra thread per core.");
+
+static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
@@ -311,6 +312,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fSuppressPrints = true;
     displayParams.fGrContextOptions.fInternalMultisampleCount = FLAGS_internalSamples;
     fWindow->setRequestedDisplayParams(displayParams);
+    fRefresh = FLAGS_redraw;
 
     // Configure timers
     fStatsLayer.setActive(false);

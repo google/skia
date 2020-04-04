@@ -25,7 +25,6 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -614,7 +613,7 @@ DEF_TEST(ImageEmpty, reporter) {
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeRasterData(info, nullptr, 0));
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeFromRaster(pmap, nullptr, nullptr));
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeFromGenerator(
-                                                            skstd::make_unique<EmptyGenerator>()));
+                                                            std::make_unique<EmptyGenerator>()));
 }
 
 DEF_TEST(ImageDataRef, reporter) {
@@ -821,8 +820,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
                                        kPremul_SkAlphaType);
     GrBackendTexture backendTex;
 
-    if (!create_backend_texture(ctx, &backendTex, ii, SkColors::kRed,
-                                GrMipMapped::kNo, GrRenderable::kNo)) {
+    if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipMapped::kNo,
+                              GrRenderable::kNo)) {
         ERRORF(reporter, "couldn't create backend texture\n");
     }
 
@@ -849,7 +848,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    delete_backend_texture(ctx, backendTex);
+    DeleteBackendTexture(ctx, backendTex);
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
@@ -1046,7 +1045,8 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             REPORTER_ASSERT(reporter, proxy);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;
-            REPORTER_ASSERT(reporter, expectAlpha == GrPixelConfigIsAlphaOnly(proxy->config()));
+            GrColorType grCT = SkColorTypeToGrColorType(image->colorType());
+            REPORTER_ASSERT(reporter, expectAlpha == GrColorTypeIsAlphaOnly(grCT));
         }
     }
 }

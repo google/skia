@@ -10,7 +10,6 @@
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkExchange.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
@@ -131,9 +130,10 @@ public:
                 , fProxyProvider(proxyProvider)
                 , fTest(test)
                 , fAtlas(atlas) {
+            static const GrColorType kColorType = GrColorType::kAlpha_F16;
+            static const GrSurfaceOrigin kOrigin = kBottomLeft_GrSurfaceOrigin;
             const GrBackendFormat format =
-                ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_F16,
-                                                            GrRenderable::kYes);
+                ctx->priv().caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
@@ -141,18 +141,19 @@ public:
                         fAtlas->instantiate(rp);
                         return sk_ref_sp(fAtlas->peekTexture());
                     },
-                    format, GrRenderable::kYes, 1, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
+                    format, GrRenderable::kYes, 1, GrProtected::kNo, kOrigin,
                     kAlpha_half_GrPixelConfig, *proxyProvider->caps(),
                     GrSurfaceProxy::UseAllocator::kYes);
-            fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
-                          GrSamplerState::WrapMode::kClamp);
+            GrSwizzle swizzle = ctx->priv().caps()->getTextureSwizzle(format, kColorType);
+            fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, swizzle),
+                        GrSamplerState::ClampNearest());
             this->setTextureSamplerCnt(1);
         }
 
     private:
         const char* name() const override { return "LazyProxyTest::ClipFP"; }
         std::unique_ptr<GrFragmentProcessor> clone() const override {
-            return skstd::make_unique<ClipFP>(fContext, fProxyProvider, fTest, fAtlas);
+            return std::make_unique<ClipFP>(fContext, fProxyProvider, fTest, fAtlas);
         }
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return nullptr; }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
@@ -178,7 +179,7 @@ public:
         bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
                    bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-            out->addCoverageFP(skstd::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
+            out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
             return true;
         }
         bool quickContains(const SkRect&) const final { return false; }

@@ -18,6 +18,7 @@
 #include <atomic>
 #include <new>
 
+class GrAppliedClip;
 class GrCaps;
 class GrOpFlushState;
 class GrOpsRenderPass;
@@ -68,7 +69,7 @@ public:
 
     virtual const char* name() const = 0;
 
-    using VisitProxyFunc = std::function<void(GrTextureProxy*, GrMipMapped)>;
+    using VisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipMapped)>;
 
     virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies
@@ -94,7 +95,8 @@ public:
         kCannotCombine
     };
 
-    CombineResult combineIfPossible(GrOp* that, const GrCaps& caps);
+    // The arena is the same record time allocator available when the op was created.
+    CombineResult combineIfPossible(GrOp* that, SkArenaAlloc* arena, const GrCaps& caps);
 
     const SkRect& bounds() const {
         SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
@@ -158,7 +160,10 @@ public:
      * onPrePrepare must be prepared to handle both cases (when onPrePrepare has been called
      * ahead of time and when it has not been called).
      */
-    void prePrepare() { this->onPrePrepare(); }
+    void prePrepare(GrRecordingContext* context, GrSurfaceProxyView* dstView, GrAppliedClip* clip,
+                    const GrXferProcessor::DstProxyView& dstProxyView) {
+        this->onPrePrepare(context, dstView, clip, dstProxyView);
+    }
 
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
@@ -268,8 +273,7 @@ protected:
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void makeFullScreen(GrSurfaceProxy* proxy) {
-        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsHairline::kNo);
+        this->setBounds(proxy->getBoundsRect(), HasAABloat::kNo, IsHairline::kNo);
     }
 
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
@@ -285,11 +289,15 @@ private:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
+    virtual CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) {
         return CombineResult::kCannotCombine;
     }
 
-    virtual void onPrePrepare() {}  // Only GrMeshDrawOp currently overrides this virtual
+    // TODO: the parameters to onPrePrepare mirror GrOpFlushState::OpArgs - fuse the two?
+    virtual void onPrePrepare(GrRecordingContext*,
+                              const GrSurfaceProxyView*,
+                              GrAppliedClip*,
+                              const GrXferProcessor::DstProxyView&) {}
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.

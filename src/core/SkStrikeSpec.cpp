@@ -13,6 +13,11 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/text/GrStrikeCache.h"
+#include "src/gpu/text/GrTextContext.h"
+#endif
+
 SkStrikeSpec SkStrikeSpec::MakeMask(const SkFont& font, const SkPaint& paint,
                                     const SkSurfaceProps& surfaceProps,
                                     SkScalerContextFlags scalerContextFlags,
@@ -57,10 +62,12 @@ SkStrikeSpec SkStrikeSpec::MakeSourceFallback(
     SkScalar maxAtlasDimension = SkStrikeCommon::kSkSideTooBigForAtlas - 2;
 
     SkScalar runFontTextSize = font.getSize();
-
-    // Scale the text size down so the long side of all the glyphs will fit in the atlas.
-    SkScalar fallbackTextSize = SkScalarFloorToScalar(
-            (maxAtlasDimension / maxSourceGlyphDimension) * runFontTextSize);
+    SkScalar fallbackTextSize = runFontTextSize;
+    if (maxSourceGlyphDimension > maxAtlasDimension) {
+        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
+        fallbackTextSize = SkScalarFloorToScalar(
+                (maxAtlasDimension / maxSourceGlyphDimension) * runFontTextSize);
+    }
 
     SkFont fallbackFont{font};
     fallbackFont.setSize(fallbackTextSize);
@@ -237,18 +244,48 @@ SkSpan<const SkGlyph*> SkBulkGlyphMetrics::glyphs(SkSpan<const SkGlyphID> glyphI
     return fStrike->metrics(glyphIDs, fGlyphs.get());
 }
 
+const SkGlyph* SkBulkGlyphMetrics::glyph(SkGlyphID glyphID) {
+    return this->glyphs(SkSpan<const SkGlyphID>{&glyphID, 1})[0];
+}
+
 SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(const SkStrikeSpec& spec)
     : fStrike{spec.findOrCreateExclusiveStrike()} { }
+
+SkBulkGlyphMetricsAndPaths::SkBulkGlyphMetricsAndPaths(SkExclusiveStrikePtr&& strike)
+        : fStrike{std::move(strike)} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndPaths::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
     fGlyphs.reset(glyphIDs.size());
     return fStrike->preparePaths(glyphIDs, fGlyphs.get());
 }
 
+const SkGlyph* SkBulkGlyphMetricsAndPaths::glyph(SkGlyphID glyphID) {
+    return this->glyphs(SkSpan<const SkGlyphID>{&glyphID, 1})[0];
+}
+
+void SkBulkGlyphMetricsAndPaths::findIntercepts(
+    const SkScalar* bounds, SkScalar scale, SkScalar xPos,
+    const SkGlyph* glyph, SkScalar* array, int* count) {
+    // TODO(herb): remove this abominable const_cast. Do the intercepts really need to be on the
+    //  glyph?
+    fStrike->findIntercepts(bounds, scale, xPos, const_cast<SkGlyph*>(glyph), array, count);
+}
+
 SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec)
         : fStrike{spec.findOrCreateExclusiveStrike()} { }
+
+SkBulkGlyphMetricsAndImages::SkBulkGlyphMetricsAndImages(SkExclusiveStrikePtr&& strike)
+        : fStrike{std::move(strike)} { }
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetricsAndImages::glyphs(SkSpan<const SkPackedGlyphID> glyphIDs) {
     fGlyphs.reset(glyphIDs.size());
     return fStrike->prepareImages(glyphIDs, fGlyphs.get());
+}
+
+const SkGlyph* SkBulkGlyphMetricsAndImages::glyph(SkPackedGlyphID packedID) {
+    return this->glyphs(SkSpan<const SkPackedGlyphID>{&packedID, 1})[0];
+}
+
+const SkDescriptor& SkBulkGlyphMetricsAndImages::descriptor() const {
+    return fStrike->getDescriptor();
 }

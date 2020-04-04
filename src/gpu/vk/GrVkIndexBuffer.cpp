@@ -39,12 +39,13 @@ void GrVkIndexBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         this->vkRelease(this->getVkGpu());
     }
-
     INHERITED::onRelease();
 }
 
 void GrVkIndexBuffer::onAbandon() {
-    this->vkAbandon();
+    if (!this->wasDestroyed()) {
+        this->vkRelease(this->getVkGpu());
+    }
     INHERITED::onAbandon();
 }
 

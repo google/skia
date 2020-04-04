@@ -20,7 +20,7 @@ class GrFragmentProcessor;
 
 /** Abstract class that generates or reads in normals for use by SkLightingShader.
 */
-class SK_API SkNormalSource : public SkFlattenable {
+class SkNormalSource : public SkFlattenable {
 public:
     virtual ~SkNormalSource() override;
 

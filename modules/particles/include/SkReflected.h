@@ -128,8 +128,8 @@ private:
  * SkReflected types, and of types that implement the visitFields() function.
  *
  * Classes implementing the interface must supply implementations of virtual functions that visit
- * basic types (float, int, bool, SkString, etc...), as well as helper methods for entering the
- * scope of an object or array.
+ * basic types (float, int, bool, SkString), as well as helper methods for entering the scope of
+ * an object or array.
  *
  * All visit functions supply a field name, and a non-constant reference to an actual field.
  * This allows visitors to serialize or deserialize collections of objects, or perform edits on
@@ -152,28 +152,9 @@ public:
     virtual void visit(const char*, bool&) = 0;
     virtual void visit(const char*, SkString&) = 0;
 
-    virtual void visit(const char*, SkPoint&) = 0;
-    virtual void visit(const char*, SkColor4f&) = 0;
-
-    // Accommodation for enums, where caller can supply a value <-> string map
-    struct EnumStringMapping {
-        int         fValue;
-        const char* fName;
-    };
-    virtual void visit(const char*, int&, const EnumStringMapping*, int count) = 0;
-
-    // Default visit function for structs with no special behavior. It is assumed that any such
-    // struct implements visitFields(SkFieldVisitor*) to recursively visit each of its fields.
-    template <typename T>
-    void visit(const char* name, T& value) {
-        this->enterObject(name);
-        value.visitFields(this);
-        this->exitObject();
-    }
-
     // Specialization for SkTArrays. In conjunction with the enterArray/exitArray virtuals, this
     // allows visitors to resize an array (for deserialization), and apply a single edit operation
-    // (remove or move a single element). Each element of the array is visited as normal.
+    // (remove a single element). Each element of the array is visited as normal.
     template <typename T, bool MEM_MOVE>
     void visit(const char* name, SkTArray<T, MEM_MOVE>& arr) {
         arr.resize_back(this->enterArray(name, arr.count()));
@@ -214,7 +195,6 @@ protected:
         enum class Verb {
             kNone,
             kRemove,
-            kMoveForward,
         };
 
         Verb fVerb = Verb::kNone;
@@ -231,32 +211,11 @@ protected:
                 }
                 arr.pop_back();
                 break;
-            case Verb::kMoveForward:
-                if (fIndex > 0 && fIndex < arr.count()) {
-                    std::swap(arr[fIndex - 1], arr[fIndex]);
-                }
-                break;
             }
         }
     };
 
-    static const char* EnumToString(int value, const EnumStringMapping* map, int count) {
-        for (int i = 0; i < count; ++i) {
-            if (map[i].fValue == value) {
-                return map[i].fName;
-            }
-        }
-        return nullptr;
-    }
-    static int StringToEnum(const char* str, const EnumStringMapping* map, int count) {
-        for (int i = 0; i < count; ++i) {
-            if (0 == strcmp(str, map[i].fName)) {
-                return map[i].fValue;
-            }
-        }
-        return -1;
-    }
-
+private:
     virtual void enterObject(const char* name) = 0;
     virtual void exitObject() = 0;
 

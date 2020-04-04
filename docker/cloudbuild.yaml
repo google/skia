@@ -2,7 +2,9 @@
 # Builder: https://cloud.google.com/container-builder/docs/
 #
 steps:
-  # To test locally, first uncomment the last two lines of this comment block, then submit with:
+  # To test locally, first uncomment the last 8 lines of this comment block,
+  # update the /refs/changes/... value to reflect the CL you are testing and
+  # then run:
   #
   #    gcloud builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=b2acf0a93927a57cc1fa9323839e788379ae3366
   #
@@ -10,12 +12,18 @@ steps:
   #
   #- name: 'gcr.io/cloud-builders/git'
   #  args: ['clone', 'https://github.com/google/skia.git', '.']
+  #
+  #- name: 'gcr.io/cloud-builders/git'
+  #  args: ['fetch', 'https://skia.googlesource.com/skia','refs/changes/56/248556/18']
+  #
+  #- name: 'gcr.io/cloud-builders/git'
+  #  args: ['checkout', 'FETCH_HEAD']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=0777', '/workspace/__doxygen_staging']
+    args: ['mkdir', '-p', '--mode=0777', './__doxygen_staging']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=0777', '/workspace/__cache']
+    args: ['ls', '-al', '/']
 
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'
@@ -143,6 +151,3 @@ images:
 timeout: 7200s
 options:
   machineType: 'N1_HIGHCPU_32'
-  env: # https://bugs.chromium.org/p/chromium/issues/detail?id=993053#c3
-    - 'VPYTHON_VIRTUALENV_ROOT=/workspace/__cache'
-    - 'CIPD_CACHE_DIR=/workspace/__cache'

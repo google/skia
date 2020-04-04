@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 #include "include/private/GrRecordingContext.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
@@ -20,6 +19,7 @@
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 #include "src/gpu/geometry/GrShape.h"
+#include <algorithm>
 
 using CoverageType = GrCCAtlas::CoverageType;
 using FillBatchID = GrCCFiller::BatchID;
@@ -39,7 +39,7 @@ public:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    CombineResult onCombineIfPossible(GrOp* other, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* other, SkArenaAlloc*, const GrCaps&) override {
         // We will only make multiple copy ops if they have different source proxies.
         // TODO: make use of texture chaining.
         return CombineResult::kCannotCombine;
@@ -81,7 +81,7 @@ public:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fSrcProxy);
-        auto srcProxy = fSrcProxy.get();
+        GrSurfaceProxy* srcProxy = fSrcProxy.get();
         SkASSERT(srcProxy->isInstantiated());
 
         auto coverageMode = GrCCPathProcessor::GetCoverageMode(
@@ -267,18 +267,6 @@ void GrCCPerFlushResources::upgradeEntryToLiteralCoverageAtlas(
     }
 }
 
-template<typename T, typename... Args>
-static void emplace_at_memcpy(SkTArray<T>* array, int idx, Args&&... args) {
-    if (int moveCount = array->count() - idx) {
-        array->push_back();
-        T* location = array->begin() + idx;
-        memcpy(location+1, location, moveCount * sizeof(T));
-        new (location) T(std::forward<Args>(args)...);
-    } else {
-        array->emplace_back(std::forward<Args>(args)...);
-    }
-}
-
 void GrCCPerFlushResources::recordCopyPathInstance(
         const GrCCPathCacheEntry& entry, const SkIVector& newAtlasOffset, GrFillRule fillRule,
         sk_sp<GrTextureProxy> srcProxy) {
@@ -304,8 +292,13 @@ void GrCCPerFlushResources::recordCopyPathInstance(
         currentInstanceIdx = rangeFirstInstanceIdx;
     }
 
-    // An instance with this particular proxy did not yet exist in the array. Add a range for it.
-    emplace_at_memcpy(&fCopyPathRanges, fCurrCopyAtlasRangesIdx, std::move(srcProxy), 1);
+    // An instance with this particular proxy did not yet exist in the array. Add a range for it,
+    // first moving any later ranges back to make space for it at fCurrCopyAtlasRangesIdx.
+    fCopyPathRanges.push_back();
+    std::move_backward(fCopyPathRanges.begin() + fCurrCopyAtlasRangesIdx,
+                       fCopyPathRanges.end() - 1,
+                       fCopyPathRanges.end());
+    fCopyPathRanges[fCurrCopyAtlasRangesIdx] = {std::move(srcProxy), 1};
 }
 
 static bool transform_path_pts(

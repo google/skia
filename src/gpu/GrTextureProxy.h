@@ -26,8 +26,6 @@ public:
     // Actually instantiate the backing texture, if necessary
     bool instantiate(GrResourceProvider*) override;
 
-    GrSamplerState::Filter highestFilterMode() const;
-
     // If we are instantiated and have a target, return the mip state of that target. Otherwise
     // returns the proxy's mip state from creation time. This is useful for lazy proxies which may
     // claim to not need mips at creation time, but the instantiation happens to give us a mipped
@@ -60,10 +58,15 @@ public:
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
 
+    // Returns the highest allowed filter mode for a given texture type
+    static GrSamplerState::Filter HighestFilterMode(const GrTextureType textureType);
+
     // Returns true if the passed in proxies can be used as dynamic state together when flushing
-    // draws to the gpu.
-    static bool ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
-                                                   const GrTextureProxy* second);
+    // draws to the gpu. This accepts GrSurfaceProxy since the information needed is defined on
+    // that type, but this function exists in GrTextureProxy because it's only relevant when the
+    // proxies are being used as textures.
+    static bool ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
+                                                   const GrSurfaceProxy* second);
 
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
@@ -170,7 +173,7 @@ private:
     //
     // NOTE: fMipMapsStatus may no longer be equal to fInitialMipMapsStatus by the time the texture
     // is instantiated, since it tracks mipmaps in the time frame in which the DAG is being built.
-    SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus);
+    SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus;)
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 

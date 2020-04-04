@@ -267,15 +267,14 @@ BASE_SRCS_ALL = struct(
 def codec_srcs(limited):
     """Sources for the codecs. Excludes Raw, and Ico, Webp, and Png if limited."""
 
-    # TODO: Enable wuffs in Google3
-    exclude = ["src/codec/SkWuffsCodec.cpp", "src/codec/*Raw*.cpp"]
+    exclude = ["src/codec/*Raw*.cpp"]
     if limited:
         exclude += [
             "src/codec/*Ico*.cpp",
             "src/codec/*Webp*.cpp",
             "src/codec/*Png*",
         ]
-    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
+    return native.glob(["src/codec/*.cpp"], exclude = exclude)
 
 GL_SRCS_UNIX = struct(
     include = [
@@ -402,6 +401,18 @@ def gl_srcs(os_conditions):
 def skia_srcs(os_conditions):
     return base_srcs() + ports_srcs(os_conditions) + gl_srcs(os_conditions)
 
+def metal_objc_srcs():
+    return native.glob(
+        [
+            "include/**/*.h",
+            "src/**/*.h",
+            "src/gpu/mtl/**/*.mm",
+            "third_party/**/*.h",
+        ],
+    ) + [
+        "src/image/SkSurface_GpuMtl.mm",
+    ]
+
 ################################################################################
 ## INCLUDES
 ################################################################################
@@ -518,6 +529,7 @@ DM_SRCS_ALL = struct(
         "gm/video_decoder.cpp",
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
+        "tests/SkParagraphTest.cpp",  # Skipping tests for now.
         "tests/skia_test.cpp",  # Old main.
         "tools/gpu/atlastext/*",
         "tools/gpu/dawn/*",
@@ -621,7 +633,6 @@ def base_defines(os_conditions):
                 "PNG_SKIP_SETJMP_CHECK",
                 "SK_BUILD_FOR_UNIX",
                 "SK_R32_SHIFT=16",
-                "SK_PDF_USE_SFNTLY",
                 "SK_HAS_PNG_LIBRARY",
                 "SK_HAS_WEBP_LIBRARY",
             ],
@@ -744,8 +755,8 @@ SKOTTIE_SHAPER_SRCS = [
 
 SKOTTIE_TOOL_SRCS = [
     "modules/skottie/src/SkottieTool.cpp",
-    "modules/skottie/utils/SkottieUtils.cpp",
-    "modules/skottie/utils/SkottieUtils.h",
+    "modules/skresources/src/SkResources.cpp",
+    "modules/skresources/include/SkResources.h",
     # TODO(benjaminwagner): Add "flags" target.
     "tools/flags/CommandLineFlags.cpp",
     "tools/flags/CommandLineFlags.h",

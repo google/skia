@@ -56,7 +56,7 @@ private:
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
 
     struct Geometry {
         SkPMColor4f fColor;
@@ -73,17 +73,18 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
-                                          bool hasColors,
-                                          const SkPMColor4f& color,
-                                          const SkMatrix& viewMatrix) {
+static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
+                                    const GrShaderCaps* shaderCaps,
+                                    bool hasColors,
+                                    const SkPMColor4f& color,
+                                    const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
     if (hasColors) {
         gpColor.fType = Color::kPremulGrColorAttribute_Type;
     }
 
-    return GrDefaultGeoProcFactory::Make(shaderCaps, gpColor, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(arena, shaderCaps, gpColor, Coverage::kSolid_Type,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
@@ -184,10 +185,11 @@ SkString DrawAtlasOp::dumpInfo() const {
 
 void DrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
-                                          this->hasColors(),
-                                          this->color(),
-                                          this->viewMatrix()));
+    GrGeometryProcessor* gp = make_gp(target->allocator(),
+                                      target->caps().shaderCaps(),
+                                      this->hasColors(),
+                                      this->color(),
+                                      this->viewMatrix());
 
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->vertexStride();
@@ -208,14 +210,18 @@ void DrawAtlasOp::onPrepareDraws(Target* target) {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.recordDraw(target, std::move(gp));
+    helper.recordDraw(target, gp);
 }
 
 void DrawAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                             fHelper.detachProcessorSet(),
+                                                             fHelper.pipelineFlags());
+
+    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
 }
 
-GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     DrawAtlasOp* that = t->cast<DrawAtlasOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {

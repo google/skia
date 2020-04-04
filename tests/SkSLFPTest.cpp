@@ -454,9 +454,7 @@ DEF_TEST(SkSLFPTransformedCoords, r) {
             "SkString sk_TransformedCoords2D_0 = "
                            "fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);",
             "fragBuilder->codeAppendf(\"%s = half4(%s, %s);\\n\", args.fOutputColor, "
-                    "_outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str() :"
-                    " \"_coords\", _outer.computeLocalCoordsInVertexShader() ? "
-                    "sk_TransformedCoords2D_0.c_str() : \"_coords\");"
+                    "sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"
          });
 
 }
@@ -703,8 +701,7 @@ DEF_TEST(SkSLFPSampleCoords, r) {
             "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D("
                                                      "args.fTransformedCoords[0].fVaryingPoint);\n",
             "SkString _coords110 = SkStringPrintf(\"%s / 2.0\", "
-                    "_outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str() :"
-                    " \"_coords\");\n",
+                "sk_TransformedCoords2D_0.c_str());\n",
             "this->invokeChild(_outer.child_index, &_sample110, args, _coords110.c_str());\n",
             "fragBuilder->codeAppendf(\"%s = %s + %s;\\n\", args.fOutputColor, _sample94.c_str(), "
                                      "_sample110.c_str());\n"

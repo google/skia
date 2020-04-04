@@ -17,6 +17,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -270,16 +271,18 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
-                                   const SkSize& size, float duration, float framerate)
+                                   const SkSize& comp_size, float duration, float framerate,
+                                   uint32_t flags)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))
     , fStats(stats)
-    , fSize(size)
+    , fCompSize(comp_size)
     , fDuration(duration)
     , fFrameRate(framerate)
+    , fFlags(flags)
     , fHasNontrivialBlending(false) {}
 
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
@@ -289,7 +292,7 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
     AutoScope ascope(this);
-    auto root = this->attachComposition(jroot);
+    auto root = CompositionBuilder(*this, fCompSize, jroot).build(*this);
 
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
@@ -404,22 +407,9 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 } // namespace internal
 
-sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
-    return nullptr;
-}
-
-sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[],
-                                                   const char id[]) const {
-    return nullptr;
-}
-
-sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
-    return nullptr;
-}
-
 void Logger::log(Level, const char[], const char*) {}
 
-Animation::Builder::Builder()  = default;
+Animation::Builder::Builder(uint32_t flags) : fFlags(flags) {}
 Animation::Builder::~Builder() = default;
 
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
@@ -477,7 +467,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     auto resolvedProvider = fResourceProvider
             ? fResourceProvider : sk_make_sp<NullResourceProvider>();
 
-    memset(&fStats, 0, sizeof(struct Stats));
+    fStats = Stats{};
 
     fStats.fJsonSize = data_len;
     const auto t0 = std::chrono::steady_clock::now();
@@ -520,7 +510,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
-                                       &fStats, size, duration, fps);
+                                       &fStats, size, duration, fps, fFlags);
     auto scene = builder.parse(json);
 
     const auto t2 = std::chrono::steady_clock::now();
@@ -533,7 +523,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 
     uint32_t flags = 0;
     if (builder.hasNontrivialBlending()) {
-        flags |= Flags::kRequiresTopLevelIsolation;
+        flags |= Animation::Flags::kRequiresTopLevelIsolation;
     }
 
     return sk_sp<Animation>(new Animation(std::move(scene),
@@ -542,6 +532,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                           inPoint,
                                           outPoint,
                                           duration,
+                                          fps,
                                           flags));
 }
 
@@ -553,18 +544,15 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
 }
 
 Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
-                     SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags)
+                     double inPoint, double outPoint, double duration, double fps, uint32_t flags)
     : fScene(std::move(scene))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
     , fOutPoint(outPoint)
     , fDuration(duration)
-    , fFlags(flags) {
-
-    // In case the client calls render before the first tick.
-    this->seek(0);
-}
+    , fFPS(fps)
+    , fFlags(flags) {}
 
 Animation::~Animation() = default;
 
@@ -597,22 +585,20 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
     fScene->render(canvas);
 }
 
-void Animation::seek(SkScalar t, sksg::InvalidationController* ic) {
+void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
     if (!fScene)
         return;
 
     // Per AE/Lottie semantics out_point is exclusive.
-    const auto kLastValidFrame = std::nextafter(fOutPoint, fInPoint);
+    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint);
 
-    fScene->animate(SkTPin(fInPoint + t * (fOutPoint - fInPoint), fInPoint, kLastValidFrame), ic);
+    fScene->animate(SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame), ic);
 }
 
 void Animation::seekFrameTime(double t, sksg::InvalidationController* ic) {
-    if (double dur = this->duration()) {
-        this->seek((SkScalar)(t / dur), ic);
-    }
+    this->seekFrame(t * fFPS, ic);
 }
 
 sk_sp<Animation> Animation::Make(const char* data, size_t length) {

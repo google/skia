@@ -28,7 +28,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceContext.h"
@@ -156,7 +155,7 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(GrContext*, sk_sp<Sk
     canvas.clear(0);
     canvas.translate(-100, -100);
     canvas.drawPicture(pic);
-    return skstd::make_unique<RasterGenerator>(bm);
+    return std::make_unique<RasterGenerator>(bm);
 }
 
 class EmptyGenerator : public SkImageGenerator {
@@ -191,14 +190,14 @@ protected:
             return nullptr;
         }
 
-        if (origin.fX == 0 && origin.fY == 0 &&
-            info.width() == fProxy->width() && info.height() == fProxy->height()) {
+        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fProxy->dimensions()) {
             return fProxy;
         }
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        return GrSurfaceProxy::Copy(fCtx.get(), fProxy.get(), mipMapped,
+        return GrSurfaceProxy::Copy(
+                fCtx.get(), fProxy.get(), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
                 SkBackingFit::kExact, SkBudgeted::kYes);
     }
@@ -212,9 +211,9 @@ static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_s
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
     if (!ctx) {
-        return skstd::make_unique<EmptyGenerator>(info);
+        return std::make_unique<EmptyGenerator>(info);
     }
-    return skstd::make_unique<TextureGenerator>(ctx, info, pic);
+    return std::make_unique<TextureGenerator>(ctx, info, pic);
 }
 
 class ImageCacheratorGM : public skiagm::GM {
@@ -282,10 +281,16 @@ protected:
             return;
         }
 
+        // TODO: The asTextureProxyRef which takes a sampler and adjust needs to return a
+        // GrSurfaceProxyView instead. For now we just grab the info off the proxy.
+        GrSurfaceOrigin origin = proxy->origin();
+        const GrSwizzle& swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()),
                                                 image->uniqueID(), kPremul_SkAlphaType,
-                                                std::move(proxy), image->refColorSpace()));
+                                                std::move(view), image->refColorSpace()));
         canvas->drawImage(texImage.get(), x, y);
     }
 

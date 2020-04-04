@@ -28,16 +28,9 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
         return MHD_NO;
     }
 
-    // /cmd or /cmd/N
+    // /cmd
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
-        int n;
-        if (commands.count() == 1) {
-            n = request->getLastOp();
-        } else {
-            sscanf(commands[1].c_str(), "%d", &n);
-        }
-
-        sk_sp<SkData> data(request->getJsonOps(n));
+        sk_sp<SkData> data(request->getJsonOps());
         return SendData(connection, data.get(), "application/json");
     }
 

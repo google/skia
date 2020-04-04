@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
@@ -111,7 +110,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
         fHeight = SkTMin(specs.fMinHeight + kPadding, fMaxTextureSize);
     }
 
-    fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
+    fTopNode = std::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
     fTextureProxy = MakeLazyAtlasProxy(
             [this](GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig,
@@ -125,7 +124,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                             desc, format, GrRenderable::kYes, sampleCount, GrMipMapped::kNo,
                             SkBudgeted::kYes, GrProtected::kNo);
                 }
-                return fBackingTexture;
+                return GrSurfaceProxy::LazyCallbackResult(fBackingTexture);
             },
             fCoverageType, caps, GrSurfaceProxy::UseAllocator::kNo);
 }
@@ -163,11 +162,11 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
         if (fHeight <= fWidth) {
             int top = fHeight;
             fHeight = SkTMin(fHeight * 2, fMaxTextureSize);
-            fTopNode = skstd::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
+            fTopNode = std::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
         } else {
             int left = fWidth;
             fWidth = SkTMin(fWidth * 2, fMaxTextureSize);
-            fTopNode = skstd::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
+            fTopNode = std::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
         }
     } while (!fTopNode->addRect(w, h, loc, fMaxTextureSize));
 
@@ -226,7 +225,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
 
     // Finalize the content size of our proxy. The GPU can potentially make optimizations if it
     // knows we only intend to write out a smaller sub-rectangle of the backing texture.
-    fTextureProxy->priv().setLazySize(fDrawBounds.width(), fDrawBounds.height());
+    fTextureProxy->priv().setLazyDimensions(fDrawBounds);
 
     if (backingTexture) {
 #ifdef SK_DEBUG
@@ -243,8 +242,13 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
             ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
     auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, colorType, nullptr, nullptr);
     if (!rtc) {
-        SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
-                 fWidth, fHeight);
+#if GR_TEST_UTILS
+        if (!onFlushRP->testingOnly_getSuppressAllocationWarnings())
+#endif
+        {
+            SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
+                     fWidth, fHeight);
+        }
         return nullptr;
     }
 

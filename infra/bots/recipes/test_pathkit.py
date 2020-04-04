@@ -6,6 +6,7 @@
 
 DEPS = [
   'checkout',
+  'docker',
   'env',
   'infra',
   'recipe_engine/file',
@@ -18,18 +19,14 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:72.0.3626.121_v1'
-INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/test_pathkit.sh'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:77.0.3865.120_v2'
+INNER_KARMA_SCRIPT = 'skia/infra/pathkit/test_pathkit.sh'
 
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
+  checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
-  api.checkout.bot_update(checkout_root=checkout_root)
-
-  # Make sure this exists, otherwise Docker will make it with root permissions.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
   # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/test/ for
   # the test files to load, so we must copy them there (see Set up for docker).
@@ -49,87 +46,47 @@ def RunSteps(api):
     else:
       bundle_name = 'pathkit.js.mem'
 
-  api.python.inline(
-      name='Set up for docker',
-      program='''import errno
-import os
-import shutil
-import sys
+  copies = {
+    base_dir.join('pathkit.js'): copy_dest.join('pathkit.js'),
+  }
+  if bundle_name:
+    copies[base_dir.join(bundle_name)] = copy_dest.join(bundle_name)
+  recursive_read = [checkout_root.join('skia')]
 
-copy_dest = sys.argv[1]
-base_dir = sys.argv[2]
-bundle_name = sys.argv[3]
-out_dir = sys.argv[4]
-
-# Clean out old binaries (if any)
-try:
-  shutil.rmtree(copy_dest)
-except OSError as e:
-  if e.errno != errno.ENOENT:
-    raise
-
-# Make folder
-try:
-  os.makedirs(copy_dest)
-except OSError as e:
-  if e.errno != errno.EEXIST:
-    raise
-
-# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests
-# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/test/)
-dest = os.path.join(copy_dest, 'pathkit.js')
-shutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)
-os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
-
-if bundle_name:
-  dest = os.path.join(copy_dest, bundle_name)
-  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)
-  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
-
-# Prepare output folder, api.file.ensure_directory doesn't touch
-# the permissions of the out directory if it already exists.
-os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.
-''',
-      args=[copy_dest, base_dir, bundle_name, out_dir],
-      infra_step=True)
-
-
-  cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
-         '--volume', '%s:/SRC' % checkout_root,
-         '--volume', '%s:/OUT' % out_dir]
-
+  docker_args = None
   if 'asmjs' in api.vars.builder_name:
-    cmd.extend(['--env', 'ASM_JS=1'])
+    docker_args = ['--env', 'ASM_JS=1']
 
-  cmd.extend([
-      DOCKER_IMAGE,             INNER_KARMA_SCRIPT,
-      '--builder',              api.vars.builder_name,
-      '--git_hash',             api.properties['revision'],
-      '--buildbucket_build_id', api.properties.get('buildbucket_build_id',
-                                                  ''),
-      '--bot_id',               api.vars.swarming_bot_id,
-      '--task_id',              api.vars.swarming_task_id,
-      '--browser',              'Chrome',
-      '--config',               api.vars.configuration,
-      '--source_type',          'pathkit',
-      ])
-
+  args = [
+    '--builder',              api.vars.builder_name,
+    '--git_hash',             api.properties['revision'],
+    '--buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
+    '--bot_id',               api.vars.swarming_bot_id,
+    '--task_id',              api.vars.swarming_task_id,
+    '--browser',              'Chrome',
+    '--config',               api.vars.configuration,
+    '--source_type',          'pathkit',
+  ]
   if 'asmjs' in api.vars.builder_name:
-    cmd.extend(['--compiled_language', 'asmjs']) # the default is wasm
-
+    args.extend(['--compiled_language', 'asmjs']) # the default is wasm
   if api.vars.is_trybot:
-    cmd.extend([
+    args.extend([
       '--issue',         api.vars.issue,
       '--patchset',      api.vars.patchset,
     ])
 
-  # Override DOCKER_CONFIG set by Kitchen.
-  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
-  with api.env(env):
-    api.run(
-        api.step,
-        'Test PathKit with Docker',
-        cmd=cmd)
+  api.docker.run(
+      name='Test PathKit with Docker',
+      docker_image=DOCKER_IMAGE,
+      src_dir=checkout_root,
+      out_dir=out_dir,
+      script=checkout_root.join(INNER_KARMA_SCRIPT),
+      args=args,
+      docker_args=docker_args,
+      copies=copies,
+      recursive_read=recursive_read,
+      attempts=3,
+  )
 
 
 def GenTests(api):

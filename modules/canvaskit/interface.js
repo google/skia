@@ -216,6 +216,16 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   }
 
+  CanvasKit._RTShaderFactory.prototype.make = function(floats, matrix) {
+    var fptr = copy1dArray(floats, CanvasKit.HEAPF32);
+    // Our array has 4 bytes per float, so be sure to account for that before
+    // sending it over the wire.
+    if (!matrix) {
+      return this._make(fptr, floats.length * 4);
+    }
+    return this._make(fptr, floats.length * 4, matrix);
+  }
+
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
     // note input angles are degrees.
@@ -270,6 +280,26 @@ CanvasKit.onRuntimeInitialized = function() {
       SkDebug('addPath expected to take 1, 2, 7, or 10 required args. Got ' + args.length);
       return null;
     }
+    return this;
+  };
+
+  // points is either an array of [x, y] where x and y are numbers or
+  // a typed array from Malloc where the even indices will be treated
+  // as x coordinates and the odd indices will be treated as y coordinates.
+  CanvasKit.SkPath.prototype.addPoly = function(points, close) {
+    var ptr;
+    var n;
+    // This was created with CanvasKit.Malloc, so assume the user has
+    // already been filled with data.
+    if (points['_ck']) {
+      ptr = points.byteOffset;
+      n = points.length/2;
+    } else {
+      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      n = points.length;
+    }
+    this._addPoly(ptr, n, close);
+    CanvasKit._free(ptr);
     return this;
   };
 
@@ -407,6 +437,38 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkPath.prototype.quadTo = function(cpx, cpy, x, y) {
     this._quadTo(cpx, cpy, x, y);
+    return this;
+  };
+
+ CanvasKit.SkPath.prototype.rArcTo = function(rx, ry, xAxisRotate, useSmallArc, isCCW, dx, dy) {
+    this._rArcTo(rx, ry, xAxisRotate, useSmallArc, isCCW, dx, dy);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rConicTo = function(dx1, dy1, dx2, dy2, w) {
+    this._rConicTo(dx1, dy1, dx2, dy2, w);
+    return this;
+  };
+
+  // These params are all relative
+  CanvasKit.SkPath.prototype.rCubicTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
+    this._rCubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rLineTo = function(dx, dy) {
+    this._rLineTo(dx, dy);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rMoveTo = function(dx, dy) {
+    this._rMoveTo(dx, dy);
+    return this;
+  };
+
+  // These params are all relative
+  CanvasKit.SkPath.prototype.rQuadTo = function(cpx, cpy, x, y) {
+    this._rQuadTo(cpx, cpy, x, y);
     return this;
   };
 
@@ -595,6 +657,25 @@ CanvasKit.onRuntimeInitialized = function() {
 
   }
 
+  // points is either an array of [x, y] where x and y are numbers or
+  // a typed array from Malloc where the even indices will be treated
+  // as x coordinates and the odd indices will be treated as y coordinates.
+  CanvasKit.SkCanvas.prototype.drawPoints = function(mode, points, paint) {
+    var ptr;
+    var n;
+    // This was created with CanvasKit.Malloc, so assume the user has
+    // already been filled with data.
+    if (points['_ck']) {
+      ptr = points.byteOffset;
+      n = points.length/2;
+    } else {
+      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      n = points.length;
+    }
+    this._drawPoints(mode, ptr, n, paint);
+    CanvasKit._free(ptr);
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {
@@ -769,6 +850,20 @@ CanvasKit.onRuntimeInitialized = function() {
     var bytes = CanvasKit.getSkDataBytes(data);
     saveBytesToFile(bytes, skpName);
     data.delete();
+  }
+
+  CanvasKit.SkShader.Blend = function(mode, dst, src, localMatrix) {
+    if (!localMatrix) {
+      return this._Blend(mode, dst, src);
+    }
+    return this._Blend(mode, dst, src, localMatrix);
+  }
+
+  CanvasKit.SkShader.Lerp = function(t, dst, src, localMatrix) {
+    if (!localMatrix) {
+      return this._Lerp(t, dst, src);
+    }
+    return this._Lerp(t, dst, src, localMatrix);
   }
 
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
@@ -994,20 +1089,20 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// pixels is a Uint8Array
+// pixels must be a Uint8Array with bytes representing the pixel values
+// (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
-  var bytesPerPixel = pixels.byteLength / (width * height);
+  var bytesPerPixel = pixels.length / (width * height);
   var info = {
     'width': width,
     'height': height,
     'alphaType': alphaType,
     'colorType': colorType,
   };
-  var pptr = CanvasKit._malloc(pixels.byteLength);
-  CanvasKit.HEAPU8.set(pixels, pptr);
-  // No need to _free iptr, Image takes it with SkData::MakeFromMalloc
+  var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+  // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
-  return CanvasKit._MakeImage(info, pptr, pixels.byteLength, width * bytesPerPixel);
+  return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
 CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {

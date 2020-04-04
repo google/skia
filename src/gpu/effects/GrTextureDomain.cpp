@@ -21,7 +21,7 @@
 
 #include <utility>
 
-GrTextureDomain::GrTextureDomain(GrTextureProxy* proxy, const SkRect& domain, Mode modeX,
+GrTextureDomain::GrTextureDomain(GrSurfaceProxy* proxy, const SkRect& domain, Mode modeX,
                                  Mode modeY, int index)
     : fModeX(modeX)
     , fModeY(modeY)
@@ -32,13 +32,12 @@ GrTextureDomain::GrTextureDomain(GrTextureProxy* proxy, const SkRect& domain, Mo
         return;
     }
 
-    const SkRect kFullRect = SkRect::MakeIWH(proxy->width(), proxy->height());
+    const SkRect kFullRect = proxy->getBoundsRect();
 
     // We don't currently handle domains that are empty or don't intersect the texture.
     // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
     // handle rects that do not intersect the [0..1]x[0..1] rect.
-    SkASSERT(domain.fLeft <= domain.fRight);
-    SkASSERT(domain.fTop <= domain.fBottom);
+    SkASSERT(domain.isSorted());
     fDomain.fLeft = SkScalarPin(domain.fLeft, 0.0f, kFullRect.fRight);
     fDomain.fRight = SkScalarPin(domain.fRight, fDomain.fLeft, kFullRect.fRight);
     fDomain.fTop = SkScalarPin(domain.fTop, 0.0f, kFullRect.fBottom);
@@ -47,33 +46,59 @@ GrTextureDomain::GrTextureDomain(GrTextureProxy* proxy, const SkRect& domain, Mo
     SkASSERT(fDomain.fTop <= fDomain.fBottom);
 }
 
+GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode modeX, Mode modeY, int index)
+        : fDomain(domain), fModeX(modeX), fModeY(modeY), fIndex(index) {
+    // We don't currently handle domains that are empty or don't intersect the texture.
+    // It is OK if the domain rect is a line or point, but it should not be inverted.
+    SkASSERT(domain.isSorted());
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
-static SkString clamp_expression(GrTextureDomain::Mode mode, const char* inCoord,
-                                 const char* coordSwizzle, const char* domain,
-                                 const char* minSwizzle, const char* maxSwizzle) {
-    SkString clampedExpr;
+static void append_wrap(GrGLSLShaderBuilder* builder, GrTextureDomain::Mode mode,
+                        const char* inCoord, const char* domainStart, const char* domainEnd,
+                        bool is2D, const char* out) {
     switch(mode) {
         case GrTextureDomain::kIgnore_Mode:
-            clampedExpr.printf("%s.%s\n", inCoord, coordSwizzle);
+            builder->codeAppendf("%s = %s;\n", out, inCoord);
             break;
         case GrTextureDomain::kDecal_Mode:
             // The lookup coordinate to use for decal will be clamped just like kClamp_Mode,
             // it's just that the post-processing will be different, so fall through
         case GrTextureDomain::kClamp_Mode:
-            clampedExpr.printf("clamp(%s.%s, %s.%s, %s.%s)",
-                               inCoord, coordSwizzle, domain, minSwizzle, domain, maxSwizzle);
+            builder->codeAppendf("%s = clamp(%s, %s, %s);", out, inCoord, domainStart, domainEnd);
             break;
         case GrTextureDomain::kRepeat_Mode:
-            clampedExpr.printf("mod(%s.%s - %s.%s, %s.%s - %s.%s) + %s.%s",
-                               inCoord, coordSwizzle, domain, minSwizzle, domain, maxSwizzle,
-                               domain, minSwizzle, domain, minSwizzle);
+            builder->codeAppendf("%s = mod(%s - %s, %s - %s) + %s;", out, inCoord, domainStart,
+                                 domainEnd, domainStart, domainStart);
             break;
-        default:
-            SkASSERTF(false, "Unknown texture domain mode: %u\n", (uint32_t) mode);
+        case GrTextureDomain::kMirrorRepeat_Mode: {
+            const char* type = is2D ? "float2" : "float";
+            builder->codeAppend("{");
+            builder->codeAppendf("%s w = %s - %s;", type, domainEnd, domainStart);
+            builder->codeAppendf("%s w2 = 2 * w;", type);
+            builder->codeAppendf("%s m = mod(%s - %s, w2);", type, inCoord, domainStart);
+            builder->codeAppendf("%s = mix(m, w2 - m, step(w, m)) + %s;", out, domainStart);
+            builder->codeAppend("}");
             break;
+        }
     }
-    return clampedExpr;
+}
+
+void GrTextureDomain::GLDomain::sampleProcessor(const GrTextureDomain& textureDomain,
+                                                const char* inColor,
+                                                const char* outColor,
+                                                const SkString& inCoords,
+                                                GrGLSLFragmentProcessor* parent,
+                                                GrGLSLFragmentProcessor::EmitArgs& args,
+                                                int childIndex) {
+    auto appendProcessorSample = [parent, &args, childIndex, inColor](const char* coord) {
+        SkString outColor("childColor");
+        parent->invokeChild(childIndex, inColor, &outColor, args, coord);
+        return outColor;
+    };
+    this->sample(args.fFragBuilder, args.fUniformHandler, textureDomain, outColor, inCoords,
+                 appendProcessorSample);
 }
 
 void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
@@ -84,6 +109,21 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const SkString& inCoords,
                                               GrGLSLFragmentProcessor::SamplerHandle sampler,
                                               const char* inModulateColor) {
+    auto appendTextureSample = [&sampler, inModulateColor, builder](const char* coord) {
+        builder->codeAppend("half4 textureColor = ");
+        builder->appendTextureLookupAndModulate(inModulateColor, sampler, coord);
+        builder->codeAppend(";");
+        return SkString("textureColor");
+    };
+    this->sample(builder, uniformHandler, textureDomain, outColor, inCoords, appendTextureSample);
+}
+
+void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
+                                       GrGLSLUniformHandler* uniformHandler,
+                                       const GrTextureDomain& textureDomain,
+                                       const char* outColor,
+                                       const SkString& inCoords,
+                                       const std::function<AppendSample>& appendSample) {
     SkASSERT(!fHasMode || (textureDomain.modeX() == fModeX && textureDomain.modeY() == fModeY));
     SkDEBUGCODE(fModeX = textureDomain.modeX();)
     SkDEBUGCODE(fModeY = textureDomain.modeY();)
@@ -121,29 +161,32 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
     // Always use a local variable for the input coordinates; often callers pass in an expression
     // and we want to cache it across all of its references in the code below
     builder->codeAppendf("float2 origCoord = %s;", inCoords.c_str());
-    builder->codeAppend("float2 clampedCoord = ");
-    if (textureDomain.modeX() != textureDomain.modeY()) {
-        // The wrap modes differ on the two axes, so build up a coordinate that respects each axis'
-        // domain rule independently before sampling the texture.
-        SkString tcX = clamp_expression(textureDomain.modeX(), "origCoord", "x",
-                                        fDomainName.c_str(), "x", "z");
-        SkString tcY = clamp_expression(textureDomain.modeY(), "origCoord", "y",
-                                        fDomainName.c_str(), "y", "w");
-        builder->codeAppendf("float2(%s, %s)", tcX.c_str(), tcY.c_str());
+    builder->codeAppend("float2 clampedCoord;");
+    SkString start;
+    SkString end;
+    bool is2D = textureDomain.modeX() == textureDomain.modeY();
+    if (is2D) {
+        // Doing the domain setup using vectors seems to avoid shader compilation issues on
+        // Chromecast, possibly due to reducing shader length.
+        start.printf("%s.xy", fDomainName.c_str());
+        end.printf("%s.zw", fDomainName.c_str());
+        append_wrap(builder, textureDomain.modeX(), "origCoord", start.c_str(), end.c_str(),
+                    true, "clampedCoord");
     } else {
-        // Since the x and y axis wrap modes are the same, they can be calculated together using
-        // more efficient vector operations
-        SkString tc = clamp_expression(textureDomain.modeX(), "origCoord", "xy",
-                                       fDomainName.c_str(), "xy", "zw");
-        builder->codeAppend(tc.c_str());
+        // Apply x mode to the x coordinate using the left and right edges of the domain rect
+        // (stored as the x and z components of the domain uniform).
+        start.printf("%s.x", fDomainName.c_str());
+        end.printf("%s.z", fDomainName.c_str());
+        append_wrap(builder, textureDomain.modeX(), "origCoord.x", start.c_str(), end.c_str(),
+                    false, "clampedCoord.x");
+        // Repeat the same logic for y.
+        start.printf("%s.y", fDomainName.c_str());
+        end.printf("%s.w", fDomainName.c_str());
+        append_wrap(builder, textureDomain.modeY(), "origCoord.y", start.c_str(), end.c_str(),
+                    false, "clampedCoord.y");
     }
-    builder->codeAppend(";");
-
-    // Look up the texture sample at the clamped coordinate location
-    builder->codeAppend("half4 inside = ");
-    builder->appendTextureLookupAndModulate(inModulateColor, sampler, "clampedCoord",
-                                            kFloat2_GrSLType);
-    builder->codeAppend(";");
+    // Sample 'appendSample' at the clamped coordinate location.
+    SkString color = appendSample("clampedCoord");
 
     // Apply decal mode's transparency interpolation if needed
     if (decalX || decalY) {
@@ -170,172 +213,238 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         // is set to 1 and it becomes a simple linear blend between texture and transparent.
         builder->codeAppendf("if (err > %s.z) { err = 1.0; } else if (%s.z < 1) { err = 0.0; }",
                              fDecalName.c_str(), fDecalName.c_str());
-        builder->codeAppendf("%s = mix(inside, half4(0, 0, 0, 0), err);", outColor);
+        builder->codeAppendf("%s = mix(%s, half4(0, 0, 0, 0), err);", outColor, color.c_str());
     } else {
         // A simple look up
-        builder->codeAppendf("%s = inside;", outColor);
+        builder->codeAppendf("%s = %s;", outColor, color.c_str());
     }
 }
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
-                                        GrTextureProxy* proxy,
-                                        const GrSamplerState& sampler) {
-    GrTexture* tex = proxy->peekTexture();
-    SkASSERT(fHasMode && textureDomain.modeX() == fModeX && textureDomain.modeY() == fModeY);
-    if (kIgnore_Mode != textureDomain.modeX() || kIgnore_Mode != textureDomain.modeY()) {
-        bool sendDecalData = textureDomain.modeX() == kDecal_Mode ||
-                             textureDomain.modeY() == kDecal_Mode;
+                                        const GrSurfaceProxyView& view,
+                                        const GrSamplerState& state) {
+    // We want a hard transition from texture content to trans-black in nearest mode.
+    bool filterDecal = state.filter() != GrSamplerState::Filter::kNearest;
+    this->setData(pdman, textureDomain, view.proxy(), view.origin(), filterDecal);
+}
 
-        // If the texture is using nearest filtering, then the decal filter weight should step from
-        // 0 (texture) to 1 (transparent) one half pixel away from the domain. When doing any other
-        // form of filtering, the weight should be 1.0 so that it smoothly interpolates between the
-        // texture and transparent.
-        SkScalar decalFilterWeight = sampler.filter() == GrSamplerState::Filter::kNearest ?
-                SK_ScalarHalf : 1.0f;
+void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
+                                        const GrTextureDomain& textureDomain,
+                                        bool filterIfDecal) {
+    // The origin we pass here doesn't matter
+    this->setData(pdman, textureDomain, nullptr, kTopLeft_GrSurfaceOrigin, filterIfDecal);
+}
+
+void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
+                                        const GrTextureDomain& textureDomain,
+                                        const GrSurfaceProxy* proxy,
+                                        GrSurfaceOrigin origin,
+                                        bool filterIfDecal) {
+    SkASSERT(fHasMode && textureDomain.modeX() == fModeX && textureDomain.modeY() == fModeY);
+    if (kIgnore_Mode == textureDomain.modeX() && kIgnore_Mode == textureDomain.modeY()) {
+        return;
+    }
+    // If the texture is using nearest filtering, then the decal filter weight should step from
+    // 0 (texture) to 1 (transparent) one half pixel away from the domain. When doing any other
+    // form of filtering, the weight should be 1.0 so that it smoothly interpolates between the
+    // texture and transparent.
+    // Start off assuming we're in pixel units and later adjust if we have to deal with normalized
+    // texture coords.
+    float decalFilterWeights[3] = {1.f, 1.f, filterIfDecal ? 1.f : 0.5f};
+    bool sendDecalData = textureDomain.modeX() == kDecal_Mode ||
+                         textureDomain.modeY() == kDecal_Mode;
+    float tempDomainValues[4];
+    const float* values;
+    if (proxy) {
         SkScalar wInv, hInv, h;
-        if (proxy->textureType() == GrTextureType::kRectangle) {
+        GrTexture* tex = proxy->peekTexture();
+        if (proxy->backendFormat().textureType() == GrTextureType::kRectangle) {
             wInv = hInv = 1.f;
             h = tex->height();
-
-            // Don't do any scaling by texture size for decal filter rate, it's already in pixels
-            if (sendDecalData) {
-                pdman.set3f(fDecalUni, 1.f, 1.f, decalFilterWeight);
-            }
+            // Don't do any scaling by texture size for decal filter rate, it's already in
+            // pixels
         } else {
             wInv = SK_Scalar1 / tex->width();
             hInv = SK_Scalar1 / tex->height();
             h = 1.f;
 
-            if (sendDecalData) {
-                pdman.set3f(fDecalUni, tex->width(), tex->height(), decalFilterWeight);
-            }
+            // Account for texture coord normalization in decal filter weights.
+            decalFilterWeights[0] = tex->width();
+            decalFilterWeights[1] = tex->height();
         }
 
-        float values[kPrevDomainCount] = {
-            SkScalarToFloat(textureDomain.domain().fLeft * wInv),
-            SkScalarToFloat(textureDomain.domain().fTop * hInv),
-            SkScalarToFloat(textureDomain.domain().fRight * wInv),
-            SkScalarToFloat(textureDomain.domain().fBottom * hInv)
-        };
+        tempDomainValues[0] = SkScalarToFloat(textureDomain.domain().fLeft * wInv);
+        tempDomainValues[1] = SkScalarToFloat(textureDomain.domain().fTop * hInv);
+        tempDomainValues[2] = SkScalarToFloat(textureDomain.domain().fRight * wInv);
+        tempDomainValues[3] = SkScalarToFloat(textureDomain.domain().fBottom * hInv);
 
-        if (proxy->textureType() == GrTextureType::kRectangle) {
-            SkASSERT(values[0] >= 0.0f && values[0] <= proxy->width());
-            SkASSERT(values[1] >= 0.0f && values[1] <= proxy->height());
-            SkASSERT(values[2] >= 0.0f && values[2] <= proxy->width());
-            SkASSERT(values[3] >= 0.0f && values[3] <= proxy->height());
+        if (proxy->backendFormat().textureType() == GrTextureType::kRectangle) {
+            SkASSERT(tempDomainValues[0] >= 0.0f && tempDomainValues[0] <= proxy->width());
+            SkASSERT(tempDomainValues[1] >= 0.0f && tempDomainValues[1] <= proxy->height());
+            SkASSERT(tempDomainValues[2] >= 0.0f && tempDomainValues[2] <= proxy->width());
+            SkASSERT(tempDomainValues[3] >= 0.0f && tempDomainValues[3] <= proxy->height());
         } else {
-            SkASSERT(values[0] >= 0.0f && values[0] <= 1.0f);
-            SkASSERT(values[1] >= 0.0f && values[1] <= 1.0f);
-            SkASSERT(values[2] >= 0.0f && values[2] <= 1.0f);
-            SkASSERT(values[3] >= 0.0f && values[3] <= 1.0f);
+            SkASSERT(tempDomainValues[0] >= 0.0f && tempDomainValues[0] <= 1.0f);
+            SkASSERT(tempDomainValues[1] >= 0.0f && tempDomainValues[1] <= 1.0f);
+            SkASSERT(tempDomainValues[2] >= 0.0f && tempDomainValues[2] <= 1.0f);
+            SkASSERT(tempDomainValues[3] >= 0.0f && tempDomainValues[3] <= 1.0f);
         }
 
         // vertical flip if necessary
-        if (kBottomLeft_GrSurfaceOrigin == proxy->origin()) {
-            values[1] = h - values[1];
-            values[3] = h - values[3];
+        if (kBottomLeft_GrSurfaceOrigin == origin) {
+            tempDomainValues[1] = h - tempDomainValues[1];
+            tempDomainValues[3] = h - tempDomainValues[3];
 
             // The top and bottom were just flipped, so correct the ordering
             // of elements so that values = (l, t, r, b).
             using std::swap;
-            swap(values[1], values[3]);
+            swap(tempDomainValues[1], tempDomainValues[3]);
         }
-        if (0 != memcmp(values, fPrevDomain, kPrevDomainCount * sizeof(float))) {
-            pdman.set4fv(fDomainUni, 1, values);
-            memcpy(fPrevDomain, values, kPrevDomainCount * sizeof(float));
-        }
+        values = tempDomainValues;
+    } else {
+        values = textureDomain.domain().asScalars();
+    }
+    if (!std::equal(values, values + 4, fPrevDomain)) {
+        pdman.set4fv(fDomainUni, 1, values);
+        std::copy_n(values, 4, fPrevDomain);
+    }
+    if (sendDecalData &&
+        !std::equal(decalFilterWeights, decalFilterWeights + 3, fPrevDeclFilterWeights)) {
+        pdman.set3fv(fDecalUni, 1, decalFilterWeights);
+        std::copy_n(decalFilterWeights, 3, fPrevDeclFilterWeights);
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::Make(
-        sk_sp<GrTextureProxy> proxy,
-        const SkMatrix& matrix,
-        const SkRect& domain,
-        GrTextureDomain::Mode mode,
-        GrSamplerState::Filter filterMode) {
-    return Make(std::move(proxy), matrix, domain, mode, mode,
-                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterMode));
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode mode,
+                                                          bool decalIsFiltered) {
+    return Make(std::move(fp), domain, mode, mode, decalIsFiltered);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::Make(
-        sk_sp<GrTextureProxy> proxy,
-        const SkMatrix& matrix,
-        const SkRect& domain,
-        GrTextureDomain::Mode modeX,
-        GrTextureDomain::Mode modeY,
-        const GrSamplerState& sampler) {
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode modeX,
+                                                          GrTextureDomain::Mode modeY,
+                                                          bool decalIsFiltered) {
+    if (modeX == GrTextureDomain::kIgnore_Mode && modeY == GrTextureDomain::kIgnore_Mode) {
+        return fp;
+    }
+    int count = 0;
+    GrCoordTransform* coordTransform = nullptr;
+    for (auto [transform, ignored] : GrFragmentProcessor::FPCoordTransformRange(*fp)) {
+        ++count;
+        coordTransform = &transform;
+    }
+    // If there are no coord transforms on the passed FP or it's children then there's no need to
+    // enforce a domain.
+    // We have a limitation that only one coord transform is support when overriding local coords.
+    // If that limit were relaxed we would need to add a coord transform for each descendent FP
+    // transform and possibly have multiple domain rects to account for different proxy
+    // normalization and y-reversals.
+    if (count != 1) {
+        return fp;
+    }
+    GrCoordTransform transformCopy = *coordTransform;
+    // Reset the child FP's coord transform.
+    *coordTransform = {};
     // If both domain modes happen to be ignore, it would be faster to just drop the domain logic
-    // entirely Technically, we could also use the simple texture effect if the domain modes agree
-    // with the sampler modes and the proxy is the same size as the domain. It's a lot easier for
-    // calling code to detect these cases and handle it themselves.
-    return std::unique_ptr<GrFragmentProcessor>(new GrTextureDomainEffect(
-            std::move(proxy), matrix, domain, modeX, modeY, sampler));
+    // entirely and return the original FP. We'd need a GrMatrixProcessor if the matrix is not
+    // identity, though.
+    return std::unique_ptr<GrFragmentProcessor>(new GrDomainEffect(
+            std::move(fp), transformCopy, domain, modeX, modeY, decalIsFiltered));
 }
 
-GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
-                                             const SkMatrix& matrix,
-                                             const SkRect& domain,
-                                             GrTextureDomain::Mode modeX,
-                                             GrTextureDomain::Mode modeY,
-                                             const GrSamplerState& sampler)
-        : INHERITED(kGrTextureDomainEffect_ClassID,
-                    ModulateForSamplerOptFlags(proxy->config(),
-                            GrTextureDomain::IsDecalSampled(sampler, modeX, modeY)))
-        , fCoordTransform(matrix, proxy.get())
-        , fTextureDomain(proxy.get(), domain, modeX, modeY)
-        , fTextureSampler(std::move(proxy), sampler) {
-    SkASSERT((modeX != GrTextureDomain::kRepeat_Mode && modeY != GrTextureDomain::kRepeat_Mode) ||
-             sampler.filter() == GrSamplerState::Filter::kNearest);
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode mode,
+                                                          GrSamplerState::Filter filter) {
+    bool filterIfDecal = filter != GrSamplerState::Filter::kNearest;
+    return Make(std::move(fp), domain, mode, filterIfDecal);
+}
+
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode modeX,
+                                                          GrTextureDomain::Mode modeY,
+                                                          GrSamplerState::Filter filter) {
+    bool filterIfDecal = filter != GrSamplerState::Filter::kNearest;
+    return Make(std::move(fp), domain, modeX, modeY, filterIfDecal);
+}
+GrFragmentProcessor::OptimizationFlags GrDomainEffect::Flags(GrFragmentProcessor* fp,
+                                                             GrTextureDomain::Mode modeX,
+                                                             GrTextureDomain::Mode modeY) {
+    auto fpFlags = GrFragmentProcessor::ProcessorOptimizationFlags(fp);
+    if (modeX == GrTextureDomain::kDecal_Mode || modeY == GrTextureDomain::kDecal_Mode) {
+        return fpFlags & ~kPreservesOpaqueInput_OptimizationFlag;
+    }
+    return fpFlags;
+}
+
+GrDomainEffect::GrDomainEffect(std::unique_ptr<GrFragmentProcessor> fp,
+                               const GrCoordTransform& coordTransform,
+                               const SkRect& domain,
+                               GrTextureDomain::Mode modeX,
+                               GrTextureDomain::Mode modeY,
+                               bool decalIsFiltered)
+        : INHERITED(kGrDomainEffect_ClassID, Flags(fp.get(), modeX, modeY))
+        , fCoordTransform(coordTransform)
+        , fDomain(domain, modeX, modeY)
+        , fDecalIsFiltered(decalIsFiltered) {
+    SkASSERT(fp);
+    fp->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(fp));
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
+    if (fDomain.modeX() != GrTextureDomain::kDecal_Mode &&
+        fDomain.modeY() != GrTextureDomain::kDecal_Mode) {
+        // Canonicalize this don't care value so we don't have to worry about it elsewhere.
+        fDecalIsFiltered = false;
+    }
 }
 
-GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
-        : INHERITED(kGrTextureDomainEffect_ClassID, that.optimizationFlags())
+GrDomainEffect::GrDomainEffect(const GrDomainEffect& that)
+        : INHERITED(kGrDomainEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
-        , fTextureDomain(that.fTextureDomain)
-        , fTextureSampler(that.fTextureSampler) {
+        , fDomain(that.fDomain)
+        , fDecalIsFiltered(that.fDecalIsFiltered) {
+    auto child = that.childProcessor(0).clone();
+    child->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(child));
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
 }
 
-void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
-    b->add32(GrTextureDomain::GLDomain::DomainKey(fTextureDomain));
+void GrDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                           GrProcessorKeyBuilder* b) const {
+    b->add32(GrTextureDomain::GLDomain::DomainKey(fDomain));
 }
 
-GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
+GrGLSLFragmentProcessor* GrDomainEffect::onCreateGLSLInstance() const {
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
-            const GrTextureDomainEffect& tde = args.fFp.cast<GrTextureDomainEffect>();
-            const GrTextureDomain& domain = tde.fTextureDomain;
+            const GrDomainEffect& de = args.fFp.cast<GrDomainEffect>();
+            const GrTextureDomain& domain = de.fDomain;
 
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             SkString coords2D =
-                              fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+                    args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
 
-            fGLDomain.sampleTexture(fragBuilder,
-                                    args.fUniformHandler,
-                                    args.fShaderCaps,
-                                    domain,
-                                    args.fOutputColor,
-                                    coords2D,
-                                    args.fTexSamplers[0],
-                                    args.fInputColor);
+            fGLDomain.sampleProcessor(domain, args.fInputColor, args.fOutputColor, coords2D, this,
+                                      args, 0);
         }
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& fp) override {
-            const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
-            const GrTextureDomain& domain = tde.fTextureDomain;
-            GrTextureProxy* proxy = tde.textureSampler(0).proxy();
-
-            fGLDomain.setData(pdman, domain, proxy, tde.textureSampler(0).samplerState());
+            const GrDomainEffect& de = fp.cast<GrDomainEffect>();
+            const GrTextureDomain& domain = de.fDomain;
+            // TODO: Update GrCoordTransform to return a view instead of proxy
+            const GrSurfaceProxy* proxy = de.fCoordTransform.proxy();
+            // If we don't have a proxy the value of the origin doesn't matter
+            GrSurfaceOrigin origin = proxy ? proxy->origin() : kTopLeft_GrSurfaceOrigin;
+            fGLDomain.setData(pdman, domain, proxy, origin, de.fDecalIsFiltered);
         }
 
     private:
@@ -345,52 +454,63 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
     return new GLSLProcessor;
 }
 
-bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
-    const GrTextureDomainEffect& s = sBase.cast<GrTextureDomainEffect>();
-    return this->fTextureDomain == s.fTextureDomain;
+bool GrDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
+    auto& td = sBase.cast<GrDomainEffect>();
+    return fDomain == td.fDomain && fDecalIsFiltered == td.fDecalIsFiltered;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDomainEffect);
 
 #if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
-    SkRect domain;
-    domain.fLeft = d->fRandom->nextRangeScalar(0, proxy->width());
-    domain.fRight = d->fRandom->nextRangeScalar(domain.fLeft, proxy->width());
-    domain.fTop = d->fRandom->nextRangeScalar(0, proxy->height());
-    domain.fBottom = d->fRandom->nextRangeScalar(domain.fTop, proxy->height());
-    GrTextureDomain::Mode modeX =
-        (GrTextureDomain::Mode) d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
-    GrTextureDomain::Mode modeY =
-        (GrTextureDomain::Mode) d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
-    const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    bool bilerp = modeX != GrTextureDomain::kRepeat_Mode && modeY != GrTextureDomain::kRepeat_Mode ?
-            d->fRandom->nextBool() : false;
-    return GrTextureDomainEffect::Make(
-            std::move(proxy),
-            matrix,
-            domain,
-            modeX,
-            modeY,
-            GrSamplerState(GrSamplerState::WrapMode::kClamp, bilerp ?
-                           GrSamplerState::Filter::kBilerp : GrSamplerState::Filter::kNearest));
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::TestCreate(GrProcessorTestData* d) {
+    do {
+        GrTextureDomain::Mode modeX =
+                (GrTextureDomain::Mode)d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
+        GrTextureDomain::Mode modeY =
+                (GrTextureDomain::Mode)d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
+        auto child = GrProcessorUnitTest::MakeChildFP(d);
+        const auto* childPtr = child.get();
+        SkRect domain;
+        // We assert if the child's coord transform has a proxy and the domain rect is outside its
+        // bounds.
+        GrFragmentProcessor::CoordTransformIter ctIter(*child);
+        if (!ctIter) {
+            continue;
+        }
+        auto [transform, fp] = *ctIter;
+        if (auto proxy = transform.proxy()) {
+            auto [w, h] = proxy->backingStoreDimensions();
+            domain.fLeft   = d->fRandom->nextRangeScalar(0, w);
+            domain.fRight  = d->fRandom->nextRangeScalar(0, w);
+            domain.fTop    = d->fRandom->nextRangeScalar(0, h);
+            domain.fBottom = d->fRandom->nextRangeScalar(0, h);
+        } else {
+            domain.fLeft   = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fRight  = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fTop    = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fBottom = d->fRandom->nextRangeScalar(-100.f, 100.f);
+        }
+        domain.sort();
+        bool filterIfDecal = d->fRandom->nextBool();
+        auto result = GrDomainEffect::Make(std::move(child), domain, modeX, modeY, filterIfDecal);
+        if (result && result.get() != childPtr) {
+            return result;
+        }
+    } while (true);
 }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
-        sk_sp<GrTextureProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset) {
+        sk_sp<GrSurfaceProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset) {
     return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(
             std::move(proxy), subset, deviceSpaceOffset));
 }
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
-        sk_sp<GrTextureProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
+        sk_sp<GrSurfaceProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
         : INHERITED(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
                     kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fTextureSampler(proxy, GrSamplerState::ClampNearest())
@@ -445,18 +565,18 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            GrTextureProxy* proxy = dstdfp.textureSampler(0).proxy();
-            GrTexture* texture = proxy->peekTexture();
+            const auto& view = dstdfp.textureSampler(0).view();
+            SkISize textureDims = view.proxy()->backingStoreDimensions();
 
-            fGLDomain.setData(pdman, dstdfp.fTextureDomain, proxy,
+            fGLDomain.setData(pdman, dstdfp.fTextureDomain, view,
                               dstdfp.textureSampler(0).samplerState());
-            float iw = 1.f / texture->width();
-            float ih = 1.f / texture->height();
+            float iw = 1.f / textureDims.width();
+            float ih = 1.f / textureDims.height();
             float scaleAndTransData[4] = {
                 iw, ih,
                 -dstdfp.fDeviceSpaceOffset.fX * iw, -dstdfp.fDeviceSpaceOffset.fY * ih
             };
-            if (proxy->origin() == kBottomLeft_GrSurfaceOrigin) {
+            if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
                 scaleAndTransData[1] = -scaleAndTransData[1];
                 scaleAndTransData[3] = 1 - scaleAndTransData[3];
             }
@@ -474,8 +594,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
 bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-    return dstdfp.fTextureSampler.proxy()->underlyingUniqueID() ==
-                   fTextureSampler.proxy()->underlyingUniqueID() &&
+    return dstdfp.fTextureSampler.view().proxy()->underlyingUniqueID() ==
+                   fTextureSampler.view().proxy()->underlyingUniqueID() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }

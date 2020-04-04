@@ -28,27 +28,24 @@ void SkClipStackDevice::onRestore() {
 }
 
 void SkClipStackDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
-    fClipStack.clipRect(rect, this->ctm(), op, aa);
+    fClipStack.clipRect(rect, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
-    fClipStack.clipRRect(rrect, this->ctm(), op, aa);
+    fClipStack.clipRRect(rrect, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
-    fClipStack.clipPath(path, this->ctm(), op, aa);
+    fClipStack.clipPath(path, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;
-    const SkRegion* ptr = &rgn;
-    if (origin.fX | origin.fY) {
-        // translate from "global/canvas" coordinates to relative to this device
-        rgn.translate(-origin.fX, -origin.fY, &tmp);
-        ptr = &tmp;
-    }
-    fClipStack.clipDevRect(ptr->getBounds(), op);
+    SkPath path;
+    rgn.getBoundaryPath(&path);
+    path.transform(SkMatrix::MakeTrans(-origin));
+    fClipStack.clipPath(path, SkMatrix::I(), op, false);
 }
 
 void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {

@@ -35,7 +35,16 @@ public:
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return fSize == 0; }
     constexpr size_t size_bytes() const { return fSize * sizeof(T); }
-    constexpr SkSpan<T> first(size_t prefixLen) { return SkSpan<T>{fPtr, prefixLen}; }
+    constexpr SkSpan<T> first(size_t prefixLen) const {
+        SkASSERT(prefixLen <= this->size());
+        if (prefixLen == 0) { return SkSpan{}; }
+        return SkSpan{fPtr, prefixLen};
+    }
+    constexpr SkSpan<T> last(size_t postfixLen) const {
+        SkASSERT(postfixLen <= this->size());
+        if (postfixLen == 0) { return SkSpan{}; }
+        return SkSpan{fPtr + (this->size() - postfixLen), postfixLen};
+    }
 
 private:
     T* fPtr;

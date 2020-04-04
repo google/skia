@@ -53,7 +53,7 @@ class ShadowsView : public Sample {
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
         fFunkyRRPath.addRoundRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
                                   40 * SK_Scalar1, 20 * SK_Scalar1,
-                                  SkPath::kCW_Direction);
+                                  SkPathDirection::kCW);
         fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
                            20 * SK_Scalar1, 100 * SK_Scalar1,
                            0 * SK_Scalar1, 0 * SK_Scalar1);

@@ -14,8 +14,8 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessorSet.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
@@ -58,7 +58,7 @@ public:
         InputFlags fInputFlags = InputFlags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
-        GrXferProcessor::DstProxy fDstProxy;
+        GrXferProcessor::DstProxyView fDstProxyView;
         GrSwizzle fOutputSwizzle;
     };
 
@@ -75,7 +75,7 @@ public:
         SkIRect fScissorRect = SkIRect::EmptyIRect();
         // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
         // or textures are passed using DynamicStateArrays.
-        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
+        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
@@ -87,7 +87,7 @@ public:
         // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries.
         // Can be null if no samplers or to use the same textures for all meshes via'
         // FixedDynamicState.
-        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
+        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
@@ -133,19 +133,24 @@ public:
     }
 
     /**
+     * This returns the GrSurfaceProxyView for the texture used to access the dst color. If the
+     * GrXferProcessor does not use the dst color then the proxy on the GrSurfaceProxyView will be
+     * nullptr.
+     */
+    const GrSurfaceProxyView& dstProxyView() const {
+        return fDstProxyView;
+    }
+
+    /**
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
-    GrTextureProxy* dstTextureProxy(SkIPoint* offset = nullptr) const {
+    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
         if (offset) {
             *offset = fDstTextureOffset;
         }
 
-        return fDstTextureProxy.get();
-    }
-
-    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
-        if (GrTextureProxy* dstProxy = this->dstTextureProxy(offset)) {
+        if (GrTextureProxy* dstProxy = fDstProxyView.asTextureProxy()) {
             return dstProxy->peekTexture();
         }
 
@@ -186,19 +191,31 @@ public:
     bool isStencilEnabled() const {
         return SkToBool(fFlags & Flags::kStencilEnabled);
     }
-    SkDEBUGCODE(bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); })
+#ifdef SK_DEBUG
+    bool allProxiesInstantiated() const {
+        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+            if (!fFragmentProcessors[i]->isInstantiated()) {
+                return false;
+            }
+        }
+        if (fDstProxyView.proxy()) {
+            return fDstProxyView.proxy()->isInstantiated();
+        }
+
+        return true;
+    }
+#endif
 
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
     // Used by Vulkan and Metal to cache their respective pipeline objects
-    uint32_t getBlendInfoKey() const;
+    void genKey(GrProcessorKeyBuilder*, const GrCaps&) const;
 
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
+    void visitProxies(const GrOp::VisitProxyFunc&) const;
+
 private:
-
-    SkDEBUGCODE(void markAsBad() { fFlags |= Flags::kIsBad; })
-
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "InputFlags" enum. */
@@ -206,9 +223,6 @@ private:
         kHasStencilClip = (kLastInputFlag << 1),
         kStencilEnabled = (kLastInputFlag << 2),
         kScissorEnabled = (kLastInputFlag << 3),
-#ifdef SK_DEBUG
-        kIsBad = (kLastInputFlag << 4),
-#endif
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
@@ -217,7 +231,7 @@ private:
 
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
 
-    sk_sp<GrTextureProxy> fDstTextureProxy;
+    GrSurfaceProxyView fDstProxyView;
     SkIPoint fDstTextureOffset;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;

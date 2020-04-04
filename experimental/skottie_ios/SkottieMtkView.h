@@ -14,8 +14,11 @@ class GrContext;
 // e.g.: use SkMetalDeviceToGrContext().
 @property (assign) GrContext* grContext;  // non-owning pointer.
 
+// Must be set to a valid MTLCommandQueue. Will be used to present.
+@property (assign) id<MTLCommandQueue> queue;  // non-owning pointer.
+
 // When set, pauses at end of loop.
-@property (assign) BOOL stopAtEnd;
+- (void)setStopAtEnd:(BOOL)stop;
 
 // Override of the MTKView interface.  Uses Skia+Skottie+Metal to draw.
 - (void)drawRect:(CGRect)rect;

@@ -10,13 +10,13 @@ void draw(SkCanvas* canvas) {
     SkPoint poly[] = {{20, 20}, { 80, 20}, { 80,  80}, {40,  80},
                       {40, 40}, {100, 40}, {100, 100}, {20, 100}};
     path.addPoly(poly, SK_ARRAY_COUNT(poly), true);
-    path.setFillType(SkPath::kWinding_FillType);
+    path.setFillType(SkPathFillType::kWinding);
     canvas->save();
     canvas->clipPath(path, SkClipOp::kIntersect);
     canvas->drawCircle(50, 50, 45, paint);
     canvas->restore();
     canvas->translate(100, 100);
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
     canvas->clipPath(path, SkClipOp::kIntersect);
     canvas->drawCircle(50, 50, 45, paint);
 }

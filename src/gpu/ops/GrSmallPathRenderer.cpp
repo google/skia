@@ -276,10 +276,10 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
 
-        const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+        const GrSurfaceProxyView* views = fAtlas->getViews();
         for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
-            SkASSERT(proxies[i]);
-            func(proxies[i].get(), GrMipMapped::kNo);
+            SkASSERT(views[i].proxy());
+            func(views[i].proxy(), GrMipMapped::kNo);
         }
     }
 
@@ -309,7 +309,7 @@ private:
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
-        sk_sp<GrGeometryProcessor>   fGeometryProcessor;
+        GrGeometryProcessor*  fGeometryProcessor;
         GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
@@ -324,12 +324,12 @@ private:
         FlushInfo flushInfo;
         flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
-        const auto proxies = fAtlas->getProxies();
+        const auto views = fAtlas->getViews();
         for (int i = 0; i < numActiveProxies; ++i) {
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
-            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-            target->sampledProxyArray()->push_back(proxies[i].get());
+            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
+            target->sampledProxyArray()->push_back(views[i].proxy());
         }
 
         // Setup GrGeometryProcessor
@@ -353,8 +353,8 @@ private:
             } else {
                 matrix = &SkMatrix::I();
             }
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
+            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(target->allocator(),
+                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getViews(),
                     fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
@@ -364,8 +364,8 @@ private:
                 }
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getProxies(),
+            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
+                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getViews(),
                     fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
                     invert, false);
         }
@@ -375,14 +375,14 @@ private:
 
         // We need to make sure we don't overflow a 32 bit int when we request space in the
         // makeVertexSpace call below.
-        if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
+        if (instanceCount > SK_MaxS32 / GrResourceProvider::NumVertsPerNonAAQuad()) {
             return;
         }
-        GrVertexWriter vertices{target->makeVertexSpace(kVertexStride,
-                                                        kVerticesPerQuad * instanceCount,
-                                                        &flushInfo.fVertexBuffer,
-                                                        &flushInfo.fVertexOffset)};
-        flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        GrVertexWriter vertices{ target->makeVertexSpace(
+            kVertexStride, GrResourceProvider::NumVertsPerNonAAQuad() * instanceCount,
+            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset)};
+
+        flushInfo.fIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!vertices.fPtr || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -774,49 +774,56 @@ private:
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
-        GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
+        GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
         int numAtlasTextures = SkToInt(fAtlas->numActivePages());
-        auto proxies = fAtlas->getProxies();
+        const auto views = fAtlas->getViews();
         if (gp->numTextureSamplers() != numAtlasTextures) {
             for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
-                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
                 // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
-                target->sampledProxyArray()->push_back(proxies[i].get());
+                target->sampledProxyArray()->push_back(views[i].proxy());
             }
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
-                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
+                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewViews(
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
             } else {
-                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
+                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
             }
         }
 
         if (flushInfo->fInstancesToFlush) {
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            int maxInstancesPerDraw =
-                    static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
-            mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerQuad, kVerticesPerQuad,
-                                      flushInfo->fInstancesToFlush, maxInstancesPerDraw);
+            mesh->setIndexedPatterned(flushInfo->fIndexBuffer,
+                                      GrResourceProvider::NumIndicesPerNonAAQuad(),
+                                      GrResourceProvider::NumVertsPerNonAAQuad(),
+                                      flushInfo->fInstancesToFlush,
+                                      GrResourceProvider::MaxNumNonAAQuads());
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-            target->recordDraw(
-                    flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
-            flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
+            target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1,
+                               flushInfo->fFixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
+            flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *
+                                        flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 fHelper.detachProcessorSet(),
+                                                                 fHelper.pipelineFlags(),
+                                                                 fHelper.stencilSettings());
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     const SkPMColor4f& color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         SmallPathOp* that = t->cast<SmallPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return CombineResult::kCannotCombine;

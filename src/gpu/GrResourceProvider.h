@@ -154,7 +154,7 @@ public:
     sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                               const GrVkDrawableInfo&);
 
-    static const uint32_t kMinScratchTextureSize;
+    static const int kMinScratchTextureSize;
 
     /**
      * Either finds and refs, or creates a static buffer with the given parameters and contents.
@@ -194,20 +194,40 @@ public:
     }
 
     /**
-     * Returns an index buffer that can be used to render quads.
-     * Six indices per quad: 0, 1, 2, 2, 1, 3, etc.
-     * The max number of quads is the buffer's index capacity divided by 6.
+     * Returns an index buffer that can be used to render non-antialiased quads.
+     * Each quad consumes 6 indices (0, 1, 2, 2, 1, 3) and 4 vertices.
+     * Call MaxNumNonAAQuads to get the max allowed number of non-AA quads.
      * Draw with GrPrimitiveType::kTriangles
-     * @ return the quad index buffer
+     * @ return the non-AA quad index buffer
      */
-    sk_sp<const GrGpuBuffer> refQuadIndexBuffer() {
-        if (!fQuadIndexBuffer) {
-            fQuadIndexBuffer = this->createQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> refNonAAQuadIndexBuffer() {
+        if (!fNonAAQuadIndexBuffer) {
+            fNonAAQuadIndexBuffer = this->createNonAAQuadIndexBuffer();
         }
-        return fQuadIndexBuffer;
+        return fNonAAQuadIndexBuffer;
     }
 
-    static int QuadCountOfQuadBuffer();
+    static int MaxNumNonAAQuads();
+    static int NumVertsPerNonAAQuad();
+    static int NumIndicesPerNonAAQuad();
+
+    /**
+     * Returns an index buffer that can be used to render antialiased quads.
+     * Each quad consumes 30 indices and 8 vertices.
+     * Call MaxNumAAQuads to get the max allowed number of AA quads.
+     * Draw with GrPrimitiveType::kTriangles
+     * @ return the AA quad index buffer
+     */
+    sk_sp<const GrGpuBuffer> refAAQuadIndexBuffer() {
+        if (!fAAQuadIndexBuffer) {
+            fAAQuadIndexBuffer = this->createAAQuadIndexBuffer();
+        }
+        return fAAQuadIndexBuffer;
+    }
+
+    static int MaxNumAAQuads();
+    static int NumVertsPerAAQuad();
+    static int NumIndicesPerAAQuad();
 
     /**
      * Factories for GrPath objects. It's an error to call these if path rendering
@@ -254,16 +274,16 @@ public:
      */
     void assignUniqueKeyToResource(const GrUniqueKey&, GrGpuResource*);
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
 
     enum class SemaphoreWrapType {
         kWillSignal,
         kWillWait,
     };
 
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
-                                            SemaphoreWrapType wrapType,
-                                            GrWrapOwnership = kBorrow_GrWrapOwnership);
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
+                                                      SemaphoreWrapType wrapType,
+                                                      GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     void abandon() {
         fCache = nullptr;
@@ -274,7 +294,7 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 
-    static uint32_t MakeApprox(uint32_t value);
+    static SkISize MakeApprox(SkISize);
 
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;
@@ -346,12 +366,14 @@ private:
                                                         int vertCount,
                                                         const GrUniqueKey* key);
 
-    sk_sp<const GrGpuBuffer> createQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> createNonAAQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> createAAQuadIndexBuffer();
 
     GrResourceCache* fCache;
     GrGpu* fGpu;
     sk_sp<const GrCaps> fCaps;
-    sk_sp<const GrGpuBuffer> fQuadIndexBuffer;
+    sk_sp<const GrGpuBuffer> fNonAAQuadIndexBuffer;
+    sk_sp<const GrGpuBuffer> fAAQuadIndexBuffer;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

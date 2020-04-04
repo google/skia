@@ -43,9 +43,9 @@ protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkPMColor4f& color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
+    bool doAA() const { return fDoAA; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
-    GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
-    inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
+    GrProcessorSet detachProcessorSet() { return std::move(fProcessorSet); }
     const GrProcessorSet::Analysis& doProcessorAnalysis(
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType);
     const GrProcessorSet::Analysis& processorAnalysis() const {

@@ -41,7 +41,7 @@ SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
         auto atlasManager = fGrContext->priv().getAtlasManager();
         if (atlasManager) {
             unsigned int numProxies;
-            atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
+            atlasManager->getViews(kA8_GrMaskFormat, &numProxies);
             SkASSERT(1 == numProxies);
         }
 #endif
@@ -91,7 +91,8 @@ void SkInternalAtlasTextContext::flush() {
     auto* atlasManager = fGrContext->priv().getAtlasManager();
     if (!fDistanceFieldAtlas.fProxy) {
         unsigned int numProxies;
-        fDistanceFieldAtlas.fProxy = atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)->get();
+        fDistanceFieldAtlas.fProxy =
+                atlasManager->getViews(kA8_GrMaskFormat, &numProxies)->asTextureProxy();
         SkASSERT(1 == numProxies);
         fDistanceFieldAtlas.fTextureHandle =
                 fRenderer->createTexture(SkAtlasTextRenderer::AtlasFormat::kA8,

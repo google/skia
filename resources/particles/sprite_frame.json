@@ -2,7 +2,8 @@
    "MaxCount": 32,
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "resources/images/explosion_sprites.png",
+      "Path": "images",
+      "Name": "explosion_sprites.png",
       "Columns": 4,
       "Rows": 4
    },
@@ -25,8 +26,9 @@
       "",
       "void spawn(inout Particle p) {",
       "  p.lifetime = 1.0 + rand * 2.0;",
-      "  p.pos = circle() * 60;",
-      "  p.vel = p.pos / 3;",
+      "  float2 ofs = circle() * 60;",
+      "  p.pos += ofs;",
+      "  p.vel = ofs / 3;",
       "}",
       "",
       "void update(inout Particle p) {",

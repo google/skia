@@ -11,7 +11,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/gpu/GrContext.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrProcessorUnitTest.h"
@@ -232,7 +231,7 @@ const SkPath& TestPathConvex(SkRandom* random) {
         gPath[2].lineTo(-50.0f,  31.0f);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
-            SkASSERT(SkPath::kConvex_Convexity == gPath[i].getConvexity());
+            SkASSERT(SkPathConvexityType::kConvex == gPath[i].getConvexityType());
         }
     }
 
@@ -338,7 +337,7 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
         : fViewMatrixStorage(TestMatrix(d->fRandom))
-        , fColorInfoStorage(skstd::make_unique<GrColorInfo>(
+        , fColorInfoStorage(std::make_unique<GrColorInfo>(
                   GrColorType::kRGBA_8888, kPremul_SkAlphaType, TestColorSpace(d->fRandom)))
         , fArgs(d->context(), &fViewMatrixStorage, kNone_SkFilterQuality, fColorInfoStorage.get()) {
 }

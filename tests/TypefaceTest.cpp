@@ -16,7 +16,6 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/sfnt/SkSFNTHeader.h"
@@ -119,8 +118,8 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
 DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     SkFontDescriptor desc;
     SkFixed axis = -SK_Fixed1;
-    auto font = skstd::make_unique<SkMemoryStream>("a", 1, false);
-    desc.setFontData(skstd::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
+    auto font = std::make_unique<SkMemoryStream>("a", 1, false);
+    desc.setFontData(std::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
 
     SkDynamicMemoryWStream stream;
     desc.serialize(&stream);
@@ -161,18 +160,20 @@ DEF_TEST(TypefaceAxes, reporter) {
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
 
     if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
-        return;
+        return;  // Not all SkFontMgr can makeFromStream().
     }
 
     int count = typeface->getVariationDesignPosition(nullptr, 0);
     if (count == -1) {
-        return;
+        return;  // The number of axes is unknown.
     }
     REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
 
     SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
     count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+    if (count == -1) {
+        return;  // The position cannot be determined.
+    }
     REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
 
     REPORTER_ASSERT(reporter, positionRead[0].axis == position[1].axis);
@@ -180,7 +181,8 @@ DEF_TEST(TypefaceAxes, reporter) {
     // Convert to fixed for "almost equal".
     SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
     SkFixed fixedOriginal = SkScalarToFixed(position[1].value);
-    REPORTER_ASSERT(reporter, SkTAbs(fixedRead - fixedOriginal) < 2);
+    REPORTER_ASSERT(reporter, SkTAbs(fixedRead - fixedOriginal) < 2 || // variation set correctly
+                              SkTAbs(fixedRead - SK_Fixed1    ) < 2);  // variation remained default
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
@@ -242,7 +244,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     constexpr SkScalar minAxisInDistortable = 0.5;
     constexpr SkScalar defAxisInDistortable = 1;
     constexpr SkScalar maxAxisInDistortable = 2;
-    constexpr bool axisIsHiddenInDistortable = false;
+    constexpr bool axisIsHiddenInDistortable = true;
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
@@ -250,8 +252,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
 
     if (!typeface) {
-        // Not all SkFontMgr can makeFromStream().
-        return;
+        return;  // Not all SkFontMgr can makeFromStream().
     }
 
     SkFontParameters::Variation::Axis parameter[numberOfAxesInDistortable];
@@ -265,8 +266,10 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     REPORTER_ASSERT(reporter, parameter[0].def == defAxisInDistortable);
     REPORTER_ASSERT(reporter, parameter[0].max == maxAxisInDistortable);
     REPORTER_ASSERT(reporter, parameter[0].tag == SkSetFourByteTag('w','g','h','t'));
-    REPORTER_ASSERT(reporter, parameter[0].isHidden() == axisIsHiddenInDistortable);
-
+    // This seems silly, but allows MSAN to ensure that isHidden is initialized.
+    // With GDI or before macOS 10.12, Win10, or FreeType 2.8.1 the API for hidden is missing.
+    REPORTER_ASSERT(reporter, parameter[0].isHidden() == axisIsHiddenInDistortable ||
+                              parameter[0].isHidden() == false);
 }
 
 static bool count_proc(SkTypeface* face, void* ctx) {

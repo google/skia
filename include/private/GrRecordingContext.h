@@ -16,12 +16,14 @@ class GrBackendFormat;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
+class GrProgramInfo;
 class GrRecordingContextPriv;
 class GrStrikeCache;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextureContext;
+class SkArenaAlloc;
 
 class GrRecordingContext : public GrImageContext {
 public:
@@ -35,6 +37,12 @@ public:
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;
 
+#if GR_TEST_UTILS
+    // Used by tests that induce intentional allocation failures, in order to keep the output clean.
+    void testingOnly_setSuppressAllocationWarnings() { fSuppressAllocationWarnings = true; }
+    bool testingOnly_getSuppressAllocationWarnings() const { return fSuppressAllocationWarnings; }
+#endif
+
 protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
@@ -46,8 +54,26 @@ protected:
 
     GrDrawingManager* drawingManager();
 
-    sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+    // This entry point should only be used for DDL creation where we want the ops' lifetime to
+    // match that of the DDL.
+    std::unique_ptr<GrOpMemoryPool> detachOpMemoryPool();
+
+    SkArenaAlloc* recordTimeAllocator();
+    // This entry point should only be used for DDL creation where we want the ops' data's lifetime
+    // to match that of the DDL.
+    std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
+
+    // This entry point gives the recording context a chance to cache the provided
+    // programInfo. The DDL context takes this opportunity to store programInfos as a sidecar
+    // to the DDL.
+    virtual void recordProgramInfo(const GrProgramInfo*) {}
+    // This asks the recording context to return any programInfos it may have collected
+    // via the 'recordProgramInfo' call. It is up to the caller to ensure that the lifetime
+    // of the programInfos matches the intended use. For example, in DDL-record mode it
+    // is known that all the programInfos will have been allocated in an arena with the
+    // same lifetime at the DDL itself.
+    virtual void detachProgramInfos(SkTDArray<const GrProgramInfo*>*) {}
 
     GrStrikeCache* getGrStrikeCache() { return fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache();
@@ -124,12 +150,17 @@ protected:
 private:
     std::unique_ptr<GrDrawingManager> fDrawingManager;
     // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool>             fOpMemoryPool;
+    std::unique_ptr<GrOpMemoryPool>   fOpMemoryPool;
+    std::unique_ptr<SkArenaAlloc>     fRecordTimeAllocator;
 
     std::unique_ptr<GrStrikeCache>    fStrikeCache;
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
+
+#ifdef GR_TEST_UTILS
+    bool fSuppressAllocationWarnings = false;
+#endif
 
     typedef GrImageContext INHERITED;
 };

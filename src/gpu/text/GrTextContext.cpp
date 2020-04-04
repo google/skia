@@ -14,7 +14,6 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkGlyphRun.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -32,10 +31,16 @@ static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 72;
 static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
+#ifdef SK_BUILD_FOR_MAC
+static const int kLargeDFFontLimit = 162;
+static const int kExtraLargeDFFontSize = 256;
+#endif
 
 static const int kDefaultMinDistanceFieldFontSize = 18;
-#ifdef SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_ANDROID)
 static const int kDefaultMaxDistanceFieldFontSize = 384;
+#elif defined(SK_BUILD_FOR_MAC)
+static const int kDefaultMaxDistanceFieldFontSize = kExtraLargeDFFontSize;
 #else
 static const int kDefaultMaxDistanceFieldFontSize = 2 * kLargeDFFontSize;
 #endif
@@ -167,10 +172,20 @@ SkFont GrTextContext::InitDistanceFieldFont(const SkFont& font,
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         *textRatio = textSize / kMediumDFFontSize;
         dfFont.setSize(SkIntToScalar(kMediumDFFontSize));
+#ifdef SK_BUILD_FOR_MAC
+    } else if (scaledTextSize <= kLargeDFFontLimit) {
+        *textRatio = textSize / kLargeDFFontSize;
+        dfFont.setSize(SkIntToScalar(kLargeDFFontSize));
+    } else {
+        *textRatio = textSize / kExtraLargeDFFontSize;
+        dfFont.setSize(SkIntToScalar(kExtraLargeDFFontSize));
+    }
+#else
     } else {
         *textRatio = textSize / kLargeDFFontSize;
         dfFont.setSize(SkIntToScalar(kLargeDFFontSize));
     }
+#endif
 
     dfFont.setEdging(SkFont::Edging::kAntiAlias);
     dfFont.setForceAutoHinting(false);

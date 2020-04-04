@@ -28,21 +28,26 @@ public:
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
         return nullptr;
     }
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override { return nullptr; }
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
+            const GrBackendSemaphore& semaphore,
+            GrResourceProvider::SemaphoreWrapType wrapType,
+            GrWrapOwnership ownership) override {
+        return nullptr;
+    }
+    void insertSemaphore(GrSemaphore* semaphore) override {}
+    void waitSemaphore(GrSemaphore* semaphore) override {}
+    std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override {
+        return nullptr;
+    }
 
     void submit(GrOpsRenderPass* renderPass) override;
 
@@ -121,19 +126,22 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
                                ForExternalIO) override {}
 
-    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
+        return true;
     }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData* data,
+                                            int numMipLevels,
+                                            GrProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS

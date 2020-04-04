@@ -3,20 +3,20 @@
 #include "tools/fiddle/examples.h"
 // HASH=1453856a9d0c73e8192bf298c4143563
 REG_FIDDLE(Path_IsInverseFillType, 256, 256, true, 0) {
-#define nameValue(fill) { SkPath::fill, #fill }
+#define nameValue(fill) { SkPathFillType::fill, #fill }
 
 void draw(SkCanvas* canvas) {
     struct {
-        SkPath::FillType fill;
+        SkPathFillType fill;
         const char* name;
     } fills[] = {
-        nameValue(kWinding_FillType),
-        nameValue(kEvenOdd_FillType),
-        nameValue(kInverseWinding_FillType),
-        nameValue(kInverseEvenOdd_FillType),
+        nameValue(kWinding),
+        nameValue(kEvenOdd),
+        nameValue(kInverseWinding),
+        nameValue(kInverseEvenOdd),
     };
     for (auto fill: fills ) {
-        SkDebugf("IsInverseFillType(%s) == %s\n", fill.name, SkPath::IsInverseFillType(fill.fill) ?
+        SkDebugf("IsInverseFillType(%s) == %s\n", fill.name, SkPathFillType_IsInverse(fill.fill) ?
                  "true" : "false");
     }
 }

@@ -12,6 +12,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkOSFile.h"
 #include "src/utils/SkJSONWriter.h"
 
 /**
@@ -52,6 +53,62 @@ public:
             this->appendDoubleDigits(name, value, 16);
         }
     }
+};
+
+/**
+ NanoFILEAppendAndCloseStream: re-open the file, append the data, then close on every write() call.
+
+ The purpose of this class is to not keep the file handle open between JSON flushes. SkJSONWriter
+ uses a 32k in-memory cache already, so it only flushes occasionally and is well equipped for a
+ steam like this.
+
+ See: https://b.corp.google.com/issues/143074513
+*/
+class NanoFILEAppendAndCloseStream : public SkWStream {
+public:
+    NanoFILEAppendAndCloseStream(const char* filePath) : fFilePath(filePath) {
+        // Open the file as "write" to ensure it exists and clear any contents before we begin
+        // appending.
+        FILE* file = sk_fopen(fFilePath.c_str(), kWrite_SkFILE_Flag);
+        if (!file) {
+            SkDebugf("Failed to open file %s for write.\n", fFilePath.c_str());
+            fFilePath.reset();
+            return;
+        }
+        sk_fclose(file);
+    }
+
+    size_t bytesWritten() const override { return fBytesWritten; }
+
+    bool write(const void* buffer, size_t size) override {
+        if (fFilePath.isEmpty()) {
+            return false;
+        }
+
+        FILE* file = sk_fopen(fFilePath.c_str(), kAppend_SkFILE_Flag);
+        if (!file) {
+            SkDebugf("Failed to open file %s for append.\n", fFilePath.c_str());
+            return false;
+        }
+
+        size_t bytesWritten = sk_fwrite(buffer, size, file);
+        fBytesWritten += bytesWritten;
+        sk_fclose(file);
+
+        if (bytesWritten != size) {
+            SkDebugf("NanoFILEAppendAndCloseStream failed writing %d bytes (wrote %d instead)\n",
+                     size, bytesWritten);
+            return false;
+        }
+
+        return true;
+    }
+
+    void flush() override {}
+
+private:
+    SkString fFilePath;
+    size_t fBytesWritten = 0;
 };
 
 #endif

@@ -57,8 +57,7 @@ public:
                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
-                                                          : "_coords",
+                sk_TransformedCoords2D_0.c_str(),
                 args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
@@ -70,7 +69,10 @@ public:
                 "d.y), 1.0);\n}\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
                 args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
+                fragBuilder->getProgramBuilder()
+                        ->samplerSwizzle(args.fTexSamplers[0])
+                        .asString()
+                        .c_str());
     }
 
 private:
@@ -83,8 +85,8 @@ private:
             pdman.set1f(xInvInsetVar, (_outer.xInvInset));
             pdman.set1f(yInvInsetVar, (_outer.yInvInset));
         }
-        GrSurfaceProxy& srcProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& src = *srcProxy.peekTexture();
+        const GrSurfaceProxyView& srcView = _outer.textureSampler(0).view();
+        GrTexture& src = *srcView.proxy()->peekTexture();
         (void)src;
         auto bounds = _outer.bounds;
         (void)bounds;
@@ -108,7 +110,7 @@ private:
 
         {
             SkScalar y = srcRect.y() * invH;
-            if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
+            if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
                 y = 1.0f - (srcRect.height() / bounds.height()) - y;
             }
 
@@ -118,7 +120,7 @@ private:
         {
             SkScalar y = bounds.y() * invH;
             SkScalar hSign = 1.f;
-            if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
+            if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
                 y = 1.0f - bounds.y() * invH;
                 hSign = -1.f;
             }

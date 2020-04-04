@@ -61,6 +61,10 @@ is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_win = current_os == "win"
 
+# This is just to make the Dawn build files happy. Skia itself uses target_os = "linux"
+# for ChromeOS, so this variable will not affect Skia proper.
+is_chromeos = false
+
 if (target_cpu == "") {
   target_cpu = host_cpu
   if (is_android || is_ios) {
@@ -74,10 +78,10 @@ if (current_cpu == "") {
   current_cpu = target_cpu
 }
 
-is_clang = is_android || is_ios || is_mac ||
+is_clang = is_android || is_ios || is_mac || is_fuchsia ||
            (cc == "clang" && cxx == "clang++") || clang_win != ""
 if (!is_clang && !is_win) {
-  is_clang = exec_script("gn/is_clang.py",
+  is_clang = exec_script("//gn/is_clang.py",
                          [
                            cc,
                            cxx,

@@ -23,7 +23,7 @@ class GrVkImageLayout;
 class GrGLTextureParameters;
 
 #ifdef SK_DAWN
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #endif
 
 #ifdef SK_METAL
@@ -72,7 +72,7 @@ public:
     static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
 
 #ifdef SK_DAWN
-    static GrBackendFormat MakeDawn(dawn::TextureFormat format) {
+    static GrBackendFormat MakeDawn(wgpu::TextureFormat format) {
         return GrBackendFormat(format);
     }
 #endif
@@ -83,9 +83,7 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType) {
-        return GrBackendFormat(colorType);
-    }
+    static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression);
 
     bool operator==(const GrBackendFormat& that) const;
     bool operator!=(const GrBackendFormat& that) const { return !(*this == that); }
@@ -109,10 +107,10 @@ public:
 
 #ifdef SK_DAWN
     /**
-     * If the backend API is Dawn this gets the format as a dawn::TextureFormat and returns true.
+     * If the backend API is Dawn this gets the format as a wgpu::TextureFormat and returns true.
      * Otherwise, returns false.
      */
-    bool asDawnFormat(dawn::TextureFormat*) const;
+    bool asDawnFormat(wgpu::TextureFormat*) const;
 #endif
 
 #ifdef SK_METAL
@@ -124,10 +122,12 @@ public:
 #endif
 
     /**
-     * If the backend API is Mock this gets the format as a GrColorType. Otherwise, returns
-     * GrColorType::kUnknown.
+     * If the backend API is not Mock these two calls will return kUnknown and kNone, respectively.
+     * Otherwise, if the compression type is kNone then the GrColorType will be valid. If the
+     * compression type is anything other then kNone than the GrColorType will be kUnknown.
      */
     GrColorType asMockColorType() const;
+    SkImage::CompressionType asMockCompressionType() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
@@ -147,14 +147,14 @@ private:
     GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&);
 
 #ifdef SK_DAWN
-    GrBackendFormat(dawn::TextureFormat format);
+    GrBackendFormat(wgpu::TextureFormat format);
 #endif
 
 #ifdef SK_METAL
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
 
-    GrBackendFormat(GrColorType colorType);
+    GrBackendFormat(GrColorType, SkImage::CompressionType);
 
     GrBackendApi fBackend = GrBackendApi::kMock;
     bool         fValid = false;
@@ -166,13 +166,16 @@ private:
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
         }                fVk;
 #ifdef SK_DAWN
-        dawn::TextureFormat fDawnFormat;
+        wgpu::TextureFormat fDawnFormat;
 #endif
 
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
-        GrColorType      fMockColorType;
+        struct {
+            GrColorType              fColorType;
+            SkImage::CompressionType fCompressionType;
+        }                fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
 };

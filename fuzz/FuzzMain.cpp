@@ -55,6 +55,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "path_deserialize\n"
                                          "region_deserialize\n"
                                          "region_set_path\n"
+                                         "skdescriptor_deserialize\n"
                                          "skp\n"
                                          "sksl2glsl\n"
                                          "sksl2metal\n"
@@ -83,11 +84,12 @@ static void fuzz_json(sk_sp<SkData>);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
+static void fuzz_skdescriptor_deserialize(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 static void fuzz_sksl2metal(sk_sp<SkData>);
-static void fuzz_sksl2spirv(sk_sp<SkData>);
 static void fuzz_sksl2pipeline(sk_sp<SkData>);
+static void fuzz_sksl2spirv(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
@@ -199,6 +201,10 @@ static int fuzz_file(SkString path, SkString type) {
         SkDebugf("I would prefer not to.\n");
         return 0;
     }
+    if (type.equals("skdescriptor_deserialize")) {
+        fuzz_skdescriptor_deserialize(bytes);
+        return 0;
+    }
 #if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
         fuzz_skottie_json(bytes);
@@ -244,6 +250,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_pathop", "Pathop"},
     {"api_polyutils", "PolyUtils"},
     {"api_raster_n32_canvas", "RasterN32Canvas"},
+    {"api_skdescriptor", "SkDescriptor"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
     {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
@@ -261,6 +268,7 @@ static std::map<std::string, std::string> cf_map = {
     {"path_deserialize", "path_deserialize"},
     {"region_deserialize", "region_deserialize"},
     {"region_set_path", "region_set_path"},
+    {"skdescriptor_deserialize", "skdescriptor_deserialize"},
     {"skjson", "json"},
     {"sksl2glsl", "sksl2glsl"},
     {"sksl2metal", "sksl2metal"},
@@ -761,3 +769,11 @@ static void fuzz_sksl2pipeline(sk_sp<SkData> bytes) {
         SkDebugf("[terminated] Could not compile input to pipeline stage.\n");
     }
 }
+
+void FuzzSkDescriptorDeserialize(sk_sp<SkData> bytes);
+
+static void fuzz_skdescriptor_deserialize(sk_sp<SkData> bytes) {
+    FuzzSkDescriptorDeserialize(bytes);
+    SkDebugf("[terminated] Did not crash while deserializing an SkDescriptor.\n");
+}
+

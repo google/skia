@@ -7,24 +7,39 @@
 
 #include "src/gpu/GrProgramInfo.h"
 
+#include "src/gpu/GrStencilSettings.h"
+
+GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
+    GrStencilSettings stencil;
+
+    if (this->pipeline().isStencilEnabled()) {
+        stencil.reset(*this->pipeline().getUserStencil(),
+                      this->pipeline().hasStencilClip(),
+                      8);
+    }
+
+    return stencil;
+}
 
 #ifdef SK_DEBUG
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
-void GrProgramInfo::validate() const {
-    SkASSERT(!fPipeline.isBad());
+void GrProgramInfo::validate(bool flushTime) const {
+    if (flushTime) {
+        SkASSERT(fPipeline->allProxiesInstantiated());
+    }
 
     if (this->hasDynamicPrimProcTextures()) {
         SkASSERT(!this->hasFixedPrimProcTextures());
-        SkASSERT(fPrimProc.numTextureSamplers());
+        SkASSERT(fPrimProc->numTextureSamplers());
     } else if (this->hasFixedPrimProcTextures()) {
-        SkASSERT(fPrimProc.numTextureSamplers());
+        SkASSERT(fPrimProc->numTextureSamplers());
     } else {
-        SkASSERT(!fPrimProc.numTextureSamplers());
+        SkASSERT(!fPrimProc->numTextureSamplers());
     }
 
-    SkASSERT(!fPipeline.isScissorEnabled() || this->hasFixedScissor() ||
+    SkASSERT(!fPipeline->isScissorEnabled() || this->hasFixedScissor() ||
              this->hasDynamicScissors());
 
     if (this->hasDynamicPrimProcTextures()) {
@@ -34,15 +49,16 @@ void GrProgramInfo::validate() const {
             auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(0);
 
             const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
-            GrTextureType type = dynamicPrimProcTextures[s]->textureType();
+            GrTextureType type = dynamicPrimProcTextures[s]->backendFormat().textureType();
             GrPixelConfig config = dynamicPrimProcTextures[s]->config();
 
             for (int m = 1; m < fNumDynamicStateArrays; ++m) {
                 dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
 
                 auto testProxy = dynamicPrimProcTextures[s];
+                SkASSERT(testProxy->asTextureProxy());
                 SkASSERT(testProxy->backendFormat() == format);
-                SkASSERT(testProxy->textureType() == type);
+                SkASSERT(testProxy->backendFormat().textureType() == type);
                 SkASSERT(testProxy->config() == config);
             }
         }
@@ -100,12 +116,8 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
         }
     }
 
-    GrFragmentProcessor::Iter iter(this->pipeline());
-    while (const GrFragmentProcessor* fp = iter.next()) {
-        for (int s = 0; s < fp->numTextureSamplers(); ++s) {
-            const auto& textureSampler = fp->textureSampler(s);
-            assertResolved(textureSampler.peekTexture(), textureSampler.samplerState());
-        }
+    for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(this->pipeline())) {
+        assertResolved(sampler.peekTexture(), sampler.samplerState());
     }
 }
 
@@ -113,8 +125,8 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
     SkASSERT(!fNumDynamicStateArrays || meshCount == fNumDynamicStateArrays);
 
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(fPrimProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(fPrimProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
+        SkASSERT(fPrimProc->hasVertexAttributes() == meshes[i].hasVertexData());
+        SkASSERT(fPrimProc->hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 }
 

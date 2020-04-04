@@ -20,14 +20,32 @@ class GrVkGpu;
 
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+
+#define GR_VK_CALL_RESULT(GPU, RESULT, X)                             \
+    do {                                                              \
+    (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
+    SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
+    if (RESULT != VK_SUCCESS && !GPU->isDeviceLost()) {               \
+        SkDebugf("Failed vulkan call. Error: %d\n", RESULT);          \
+    }                                                                 \
+    if (VK_ERROR_DEVICE_LOST == RESULT) {                             \
+        GPU->setDeviceLost();                                         \
+    }                                                                 \
+    } while(false)
+
+#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)                     \
+    do {                                                              \
+    (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
+    if (VK_ERROR_DEVICE_LOST == RESULT) {                             \
+        GPU->setDeviceLost();                                         \
+    }                                                                 \
+    } while(false)
+
 // same as GR_VK_CALL but checks for success
-#ifdef SK_DEBUG
-#define GR_VK_CALL_ERRCHECK(IFACE, X)                          \
-    VkResult SK_MACRO_APPEND_LINE(ret) = GR_VK_CALL(IFACE, X); \
-    SkASSERT(VK_SUCCESS == SK_MACRO_APPEND_LINE(ret))
-#else
-#define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X)
-#endif
+#define GR_VK_CALL_ERRCHECK(GPU, X)                                  \
+    VkResult SK_MACRO_APPEND_LINE(ret);                              \
+    GR_VK_CALL_RESULT(GPU, SK_MACRO_APPEND_LINE(ret), X)             \
+
 
 bool GrVkFormatIsSupported(VkFormat);
 
@@ -42,7 +60,7 @@ bool GrVkFormatColorTypePairIsValid(VkFormat, GrColorType);
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
+bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
@@ -51,7 +69,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs);
 
-bool GrInstallVkShaderModule(const GrVkGpu* gpu,
+bool GrInstallVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& spirv,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,

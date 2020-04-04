@@ -30,7 +30,6 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkUtils.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
@@ -231,7 +230,7 @@ struct SkSVGDevice::MxCp {
     const SkClipStack*  fClipStack;
 
     MxCp(const SkMatrix* mx, const SkClipStack* cs) : fMatrix(mx), fClipStack(cs) {}
-    MxCp(SkSVGDevice* device) : fMatrix(&device->ctm()), fClipStack(&device->cs()) {}
+    MxCp(SkSVGDevice* device) : fMatrix(&device->localToDevice()), fClipStack(&device->cs()) {}
 };
 
 class SkSVGDevice::AutoElement : ::SkNoncopyable {
@@ -728,7 +727,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
             const auto& p = e->getDeviceSpacePath();
             AutoElement path("path", fWriter);
             path.addPathAttributes(p);
-            if (p.getFillType() == SkPath::kEvenOdd_FillType) {
+            if (p.getFillType() == SkPathFillType::kEvenOdd) {
                 path.addAttribute("clip-rule", "evenodd");
             }
         } break;
@@ -741,7 +740,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
     while (elem) {
         const auto cid = define_clip(elem);
 
-        auto clip_grp = skstd::make_unique<AutoElement>("g", fWriter);
+        auto clip_grp = std::make_unique<AutoElement>("g", fWriter);
         clip_grp->addAttribute("clip-path", SkStringPrintf("url(#%s)", cid.c_str()));
 
         fClipStack.push_back({ std::move(clip_grp), elem->getGenID() });
@@ -764,7 +763,7 @@ void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (!strcmp(SkAnnotationKeys::URL_Key(), key) ||
         !strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
         this->cs().save();
-        this->cs().clipRect(rect, this->ctm(), kIntersect_SkClipOp, true);
+        this->cs().clipRect(rect, this->localToDevice(), kIntersect_SkClipOp, true);
         SkRect transformedRect = this->cs().bounds(this->getGlobalBounds());
         this->cs().restore();
         if (transformedRect.isEmpty()) {
@@ -852,7 +851,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
     elem.addPathAttributes(path);
 
     // TODO: inverse fill types?
-    if (path.getFillType() == SkPath::kEvenOdd_FillType) {
+    if (path.getFillType() == SkPathFillType::kEvenOdd) {
         elem.addAttribute("fill-rule", "evenodd");
     }
 }
@@ -910,14 +909,14 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
     SkClipStack::AutoRestore ar(cs, false);
     if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
         cs->save();
-        cs->clipRect(dst, this->ctm(), kIntersect_SkClipOp, paint.isAntiAlias());
+        cs->clipRect(dst, this->localToDevice(), kIntersect_SkClipOp, paint.isAntiAlias());
     }
 
     SkMatrix adjustedMatrix;
     adjustedMatrix.setRectToRect(srcOrNull ? *srcOrNull : SkRect::Make(bm.bounds()),
                                  dst,
                                  SkMatrix::kFill_ScaleToFit);
-    adjustedMatrix.postConcat(this->ctm());
+    adjustedMatrix.postConcat(this->localToDevice());
 
     drawBitmapCommon(MxCp(&adjustedMatrix, cs), bm, paint);
 }

@@ -43,16 +43,16 @@ SkGlyphRunList::SkGlyphRunList(
         const SkTextBlob* blob,
         SkPoint origin,
         SkSpan<const SkGlyphRun> glyphRunList)
-        : fOriginalPaint{&paint}
+        : fGlyphRuns{glyphRunList}
+        , fOriginalPaint{&paint}
         , fOriginalTextBlob{blob}
-        , fOrigin{origin}
-        , fGlyphRuns{glyphRunList} { }
+        , fOrigin{origin} { }
 
 SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun, const SkPaint& paint)
-        : fOriginalPaint{&paint}
+        : fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}}
+        , fOriginalPaint{&paint}
         , fOriginalTextBlob{nullptr}
-        , fOrigin{SkPoint::Make(0, 0)}
-        , fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}} {}
+        , fOrigin{SkPoint::Make(0, 0)} {}
 
 uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()

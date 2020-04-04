@@ -8,10 +8,10 @@
 #ifndef GrSkSLFPFactoryCache_DEFINED
 #define GrSkSLFPFactoryCache_DEFINED
 
+#include <vector>
 #include "include/core/SkRefCnt.h"
 
-#include <vector>
-
+class GrShaderCaps;
 class GrSkSLFPFactory;
 
 // This is a cache used by GrSkSLFP to retain GrSkSLFPFactory instances, so we don't have to
@@ -21,6 +21,12 @@ class GrSkSLFPFactory;
 // onGetGLSLProcessorKey.
 class GrSkSLFPFactoryCache : public SkNVRefCnt<GrSkSLFPFactoryCache> {
 public:
+    GrSkSLFPFactoryCache(sk_sp<const GrShaderCaps> shaderCaps) : fShaderCaps(shaderCaps) {}
+    ~GrSkSLFPFactoryCache();
+
+    sk_sp<GrSkSLFPFactory> findOrCreate(int index, const char* name, const char* skSL);
+
+private:
     // Returns a factory by its numeric index, or null if no such factory exists. Indices are
     // allocated by GrSkSLFP::NewIndex().
     sk_sp<GrSkSLFPFactory> get(int index);
@@ -28,10 +34,10 @@ public:
     // Stores a new factory with the given index.
     void set(int index, sk_sp<GrSkSLFPFactory> factory);
 
-    ~GrSkSLFPFactoryCache();
+    mutable SkMutex fCacheMutex;
 
-private:
-    std::vector<GrSkSLFPFactory*> fFactories;
+    std::vector<sk_sp<GrSkSLFPFactory>> fFactories;
+    sk_sp<const GrShaderCaps> fShaderCaps;
 };
 
 #endif

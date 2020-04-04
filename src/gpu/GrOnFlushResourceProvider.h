@@ -92,6 +92,10 @@ public:
     uint32_t contextID() const;
     const GrCaps* caps() const;
 
+#if GR_TEST_UTILS
+    bool testingOnly_getSuppressAllocationWarnings() const;
+#endif
+
 private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
     GrOnFlushResourceProvider& operator=(const GrOnFlushResourceProvider&) = delete;

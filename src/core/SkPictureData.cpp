@@ -11,7 +11,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
 #include "src/core/SkReadBuffer.h"
@@ -300,7 +299,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             break;
         case SK_PICT_FACTORY_TAG: {
             if (!stream->readU32(&size)) { return false; }
-            fFactoryPlayback = skstd::make_unique<SkFactoryPlayback>(size);
+            fFactoryPlayback = std::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
                 SkString str;
                 size_t len;

@@ -22,6 +22,7 @@
 #include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "tests/TestUtils.h"
 
 namespace {
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
@@ -98,8 +99,9 @@ private:
         static const int kColorOffset = sizeof(SkPoint);
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
 
-        sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+        GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(
+                                              target->allocator(),
+                                              target->caps().shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
@@ -160,11 +162,15 @@ private:
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 fHelper.detachProcessorSet(),
+                                                                 fHelper.pipelineFlags());
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     Helper fHelper;
@@ -265,7 +271,7 @@ static const int kAtlasTileSize = 2;
  */
 class AtlasObject final : public GrOnFlushCallbackObject {
 public:
-    AtlasObject() : fDone(false) { }
+    AtlasObject(skiatest::Reporter* reporter) : fDone(false), fReporter(reporter) {}
 
     ~AtlasObject() override {
         SkASSERT(fDone);
@@ -356,9 +362,8 @@ public:
         // At this point 'fAtlasProxy' should be instantiated and have:
         //    1 ref from the 'fAtlasProxy' sk_sp
         //    9 refs from the 9 AtlasedRectOps
-        SkASSERT(10 == fAtlasProxy->refCnt());
         // The backing GrSurface should have only 1 though bc there is only one proxy
-        SkASSERT(1 == fAtlasProxy->testingOnly_getBackingRefCnt());
+        CheckSingleThreadedProxyRefs(fReporter, fAtlasProxy.get(), 10, 1);
         auto rtc = resourceProvider->makeRenderTargetContext(fAtlasProxy, GrColorType::kRGBA_8888,
                                                              nullptr, nullptr);
 
@@ -427,11 +432,14 @@ private:
 
     // Set to true when the testing harness expects this object to be no longer used
     bool                         fDone;
+
+    skiatest::Reporter*           fReporter;
 };
 
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
-                                                 sk_sp<GrTextureProxy> atlasProxy) {
+                                                 sk_sp<GrTextureProxy> atlasProxy,
+                                                 SkAlphaType atlasAlphaType) {
     auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                3* kDrawnTileSize,
                                                                kDrawnTileSize,
@@ -443,7 +451,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrSimpleTextureEffect::Make(atlasProxy, SkMatrix::I());
+        auto fp = GrSimpleTextureEffect::Make(atlasProxy, atlasAlphaType, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -535,15 +543,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     auto proxyProvider = context->priv().proxyProvider();
 
-    AtlasObject object;
+    AtlasObject object(reporter);
 
     context->priv().addOnFlushCallbackObject(&object);
 
     sk_sp<GrTextureProxy> proxies[kNumProxies];
     for (int i = 0; i < kNumProxies; ++i) {
-        proxies[i] = make_upstream_image(context, &object, i*3,
-                                         object.getAtlasProxy(proxyProvider,
-                                                              context->priv().caps()));
+        proxies[i] = make_upstream_image(
+                context, &object, i*3,
+                object.getAtlasProxy(proxyProvider, context->priv().caps()), kPremul_SkAlphaType);
     }
 
     static const int kFinalWidth = 6*kDrawnTileSize;
@@ -561,7 +569,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        auto fp = GrSimpleTextureEffect::Make(std::move(proxies[i]), t);
+        auto fp = GrSimpleTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 

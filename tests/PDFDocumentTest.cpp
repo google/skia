@@ -185,8 +185,6 @@ DEF_TEST(SkPDF_pdfa_document, r) {
 
     static const char* moreExpectations[] = {
         "/Producer (phoney library)",
-        "/ProductionLibrary (Skia/PDF m",
-        "<!-- <skia:ProductionLibrary>Skia/PDF m",
         "<pdf:Producer>phoney library</pdf:Producer>",
     };
     for (const char* expectation : moreExpectations) {

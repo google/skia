@@ -144,20 +144,6 @@ private:
 };
 }
 
-static void check_refs(skiatest::Reporter* reporter,
-                       GrTextureProxy* proxy,
-                       int32_t expectedProxyRefs,
-                       int32_t expectedBackingRefs) {
-    int32_t actualProxyRefs = proxy->refCnt();
-    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
-
-    SkASSERT(actualProxyRefs == expectedProxyRefs);
-    SkASSERT(actualBackingRefs == expectedBackingRefs);
-
-    REPORTER_ASSERT(reporter, actualProxyRefs == expectedProxyRefs);
-    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
-}
-
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -203,11 +189,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 // If the fp is cloned the number of refs should increase by one (for the clone)
                 int expectedProxyRefs = makeClone ? 3 : 2;
 
-                check_refs(reporter, proxy.get(), expectedProxyRefs, -1);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), expectedProxyRefs, -1);
 
                 context->flush();
 
-                check_refs(reporter, proxy.get(), 1, 1); // just one from the 'proxy' sk_sp
+                // just one from the 'proxy' sk_sp
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
             }
         }
     }
@@ -243,27 +230,26 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 void test_draw_op(GrContext* context,
                   GrRenderTargetContext* rtc,
                   std::unique_ptr<GrFragmentProcessor> fp,
-                  sk_sp<GrTextureProxy> inputDataProxy) {
+                  sk_sp<GrTextureProxy> inputDataProxy,
+                  SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorTextureProcessor(std::move(inputDataProxy), SkMatrix::I());
+    paint.addColorTextureProcessor(std::move(inputDataProxy), inputAlphaType, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto op = GrFillRectOp::MakeNonAARect(context, std::move(paint), SkMatrix::I(),
                                           SkRect::MakeWH(rtc->width(), rtc->height()));
-    rtc->addDrawOp(GrNoClip(), std::move(op));
+    rtc->priv().testingOnly_addDrawOp(std::move(op));
 }
 
 // This assumes that the output buffer will be the same size as inputDataProxy
 void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcessor* fp,
-               sk_sp<GrTextureProxy> inputDataProxy, GrColor* buffer) {
-    int width = inputDataProxy->width();
-    int height = inputDataProxy->height();
-
+               sk_sp<GrTextureProxy> inputDataProxy, SkAlphaType inputAlphaType, GrColor* buffer) {
     // test_draw_op needs to take ownership of an FP, so give it a clone that it can own
-    test_draw_op(context, rtc, fp->clone(), inputDataProxy);
-    memset(buffer, 0x0, sizeof(GrColor) * width * height);
-    rtc->readPixels(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+    test_draw_op(context, rtc, fp->clone(), inputDataProxy, inputAlphaType);
+    memset(buffer, 0x0, sizeof(GrColor) * inputDataProxy->width() * inputDataProxy->height());
+    rtc->readPixels(SkImageInfo::Make(inputDataProxy->dimensions(), kRGBA_8888_SkColorType,
+                                      kPremul_SkAlphaType),
                     buffer, 0, {0, 0});
 }
 
@@ -342,18 +328,17 @@ bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
     auto info = SkImageInfo::Make(widthHeight, widthHeight, kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bmp;
     bmp.installPixels(info, pixels, widthHeight * sizeof(GrColor));
-    return bitmap_to_base64_data_uri(bmp, dst);
+    return BipmapToBase64DataURI(bmp, dst);
 }
 
 bool log_texture_proxy(GrContext* context, sk_sp<GrTextureProxy> src, SkString* dst) {
     auto sContext =
             context->priv().makeWrappedSurfaceContext(src, GrColorType::kRGBA_8888, kLogAlphaType);
-    SkImageInfo ii =
-            SkImageInfo::Make(src->width(), src->height(), kRGBA_8888_SkColorType, kLogAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(src->dimensions(), kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
     SkAssertResult(sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0}));
-    return bitmap_to_base64_data_uri(bm, dst);
+    return BipmapToBase64DataURI(bm, dst);
 }
 
 bool fuzzy_color_equals(const SkPMColor4f& c1, const SkPMColor4f& c2) {
@@ -494,12 +479,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
             if (fp->compatibleWithCoverageAsAlpha()) {
                 // 2nd and 3rd frames are only used when checking coverage optimization
-                render_fp(context, rtc.get(), fp.get(), inputTexture2, readData2.get());
-                render_fp(context, rtc.get(), fp.get(), inputTexture3, readData3.get());
+                render_fp(context, rtc.get(), fp.get(), inputTexture2, kPremul_SkAlphaType,
+                          readData2.get());
+                render_fp(context, rtc.get(), fp.get(), inputTexture3, kPremul_SkAlphaType,
+                          readData3.get());
             }
             // Draw base frame last so that rtc holds the original FP behavior if we need to
             // dump the image to the log.
-            render_fp(context, rtc.get(), fp.get(), inputTexture1, readData1.get());
+            render_fp(context, rtc.get(), fp.get(), inputTexture1, kPremul_SkAlphaType,
+                      readData1.get());
 
             if (0) {  // Useful to see what FPs are being tested.
                 SkString children;
@@ -721,10 +709,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
             REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), fp.get(), inputTexture, readData1.get());
+            render_fp(context, rtc.get(), fp.get(), inputTexture, kPremul_SkAlphaType,
+                      readData1.get());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), clone.get(), inputTexture, readData2.get());
+            render_fp(context, rtc.get(), clone.get(), inputTexture, kPremul_SkAlphaType,
+                      readData2.get());
 
             // Check that the results are the same.
             bool passing = true;

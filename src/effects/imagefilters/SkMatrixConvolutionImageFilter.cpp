@@ -389,7 +389,7 @@ static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
     case SkTileMode::kClamp:
         return GrTextureDomain::kClamp_Mode;
     case SkTileMode::kMirror:
-        // TODO (michaelludwig) - Implement mirror tiling, treat as repeat for now.
+        return GrTextureDomain::kMirrorRepeat_Mode;
     case SkTileMode::kRepeat:
         return GrTextureDomain::kRepeat_Mode;
     case SkTileMode::kDecal:

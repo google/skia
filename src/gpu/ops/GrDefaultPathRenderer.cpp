@@ -67,11 +67,11 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   sk_sp<const GrGeometryProcessor> geometryProcessor)
+                   const GrGeometryProcessor* geometryProcessor)
             : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
-            , fGeometryProcessor(std::move(geometryProcessor))
+            , fGeometryProcessor(geometryProcessor)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
             , fIndices(nullptr) {
@@ -277,7 +277,7 @@ private:
                                  vertexCount - 1, GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
-            fTarget->recordDraw(fGeometryProcessor, mesh);
+            fTarget->recordDraw(fGeometryProcessor, mesh, 1, fPrimitiveType);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -313,7 +313,7 @@ private:
     GrPrimitiveType fPrimitiveType;
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
-    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+    const GrGeometryProcessor* fGeometryProcessor;
 
     sk_sp<const GrBuffer> fVertexBuffer;
     int fFirstVertex;
@@ -402,14 +402,15 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
             Coverage coverage(this->coverage());
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            gp = GrDefaultGeoProcFactory::Make(target->allocator(),
+                                               target->caps().shaderCaps(),
                                                color,
                                                coverage,
                                                localCoords,
@@ -431,7 +432,7 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp));
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp);
 
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {
@@ -441,10 +442,15 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 fHelper.detachProcessorSet(),
+                                                                 fHelper.pipelineFlags(),
+                                                                 fHelper.stencilSettings());
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return CombineResult::kCannotCombine;
@@ -540,10 +546,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             lastPassIsBounds = false;
         } else {
             switch (path.getFillType()) {
-                case SkPath::kInverseEvenOdd_FillType:
+                case SkPathFillType::kInverseEvenOdd:
                     reverse = true;
                     // fallthrough
-                case SkPath::kEvenOdd_FillType:
+                case SkPathFillType::kEvenOdd:
                     passes[0] = &gEOStencilPass;
                     if (stencilOnly) {
                         passCount = 1;
@@ -559,10 +565,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                     }
                     break;
 
-                case SkPath::kInverseWinding_FillType:
+                case SkPathFillType::kInverseWinding:
                     reverse = true;
                     // fallthrough
-                case SkPath::kWinding_FillType:
+                case SkPathFillType::kWinding:
                     passes[0] = &gWindStencilPass;
                     passCount = 2;
                     if (stencilOnly) {
@@ -588,9 +594,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
     SkRect devBounds;
-    GetPathDevBounds(path,
-                     renderTargetContext->asRenderTargetProxy()->worstCaseWidth(),
-                     renderTargetContext->asRenderTargetProxy()->worstCaseHeight(),
+    GetPathDevBounds(path, renderTargetContext->asRenderTargetProxy()->backingStoreDimensions(),
                      viewMatrix, &devBounds);
 
     for (int p = 0; p < passCount; ++p) {

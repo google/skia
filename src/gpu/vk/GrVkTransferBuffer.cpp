@@ -43,12 +43,13 @@ void GrVkTransferBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         this->vkRelease(this->getVkGpu());
     }
-
     INHERITED::onRelease();
 }
 
 void GrVkTransferBuffer::onAbandon() {
-    this->vkAbandon();
+    if (!this->wasDestroyed()) {
+        this->vkRelease(this->getVkGpu());
+    }
     INHERITED::onAbandon();
 }
 

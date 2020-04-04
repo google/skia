@@ -16,28 +16,31 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix,
+                new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
                                           GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(
-                std::move(proxy), matrix,
+                std::move(proxy), matrix, alphaType,
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+                                                     SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix, p));
+                new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType, p));
     }
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -47,11 +50,11 @@ public:
     SkMatrix44 matrix;
 
 private:
-    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
+    GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> image, SkMatrix44 matrix, SkAlphaType alphaType,
                           GrSamplerState samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
                         (OptimizationFlags)ModulateForSamplerOptFlags(
-                                image->config(),
+                                alphaType,
                                 samplerParams.wrapModeX() ==
                                                 GrSamplerState::WrapMode::kClampToBorder ||
                                         samplerParams.wrapModeY() ==

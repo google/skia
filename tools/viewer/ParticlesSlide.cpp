@@ -10,7 +10,9 @@
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
+#include "src/sksl/SkSLByteCode.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
@@ -18,14 +20,6 @@
 #include "imgui.h"
 
 using namespace sk_app;
-
-namespace {
-
-static SkScalar kDragSize = 8.0f;
-static SkTArray<SkPoint*> gDragPoints;
-int gDragIndex = -1;
-
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,17 +50,16 @@ public:
         fTreeStack.push_back(true);
     }
 
-#define IF_OPEN(WIDGET) if (fTreeStack.back()) { WIDGET; }
-
     void visit(const char* name, float& f) override {
-        IF_OPEN(ImGui::DragFloat(item(name), &f))
+        fDirty = (fTreeStack.back() && ImGui::DragFloat(item(name), &f)) || fDirty;
     }
     void visit(const char* name, int& i) override {
-        IF_OPEN(ImGui::DragInt(item(name), &i))
+        fDirty = (fTreeStack.back() && ImGui::DragInt(item(name), &i)) || fDirty;
     }
     void visit(const char* name, bool& b) override {
-        IF_OPEN(ImGui::Checkbox(item(name), &b))
+        fDirty = (fTreeStack.back() && ImGui::Checkbox(item(name), &b)) || fDirty;
     }
+
     void visit(const char* name, SkString& s) override {
         if (fTreeStack.back()) {
             int lines = count_lines(s);
@@ -74,48 +67,26 @@ public:
             if (lines > 1) {
                 ImGui::LabelText("##Label", "%s", name);
                 ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * (lines + 1));
-                ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1, boxSize,
-                                          flags, InputTextCallback, &s);
+                fDirty = ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1,
+                                                   boxSize, flags, InputTextCallback, &s)
+                      || fDirty;
             } else {
-                ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags,
-                                 InputTextCallback, &s);
+                fDirty = ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags,
+                                          InputTextCallback, &s)
+                      || fDirty;
             }
         }
     }
-    void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {
-        if (fTreeStack.back()) {
-            const char* curStr = EnumToString(i, map, count);
-            if (ImGui::BeginCombo(item(name), curStr ? curStr : "Unknown")) {
-                for (int j = 0; j < count; ++j) {
-                    if (ImGui::Selectable(map[j].fName, i == map[j].fValue)) {
-                        i = map[j].fValue;
-                    }
-                }
-                ImGui::EndCombo();
-            }
-        }
-    }
-
-    void visit(const char* name, SkPoint& p) override {
-        if (fTreeStack.back()) {
-            ImGui::DragFloat2(item(name), &p.fX);
-            gDragPoints.push_back(&p);
-        }
-    }
-    void visit(const char* name, SkColor4f& c) override {
-        IF_OPEN(ImGui::ColorEdit4(item(name), c.vec()))
-    }
-
-#undef IF_OPEN
 
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         if (fTreeStack.back()) {
             const SkReflected::Type* curType = e ? e->getType() : nullptr;
             if (ImGui::BeginCombo("Type", curType ? curType->fName : "Null")) {
-                auto visitType = [baseType, curType, &e](const SkReflected::Type* t) {
+                auto visitType = [baseType, curType, &e, this](const SkReflected::Type* t) {
                     if (t->fFactory && (t == baseType || t->isDerivedFrom(baseType)) &&
                         ImGui::Selectable(t->fName, curType == t)) {
                         e = t->fFactory();
+                        fDirty = true;
                     }
                 };
                 SkReflected::VisitTypes(visitType);
@@ -149,6 +120,7 @@ public:
             ImGui::SameLine();
             if (ImGui::Button("+")) {
                 ++count;
+                fDirty = true;
             }
         }
         return count;
@@ -160,6 +132,8 @@ public:
         this->exitObject();
         return edit;
     }
+
+    bool fDirty = false;
 
 private:
     const char* item(const char* name) {
@@ -177,16 +151,7 @@ private:
         if (ImGui::Button("X")) {
             edit.fVerb = ArrayEdit::Verb::kRemove;
             edit.fIndex = index;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("^")) {
-            edit.fVerb = ArrayEdit::Verb::kMoveForward;
-            edit.fIndex = index;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("v")) {
-            edit.fVerb = ArrayEdit::Verb::kMoveForward;
-            edit.fIndex = index + 1;
+            fDirty = true;
         }
         ImGui::SameLine();
 
@@ -205,7 +170,7 @@ ParticlesSlide::ParticlesSlide() {
     // Register types for serialization
     SkParticleEffect::RegisterParticleTypes();
     fName = "Particles";
-    fPlayPosition.set(200.0f, 200.0f);
+    fResourceProvider = skresources::FileResourceProvider::Make(GetResourcePath());
 }
 
 void ParticlesSlide::loadEffects(const char* dirname) {
@@ -220,6 +185,7 @@ void ParticlesSlide::loadEffects(const char* dirname) {
             skjson::DOM dom(static_cast<const char*>(fileData->data()), fileData->size());
             SkFromJsonVisitor fromJson(dom.root());
             effect.fParams->visitFields(&fromJson);
+            effect.fParams->prepare(fResourceProvider.get());
             fLoaded.push_back(effect);
         }
     }
@@ -231,9 +197,6 @@ void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
 
 void ParticlesSlide::draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorGRAY);
-
-    gDragPoints.reset();
-    gDragPoints.push_back(&fPlayPosition);
 
     // Window to show all loaded effects, and allow playing them
     if (ImGui::Begin("Library", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
@@ -279,9 +242,10 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
         for (int i = 0; i < fLoaded.count(); ++i) {
             ImGui::PushID(i);
             if (fAnimated && ImGui::Button("Play")) {
-                sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams, fRandom));
+                sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams,
+                                                                    fRandom));
                 effect->start(fAnimationTime, looped);
-                fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect });
+                fRunning.push_back({ fLoaded[i].fName, effect, false });
                 fRandom.nextU();
             }
             ImGui::SameLine();
@@ -292,20 +256,90 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             if (ImGui::TreeNode("##Details")) {
                 fLoaded[i].fParams->visitFields(&gui);
                 ImGui::TreePop();
+                if (gui.fDirty) {
+                    fLoaded[i].fParams->prepare(fResourceProvider.get());
+                    gui.fDirty = false;
+                }
             }
             ImGui::PopID();
         }
     }
     ImGui::End();
 
+    // Most effects are centered around the origin, so we shift the canvas...
+    constexpr SkVector kTranslation = { 250.0f, 250.0f };
+    const SkPoint mousePos = fMousePos - kTranslation;
+
     // Another window to show all the running effects
     if (ImGui::Begin("Running")) {
         for (int i = 0; i < fRunning.count(); ++i) {
-            ImGui::PushID(i);
-            bool remove = ImGui::Button("X") || !fRunning[i].fEffect->isAlive();
+            SkParticleEffect* effect = fRunning[i].fEffect.get();
+            ImGui::PushID(effect);
+
+            ImGui::Checkbox("##Track", &fRunning[i].fTrackMouse);
             ImGui::SameLine();
-            ImGui::Text("%4g, %4g %5d %s", fRunning[i].fPosition.fX, fRunning[i].fPosition.fY,
-                        fRunning[i].fEffect->getCount(), fRunning[i].fName.c_str());
+            bool remove = ImGui::Button("X") || !effect->isAlive();
+            ImGui::SameLine();
+            ImGui::Text("%5d %s", effect->getCount(), fRunning[i].fName.c_str());
+            if (fRunning[i].fTrackMouse) {
+                effect->setPosition(mousePos);
+            }
+
+            auto uniformsGui = [mousePos](const SkSL::ByteCode* code, float* data) {
+                if (!code || !data) {
+                    return;
+                }
+                for (int i = 0; i < code->getUniformCount(); ++i) {
+                    const auto& uni = code->getUniform(i);
+                    float* vals = data + uni.fSlot;
+
+                    // Skip over builtin uniforms, to reduce clutter
+                    if (uni.fName == "dt" || uni.fName.startsWith("effect.")) {
+                        continue;
+                    }
+
+                    // Special case for 'uniform float2 mouse_pos' - an example of likely app logic
+                    if (uni.fName == "mouse_pos" &&
+                        uni.fType == SkSL::TypeCategory::kFloat &&
+                        uni.fRows == 2 && uni.fColumns == 1) {
+                        vals[0] = mousePos.fX;
+                        vals[1] = mousePos.fY;
+                        continue;
+                    }
+
+                    if (uni.fType == SkSL::TypeCategory::kBool) {
+                        for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                            for (int r = 0; r < uni.fRows; ++r, ++vals) {
+                                ImGui::PushID(c*uni.fRows + r);
+                                if (r > 0) {
+                                    ImGui::SameLine();
+                                }
+                                ImGui::CheckboxFlags(r == uni.fRows - 1 ? uni.fName.c_str()
+                                                                        : "##Hidden",
+                                                     (unsigned int*)vals, ~0);
+                                ImGui::PopID();
+                            }
+                        }
+                        continue;
+                    }
+
+                    ImGuiDataType dataType = ImGuiDataType_COUNT;
+                    switch (uni.fType) {
+                        case SkSL::TypeCategory::kSigned:   dataType = ImGuiDataType_S32;   break;
+                        case SkSL::TypeCategory::kUnsigned: dataType = ImGuiDataType_U32;   break;
+                        case SkSL::TypeCategory::kFloat:    dataType = ImGuiDataType_Float; break;
+                        default:                                                            break;
+                    }
+                    SkASSERT(dataType != ImGuiDataType_COUNT);
+                    for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                        ImGui::PushID(c);
+                        ImGui::DragScalarN(uni.fName.c_str(), dataType, vals, uni.fRows, 1.0f);
+                        ImGui::PopID();
+                    }
+                }
+            };
+            uniformsGui(effect->effectCode(), effect->effectUniforms());
+            uniformsGui(effect->particleCode(), effect->particleUniforms());
             if (remove) {
                 fRunning.removeShuffle(i);
             }
@@ -314,26 +348,12 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     }
     ImGui::End();
 
-    SkPaint dragPaint;
-    dragPaint.setColor(SK_ColorLTGRAY);
-    dragPaint.setAntiAlias(true);
-    SkPaint dragHighlight;
-    dragHighlight.setStyle(SkPaint::kStroke_Style);
-    dragHighlight.setColor(SK_ColorGREEN);
-    dragHighlight.setStrokeWidth(2);
-    dragHighlight.setAntiAlias(true);
-    for (int i = 0; i < gDragPoints.count(); ++i) {
-        canvas->drawCircle(*gDragPoints[i], kDragSize, dragPaint);
-        if (gDragIndex == i) {
-            canvas->drawCircle(*gDragPoints[i], kDragSize, dragHighlight);
-        }
-    }
+    canvas->save();
+    canvas->translate(kTranslation.fX, kTranslation.fY);
     for (const auto& effect : fRunning) {
-        canvas->save();
-        canvas->translate(effect.fPosition.fX, effect.fPosition.fY);
         effect.fEffect->draw(canvas);
-        canvas->restore();
     }
+    canvas->restore();
 }
 
 bool ParticlesSlide::animate(double nanos) {
@@ -346,27 +366,6 @@ bool ParticlesSlide::animate(double nanos) {
 }
 
 bool ParticlesSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey modifiers) {
-    if (gDragIndex == -1) {
-        if (state == skui::InputState::kDown) {
-            float bestDistance = kDragSize;
-            SkPoint mousePt = { x, y };
-            for (int i = 0; i < gDragPoints.count(); ++i) {
-                float distance = SkPoint::Distance(*gDragPoints[i], mousePt);
-                if (distance < bestDistance) {
-                    gDragIndex = i;
-                    bestDistance = distance;
-                }
-            }
-            return gDragIndex != -1;
-        }
-    } else {
-        // Currently dragging
-        SkASSERT(gDragIndex < gDragPoints.count());
-        gDragPoints[gDragIndex]->set(x, y);
-        if (state == skui::InputState::kUp) {
-            gDragIndex = -1;
-        }
-        return true;
-    }
+    fMousePos.set(x, y);
     return false;
 }

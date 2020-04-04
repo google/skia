@@ -29,6 +29,19 @@ Samples
 
 <div id=demo>
   <figure>
+    <canvas id=trail width=400 height=400></canvas>
+    <figcaption>
+      Trail (Click and Drag!)
+    </figcaption>
+  </figure>
+  <figure>
+    <canvas id=cube width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://particles.skia.org/f03ffe333483db27fb045d0f3f508db3"
+         target=_blank rel=noopener>Cuboid</a>
+    </figcaption>
+  </figure>
+  <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
       <a href="https://particles.skia.org/84a757d92c424b3d378b55481a4b2394"
@@ -86,20 +99,14 @@ Samples
     locateFile: (file) => locate_file + file,
   }).ready().then((CK) => {
     CanvasKit = CK;
+    TrailExample(CanvasKit, 'trail', trail);
     ParticleExample(CanvasKit, 'confetti', confetti, 200, 200);
     ParticleExample(CanvasKit, 'curves', curves, 200, 300);
+    ParticleExample(CanvasKit, 'cube', cube, 200, 200);
     ParticleExample(CanvasKit, 'fireworks', fireworks, 200, 300);
     ParticleExample(CanvasKit, 'raincloud', raincloud, 200, 100);
     ParticleExample(CanvasKit, 'text', text, 75, 250);
   });
-
-  function preventScrolling(canvas) {
-    canvas.addEventListener('touchmove', (e) => {
-      // Prevents touch events in the canvas from scrolling the canvas.
-      e.preventDefault();
-      e.stopPropagation();
-    });
-  }
 
   function ParticleExample(CanvasKit, id, jsonData, cx, cy) {
     if (!CanvasKit || !jsonData) {
@@ -168,6 +175,101 @@ const confetti ={
       ""
    ],
    "Bindings": []
+};
+
+const cube = {
+  "MaxCount": 2000,
+  "Drawable": {
+    "Type": "SkCircleDrawable",
+    "Radius": 4
+  },
+  "EffectCode": [
+    "void effectSpawn(inout Effect effect) {",
+    "  effect.lifetime = 2;",
+    "  effect.rate = 200;",
+    "}",
+    ""
+  ],
+  "Code": [
+    "void spawn(inout Particle p) {",
+    "  p.lifetime = 10;",
+    "}",
+    "",
+    "float4x4 rx(float rad) {",
+    "  float c = cos(rad);",
+    "  float s = sin(rad);",
+    "  return float4x4(1, 0,  0, 0,",
+    "                  0, c, -s, 0,",
+    "                  0, s,  c, 0,",
+    "                  0, 0,  0, 1);",
+    "}",
+    "",
+    "float4x4 ry(float rad) {",
+    "  float c = cos(rad);",
+    "  float s = sin(rad);",
+    "  return float4x4(c, 0, -s, 0,",
+    "                  0, 1,  0, 0,",
+    "                  s, 0,  c, 0,",
+    "                  0, 0,  0, 1);",
+    "}",
+    "",
+    "float4x4 rz(float rad) {",
+    "  float c = cos(rad);",
+    "  float s = sin(rad);",
+    "  return float4x4( c, s, 0, 0,",
+    "                  -s, c, 0, 0,",
+    "                   0, 0, 1, 0,",
+    "                   0, 0, 0, 1);",
+    "}",
+    "",
+    "void update(inout Particle p) {",
+    "  float3 pos = float3(rand, rand, rand);",
+    "  if (rand < 0.33) {",
+    "    if (pos.x > 0.5) {",
+    "      pos.x = 1;",
+    "      p.color.rgb = float3(1, 0.2, 0.2);",
+    "    } else {",
+    "      pos.x = 0;",
+    "      p.color.rgb = float3(0.2, 1, 1);",
+    "    }",
+    "  } else if (rand < 0.5) {",
+    "    if (pos.y > 0.5) {",
+    "      pos.y = 1;",
+    "      p.color.rgb = float3(0.2, 0.2, 1);",
+    "    } else {",
+    "      pos.y = 0;",
+    "      p.color.rgb = float3(1, 1, 0.2);",
+    "    }",
+    "  } else {",
+    "    if (pos.z > 0.5) {",
+    "      pos.z = 1;",
+    "      p.color.rgb = float3(0.2, 1, 0.2);",
+    "    } else {",
+    "      pos.z = 0;",
+    "      p.color.rgb = float3(1, 0.2, 1);",
+    "    }",
+    "  }",
+    "",
+    "  float s = effect.age * 2 - 1;",
+    "  s = s < 0 ? -s : s;",
+    "",
+    "  pos = pos * 2 - 1;",
+    "  pos = mix(pos, normalize(pos), s);",
+    "  pos = pos * 100;",
+    "",
+    "  float age = effect.loop + effect.age;",
+    "  float4x4 mat = rx(age * radians(60))",
+    "               * ry(age * radians(70))",
+    "               * rz(age * radians(80));",
+    "  pos = (mat * float4(pos, 1)).xyz;",
+    "",
+    "  p.pos.x = pos.x;",
+    "  p.pos.y = pos.y;",
+    "  p.scale = ((pos.z + 50) / 100 + 0.5) / 2;",
+    "}",
+    ""
+  ],
+  "Bindings": []
 };
 
 const curves = {
@@ -430,6 +532,72 @@ const text = {
          "FontSize": 96
       }
    ]
+};
+
+  function preventScrolling(canvas) {
+    canvas.addEventListener('touchmove', (e) => {
+      // Prevents touch events in the canvas from scrolling the canvas.
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
+
+  function TrailExample(CanvasKit, id, jsonData) {
+    if (!CanvasKit || !jsonData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface(id);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    const particles = CanvasKit.MakeParticles(JSON.stringify(jsonData));
+    particles.start(Date.now() / 1000.0, true);
+
+    function drawFrame(canvas) {
+      particles.update(Date.now() / 1000.0);
+
+      canvas.clear(CanvasKit.WHITE);
+      particles.draw(canvas);
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    let interact = (e) => {
+      particles.setPosition([e.offsetX, e.offsetY]);
+      particles.setRate(e.pressure * 1000);
+    };
+    document.getElementById('trail').addEventListener('pointermove', interact);
+    document.getElementById('trail').addEventListener('pointerdown', interact);
+    document.getElementById('trail').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('trail'));
+  }
+
+const trail = {
+   "MaxCount": 2000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 4
+   },
+   "EffectCode": "",
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 2 + rand;",
+      "  float a = radians(rand * 360);",
+      "  p.vel = float2(cos(a), sin(a)) * mix(5, 15, rand);",
+      "  p.scale = mix(0.25, 0.75, rand);",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color.r = p.age;",
+      "  p.color.g = 1 - p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": []
 };
 
   }

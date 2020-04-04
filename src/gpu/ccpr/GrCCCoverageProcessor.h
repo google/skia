@@ -14,6 +14,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrGLSLFPFragmentBuilder;
@@ -122,6 +123,8 @@ public:
 
     virtual void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
                       const GrMesh[], int meshCount, const SkRect& drawBounds) const;
+
+    virtual GrPrimitiveType primType() const = 0;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.

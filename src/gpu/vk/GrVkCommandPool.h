@@ -18,7 +18,7 @@ class GrVkGpu;
 
 class GrVkCommandPool : public GrVkResource {
 public:
-    static GrVkCommandPool* Create(const GrVkGpu* gpu);
+    static GrVkCommandPool* Create(GrVkGpu* gpu);
 
     VkCommandPool vkCommandPool() const {
         return fCommandPool;
@@ -50,9 +50,7 @@ public:
 private:
     GrVkCommandPool() = delete;
 
-    GrVkCommandPool(const GrVkGpu* gpu, VkCommandPool commandPool);
-
-    void abandonGPUData() const override;
+    GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
 
     void freeGPUData(GrVkGpu* gpu) const override;
 

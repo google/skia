@@ -8,6 +8,7 @@
 #include "include/private/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -18,6 +19,7 @@
 #include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
@@ -115,20 +117,35 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
-sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
+GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     if (!fOpMemoryPool) {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
         // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
         // memory.
-        fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
+        fOpMemoryPool = GrOpMemoryPool::Make(16384, 16384);
     }
 
-    SkASSERT(fOpMemoryPool);
-    return fOpMemoryPool;
+    return fOpMemoryPool.get();
 }
 
-GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
-    return this->refOpMemoryPool().get();
+std::unique_ptr<GrOpMemoryPool> GrRecordingContext::detachOpMemoryPool() {
+    return std::move(fOpMemoryPool);
+}
+
+// Stored in this arena:
+//     GrTextureOp's DynamicStateArrays and FixedDynamicState
+//     some GrGeometryProcessors, GrPipelines and GrProgramInfos
+SkArenaAlloc* GrRecordingContext::recordTimeAllocator() {
+    if (!fRecordTimeAllocator) {
+        // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
+        fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
+    }
+
+    return fRecordTimeAllocator.get();
+}
+
+std::unique_ptr<SkArenaAlloc> GrRecordingContext::detachRecordTimeAllocator() {
+    return std::move(fRecordTimeAllocator);
 }
 
 GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
@@ -302,12 +319,16 @@ sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
     return fContext->refCaps();
 }
 
-sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
-    return fContext->fpFactoryCache();
+std::unique_ptr<GrOpMemoryPool> GrRecordingContextPriv::detachOpMemoryPool() {
+    return fContext->detachOpMemoryPool();
 }
 
-sk_sp<GrOpMemoryPool> GrRecordingContextPriv::refOpMemoryPool() {
-    return fContext->refOpMemoryPool();
+std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachRecordTimeAllocator() {
+    return fContext->detachRecordTimeAllocator();
+}
+
+sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
+    return fContext->fpFactoryCache();
 }
 
 void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

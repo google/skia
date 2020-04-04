@@ -34,13 +34,9 @@ public:
     // Don't. Just don't.
     void exactify(bool allocatedCaseOnly);
 
-    void setLazySize(int width, int height) { fProxy->setLazySize(width, height); }
+    void setLazyDimensions(SkISize dimensions) { fProxy->setLazyDimensions(dimensions); }
 
     bool doLazyInstantiation(GrResourceProvider*);
-
-
-    static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
-                                                            int minStencilSampleCount);
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}

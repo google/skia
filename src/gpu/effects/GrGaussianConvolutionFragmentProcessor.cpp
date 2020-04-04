@@ -89,6 +89,9 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                              component, component, bounds, bounds);
                     break;
                 }
+                // Deferring implementing kMirrorRepeat until we use DomainEffects as
+                // child processors. Fallback to Repeat.
+                case GrTextureDomain::kMirrorRepeat_Mode:
                 case GrTextureDomain::kRepeat_Mode: {
                     fragBuilder->codeAppendf("coordSampled.%s = "
                                              "mod(coord.%s - %s.x, %s.y - %s.x) + %s.x;\n",
@@ -120,11 +123,12 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
-    GrSurfaceProxy* proxy = conv.textureSampler(0).proxy();
+    const auto& view = conv.textureSampler(0).view();
+    GrSurfaceProxy* proxy = view.proxy();
     GrTexture& texture = *proxy->peekTexture();
 
     float imageIncrement[2] = {0};
-    float ySign = proxy->origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
+    float ySign = view.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     switch (conv.direction()) {
         case Direction::kX:
             imageIncrement[0] = 1.0f / texture.width();
@@ -150,7 +154,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             bounds[1] *= inv;
         } else {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.height()));
-            if (proxy->origin() != kTopLeft_GrSurfaceOrigin) {
+            if (view.origin() != kTopLeft_GrSurfaceOrigin) {
                 float tmp = bounds[0];
                 bounds[0] = 1.0f - (inv * bounds[1]);
                 bounds[1] = 1.0f - (inv * tmp);
@@ -211,15 +215,15 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-                                                            sk_sp<GrTextureProxy> proxy,
-                                                            Direction direction,
-                                                            int radius,
-                                                            float gaussianSigma,
-                                                            GrTextureDomain::Mode mode,
-                                                            int bounds[2])
+        sk_sp<GrSurfaceProxy> proxy,
+        SkAlphaType alphaType,
+        Direction direction,
+        int radius,
+        float gaussianSigma,
+        GrTextureDomain::Mode mode,
+        int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
-                    ModulateForSamplerOptFlags(proxy->config(),
-                                               mode == GrTextureDomain::kDecal_Mode))
+                    ModulateForSamplerOptFlags(alphaType, mode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fRadius(radius)
@@ -297,8 +301,10 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
+    auto alphaType = static_cast<SkAlphaType>(
+            d->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->textureProxy(texIdx),
-            dir, radius, sigma, static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
+            std::move(proxy), alphaType, dir, radius, sigma,
+            static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
 }
 #endif

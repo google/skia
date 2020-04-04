@@ -112,7 +112,7 @@ protected:
     void drawTriangleBoxes(SkCanvas* canvas, const std::vector<SkPoint>& points,
                            const std::vector<std::array<int, 3>>& triangles) {
         SkPath path;
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         path.setIsVolatile(true);
         for (const std::array<int, 3>& triangle : triangles) {
             path.moveTo(points[triangle[0]]);

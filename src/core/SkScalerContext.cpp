@@ -20,7 +20,6 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
@@ -627,7 +626,7 @@ void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
 
 bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) {
     SkPath  path;
-    if (!generatePath(glyphID.code(), &path)) {
+    if (!generatePath(glyphID.glyphID(), &path)) {
         return false;
     }
 
@@ -903,7 +902,7 @@ std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
 {
     std::unique_ptr<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
     if (!c && !allowFailure) {
-        c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
+        c = std::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
                                                       effects, desc);
     }
 
@@ -1115,7 +1114,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
                                                       SkAutoDescriptor* ad) {
     SkScalerContextRec rec;
-    memset(&rec, 0, sizeof(rec));
+    memset((void*)&rec, 0, sizeof(rec));
     rec.fFontID = typefaceID;
     rec.fTextSize = SkFontPriv::kCanonicalTextSizeForPaths;
     rec.fPreScaleX = rec.fPost2x2[0][0] = rec.fPost2x2[1][1] = SK_Scalar1;

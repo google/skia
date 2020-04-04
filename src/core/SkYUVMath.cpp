@@ -47,21 +47,36 @@ const float JPEG_yuv_to_rgb[] = {
     1.000000f,  1.772000f,  0.000000f,  0.000000f, -0.889475f,
     0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
+const float BT2020_rgb_to_yuv[] = {
+    0.225613f,  0.582282f,  0.050928f,  0.000000f,  0.062745f,
+   -0.122655f, -0.316560f,  0.439216f,  0.000000f,  0.501961f,
+    0.439216f, -0.403890f, -0.035326f,  0.000000f,  0.501961f,
+    0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float BT2020_yuv_to_rgb[] = {
+    1.164384f,  0.000000f,  1.678674f,  0.000000f, -0.915688f,
+    1.164384f, -0.187326f, -0.650424f,  0.000000f,  0.347458f,
+    1.164384f,  2.141772f,  0.000000f,  0.000000f, -1.148145f,
+    0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
 
 static_assert(kJPEG_SkYUVColorSpace   == 0, "");
 static_assert(kRec601_SkYUVColorSpace == 1, "");
 static_assert(kRec709_SkYUVColorSpace == 2, "");
+static_assert(kBT2020_SkYUVColorSpace == 3, "");
 
 const float* yuv_to_rgb_array[] = {
     JPEG_yuv_to_rgb,
     Rec601_yuv_to_rgb,
     Rec709_yuv_to_rgb,
+    BT2020_yuv_to_rgb,
 };
 
 const float* rgb_to_yuv_array[] = {
     JPEG_rgb_to_yuv,
     Rec601_rgb_to_yuv,
     Rec709_rgb_to_yuv,
+    BT2020_rgb_to_yuv,
 };
 
 constexpr size_t kSizeOfColorMatrix = 20 * sizeof(float);
@@ -127,7 +142,6 @@ static void scale3(float m[], float s) {
 namespace {
 struct YUVCoeff {
     float   Kr, Kb;
-    float   Cr, Cb;
     float   scaleY, addY;
     float   scaleUV;
 };
@@ -135,19 +149,24 @@ struct YUVCoeff {
 
 const YUVCoeff gCoeff[] = {
     // kJPEG_SkYUVColorSpace
-    { 0.299f,  0.114f,  1/1.772f,  1/1.402f,          1,        0,         1, },
+    { 0.299f,  0.114f,          1,        0,         1, },
 
     // kRec601_SkYUVColorSpace
-    { 0.299f,  0.114f,  1/1.772f,  1/1.402f,  219/255.f, 16/255.f, 224/255.f, },
+    { 0.299f,  0.114f,  219/255.f, 16/255.f, 224/255.f, },
 
     // kRec709_SkYUVColorSpace
-    { 0.2126f, 0.0722f, 1/1.8556f, 1/1.5748f, 219/255.f, 16/255.f, 224/255.f, },
+    { 0.2126f, 0.0722f, 219/255.f, 16/255.f, 224/255.f, },
+
+    // kBT2020_SkYUVColorSpace
+    { 0.2627f, 0.0593f, 219/255.f, 16/255.f, 224/255.f, },
 };
 
 static void make_rgb_to_yuv_matrix(float mx[20], const YUVCoeff& c) {
     const float Kr = c.Kr;
     const float Kb = c.Kb;
     const float Kg = 1.0f - Kr - Kb;
+    const float Cr = 0.5f / (1.0f - Kb);
+    const float Cb = 0.5f / (1.0f - Kr);
 
     float m[20] = {
           Kr,  Kg,   Kb,  0,    c.addY,
@@ -157,13 +176,13 @@ static void make_rgb_to_yuv_matrix(float mx[20], const YUVCoeff& c) {
     };
     memcpy(mx, m, sizeof(m));
     scale3(mx +  0, c.scaleY);
-    scale3(mx +  5, c.Cr * c.scaleUV);
-    scale3(mx + 10, c.Cb * c.scaleUV);
+    scale3(mx +  5, Cr * c.scaleUV);
+    scale3(mx + 10, Cb * c.scaleUV);
 }
 
 static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
     const char* names[] = {
-        "JPEG", "Rec601", "Rec709",
+        "JPEG", "Rec601", "Rec709", "BT2020",
     };
     const char* dirnames[] = {
         "yuv_to_rgb", "rgb_to_yuv",
@@ -182,7 +201,8 @@ static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
 // Used to create the prebuilt tables for each colorspace.
 // Don't remove this function, in case we want to recompute those tables in the future.
 void SkColorMatrix_DumpYUVMatrixTables() {
-    for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace}) {
+    for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
+                    kBT2020_SkYUVColorSpace}) {
         float m[20];
         make_rgb_to_yuv_matrix(m, gCoeff[(unsigned)cs]);
         dump(m, cs, true);

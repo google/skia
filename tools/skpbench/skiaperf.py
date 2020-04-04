@@ -77,7 +77,7 @@ def main():
           continue
         if match.sample_ms != 50:
           raise Exception("%s: unexpected sample_ms != 50" % match.sample_ms)
-        for result in ('accum', 'median'):
+        for result in ('accum', 'median', 'min', 'max'):
           data['results'][match.bench][match.config] \
               ['%s_%s_%s' % (result, match.clock, match.metric)] = \
               getattr(match, result)

@@ -3,7 +3,6 @@
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkSpan.h"
 #include "unicode/unistr.h"
 
@@ -12,7 +11,7 @@ namespace textlayout {
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
-    return skstd::make_unique<ParagraphBuilderImpl>(style, fontCollection);
+    return std::make_unique<ParagraphBuilderImpl>(style, fontCollection);
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
@@ -146,7 +145,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     // Add one fake placeholder with the rest of the text
     addPlaceholder(PlaceholderStyle(), true);
-    return skstd::make_unique<ParagraphImpl>(
+    return std::make_unique<ParagraphImpl>(
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection);
 }
 

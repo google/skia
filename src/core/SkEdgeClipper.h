@@ -26,6 +26,13 @@ public:
 
     bool canCullToTheRight() const { return fCanCullToTheRight; }
 
+    /**
+     *  Clips each segment from the path, and passes the result (in a clipper) to the
+     *  consume proc.
+     */
+    static void ClipPath(const SkPath& path, const SkRect& clip, bool canCullToTheRight,
+                         void (*consume)(SkEdgeClipper*, bool newCtr, void* ctx), void* ctx);
+
 private:
     SkPoint*        fCurrPoint;
     SkPath::Verb*   fCurrVerb;

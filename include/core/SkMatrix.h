@@ -14,7 +14,17 @@
 
 struct SkRSXform;
 struct SkPoint3;
-class SkString;
+
+/**
+ *  When we transform points through a matrix containing perspective (the bottom row is something
+ *  other than 0,0,1), the bruteforce math can produce confusing results (since we might divide
+ *  by 0, or a negative w value). By default, methods that map rects and paths will apply
+ *  perspective clipping, but this can be changed by specifying kYes to those methods.
+ */
+enum class SkApplyPerspectiveClip {
+    kNo,    //!< Don't pre-clip the geometry before applying the (perspective) matrix
+    kYes,   //!< Do pre-clip the geometry before applying the (perspective) matrix
+};
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
@@ -28,6 +38,8 @@ class SkString;
 
     SkMatrix includes a hidden variable that classifies the type of matrix to
     improve performance. SkMatrix is not thread safe unless getType() is called first.
+
+    example: https://fiddle.skia.org/c/@Matrix_063
 */
 SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
@@ -87,6 +99,18 @@ public:
         m.setTranslate(dx, dy);
         return m;
     }
+
+    /** Sets SkMatrix to translate by (t.x(), t.y()). Returned matrix is:
+
+            | 1 0 t.x() |
+            | 0 1 t.y() |
+            | 0 0 1     |
+
+        @param t  translation vector
+        @return   SkMatrix with translation
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.x(), t.y()); }
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkIVector t) { return MakeTrans(t.x(), t.y()); }
 
     /** Sets SkMatrix to:
 
@@ -256,6 +280,8 @@ public:
 
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, uniformly scales, translates
+
+        example: https://fiddle.skia.org/c/@Matrix_isSimilarity
     */
     bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
 
@@ -269,6 +295,8 @@ public:
 
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, scales, translates
+
+        example: https://fiddle.skia.org/c/@Matrix_preservesRightAngles
     */
     bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const;
 
@@ -617,6 +645,8 @@ public:
 
         @param rsxForm  compressed SkRSXform matrix
         @return         reference to SkMatrix
+
+        example: https://fiddle.skia.org/c/@Matrix_setRSXform
     */
     SkMatrix& setRSXform(const SkRSXform& rsxForm);
 
@@ -1101,6 +1131,8 @@ public:
         @param stf  one of: kFill_ScaleToFit, kStart_ScaleToFit,
                     kCenter_ScaleToFit, kEnd_ScaleToFit
         @return     true if SkMatrix can represent SkRect mapping
+
+        example: https://fiddle.skia.org/c/@Matrix_setRectToRect
     */
     bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
 
@@ -1137,6 +1169,8 @@ public:
         @param dst    SkPoint to map to
         @param count  number of SkPoint in src and dst
         @return       true if SkMatrix was constructed successfully
+
+        example: https://fiddle.skia.org/c/@Matrix_setPolyToPoly
     */
     bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
 
@@ -1168,6 +1202,8 @@ public:
         Affine 3 by 2 matrices in column major order are used by OpenGL and XPS.
 
         @param affine  storage for 3 by 2 affine matrix
+
+        example: https://fiddle.skia.org/c/@Matrix_SetAffineIdentity
     */
     static void SetAffineIdentity(SkScalar affine[6]);
 
@@ -1224,6 +1260,8 @@ public:
         @param dst    storage for mapped SkPoint
         @param src    SkPoint to transform
         @param count  number of SkPoint to transform
+
+        example: https://fiddle.skia.org/c/@Matrix_mapPoints
     */
     void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
 
@@ -1270,6 +1308,8 @@ public:
         @param dst    storage for mapped SkPoint3 array
         @param src    SkPoint3 array to transform
         @param count  items in SkPoint3 array to transform
+
+        example: https://fiddle.skia.org/c/@Matrix_mapHomogeneousPoints
     */
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
 
@@ -1288,6 +1328,8 @@ public:
         @param x       x-axis value of SkPoint to map
         @param y       y-axis value of SkPoint to map
         @param result  storage for mapped SkPoint
+
+        example: https://fiddle.skia.org/c/@Matrix_mapXY
     */
     void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
 
@@ -1339,6 +1381,8 @@ public:
         @param dst    storage for mapped vectors
         @param src    vectors to transform
         @param count  number of vectors to transform
+
+        example: https://fiddle.skia.org/c/@Matrix_mapVectors
     */
     void mapVectors(SkVector dst[], const SkVector src[], int count) const;
 
@@ -1421,9 +1465,13 @@ public:
 
         @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
+        @param pc   whether to apply perspective clipping
         @return     true if dst is equivalent to mapped src
+
+        example: https://fiddle.skia.org/c/@Matrix_mapRect
     */
-    bool mapRect(SkRect* dst, const SkRect& src) const;
+    bool mapRect(SkRect* dst, const SkRect& src,
+                 SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
 
     /** Sets rect to bounds of rect corners mapped by SkMatrix.
         Returns true if mapped corners are computed rect corners.
@@ -1431,10 +1479,11 @@ public:
         Returned value is the same as calling rectStaysRect().
 
         @param rect  rectangle to map, and storage for bounds of mapped corners
+        @param pc    whether to apply perspective clipping
         @return      true if result is equivalent to mapped rect
     */
-    bool mapRect(SkRect* rect) const {
-        return this->mapRect(rect, *rect);
+    bool mapRect(SkRect* rect, SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+        return this->mapRect(rect, *rect, pc);
     }
 
     /** Returns bounds of src corners mapped by SkMatrix.
@@ -1442,9 +1491,10 @@ public:
         @param src  rectangle to map
         @return     mapped bounds
     */
-    SkRect mapRect(const SkRect& src) const {
+    SkRect mapRect(const SkRect& src,
+                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
         SkRect dst;
-        (void)this->mapRect(&dst, src);
+        (void)this->mapRect(&dst, src, pc);
         return dst;
     }
 
@@ -1472,6 +1522,9 @@ public:
 
         @param dst   storage for mapped corner SkPoint
         @param rect  SkRect to map
+
+        Note: this does not perform perspective clipping (as that might result in more than
+              4 points, so results are suspect if the matrix contains perspective.
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
         // This could potentially be faster if we only transformed each x and y of the rect once.
@@ -1485,6 +1538,8 @@ public:
 
         @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
+
+        example: https://fiddle.skia.org/c/@Matrix_mapRectScaleTranslate
     */
     void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
 
@@ -1495,6 +1550,8 @@ public:
 
         @param radius  circle size to map
         @return        average mapped radius
+
+        example: https://fiddle.skia.org/c/@Matrix_mapRadius
     */
     SkScalar mapRadius(SkScalar radius) const;
 
@@ -1506,6 +1563,8 @@ public:
         does not include rotation or skewing along the y-axis.
 
         @return  true if SkMatrix does not have complex perspective
+
+        example: https://fiddle.skia.org/c/@Matrix_isFixedStepInX
     */
     bool isFixedStepInX() const;
 
@@ -1514,6 +1573,8 @@ public:
 
         @param y  position of line parallel to x-axis
         @return   vector advance of mapped unit step on x-axis
+
+        example: https://fiddle.skia.org/c/@Matrix_fixedStepInX
     */
     SkVector fixedStepInX(SkScalar y) const;
 
@@ -1559,6 +1620,8 @@ public:
     /** Writes text representation of SkMatrix to standard output. Floating point values
         are written with limited precision; it may not be possible to reconstruct
         original SkMatrix from output.
+
+        example: https://fiddle.skia.org/c/@Matrix_dump
     */
     void dump() const;
 
@@ -1567,6 +1630,8 @@ public:
         Returns -1 if scale factor overflows or SkMatrix contains perspective.
 
         @return  minimum scale factor
+
+        example: https://fiddle.skia.org/c/@Matrix_getMinScale
     */
     SkScalar getMinScale() const;
 
@@ -1575,6 +1640,8 @@ public:
         Returns -1 if scale factor overflows or SkMatrix contains perspective.
 
         @return  maximum scale factor
+
+        example: https://fiddle.skia.org/c/@Matrix_getMaxScale
     */
     SkScalar getMaxScale() const;
 
@@ -1606,6 +1673,8 @@ public:
         @param scale      axes scaling factors; may be nullptr
         @param remaining  SkMatrix without scaling; may be nullptr
         @return           true if scale can be computed
+
+        example: https://fiddle.skia.org/c/@Matrix_decomposeScale
     */
     bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const;
 
@@ -1616,6 +1685,8 @@ public:
             | 0 0 1 |
 
         @return  const identity SkMatrix
+
+        example: https://fiddle.skia.org/c/@Matrix_I
     */
     static const SkMatrix& I();
 
@@ -1627,6 +1698,8 @@ public:
             | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 
         @return  const invalid SkMatrix
+
+        example: https://fiddle.skia.org/c/@Matrix_InvalidMatrix
     */
     static const SkMatrix& InvalidMatrix();
 

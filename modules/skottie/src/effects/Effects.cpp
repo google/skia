@@ -57,7 +57,9 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
                         kLinearWipeEffectMN[] = "ADBE Linear Wipe",
                         kMotionTileEffectMN[] = "ADBE Tile",
                          kTransformEffectMN[] = "ADBE Geometry2",
-                    kVenetianBlindsEffectMN[] = "ADBE Venetian Blinds";
+                    kVenetianBlindsEffectMN[] = "ADBE Venetian Blinds",
+                     kShiftChannelsEffectMN[] = "ADBE Shift Channels",
+                            kInvertEffectMN[] = "ADBE Invert";
 
     if (const skjson::StringValue* mn = jeffect["mn"]) {
         if (!strcmp(mn->begin(), kGradientEffectMN)) {
@@ -80,6 +82,12 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         }
         if (!strcmp(mn->begin(), kVenetianBlindsEffectMN)) {
             return &EffectBuilder::attachVenetianBlindsEffect;
+        }
+        if (!strcmp(mn->begin(), kShiftChannelsEffectMN)) {
+            return &EffectBuilder::attachShiftChannelsEffect;
+        }
+        if (!strcmp(mn->begin(), kInvertEffectMN)) {
+            return &EffectBuilder::attachInvertEffect;
         }
     }
 

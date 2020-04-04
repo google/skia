@@ -488,7 +488,7 @@ protected:
         paint.setColor(0x3f0f1f3f);
         canvas->drawPath(path, paint);
         path.reset();
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         path.addCircle(center.fX, center.fY, maxSide + width / 2);
         SkRect outside = SkRect::MakeXYWH(center.fX - maxSide - width, center.fY - maxSide - width,
                 (maxSide + width) * 2, (maxSide + width) * 2);
@@ -646,9 +646,9 @@ protected:
             path.reset();
             SkRRect rr2;
             rr.inset(width/2, width/2, &rr2);
-            path.addRRect(rr2, SkPath::kCCW_Direction);
+            path.addRRect(rr2, SkPathDirection::kCCW);
             rr.inset(-width/2, -width/2, &rr2);
-            path.addRRect(rr2, SkPath::kCW_Direction);
+            path.addRRect(rr2, SkPathDirection::kCW);
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setColor(0x40FF8844);

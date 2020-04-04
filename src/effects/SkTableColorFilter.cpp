@@ -254,7 +254,7 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
-            new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy())));
+            new ColorTableEffect(sk_ref_sp(fTextureSampler.view().proxy())));
     }
 
 private:
@@ -264,7 +264,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    ColorTableEffect(sk_sp<GrTextureProxy> proxy)
+    ColorTableEffect(sk_sp<GrSurfaceProxy> proxy)
             : INHERITED(kColorTableEffect_ClassID,
                         kNone_OptimizationFlags) // Not bothering with table-specific optimizations.
             , fTextureSampler(std::move(proxy)) {

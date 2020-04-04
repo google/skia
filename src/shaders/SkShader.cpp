@@ -111,7 +111,12 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 SkShaderBase::Context::~Context() {}
 
 bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace) const {
-    return !SkColorSpaceXformSteps::Required(shaderColorSpace, fDstColorSpace);
+    // In legacy pipelines, shaders always produce premul (or opaque) and the destination is also
+    // always premul (or opaque).  (And those "or opaque" caveats won't make any difference here.)
+    SkAlphaType shaderAT = kPremul_SkAlphaType,
+                   dstAT = kPremul_SkAlphaType;
+    return 0 == SkColorSpaceXformSteps{shaderColorSpace, shaderAT,
+                                         fDstColorSpace,    dstAT}.flags.mask();
 }
 
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
@@ -187,6 +192,32 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
         rec.fAlloc->make<SkColorSpaceXformSteps>(sk_srgb_singleton(), kPremul_SkAlphaType,
                                                  rec.fDstCS,          kPremul_SkAlphaType)
             ->apply(rec.fPipeline, true);
+        return true;
+    }
+    return false;
+}
+
+bool SkShaderBase::program(skvm::Builder* p,
+                           SkColorSpace* dstCS,
+                           skvm::Uniforms* uniforms,
+                           skvm::F32 x, skvm::F32 y,
+                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    // Force opaque alpha for all opaque shaders.
+    //
+    // This is primarily nice in that we usually have a 1.0f constant splat
+    // somewhere in the program anyway, and this will let us drop the work the
+    // shader notionally does to produce alpha, p->extract(...), etc. in favor
+    // of that simple hoistable splat.
+    //
+    // More subtly, it makes isOpaque() a parameter to all shader program
+    // generation, guaranteeing that is-opaque bit is mixed into the overall
+    // shader program hash and blitter Key.  This makes it safe for us to use
+    // that bit to make decisions when constructing an SkVMBlitter, like doing
+    // SrcOver -> Src strength reduction.
+    if (this->onProgram(p, dstCS, uniforms, x,y, r,g,b,a)) {
+        if (this->isOpaque()) {
+            *a = p->splat(1.0f);
+        }
         return true;
     }
     return false;

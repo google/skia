@@ -28,7 +28,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/SkGr.h"
 
-const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
+const int GrResourceProvider::kMinScratchTextureSize = 16;
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -173,14 +173,15 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    // Compressed textures are read-only so they don't support re-use for scratch.
+    // Currently we don't recycle compressed textures as scratch. Additionally all compressed
+    // textures should be created through the createCompressedTexture function.
+    SkASSERT(!this->caps()->isFormatCompressed(format));
+
     // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(
-                desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped, isProtected);
-        if (tex) {
-            return tex;
-        }
+    sk_sp<GrTexture> tex = this->getExactScratch(
+            desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped, isProtected);
+    if (tex) {
+        return tex;
     }
 
     return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, mipMapped, budgeted,
@@ -189,28 +190,31 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
 // the next power of 2. Those above 'kMagicTol' will only go up half the floor power of 2.
-uint32_t GrResourceProvider::MakeApprox(uint32_t value) {
-    static const int kMagicTol = 1024;
+SkISize GrResourceProvider::MakeApprox(SkISize dimensions) {
+    auto adjust = [](int value) {
+        static const int kMagicTol = 1024;
 
-    value = SkTMax(kMinScratchTextureSize, value);
+        value = SkTMax(kMinScratchTextureSize, value);
 
-    if (SkIsPow2(value)) {
-        return value;
-    }
+        if (SkIsPow2(value)) {
+            return value;
+        }
 
-    uint32_t ceilPow2 = GrNextPow2(value);
-    if (value <= kMagicTol) {
+        int ceilPow2 = SkNextPow2(value);
+        if (value <= kMagicTol) {
+            return ceilPow2;
+        }
+
+        int floorPow2 = ceilPow2 >> 1;
+        int mid = floorPow2 + (floorPow2 >> 1);
+
+        if (value <= mid) {
+            return mid;
+        }
         return ceilPow2;
-    }
+    };
 
-    uint32_t floorPow2 = ceilPow2 >> 1;
-    uint32_t mid = floorPow2 + (floorPow2 >> 1);
-
-    if (value <= mid) {
-        return mid;
-    }
-
-    return ceilPow2;
+    return {adjust(dimensions.width()), adjust(dimensions.height())};
 }
 
 sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
@@ -224,10 +228,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    // Currently we don't recycle compressed textures as scratch.
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        return nullptr;
-    }
+    // Currently we don't recycle compressed textures as scratch. Additionally all compressed
+    // textures should be created through the createCompressedTexture function.
+    SkASSERT(!this->caps()->isFormatCompressed(format));
 
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
                                       renderTargetSampleCnt, GrMipMapped::kNo)) {
@@ -236,8 +239,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 
     // bin by some multiple or power of 2 with a reasonable min
     GrSurfaceDesc copyDesc(desc);
-    copyDesc.fWidth = MakeApprox(desc.fWidth);
-    copyDesc.fHeight = MakeApprox(desc.fHeight);
+    auto size = MakeApprox({desc.fWidth, desc.fHeight});
+    copyDesc.fWidth = size.width();
+    copyDesc.fHeight = size.height();
 
     if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                            GrMipMapped::kNo, isProtected)) {
@@ -256,7 +260,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+    SkASSERT(!this->caps()->isFormatCompressed(format));
     SkASSERT(fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
                                           renderable, renderTargetSampleCnt, GrMipMapped::kNo));
 
@@ -264,7 +268,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable,
+        GrTexturePriv::ComputeScratchKey(desc.fConfig, {desc.fWidth, desc.fHeight}, renderable,
                                          renderTargetSampleCnt, mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
@@ -387,16 +391,57 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const ui
     return buffer;
 }
 
-static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static constexpr int kMaxNumNonAAQuads = 1 << 12;  // max possible: (1 << 14) - 1;
+static const int kVertsPerNonAAQuad = 4;
+static const int kIndicesPerNonAAQuad = 6;
 
-sk_sp<const GrGpuBuffer> GrResourceProvider::createQuadIndexBuffer() {
-    GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
-    static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
-    return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, nullptr);
+sk_sp<const GrGpuBuffer> GrResourceProvider::createNonAAQuadIndexBuffer() {
+    GR_STATIC_ASSERT(kVertsPerNonAAQuad * kMaxNumNonAAQuads <= 65535); // indices fit in a uint16_t
+
+    static const uint16_t kNonAAQuadIndexPattern[] = {
+        0, 1, 2, 2, 1, 3
+    };
+
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kNonAAQuadIndexPattern) == kIndicesPerNonAAQuad);
+
+    return this->createPatternedIndexBuffer(kNonAAQuadIndexPattern, kIndicesPerNonAAQuad,
+                                            kMaxNumNonAAQuads, kVertsPerNonAAQuad, nullptr);
 }
 
-int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
+int GrResourceProvider::MaxNumNonAAQuads() { return kMaxNumNonAAQuads; }
+int GrResourceProvider::NumVertsPerNonAAQuad() { return kVertsPerNonAAQuad; }
+int GrResourceProvider::NumIndicesPerNonAAQuad() { return kIndicesPerNonAAQuad; }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static constexpr int kMaxNumAAQuads = 1 << 9;  // max possible: (1 << 13) - 1;
+static const int kVertsPerAAQuad = 8;
+static const int kIndicesPerAAQuad = 30;
+
+sk_sp<const GrGpuBuffer> GrResourceProvider::createAAQuadIndexBuffer() {
+    GR_STATIC_ASSERT(kVertsPerAAQuad * kMaxNumAAQuads <= 65535); // indices fit in a uint16_t
+
+    // clang-format off
+    static const uint16_t kAAQuadIndexPattern[] = {
+        0, 1, 2, 1, 3, 2,
+        0, 4, 1, 4, 5, 1,
+        0, 6, 4, 0, 2, 6,
+        2, 3, 6, 3, 7, 6,
+        1, 5, 3, 3, 5, 7,
+    };
+    // clang-format on
+
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAAQuadIndexPattern) == kIndicesPerAAQuad);
+
+    return this->createPatternedIndexBuffer(kAAQuadIndexPattern, kIndicesPerAAQuad,
+                                            kMaxNumAAQuads, kVertsPerAAQuad, nullptr);
+}
+
+int GrResourceProvider::MaxNumAAQuads() { return kMaxNumAAQuads; }
+int GrResourceProvider::NumVertsPerAAQuad() { return kVertsPerAAQuad; }
+int GrResourceProvider::NumIndicesPerAAQuad() { return kIndicesPerAAQuad; }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     if (this->isAbandoned()) {
         return nullptr;
@@ -436,10 +481,10 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     return buffer;
 }
 
-bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minStencilSampleCount) {
+bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
     SkASSERT(rt);
     GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
-    if (stencil && stencil->numSamples() >= minStencilSampleCount) {
+    if (stencil && stencil->numSamples() == numStencilSamples) {
         return true;
     }
 
@@ -455,12 +500,12 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
         }
 #endif
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(
-                width, height, minStencilSampleCount, &sbKey);
+                width, height, numStencilSamples, &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
             stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(
-                    rt, width, height, minStencilSampleCount));
+                    rt, width, height, numStencilSamples));
             if (!stencil) {
                 return false;
             }
@@ -470,7 +515,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
     }
 
     if (GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment()) {
-        return stencil->numSamples() >= minStencilSampleCount;
+        return stencil->numSamples() == numStencilSamples;
     }
     return false;
 }
@@ -484,13 +529,15 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt, colorType);
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {
-    return fGpu->makeSemaphore(isOwned);
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
+        bool isOwned) {
+    return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);
 }
 
-sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                            SemaphoreWrapType wrapType,
-                                                            GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        SemaphoreWrapType wrapType,
+        GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,
                                                                       wrapType,
@@ -500,7 +547,7 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
 // Ensures the row bytes are populated (not 0) and makes a copy to a temporary
 // to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
 static bool prepare_level(const GrMipLevel& inLevel,
-                          const SkISize& size,
+                          const SkISize& dimensions,
                           bool rowBytesSupport,
                           GrColorType origColorType,
                           GrColorType allowedColorType,
@@ -511,7 +558,7 @@ static bool prepare_level(const GrMipLevel& inLevel,
         outLevel->fRowBytes = 0;
         return true;
     }
-    size_t minRB = size.fWidth * GrColorTypeBytesPerPixel(origColorType);
+    size_t minRB = dimensions.fWidth * GrColorTypeBytesPerPixel(origColorType);
     size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
     if (actualRB < minRB) {
         return false;
@@ -521,12 +568,12 @@ static bool prepare_level(const GrMipLevel& inLevel,
         outLevel->fPixels = inLevel.fPixels;
         return true;
     }
-    auto tempRB = size.fWidth * GrColorTypeBytesPerPixel(allowedColorType);
-    data->reset(new char[tempRB * size.fHeight]);
+    auto tempRB = dimensions.fWidth * GrColorTypeBytesPerPixel(allowedColorType);
+    data->reset(new char[tempRB * dimensions.fHeight]);
     outLevel->fPixels = data->get();
     outLevel->fRowBytes = tempRB;
-    GrImageInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, size);
-    GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, size);
+    GrImageInfo srcInfo(origColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+    GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
     return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
 }
 

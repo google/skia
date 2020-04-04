@@ -20,7 +20,12 @@ class SkBitmap;
 class SkColorMatrix;
 class SkColorSpace;
 struct SkStageRec;
-class SkString;
+
+namespace skvm {
+    class Builder;
+    struct F32;
+    struct Uniforms;
+}
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
@@ -55,6 +60,11 @@ public:
     }
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
+
+    virtual bool program(skvm::Builder*,
+                         SkColorSpace* dstCS,
+                         skvm::Uniforms* uniforms,
+                         skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.

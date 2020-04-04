@@ -137,7 +137,7 @@ public:
                 , fIsProtected(GrProtected::kNo) {}
     };
 
-    static bool InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo*);
+    static bool InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImageInfo*);
     // Destroys the internal VkImage and VkDeviceMemory in the GrVkImageInfo
     static void DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo*);
 
@@ -157,7 +157,6 @@ public:
 
 protected:
     void releaseImage(GrVkGpu* gpu);
-    void abandonImage();
     bool hasResource() const { return fResource; }
 
     GrVkImageInfo          fInfo;
@@ -225,10 +224,6 @@ private:
 
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
-        void abandonGPUData() const override {
-            this->invokeReleaseProc();
-            SkASSERT(!fReleaseHelper);
-        }
 
         VkImage        fImage;
         GrVkAlloc      fAlloc;
@@ -248,7 +243,6 @@ private:
         }
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
-        void abandonGPUData() const override;
     };
 
     Resource* fResource;
