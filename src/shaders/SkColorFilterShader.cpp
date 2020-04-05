@@ -74,10 +74,10 @@ skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
     // Scale that by alpha.
     if (fAlpha != 1.0f) {
         skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
-        c.r = p->mul(c.r, A);
-        c.g = p->mul(c.g, A);
-        c.b = p->mul(c.b, A);
-        c.a = p->mul(c.a, A);
+        c.r *= A;
+        c.g *= A;
+        c.b *= A;
+        c.a *= A;
     }
 
     // Finally run that through the color filter.
