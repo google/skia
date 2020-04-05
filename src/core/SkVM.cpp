@@ -284,6 +284,7 @@ namespace skvm {
                 case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+                case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
 
                 case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
                 case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}); break;
@@ -402,6 +403,7 @@ namespace skvm {
                 case Op::bit_and  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_or   : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_xor  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
+                case Op::bit_clear: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
 
                 case Op::bit_and_imm: write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
                 case Op::bit_or_imm : write(o, R{d}, "=", op, R{x}, Hex{immy}); break;
@@ -460,6 +462,13 @@ namespace skvm {
                         inst.op   = Op::sub_f32_imm;
                         inst.y    = NA;
                         inst.immy = bits;
+                    } break;
+
+                case Op::bit_clear:
+                    if (int bits; is_imm(inst.y, &bits)) {
+                        inst.op   = Op::bit_and_imm;
+                        inst.y    = NA;
+                        inst.immy = ~bits;
                     } break;
             }
         #endif
@@ -1020,13 +1029,22 @@ namespace skvm {
         return {this, this->push(Op::bit_xor, x.id, y.id)};
     }
 
+    I32 Builder::bit_clear(I32 x, I32 y) {
+        if (x.id == y.id) { return splat(0); }
+        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X&~Y); }
+        if (this->isImm(y.id, 0)) { return x; }          // (x & ~false) == x
+        if (this->isImm(y.id,~0)) { return splat(0); }   // (x & ~true) == false
+        if (this->isImm(x.id, 0)) { return splat(0); }   // (false & ~y) == false
+        return {this, this->push(Op::bit_clear, x.id, y.id)};
+    }
+
     I32 Builder::select(I32 x, I32 y, I32 z) {
         if (y.id == z.id) { return y; }
         if (int X,Y,Z; this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return splat(X?Y:Z); }
-        if (this->isImm(x.id,~0)) { return   y; } // true  ? y : z == y
-        if (this->isImm(x.id, 0)) { return   z; } // false ? y : z == z
-        if (this->isImm(z.id, 0)) { return x&y; } //     x ? y : 0 == x&y
-        // There isn't any simpler way to evaluate x ? 0 : z.
+        if (this->isImm(x.id,~0)) { return y; }               // true  ? y : z == y
+        if (this->isImm(x.id, 0)) { return z; }               // false ? y : z == z
+        if (this->isImm(y.id, 0)) { return bit_clear(z,x); }  //     x ? 0 : z == ~x&z
+        if (this->isImm(z.id, 0)) { return bit_and  (y,x); }  //     x ? y : 0 ==  x&y
         return {this, this->push(Op::select, x.id, y.id, z.id)};
     }
 
@@ -2424,6 +2442,7 @@ namespace skvm {
                 case Op::bit_and:   vals[i] = b->CreateAnd(vals[x], vals[y]); break;
                 case Op::bit_or :   vals[i] = b->CreateOr (vals[x], vals[y]); break;
                 case Op::bit_xor:   vals[i] = b->CreateXor(vals[x], vals[y]); break;
+                case Op::bit_clear: vals[i] = b->CreateAnd(vals[x], b->CreateNot(vals[y])); break;
 
                 case Op::pack: vals[i] = b->CreateOr(vals[x], b->CreateShl(vals[y], immz)); break;
 
@@ -3203,6 +3222,7 @@ namespace skvm {
                 case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
                 case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
+                case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // Notice, y then x.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
                 case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy].label); break;
@@ -3327,6 +3347,7 @@ namespace skvm {
                 case Op::bit_and  : a->and16b(dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->orr16b(dst(), r[x], r[y]); break;
                 case Op::bit_xor  : a->eor16b(dst(), r[x], r[y]); break;
+                case Op::bit_clear: a->bic16b(dst(), r[x], r[y]); break;
 
                 case Op::select: // bsl16b is x = x ? y : z
                     if (avail & (1<<r[x])) { set_dst(r[x]); a->bsl16b( r[x],  r[y],  r[z]); }

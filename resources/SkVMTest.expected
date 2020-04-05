@@ -679,7 +679,7 @@ loop:
 32	    store32 arg(1) r7
 
 I32 (SWAR) 8888 over 8888
-20 values (originally 21):
+19 values (originally 20):
   v0 = load32 arg(0)
   v1 = shr_i32 v0 8
 ↑ v2 = splat FF0000 (2.3418052e-38)
@@ -691,38 +691,36 @@ I32 (SWAR) 8888 over 8888
   v8 = load32 arg(1)
   v9 = shr_i16x2 v8 8
   v10 = mul_i16x2 v9 v7
-↑ v11 = splat FF00FF00 (-1.7146522e+38)
-  v12 = bit_and v10 v11
-↑ v13 = splat FF00FF (2.3418409e-38)
-  v14 = bit_and v8 v13
-  v15 = mul_i16x2 v14 v7
-  v16 = shr_i16x2 v15 8
-  v17 = bit_or v16 v12
-  v18 = add_i32 v0 v17
-  store32 arg(1) v18
+↑ v11 = splat FF00FF (2.3418409e-38)
+  v12 = bit_clear v10 v11
+  v13 = bit_and v8 v11
+  v14 = mul_i16x2 v13 v7
+  v15 = shr_i16x2 v14 8
+  v16 = bit_or v15 v12
+  v17 = add_i32 v0 v16
+  store32 arg(1) v17
 
-8 registers, 20 instructions:
+7 registers, 19 instructions:
 0	r0 = splat FF0000 (2.3418052e-38)
 1	r1 = splat 1000100 (2.3510604e-38)
-2	r2 = splat FF00FF00 (-1.7146522e+38)
-3	r3 = splat FF00FF (2.3418409e-38)
+2	r2 = splat FF00FF (2.3418409e-38)
 loop:
-4	    r4 = load32 arg(0)
-5	    r5 = shr_i32 r4 8
-6	    r5 = bit_and r0 r5
-7	    r6 = shr_i32 r4 24
-8	    r5 = bit_or r6 r5
-9	    r5 = sub_i16x2 r1 r5
-10	    r6 = load32 arg(1)
-11	    r7 = shr_i16x2 r6 8
-12	    r7 = mul_i16x2 r7 r5
-13	    r7 = bit_and r7 r2
-14	    r6 = bit_and r6 r3
-15	    r5 = mul_i16x2 r6 r5
-16	    r5 = shr_i16x2 r5 8
-17	    r7 = bit_or r5 r7
-18	    r7 = add_i32 r4 r7
-19	    store32 arg(1) r7
+3	    r3 = load32 arg(0)
+4	    r4 = shr_i32 r3 8
+5	    r4 = bit_and r0 r4
+6	    r5 = shr_i32 r3 24
+7	    r4 = bit_or r5 r4
+8	    r4 = sub_i16x2 r1 r4
+9	    r5 = load32 arg(1)
+10	    r6 = shr_i16x2 r5 8
+11	    r6 = mul_i16x2 r6 r4
+12	    r6 = bit_clear r6 r2
+13	    r5 = bit_and r5 r2
+14	    r4 = mul_i16x2 r5 r4
+15	    r4 = shr_i16x2 r4 8
+16	    r6 = bit_or r4 r6
+17	    r6 = add_i32 r3 r6
+18	    store32 arg(1) r6
 
 23 values (originally 23):
   v0 = load32 arg(1)

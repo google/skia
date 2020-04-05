@@ -87,8 +87,8 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
     phi = select(   x < 0.0f, (1/2.0f) - phi, phi);
     phi = select(   y < 0.0f, (1/1.0f) - phi, phi);
 
-    skvm::F32 t = select(phi == phi, phi
-                                   , p->splat(0.0f));   // t = phi if phi != NaN
+    skvm::F32 t = select(is_NaN(phi), p->splat(0.0f)
+                                    , phi);
 
     if (fTScale != 1.0f || fTBias != 0.0f) {
         t = t * p->uniformF(uniforms->pushF(fTScale))

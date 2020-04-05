@@ -252,6 +252,7 @@ namespace SK_OPTS_NS {
                     CASE(Op::bit_and  ): r(d).i32 = r(x).i32 &  r(y).i32; break;
                     CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;
                     CASE(Op::bit_xor  ): r(d).i32 = r(x).i32 ^  r(y).i32; break;
+                    CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
                     CASE(Op::select): r(d).i32 = skvx::if_then_else(r(x).i32, r(y).i32, r(z).i32);
                                       break;
