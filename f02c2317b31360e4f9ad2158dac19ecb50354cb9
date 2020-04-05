@@ -70,6 +70,30 @@
       "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d38330a3_50db745a",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-05T15:15:42Z",
+      "side": 1,
+      "message": "You know what?  We just removed Builder::bit_clear() for not seeming to be very useful, but I think this is a perfect use case for it.  I\u0027ll follow up adding it back, turning select(c,0,x) into that, and then convert this code over.",
+      "parentUuid": "d86eb281_46f85d57",
+      "range": {
+        "startLine": 90,
+        "startChar": 25,
+        "endLine": 90,
+        "endChar": 28
+      },
+      "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
