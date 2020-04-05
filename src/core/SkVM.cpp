@@ -1013,7 +1013,8 @@ namespace skvm {
     I32 Builder::select(I32 x, I32 y, I32 z) {
         int X,Y,Z;
         if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X?Y:Z); }
-        // TODO: some cases to reduce to bit_and when y == 0 or z == 0?
+        if (this->isImm(y.id, 0)) { return this->bit_and(this->bit_not(x), z); }
+        if (this->isImm(z.id, 0)) { return this->bit_and(x, y); }
         return {this, push(Op::select, x.id, y.id, z.id)};
     }
 

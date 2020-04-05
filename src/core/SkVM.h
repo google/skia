@@ -627,6 +627,8 @@ namespace skvm {
         I32 bit_or   (I32, I32);  I32 bit_or   (I32a x, I32a y) { return bit_or   (_(x), _(y)); }
         I32 bit_xor  (I32, I32);  I32 bit_xor  (I32a x, I32a y) { return bit_xor  (_(x), _(y)); }
 
+        I32 bit_not  (I32 x) { return bit_xor(x, ~0); }
+
         I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
         I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
 
@@ -943,6 +945,8 @@ namespace skvm {
 
     static inline I32 operator^(I32 x, I32a y) { return x->bit_xor(x,y); }
     static inline I32 operator^(int x, I32  y) { return y->bit_xor(x,y); }
+
+    static inline I32 operator~(I32 x) { return x->bit_not(x); }
 
     static inline I32& operator&=(I32& x, I32a y) { return (x = x & y); }
     static inline I32& operator|=(I32& x, I32a y) { return (x = x | y); }
