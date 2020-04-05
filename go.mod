@@ -20,16 +20,13 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	go.chromium.org/luci v0.0.0-20200403183213-e517a9b0f117 // indirect
-	go.skia.org/infra v0.0.0-20200404014526-c648e6c11ff7
-	golang.org/x/crypto v0.0.0-20200403201458-baeed622b8d8 // indirect
+	go.chromium.org/luci v0.0.0-20200404154724-e4db1f789597 // indirect
+	go.skia.org/infra v0.0.0-20200405010037-f60454fef23a
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200403190813-44a64ad78b9b // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.21.0
-	google.golang.org/genproto v0.0.0-20200403120447-c50568487044 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
