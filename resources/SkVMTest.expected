@@ -724,23 +724,6 @@ loop:
 18	    r7 = add_i32 r4 r7
 19	    store32 arg(1) r7
 
-6 values (originally 6):
-↟ v0 = splat 2 (2.8025969e-45)
-↟ v1 = splat 1 (1.4012985e-45)
-↑ v2 = add_i32 v1 v0
-  v3 = load32 arg(0)
-  v4 = mul_i32 v3 v2
-  store32 arg(0) v4
-
-2 registers, 6 instructions:
-0	r0 = splat 2 (2.8025969e-45)
-1	r1 = splat 1 (1.4012985e-45)
-2	r0 = add_i32 r1 r0
-loop:
-3	    r1 = load32 arg(0)
-4	    r1 = mul_i32 r1 r0
-5	    store32 arg(0) r1
-
 23 values (originally 23):
   v0 = load32 arg(1)
   v1 = shr_i32 v0 24

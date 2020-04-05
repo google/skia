@@ -623,12 +623,12 @@ namespace skvm {
         I32 gte_16x2(I32, I32);  I32 gte_16x2(I32a x, I32a y) { return gte_16x2(_(x), _(y)); }
 
         // Bitwise operations.
-        I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }
-        I32 bit_or   (I32, I32);  I32 bit_or   (I32a x, I32a y) { return bit_or   (_(x), _(y)); }
-        I32 bit_xor  (I32, I32);  I32 bit_xor  (I32a x, I32a y) { return bit_xor  (_(x), _(y)); }
+        I32 bit_and(I32, I32);  I32 bit_and(I32a x, I32a y) { return bit_and(_(x), _(y)); }
+        I32 bit_or (I32, I32);  I32 bit_or (I32a x, I32a y) { return bit_or (_(x), _(y)); }
+        I32 bit_xor(I32, I32);  I32 bit_xor(I32a x, I32a y) { return bit_xor(_(x), _(y)); }
 
-        I32 min(I32 x, I32 y) { return select(lt(x,y), x, y); }
-        I32 max(I32 x, I32 y) { return select(gt(x,y), x, y); }
+        I32 min(I32 x, I32 y) { return select(lte(x,y), x, y); }
+        I32 max(I32 x, I32 y) { return select(gte(x,y), x, y); }
 
         I32 min(I32a x, I32a y) { return min(_(x), _(y)); }
         I32 max(I32a x, I32a y) { return max(_(x), _(y)); }
