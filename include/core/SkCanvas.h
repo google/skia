@@ -756,8 +756,22 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int experimental_saveCamera(const SkM44& projection, const SkM44& camera);
-    int experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]);
+    /**
+     *  Save the matrix and clip state (just like save()), but then also concat
+     *  two more matrices: projection and camera. This call is logically similar to:
+     *      save()
+     *      concat(projection)
+     *      concat(camera)
+     *  However, these matrices tracked by the canvas, so if any shader references
+     *  lights or normals, these can be properly transformed, as they will have access to
+     *  local-to-world and local-to-camera.
+     *
+     *  getLocalToWorld() returns all concats that follow the most recent saveCamera().
+     *  getLocalToCamear() returns camera * localToWorld().
+     *
+     *  returns the current save count (see getSaveCount()).
+     */
+    int saveCamera(const SkM44& projection, const SkM44& camera);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
@@ -2427,14 +2441,10 @@ public:
         example: https://fiddle.skia.org/c/@Clip
     */
     SkMatrix getTotalMatrix() const;
+
     SkM44 getLocalToDevice() const; // entire matrix stack
-    void getLocalToDevice(SkScalar colMajor[16]) const;
-
-    SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
-    SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
-
-    void experimental_getLocalToWorld(SkScalar colMajor[16]) const;
-    void experimental_getLocalToCamera(SkScalar colMajor[16]) const;
+    SkM44 getLocalToWorld() const;  // up to but not including top-most camera
+    SkM44 getLocalToCamera() const; // up to and including top-most camera
 
     ///////////////////////////////////////////////////////////////////////////
 
