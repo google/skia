@@ -90,7 +90,7 @@ public:
 
         // want "world" to be in our big coordinates (e.g. area), so apply this inverse
         // as part of our "camera".
-        canvas->experimental_saveCamera(viewport * perspective, camera * inv(viewport));
+        canvas->saveCamera(viewport * perspective, camera * inv(viewport));
     }
 };
 
@@ -438,7 +438,7 @@ public:
             SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
         } uni;
-        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorld = canvas->getLocalToWorld();
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
 
