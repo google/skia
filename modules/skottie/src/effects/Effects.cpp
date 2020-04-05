@@ -26,6 +26,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         const char*    fName;
         EffectBuilderT fBuilder;
     } gBuilderInfo[] = {
+        { "ADBE Corner Pin"     , &EffectBuilder::attachCornerPinEffect      },
         { "ADBE Drop Shadow"    , &EffectBuilder::attachDropShadowEffect     },
         { "ADBE Easy Levels2"   , &EffectBuilder::attachEasyLevelsEffect     },
         { "ADBE Fill"           , &EffectBuilder::attachFillEffect           },
