@@ -22,6 +22,30 @@
       "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a421b76c_ab37897e",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-05T15:04:16Z",
+      "side": 1,
+      "message": "I don\u0027t particularly care either way, but I think you may want to think through the cost of what that implies.  It\u0027s likely more expensive to write this as\n\n   select(isNaN(x), 0, x)\n\nthan as\n\n   select(is_not_NaN(x), x, 0)\n\nSpecial-casing select(c, 0, x) into (~c)\u0026x is not an optimization.  That replaces one select instruction with 3 inputs (c,0,x) with two instructions with 3 inputs (c and x, and in your impl ~0), and now it also needs a temporary register to hold ~c.  In all the other select special cases we strictly reduce the number of instructions or number of inputs, but the transformation of c?0:x ~~\u003e (~c)\u0026x increases the number of instructions and does not change the number of inputs, making things I suspect strictly worse.",
+      "parentUuid": "55105f46_d2ca3c2d",
+      "range": {
+        "startLine": 90,
+        "startChar": 25,
+        "endLine": 90,
+        "endChar": 28
+      },
+      "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
