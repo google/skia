@@ -46,6 +46,30 @@
       "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d86eb281_46f85d57",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-05T15:12:24Z",
+      "side": 1,
+      "message": "Good point. I saw that I had to add a NOT, and just didn\u0027t think about that losing in the long-run.",
+      "parentUuid": "a421b76c_ab37897e",
+      "range": {
+        "startLine": 90,
+        "startChar": 25,
+        "endLine": 90,
+        "endChar": 28
+      },
+      "revId": "f02c2317b31360e4f9ad2158dac19ecb50354cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
