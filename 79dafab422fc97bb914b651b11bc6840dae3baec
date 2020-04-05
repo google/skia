@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "425ea2ad_4991546c",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-05T13:29:53Z",
+      "side": 1,
+      "message": "Thanks, I figured there must be template foo to handle this.",
+      "parentUuid": "4afc3f57_373d920e",
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39eb2665_aa13a48a",
         "filename": "src/shaders/gradients/SkSweepGradient.cpp",
         "patchSetId": 2
@@ -48,6 +66,30 @@
       "writtenOn": "2020-04-04T21:21:18Z",
       "side": 1,
       "message": "Might be clearer to see that this is a 7th-order poly by passing slope*slope here directly rather than naming it \u0027s\u0027?",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 34
+      },
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92ebd542_facd5e85",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-05T13:29:53Z",
+      "side": 1,
+      "message": "Nice, that does make it clearer.",
+      "parentUuid": "39eb2665_aa13a48a",
       "range": {
         "startLine": 82,
         "startChar": 33,
@@ -95,6 +137,30 @@
       "side": 1,
       "message": "Oh, sure.   Why don\u0027t you try to implement the TODOs in Builder::select() in SkVM.cpp?\nThat\u0027d let us use select() a lot more freely, and I agree select() often reads much more naturally.\n\nI don\u0027t have much preference about whether to test is_nan or is_finite or x\u003d\u003dx here... whatever you think reads best.  Though, just so I make sure I remember this, we only really have to protect against NaN here right?  Tiling will handle infs?",
       "parentUuid": "cc524614_124cadee",
+      "range": {
+        "startLine": 90,
+        "startChar": 27,
+        "endLine": 90,
+        "endChar": 35
+      },
+      "revId": "79dafab422fc97bb914b651b11bc6840dae3baec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e071b08_adbf3466",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-05T13:29:53Z",
+      "side": 1,
+      "message": "Yes, in this instance we only worry about NaN. I was just riffing about the general kind of check.",
+      "parentUuid": "dc1f4b08_36b6eaa3",
       "range": {
         "startLine": 90,
         "startChar": 27,
