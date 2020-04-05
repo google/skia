@@ -487,10 +487,10 @@ DEF_TEST(SkVM_bitops, r) {
 
         skvm::I32 x = b.load32(ptr);
 
-        x = b.bit_and  (x, b.splat( 0xf1));  // 0x40
-        x = b.bit_or   (x, b.splat( 0x80));  // 0xc0
-        x = b.bit_xor  (x, b.splat( 0xfe));  // 0x3e
-        x = b.bit_and  (x, b.splat(~0x30));  // 0x0e
+        x = b.bit_and  (x, b.splat(0xf1));  // 0x40
+        x = b.bit_or   (x, b.splat(0x80));  // 0xc0
+        x = b.bit_xor  (x, b.splat(0xfe));  // 0x3e
+        x = b.bit_clear(x, b.splat(0x30));  // 0x0e
 
         x = b.shl(x, 28);  // 0xe000'0000
         x = b.sra(x, 28);  // 0xffff'fffe
@@ -503,6 +503,38 @@ DEF_TEST(SkVM_bitops, r) {
         int x = 0x42;
         program.eval(1, &x);
         REPORTER_ASSERT(r, x == 0x7fff'ffff);
+    });
+}
+
+DEF_TEST(SkVM_select_is_NaN, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src = b.varying<float>(),
+                  dst = b.varying<float>();
+
+        skvm::F32 x = b.loadF(src);
+        x = select(is_NaN(x), b.splat(0.0f)
+                            , x);
+        b.storeF(dst, x);
+    }
+
+    std::vector<skvm::OptimizedInstruction> program = b.optimize();
+    REPORTER_ASSERT(r, program.size() == 4);
+    REPORTER_ASSERT(r, program[0].op == skvm::Op::load32);
+    REPORTER_ASSERT(r, program[1].op == skvm::Op::neq_f32);
+    REPORTER_ASSERT(r, program[2].op == skvm::Op::bit_clear);
+    REPORTER_ASSERT(r, program[3].op == skvm::Op::store32);
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        // ±NaN, ±0, ±1, ±inf
+        uint32_t src[] = {0x7f80'0001, 0xff80'0001, 0x0000'0000, 0x8000'0000,
+                          0x3f80'0000, 0xbf80'0000, 0x7f80'0000, 0xff80'0000};
+        uint32_t dst[SK_ARRAY_COUNT(src)];
+        program.eval(SK_ARRAY_COUNT(src), src, dst);
+
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
+            REPORTER_ASSERT(r, dst[i] == (i < 2 ? 0 : src[i]));
+        }
     });
 }
 
