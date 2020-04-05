@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a991656f_86cb2ecc",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-05T15:13:37Z",
+      "side": 1,
+      "message": "I think is_not_NaN() is still clearer than x \u003d\u003d x + a comment.",
+      "range": {
+        "startLine": 90,
+        "startChar": 25,
+        "endLine": 90,
+        "endChar": 35
+      },
+      "revId": "763b474b6de0f4abb4a0d4a72dfb79817e723084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
