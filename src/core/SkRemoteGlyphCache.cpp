@@ -774,7 +774,11 @@ void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
     for (auto [i, variant, _] : SkMakeEnumerate(drawables->input())) {
         SkPackedGlyphID packedID = variant.packedID();
         if (fSentLowGlyphIDs.test(packedID)) {
-            SkASSERT(fSentGlyphs.find(packedID) != nullptr);
+            #ifdef SK_DEBUG
+                MaskSummary* summary = fSentGlyphs.find(packedID);
+                SkASSERT(summary != nullptr);
+                SkASSERT(summary->canDrawAsMask && summary->canDrawAsSDFT);
+            #endif
             continue;
         }
 
@@ -788,11 +792,14 @@ void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
             this->ensureScalerContext();
             fContext->getMetrics(glyph);
 
-            fSentLowGlyphIDs.setIfLower(packedID);
-
             MaskSummary newSummary =
                     {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+
             summary = fSentGlyphs.set(newSummary);
+
+            if (summary->canDrawAsMask && summary->canDrawAsSDFT) {
+                fSentLowGlyphIDs.setIfLower(packedID);
+            }
         }
 
         // Reject things that are too big.
