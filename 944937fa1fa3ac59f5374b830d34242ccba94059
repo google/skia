@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a060b0c3_c4588cc2",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-06T20:52:03Z",
+      "side": 1,
+      "message": "Do you really want a static here for this to provide global \u0027uniqueRunIndex\u0027. Are they actually indexes into anything? Do they need to be monotonic? If not, this is just a uniqueRunId (and the \u0027Index\u0027 part is misleading). Can this at least be a member of OneLineShaper instead of being a global?",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 15
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d978db1_0c473f62",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-06T20:52:03Z",
+      "side": 1,
+      "message": "Why the later modification and not just pass the uniqueRunId here?",
+      "range": {
+        "startLine": 85,
+        "startChar": 43,
+        "endLine": 85,
+        "endChar": 45
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52035e8d_6a5f168e",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-06T20:52:03Z",
+      "side": 1,
+      "message": "This is thread antagonistic, it prevents using two different SkParagraph on two different threads from executing at the same time.",
+      "range": {
+        "startLine": 87,
+        "startChar": 30,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
