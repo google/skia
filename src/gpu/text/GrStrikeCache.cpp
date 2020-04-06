@@ -141,32 +141,31 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
 
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
-                                                       bool isScaledGlyph,
+                                                       bool needsPadding,
                                                        GrResourceProvider* resourceProvider,
                                                        GrDeferredUploadTarget* target,
                                                        GrAtlasManager* fullAtlasManager,
                                                        GrGlyph* grGlyph) {
     SkASSERT(grGlyph != nullptr);
     SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
-    SkASSERT(grGlyph->width() == skGlyph.width());
-    SkASSERT(grGlyph->height() == skGlyph.height());
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
-    bool isSDFGlyph = skGlyph.maskFormat() == SkMask::kSDF_Format;
+    SkDEBUGCODE(bool isSDFGlyph = skGlyph.maskFormat() == SkMask::kSDF_Format;)
+    SkASSERT(!needsPadding || !isSDFGlyph);
+
     // Add 1 pixel padding around grGlyph if needed.
-    bool addPad = isScaledGlyph && !isSDFGlyph;
-    const int width = addPad ? skGlyph.width() + 2 : skGlyph.width();
-    const int height = addPad ? skGlyph.height() + 2 : skGlyph.height();
+    const int width = needsPadding ? skGlyph.width() + 2 : skGlyph.width();
+    const int height = needsPadding ? skGlyph.height() + 2 : skGlyph.height();
     int rowBytes = width * bytesPerPixel;
     size_t size = height * rowBytes;
 
     // Temporary storage for normalizing grGlyph image.
     SkAutoSMalloc<1024> storage(size);
     void* dataPtr = storage.get();
-    if (addPad) {
+    if (needsPadding) {
         sk_bzero(dataPtr, size);
         // Advance in one row and one column.
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
@@ -174,18 +173,8 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
 
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
-    GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-            resourceProvider, &grGlyph->fPlotLocator, target, expectedMaskFormat,
-            width, height,
-            storage.get(), &grGlyph->fAtlasLocation);
-    if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
-        if (addPad) {
-            grGlyph->fAtlasLocation.fX += 1;
-            grGlyph->fAtlasLocation.fY += 1;
-        }
-        SkASSERT(grGlyph->fPlotLocator != GrDrawOpAtlas::kInvalidPlotLocator);
-    }
-    return result;
+    return fullAtlasManager->addToAtlas(resourceProvider, target, expectedMaskFormat, width, height,
+                                        storage.get(), &grGlyph->fAtlasLocator);
 }
 
 GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
