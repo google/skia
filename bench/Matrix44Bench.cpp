@@ -21,8 +21,8 @@ public:
         for (auto& v : value) {
             v = rand.nextF();
         }
-        fM1.setColMajor(value + 0);
-        fM2.setColMajor(value + 16);
+        fM1 = SkM44::ColMajor(value + 0);
+        fM2 = SkM44::ColMajor(value + 16);
     }
 
     bool isSuitableFor(Backend backend) override {
