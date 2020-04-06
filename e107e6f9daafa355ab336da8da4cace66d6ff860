@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95ce89db_e5b41abc",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-06T14:03:39Z",
+      "side": 1,
+      "message": "^ are",
+      "range": {
+        "startLine": 765,
+        "startChar": 31,
+        "endLine": 765,
+        "endChar": 32
+      },
+      "revId": "e107e6f9daafa355ab336da8da4cace66d6ff860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
