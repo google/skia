@@ -756,8 +756,19 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int experimental_saveCamera(const SkM44& projection, const SkM44& camera);
-    int experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]);
+    /**
+     *  Save the matrix and clip state (just like save()), but then also concat
+     *  two more matrices: projection and camera. This call is logically similar to:
+     *      save()
+     *      concat(projection)
+     *      concat(camera)
+     *  However, these matrices are tracked by the canvas, so if any shader references
+     *  lights or normals, these can be properly transformed, as they will have access to
+     *  local-to-world and local-to-camera.
+     *
+     *  returns the current save count (see getSaveCount()).
+     */
+    int saveCamera(const SkM44& projection, const SkM44& camera);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
@@ -880,8 +891,13 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_concat
     */
     void concat(const SkMatrix& matrix);
-    void concat44(const SkM44&);
-    void concat44(const SkScalar[]); // column-major
+    void concat(const SkM44&);
+
+    // DEPRECATED
+#if 1
+    void concat44(const SkM44& m) { this->concat(m); }
+    void concat44(const SkScalar cm[]) { this->concat(SkM44::ColMajor(cm)); }
+#endif
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2427,14 +2443,12 @@ public:
         example: https://fiddle.skia.org/c/@Clip
     */
     SkMatrix getTotalMatrix() const;
-    SkM44 getLocalToDevice() const; // entire matrix stack
-    void getLocalToDevice(SkScalar colMajor[16]) const;
 
+    SkM44 getLocalToDevice() const; // entire matrix stack
+
+    // These will go away when we have formal access to these from SkSL
     SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
     SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
-
-    void experimental_getLocalToWorld(SkScalar colMajor[16]) const;
-    void experimental_getLocalToCamera(SkScalar colMajor[16]) const;
 
     ///////////////////////////////////////////////////////////////////////////
 

@@ -41,12 +41,7 @@ void SkM44::getRowMajor(SkScalar v[]) const {
     transpose_arrays(v, fMat);
 }
 
-SkM44& SkM44::setRowMajor(const SkScalar v[]) {
-    transpose_arrays(fMat, v);
-    return *this;
-}
-
-SkM44& SkM44::setConcat16(const SkM44& a, const SkScalar b[16]) {
+SkM44& SkM44::setConcat(const SkM44& a, const SkM44& b) {
     sk4f c0 = sk4f::Load(a.fMat +  0);
     sk4f c1 = sk4f::Load(a.fMat +  4);
     sk4f c2 = sk4f::Load(a.fMat +  8);
@@ -56,10 +51,10 @@ SkM44& SkM44::setConcat16(const SkM44& a, const SkScalar b[16]) {
         return skvx::mad(c0, r[0], skvx::mad(c1, r[1], skvx::mad(c2, r[2], c3 * r[3])));
     };
 
-    sk4f m0 = compute(sk4f::Load(b +  0));
-    sk4f m1 = compute(sk4f::Load(b +  4));
-    sk4f m2 = compute(sk4f::Load(b +  8));
-    sk4f m3 = compute(sk4f::Load(b + 12));
+    sk4f m0 = compute(sk4f::Load(b.fMat +  0));
+    sk4f m1 = compute(sk4f::Load(b.fMat +  4));
+    sk4f m2 = compute(sk4f::Load(b.fMat +  8));
+    sk4f m3 = compute(sk4f::Load(b.fMat + 12));
 
     m0.store(fMat +  0);
     m1.store(fMat +  4);
@@ -256,10 +251,11 @@ SkM44& SkM44::setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngl
     SkScalar s = sinAngle;
     SkScalar t = 1 - c;
 
-    return this->set44(t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
-                       t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
-                       t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
-                       0,           0,           0,           1);
+    *this = { t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
+              t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
+              t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
+              0,           0,           0,           1 };
+    return *this;
 }
 
 SkM44& SkM44::setRotate(SkV3 axis, SkScalar radians) {
