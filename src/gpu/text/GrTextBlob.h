@@ -347,6 +347,7 @@ public:
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
     bool needsTransform() const;
+    bool needsPadding() const;
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
