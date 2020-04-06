@@ -19,6 +19,7 @@
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+class GrGlyph;
 class GrOnFlushResourceProvider;
 
 
@@ -48,14 +49,11 @@ class GrOnFlushResourceProvider;
  * and passes in the given GrDrawUploadToken.
  */
 class GrDrawOpAtlas {
-private:
-    static constexpr auto kMaxMultitexturePages = 4;
-
-
 public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
 
+    static constexpr auto kMaxMultitexturePages = 4;
     static constexpr int kMaxPlots = 32; // restricted by the fPlotAlreadyUpdated bitfield
                                          // in BulkUseTokenUpdater
 
@@ -201,7 +199,7 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    bool hasID(const AtlasLocator& atlasLocator) {
+    bool hasID1(const AtlasLocator& atlasLocator) {
         if (kInvalidPlotLocator == atlasLocator.fPlotLocator) {
             return false;
         }
@@ -215,7 +213,7 @@ public:
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
     void setLastUseToken(const AtlasLocator& atlasLocator, GrDeferredUploadToken token) {
-        SkASSERT(this->hasID(atlasLocator));
+        SkASSERT(this->hasID1(atlasLocator));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = atlasLocator.pageIndex();
