@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28e1f7b3_76ae7975",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-06T19:05:17Z",
+      "side": 1,
+      "message": "FYI -- localToWorld and localToCamera are not long for this world... let\u0027s remove them as soon as convenient.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 19,
+        "endLine": 1047,
+        "endChar": 35
+      },
+      "revId": "fc8fa7743dff5f1c6835140cb170da3dadd331bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
