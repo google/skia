@@ -22,6 +22,30 @@
       "revId": "1b571c631214059d2891510e1061b304209d0cf3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f276083_a4bf6931",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-06T15:13:20Z",
+      "side": 1,
+      "message": "Good suggestion, done.",
+      "parentUuid": "02c1d0d9_7adac877",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 6
+      },
+      "revId": "1b571c631214059d2891510e1061b304209d0cf3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
