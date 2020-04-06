@@ -20,6 +20,7 @@
     #include "include/effects/Sk1DPathEffect.h"
     #include "include/effects/Sk2DPathEffect.h"
     #include "include/effects/SkCornerPathEffect.h"
+    #include "include/effects/SkDarkModeFilter.h"
     #include "include/effects/SkDiscretePathEffect.h"
     #include "include/effects/SkGradientShader.h"
     #include "include/effects/SkHighContrastFilter.h"
@@ -76,6 +77,7 @@
 
         // Color filters.
         SkColorFilter_Matrix::RegisterFlattenables();
+        SK_REGISTER_FLATTENABLE(SkDarkModeFilter);
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();

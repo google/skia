@@ -72,6 +72,7 @@ public:
         kCoverageSetOpXP_ClassID,
         kCubicStrokeProcessor_ClassID,
         kCustomXP_ClassID,
+        kDarkModeFilterEffect_ClassID,
         kDashingCircleEffect_ClassID,
         kDashingLineEffect_ClassID,
         kDefaultGeoProc_ClassID,

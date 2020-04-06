@@ -35,6 +35,7 @@ skia_effects_sources = [
   "$_src/effects/SkColorMatrix.cpp",
   "$_src/effects/SkColorMatrixFilter.cpp",
   "$_src/effects/SkCornerPathEffect.cpp",
+  "$_src/effects/SkDarkModeFilter.cpp",
   "$_src/effects/SkDashPathEffect.cpp",
   "$_src/effects/SkDiscretePathEffect.cpp",
   "$_src/effects/SkEmbossMask.cpp",
