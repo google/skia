@@ -741,8 +741,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
     }
 
     SkSize radius = mappedRadius(ctx.ctm());
-    int width = SkScalarFloorToInt(radius.width());
-    int height = SkScalarFloorToInt(radius.height());
+    int width = SkScalarRoundToInt(radius.width());
+    int height = SkScalarRoundToInt(radius.height());
 
     // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues (crbug.com/1018190)
     constexpr int kMaxRadius = (std::numeric_limits<int>::max() - 1) / 2;
