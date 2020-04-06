@@ -7,7 +7,7 @@ CanvasKit._extraInitializations.push(function() {
     // Our array has 4 bytes per float, so be sure to account for that before
     // sending it over the wire.
     var rts = this._makeShader(fptr, floats.length * 4, !!isOpaque, localMatrixPtr);
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     return rts;
   }
 
@@ -27,7 +27,7 @@ CanvasKit._extraInitializations.push(function() {
     // sending it over the wire.
     var rts = this._makeShaderWithChildren(fptr, floats.length * 4, !!isOpaque, childrenPointers,
                                            barePointers.length, localMatrixPtr);
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     return rts;
   }
 });

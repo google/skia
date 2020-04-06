@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
- - Support for DOMMatrix on all APIs that take SkMatrix (i.e. arrays or Float32Arrays of length 9).
+ - Support for DOMMatrix on all APIs that take SkMatrix (i.e. arrays or Float32Arrays of length 6/9/16).
 
 ### Removed
  - Previously deprecated functions MakeSkDashPathEffect, MakeLinearGradientShader,
@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    always composed of floats.
  - localmatrix option for `SkShader.Lerp` and `SkShader.Blend`.
 
+### Deprecated
+ - `SkCanvas.concat44` has been folded into concat (which now takes 3x2, 3x3, or 4x4 matrices). It will
+   be removed soon.
 
 ## [0.14.0] - 2020-03-18
 
