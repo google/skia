@@ -19,6 +19,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"

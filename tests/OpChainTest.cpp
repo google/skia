@@ -10,6 +10,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/ops/GrOp.h"
 #include "tests/Test.h"
 

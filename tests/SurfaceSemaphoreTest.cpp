@@ -5,16 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/vk/GrVkVulkan.h"
-
-#include "src/gpu/GrContextPriv.h"
-#include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 #ifdef SK_GL
 #include "src/gpu/gl/GrGLGpu.h"
@@ -23,6 +21,7 @@
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkUtil.h"

@@ -8,6 +8,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "tests/Test.h"
 

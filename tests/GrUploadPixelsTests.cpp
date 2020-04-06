@@ -11,6 +11,7 @@
 
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"

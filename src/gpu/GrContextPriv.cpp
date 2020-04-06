@@ -21,6 +21,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"
+#include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"

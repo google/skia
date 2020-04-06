@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrResourceCache.h"
 #include "tests/Test.h"
 
 // This is the repro of a CastOS memory regression bug (b/138674523).

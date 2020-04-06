@@ -7,6 +7,7 @@
 
 #include "tools/viewer/SkSLSlide.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrContext.h"
