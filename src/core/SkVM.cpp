@@ -1241,8 +1241,7 @@ namespace skvm {
                               , lu + ((c-lu)*(  lu)) / (lu-mn));
             c = select(mx >  a, lu + ((c-lu)*(a-lu)) / (mx-lu)
                               , c);
-            // Sometimes without this we may dip just a little negative.
-            return max(c, 0.0f);
+            return clamp01(c);  // May be a little negative, or worse, NaN.
         };
         *r = clip(*r);
         *g = clip(*g);
