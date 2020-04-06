@@ -9,15 +9,6 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
-#endif
-#include "include/third_party/d3d/d3dx12.h"
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
-
 sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t size,
                                                          GrGpuBufferType intendedType,
                                                          GrAccessPattern accessPattern,
@@ -43,8 +34,25 @@ sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t s
     }
 
     ID3D12Resource* resource;
-    CD3DX12_HEAP_PROPERTIES heapProperties(heapType);
-    CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+    D3D12_HEAP_PROPERTIES heapProperties = {
+        heapType,
+        D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+        D3D12_MEMORY_POOL_UNKNOWN,
+        1, // CreationNodeMask
+        1, // VisibleNodeMask
+    };
+    D3D12_RESOURCE_DESC bufferDesc = {
+        D3D12_RESOURCE_DIMENSION_BUFFER,
+        0, // Alignment
+        size,
+        1, // Height
+        1, // DepthOrArraySize
+        1, // MipLevels
+        DXGI_FORMAT_UNKNOWN,
+        {1, 0}, // SampleDesc
+        D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+        D3D12_RESOURCE_FLAG_NONE,
+    };
     HRESULT hr = gpu->device()->CreateCommittedResource(
             &heapProperties,
             D3D12_HEAP_FLAG_NONE,
