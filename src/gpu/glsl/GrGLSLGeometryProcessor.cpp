@@ -97,7 +97,8 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                 uni.fType = kFloat3x3_GrSLType;
             }
             uni.fHandle =
-                    uniformHandler->addUniform(flag, uni.fType, strUniName.c_str(), &matrixName);
+                    uniformHandler->addUniform(&fp, flag, uni.fType, strUniName.c_str(),
+                                               &matrixName);
             transformVar = uniformHandler->getUniformVariable(uni.fHandle);
         } else {
             // Install a coord transform that will be skipped.
@@ -181,7 +182,8 @@ void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuild
         vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
     } else {
         const char* viewMatrixName;
-        *viewMatrixUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+        *viewMatrixUniform = uniformHandler->addUniform(nullptr,
+                                                        kVertex_GrShaderFlag,
                                                         kFloat3x3_GrSLType,
                                                         "uViewM",
                                                         &viewMatrixName);

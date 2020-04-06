@@ -33,15 +33,13 @@ public:
         kUniformBinding = 0
     };
 
-    struct UniformInfo {
-        GrShaderVar             fVariable;
-        uint32_t                fVisibility;
+    struct VkUniformInfo : public UniformInfo {
         // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
         uint32_t                fUBOffset;
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
-    typedef GrTAllocator<UniformInfo> UniformInfoArray;
+    typedef GrTAllocator<VkUniformInfo> UniformInfoArray;
 
     ~GrVkUniformHandler() override;
 
@@ -66,7 +64,8 @@ private:
         , fCurrentUBOOffset(0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
@@ -96,10 +95,9 @@ private:
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
-    const UniformInfo& getUniformInfo(UniformHandle u) const {
+    const VkUniformInfo& getUniformInfo(UniformHandle u) const {
         return fUniforms.item(u.toIndex());
     }
-
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
