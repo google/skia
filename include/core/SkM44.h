@@ -181,6 +181,19 @@ public:
         return m;
     }
 
+    static SkM44 RowMajor(const SkScalar r[16]) {
+        return SkM44(r[ 0], r[ 1], r[ 2], r[ 3],
+                     r[ 4], r[ 5], r[ 6], r[ 7],
+                     r[ 8], r[ 9], r[10], r[11],
+                     r[12], r[13], r[14], r[15]);
+    }
+    static SkM44 ColMajor(const SkScalar c[16]) {
+        return SkM44(c[0], c[4], c[ 8], c[12],
+                     c[1], c[5], c[ 9], c[13],
+                     c[2], c[6], c[10], c[14],
+                     c[3], c[7], c[11], c[15]);
+    }
+
     static SkM44 Translate(SkScalar x, SkScalar y, SkScalar z = 0) {
         return SkM44(1, 0, 0, x,
                      0, 1, 0, y,
@@ -311,18 +324,14 @@ public:
      */
     SkM44& setRotate(SkV3 axis, SkScalar radians);
 
-    SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
-
-    SkM44& setConcat(const SkM44& a, const SkM44& b) {
-        return this->setConcat16(a, b.fMat);
-    }
+    SkM44& setConcat(const SkM44& a, const SkM44& b);
 
     friend SkM44 operator*(const SkM44& a, const SkM44& b) {
         return SkM44(a, b);
     }
 
-    SkM44& preConcat16(const SkScalar colMajor[16]) {
-        return this->setConcat16(*this, colMajor);
+    SkM44& preConcat(const SkM44& m) {
+        return this->setConcat(*this, m);
     }
 
     /** If this is invertible, return that in inverse and return true. If it is
