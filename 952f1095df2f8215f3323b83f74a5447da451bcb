@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7df72a69_aa537160",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-06T20:46:32Z",
+      "side": 1,
+      "message": "Might be clearer if you break and comment vex() like we do everywhere else, e.g. the one above?",
+      "revId": "952f1095df2f8215f3323b83f74a5447da451bcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36d3d892_760c840a",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1916,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-06T20:46:32Z",
+      "side": 1,
+      "message": "We don\u0027t usually guard this sort of call.  imm_bytes() returns 0 when offset is 0.",
+      "revId": "952f1095df2f8215f3323b83f74a5447da451bcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50412703_330b66e6",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-06T20:46:32Z",
+      "side": 1,
+      "message": "Maybe make these private?",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 66
+      },
+      "revId": "952f1095df2f8215f3323b83f74a5447da451bcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
