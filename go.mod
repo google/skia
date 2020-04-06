@@ -20,8 +20,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	go.chromium.org/luci v0.0.0-20200404154724-e4db1f789597 // indirect
-	go.skia.org/infra v0.0.0-20200405010037-f60454fef23a
+	go.skia.org/infra v0.0.0-20200405052407-0bbb2dba381b
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
