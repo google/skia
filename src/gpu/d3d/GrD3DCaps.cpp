@@ -892,31 +892,6 @@ bool GrD3DCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return false;
 }
 
-GrColorType GrD3DCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                         bool isAlphaChannel) const {
-    DXGI_FORMAT dxgiFormat;
-    if (!format.asDxgiFormat(&dxgiFormat)) {
-        return GrColorType::kUnknown;
-    }
-
-    switch (dxgiFormat) {
-        case DXGI_FORMAT_R8_UNORM:                 return isAlphaChannel ? GrColorType::kAlpha_8
-                                                                         : GrColorType::kGray_8;
-        case DXGI_FORMAT_R8G8B8A8_UNORM:           return GrColorType::kRGBA_8888;
-        case DXGI_FORMAT_R8G8_UNORM:               return GrColorType::kRG_88;
-        case DXGI_FORMAT_B8G8R8A8_UNORM:           return GrColorType::kBGRA_8888;
-        case DXGI_FORMAT_R10G10B10A2_UNORM:        return GrColorType::kRGBA_1010102;
-        case DXGI_FORMAT_R16_UNORM:                return GrColorType::kAlpha_16;
-        case DXGI_FORMAT_R16_FLOAT:                return GrColorType::kAlpha_F16;
-        case DXGI_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616;
-        case DXGI_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616;
-        case DXGI_FORMAT_R16G16_FLOAT:             return GrColorType::kRG_F16;
-        default:                                   return GrColorType::kUnknown;
-    }
-
-    SkUNREACHABLE;
-}
-
 GrBackendFormat GrD3DCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     DXGI_FORMAT format = this->getFormatFromColorType(ct);
     if (format == DXGI_FORMAT_UNKNOWN) {
