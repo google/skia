@@ -34824,7 +34824,7 @@
         {
           "name": "skia/bots/mesa_intel_driver_linux",
           "path": "mesa_intel_driver_linux",
-          "version": "version:15"
+          "version": "version:5"
         },
         {
           "name": "skia/bots/skimage",
