@@ -10,6 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/atlastext/SkInternalAtlasTextContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
 SkAtlasTextRenderer* SkGetAtlasTextRendererFromInternalContext(
