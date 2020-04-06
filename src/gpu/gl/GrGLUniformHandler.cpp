@@ -25,12 +25,13 @@ bool valid_name(const char* name) {
 }
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
@@ -47,10 +48,13 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
-
-    UniformInfo& uni = fUniforms.push_back(GrGLProgramDataManager::UniformInfo{
-        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform, arrayCount},
-        visibility, -1
+    GLUniformInfo& uni = fUniforms.push_back(GrGLProgramDataManager::GLUniformInfo{
+        {
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform,
+                        arrayCount},
+            visibility, owner, SkString(name)
+        },
+        -1
     });
 
     if (outName) {
@@ -70,11 +74,13 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     GrTextureType type = backendFormat.textureType();
 
-    fSamplers.push_back(GrGLProgramDataManager::UniformInfo{
-        GrShaderVar{std::move(mangleName),
-                    GrSLCombinedSamplerTypeForTextureType(type),
-                    GrShaderVar::TypeModifier::Uniform},
-        kFragment_GrShaderFlag, -1
+    fSamplers.push_back(GrGLProgramDataManager::GLUniformInfo{
+        {
+            GrShaderVar{std::move(mangleName), GrSLCombinedSamplerTypeForTextureType(type),
+                          GrShaderVar::TypeModifier::Uniform},
+            kFragment_GrShaderFlag, nullptr, SkString(name)
+        },
+        -1
     });
 
     if (shaderCaps->textureSwizzleAppliedInShader()) {
@@ -102,12 +108,12 @@ void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps& caps) {
     if (caps.bindUniformLocationSupport()) {
         int currUniform = 0;
-        for (UniformInfo& uniform : fUniforms.items()) {
+        for (GLUniformInfo& uniform : fUniforms.items()) {
             GL_CALL(BindUniformLocation(programID, currUniform, uniform.fVariable.c_str()));
             uniform.fLocation = currUniform;
             ++currUniform;
         }
-        for (UniformInfo& sampler : fSamplers.items()) {
+        for (GLUniformInfo& sampler : fSamplers.items()) {
             GL_CALL(BindUniformLocation(programID, currUniform, sampler.fVariable.c_str()));
             sampler.fLocation = currUniform;
             ++currUniform;
@@ -117,12 +123,12 @@ void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps
 
 void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps& caps, bool force) {
     if (!caps.bindUniformLocationSupport() || force) {
-        for (UniformInfo& uniform : fUniforms.items()) {
+        for (GLUniformInfo& uniform : fUniforms.items()) {
             GrGLint location;
             GL_CALL_RET(location, GetUniformLocation(programID, uniform.fVariable.c_str()));
             uniform.fLocation = location;
         }
-        for (UniformInfo& sampler : fSamplers.items()) {
+        for (GLUniformInfo& sampler : fSamplers.items()) {
             GrGLint location;
             GL_CALL_RET(location, GetUniformLocation(programID, sampler.fVariable.c_str()));
             sampler.fLocation = location;

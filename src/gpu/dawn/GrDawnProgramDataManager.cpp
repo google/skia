@@ -22,8 +22,8 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
     for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
         SkDEBUGCODE(
-            uniform.fArrayCount = uniformInfo.fVar.getArrayCount();
-            uniform.fType = uniformInfo.fVar.getType();
+            uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
+            uniform.fType = uniformInfo.fVariable.getType();
         )
         uniform.fOffset = uniformInfo.fUBOOffset;
         ++i;

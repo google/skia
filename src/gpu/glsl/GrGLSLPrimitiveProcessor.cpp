@@ -54,7 +54,8 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
                                                  UniformHandle* colorUniform) {
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;
-    *colorUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+    *colorUniform = uniformHandler->addUniform(nullptr,
+                                               kFragment_GrShaderFlag,
                                                kHalf4_GrSLType,
                                                "Color",
                                                &stagedLocalVarName);
