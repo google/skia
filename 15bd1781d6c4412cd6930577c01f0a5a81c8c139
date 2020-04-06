@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a4205dd_f030e4be",
+        "filename": "src/gpu/dawn/GrDawnUniformHandler.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-06T15:24:22Z",
+      "side": 1,
+      "message": "Don\u0027t need this any longer, right? (Looks like it\u0027s still present in Vk,m too?)",
+      "revId": "15bd1781d6c4412cd6930577c01f0a5a81c8c139",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
