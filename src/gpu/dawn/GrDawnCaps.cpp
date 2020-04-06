@@ -147,21 +147,6 @@ bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return true;
 }
 
-GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& backendFormat,
-                                                          bool isAlphaChannel) const {
-    wgpu::TextureFormat textureFormat;
-    if (!backendFormat.asDawnFormat(&textureFormat)) {
-        return GrColorType::kUnknown;
-    }
-    switch (textureFormat) {
-        case wgpu::TextureFormat::R8Unorm:     return isAlphaChannel ? GrColorType::kAlpha_8
-                                                                     : GrColorType::kGray_8;
-        case wgpu::TextureFormat::RGBA8Unorm:  return GrColorType::kRGBA_8888;
-        case wgpu::TextureFormat::BGRA8Unorm:  return GrColorType::kBGRA_8888;
-        default:                               return GrColorType::kUnknown;
-    }
-}
-
 // FIXME: taken from GrVkPipelineState; refactor.
 static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
