@@ -211,6 +211,54 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
     }
 }
 
+static const void* buffer_offset_to_gl_address(const GrBuffer* drawIndirectBuffer, size_t offset) {
+    if (drawIndirectBuffer->isCpuBuffer()) {
+        return static_cast<const GrCpuBuffer*>(drawIndirectBuffer)->data() + offset;
+    } else {
+        return (offset) ? reinterpret_cast<const void*>(offset) : nullptr;
+    }
+}
+
+void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                       int drawCount) {
+    fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
+
+    if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
+        GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        GL_CALL(MultiDrawArraysIndirect(glPrimType,
+                                        buffer_offset_to_gl_address(drawIndirectBuffer, offset),
+                                        drawCount, sizeof(GrDrawIndirectCommand)));
+        return;
+    }
+
+    for (int i = 0; i < drawCount; ++i) {
+        GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        GL_CALL(DrawArraysIndirect(glPrimType,
+                                   buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
+        offset += sizeof(GrDrawIndirectCommand);
+    }
+}
+
+void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                              int drawCount) {
+    fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
+
+    if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
+        GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        GL_CALL(MultiDrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
+                                          buffer_offset_to_gl_address(drawIndirectBuffer, offset),
+                                          drawCount, sizeof(GrDrawIndexedIndirectCommand)));
+        return;
+    }
+
+    for (int i = 0; i < drawCount; ++i) {
+        GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        GL_CALL(DrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
+                                     buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
+        offset += sizeof(GrDrawIndexedIndirectCommand);
+    }
+}
+
 void GrGLOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     fGpu->clear(clip, color, fRenderTarget, fOrigin);
 }
