@@ -19,7 +19,7 @@ public:
 
         const char* viewMatrix;
         fViewMatrixUniform = args.fUniformHandler->addUniform(
-                kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+                nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
 
         args.fVaryingHandler->emitAttributes(shader);
 
@@ -34,7 +34,7 @@ public:
 
         const char* color;
         fColorUniform = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &color);
+                nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &color);
 
         args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, color);
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -120,7 +120,7 @@ void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, GrGLSLVertexBuilder* v,
                                              GrGLSLUniformHandler* uniformHandler) const {
     const char* pathBounds;
     impl->fPathBoundsUniform = uniformHandler->addUniform(
-            kVertex_GrShaderFlag, kFloat4_GrSLType, "path_bounds", &pathBounds);
+            nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "path_bounds", &pathBounds);
 
     v->codeAppendf(R"(
             // Use sk_VertexID and uniforms (instead of vertex data) to find vertex positions.

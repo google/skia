@@ -275,7 +275,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 if (te.fShaderModes[0] == ShaderMode::kClampToBorder ||
                     te.fShaderModes[1] == ShaderMode::kClampToBorder) {
                     fBorderUni = args.fUniformHandler->addUniform(
-                            kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
+                            &te, kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
                 }
                 auto modeUsesSubset = [](ShaderMode m) {
                     return m == ShaderMode::kRepeat || m == ShaderMode::kMirrorRepeat ||
@@ -293,13 +293,13 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 const char* subsetName = nullptr;
                 if (useSubset[0] || useSubset[1]) {
                     fSubsetUni = args.fUniformHandler->addUniform(
-                            kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
+                            &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
                 }
 
                 const char* clampName = nullptr;
                 if (useClamp[0] || useClamp[1]) {
                     fClampUni = args.fUniformHandler->addUniform(
-                            kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
+                            &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
                 }
 
                 // To keep things a little simpler, when we have filtering logic in the shader we
@@ -310,7 +310,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                                    filterLogic[1] != FilterLogic::kNone)) {
                     // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
                     // always use?
-                    fNormUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                    fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                                 kFloat4_GrSLType, "norm", &norm);
                     // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
                     // step here.

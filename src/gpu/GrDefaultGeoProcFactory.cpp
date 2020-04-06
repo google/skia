@@ -83,7 +83,8 @@ public:
                     vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
                 } else {
                     const char* colorUniformName;
-                    fColorUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+                    fColorUniform = uniformHandler->addUniform(nullptr,
+                                                               kVertex_GrShaderFlag,
                                                                kHalf4_GrSLType,
                                                                "Color",
                                                                &colorUniformName);
@@ -128,7 +129,8 @@ public:
                 fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
             } else {
                 const char* fragCoverage;
-                fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                fCoverageUniform = uniformHandler->addUniform(nullptr,
+                                                              kFragment_GrShaderFlag,
                                                               kHalf_GrSLType,
                                                               "Coverage",
                                                               &fragCoverage);

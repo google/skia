@@ -21,7 +21,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         , fProgramID(programID) {
     fUniforms.push_back_n(uniforms.count());
     int i = 0;
-    for (const UniformInfo& builderUniform : uniforms.items()) {
+    for (const GLUniformInfo& builderUniform : uniforms.items()) {
         Uniform& uniform = fUniforms[i++];
         SkASSERT(GrShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
                  builderUniform.fVariable.getArrayCount() > 0);
@@ -51,7 +51,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
 void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers,
                                                 int startUnit) const {
     int i = 0;
-    for (const UniformInfo& sampler : samplers.items()) {
+    for (const GLUniformInfo& sampler : samplers.items()) {
         SkASSERT(sampler.fVisibility);
         if (kUnusedUniform != sampler.fLocation) {
             GR_GL_CALL(fGpu->glInterface(), Uniform1i(sampler.fLocation, i + startUnit));

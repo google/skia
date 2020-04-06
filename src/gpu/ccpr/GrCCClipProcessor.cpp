@@ -76,16 +76,18 @@ public:
 
         if (proc.fMustCheckBounds) {
             const char* pathIBounds;
-            fPathIBoundsUniform = uniHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                         "path_ibounds", &pathIBounds);
+            fPathIBoundsUniform = uniHandler->addUniform(&proc, kFragment_GrShaderFlag,
+                                                         kFloat4_GrSLType, "path_ibounds",
+                                                         &pathIBounds);
             f->codeAppendf("if (all(greaterThan(float4(sk_FragCoord.xy, %s.zw), "
                                                "float4(%s.xy, sk_FragCoord.xy)))) {",
                                                pathIBounds, pathIBounds);
         }
 
         const char* atlasTransform;
-        fAtlasTransformUniform = uniHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        "atlas_transform", &atlasTransform);
+        fAtlasTransformUniform = uniHandler->addUniform(&proc, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "atlas_transform",
+                                                        &atlasTransform);
         f->codeAppendf("float2 texcoord = sk_FragCoord.xy * %s.xy + %s.zw;",
                        atlasTransform, atlasTransform);
 

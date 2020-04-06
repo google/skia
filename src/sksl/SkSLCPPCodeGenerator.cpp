@@ -621,8 +621,8 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     }
     const char* type = glsltype_string(fContext, var.fType);
     String name(var.fName);
-    this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
-                 "\"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
+    this->writef("        %sVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,"
+                 " %s, \"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
                  name.c_str());
     if (var.fModifiers.fLayout.fWhen.fLength) {
         this->write("        }\n");

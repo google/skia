@@ -200,12 +200,13 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 }
 
 GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     GrSLTypeIsFloatType(type);
 
@@ -229,10 +230,13 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
 
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
     // we set the modifier to none for all uniforms declared inside the block.
-    UniformInfo& uni = fUniforms.push_back(GrMtlUniformHandler::UniformInfo{
-        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                    std::move(layoutQualifier), SkString()},
-        kFragment_GrShaderFlag | kVertex_GrShaderFlag, offset
+    UniformInfo& uni = fUniforms.push_back(MtlUniformInfo{
+        {
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
+                        std::move(layoutQualifier), SkString()},
+            kFragment_GrShaderFlag | kVertex_GrShaderFlag, owner, SkString(name)
+        },
+        offset
     });
 
     if (outName) {
@@ -257,11 +261,14 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     SkString layoutQualifier;
     layoutQualifier.appendf("binding=%d", binding);
 
-    fSamplers.push_back(GrMtlUniformHandler::UniformInfo{
-        GrShaderVar{std::move(mangleName), GrSLCombinedSamplerTypeForTextureType(type),
-                    GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
-                    std::move(layoutQualifier), SkString()},
-        kFragment_GrShaderFlag, 0
+    fSamplers.push_back(MtlUniformInfo{
+        {
+            GrShaderVar{std::move(mangleName), GrSLCombinedSamplerTypeForTextureType(type),
+                        GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
+                        std::move(layoutQualifier), SkString()},
+            kFragment_GrShaderFlag, nullptr, SkString(name)
+        },
+        0
     });
 
     SkASSERT(caps->textureSwizzleAppliedInShader());
@@ -281,7 +288,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
 
 #ifdef SK_DEBUG
     bool firstOffsetCheck = false;
-    for (const UniformInfo& localUniform : fUniforms.items()) {
+    for (const MtlUniformInfo& localUniform : fUniforms.items()) {
         if (!firstOffsetCheck) {
             // Check to make sure we are starting our offset at 0 so the offset qualifier we
             // set on each variable in the uniform block is valid.

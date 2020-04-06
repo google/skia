@@ -286,8 +286,8 @@ public:
         (void)textureRadius;
         auto solidRadius = _outer.solidRadius;
         (void)solidRadius;
-        circleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                         "circleData");
+        circleDataVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                         kHalf4_GrSLType, "circleData");
         fragBuilder->codeAppendf(
                 "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
                 "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "

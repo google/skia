@@ -46,15 +46,15 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     SkASSERT(4 * arrayCount >= kWidth * kHeight);
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fImageIncrementUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                     "ImageIncrement");
-    fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag, kHalf4_GrSLType,
+    fKernelUni = uniformHandler->addUniformArray(&mce, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                  "Kernel",
                                                  arrayCount);
-    fKernelOffsetUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fKernelOffsetUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                   "KernelOffset");
-    fGainUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "Gain");
-    fBiasUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "Bias");
+    fGainUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Gain");
+    fBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Bias");
 
     const char* kernelOffset = uniformHandler->getUniformCStr(fKernelOffsetUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
@@ -78,7 +78,8 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
                                      kVecSuffix[offset & 0x3]);
             SkString coord;
             coord.printf("coord + half2(%d, %d) * %s", x, y, imgInc);
-            fDomain.sampleTexture(fragBuilder,
+            fDomain.sampleTexture(&mce,
+                                  fragBuilder,
                                   uniformHandler,
                                   args.fShaderCaps,
                                   domain,
@@ -98,7 +99,8 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                  args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
-        fDomain.sampleTexture(fragBuilder,
+        fDomain.sampleTexture(&mce,
+                              fragBuilder,
                               uniformHandler,
                               args.fShaderCaps,
                               domain,

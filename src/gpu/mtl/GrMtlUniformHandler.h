@@ -12,6 +12,8 @@
 #include "src/gpu/GrTAllocator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include <vector>
+
 // TODO: this class is basically copy and pasted from GrVkUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for
 // the Ganesh Vulkan backend, so it should all work. There might be better ways to do things in
@@ -26,12 +28,10 @@ public:
     };
 
     // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
-    struct UniformInfo {
-        GrShaderVar fVariable;
-        uint32_t    fVisibility;
-        uint32_t    fUBOffset;
+    struct MtlUniformInfo : public UniformInfo {
+        uint32_t fUBOffset;
     };
-    typedef GrTAllocator<UniformInfo> UniformInfoArray;
+    typedef GrTAllocator<MtlUniformInfo> UniformInfoArray;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms.item(u.toIndex()).fVariable;
@@ -50,7 +50,8 @@ private:
         , fCurrentUBOMaxAlignment(0x0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,

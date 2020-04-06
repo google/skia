@@ -30,8 +30,8 @@ public:
         auto radius = _outer.radius;
         (void)radius;
         prevRadius = -1.0;
-        circleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                     "circle");
+        circleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kFloat4_GrSLType, "circle");
         fragBuilder->codeAppendf(
                 "float2 prevCenter;\nfloat prevRadius = %f;\nhalf d;\n@if (%d == 2 || %d == 3) {\n "
                 "   d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);\n} else {\n "

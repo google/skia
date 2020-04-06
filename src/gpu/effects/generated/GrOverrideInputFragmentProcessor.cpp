@@ -31,7 +31,7 @@ public:
         auto literalColor = _outer.literalColor;
         (void)literalColor;
         if (useUniform) {
-            uniformColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+            uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
         fragBuilder->codeAppendf(

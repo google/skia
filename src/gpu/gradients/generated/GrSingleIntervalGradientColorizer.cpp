@@ -28,9 +28,10 @@ public:
         (void)start;
         auto end = _outer.end;
         (void)end;
-        startVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "start");
-        endVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "end");
+        startVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                    kHalf4_GrSLType, "start");
+        endVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                  "end");
         fragBuilder->codeAppendf("half t = %s.x;\n%s = (1.0 - t) * %s + t * %s;\n",
                                  args.fInputColor, args.fOutputColor,
                                  args.fUniformHandler->getUniformCStr(startVar),

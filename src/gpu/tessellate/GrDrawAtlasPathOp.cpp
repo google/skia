@@ -69,7 +69,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
 
         const char* atlasAdjust;
         fAtlasAdjustUniform = args.fUniformHandler->addUniform(
-                kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
 
         args.fVertBuilder->codeAppendf(R"(
                 float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
