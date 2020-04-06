@@ -280,7 +280,7 @@ void GrTextContext::drawGlyphRunList(
     if (contextPriv.abandoned()) {
         return;
     }
-    auto grStrikeCache = contextPriv.getGrStrikeCache();
+    GrStrikeCache* grStrikeCache = contextPriv.getGrStrikeCache();
     GrTextBlobCache* textBlobCache = contextPriv.getTextBlobCache();
 
     // Get the first paint to use as the key paint.

@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include <chrono>
+#include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
