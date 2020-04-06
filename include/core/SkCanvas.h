@@ -2494,6 +2494,8 @@ protected:
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& ) {
         return kFullLayer_SaveLayerStrategy;
     }
+    virtual void onSaveCamera(const SkM44& projection, const SkM44& camera);
+
     // returns true if we should actually perform the saveBehind, or false if we should just save.
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
@@ -2744,6 +2746,8 @@ private:
     void internalSaveBehind(const SkRect*);
     void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
+
+    void internalConcat44(const SkM44&);
 
     // shared by save() and saveLayer()
     void internalSave();

@@ -742,14 +742,18 @@ void SkCanvas::notifyCameraChanged() {
     FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
 }
 
-int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
-    // TODO: add a virtual for this, and update clients (e.g. chrome)
-    int n = this->save();
-    this->concat(projection * camera);
+// Don't trigger other virtuals from onSaveCamera
+void SkCanvas::onSaveCamera(const SkM44& projection, const SkM44& camera) {
+    (void)this->save();
+    this->internalConcat44(projection * camera);
+
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     this->notifyCameraChanged();
+}
 
-    return n;
+int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
+    this->onSaveCamera(projection, camera);
+    return this->getSaveCount();
 }
 
 void SkCanvas::restore() {
@@ -1524,7 +1528,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::concat(const SkM44& m) {
+void SkCanvas::internalConcat44(const SkM44& m) {
     this->checkForDeferredSave();
 
     fMCRec->fMatrix.preConcat(m);
@@ -1532,8 +1536,12 @@ void SkCanvas::concat(const SkM44& m) {
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+}
 
-    this->didConcat44(SkMatrixPriv::M44ColMajor(m));
+void SkCanvas::concat(const SkM44& m) {
+    this->internalConcat44(m);
+
+    this->didConcat44(SkMatrixPriv::M44ColMajor(m));    // notify subclasses
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
