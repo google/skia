@@ -22,7 +22,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
     GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                    GrRenderable::kYes);
     if (caps.driverBlacklistCCPR() || !shaderCaps.integerSupport() ||
-        !caps.drawInstancedSupport() || !shaderCaps.floatIs32Bits() ||
+        !caps.instanceAttribSupport() || !shaderCaps.floatIs32Bits() ||
         !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
         return false;

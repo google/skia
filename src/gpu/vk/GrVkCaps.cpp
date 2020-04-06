@@ -41,7 +41,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
-    fDrawInstancedSupport = true;
+    fInstanceAttribSupport = true;
 
     fSemaphoreSupport = true;   // always available in Vulkan
     fFenceSyncSupport = true;   // always available in Vulkan
@@ -477,7 +477,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 #endif
 
     if (kARM_VkVendor == properties.vendorID) {
-        fDrawInstancedSupport = false;
+        fInstanceAttribSupport = false;
         fAvoidWritePixelsFastPath = true; // bugs.skia.org/8064
     }
 
