@@ -1205,7 +1205,7 @@ namespace skvm {
     }
 
     static skvm::F32 luminance(skvm::F32 r, skvm::F32 g, skvm::F32 b) {
-        return r*0.30f + (g*0.59f + b*0.11f);
+        return r*0.30f + g*0.59f + b*0.11f;
     }
 
     static void set_sat(skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32 s) {
