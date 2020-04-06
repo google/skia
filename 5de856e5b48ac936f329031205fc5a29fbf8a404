@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52f38466_27c0986e",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-06T17:09:18Z",
+      "side": 1,
+      "message": "Should this line be up in the base class? As well as all the other draw calls who call it?",
+      "range": {
+        "startLine": 618,
+        "startChar": 2,
+        "endLine": 618,
+        "endChar": 31
+      },
+      "revId": "5de856e5b48ac936f329031205fc5a29fbf8a404",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
