@@ -24,9 +24,15 @@ class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     friend class GrYUVAImageTextureMaker;
 
-    SkImage_GpuYUVA(sk_sp<GrContext>, SkISize size, uint32_t uniqueID, SkYUVColorSpace,
-                    GrSurfaceProxyView views[], GrColorType proxyColorTypes[], int numViews,
-                    const SkYUVAIndex[4], GrSurfaceOrigin, sk_sp<SkColorSpace>);
+    SkImage_GpuYUVA(sk_sp<GrContext>,
+                    SkISize size,
+                    uint32_t uniqueID,
+                    SkYUVColorSpace,
+                    GrSurfaceProxyView views[],
+                    int numViews,
+                    const SkYUVAIndex[4],
+                    GrSurfaceOrigin,
+                    sk_sp<SkColorSpace>);
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
 
@@ -87,7 +93,6 @@ private:
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable GrSurfaceProxyView       fViews[4];
-    mutable GrColorType              fProxyColorTypes[4];
     int                              fNumViews;
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
