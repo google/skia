@@ -137,7 +137,7 @@ describe('SkM44 (4x4 matrix)', () => {
         }
 
         function test(ctx) {
-            ctx.canvas.concat44(matr);
+            ctx.canvas.concat(matr);
         }
 
         function teardown(ctx) {

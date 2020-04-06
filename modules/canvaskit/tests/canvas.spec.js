@@ -591,8 +591,8 @@ describe('Canvas Behavior', () => {
         matr = canvas.getLocalToCamera();
         expect(matr).toEqual(CanvasKit.SkM44.identity());
 
-        canvas.concat44(CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4));
-        canvas.concat44(CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8));
+        canvas.concat(CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4));
+        canvas.concat(CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8));
 
         const expected = CanvasKit.SkM44.multiply(
           CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4),
@@ -621,7 +621,7 @@ describe('Canvas Behavior', () => {
           CanvasKit.SkM44.rotated([0, 0, 1], Math.PI/16),
           CanvasKit.SkM44.translated([-CANVAS_WIDTH/2, 0, 0]),
         );
-        canvas.concat44(turn);
+        canvas.concat(turn);
 
         // Draw some stripes to help the eye detect the turn
         const stripeWidth = 10;

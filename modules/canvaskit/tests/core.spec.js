@@ -606,6 +606,35 @@ describe('Core canvas behavior', () => {
             paint.delete();
             shader.delete();
         });
+
+        const radiansToDegrees = (rad) => {
+           return (rad / Math.PI) * 180;
+        }
+
+        // this should draw the same as concat_with4x4_canvas
+        gm('concat_dommatrix', (canvas) => {
+            const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+            canvas.clear(CanvasKit.WHITE);
+            canvas.concat(new DOMMatrix().translate(CANVAS_WIDTH/2, 0, 0));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(1, 0, 0, radiansToDegrees(Math.PI/3)));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(0, 1, 0, radiansToDegrees(Math.PI/4)));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(0, 0, 1, radiansToDegrees(Math.PI/16)));
+            canvas.concat(new DOMMatrix().translate(-CANVAS_WIDTH/2, 0, 0));
+
+            // Draw some stripes to help the eye detect the turn
+            const stripeWidth = 10;
+            paint.setColor(CanvasKit.BLACK);
+            for (let i = 0; i < CANVAS_WIDTH; i += 2*stripeWidth) {
+                canvas.drawRect(CanvasKit.LTRBRect(i, 0, i + stripeWidth, CANVAS_HEIGHT), paint);
+            }
+
+            paint.setColor(CanvasKit.YELLOW);
+            canvas.drawPath(path, paint);
+            paint.delete();
+            path.delete();
+        });
     }); // end describe('DOMMatrix support')
 
 });

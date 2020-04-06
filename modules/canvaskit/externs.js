@@ -196,6 +196,9 @@ var CanvasKit = {
     _drawAtlas: function() {},
     _drawPoints: function() {},
     _drawSimpleText: function() {},
+    _getLocalToCamera: function() {},
+    _getLocalToDevice: function() {},
+    _getLocalToWorld: function() {},
     _getTotalMatrix: function() {},
     _readPixels: function() {},
     _writePixels: function() {},
@@ -838,9 +841,13 @@ CanvasKit.SkImage.prototype.encodeToData = function() {};
 CanvasKit.SkImage.prototype.makeShader = function() {};
 
 CanvasKit.SkCanvas.prototype.concat = function() {};
+CanvasKit.SkCanvas.prototype.concat44 = function() {}; // deprecated
 CanvasKit.SkCanvas.prototype.drawAtlas = function() {};
 CanvasKit.SkCanvas.prototype.drawPoints = function() {};
 CanvasKit.SkCanvas.prototype.drawText = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToCamera = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToDevice = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToWorld = function() {};
 CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {};
 /** @return {Uint8Array} */
 CanvasKit.SkCanvas.prototype.readPixels = function() {};
