@@ -20,6 +20,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"
 #include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVertexWriter.h"
@@ -116,14 +117,13 @@ private:
 
 class ShapeData {
 public:
-    ShapeDataKey                fKey;
+    ShapeDataKey                fKey1;
     SkRect                      fBounds;
     GrDrawOpAtlas::AtlasLocator fAtlasLocator;
-
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
     static inline const ShapeDataKey& GetKey(const ShapeData& data) {
-        return data.fKey;
+        return data.fKey1;
     }
 
     static inline uint32_t Hash(const ShapeDataKey& key) {
@@ -142,7 +142,7 @@ void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
     while ((shapeData = iter.get())) {
         iter.next();
         if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
-            fShapeCache.remove(shapeData->fKey);
+            fShapeCache.remove(shapeData->fKey1);
             fShapeList.remove(shapeData);
             delete shapeData;
 #ifdef DF_PATH_TRACKING
@@ -153,7 +153,9 @@ void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrSmallPathRenderer::GrSmallPathRenderer() : fAtlas(nullptr) {}
+GrSmallPathRenderer::GrSmallPathRenderer() : fAtlas(nullptr) {
+    int f2 = sizeof(ShapeDataKey);
+}
 
 GrSmallPathRenderer::~GrSmallPathRenderer() {
     ShapeDataList::Iter iter;
@@ -458,10 +460,10 @@ private:
                 // check to see if df path is cached
                 ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fAtlasLocator)) {
+                if (!shapeData || !fAtlas->hasID1(shapeData->fAtlasLocator)) {
                     // Remove the stale cache entry
                     if (shapeData) {
-                        fShapeCache->remove(shapeData->fKey);
+                        fShapeCache->remove(shapeData->fKey1);
                         fShapeList->remove(shapeData);
                         delete shapeData;
                     }
@@ -483,10 +485,10 @@ private:
                 // check to see if bitmap path is cached
                 ShapeDataKey key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fAtlasLocator)) {
+                if (!shapeData || !fAtlas->hasID1(shapeData->fAtlasLocator)) {
                     // Remove the stale cache entry
                     if (shapeData) {
-                        fShapeCache->remove(shapeData->fKey);
+                        fShapeCache->remove(shapeData->fKey1);
                         fShapeList->remove(shapeData);
                         delete shapeData;
                     }
@@ -626,7 +628,7 @@ private:
         }
 
         // add to cache
-        shapeData->fKey.set(shape, dimension);
+        shapeData->fKey1.set(shape, dimension);
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
@@ -710,7 +712,7 @@ private:
         }
 
         // add to cache
-        shapeData->fKey.set(shape, ctm);
+        shapeData->fKey1.set(shape, ctm);
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
@@ -917,7 +919,7 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
         while ((shapeData = iter.get())) {
             iter.next();
             if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
-                fShapeCache.remove(shapeData->fKey);
+                fShapeCache.remove(shapeData->fKey1);
                 fShapeList.remove(shapeData);
                 delete shapeData;
             }
