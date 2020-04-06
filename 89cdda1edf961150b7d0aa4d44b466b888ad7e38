@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0431d237_c8e05244",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-06T17:00:17Z",
+      "side": 1,
+      "message": "FYI: These are only necessary if we want to keep supporting threaded code in the interpreter.",
+      "range": {
+        "startLine": 589,
+        "startChar": 0,
+        "endLine": 589,
+        "endChar": 46
+      },
+      "revId": "89cdda1edf961150b7d0aa4d44b466b888ad7e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
