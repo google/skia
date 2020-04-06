@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "131c1e05_8cfb6e0e",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2686,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-06T19:46:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce8224e7_27e8ad59",
+      "revId": "a9dc3494a7284a559cc2a4f0539e4b425ba61145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e886be34_70f6826d",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-04-06T19:36:34Z",
       "side": 1,
       "message": "Won\u0027t this trigger virtuals (contrary to the comment above?)",
+      "revId": "a9dc3494a7284a559cc2a4f0539e4b425ba61145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec7d635b_0de3825b",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-06T19:46:12Z",
+      "side": 1,
+      "message": "Nope, save() is always lazy -- just increments a number. We don\u0027t do the actual \u0027save\u0027 until we change the ctm or clip.",
+      "parentUuid": "e886be34_70f6826d",
       "revId": "a9dc3494a7284a559cc2a4f0539e4b425ba61145",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
