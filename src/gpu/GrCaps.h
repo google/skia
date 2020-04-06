@@ -51,7 +51,7 @@ public:
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
-    bool drawInstancedSupport() const { return fDrawInstancedSupport; }
+    bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
     bool wireframeSupport() const { return fWireframeSupport; }
@@ -464,7 +464,7 @@ protected:
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
-    bool fDrawInstancedSupport                       : 1;
+    bool fInstanceAttribSupport                      : 1;
     bool fMixedSamplesSupport                        : 1;
     bool fConservativeRasterSupport                  : 1;
     bool fWireframeSupport                           : 1;

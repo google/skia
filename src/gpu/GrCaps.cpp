@@ -24,7 +24,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fTextureBarrierSupport = false;
     fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
-    fDrawInstancedSupport = false;
+    fInstanceAttribSupport = false;
     fMixedSamplesSupport = false;
     fConservativeRasterSupport = false;
     fWireframeSupport = false;
@@ -192,7 +192,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Texture Barrier Support", fTextureBarrierSupport);
     writer->appendBool("Sample Locations Support", fSampleLocationsSupport);
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
-    writer->appendBool("Draw Instanced Support", fDrawInstancedSupport);
+    writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Mixed Samples Support", fMixedSamplesSupport);
     writer->appendBool("Conservative Raster Support", fConservativeRasterSupport);
     writer->appendBool("Wireframe Support", fWireframeSupport);

@@ -141,7 +141,7 @@ class CCPRTest {
 public:
     void run(skiatest::Reporter* reporter, DoCoverageCount doCoverageCount, DoStroke doStroke) {
         GrMockOptions mockOptions;
-        mockOptions.fDrawInstancedSupport = true;
+        mockOptions.fInstanceAttribSupport = true;
         mockOptions.fHalfFloatVertexAttributeSupport = true;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         mockOptions.fConfigOptions[(int)GrColorType::kAlpha_F16].fRenderability =

@@ -279,7 +279,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
         if (this->isMac() || 3 == fFamilyGroup) {
-            fDrawInstancedSupport = true;
+            fInstanceAttribSupport = true;
         }
     }
 
