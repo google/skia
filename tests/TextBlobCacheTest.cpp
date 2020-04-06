@@ -28,6 +28,7 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
