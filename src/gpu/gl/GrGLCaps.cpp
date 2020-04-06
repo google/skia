@@ -4289,31 +4289,6 @@ bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return false;
 }
 
-GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                        bool isAlphaChannel) const {
-    switch (format.asGLFormat()) {
-        case GrGLFormat::kLUMINANCE8:
-        case GrGLFormat::kR8:
-        case GrGLFormat::kALPHA8:
-                                        return isAlphaChannel ? GrColorType::kAlpha_8
-                                                              : GrColorType::kGray_8;
-        case GrGLFormat::kRG8:          return GrColorType::kRG_88;
-        case GrGLFormat::kRGBA8:        return GrColorType::kRGBA_8888;
-        case GrGLFormat::kRGB8:         return GrColorType::kRGB_888x;
-        case GrGLFormat::kBGRA8:        return GrColorType::kBGRA_8888;
-        case GrGLFormat::kRGB10_A2:     return GrColorType::kRGBA_1010102;
-        case GrGLFormat::kLUMINANCE16F: // fall through
-        case GrGLFormat::kR16F:         return GrColorType::kAlpha_F16;
-        case GrGLFormat::kR16:          return GrColorType::kAlpha_16;
-        case GrGLFormat::kRG16:         return GrColorType::kRG_1616;
-        case GrGLFormat::kRGBA16:       return GrColorType::kRGBA_16161616;
-        case GrGLFormat::kRG16F:        return GrColorType::kRG_F16;
-        default:                        return GrColorType::kUnknown;
-    }
-
-    SkUNREACHABLE;
-}
-
 GrBackendFormat GrGLCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     auto format = this->getFormatFromColorType(ct);
     if (format == GrGLFormat::kUnknown) {

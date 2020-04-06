@@ -16,7 +16,6 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -27,6 +26,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
 #include "tools/Resources.h"
 
@@ -122,19 +122,7 @@ protected:
 
     void createYUVTextures(SkBitmap bmps[4], GrContext* context, GrBackendTexture textures[4]) {
         for (int i = 0; i < 4; ++i) {
-            SkASSERT(bmps[i].width() == SkToInt(bmps[i].rowBytes()));
-            // To skirt issues of whether createBackendTexture() will return a single channel
-            // red or alpha backend format texture we use a RGBA pixmap and assume no swizzling
-            // happens in the upload here.
-            SkBitmap tmp;
-            tmp.allocPixels(bmps[i].info().makeColorType(kRGBA_8888_SkColorType));
-            // This draw writes the same value to all four channels of tmp.
-            SkCanvas canvas(tmp);
-            SkPaint paint;
-            paint.setColor(SK_ColorWHITE);
-            paint.setBlendMode(SkBlendMode::kSrc);
-            canvas.drawBitmap(bmps[i], 0, 0, &paint);
-            textures[i] = context->createBackendTexture(tmp.pixmap(), GrRenderable::kNo,
+            textures[i] = context->createBackendTexture(bmps[i].pixmap(), GrRenderable::kNo,
                                                         GrProtected::kNo);
         }
     }
@@ -161,14 +149,23 @@ protected:
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         GrBackendTexture yuvaTextures[4];
-        // Because of the workaround in createYUVTextures() the actual channels don't matter here.
-        static constexpr SkYUVAIndex kIndices[] = {
-                {0, SkColorChannel::kR},
-                {1, SkColorChannel::kR},
-                {2, SkColorChannel::kR},
-                {3, SkColorChannel::kR},
-        };
+
         this->createYUVTextures(fYUVABmps, context, yuvaTextures);
+        SkYUVAIndex indices[4];
+        for (int i = 0; i < 4; ++i) {
+            if (!yuvaTextures[i].isValid()) {
+                return;
+            }
+            auto chanMask = yuvaTextures[i].getBackendFormat().channelMask();
+            // We expect the single channel bitmaps to produce single channel textures.
+            SkASSERT(chanMask && SkIsPow2(chanMask));
+            if (chanMask & kGray_SkColorChannelFlag) {
+                indices[i].fChannel = SkColorChannel::kR;
+            } else {
+                indices[i].fChannel = static_cast<SkColorChannel>(31 - SkCLZ(chanMask));
+            }
+            indices[i].fIndex = i;
+        }
 
         // We remake this image before each draw because if any draw flattens it to RGBA then
         // all subsequent draws use the RGBA texture.
@@ -176,7 +173,7 @@ protected:
             return SkImage::MakeFromYUVATextures(context,
                                                  kJPEG_SkYUVColorSpace,
                                                  yuvaTextures,
-                                                 kIndices,
+                                                 indices,
                                                  fRGBABmp.dimensions(),
                                                  kTopLeft_GrSurfaceOrigin);
         };

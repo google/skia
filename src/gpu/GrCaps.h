@@ -400,13 +400,6 @@ public:
         return this->onAreColorTypeAndFormatCompatible(grCT, format);
     }
 
-    /**
-     * Special method only for YUVA images. Returns a colortype that matches the backend format or
-     * kUnknown if a colortype could not be determined.
-     */
-    virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
-                                                          bool isAlphaChannel) const = 0;
-
     /** These are used when creating a new texture internally. */
     GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;
 

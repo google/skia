@@ -341,15 +341,29 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
                                                  imageSize, imageOrigin, renderTargetContext.get());
 }
 
+// Some YUVA factories infer the YUVAIndices. This helper identifies the channel to use for single
+// channel textures.
+static SkColorChannel get_single_channel(const GrBackendTexture& tex) {
+    switch (tex.getBackendFormat().channelMask()) {
+        case kGray_SkColorChannelFlag:  // Gray can be read as any of kR, kG, kB.
+        case kRed_SkColorChannelFlag:
+            return SkColorChannel::kR;
+        case kAlpha_SkColorChannelFlag:
+            return SkColorChannel::kA;
+        default: // multiple channels in the texture. Guess kR.
+            return SkColorChannel::kR;
+    }
+}
+
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
                                                 const GrBackendTexture yuvTextures[3],
                                                 GrSurfaceOrigin imageOrigin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkColorChannel::kR},
-            SkYUVAIndex{1, SkColorChannel::kR},
-            SkYUVAIndex{2, SkColorChannel::kR},
+            SkYUVAIndex{0, get_single_channel(yuvTextures[0])},
+            SkYUVAIndex{1, get_single_channel(yuvTextures[1])},
+            SkYUVAIndex{2, get_single_channel(yuvTextures[2])},
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, yuvTextures, yuvaIndices,
@@ -361,9 +375,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrSurfaceOrigin imageOrigin, const GrBackendTexture& backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkColorChannel::kR},
-            SkYUVAIndex{1, SkColorChannel::kR},
-            SkYUVAIndex{2, SkColorChannel::kR},
+            SkYUVAIndex{0, get_single_channel(yuvTextures[0])},
+            SkYUVAIndex{1, get_single_channel(yuvTextures[1])},
+            SkYUVAIndex{2, get_single_channel(yuvTextures[2])},
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackend(
@@ -377,7 +391,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkColorChannel::kR},
+            SkYUVAIndex{0, get_single_channel(nv12Textures[0])},
             SkYUVAIndex{1, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kG},
             SkYUVAIndex{-1, SkColorChannel::kA}};
@@ -396,7 +410,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
         TextureReleaseProc textureReleaseProc,
         ReleaseContext releaseContext) {
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkColorChannel::kR},
+            SkYUVAIndex{0, get_single_channel(nv12Textures[0])},
             SkYUVAIndex{1, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kG},
             SkYUVAIndex{-1, SkColorChannel::kA}};

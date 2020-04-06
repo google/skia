@@ -267,17 +267,9 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
                                              GrSurfaceOrigin imageOrigin,
                                              GrSurfaceProxyView tempViews[4]) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    const GrCaps* caps = ctx->priv().caps();
-
     for (int textureIndex = 0; textureIndex < numTextures; ++textureIndex) {
-        GrBackendFormat backendFormat = yuvaTextures[textureIndex].getBackendFormat();
+        const GrBackendFormat& backendFormat = yuvaTextures[textureIndex].getBackendFormat();
         if (!backendFormat.isValid()) {
-            return false;
-        }
-
-        GrColorType grColorType = caps->getYUVAColorTypeFromBackendFormat(
-                backendFormat, yuvaIndices[3].fIndex == textureIndex);
-        if (GrColorType::kUnknown == grColorType) {
             return false;
         }
 
@@ -289,36 +281,19 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         if (!proxy) {
             return false;
         }
-        GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), grColorType);
-        tempViews[textureIndex] = GrSurfaceProxyView(std::move(proxy), imageOrigin, swizzle);
+        tempViews[textureIndex] =
+                GrSurfaceProxyView(std::move(proxy), imageOrigin, GrSwizzle("rgba"));
 
         // Check that each texture contains the channel data for the corresponding YUVA index
-        auto channelFlags = GrColorTypeChannelFlags(grColorType);
+        auto formatChannelMask = backendFormat.channelMask();
+        if (formatChannelMask & kGray_SkColorChannelFlag) {
+            formatChannelMask |= kRGB_SkColorChannelFlags;
+        }
         for (int yuvaIndex = 0; yuvaIndex < SkYUVAIndex::kIndexCount; ++yuvaIndex) {
             if (yuvaIndices[yuvaIndex].fIndex == textureIndex) {
-                switch (yuvaIndices[yuvaIndex].fChannel) {
-                    case SkColorChannel::kR:
-                        // TODO: Chrome needs to be patched before this can be
-                        // enforced.
-                        // if (!(kRed_SkColorChannelFlag & channelFlags)) {
-                        //     return false;
-                        // }
-                        break;
-                    case SkColorChannel::kG:
-                        if (!(kGreen_SkColorChannelFlag & channelFlags)) {
-                            return false;
-                        }
-                        break;
-                    case SkColorChannel::kB:
-                        if (!(kBlue_SkColorChannelFlag & channelFlags)) {
-                            return false;
-                        }
-                        break;
-                    case SkColorChannel::kA:
-                        if (!(kAlpha_SkColorChannelFlag & channelFlags)) {
-                            return false;
-                        }
-                        break;
+                uint32_t channelAsMask = 1 << static_cast<int>(yuvaIndices[yuvaIndex].fChannel);
+                if (!(channelAsMask & formatChannelMask)) {
+                    return false;
                 }
             }
         }
