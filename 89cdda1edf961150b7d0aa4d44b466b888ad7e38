@@ -22,6 +22,30 @@
       "revId": "89cdda1edf961150b7d0aa4d44b466b888ad7e38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5438dedd_af188176",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-06T17:05:37Z",
+      "side": 1,
+      "message": "Ah, I was wondering if they were some code-size aid for fallthrough-based implementation.\n\nI\u0027m totally game to get rid of anything bonus, like threading, vector/matrix ops, etc. \nWhatever you think can go.  I just didn\u0027t want to be pushy about it or rush it.",
+      "parentUuid": "0431d237_c8e05244",
+      "range": {
+        "startLine": 589,
+        "startChar": 0,
+        "endLine": 589,
+        "endChar": 46
+      },
+      "revId": "89cdda1edf961150b7d0aa4d44b466b888ad7e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
