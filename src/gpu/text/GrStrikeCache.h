@@ -10,7 +10,7 @@
 
 #include "include/private/SkTHash.h"
 #include "src/codec/SkMasks.h"
-#include "src/core/SkDescriptor.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
@@ -29,7 +29,7 @@ class SkBulkGlyphMetricsAndImages;
  */
 class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
-    GrTextStrike(const SkDescriptor& fontScalerKey);
+    GrTextStrike(const SkStrikeSpec&);
 
     GrGlyph* getGlyph(const SkGlyph& skGlyph);
 
@@ -46,6 +46,10 @@ public:
                                              GrAtlasManager*,
                                              GrGlyph*);
 
+    const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
+
+    SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
+
 private:
     struct HashTraits {
         // GetKey and Hash for the the hash table.
@@ -58,7 +62,7 @@ private:
         }
     };
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
-    SkAutoDescriptor fFontScalerKey;
+    SkStrikeSpec fStrikeSpec;
     SkArenaAlloc fAlloc{512};
 
     friend class GrStrikeCache;
@@ -76,25 +80,25 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
-        if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
+    sk_sp<GrTextStrike> findOrCreateGrStrike(const SkStrikeSpec& strikeSpec) {
+        if (sk_sp<GrTextStrike>* cached = fCache.find(strikeSpec.descriptor())) {
             return *cached;
         }
-        return this->generateStrike(desc);
+        return this->generateStrike(strikeSpec);
     }
 
     void freeAll();
 
 private:
-    sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(desc);
+    sk_sp<GrTextStrike> generateStrike(const SkStrikeSpec& strikeSpec) {
+        sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(strikeSpec);
         fCache.set(strike);
         return strike;
     }
 
     struct DescriptorHashTraits {
         static const SkDescriptor& GetKey(const sk_sp<GrTextStrike>& strike) {
-            return *strike->fFontScalerKey.getDesc();
+            return strike->fStrikeSpec.descriptor();
         }
         static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
     };
