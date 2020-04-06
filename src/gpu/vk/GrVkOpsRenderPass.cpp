@@ -574,7 +574,6 @@ void GrVkOpsRenderPass::onDrawInstanced(int instanceCount,
     }
     SkASSERT(fCurrentPipelineState);
     this->currentCommandBuffer()->draw(fGpu, vertexCount, instanceCount, baseVertex, baseInstance);
-    fGpu->stats()->incNumDraws();
     fCurrentCBIsEmpty = false;
 }
 
@@ -587,7 +586,6 @@ void GrVkOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
     SkASSERT(fCurrentPipelineState);
     this->currentCommandBuffer()->drawIndexed(fGpu, indexCount, instanceCount,
                                               baseIndex, baseVertex, baseInstance);
-    fGpu->stats()->incNumDraws();
     fCurrentCBIsEmpty = false;
 }
 

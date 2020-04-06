@@ -61,9 +61,6 @@ GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
 }
 
 void GrMockGpu::submit(GrOpsRenderPass* renderPass) {
-    for (int i = 0; i < static_cast<GrMockOpsRenderPass*>(renderPass)->numDraws(); ++i) {
-        fStats.incNumDraws();
-    }
     delete renderPass;
 }
 

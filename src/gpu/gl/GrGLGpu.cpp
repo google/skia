@@ -2222,8 +2222,6 @@ void GrGLGpu::flushViewport(int width, int height) {
 }
 
 GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
-    fStats.incNumDraws();
-
     if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
         GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
         GL_CALL(Enable(GR_GL_CULL_FACE));

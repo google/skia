@@ -217,6 +217,7 @@ bool GrOpsRenderPass::prepareToDraw() {
     if (kNone_GrXferBarrierType != fXferBarrierType) {
         this->gpu()->xferBarrier(fRenderTarget, fXferBarrierType);
     }
+    this->gpu()->stats()->incNumDraws();
     return true;
 }
 

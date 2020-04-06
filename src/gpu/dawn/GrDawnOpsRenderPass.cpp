@@ -184,7 +184,6 @@ void GrDawnOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
 void GrDawnOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance,
                                           int vertexCount, int baseVertex) {
     fPassEncoder.Draw(vertexCount, instanceCount, baseVertex, baseInstance);
-    fGpu->stats()->incNumDraws();
 }
 
 void GrDawnOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
@@ -195,5 +194,4 @@ void GrDawnOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t 
 void GrDawnOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                                  int baseInstance, int baseVertex) {
     fPassEncoder.DrawIndexed(indexCount, instanceCount, baseIndex, baseVertex, baseInstance);
-    fGpu->stats()->incNumDraws();
 }
