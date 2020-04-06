@@ -136,8 +136,8 @@ static void get_packed_glyph_image(
     atlas and a position within that texture.
  */
 
-GrTextStrike::GrTextStrike(const SkDescriptor& key)
-    : fFontScalerKey(key) {}
+GrTextStrike::GrTextStrike(const SkStrikeSpec& strikeSpec)
+    : fStrikeSpec(strikeSpec) {}
 
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,

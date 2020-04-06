@@ -317,20 +317,19 @@ public:
     // SubRun for masks
     SubRun(SubRunType type,
            GrTextBlob* textBlob,
-           const SkStrikeSpec& strikeSpec,
            GrMaskFormat format,
-           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
+           const SkSpan<GrGlyph*>& glyphs,
+           const SkSpan<char>& vertexData,
            sk_sp<GrTextStrike>&& grStrike);
 
     // SubRun for paths
-    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+    SubRun(GrTextBlob* textBlob, sk_sp<GrTextStrike>&& grStrike);
 
     void appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables);
 
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
 
     GrMaskFormat maskFormat() const;
@@ -359,15 +358,12 @@ public:
     void setAntiAliased(bool antiAliased);
     bool isAntiAliased() const;
 
-    const SkStrikeSpec& strikeSpec() const;
-
     SubRun* fNextSubRun{nullptr};
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
     const SkSpan<GrGlyph*> fGlyphs;
     const SkSpan<char> fVertexData;
-    const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
     struct {
         bool useLCDText:1;
