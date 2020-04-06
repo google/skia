@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce8224e7_27e8ad59",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2686,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-06T19:36:34Z",
+      "side": 1,
+      "message": "This is undefined/unused, right?",
+      "revId": "a9dc3494a7284a559cc2a4f0539e4b425ba61145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e886be34_70f6826d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-06T19:36:34Z",
+      "side": 1,
+      "message": "Won\u0027t this trigger virtuals (contrary to the comment above?)",
+      "revId": "a9dc3494a7284a559cc2a4f0539e4b425ba61145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
