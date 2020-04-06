@@ -96,33 +96,6 @@ struct OptionalMatrix : SkMatrix {
     }
 };
 
-// Experimental 4x4 matrices, also represented in JS with arrays.
-struct SimpleM44 {
-    SkScalar m0,  m1,  m2,  m3;
-    SkScalar m4,  m5,  m6,  m7;
-    SkScalar m8,  m9,  m10, m11;
-    SkScalar m12, m13, m14, m15;
-};
-
-SkM44 toSkM44(const SimpleM44& sm) {
-    SkM44 result(
-      sm.m0,  sm.m1,  sm.m2,  sm.m3,
-      sm.m4,  sm.m5,  sm.m6,  sm.m7,
-      sm.m8,  sm.m9,  sm.m10, sm.m11,
-      sm.m12, sm.m13, sm.m14, sm.m15);
-    return result;
-}
-
-SimpleM44 toSimpleM44(const SkM44& sm) {
-    SimpleM44 m {
-        sm.rc(0,0), sm.rc(0,1),  sm.rc(0,2),  sm.rc(0,3),
-        sm.rc(1,0), sm.rc(1,1),  sm.rc(1,2),  sm.rc(1,3),
-        sm.rc(2,0), sm.rc(2,1),  sm.rc(2,2),  sm.rc(2,3),
-        sm.rc(3,0), sm.rc(3,1),  sm.rc(3,2),  sm.rc(3,3),
-    };
-    return m;
-}
-
 SimpleColor4f toSimpleColor4f(const SkColor4f c) {
     SimpleColor4f color {
         c.fR, c.fG, c.fB, c.fA,
@@ -903,8 +876,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("clipRect", select_overload<void (const SkRect&, SkClipOp, bool)>(&SkCanvas::clipRect))
         .function("_concat", optional_override([](SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
             // See comment above for uintptr_t explanation
-            OptionalMatrix localMatrix(mPtr);
-            self.concat(localMatrix);
+            //TODO(skbug.com/10108): make the JS side be column major.
+            const SkScalar* sixteenMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
+            SkM44 m = SkM44::RowMajor(sixteenMatrixValues);
+            self.concat(m);
         }))
         .function("drawArc", &SkCanvas::drawArc)
         // _drawAtlas takes an SkColor, unlike most private functions handling color.
@@ -1043,30 +1018,47 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_writePixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                        uintptr_t /* uint8_t* */ pPtr,
                                                        size_t srcRowBytes, int dstX, int dstY) {
+            // See comment above for uintptr_t explanation
             uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
         }))
         // 4x4 matrix functions
-        .function("saveCamera", optional_override([](SkCanvas& self,
-            const SimpleM44& projection, const SimpleM44& camera) {
-            self.saveCamera(toSkM44(projection), toSkM44(camera));
+        .function("_saveCamera", optional_override([](SkCanvas& self,
+            uintptr_t /* SkScalar*  */ pPtr, uintptr_t /* SkScalar*  */ cPtr) {
+            // See comment above for uintptr_t explanation
+            const SkScalar* projectionMatrixValues = reinterpret_cast<const SkScalar*>(pPtr);
+            const SkScalar* cameraMatrixValues = reinterpret_cast<const SkScalar*>(cPtr);
+            SkM44 projection = SkM44::RowMajor(projectionMatrixValues);
+            SkM44 camera = SkM44::RowMajor(cameraMatrixValues);
+            self.saveCamera(projection, camera);
         }))
-        .function("concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
-            self.concat(toSkM44(m));
-        }))
-        .function("getLocalToDevice", optional_override([](const SkCanvas& self)->SimpleM44 {
+        // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
+        // interface.js, so it can also free them when its done.
+        .function("_getLocalToDevice", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
+            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
+            if (!sixteenMatrixValues) {
+                return; // matrix cannot be null
+            }
             SkM44 m = self.getLocalToDevice();
-            return toSimpleM44(m);
+            m.getRowMajor(sixteenMatrixValues);
         }))
-        .function("getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
+        .function("_getLocalToWorld", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
+            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
+            if (!sixteenMatrixValues) {
+                return; // matrix cannot be null
+            }
             SkM44 m = self.experimental_getLocalToWorld();
-            return toSimpleM44(m);
+            m.getRowMajor(sixteenMatrixValues);
         }))
-        .function("getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
+        .function("_getLocalToCamera", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
+            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
+            if (!sixteenMatrixValues) {
+                return; // matrix cannot be null
+            }
             SkM44 m = self.experimental_getLocalToCamera();
-            return toSimpleM44(m);
+            m.getRowMajor(sixteenMatrixValues);
         }));
 
     class_<SkColorFilter>("SkColorFilter")
@@ -1740,12 +1732,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("join",        &StrokeOpts::join)
         .field("cap",         &StrokeOpts::cap)
         .field("precision",   &StrokeOpts::precision);
-
-    value_array<SimpleM44>("SkM44")
-        .element(&SimpleM44::m0).element(&SimpleM44::m1).element(&SimpleM44::m2).element(&SimpleM44::m3)
-        .element(&SimpleM44::m4).element(&SimpleM44::m5).element(&SimpleM44::m6).element(&SimpleM44::m7)
-        .element(&SimpleM44::m8).element(&SimpleM44::m9).element(&SimpleM44::m10).element(&SimpleM44::m11)
-        .element(&SimpleM44::m12).element(&SimpleM44::m13).element(&SimpleM44::m14).element(&SimpleM44::m15);
 
     value_array<SimpleColor4f>("SkColor4f")
         .element(&SimpleColor4f::r)

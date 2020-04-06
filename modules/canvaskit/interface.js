@@ -231,8 +231,8 @@ CanvasKit.onRuntimeInitialized = function() {
     ];
   }
 
-  // Functions for creating and manipulating 4x4 matrices. Accepted in place of SkM44 in canvas
-  // methods, for the same reasons as the 3x3 matrices above.
+  // Functions for creating and manipulating (row-major) 4x4 matrices. Accepted in place of
+  // SkM44 in canvas methods, for the same reasons as the 3x3 matrices above.
   // ported from C++ code in SkM44.cpp
   CanvasKit.SkM44 = {};
   // Create a 4x4 identity matrix
@@ -283,10 +283,10 @@ CanvasKit.onRuntimeInitialized = function() {
 
     var m = CanvasKit.SkM44.identity();
     // set each column's top three numbers
-    stride(s,                                 m, 4, 0, 0);
+    stride(s,                                   m, 4, 0, 0);
     stride(CanvasKit.SkVector.cross(s, f),      m, 4, 1, 0);
     stride(CanvasKit.SkVector.mulScalar(f, -1), m, 4, 2, 0);
-    stride(eyeVec,                            m, 4, 3, 0);
+    stride(eyeVec,                              m, 4, 3, 0);
 
     var m2 = CanvasKit.SkM44.invert(m);
     if (m2 === null) {
@@ -808,7 +808,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
     var shader = this._makeShader(xTileMode, yTileMode, localMatrixPtr);
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     return shader;
   }
 
@@ -852,11 +852,16 @@ CanvasKit.onRuntimeInitialized = function() {
     return retVal;
   }
 
+  // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
+  // under the hood, SkCanvas uses a 4x4 matrix.
   CanvasKit.SkCanvas.prototype.concat = function(matr) {
-    var matrPtr = copy3x3MatrixToWasm(matr);
+    var matrPtr = copy4x4MatrixToWasm(matr);
     this._concat(matrPtr);
-    matrPtr && CanvasKit._free(matrPtr);
+    CanvasKit._free(matrPtr);
   }
+
+  // Deprecated - just use concat
+  CanvasKit.SkCanvas.prototype.concat44 = CanvasKit.SkCanvas.prototype.concat;
 
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
@@ -940,6 +945,31 @@ CanvasKit.onRuntimeInitialized = function() {
     CanvasKit._free(ptr);
   }
 
+  // getLocalToCamera returns a 4x4 matrix.
+  CanvasKit.SkCanvas.prototype.getLocalToCamera = function() {
+    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
+    // _getLocalToCamera will copy the values into the pointer.
+    this._getLocalToCamera(matrPtr);
+    return copy4x4MatrixFromWasm(matrPtr);
+  }
+
+  // getLocalToDevice returns a 4x4 matrix.
+  CanvasKit.SkCanvas.prototype.getLocalToDevice = function() {
+    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
+    // _getLocalToDevice will copy the values into the pointer.
+    this._getLocalToDevice(matrPtr);
+    return copy4x4MatrixFromWasm(matrPtr);
+  }
+
+  // getLocalToWorld returns a 4x4 matrix.
+  CanvasKit.SkCanvas.prototype.getLocalToWorld = function() {
+    var matrPtr = CanvasKit._malloc(16 * 4); // allocate space for the matrix
+    // _getLocalToWorld will copy the values into the pointer.
+    this._getLocalToWorld(matrPtr);
+    return copy4x4MatrixFromWasm(matrPtr);
+  }
+
+  // getTotalMatrix returns the current matrix as a 3x3 matrix.
   CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {
     var matrPtr = CanvasKit._malloc(9 * 4); // allocate space for the matrix
     // _getTotalMatrix will copy the values into the pointer.
@@ -980,6 +1010,14 @@ CanvasKit.onRuntimeInitialized = function() {
     var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pptr, len).slice();
     CanvasKit._free(pptr);
     return pixels;
+  }
+
+  CanvasKit.SkCanvas.prototype.saveCamera = function(projection, camera) {
+    var pPtr = copy4x4MatrixToWasm(projection);
+    var cPtr = copy4x4MatrixToWasm(camera);
+    this._saveCamera(pPtr, cPtr);
+    CanvasKit._free(pPtr)
+    CanvasKit._free(cPtr);
   }
 
   // pixels is a TypedArray. No matter the input size, it will be treated as
@@ -1025,7 +1063,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var matrPtr = copy3x3MatrixToWasm(matr);
     var imgF = CanvasKit.SkImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
 
-    matrPtr && CanvasKit._free(matrPtr);
+    CanvasKit._free(matrPtr);
     return imgF;
   }
 
@@ -1099,7 +1137,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr);
 
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return lgs;
@@ -1114,7 +1152,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
                                                   colors.length, mode, flags, localMatrixPtr);
 
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return rgs;
@@ -1133,7 +1171,7 @@ CanvasKit.onRuntimeInitialized = function() {
                                                  startAngle, endAngle, flags,
                                                  localMatrixPtr);
 
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return sgs;
@@ -1150,7 +1188,7 @@ CanvasKit.onRuntimeInitialized = function() {
                           start, startRadius, end, endRadius,
                           colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr);
 
-    localMatrixPtr && CanvasKit._free(localMatrixPtr);
+    CanvasKit._free(localMatrixPtr);
     CanvasKit._free(colorPtr);
     CanvasKit._free(posPtr);
     return rgs;
