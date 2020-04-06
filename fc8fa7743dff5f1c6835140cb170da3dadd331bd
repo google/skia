@@ -45,6 +45,30 @@
       "revId": "fc8fa7743dff5f1c6835140cb170da3dadd331bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0797020d_2f6eb645",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-06T19:21:52Z",
+      "side": 1,
+      "message": "localToCamera is unused; LocalToWorld is used once in https://github.com/google/skia/blob/master/modules/canvaskit/canvaskit/extra.html#L742\n\nI am not familiar enough with that example to know how to remove it.",
+      "parentUuid": "28e1f7b3_76ae7975",
+      "range": {
+        "startLine": 1047,
+        "startChar": 19,
+        "endLine": 1047,
+        "endChar": 35
+      },
+      "revId": "fc8fa7743dff5f1c6835140cb170da3dadd331bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
