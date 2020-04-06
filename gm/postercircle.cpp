@@ -124,7 +124,7 @@ protected:
                                 * SkM44::Translate(0, ringY, 0)
                                 * SkM44::Rotate({0,1,0}, SkDegreesToRadians(yRotation))
                                 * SkM44::Translate(0, 0, kRingRadius);
-                    canvas->concat44(model);
+                    canvas->concat(model);
 
                     SkRect poster = SkRect::MakeLTRB(-0.5f * kPosterSize, -0.5f * kPosterSize,
                                                       0.5f * kPosterSize,  0.5f * kPosterSize);
