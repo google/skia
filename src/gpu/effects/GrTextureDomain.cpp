@@ -85,7 +85,8 @@ static void append_wrap(GrGLSLShaderBuilder* builder, GrTextureDomain::Mode mode
     }
 }
 
-void GrTextureDomain::GLDomain::sampleProcessor(const GrTextureDomain& textureDomain,
+void GrTextureDomain::GLDomain::sampleProcessor(const GrFragmentProcessor* owner,
+                                                const GrTextureDomain& textureDomain,
                                                 const char* inColor,
                                                 const char* outColor,
                                                 const SkString& inCoords,
@@ -95,11 +96,12 @@ void GrTextureDomain::GLDomain::sampleProcessor(const GrTextureDomain& textureDo
     auto appendProcessorSample = [parent, &args, childIndex, inColor](const char* coord) {
         return parent->invokeChild(childIndex, inColor, args, coord);
     };
-    this->sample(args.fFragBuilder, args.fUniformHandler, textureDomain, outColor, inCoords,
+    this->sample(owner, args.fFragBuilder, args.fUniformHandler, textureDomain, outColor, inCoords,
                  appendProcessorSample);
 }
 
-void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
+void GrTextureDomain::GLDomain::sampleTexture(const GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* builder,
                                               GrGLSLUniformHandler* uniformHandler,
                                               const GrShaderCaps* shaderCaps,
                                               const GrTextureDomain& textureDomain,
@@ -114,10 +116,12 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         builder->codeAppend(";");
         return SkString("textureColor");
     };
-    this->sample(builder, uniformHandler, textureDomain, outColor, inCoords, appendTextureSample);
+    this->sample(owner, builder, uniformHandler, textureDomain, outColor, inCoords,
+                 appendTextureSample);
 }
 
-void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
+void GrTextureDomain::GLDomain::sample(const GrFragmentProcessor* owner,
+                                       GrGLSLShaderBuilder* builder,
                                        GrGLSLUniformHandler* uniformHandler,
                                        const GrTextureDomain& textureDomain,
                                        const char* outColor,
@@ -136,7 +140,7 @@ void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
         if (textureDomain.fIndex >= 0) {
             uniName.appendS32(textureDomain.fIndex);
         }
-        fDomainUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+        fDomainUni = uniformHandler->addUniform(owner, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 uniName.c_str(), &name);
         fDomainName = name;
     }
@@ -150,7 +154,7 @@ void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
             uniName.appendS32(textureDomain.fIndex);
         }
         // Half3 since this will hold texture width, height, and then a step function control param
-        fDecalUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf3_GrSLType,
+        fDecalUni = uniformHandler->addUniform(owner, kFragment_GrShaderFlag, kHalf3_GrSLType,
                                                uniName.c_str(), &name);
         fDecalName = name;
     }
