@@ -200,6 +200,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
 }
 
 GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArray(
+        const GrFragmentProcessor* owner,
         uint32_t visibility,
         GrSLType type,
         const char* name,
@@ -218,10 +219,12 @@ GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArra
     layoutQualifier.appendf("offset = %d", offset);
 
     UniformInfo& info = fUniforms.push_back(GrDawnUniformHandler::UniformInfo{
-        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                    std::move(layoutQualifier), SkString()},
-        offset, static_cast<int>(visibility)
-    });
+        {
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
+                        std::move(layoutQualifier), SkString()},
+            visibility, owner, SkString(name)
+        },
+        offset});
 
     if (outName) {
         *outName = info.fVar.c_str();

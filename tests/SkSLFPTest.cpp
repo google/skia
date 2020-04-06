@@ -195,8 +195,8 @@ DEF_TEST(SkSLFPUniform, r) {
              "static std::unique_ptr<GrFragmentProcessor> Make()"
          },
          {
-            "colorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                        "\"color\");",
+            "colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf4_GrSLType, \"color\");",
          });
 }
 
@@ -214,8 +214,8 @@ DEF_TEST(SkSLFPInUniform, r) {
              "static std::unique_ptr<GrFragmentProcessor> Make(SkRect color) {",
          },
          {
-            "colorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                        "\"color\");",
+            "colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf4_GrSLType, \"color\");",
             "pdman.set4fv(colorVar, 1, reinterpret_cast<const float*>(&(_outer.color)));"
          });
 }
@@ -232,8 +232,8 @@ DEF_TEST(SkSLFPInUniformCType, r) {
              "static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f color) {",
          },
          {
-            "colorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                        "\"color\");",
+            "colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf4_GrSLType, \"color\");",
             "pdman.set4fv(colorVar, 1, (_outer.color).vec());"
          });
 }
@@ -253,8 +253,8 @@ DEF_TEST(SkSLFPTrackedInUniform, r) {
          },
          {
             "SkRect colorPrev = SkRect::MakeEmpty();",
-            "colorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                        "\"color\");",
+            "colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf4_GrSLType, \"color\");",
             "const SkRect& colorValue = _outer.color;",
             "if (colorPrev.isEmpty() || colorPrev != colorValue) {",
             "colorPrev = colorValue;",
@@ -275,8 +275,8 @@ DEF_TEST(SkSLFPNonInlinedInUniform, r) {
              "static std::unique_ptr<GrFragmentProcessor> Make(SkPoint point) {",
          },
          {
-            "pointVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "
-                                                        "\"point\");",
+            "pointVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf2_GrSLType, \"point\");",
             "const SkPoint& pointValue = _outer.point;",
             "pdman.set2f(pointVar, pointValue.fX, pointValue.fY);"
          });
@@ -303,8 +303,8 @@ DEF_TEST(SkSLFPConditionalInUniform, r) {
             "SkPMColor4f colorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}",
             "auto test = _outer.test;",
             "if (test) {",
-            "colorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                        "\"color\");",
+            "colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, "
+                                                        "kHalf4_GrSLType, \"color\");",
             "if (colorVar.isValid()) {",
             "const SkPMColor4f& colorValue = _outer.color;",
             "if (colorPrev != colorValue) {",

@@ -203,7 +203,7 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 }
 
 GrVkUniformHandler::~GrVkUniformHandler() {
-    for (UniformInfo& sampler : fSamplers.items()) {
+    for (VkUniformInfo& sampler : fSamplers.items()) {
         if (sampler.fImmutableSampler) {
             sampler.fImmutableSampler->unref();
             sampler.fImmutableSampler = nullptr;
@@ -212,12 +212,13 @@ GrVkUniformHandler::~GrVkUniformHandler() {
 }
 
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+                                                                   const GrFragmentProcessor* owner,
+                                                                   uint32_t visibility,
+                                                                   GrSLType type,
+                                                                   const char* name,
+                                                                   bool mangleName,
+                                                                   int arrayCount,
+                                                                   const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(GrSLTypeIsFloatType(type));
 
@@ -238,10 +239,13 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     SkString layoutQualifier;
     layoutQualifier.appendf("offset=%d", offset);
 
-    UniformInfo& uni = fUniforms.push_back(GrVkUniformHandler::UniformInfo{
-        GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                    std::move(layoutQualifier), SkString()},
-        visibility, offset, nullptr
+    UniformInfo& uni = fUniforms.push_back(VkUniformInfo{
+        {
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
+                        std::move(layoutQualifier), SkString()},
+            visibility, owner, SkString(name)
+        },
+        offset, nullptr
     });
 
     if (outName) {
@@ -263,12 +267,15 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
 
-    UniformInfo& info = fSamplers.push_back(GrVkUniformHandler::UniformInfo{
-        GrShaderVar{std::move(mangleName),
-                    GrSLCombinedSamplerTypeForTextureType(backendFormat.textureType()),
-                    GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
-                    std::move(layoutQualifier), SkString()},
-        kFragment_GrShaderFlag, 0, nullptr
+    UniformInfo& info = fSamplers.push_back(VkUniformInfo{
+        {
+            GrShaderVar{std::move(mangleName),
+                        GrSLCombinedSamplerTypeForTextureType(backendFormat.textureType()),
+                        GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
+                        std::move(layoutQualifier), SkString()},
+            kFragment_GrShaderFlag, nullptr, SkString(name)
+        },
+        0, nullptr
     });
 
     // Check if we are dealing with an external texture and store the needed information if so.
