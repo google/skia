@@ -205,10 +205,6 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
 
     return std::tie(storage, minScale, maxScale);
 }
-
-sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {
-    return cache->getStrike(*fAutoDescriptor.getDesc());
-}
 #endif
 
 void SkStrikeSpec::commonSetup(const SkFont& font, const SkPaint& paint,

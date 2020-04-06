@@ -43,8 +43,7 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         , fOrigin(origin) {}
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
-GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
-                           GrMaskFormat format,
+GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, GrMaskFormat format,
                            const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
                            sk_sp<GrTextStrike>&& grStrike)
         : fType{type}
@@ -52,7 +51,6 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fMaskFormat{format}
         , fGlyphs{glyphs}
         , fVertexData{vertexData}
-        , fStrikeSpec{strikeSpec}
         , fStrike{grStrike}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
@@ -61,14 +59,13 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
     textBlob->insertSubRun(this);
 }
 
-GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
+GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, sk_sp<GrTextStrike>&& grStrike)
         : fType{kTransformedPath}
         , fBlob{textBlob}
         , fMaskFormat{kA8_GrMaskFormat}
         , fGlyphs{SkSpan<GrGlyph*>{}}
         , fVertexData{SkSpan<char>{}}
-        , fStrikeSpec{strikeSpec}
-        , fStrike{nullptr}
+        , fStrike{grStrike}
         , fCurrentColor{textBlob->fColor}
         , fPaths{} {
     textBlob->insertSubRun(this);
@@ -105,7 +102,7 @@ static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
 
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
     GrTextStrike* grStrike = fStrike.get();
-    SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
+    SkScalar strikeToSource = grStrike->strikeToSourceRatio();
     GrGlyph** glyphCursor = fGlyphs.data();
     char* vertexCursor = fVertexData.data();
     size_t vertexStride = this->vertexStride();
@@ -152,9 +149,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
 }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
-
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
-void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
@@ -293,7 +288,6 @@ void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = us
 bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
 void GrTextBlob::SubRun::setAntiAliased(bool antiAliased) { fFlags.antiAliased = antiAliased; }
 bool GrTextBlob::SubRun::isAntiAliased() const { return fFlags.antiAliased; }
-const SkStrikeSpec& GrTextBlob::SubRun::strikeSpec() const { return fStrikeSpec; }
 
 // -- GrTextBlob -----------------------------------------------------------------------------------
 void GrTextBlob::operator delete(void* p) { ::operator delete(p); }
@@ -493,8 +487,8 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             for (const auto& pathGlyph : subRun->fPaths) {
                 SkMatrix ctm{drawMatrix};
                 ctm.preTranslate(drawOrigin.x(), drawOrigin.y());
-                SkMatrix pathMatrix = SkMatrix::MakeScale(
-                        subRun->fStrikeSpec.strikeToSourceRatio());
+                GrTextStrike* strike = subRun->strike();
+                SkMatrix pathMatrix = SkMatrix::MakeScale(strike->strikeToSourceRatio());
                 pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
 
                 // TmpPath must be in the same scope as GrShape shape below.
@@ -635,10 +629,10 @@ GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
     size_t vertexDataSize = drawables.size() * GetVertexStride(format, hasW) * kVerticesPerGlyph;
     SkSpan<char> vertexData{fAlloc.makeArrayDefault<char>(vertexDataSize), vertexDataSize};
 
-    sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
+    sk_sp<GrTextStrike> grStrike = fStrikeCache->findOrCreateGrStrike(strikeSpec);
 
-    SubRun* subRun = fAlloc.make<SubRun>(
-            type, this, strikeSpec, format, glyphs, vertexData, std::move(grStrike));
+    SubRun* subRun = fAlloc.make<SubRun>(type, this, format, glyphs, vertexData,
+                                         std::move(grStrike));
 
     subRun->appendGlyphs(drawables);
 
@@ -757,7 +751,10 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) {
     this->setHasBitmap();
-    SubRun* subRun = fAlloc.make<SubRun>(this, strikeSpec);
+
+    sk_sp<GrTextStrike> grStrike = fStrikeCache->findOrCreateGrStrike(strikeSpec);
+
+    SubRun* subRun = fAlloc.make<SubRun>(this, std::move(grStrike));
     subRun->setAntiAliased(runFont.hasSomeAntiAliasing());
     for (auto [variant, pos] : drawables) {
         subRun->fPaths.emplace_back(*variant.path(), pos);
@@ -790,7 +787,9 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
         const int begin, const int end) {
 
-    const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
+    GrTextStrike* grStrike = fSubRun->strike();
+
+    const SkStrikeSpec& strikeSpec = grStrike->strikeSpec();
 
     if (!fMetricsAndImages.isValid()
             || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
@@ -799,7 +798,6 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
 
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
-    GrTextStrike* grStrike = fSubRun->strike();
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
