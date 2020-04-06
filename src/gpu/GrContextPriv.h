@@ -9,13 +9,13 @@
 #define GrContextPriv_DEFINED
 
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/text/GrAtlasManager.h"
 
+class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
+class GrRenderTargetProxy;
 class GrSemaphore;
 class GrSurfaceProxy;
 
