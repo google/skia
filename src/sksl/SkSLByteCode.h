@@ -176,6 +176,9 @@ public:
     int getParameterCount() const { return fParameterCount; }
     int getReturnCount() const { return fReturnCount; }
 
+    const uint8_t* code() const { return fCode.data(); }
+    size_t         size() const { return fCode.size(); }
+
     /**
      * Print bytecode disassembly to stdout.
      */

@@ -55,7 +55,9 @@ using U32 = skvx::Vec<VecWidth, uint32_t>;
     case ByteCodeInstruction::op##N: printf(text "N %d", READ8()); break;
 
 static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
-    switch ((ByteCodeInstruction) (intptr_t) READ_INST()) {
+    auto inst = (ByteCodeInstruction) (intptr_t) READ_INST();
+    printf("%04x ", (int)inst);
+    switch (inst) {
         VECTOR_MATRIX_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
         case ByteCodeInstruction::kAndB: printf("andb"); break;
