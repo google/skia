@@ -893,12 +893,6 @@ public:
     void concat(const SkMatrix& matrix);
     void concat(const SkM44&);
 
-    // DEPRECATED
-#if 1
-    void concat44(const SkM44& m) { this->concat(m); }
-    void concat44(const SkScalar cm[]) { this->concat(SkM44::ColMajor(cm)); }
-#endif
-
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
 
