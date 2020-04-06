@@ -298,7 +298,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     const SkHighContrastConfig& config = hcfe.config();
 
     const char* contrast;
-    fContrastUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+    fContrastUni = args.fUniformHandler->addUniform(&hcfe, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "contrast", &contrast);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;

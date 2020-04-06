@@ -566,7 +566,8 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     const GrDisplacementMapEffect& displacementMap = args.fFp.cast<GrDisplacementMapEffect>();
     const GrTextureDomain& domain = displacementMap.domain();
 
-    fScaleUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "Scale");
+    fScaleUni = args.fUniformHandler->addUniform(&displacementMap, kFragment_GrShaderFlag,
+                                                 kHalf2_GrSLType, "Scale");
     const char* scaleUni = args.fUniformHandler->getUniformCStr(fScaleUni);
     const char* dColor = "dColor";
     const char* cCoords = "cCoords";
@@ -623,7 +624,8 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppend("-half2(0.5));\t\t");
 
-    fGLDomain.sampleTexture(fragBuilder,
+    fGLDomain.sampleTexture(&displacementMap,
+                            fragBuilder,
                             args.fUniformHandler,
                             args.fShaderCaps,
                             domain,
