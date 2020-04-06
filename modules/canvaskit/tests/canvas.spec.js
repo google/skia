@@ -545,7 +545,7 @@ describe('Canvas Behavior', () => {
         img.delete();
     }, '/assets/brickwork-texture.jpg');
 
-    it('can change the matrix on the canvas and read it back', () => {
+    it('can change the 3x3 matrix on the canvas and read it back', () => {
         const canvas = new CanvasKit.SkCanvas();
 
         let matr = canvas.getTotalMatrix();
@@ -560,9 +560,80 @@ describe('Canvas Behavior', () => {
             CanvasKit.SkMatrix.rotated(Math.PI/4),
             CanvasKit.SkMatrix.translated(20, 10)
         );
-        expect(matr.length).toEqual(expected.length);
-        for (let i = 0; i < matr.length; i++) {
-            expect(matr[i]).toBeCloseTo(expected[i], 5);
+        expect3x3MatricesToMatch(expected, matr);
+    });
+
+    const expect3x3MatricesToMatch = (expected, actual) => {
+        expect(expected.length).toEqual(9);
+        expect(actual.length).toEqual(9);
+        for (let i = 0; i < expected.length; i++) {
+            expect(expected[i]).toBeCloseTo(actual[i], 5);
         }
-    })
+    };
+
+    const expect4x4MatricesToMatch = (expected, actual) => {
+        expect(expected.length).toEqual(16);
+        expect(actual.length).toEqual(16);
+        for (let i = 0; i < expected.length; i++) {
+            expect(expected[i]).toBeCloseTo(actual[i], 5);
+        }
+    };
+
+    it('can change the 4x4 matrix on the canvas and read it back', () => {
+        const canvas = new CanvasKit.SkCanvas();
+
+        let matr = canvas.getLocalToDevice();
+        expect(matr).toEqual(CanvasKit.SkM44.identity());
+
+        matr = canvas.getLocalToWorld();
+        expect(matr).toEqual(CanvasKit.SkM44.identity());
+
+        matr = canvas.getLocalToCamera();
+        expect(matr).toEqual(CanvasKit.SkM44.identity());
+
+        canvas.concat44(CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4));
+        canvas.concat44(CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8));
+
+        const expected = CanvasKit.SkM44.multiply(
+          CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4),
+          CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8),
+        );
+
+        expect4x4MatricesToMatch(expected, canvas.getLocalToDevice());
+        expect4x4MatricesToMatch(expected, canvas.getLocalToWorld());
+        expect4x4MatricesToMatch(expected, canvas.getLocalToCamera());
+        // TODO(kjlubick) add test for DOMMatrix
+        // TODO(nifong) add more involved test for camera-related math.
+    });
+
+    gm('concat_with4x4_canvas', (canvas) => {
+        const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+        const paint = new CanvasKit.SkPaint();
+        paint.setAntiAlias(true);
+        canvas.clear(CanvasKit.WHITE);
+
+        // Rotate it a bit on all 3 major axis, centered on the screen.
+        // To play with rotations, see https://jsfiddle.skia.org/canvaskit/0525300405796aa87c3b84cc0d5748516fca0045d7d6d9c7840710ab771edcd4
+        const turn = CanvasKit.SkM44.multiply(
+          CanvasKit.SkM44.translated([CANVAS_WIDTH/2, 0, 0]),
+          CanvasKit.SkM44.rotated([1, 0, 0], Math.PI/3),
+          CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4),
+          CanvasKit.SkM44.rotated([0, 0, 1], Math.PI/16),
+          CanvasKit.SkM44.translated([-CANVAS_WIDTH/2, 0, 0]),
+        );
+        canvas.concat44(turn);
+
+        // Draw some stripes to help the eye detect the turn
+        const stripeWidth = 10;
+        paint.setColor(CanvasKit.BLACK);
+        for (let i = 0; i < CANVAS_WIDTH; i += 2*stripeWidth) {
+            canvas.drawRect(CanvasKit.LTRBRect(i, 0, i + stripeWidth, CANVAS_HEIGHT), paint);
+        }
+
+        paint.setColor(CanvasKit.YELLOW);
+        canvas.drawPath(path, paint);
+        paint.delete();
+        path.delete();
+    });
+
 });
