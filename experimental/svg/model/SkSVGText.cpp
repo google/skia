@@ -10,6 +10,8 @@
 #include "experimental/svg/model/SkSVGRenderContext.h"
 #include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkString.h"
 
 SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
 
@@ -18,11 +20,62 @@ void SkSVGText::setX(const SkSVGLength& x) { fX = x; }
 void SkSVGText::setY(const SkSVGLength& y) { fY = y; }
 
 void SkSVGText::setFontFamily(const SkSVGStringType& font_family) {
-  fTypeface =
-      SkTypeface::MakeFromName(font_family.value().c_str(), SkFontStyle());
+  loadFont(font_family.value());
+}
+
+
+void SkSVGText::reloadFont() {
+  if (fTypeface != nullptr) {
+    SkString font_family;
+    fTypeface->getFamilyName(&font_family);
+    loadFont(font_family);
+  }
+}
+
+void SkSVGText::loadFont(const SkString font_family) {
+  SkFontStyle style;
+  if (fFontWeight.value().equals("bold")) {
+    if (fFontStyle.value().equals("italic")) {
+      style = SkFontStyle::BoldItalic();
+    } else {
+      style = SkFontStyle::Bold();
+    }
+  } else {
+    if (fFontStyle.value().equals("italic")) {
+      style = SkFontStyle::Italic();
+    } else {
+      style = SkFontStyle();
+    }
+  }
+
+  // Replace " " with "-" otherwise fonts won't load.
+  char* fixedFamily = new char[font_family.size() + 1];
+  for (size_t i = 0; i < font_family.size(); i++) {
+    if (font_family[i] == ' ') {
+      fixedFamily[i] = '-';
+    } else {
+      fixedFamily[i] = font_family[i];
+    }
+  }
+  fixedFamily[font_family.size()] = '\0';
+
+  fTypeface = SkTypeface::MakeFromName(fixedFamily, style);
+  delete[] fixedFamily;
 }
 
 void SkSVGText::setFontSize(const SkSVGLength& size) { fFontSize = size; }
+
+void SkSVGText::setFontStyle(const SkSVGStringType& font_style) {
+  fFontStyle = font_style;
+
+  reloadFont();
+}
+
+void SkSVGText::setFontWeight(const SkSVGStringType& font_weight) {
+  fFontWeight = font_weight;
+
+  reloadFont();
+}
 
 void SkSVGText::setText(const SkSVGStringType& text) { fText = text; }
 
@@ -75,9 +128,19 @@ void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         this->setFontFamily(*font_family);
       }
       break;
+    case SkSVGAttribute::kFontWeight:
+      if (const auto* font_weight = v.as<SkSVGStringValue>()) {
+        this->setFontWeight(*font_weight);
+      }
+      break;
     case SkSVGAttribute::kFontSize:
       if (const auto* font_size = v.as<SkSVGLengthValue>()) {
         this->setFontSize(*font_size);
+      }
+      break;
+    case SkSVGAttribute::kFontStyle:
+      if (const auto* font_style = v.as<SkSVGStringValue>()) {
+        this->setFontStyle(*font_style);
       }
       break;
     default:
