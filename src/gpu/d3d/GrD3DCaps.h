@@ -53,9 +53,6 @@ public:
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
-                                                  bool isAlphaChannel) const override;
-
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     DXGI_FORMAT getFormatFromColorType(GrColorType colorType) const {
