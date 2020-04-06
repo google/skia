@@ -150,16 +150,6 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
-    GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                  bool isAlphaChannel) const override {
-        SkImage::CompressionType compression = format.asMockCompressionType();
-        if (compression != SkImage::CompressionType::kNone) {
-            return GrColorType::kUnknown;
-        }
-
-        return format.asMockColorType();
-    }
-
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override {
         return {};
     }
