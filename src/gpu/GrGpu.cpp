@@ -26,6 +26,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStagingBuffer.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfacePriv.h"
@@ -650,6 +651,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
     }
 
+    this->unmapStagingBuffers();
+
     // We always want to try flushing, so do that before checking if we failed semaphore creation.
     if (!this->onFinishFlush(proxies, n, access, info, externalRequests) ||
         failedSemaphoreCreation) {
@@ -890,4 +893,38 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
 
     return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped,
                                                   isProtected, data);
+}
+
+GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
+    for (const auto &b : fReadyStagingBuffers) {
+        if (b->remaining() >= size) {
+            return b;
+        }
+    }
+    return nullptr;
+}
+
+GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
+    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size);
+    if (!stagingBuffer) {
+        std::unique_ptr<GrStagingBuffer> b = this->createStagingBuffer(size);
+        stagingBuffer = b.get();
+        fStagingBuffers.push_back(std::move(b));
+        fReadyStagingBuffers.push_back(stagingBuffer);
+    }
+    return stagingBuffer->allocate(size);
+}
+
+void GrGpu::unmapStagingBuffers() {
+    // Unmap all non-empty, non-busy buffers.
+    for (auto i = fReadyStagingBuffers.begin(); i != fReadyStagingBuffers.end();) {
+        GrStagingBuffer* buffer = *i;
+        if (!buffer->empty()) {
+            buffer->unmap();
+            fBusyStagingBuffers.push_back(buffer);
+            i = fReadyStagingBuffers.erase(i);
+        } else {
+            ++i;
+        }
+    }
 }

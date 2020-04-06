@@ -15,6 +15,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
+#include "src/gpu/GrStagingBuffer.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
@@ -678,6 +679,11 @@ public:
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
+    GrStagingBuffer* findStagingBuffer(size_t size);
+    GrStagingBuffer::Slice allocateStagingBufferSlice(size_t size);
+    virtual std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) { return nullptr; }
+    void unmapStagingBuffers();
+
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
@@ -691,6 +697,10 @@ protected:
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
     sk_sp<const GrCaps>              fCaps;
+    std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
+    std::vector<GrStagingBuffer*>    fReadyStagingBuffers;
+    std::vector<GrStagingBuffer*>    fBusyStagingBuffers;
+
 
 private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
