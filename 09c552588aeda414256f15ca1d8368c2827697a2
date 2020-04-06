@@ -22,6 +22,30 @@
       "revId": "09c552588aeda414256f15ca1d8368c2827697a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d5df9b2_875928d2",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-06T19:33:29Z",
+      "side": 1,
+      "message": "oh, I see... ok by me to save for a change that changes behavior.",
+      "parentUuid": "740edb8f_1ada8e4b",
+      "range": {
+        "startLine": 1208,
+        "startChar": 25,
+        "endLine": 1208,
+        "endChar": 45
+      },
+      "revId": "09c552588aeda414256f15ca1d8368c2827697a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
