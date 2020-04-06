@@ -70,7 +70,7 @@ DEF_SIMPLE_GM(sk3d_simple, real_canvas, 300, 300) {
     do_draw(canvas, 0x880000FF);
 
     auto pic = recorder.finishRecordingAsPicture();
-    if (true) {
+    if (false) {
         real_canvas->drawPicture(pic);
     } else {
         auto data = pic->serialize();
@@ -78,3 +78,29 @@ DEF_SIMPLE_GM(sk3d_simple, real_canvas, 300, 300) {
         real_canvas->drawPicture(pic2);
     }
 }
+
+DEF_SIMPLE_GM(sk3d_camera, canvas, 300, 300) {
+    SkScalar w = 300, h = 300;
+
+    Info info;
+    auto projection = Sk3Perspective(info.fNear, info.fFar, info.fAngle);
+    auto camera = Sk3LookAt(info.fEye, info.fCOA, info.fUp);
+    auto viewport = SkM44::Scale(w*0.5f, h*0.5f, 1);
+    auto model = SkM44::Rotate({0, 1, 0}, SK_ScalarPI/6);
+
+#if 0
+    canvas->concat( viewport * projection * camera * model * inv(viewport) );
+#else
+    canvas->concat(viewport);
+    canvas->saveCamera(projection, camera);
+    canvas->concat(model * inv(viewport));
+#endif
+
+    canvas->translate(150, 150);
+    SkPaint paint;
+    paint.setColor(0xFFFF0000);
+    canvas->drawRect({-100, -100, 100, 100}, paint);
+
+    canvas->restore();
+}
+
