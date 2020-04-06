@@ -332,7 +332,7 @@ void SkRecorder::didRestore() {
 }
 
 void SkRecorder::didConcat44(const SkScalar m[16]) {
-    this->append<SkRecords::Concat44>(m);
+    this->append<SkRecords::Concat44>(SkM44::ColMajor(m));
 }
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {

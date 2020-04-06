@@ -968,7 +968,7 @@ DEF_TEST(M44, reporter) {
                                     0, 0, 0, 1) == m);
 
     const float f[] = { 1, 0, 0, 2, 3, 1, 2, 5, 0, 5, 3, 0, 0, 1, 0, 2 };
-    m.setColMajor(f);
+    m = SkM44::ColMajor(f);
     m44.setColMajorf(f);
     REPORTER_ASSERT(reporter, eq(m44, m, 0));
 
@@ -980,7 +980,7 @@ DEF_TEST(M44, reporter) {
         REPORTER_ASSERT(reporter, tt == m);
     }
 
-    m.setRowMajor(f);
+    m = SkM44::RowMajor(f);
     m44.setRowMajorf(f);
     REPORTER_ASSERT(reporter, eq(m44, m, 0));
 

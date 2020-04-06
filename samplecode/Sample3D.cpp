@@ -90,7 +90,7 @@ public:
 
         // want "world" to be in our big coordinates (e.g. area), so apply this inverse
         // as part of our "camera".
-        canvas->experimental_saveCamera(viewport * perspective, camera * inv(viewport));
+        canvas->saveCamera(viewport * perspective, camera * inv(viewport));
     }
 };
 
@@ -289,7 +289,7 @@ public:
                 SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
                 SkM44 m = fRotateAnimator.rotation() * fRotation * f.asM44(200);
 
-                canvas->concat44(trans * m * inv(trans));
+                canvas->concat(trans * m * inv(trans));
                 this->drawContent(canvas, f.fColor, index++, drawFront);
             }
         }

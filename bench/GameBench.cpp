@@ -368,7 +368,7 @@ protected:
                     case kScale_Type:     canvas->scale(1.0001f, 0.9999f); break;
                     case k2x3_Type:       canvas->concat(m); break;
                     case k3x3_Type:       canvas->concat(m); break;
-                    case k4x4_Type:       canvas->concat44(m4); break;
+                    case k4x4_Type:       canvas->concat(m4); break;
                 }
             }
             canvas->restore();

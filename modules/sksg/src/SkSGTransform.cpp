@@ -179,7 +179,7 @@ TransformEffect::~TransformEffect() {
 
 void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->concat44(TransformPriv::As<SkM44>(fTransform));
+    canvas->concat(TransformPriv::As<SkM44>(fTransform));
 
     this->INHERITED::onRender(canvas, ctx);
 }

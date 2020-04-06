@@ -742,22 +742,14 @@ void SkCanvas::notifyCameraChanged() {
     FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
 }
 
-int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
+int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
-    this->concat44(projection * camera);
+    this->concat(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     this->notifyCameraChanged();
 
     return n;
-}
-
-int SkCanvas::experimental_saveCamera(const SkScalar projection[16],
-                                      const SkScalar camera[16]) {
-    SkM44 proj, cam;
-    proj.setColMajor(projection);
-    cam.setColMajor(camera);
-    return this->experimental_saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
@@ -1532,20 +1524,16 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::concat44(const SkScalar colMajor[16]) {
+void SkCanvas::concat(const SkM44& m) {
     this->checkForDeferredSave();
 
-    fMCRec->fMatrix.preConcat16(colMajor);
+    fMCRec->fMatrix.preConcat(m);
 
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
-    this->didConcat44(colMajor);
-}
-
-void SkCanvas::concat44(const SkM44& m) {
-    this->concat44(SkMatrixPriv::M44ColMajor(m));
+    this->didConcat44(SkMatrixPriv::M44ColMajor(m));
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
@@ -1894,18 +1882,6 @@ SkM44 SkCanvas::experimental_getLocalToCamera() const {
         const auto& top = fCameraStack.back();
         return top.fCamera * top.fInvPostCamera * this->getLocalToDevice();
     }
-}
-
-void SkCanvas::getLocalToDevice(SkScalar colMajor[16]) const {
-    this->getLocalToDevice().getColMajor(colMajor);
-}
-
-void SkCanvas::experimental_getLocalToWorld(SkScalar colMajor[16]) const {
-    this->experimental_getLocalToWorld().getColMajor(colMajor);
-}
-
-void SkCanvas::experimental_getLocalToCamera(SkScalar colMajor[16]) const {
-    this->experimental_getLocalToCamera().getColMajor(colMajor);
 }
 
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
