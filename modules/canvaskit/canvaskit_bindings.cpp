@@ -1051,7 +1051,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // 4x4 matrix functions
         .function("saveCamera", optional_override([](SkCanvas& self,
             const SimpleM44& projection, const SimpleM44& camera) {
-            self.experimental_saveCamera(toSkM44(projection), toSkM44(camera));
+            self.saveCamera(toSkM44(projection), toSkM44(camera));
         }))
         .function("concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
             self.concat44(toSkM44(m));
@@ -1061,11 +1061,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return toSimpleM44(m);
         }))
         .function("getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
-            SkM44 m = self.experimental_getLocalToWorld();
+            SkM44 m = self.getLocalToWorld();
             return toSimpleM44(m);
         }))
         .function("getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
-            SkM44 m = self.experimental_getLocalToCamera();
+            SkM44 m = self.getLocalToCamera();
             return toSimpleM44(m);
         }));
 

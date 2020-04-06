@@ -368,14 +368,13 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
 
     // M*M
     {
-        SkM44 m;
-        m.setColMajor(in);
+        SkM44 m = SkM44::ColMajor(in);
         SkM44 m2;
         float in2[16];
         for (int i = 0; i < 16; ++i) {
             in2[i] = (i + 4) % 16;
         }
-        m2.setColMajor(in2);
+        m2 = SkM44::ColMajor(in2);
         m.setConcat(m, m2);
         // Rearrange the columns on the RHS so we detect left-hand/right-hand errors
         test(r, "float4x4 main(float4x4 m) { return m * float4x4(m[1], m[2], m[3], m[0]); }",
