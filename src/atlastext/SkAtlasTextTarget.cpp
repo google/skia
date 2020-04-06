@@ -19,6 +19,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrTextContext.h"
 
 static constexpr int kMaxBatchLookBack = 10;
