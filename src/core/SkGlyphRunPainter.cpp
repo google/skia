@@ -275,12 +275,12 @@ void GrTextContext::drawGlyphRunList(
         GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
         const SkMatrix& drawMatrix, const SkSurfaceProps& props,
         const SkGlyphRunList& glyphRunList) {
-    auto contextPriv = context->priv();
+    GrRecordingContextPriv contextPriv = context->priv();
     // If we have been abandoned, then don't draw
     if (contextPriv.abandoned()) {
         return;
     }
-    auto grStrikeCache = contextPriv.getGrStrikeCache();
+    GrStrikeCache* grStrikeCache = contextPriv.getGrStrikeCache();
     GrTextBlobCache* textBlobCache = contextPriv.getTextBlobCache();
 
     // Get the first paint to use as the key paint.
@@ -308,8 +308,7 @@ void GrTextContext::drawGlyphRunList(
         bool hasLCD = glyphRunList.anyRunsLCD();
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() :
-                                        kUnknown_SkPixelGeometry;
+        SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() : kUnknown_SkPixelGeometry;
 
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to

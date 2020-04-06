@@ -42,7 +42,7 @@ public:
                           const SkAtlasTextFont&) = 0;
 
     /** Issues all queued text draws to SkAtlasTextRenderer. */
-    virtual void flush() = 0;
+    virtual void flush1() = 0;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

@@ -240,7 +240,7 @@ private:
 
     // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
-    GrStrikeCache* const fStrikeCache;
+    GrStrikeCache* const fStrikeCache1;
 
     // The initial view matrix and its inverse. This is used for moving additional draws of this
     // same text blob. We record the initial view matrix and initial offsets(x,y), because we
@@ -296,11 +296,11 @@ public:
                       GrDeferredUploadTarget*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> regenerate(int begin, int end);
+    std::tuple<bool, int> regenerate1(int begin, int end);
 
 private:
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
+    std::tuple<bool, int> updateTextureCoordinates1(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -319,7 +319,7 @@ public:
            GrTextBlob* textBlob,
            const SkStrikeSpec& strikeSpec,
            GrMaskFormat format,
-           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
+           const SkSpan<GrGlyph>& glyphs, const SkSpan<char>& vertexData,
            sk_sp<GrTextStrike>&& grStrike);
 
     // SubRun for paths
@@ -330,8 +330,8 @@ public:
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    void setStrike(sk_sp<GrTextStrike> strike);
-    GrTextStrike* strike() const;
+//    void setStrike2(sk_sp<GrTextStrike> strike);
+//    GrTextStrike* strike2() const;
 
     GrMaskFormat maskFormat() const;
 
@@ -351,7 +351,7 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
-    void updateTexCoords(int begin, int end);
+    void updateTexCoords1(int begin, int end, const GrAtlasManager::Bar*);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -359,16 +359,16 @@ public:
     void setAntiAliased(bool antiAliased);
     bool isAntiAliased() const;
 
-    const SkStrikeSpec& strikeSpec() const;
+    const SkStrikeSpec& strikeSpec1() const;
 
     SubRun* fNextSubRun{nullptr};
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
-    const SkSpan<GrGlyph*> fGlyphs;
+    const SkSpan<GrGlyph> fGlyphs3;
     const SkSpan<char> fVertexData;
-    const SkStrikeSpec fStrikeSpec;
-    sk_sp<GrTextStrike> fStrike;
+    const SkStrikeSpec fStrikeSpec1;
+    sk_sp<GrTextStrike> fStrike2;
     struct {
         bool useLCDText:1;
         bool antiAliased:1;

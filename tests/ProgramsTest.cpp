@@ -8,7 +8,6 @@
 // This is a GPU-backend specific test.
 
 #include "include/core/SkTypes.h"
-
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
@@ -16,6 +15,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"

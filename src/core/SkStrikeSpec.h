@@ -68,8 +68,6 @@ public:
             const SkSurfaceProps& surfaceProps,
             const SkMatrix& deviceMatrix,
             const GrTextContext::Options& options);
-
-    sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* cache) const;
 #endif
 
     SkScopedStrikeForGPU findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const;

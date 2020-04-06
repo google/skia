@@ -13,6 +13,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "tools/gpu/ProxyUtils.h"
