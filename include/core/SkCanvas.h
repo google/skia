@@ -2501,7 +2501,11 @@ protected:
     virtual void willRestore() {}
     virtual void didRestore() {}
 
+#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     virtual void didConcat44(const SkScalar[]) {} // colMajor
+#else
+    virtual void didConcat44(const SkM44&) {}
+#endif
     virtual void didConcat(const SkMatrix& ) {}
     virtual void didSetMatrix(const SkMatrix& ) {}
     virtual void didTranslate(SkScalar, SkScalar) {}
