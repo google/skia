@@ -788,11 +788,14 @@ void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
             this->ensureScalerContext();
             fContext->getMetrics(glyph);
 
-            fSentLowGlyphIDs.setIfLower(packedID);
-
             MaskSummary newSummary =
                     {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+
             summary = fSentGlyphs.set(newSummary);
+
+            if (summary->canDrawAsMask && summary->canDrawAsSDFT) {
+                fSentLowGlyphIDs.setIfLower(packedID);
+            }
         }
 
         // Reject things that are too big.
