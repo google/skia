@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4e4c60a2_b7620702",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-06T19:34:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b939ba3_d08c9dfa",
+      "range": {
+        "startLine": 355,
+        "startChar": 18,
+        "endLine": 355,
+        "endChar": 19
+      },
+      "revId": "5de856e5b48ac936f329031205fc5a29fbf8a404",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52f38466_27c0986e",
         "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "5de856e5b48ac936f329031205fc5a29fbf8a404",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e953c7_dc999ba9",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-06T19:34:47Z",
+      "side": 1,
+      "message": "As discovered offline, this is more difficult than expected since backends may actually make more than one draw call per onDraw*() method. Leaving as-is for now.",
+      "parentUuid": "52f38466_27c0986e",
+      "range": {
+        "startLine": 618,
+        "startChar": 2,
+        "endLine": 618,
+        "endChar": 31
+      },
+      "revId": "5de856e5b48ac936f329031205fc5a29fbf8a404",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
