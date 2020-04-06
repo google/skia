@@ -40,7 +40,7 @@ public:
     // get the actual glyph image itself when we get the glyph metrics.
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
-                                             bool isScaledGlyph,
+                                             bool needsPadding,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*,
                                              GrAtlasManager*,
