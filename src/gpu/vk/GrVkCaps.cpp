@@ -1525,32 +1525,6 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return false;
 }
 
-GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
-                                                        bool isAlphaChannel) const {
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return GrColorType::kUnknown;
-    }
-
-    switch (vkFormat) {
-        case VK_FORMAT_R8_UNORM:                 return isAlphaChannel ? GrColorType::kAlpha_8
-                                                                       : GrColorType::kGray_8;
-        case VK_FORMAT_R8G8B8A8_UNORM:           return GrColorType::kRGBA_8888;
-        case VK_FORMAT_R8G8B8_UNORM:             return GrColorType::kRGB_888x;
-        case VK_FORMAT_R8G8_UNORM:               return GrColorType::kRG_88;
-        case VK_FORMAT_B8G8R8A8_UNORM:           return GrColorType::kBGRA_8888;
-        case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return GrColorType::kRGBA_1010102;
-        case VK_FORMAT_R16_UNORM:                return GrColorType::kAlpha_16;
-        case VK_FORMAT_R16_SFLOAT:               return GrColorType::kAlpha_F16;
-        case VK_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616;
-        case VK_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616;
-        case VK_FORMAT_R16G16_SFLOAT:            return GrColorType::kRG_F16;
-        default:                                 return GrColorType::kUnknown;
-    }
-
-    SkUNREACHABLE;
-}
-
 GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     VkFormat format = this->getFormatFromColorType(ct);
     if (format == VK_FORMAT_UNDEFINED) {
