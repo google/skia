@@ -284,8 +284,7 @@ function copy3x3MatrixToWasm(matr) {
         CanvasKit.HEAPF32.set(defaultPerspective, 6 + mPtr / 4);
     }
   } else {
-    // Try as if it's a DOMMatrix. Reminder that DOMMatrix lists their
-    // column first, then row.
+    // Try as if it's a DOMMatrix. Reminder that DOMMatrix is column-major.
     var floats = Float32Array.of(
            matr.m11, matr.m21, matr.m41,
            matr.m12, matr.m22, matr.m42,
@@ -294,6 +293,62 @@ function copy3x3MatrixToWasm(matr) {
     CanvasKit.HEAPF32.set(floats, mPtr / 4);
   }
   return mPtr;
+}
+
+function copy4x4MatrixToWasm(matr) {
+  if (!matr) {
+    return nullptr;
+  }
+  var mPtr = CanvasKit._malloc(16 * 4); // 9 matrix scalars, each at 4 bytes.
+  if (matr.length) {
+    if (matr.length !== 16 && matr.length !== 6 && matr.length !== 9) {
+      throw 'invalid matrix size';
+    }
+    if (matr.length === 16) {
+      // This should be an array or typed array.
+      // have to divide the pointer by 4 to "cast" it from bytes to float.
+      CanvasKit.HEAPF32.set(matr, mPtr / 4);
+    } else {
+      // Upscale the row-major 3x3 or 3x2 matrix into a 4x4 row-major matrix
+      // TODO(skbug.com/10108) This will need to change when we convert our
+      //   JS 4x4 to be column-major.
+      var floats = Float32Array.of(
+           matr[0], matr[1], 0, matr[2],
+           matr[3], matr[4], 0, matr[5],
+                 0,       0, 0,       0,
+           matr[6], matr[7], 0, matr[8]);
+      if (matr.length === 6) {
+        // fix perspective for the 3x2 case (from above, they will be undefined).
+        floats[4*3+0]=0;
+        floats[4*3+1]=0;
+        floats[4*3+3]=1;
+      }
+      CanvasKit.HEAPF32.set(floats, mPtr / 4);
+    }
+  } else {
+    // Try as if it's a DOMMatrix. Reminder that DOMMatrix is column-major.
+    // TODO(skbug.com/10108) use toFloat32Array().
+    var floats = Float32Array.of(
+           matr.m11, matr.m21, matr.m31, matr.m41,
+           matr.m12, matr.m22, matr.m32, matr.m42,
+           matr.m13, matr.m23, matr.m33, matr.m43,
+           matr.m14, matr.m24, matr.m34, matr.m44);
+     // have to divide the pointer by 4 to "cast" it from bytes to float.
+    CanvasKit.HEAPF32.set(floats, mPtr / 4);
+  }
+  return mPtr;
+}
+
+// copies a 4x4 matrix at the given pointer into a JS array.
+function copy4x4MatrixFromWasm(matrPtr) {
+  // read them out into an array. TODO(kjlubick): If we change SkMatrix to be
+  // typedArrays, then we should return a typed array here too.
+  var rv = new Array(16);
+  for (var i = 0; i < 16; i++) {
+    rv[i] = CanvasKit.HEAPF32[matrPtr/4 + i]; // divide by 4 to "cast" to float.
+  }
+  CanvasKit._free(matrPtr);
+  return rv;
 }
 
 // Caching the Float32Arrays can save having to reallocate them

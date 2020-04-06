@@ -734,7 +734,7 @@ const curves = {
 
     function drawCubeFace(canvas, m, color) {
       const trans = new CanvasKit.SkM44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
-      canvas.concat44(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
+      canvas.concat(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
       const znormal = front(canvas.getLocalToDevice());
       if (znormal < 0) {
         return; // skip faces facing backwards
