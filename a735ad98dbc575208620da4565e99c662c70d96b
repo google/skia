@@ -70,6 +70,30 @@
       "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62174e84_5033f470",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-07T19:38:13Z",
+      "side": 0,
+      "message": "I would vote for increasing consistency with other primitives, whenever possible. Per-primitive colors were a sticking point for me when trying to sort out a consistent paint effect order (not resolved as of yet).\n\nTo summarize current behavior for the GPU, which can be found by looking at SkGpuDevice\u0027s init_vertices_paint: \n\n1. The primitive blend mode is only to combine the shader color with the primitive color. \n2. When there\u0027s a shader, the paint\u0027s color is ignored (although its alpha should be multiplied in later). \n3. If we have primitive colors but no shader, the paint\u0027s color is still ignored, and then the paint\u0027s alpha is folded in at the end. \n4. With this change, we\u0027d finally hit the case where we just keep the paint\u0027s color.\n\nWe can think of the primitive color as an implicit shader. If there\u0027s no paint shader, the primitive color is the shader. If there is a paint shader, the new shader is the blend between primitive color and paint shader. Thus, there is always a shader when primitive colors are provided, so it\u0027s fine to ignore paint color. When there is no paint shader and no primitive colors, there is no final shader so the paint color should be used. Other than the special implicit shader, this would then match the standard draw calls.\n\nAt a later point, if the paint color is not just overridden by a shader, we can think about how the paint color and primitive colors would combine (perhaps by applying the primitive mode to the combo).\n\ntl;dr I agree with Brian\u0027s logic.",
+      "parentUuid": "490445bb_d005e8c4",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 14
+      },
+      "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
