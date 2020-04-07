@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dac9e51f_9eb556fe",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T13:32:28Z",
+      "side": 1,
+      "message": "lets move the createStagingBuffer call into the find. This call is just asking for a staging buffer. It doesn\u0027t care if the function has some cached or creates a new one every time.",
+      "range": {
+        "startLine": 910,
+        "startChar": 8,
+        "endLine": 910,
+        "endChar": 77
+      },
+      "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b7abdbd_923fa47a",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T13:32:28Z",
+      "side": 1,
+      "message": "I\u0027m not sure we need the first fStagingBuffer array that just holds ownership and nothing else.\n\nWhat I was thinking is we have three arrays here:\n\n// Theses are buffers currently not in use by anyway (current frame or GPU).\nstd::vector\u003cstd::unique_ptr\u003cGrSB\u003e\u003e fAvaiableStagingBuffers;\n\n// These are buffers owned by the current \"frame\". They will be used on the GPU when we submit this frame.\nstd::vector\u003cstd::unique_ptr\u003cGrSB\u003e\u003e fActiveStagingBuffers;\n\n// These are buffers currently in use on the GPU\nstd::vector\u003cstd::unique_ptr\u003cGrSB\u003e\u003e fBusyStagingBuffers;\n\nA buffer is only ever present in one of the arrays at a time.\n\nWhen we call findStagingBuffer we move a buffer from fAvailableStagingBuffers to fActiveStagingBuffers (or create a new one directly into fActive).\n\nWhen we call unmap during finishFlush all buffers are moved from fActiveStagingBuffers to fBusyStagingBuffers.\n\nWhen the backend sees that a given buffer in fBusyStagingBuffers has finished on the GPU it moves it from fBusyStagingBuffers to fAvailableStagingBuffers.\n\nWith this model we don\u0027t need markAsReady() on GrStagingBuffer and probably not empty() either. Also I your current change I don\u0027t see how you are moving buffers back from fBusyStagingBuffers to fReadyStagingBuffers.",
+      "range": {
+        "startLine": 700,
+        "startChar": 4,
+        "endLine": 702,
+        "endChar": 57
+      },
+      "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
