@@ -178,10 +178,7 @@
 
     "functions": [
       "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
-    ],
-    "optional": [
-      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
-    ],
+    ]
   },
 
   { // ES 3.0 has glDrawBuffers but not glDrawBuffer
