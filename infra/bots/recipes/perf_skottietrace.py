@@ -261,9 +261,9 @@ def GenTests(api):
   }
   android_buildername = ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-'
                          'Release-All-Android_SkottieTracing')
-  gpu_buildername = ('Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-'
+  gpu_buildername = ('Perf-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-'
                      'Release-All-SkottieTracing')
-  cpu_buildername = ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+  cpu_buildername = ('Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
                      'SkottieTracing')
   yield (
       api.test(android_buildername) +

@@ -85,8 +85,8 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
+  'Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
+  'Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
   'Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
@@ -96,12 +96,12 @@ TEST_BUILDERS = [
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Test-Debian10-GCC-GCE-CPU-AVX2-x86-Debug-All-Docker',
   'Test-Debian10-GCC-GCE-CPU-AVX2-x86_64-Debug-All-Docker',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
-  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader',
-  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OpenCL',
-  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
+  'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader',
+  'Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OpenCL',
+  'Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN',
   ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
@@ -129,7 +129,7 @@ def GenTests(api):
       test += api.platform('win', 64)
     yield test
 
-  builder = 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
+  builder = 'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All'
   yield (
       api.test('exceptions') +
       api.properties(buildername=builder,

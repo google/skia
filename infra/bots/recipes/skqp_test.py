@@ -41,7 +41,7 @@ def RunSteps(api):
   api.run.check_failure()
 
 def GenTests(api):
-  builder = 'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP'
+  builder = 'Test-Debian10-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP'
   yield (
       api.test(builder) +
       api.properties(buildername=builder,

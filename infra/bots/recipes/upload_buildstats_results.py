@@ -54,7 +54,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
+  builder = 'BuildStats-Debian10-EMCC-wasm-Release-PathKit'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,

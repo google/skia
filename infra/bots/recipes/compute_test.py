@@ -20,7 +20,7 @@ def RunSteps(api):
   api.run.check_failure()
 
 def GenTests(api):
-  builder = ('Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All'
+  builder = ('Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All'
              '-OpenCL')
   yield (
       api.test(builder) +

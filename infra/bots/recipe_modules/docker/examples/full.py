@@ -28,7 +28,7 @@ def RunSteps(api):
 
 def GenTests(api):
   yield (api.test('test') +
-         api.properties(buildername='Test-Debian9-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit',
+         api.properties(buildername='Test-Debian10-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit',
                         buildbucket_build_id='123454321',
                         revision='abc123',
                         path_config='kitchen',
