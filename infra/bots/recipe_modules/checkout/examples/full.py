@@ -68,7 +68,7 @@ def GenTests(api):
     )
     yield test
 
-  buildername = 'Build-Debian9-Clang-arm-Release-Flutter_Android'
+  buildername = 'Build-Debian10-Clang-arm-Release-Flutter_Android'
   yield (
       api.test('flutter_trybot') +
       api.properties(
@@ -87,7 +87,7 @@ def GenTests(api):
       )
   )
 
-  builder = 'Build-Debian9-Clang-x86_64-Release-NoDEPS'
+  builder = 'Build-Debian10-Clang-x86_64-Release-NoDEPS'
   yield (
       api.test(builder) +
       api.properties(buildername=builder,
@@ -103,7 +103,7 @@ def GenTests(api):
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
-  buildername = 'Build-Debian9-Clang-x86_64-Release'
+  buildername = 'Build-Debian10-Clang-x86_64-Release'
   yield (
       api.test('cross_repo_trybot') +
       api.properties(

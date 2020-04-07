@@ -96,8 +96,8 @@ for p in psutil.process_iter():
 
 
 TEST_BUILDERS = [
-  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
-  'Build-Debian9-Clang-arm-Release-Flutter_Android',
+  'Build-Debian10-Clang-universal-devrel-Android_SKQP',
+  'Build-Debian10-Clang-arm-Release-Flutter_Android',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Win10-Clang-x86_64-Release-NoDEPS',
 ]

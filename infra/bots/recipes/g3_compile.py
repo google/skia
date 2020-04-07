@@ -55,7 +55,7 @@ def GenTests(api):
           gerrit_url='https://skia-review.googlesource.com/',
     ) +
     api.properties(
-        buildername='Build-Debian9-Clang-TAP-Presubmit-G3_Framework',
+        buildername='Build-Debian10-Clang-TAP-Presubmit-G3_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
@@ -70,7 +70,7 @@ def GenTests(api):
           gerrit_url='https://skia-review.googlesource.com/',
     ) +
     api.properties(
-        buildername='Build-Debian9-Clang-TAP-Presubmit-G3_Framework',
+        buildername='Build-Debian10-Clang-TAP-Presubmit-G3_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
@@ -82,7 +82,7 @@ def GenTests(api):
   yield(
     api.test('g3_compile_nontrybot') +
     api.properties(
-        buildername='Build-Debian9-Clang-TAP-Presubmit-G3_Framework',
+        buildername='Build-Debian10-Clang-TAP-Presubmit-G3_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',

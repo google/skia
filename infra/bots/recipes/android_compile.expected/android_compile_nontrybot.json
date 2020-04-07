@@ -17,12 +17,12 @@
       "    return callable_obj(*props, **additional_args)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipes/android_compile.py\", line 37, in RunSteps",
       "    raise Exception('%s can only be run as a trybot.' % api.vars.builder_name)",
-      "Exception: Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot."
+      "Exception: Build-Debian10-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot."
     ]
   },
   {
     "failure": {
-      "humanReason": "Uncaught Exception: Exception('Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot.',)"
+      "humanReason": "Uncaught Exception: Exception('Build-Debian10-Clang-cf_x86_phone-eng-Android_Framework can only be run as a trybot.',)"
     },
     "name": "$result"
   }
