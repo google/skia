@@ -25,6 +25,7 @@ public:
     ~GrD3DBuffer() override {
         // release should have been called by the owner of this object.
         SkASSERT(!fResource);
+        SkASSERT(!fMappedResource);
     }
 
     ID3D12Resource* d3dResource() const {
@@ -46,9 +47,19 @@ protected:
     D3D12_RESOURCE_STATES fResourceState;
 
 private:
-    void onMap() override {} // TODO
-    void onUnmap() override {} // TODO
-    bool onUpdateData(const void* src, size_t srcSizeInBytes) override { return false; } // TODO
+    void onMap() override;
+    void onUnmap() override;
+    bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
+
+    void internalMap(size_t size);
+    void internalUnmap(size_t size);
+
+    void validate() const;
+
+    GrD3DGpu* getD3DGpu() const {
+        SkASSERT(!this->wasDestroyed());
+        return reinterpret_cast<GrD3DGpu*>(this->getGpu());
+    }
 
     class Resource : public GrRecycledResource {
     public:
@@ -58,10 +69,19 @@ private:
 
         Resource(const gr_cp<ID3D12Resource>& bufferResource)
             : fD3DResource(bufferResource) {
+            SkASSERT(bufferResource.get() &&
+                     bufferResource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
         }
 
         static sk_sp<Resource> Make(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern,
                                     D3D12_RESOURCE_STATES*);
+
+        size_t size() {
+            if (!fD3DResource.get()) {
+                return 0;
+            }
+            return fD3DResource->GetDesc().Width;
+        }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
@@ -80,6 +100,7 @@ private:
     };
 
     sk_sp<Resource> fResource;
+    sk_sp<Resource> fMappedResource;
 
     typedef GrGpuBuffer INHERITED;
 };
