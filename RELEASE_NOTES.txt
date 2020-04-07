@@ -8,6 +8,10 @@ Milestone 84
 
   * <insert new release note here>
 
+  * SkCanvas::drawVertices will now always fill the triangles specified by the vertices. Previously,
+    vertices with no colors and no (texture coordinates or shader) would be drawn in wireframe.
+    https://review.skia.org/282043
+
 * * *
 
 Milestone 83
