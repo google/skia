@@ -39,7 +39,9 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-10.3"
 	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
-	COMPILE_TASK_NAME_OS_LINUX  = "Debian10"
+	OLD_OS_LINUX_GCE     = "Debian-9.8"
+	COMPILE_TASK_NAME_OS_LINUX      = "Debian10"
+	COMPILE_TASK_NAME_OS_LINUX_OLD  = "Debian9"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
@@ -465,7 +467,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -534,7 +536,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		d["os"], ok = map[string]string{
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
-			"Debian9":  DEFAULT_OS_DEBIAN,
+			"Debian9":  OLD_OS_LINUX_GCE,
 			"Debian10": DEFAULT_OS_LINUX_GCE,
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
