@@ -367,7 +367,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
-        int subRunEnd = subRunBegin + subRun->fGlyphs.count();
+        int subRunEnd = subRunBegin + subRun->fGlyphs3.count();
 
         // Draw all the glyphs in the subRun.
         while (totalGlyphsRegened < subRunEnd) {
