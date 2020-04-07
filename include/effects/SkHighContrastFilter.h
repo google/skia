@@ -73,12 +73,41 @@ struct SkHighContrastConfig {
  * -1.0 to 1.0.
  */
 
-class SK_API SkHighContrastFilter {
+class SK_API SkHighContrastFilter : public SkColorFilter {
 public:
     // Returns the filter, or nullptr if the config is invalid.
     static sk_sp<SkColorFilter> Make(const SkHighContrastConfig& config);
 
-    static void RegisterFlattenables();
+    // TODO(prashant.n): Make ctor private.
+    SkHighContrastFilter(const SkHighContrastConfig& config) {
+        fConfig = config;
+        // Clamp contrast to just inside -1 to 1 to avoid division by zero.
+        fConfig.fContrast = SkTPin(fConfig.fContrast, -1.0f + FLT_EPSILON, 1.0f - FLT_EPSILON);
+    }
+
+    ~SkHighContrastFilter() override {}
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override;
+#endif
+
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Color,
+                          SkColorSpace*,
+                          skvm::Uniforms*,
+                          SkArenaAlloc*) const override;
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkHighContrastFilter)
+
+    SkHighContrastConfig fConfig;
+
+    typedef SkColorFilter INHERITED;
 };
 
 #endif

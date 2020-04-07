@@ -25,41 +25,7 @@
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
-class SkHighContrast_Filter : public SkColorFilter {
-public:
-    SkHighContrast_Filter(const SkHighContrastConfig& config) {
-        fConfig = config;
-        // Clamp contrast to just inside -1 to 1 to avoid division by zero.
-        fConfig.fContrast = SkTPin(fConfig.fContrast,
-                                   -1.0f + FLT_EPSILON,
-                                   1.0f - FLT_EPSILON);
-    }
-
-    ~SkHighContrast_Filter() override {}
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
-#endif
-
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Color, SkColorSpace*, skvm::Uniforms*,
-                          SkArenaAlloc*) const override;
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkHighContrast_Filter)
-
-    SkHighContrastConfig fConfig;
-
-    friend class SkHighContrastFilter;
-
-    typedef SkColorFilter INHERITED;
-};
-
-bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkHighContrastFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
@@ -132,8 +98,11 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     return true;
 }
 
-skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
-                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkHighContrastFilter::onProgram(skvm::Builder* p,
+                                            skvm::Color c,
+                                            SkColorSpace* dstCS,
+                                            skvm::Uniforms* uniforms,
+                                            SkArenaAlloc* alloc) const {
     c = p->unpremul(c);
 
     // Linearize before applying high-contrast filter.
@@ -182,13 +151,13 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     return p->premul(c);
 }
 
-void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
+void SkHighContrastFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeBool(fConfig.fGrayscale);
     buffer.writeInt(static_cast<int>(fConfig.fInvertStyle));
     buffer.writeScalar(fConfig.fContrast);
 }
 
-sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkHighContrastFilter::CreateProc(SkReadBuffer& buffer) {
     SkHighContrastConfig config;
     config.fGrayscale = buffer.readBool();
     config.fInvertStyle = buffer.read32LE(InvertStyle::kLast);
@@ -202,11 +171,7 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(
     if (!config.isValid()) {
         return nullptr;
     }
-    return sk_make_sp<SkHighContrast_Filter>(config);
-}
-
-void SkHighContrastFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkHighContrast_Filter);
+    return sk_make_sp<SkHighContrastFilter>(config);
 }
 
 #if SK_SUPPORT_GPU
@@ -407,7 +372,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
 }
 
-std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
+std::unique_ptr<GrFragmentProcessor> SkHighContrastFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo& csi) const {
     bool linearize = !csi.isLinearlyBlended();
     return HighContrastFilterEffect::Make(fConfig, linearize);
