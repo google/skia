@@ -46,6 +46,30 @@
       "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "490445bb_d005e8c4",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-07T19:21:52Z",
+      "side": 0,
+      "message": "Or perhaps we really don\u0027t want that behavior for primitives with (optional) per-primitive color?",
+      "parentUuid": "3ec692ff_dff71045",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 14
+      },
+      "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
