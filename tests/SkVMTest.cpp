@@ -1403,6 +1403,24 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vmovups(A::ymm5,   0);
+        a.vmovups(A::ymm5,  64);
+        a.vmovups(A::ymm5, 128);
+
+        a.vmovups(  0, A::ymm5);
+        a.vmovups( 64, A::ymm5);
+        a.vmovups(128, A::ymm5);
+    },{
+        0xc5,0xfc,0x10,0x2c,0x24,
+        0xc5,0xfc,0x10,0x6c,0x24,0x40,
+        0xc5,0xfc,0x10,0xac,0x24,0x80,0x00,0x00,0x00,
+
+        0xc5,0xfc,0x11,0x2c,0x24,
+        0xc5,0xfc,0x11,0x6c,0x24,0x40,
+        0xc5,0xfc,0x11,0xac,0x24,0x80,0x00,0x00,0x00,
+    });
+
+    test_asm(r, [&](A& a) {
         a.movzbl(A::rax, A::rsi, 0);   // Low registers for src and dst.
         a.movzbl(A::rax, A::r8,  0);   // High src register.
         a.movzbl(A::r8 , A::rsi, 0);   // High dst register.

@@ -1934,6 +1934,18 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
+    void Assembler::stack_load_store(int prefix, int map, int opcode, Ymm ymm, int off) {
+        VEX v = vex(0, ymm>>3, 0, rsp>>3/*i.e. 0*/,
+                    map, 0, /*ymm?*/1, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(mod(off), ymm&7, rsp/*use SIB*/));
+        this->byte(sib(ONE, rsp/*no index*/, rsp));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
+    void Assembler::vmovups(Ymm dst, int off) { this->stack_load_store(0, 0x0f, 0x10, dst,off); }
+    void Assembler::vmovups(int off, Ymm src) { this->stack_load_store(0, 0x0f, 0x11, src,off); }
+
     void Assembler::vmovq(GP64 dst, Xmm src) {
         int prefix = 0x66,
             map    = 0x0f,
@@ -1986,7 +1998,7 @@ namespace skvm {
                     map, 0, /*ymm?*/0, prefix);
         this->bytes(v.bytes, v.len);
         this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, rsp));
+        this->byte(mod_rm(Mod::Indirect, dst&7, rsp/*use SIB*/));
         this->byte(sib(scale, index&7, base&7));
     }
 
@@ -2082,7 +2094,7 @@ namespace skvm {
                     map, mask, /*ymm?*/1, prefix);
         this->bytes(v.bytes, v.len);
         this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, rsp));
+        this->byte(mod_rm(Mod::Indirect, dst&7, rsp/*use SIB*/));
         this->byte(sib(scale, ix&7, base&7));
     }
 
