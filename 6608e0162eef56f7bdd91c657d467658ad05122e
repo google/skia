@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "14ffcb76_ac121f43",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T16:08:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4afdf320_f9b3c7c7",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 929,
+        "endChar": 5
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47b2d424_7f490c30",
         "filename": "src/gpu/GrStagingBuffer.h",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "595b0220_cd27fe99",
+        "filename": "src/gpu/GrStagingBuffer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T16:08:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47b2d424_7f490c30",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 31
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f7672b0_85ed6a4e",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2020-04-07T15:42:45Z",
       "side": 1,
       "message": "Should this and kMinStagingBufferSize be moved to the base class? Looks like or choice on buffer size will probably be pretty universal across backends. Then the virtual here can just be dumb and create exactly what was asked for.",
+      "range": {
+        "startLine": 642,
+        "startChar": 4,
+        "endLine": 642,
+        "endChar": 39
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de9ac650_caa79e85",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T16:08:45Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "5f7672b0_85ed6a4e",
       "range": {
         "startLine": 642,
         "startChar": 4,
@@ -91,6 +163,30 @@
       "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f79f4233_d6d240a7",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T16:08:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad40e586_a644012c",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 37
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
