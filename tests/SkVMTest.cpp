@@ -1885,4 +1885,27 @@ DEF_TEST(SkVM_approx_math, r) {
         const float expected[] = {1/9.0f, 1/3.0f, 1, 3, 9};
         compare(N, exps, expected);
     }
+
+    auto test = [r](float value, float expected, float tolerance, auto prog) {
+        skvm::Builder b;
+        skvm::Arg inout  = b.varying<float>();
+        b.storeF(inout, prog(b.loadF(inout)));
+        b.done().eval(1, &value);
+
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
+    };
+
+    // sine & cosine
+    {
+        constexpr float P = SK_ScalarPI;
+        constexpr float tol = 0.002f;
+        for (float rad = -5*P; rad <= 5*P; rad += 0.1f) {
+            test(rad, sk_float_sin(rad), tol, [](skvm::F32 x) {
+                return approx_sin(x);
+            });
+            test(rad, sk_float_cos(rad), tol, [](skvm::F32 x) {
+                return approx_cos(x);
+            });
+        }
+    }
 }
