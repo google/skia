@@ -15231,6 +15231,7 @@
         "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
+        "id:skia-e-gce-301",
         "pool:Skia"
       ],
       "env_prefixes": {
