@@ -922,13 +922,29 @@ namespace skvm {
         return x;
     }
 
+    // We want all our implementations to behave the same with regard to NaN,
+    // and std::min() and std::max() are spec'd to work the way SKVM_PORTABLE_MIN_MAX defines.
+    // Our interpreter and LLVM backends already work exactly likes std::min()/std::max(),
+    // but our JIT backend does not, at least not on x86.
+    // TODO: test, fix, and re-enable backend-specific implementations.
+    // Need to test NaN on both sides of each, including splats() to test {min,max}_f32_imm.
+    #define SKVM_PORTABLE_MIN_MAX
+
     F32 Builder::min(F32 x, F32 y) {
+    #if defined(SKVM_PORTABLE_MIN_MAX)
+        return select(y<x, y,x);
+    #else
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
+    #endif
     }
     F32 Builder::max(F32 x, F32 y) {
+    #if defined(SKVM_PORTABLE_MIN_MAX)
+        return select(x<y, y,x);
+    #else
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::max(X,Y)); }
         return {this, this->push(Op::max_f32, x.id, y.id)};
+    #endif
     }
 
     I32 Builder::add(I32 x, I32 y) {
