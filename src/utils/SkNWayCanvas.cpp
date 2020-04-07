@@ -101,12 +101,21 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
+#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
 void SkNWayCanvas::didConcat44(const SkScalar m[16]) {
     Iter iter(fList);
     while (iter.next()) {
         iter->concat(SkM44::ColMajor(m));
     }
 }
+#else
+void SkNWayCanvas::didConcat44(const SkM44& m) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->concat(m);
+    }
+}
+#endif
 
 void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
     Iter iter(fList);

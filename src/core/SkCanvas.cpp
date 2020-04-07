@@ -1540,8 +1540,12 @@ void SkCanvas::internalConcat44(const SkM44& m) {
 
 void SkCanvas::concat(const SkM44& m) {
     this->internalConcat44(m);
-
-    this->didConcat44(SkMatrixPriv::M44ColMajor(m));    // notify subclasses
+    // notify subclasses
+#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
+    this->didConcat44(SkMatrixPriv::M44ColMajor(m));
+#else
+    this->didConcat44(m);
+#endif
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
