@@ -26,6 +26,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStagingBuffer.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfacePriv.h"
@@ -33,6 +34,8 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTracing.h"
 #include "src/utils/SkJSONWriter.h"
+
+static const size_t kMinStagingBufferSize = 32 * 1024;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -650,6 +653,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
     }
 
+    this->unmapStagingBuffers();
+
     // We always want to try flushing, so do that before checking if we failed semaphore creation.
     if (!this->onFinishFlush(proxies, n, access, info, externalRequests) ||
         failedSemaphoreCreation) {
@@ -665,6 +670,12 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
         return GrSemaphoresSubmitted::kNo;
     }
+
+    // Move all active staging buffers to the busy list.
+    for (auto& buffer : fActiveStagingBuffers) {
+        fBusyStagingBuffers.push_back(std::move(buffer));
+    }
+    fActiveStagingBuffers.clear();
 
     for (int i = 0; i < info.fNumSemaphores; ++i) {
         if (!info.fSignalSemaphores[i].isInitialized()) {
@@ -890,4 +901,47 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
 
     return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped,
                                                   isProtected, data);
+}
+
+GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
+    for (const auto &b : fActiveStagingBuffers) {
+        if (b->remaining() >= size) {
+            return b.get();
+        }
+    }
+    for (auto i = fAvailableStagingBuffers.begin(); i != fAvailableStagingBuffers.end();) {
+        GrStagingBuffer* b = i->get();
+        if (b->remaining() >= size) {
+            fActiveStagingBuffers.push_back(std::move(*i));
+            i = fAvailableStagingBuffers.erase(i);
+            return b;
+        } else {
+            i++;
+        }
+    }
+    size = SkNextPow2(size);
+    size = std::max(size, kMinStagingBufferSize);
+    std::unique_ptr<GrStagingBuffer> b = this->createStagingBuffer(size);
+    GrStagingBuffer* stagingBuffer = b.get();
+    fActiveStagingBuffers.push_back(std::move(b));
+    return stagingBuffer;
+}
+
+GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
+    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size);
+    return stagingBuffer->allocate(size);
+}
+
+void GrGpu::unmapStagingBuffers() {
+    // Unmap all active buffers.
+    for (auto& buffer : fActiveStagingBuffers) {
+        buffer->unmap();
+    }
+}
+
+void GrGpu::markStagingBufferAvailable(GrStagingBuffer* buffer) {
+    const auto i = std::find_if(fBusyStagingBuffers.begin(), fBusyStagingBuffers.end(),
+        [buffer](const std::unique_ptr<GrStagingBuffer>& i) { return i.get() == buffer; });
+    fAvailableStagingBuffers.push_back(std::move(*i));
+    fBusyStagingBuffers.erase(i);
 }
