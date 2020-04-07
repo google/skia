@@ -23,7 +23,8 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
                                GrTokenTracker* tokenTracker,
                                sk_sp<GrBufferAllocPool::CpuBufferCache> cpuBufferCache)
         : fVertexPool(gpu, cpuBufferCache)
-        , fIndexPool(gpu, std::move(cpuBufferCache))
+        , fIndexPool(gpu, cpuBufferCache)
+        , fDrawIndirectPool(gpu, std::move(cpuBufferCache))
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
         , fTokenTracker(tokenTracker) {}
@@ -67,6 +68,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
 void GrOpFlushState::preExecuteDraws() {
     fVertexPool.unmap();
     fIndexPool.unmap();
+    fDrawIndirectPool.unmap();
     for (auto& upload : fASAPUploads) {
         this->doUpload(upload);
     }
@@ -80,6 +82,7 @@ void GrOpFlushState::reset() {
     SkASSERT(fCurrUpload == fInlineUploads.end());
     fVertexPool.reset();
     fIndexPool.reset();
+    fDrawIndirectPool.reset();
     fArena.reset();
     fASAPUploads.reset();
     fInlineUploads.reset();

@@ -390,6 +390,7 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
     switch (type) {
         case GrGpuBufferType::kVertex:
         case GrGpuBufferType::kIndex:
+        case GrGpuBufferType::kDrawIndirect:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
             buff = GrVkMeshBuffer::Make(this, type, size,

@@ -322,6 +322,10 @@ DrawResult SampleLocationsGM::onDraw(
         *errorMsg = "Requires support for sample mask.";
         return DrawResult::kSkip;
     }
+    if (!ctx->priv().caps()->drawInstancedSupport()) {
+        *errorMsg = "Requires support for instanced rendering.";
+        return DrawResult::kSkip;
+    }
     if (rtc->numSamples() <= 1 && !ctx->priv().caps()->mixedSamplesSupport()) {
         *errorMsg = "MSAA and mixed samples only.";
         return DrawResult::kSkip;

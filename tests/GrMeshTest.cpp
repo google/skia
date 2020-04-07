@@ -64,11 +64,15 @@ public:
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
 
+    GrOpFlushState* state() { return fState; }
+
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fIndexBuffer2;
     sk_sp<const GrBuffer> fInstBuffer;
     sk_sp<const GrBuffer> fVertBuffer;
     sk_sp<const GrBuffer> fVertBuffer2;
+    sk_sp<const GrBuffer> fDrawIndirectBuffer;
+    size_t fDrawIndirectBufferOffset;
 
     GrOpsRenderPass* bindPipeline(GrPrimitiveType, bool isInstanced, bool hasVertexBuffer);
 
@@ -241,10 +245,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                      helper->fIndexBuffer = indexed ? helper->getIndexBuffer() : nullptr;
                      SkTArray<uint16_t> baseIndexData;
                      baseIndexData.push_back(kBoxCountX/2 * 6); // for testing base index.
-                     for (int i = 0; i < kBoxCountX; ++i) {
-                         for (int j = 0; j < 6; ++j) {
-                             baseIndexData.push_back(i*6 + kIndexPattern[j]);
-                         }
+                     for (int i = 0; i < 6; ++i) {
+                         baseIndexData.push_back(kIndexPattern[i]);
                      }
                      helper->fIndexBuffer2 = helper->makeIndexBuffer(baseIndexData.begin(),
                                                                      baseIndexData.count());
@@ -289,11 +291,105 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                              int baseIndex = (y % 2);
                              pass->bindBuffers(indexBuffer, helper->fInstBuffer.get(),
                                                vertexBuffer);
-                             pass->drawIndexedInstanced(6, baseIndex, kBoxCountX, y * kBoxCountY,
+                             pass->drawIndexedInstanced(6, baseIndex, kBoxCountX, y * kBoxCountX,
                                                         baseVertex);
                          } else {
                              pass->bindBuffers(nullptr, helper->fInstBuffer.get(), vertexBuffer);
                              pass->drawInstanced(kBoxCountX, y * kBoxCountY, 4, baseVertex);
+                         }
+                     }
+                 });
+    }
+
+    for (bool indexed : {false, true}) {
+        if (!context->priv().caps()->drawInstancedSupport()) {
+            break;
+        }
+
+        run_test(context, (indexed) ? "drawIndexedIndirect" : "drawIndirect",
+                 reporter, rtc, gold,
+                 [&](DrawMeshHelper* helper) {
+                     SkTArray<uint16_t> baseIndexData;
+                     baseIndexData.push_back(kBoxCountX/2 * 6); // for testing base index.
+                     for (int j = 0; j < kBoxCountY; ++j) {
+                         for (int i = 0; i < 6; ++i) {
+                             baseIndexData.push_back(kIndexPattern[i]);
+                         }
+                     }
+                     helper->fIndexBuffer2 = helper->makeIndexBuffer(baseIndexData.begin(),
+                                                                     baseIndexData.count());
+                     VALIDATE(helper->fIndexBuffer2);
+                     helper->fInstBuffer = helper->makeVertexBuffer(boxes);
+                     VALIDATE(helper->fInstBuffer);
+                     helper->fVertBuffer = helper->makeVertexBuffer(std::vector<float>{
+                             -1,-1, 0,0, 0,1, 1,0, 1,1, -1,-1, 0,0, 1,0, 0,1, 1,1});
+                     VALIDATE(helper->fVertBuffer);
+
+                     GrDrawIndirectCommand* drawIndirect = nullptr;
+                     GrDrawIndexedIndirectCommand* drawIndexedIndirect = nullptr;
+                     if (indexed) {
+                         // Make helper->fDrawIndirectBufferOffset nonzero.
+                         sk_sp<const GrBuffer> dummyBuff;
+                         size_t dummyOffset;
+                         helper->state()->makeDrawIndirectSpace(29, &dummyBuff, &dummyOffset);
+                         drawIndexedIndirect = helper->state()->makeDrawIndexedIndirectSpace(
+                                 kBoxCountY, &helper->fDrawIndirectBuffer,
+                                 &helper->fDrawIndirectBufferOffset);
+                     } else {
+                         // Make helper->fDrawIndirectBufferOffset nonzero.
+                         sk_sp<const GrBuffer> dummyBuff;
+                         size_t dummyOffset;
+                         helper->state()->makeDrawIndexedIndirectSpace(7, &dummyBuff, &dummyOffset);
+                         drawIndirect = helper->state()->makeDrawIndirectSpace(
+                                 kBoxCountY, &helper->fDrawIndirectBuffer,
+                                 &helper->fDrawIndirectBufferOffset);
+                     }
+
+                     // Draw boxes one line at a time to exercise multiple draws.
+                     for (int y = 0; y < kBoxCountY; ++y) {
+                         int baseVertex = (y % 2) ? 1 : 6;
+                         if (indexed) {
+                             int baseIndex = 1 + y * 6;
+                             drawIndexedIndirect->fIndexCount = 6;
+                             drawIndexedIndirect->fBaseIndex = baseIndex;
+                             drawIndexedIndirect->fInstanceCount = kBoxCountX;
+                             drawIndexedIndirect->fBaseInstance = y * kBoxCountX;
+                             drawIndexedIndirect->fBaseVertex = baseVertex;
+                             ++drawIndexedIndirect;
+                         } else {
+                             drawIndirect->fInstanceCount = kBoxCountX;
+                             drawIndirect->fBaseInstance = y * kBoxCountX;
+                             drawIndirect->fVertexCount = 4;
+                             drawIndirect->fBaseVertex = baseVertex;
+                             ++drawIndirect;
+                         }
+                     }
+                 },
+                 [&](DrawMeshHelper* helper) {
+                     GrOpsRenderPass* pass;
+                     if (indexed) {
+                         pass = helper->bindPipeline(GrPrimitiveType::kTriangles, true, true);
+                         pass->bindBuffers(helper->fIndexBuffer2.get(), helper->fInstBuffer.get(),
+                                           helper->fVertBuffer.get());
+                         for (int i = 0; i < 3; ++i) {
+                             int start = kBoxCountY * i / 3;
+                             int end = kBoxCountY * (i + 1) / 3;
+                             size_t offset = helper->fDrawIndirectBufferOffset + start *
+                                             sizeof(GrDrawIndexedIndirectCommand);
+                             pass->drawIndexedIndirect(helper->fDrawIndirectBuffer.get(), offset,
+                                                       end - start);
+                         }
+                     } else {
+                         pass = helper->bindPipeline(GrPrimitiveType::kTriangleStrip, true, true);
+                         pass->bindBuffers(nullptr, helper->fInstBuffer.get(),
+                                           helper->fVertBuffer.get());
+                         for (int i = 0; i < 2; ++i) {
+                             int start = kBoxCountY * i / 2;
+                             int end = kBoxCountY * (i + 1) / 2;
+                             size_t offset = helper->fDrawIndirectBufferOffset + start *
+                                             sizeof(GrDrawIndirectCommand);
+                             pass->drawIndirect(helper->fDrawIndirectBuffer.get(), offset,
+                                                end - start);
                          }
                      }
                  });

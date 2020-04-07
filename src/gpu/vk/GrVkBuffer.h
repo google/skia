@@ -41,6 +41,7 @@ public:
     enum Type {
         kVertex_Type,
         kIndex_Type,
+        kIndirect_Type,
         kUniform_Type,
         kTexel_Type,
         kCopyRead_Type,

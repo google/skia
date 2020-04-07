@@ -93,6 +93,18 @@ public:
               uint32_t firstVertex,
               uint32_t firstInstance);
 
+    void drawIndirect(const GrVkGpu* gpu,
+                      const GrVkMeshBuffer* indirectBuffer,
+                      VkDeviceSize offset,
+                      uint32_t drawCount,
+                      uint32_t stride);
+
+    void drawIndexedIndirect(const GrVkGpu* gpu,
+                             const GrVkMeshBuffer* indirectBuffer,
+                             VkDeviceSize offset,
+                             uint32_t drawCount,
+                             uint32_t stride);
+
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
     void addResource(const GrManagedResource* resource) {

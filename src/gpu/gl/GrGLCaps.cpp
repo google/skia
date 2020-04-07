@@ -33,7 +33,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fVertexArrayObjectSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fDrawIndirectSupport = false;
     fDrawRangeElementsSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseVertexBaseInstanceSupport = false;
@@ -622,19 +621,22 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (GR_IS_GR_GL(standard)) {
-        fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
-                               ctxInfo.hasExtension("GL_ARB_draw_indirect");
         fBaseVertexBaseInstanceSupport = version >= GR_GL_VER(4,2) ||
                                          ctxInfo.hasExtension("GL_ARB_base_instance");
-        fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                    ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
+        if (fBaseVertexBaseInstanceSupport) {
+            fNativeDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
+                                         ctxInfo.hasExtension("GL_ARB_draw_indirect");
+            fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
+                                        ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
+        }
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fDrawIndirectSupport = version >= GR_GL_VER(3,1);
-        fMultiDrawIndirectSupport = fDrawIndirectSupport &&
-                                    ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
         fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance") ||
                                          ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance");
+        if (fBaseVertexBaseInstanceSupport) {
+            fNativeDrawIndirectSupport = version >= GR_GL_VER(3,1);
+            fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+        }
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL lacks indirect support, but drawRange was added in WebGL 2.0
@@ -1180,7 +1182,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
     writer->appendBool("Debug support", fDebugSupport);
-    writer->appendBool("Draw indirect support", fDrawIndirectSupport);
     writer->appendBool("Multi draw indirect support", fMultiDrawIndirectSupport);
     writer->appendBool("Base (vertex base) instance support", fBaseVertexBaseInstanceSupport);
     writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
@@ -3543,11 +3544,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (ctxInfo.driver() == kANGLE_GrGLDriver &&
         ctxInfo.angleBackend() != GrGLANGLEBackend::kOpenGL) {
         fBaseVertexBaseInstanceSupport = false;
+        fNativeDrawIndirectSupport = false;
+        fMultiDrawIndirectSupport = false;
     }
 
     // http://anglebug.com/4538
     if (fBaseVertexBaseInstanceSupport && !fDrawInstancedSupport) {
         fBaseVertexBaseInstanceSupport = false;
+        fNativeDrawIndirectSupport = false;
+        fMultiDrawIndirectSupport = false;
     }
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
@@ -3804,6 +3809,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // http://skbug.com/9740
         shaderCaps->fTessellationSupport = false;
     }
+
+#ifdef SK_BUILD_FOR_WIN
+    // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
+    if (ctxInfo.driver() == kIntel_GrGLDriver ||
+        (ctxInfo.driver() == kANGLE_GrGLDriver &&
+         ctxInfo.angleVendor() == GrGLANGLEVendor::kIntel &&
+         ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL)) {
+        fNativeDrawIndexedIndirectIsBroken = true;
+    }
+#endif
 
 #ifdef SK_BUILD_FOR_ANDROID
     // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or

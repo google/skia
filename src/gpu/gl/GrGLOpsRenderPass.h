@@ -66,6 +66,9 @@ private:
                          int baseVertex) override;
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override;
+    void onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) override;
+    void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                               int drawCount) override;
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 

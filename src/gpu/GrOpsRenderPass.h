@@ -74,8 +74,8 @@ public:
     void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
-    // These methods issue draws using the current pipeline state. Before drawing, the caller must
-    // configure the pipeline and dynamic state:
+    // The next several draw*() methods issue draws using the current pipeline state. Before
+    // drawing, the caller must configure the pipeline and dynamic state:
     //
     //   - Call bindPipeline()
     //   - If the scissor test is enabled, call setScissorRect()
@@ -84,9 +84,30 @@ public:
     void draw(int vertexCount, int baseVertex);
     void drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
                      int baseVertex);
+
+    // Requires caps.drawInstancedSupport().
     void drawInstanced(int instanceCount, int baseInstance, int vertexCount, int baseVertex);
+
+    // Requires caps.drawInstancedSupport().
     void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                               int baseVertex);
+
+    // Executes multiple draws from an array of GrDrawIndirectCommand in the provided buffer.
+    //
+    // Requires caps.drawInstancedSupport().
+    //
+    // If caps.nativeDrawIndirectSupport() is unavailable, then 'drawIndirectBuffer' must be a
+    // GrCpuBuffer in order to polyfill. Performance may suffer in this scenario.
+    void drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset, int drawCount);
+
+    // Executes multiple draws from an array of GrDrawIndexedIndirectCommand in the provided buffer.
+    //
+    // Requires caps.drawInstancedSupport().
+    //
+    // If caps.nativeDrawIndirectSupport() is unavailable, then 'drawIndirectBuffer' must be a
+    // GrCpuBuffer in order to polyfill. Performance may suffer in this scenario.
+    void drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                             int drawCount);
 
     // This is a helper method for drawing a repeating pattern of vertices. The bound index buffer
     // is understood to contain 'maxPatternRepetitionsInIndexBuffer' repetitions of the pattern.
@@ -162,6 +183,12 @@ private:
                                  int baseVertex) = 0;
     virtual void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                         int baseInstance, int baseVertex) = 0;
+    virtual void onDrawIndirect(const GrBuffer*, size_t offset, int drawCount) {
+        SK_ABORT("Not implemented.");  // Only called if caps.nativeDrawIndirectSupport().
+    }
+    virtual void onDrawIndexedIndirect(const GrBuffer*, size_t offset, int drawCount) {
+        SK_ABORT("Not implemented.");  // Only called if caps.nativeDrawIndirectSupport().
+    }
     virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
     virtual void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}

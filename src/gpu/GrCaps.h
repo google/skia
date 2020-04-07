@@ -52,6 +52,10 @@ public:
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool drawInstancedSupport() const { return fDrawInstancedSupport; }
+    // Is there hardware support for indirect draws? (Ganesh always supports indirect draws as long
+    // as it can polyfill them with instanced calls, but this cap tells us if they are supported
+    // natively.)
+    bool nativeDrawIndirectSupport() const { return fNativeDrawIndirectSupport; }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
     bool wireframeSupport() const { return fWireframeSupport; }
@@ -91,6 +95,9 @@ public:
     bool requiresManualFBBarrierAfterTessellatedStencilDraw() const {
         return fRequiresManualFBBarrierAfterTessellatedStencilDraw;
     }
+
+    // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
+    bool nativeDrawIndexedIndirectIsBroken() const { return fNativeDrawIndexedIndirectIsBroken; }
 
     /**
      * Indicates the capabilities of the fixed function blend unit.
@@ -465,6 +472,7 @@ protected:
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
     bool fDrawInstancedSupport                       : 1;
+    bool fNativeDrawIndirectSupport                  : 1;
     bool fMixedSamplesSupport                        : 1;
     bool fConservativeRasterSupport                  : 1;
     bool fWireframeSupport                           : 1;
@@ -494,6 +502,7 @@ protected:
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
+    bool fNativeDrawIndexedIndirectIsBroken          : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

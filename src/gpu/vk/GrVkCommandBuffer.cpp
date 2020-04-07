@@ -299,6 +299,38 @@ void GrVkCommandBuffer::draw(const GrVkGpu* gpu,
                                            firstInstance));
 }
 
+void GrVkCommandBuffer::drawIndirect(const GrVkGpu* gpu,
+                                     const GrVkMeshBuffer* indirectBuffer,
+                                     VkDeviceSize offset,
+                                     uint32_t drawCount,
+                                     uint32_t stride) {
+    SkASSERT(fIsActive);
+    SkASSERT(fActiveRenderPass);
+    SkASSERT(!indirectBuffer->isCpuBuffer());
+    this->addingWork(gpu);
+    GR_VK_CALL(gpu->vkInterface(), CmdDrawIndirect(fCmdBuffer,
+                                                   indirectBuffer->buffer(),
+                                                   offset,
+                                                   drawCount,
+                                                   stride));
+}
+
+void GrVkCommandBuffer::drawIndexedIndirect(const GrVkGpu* gpu,
+                                            const GrVkMeshBuffer* indirectBuffer,
+                                            VkDeviceSize offset,
+                                            uint32_t drawCount,
+                                            uint32_t stride) {
+    SkASSERT(fIsActive);
+    SkASSERT(fActiveRenderPass);
+    SkASSERT(!indirectBuffer->isCpuBuffer());
+    this->addingWork(gpu);
+    GR_VK_CALL(gpu->vkInterface(), CmdDrawIndexedIndirect(fCmdBuffer,
+                                                          indirectBuffer->buffer(),
+                                                          offset,
+                                                          drawCount,
+                                                          stride));
+}
+
 void GrVkCommandBuffer::setViewport(const GrVkGpu* gpu,
                                     uint32_t firstViewport,
                                     uint32_t viewportCount,

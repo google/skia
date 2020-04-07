@@ -314,4 +314,24 @@ private:
     typedef GrBufferAllocPool INHERITED;
 };
 
+class GrDrawIndirectBufferAllocPool : private GrBufferAllocPool {
+public:
+    GrDrawIndirectBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache)
+            : GrBufferAllocPool(gpu, GrGpuBufferType::kDrawIndirect, std::move(cpuBufferCache)) {}
+
+    GrDrawIndirectCommand* makeSpace(int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
+        return static_cast<GrDrawIndirectCommand*>(this->GrBufferAllocPool::makeSpace(
+                (size_t)drawCount * sizeof(GrDrawIndirectCommand), 4, buffer, offset));
+    }
+
+    GrDrawIndexedIndirectCommand* makeIndexedSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                                   size_t* offset) {
+        return static_cast<GrDrawIndexedIndirectCommand*>(this->GrBufferAllocPool::makeSpace(
+                (size_t)drawCount * sizeof(GrDrawIndexedIndirectCommand), 4, buffer, offset));
+    }
+
+    using GrBufferAllocPool::unmap;
+    using GrBufferAllocPool::reset;
+};
+
 #endif
