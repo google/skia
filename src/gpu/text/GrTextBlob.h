@@ -8,28 +8,24 @@
 #ifndef GrTextBlob_DEFINED
 #define GrTextBlob_DEFINED
 
-#include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint3.h"
-#include "include/core/SkSurfaceProps.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/text/GrStrikeCache.h"
-#include "src/gpu/text/GrTextContext.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #include <limits>
 
 class GrAtlasManager;
 class GrAtlasTextOp;
 class GrGlyph;
+class GrStrikeCache;
+class GrTextContext;
 
+class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
