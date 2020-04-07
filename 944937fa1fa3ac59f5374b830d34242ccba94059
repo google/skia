@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bcd3ec32_ad462681",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-07T14:08:00Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "a060b0c3_c4588cc2",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 15
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d978db1_0c473f62",
         "filename": "modules/skparagraph/src/OneLineShaper.h",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6650866b_f5c38878",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-07T14:08:00Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "3d978db1_0c473f62",
+      "range": {
+        "startLine": 85,
+        "startChar": 43,
+        "endLine": 85,
+        "endChar": 45
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52035e8d_6a5f168e",
         "filename": "modules/skparagraph/src/OneLineShaper.h",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809e77b0_8648e605",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-04-07T14:08:00Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "52035e8d_6a5f168e",
+      "range": {
+        "startLine": 87,
+        "startChar": 30,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "944937fa1fa3ac59f5374b830d34242ccba94059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
