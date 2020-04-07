@@ -140,3 +140,14 @@ const GrGLGpu* GrGLUniformHandler::glGpu() const {
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     return glPB->gpu();
 }
+
+void GrGLUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (GLUniformInfo& u : fUniforms.items()) {
+        if (u.fOwner == owner) {
+            u.fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(u.fVariable.getType()),
+                           u.fRawName.c_str(), u.fVariable.getName().c_str());
+        }
+    }
+}

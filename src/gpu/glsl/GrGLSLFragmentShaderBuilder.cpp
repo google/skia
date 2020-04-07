@@ -163,6 +163,8 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
+    bool hasVariableMatrix = args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable ||
+                             args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed;
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
@@ -179,16 +181,26 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                 SkASSERT(transform.getType() == kVoid_GrSLType);
                 break;
         }
+        if (args.fFp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+            SkASSERT(!hasVariableMatrix); // NYI
+            this->codeAppend("{\n");
+            args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);
+            this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
+                              args.fFp.sampleMatrix().fExpression.c_str());
+            this->codeAppend("}\n");
+        }
     }
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
     this->codeAppendf("return %s;\n", args.fOutputColor);
     GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
-                             GrShaderVar("_coords", kFloat2_GrSLType) };
+                             hasVariableMatrix ? GrShaderVar("_matrix", kFloat3x3_GrSLType)
+                                               : GrShaderVar("_coords", kFloat2_GrSLType) };
     SkString result;
     this->emitFunction(kHalf4_GrSLType,
                        args.fFp.name(),
-                       args.fFp.isSampledWithExplicitCoords() ? 2 : 1,
+                       args.fFp.isSampledWithExplicitCoords() || hasVariableMatrix ? 2
+                                                                                   : 1,
                        params,
                        this->code().c_str(),
                        &result);

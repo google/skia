@@ -62,17 +62,17 @@ struct VariableReference : public Expression {
         return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return fVariable.fName;
     }
-#endif
 
     static std::unique_ptr<Expression> copy_constant(const IRGenerator& irGenerator,
                                                      const Expression* expr);
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
+
+    bool isConstantOrUniform() const override;
 
     const Variable& fVariable;
     RefKind fRefKind;

@@ -222,6 +222,10 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    if (strcmp(name, resolvedName.c_str())) {
+        fUniformMappings.push_back(UniformMapping{ owner, fUniforms.count(), SkString(name),
+                                                   resolvedName.c_str(), type });
+    }
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, &fCurrentUBOMaxAlignment,
                                              type, arrayCount);
@@ -311,5 +315,16 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
     if (!uniformsString.isEmpty()) {
         out->appendf("layout (binding=%d) uniform uniformBuffer\n{\n", kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
+    }
+}
+
+void GrMtlUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (const auto& m : fUniformMappings) {
+        if (m.fOwner == owner) {
+            fUniforms.item(m.fInfoIndex).fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(m.fType),
+                           m.fRawName.c_str(), m.fFinalName);
+        }
     }
 }

@@ -69,7 +69,7 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
 
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
         const GrPipeline& pipeline, SkTArray<TransformVar>* transformedCoordVars)
-        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
+        : fPipeline(pipeline), fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
 
 std::pair<const GrCoordTransform&, const GrFragmentProcessor&>
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {

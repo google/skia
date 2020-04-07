@@ -41,8 +41,7 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
     , fImage(std::move(img))
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
-    , fClampAsIfUnpremul(clampAsIfUnpremul)
-{}
+    , fClampAsIfUnpremul(clampAsIfUnpremul) {}
 
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
@@ -198,7 +197,6 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (!lm->invert(&lmInverse)) {
         return nullptr;
     }
-
     GrSamplerState::WrapMode wmX = tile_mode_to_wrap_mode(fTileModeX),
                              wmY = tile_mode_to_wrap_mode(fTileModeY);
 
@@ -222,7 +220,6 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     SkAlphaType srcAlphaType = fImage->alphaType();
 
     const auto& caps = *args.fContext->priv().caps();
-
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;

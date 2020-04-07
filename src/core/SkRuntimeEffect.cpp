@@ -25,6 +25,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrMatrixEffect.h"
 #endif
 
 namespace SkSL {
@@ -612,11 +613,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
-        SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
-            return nullptr;
-        }
-        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs, &matrix);
+        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", fInputs);
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
             if (!childFP) {
@@ -625,10 +622,18 @@ public:
             }
             fp->addChild(std::move(childFP));
         }
+        std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
+        SkMatrix matrix;
+        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
+            return nullptr;
+        }
+        if (!matrix.isIdentity()) {
+            result = GrMatrixEffect::Make(matrix, std::move(result));
+        }
         if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
-            return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
+            return GrFragmentProcessor::ClampPremulOutput(std::move(result));
         } else {
-            return std::move(fp);
+            return result;
         }
     }
 #endif

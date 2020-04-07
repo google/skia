@@ -28,8 +28,8 @@ public:
 protected:
     class Impl;
 
-    virtual void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
-                                GrGLSLUniformHandler*) const = 0;
+    virtual void emitVertexCode(Impl*, const GrFragmentProcessor*, GrGLSLVertexBuilder*,
+                                const char* viewMatrix, GrGLSLUniformHandler*) const = 0;
 
 private:
     const SkPMColor4f fColor;
@@ -48,7 +48,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillTriangleShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
+    void emitVertexCode(Impl*, const GrFragmentProcessor*, GrGLSLVertexBuilder*, const char* viewMatrix,
                         GrGLSLUniformHandler*) const override;
 };
 
@@ -66,7 +66,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillCubicHullShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
+    void emitVertexCode(Impl*, const GrFragmentProcessor*, GrGLSLVertexBuilder*, const char* viewMatrix,
                         GrGLSLUniformHandler*) const override;
 };
 
@@ -85,7 +85,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillBoundingBoxShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
+    void emitVertexCode(Impl*, const GrFragmentProcessor*, GrGLSLVertexBuilder*, const char* viewMatrix,
                         GrGLSLUniformHandler*) const override;
 
     const SkRect fPathBounds;

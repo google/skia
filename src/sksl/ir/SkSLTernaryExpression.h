@@ -37,12 +37,10 @@ struct TernaryExpression : public Expression {
                                                                  fIfFalse->clone()));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";
     }
-#endif
 
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Expression> fIfTrue;

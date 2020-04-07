@@ -23,7 +23,9 @@
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 
-class GrShaderCaps;
+#ifdef SKSL_STANDALONE
+#define SK_DEBUG
+#endif
 
 namespace SkSL {
 

@@ -46,12 +46,10 @@ struct BinaryExpression : public Expression {
                                                                 fRight->clone(), fType));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
-#endif
 
     std::unique_ptr<Expression> fLeft;
     const Token::Kind fOperator;

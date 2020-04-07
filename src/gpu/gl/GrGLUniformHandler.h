@@ -61,12 +61,14 @@ private:
 
     const GrGLGpu* glGpu() const;
 
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) override;
+
     typedef GrGLProgramDataManager::GLUniformInfo GLUniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    UniformInfoArray            fUniforms;
-    UniformInfoArray            fSamplers;
-    SkTArray<GrSwizzle>         fSamplerSwizzles;
+    UniformInfoArray    fUniforms;
+    UniformInfoArray    fSamplers;
+    SkTArray<GrSwizzle> fSamplerSwizzles;
 
     friend class GrGLProgramBuilder;
 

@@ -17,6 +17,7 @@ class GrGLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLUniformHandler;
+class GrProcessor;
 struct SkRect;
 
 /**

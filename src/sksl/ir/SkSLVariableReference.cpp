@@ -111,4 +111,8 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     return nullptr;
 }
 
+bool VariableReference::isConstantOrUniform() const {
+    return (fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
+}
+
 } // namespace

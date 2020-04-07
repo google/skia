@@ -47,8 +47,7 @@ public:
         if (btgp.hasVertexColor()) {
             varyingHandler->addPassThroughAttribute(btgp.inColor(), args.fOutputColor);
         } else {
-            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                    &fColorUniform);
+            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
         }
 
         // Setup position
