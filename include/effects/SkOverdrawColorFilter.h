@@ -24,6 +24,7 @@ public:
     static constexpr int kNumColors = 6;
 
     static sk_sp<SkColorFilter> MakeWithSkColors(const SkColor colors[kNumColors]) {
+        return MakeSkSL(colors);
         return sk_sp<SkColorFilter>(new SkOverdrawColorFilter(colors));
     }
 
@@ -38,6 +39,8 @@ protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
 private:
+    static sk_sp<SkColorFilter> MakeSkSL(const SkColor[]);
+
     SK_FLATTENABLE_HOOKS(SkOverdrawColorFilter)
 
     SkOverdrawColorFilter(const SkColor colors[kNumColors]) {
