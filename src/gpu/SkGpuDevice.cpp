@@ -29,7 +29,6 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStroke.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkVertState.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
@@ -963,69 +962,6 @@ static bool init_vertices_paint(GrContext* context, const GrColorInfo& colorInfo
     }
 }
 
-void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCount,
-                                    const SkPoint vertices[],
-                                    SkBlendMode bmode,
-                                    const uint16_t indices[], int indexCount,
-                                    const SkPaint& paint) {
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "wireframeVertices", fContext.get());
-
-    SkPaint copy(paint);
-    copy.setStyle(SkPaint::kStroke_Style);
-    copy.setStrokeWidth(0);
-
-    GrPaint grPaint;
-    // we ignore the shader since we have no texture coordinates.
-    if (!SkPaintToGrPaintNoShader(this->context(), fRenderTargetContext->colorInfo(), copy,
-                                  &grPaint)) {
-        return;
-    }
-
-    int triangleCount = 0;
-    int n = (nullptr == indices) ? vertexCount : indexCount;
-    switch (vmode) {
-        case SkVertices::kTriangles_VertexMode:
-            triangleCount = n / 3;
-            break;
-        case SkVertices::kTriangleStrip_VertexMode:
-            triangleCount = n - 2;
-            break;
-        case SkVertices::kTriangleFan_VertexMode:
-            SK_ABORT("Unexpected triangle fan.");
-            break;
-    }
-
-    VertState       state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(vmode);
-
-    //number of indices for lines per triangle with kLines
-    indexCount = triangleCount * 6;
-
-    static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
-    SkVertices::Builder builder(kIgnoredMode, vertexCount, indexCount, 0);
-    memcpy(builder.positions(), vertices, vertexCount * sizeof(SkPoint));
-
-    uint16_t* lineIndices = builder.indices();
-    int i = 0;
-    while (vertProc(&state)) {
-        lineIndices[i]     = state.f0;
-        lineIndices[i + 1] = state.f1;
-        lineIndices[i + 2] = state.f1;
-        lineIndices[i + 3] = state.f2;
-        lineIndices[i + 4] = state.f2;
-        lineIndices[i + 5] = state.f0;
-        i += 6;
-    }
-
-    GrPrimitiveType primitiveType = GrPrimitiveType::kLines;
-    fRenderTargetContext->drawVertices(this->clip(),
-                                       std::move(grPaint),
-                                       this->localToDevice(),
-                                       builder.detach(),
-                                       &primitiveType);
-}
-
 void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
@@ -1041,12 +977,6 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
     GrPaint grPaint;
     bool hasColors = info.hasColors();
     bool hasTexs = info.hasTexCoords() || info.hasCustomData();
-    if ((!hasTexs || !paint.getShader()) && !hasColors) {
-        // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
-        this->wireframeVertices(info.mode(), info.vertexCount(), info.positions(), mode,
-                                info.indices(), info.indexCount(), paint);
-        return;
-    }
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorInfo(), paint,
                              this->localToDevice(), mode, hasTexs, hasColors, &grPaint)) {
         return;
