@@ -27,6 +27,11 @@
     #include <llvm/IR/IRBuilder.h>
     #include <llvm/IR/Verifier.h>
     #include <llvm/Support/TargetSelect.h>
+
+    // Platform-specific intrinsics got their own files in LLVM 10.
+    #if __has_include(<llvm/IR/IntrinsicsX86.h>)
+        #include <llvm/IR/IntrinsicsX86.h>
+    #endif
 #endif
 
 bool gSkVMJITViaDylib{false};
@@ -2394,13 +2399,11 @@ namespace skvm {
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
                        *i8    = llvm::Type::getInt8Ty (*ctx),
-                       *i8x4  = llvm::VectorType::get(i8, 4),
                        *i16   = llvm::Type::getInt16Ty(*ctx),
                        *i16x2 = llvm::VectorType::get(i16, 2),
                        *f32   = llvm::Type::getFloatTy(*ctx),
                        *I1    = scalar ? i1    : llvm::VectorType::get(i1 , K  ),
                        *I8    = scalar ? i8    : llvm::VectorType::get(i8 , K  ),
-                       *I8x4  = scalar ? i8x4  : llvm::VectorType::get(i8 , K*4),
                        *I16   = scalar ? i16   : llvm::VectorType::get(i16, K  ),
                        *I16x2 = scalar ? i16x2 : llvm::VectorType::get(i16, K*2),
                        *I32   = scalar ? i32   : llvm::VectorType::get(i32, K  ),
