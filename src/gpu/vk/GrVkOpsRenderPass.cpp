@@ -591,6 +591,36 @@ void GrVkOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
     fCurrentCBIsEmpty = false;
 }
 
+void GrVkOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                       int drawCount) {
+    SkASSERT(!drawIndirectBuffer->isCpuBuffer());
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
+    SkASSERT(fCurrentPipelineState);
+    this->currentCommandBuffer()->drawIndirect(
+            fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, drawCount,
+            sizeof(GrDrawIndirectCommand));
+    fGpu->stats()->incNumDraws();
+    fCurrentCBIsEmpty = false;
+}
+
+void GrVkOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                              int drawCount) {
+    SkASSERT(!drawIndirectBuffer->isCpuBuffer());
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
+    SkASSERT(fCurrentPipelineState);
+    this->currentCommandBuffer()->drawIndexedIndirect(
+            fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, drawCount,
+            sizeof(GrDrawIndexedIndirectCommand));
+    fGpu->stats()->incNumDraws();
+    fCurrentCBIsEmpty = false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
