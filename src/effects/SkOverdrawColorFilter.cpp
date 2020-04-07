@@ -118,3 +118,44 @@ std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
 }
 
 #endif
+
+//////////////////////////////////////////////////////
+
+const char gOverdrawSkSLText[] = R"(
+uniform half4 color0;
+uniform half4 color1;
+uniform half4 color2;
+uniform half4 color3;
+uniform half4 color4;
+uniform half4 color5;
+
+void main(inout half4 color) {
+    half alpha = 255.0 * color.a;
+    if (alpha < 0.5) {
+        color = color0;
+    } else if (alpha < 1.5) {
+        color = color1;
+    } else if (alpha < 2.5) {
+        color = color2;
+    } else if (alpha < 3.5) {
+        color = color3;
+    } else if (alpha < 4.5) {
+        color = color4;
+    } else {
+        color = color5;
+    }
+}
+)";
+
+sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeSkSL(const SkColor colors[]) {
+    auto [effect, err] = SkRuntimeEffect::Make(SkString(gOverdrawSkSLText));
+    if (!effect) {
+        SkDebugf("RuntimeEffect failed for overdraw: %s\n", err.c_str());
+        return nullptr;
+    }
+
+    auto data = SkData::MakeUninitialized(kNumColors * sizeof(SkPMColor4f));
+    convert_to_pm4f(static_cast<SkPMColor4f*>(data->writable_data()), colors);
+
+    return effect->makeColorFilter(std::move(data));
+}
