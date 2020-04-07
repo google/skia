@@ -13,48 +13,46 @@
 
 namespace {
 
-class Segmentator : public SkNoncopyable {
-public:
-    Segmentator(const SkPath& src, SkPath* dst)
-        : fMeasure(src, false)
-        , fDst(dst) {}
+static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkPath* dst,
+                           bool requires_moveto = true) {
+    SkASSERT(start < stop);
 
-    void add(SkScalar start, SkScalar stop) {
-        SkASSERT(start < stop);
+    SkPathMeasure measure(src, false);
 
-        // TODO: we appear to skip zero-length contours.
-        do {
-            const auto nextOffset = fCurrentSegmentOffset + fMeasure.getLength();
+    SkScalar current_segment_offset = 0;
+    size_t           segment_count  = 1;
 
-            if (start < nextOffset) {
-                fMeasure.getSegment(start - fCurrentSegmentOffset,
-                                    stop  - fCurrentSegmentOffset,
-                                    fDst, true);
+    do {
+        const auto next_offset = current_segment_offset + measure.getLength();
 
-                if (stop < nextOffset)
-                    break;
-            }
+        if (start < next_offset) {
+            measure.getSegment(start - current_segment_offset,
+                               stop  - current_segment_offset,
+                               dst, requires_moveto);
 
-            fCurrentSegmentOffset = nextOffset;
-        } while (fMeasure.nextContour());
-    }
+            if (stop <= next_offset)
+                break;
+        }
 
-private:
-    SkPathMeasure fMeasure;
-    SkPath*       fDst;
+        segment_count++;
+        current_segment_offset = next_offset;
+    } while (measure.nextContour());
 
-    SkScalar fCurrentSegmentOffset = 0;
+    return segment_count;
+}
 
-    using INHERITED = SkNoncopyable;
-};
+static bool is_tail_contiguous(const SkPath& path) {
+    const auto count = path.countPoints();
+
+    return count > 0 && (path.getPoint(0) == path.getPoint(count - 1));
+}
 
 } // namespace
 
 SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
     : fStartT(startT), fStopT(stopT), fMode(mode) {}
 
-bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                            const SkRect* cullRect) const {
+bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
     if (fStartT >= fStopT) {
         SkASSERT(fMode == SkTrimPathEffect::Mode::kNormal);
         return true;
@@ -71,12 +69,25 @@ bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                arcStop  = len * fStopT;
 
     // Second pass: actually add segments.
-    Segmentator segmentator(src, dst);
     if (fMode == SkTrimPathEffect::Mode::kNormal) {
-        if (arcStart < arcStop) segmentator.add(arcStart, arcStop);
+        if (arcStart < arcStop) {
+            add_segments(src, arcStart, arcStop, dst);
+        }
     } else {
-        if (0 <  arcStart) segmentator.add(0,  arcStart);
-        if (arcStop < len) segmentator.add(arcStop, len);
+        bool requires_moveto = true;
+        if (arcStop < len) {
+            // since we're adding the "tail" first, this is the total number of contours
+            const auto contour_count = add_segments(src, arcStop, len, dst);
+
+            // if the path consists of a single closed contour, we don't want to disconnect
+            // the two parts with a moveto.
+            if (contour_count == 1 && (src.isLastContourClosed() || is_tail_contiguous(src))) {
+                requires_moveto = false;
+            }
+        }
+        if (0 <  arcStart) {
+            add_segments(src, 0, arcStart, dst, requires_moveto);
+        }
     }
 
     return true;
