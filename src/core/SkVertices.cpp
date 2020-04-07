@@ -31,6 +31,7 @@ int SkVertices::Attribute::channelCount() const {
     SkASSERT(this->isValid());
     switch (fUsage) {
         case Usage::kRaw:          break;
+        case Usage::kColor:        return 4;
         case Usage::kVector:       return 3;
         case Usage::kNormalVector: return 3;
         case Usage::kPosition:     return 3;
@@ -60,6 +61,8 @@ bool SkVertices::Attribute::isValid() const {
     switch (fUsage) {
         case Usage::kRaw:
             return true;
+        case Usage::kColor:
+            return fType == Type::kFloat3 || fType == Type::kFloat4 || fType == Type::kByte4_unorm;
         case Usage::kVector:
         case Usage::kNormalVector:
         case Usage::kPosition:
@@ -317,6 +320,15 @@ SkVertices::Sizes SkVertices::getSizes() const {
 
 size_t SkVerticesPriv::customDataSize() const {
     return custom_data_size(fVertices->fAttributes, fVertices->fAttributeCount);
+}
+
+bool SkVerticesPriv::hasUsage(SkVertices::Attribute::Usage u) const {
+    for (int i = 0; i < fVertices->fAttributeCount; ++i) {
+        if (fVertices->fAttributes[i].fUsage == u) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool SkVerticesPriv::usesLocalToWorldMatrix() const {

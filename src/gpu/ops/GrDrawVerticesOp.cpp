@@ -98,6 +98,9 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(gp);
 
+            fColorSpaceHelper.emitCode(uniformHandler, gp.fColorSpaceXform.get(),
+                                       kVertex_GrShaderFlag);
+
             // Setup pass through color
             if (gp.colorAttr().isInitialized()) {
                 GrGLSLVarying varying(kHalf4_GrSLType);
@@ -108,14 +111,9 @@ public:
                 if (gp.fColorArrayType == ColorArrayType::kSkColor) {
                     vertBuilder->codeAppend("color = color.bgra;");
 
-                    if (gp.fColorSpaceXform) {
-                        fColorSpaceHelper.emitCode(uniformHandler, gp.fColorSpaceXform.get(),
-                                                   kVertex_GrShaderFlag);
-                        SkString xformedColor;
-                        vertBuilder->appendColorGamutXform(&xformedColor, "color",
-                                                           &fColorSpaceHelper);
-                        vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
-                    }
+                    SkString xformedColor;
+                    vertBuilder->appendColorGamutXform(&xformedColor, "color", &fColorSpaceHelper);
+                    vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
 
                     vertBuilder->codeAppend("color = half4(color.rgb * color.a, color.a);");
                 }
@@ -157,6 +155,27 @@ public:
                 switch (usage) {
                     case SkVertices::Attribute::Usage::kRaw:
                         break;
+                    case SkVertices::Attribute::Usage::kColor: {
+                        // For RGB colors, expand to RGBA with A = 1
+                        if (attr.gpuType() == kFloat3_GrSLType) {
+                            varyingIn = SkStringPrintf("float4(%s, 1)", attr.name());
+                        }
+                        // Convert to half (as expected by the color space transform functions)
+                        varyingIn = SkStringPrintf("half4(%s)", varyingIn.c_str());
+                        // Transform to destination color space (possible no-op)
+                        SkString xformedColor;
+                        vertBuilder->appendColorGamutXform(&xformedColor, varyingIn.c_str(),
+                                                           &fColorSpaceHelper);
+                        // Store the result of the transform in a temporary
+                        vertBuilder->codeAppendf(
+                                "half4 _tmp_clr_%d = %s;", customIdx, xformedColor.c_str());
+                        // Finally, premultiply
+                        varyingIn = SkStringPrintf(
+                                "half4(_tmp_clr_%d.rgb * _tmp_clr_%d.a, _tmp_clr_%d.a)",
+                                customIdx, customIdx, customIdx);
+                        varyingType = kHalf4_GrSLType;
+                        break;
+                    }
                     case SkVertices::Attribute::Usage::kVector: {
                         if (!fLocalToWorldMatrixUniform.isValid()) {
                             fLocalToWorldMatrixUniform =
@@ -543,12 +562,14 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
 }
 
 GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
-    sk_sp<GrColorSpaceXform> csxform =
-            fColorArrayType == ColorArrayType::kSkColor ? fColorSpaceXform : nullptr;
-
     const SkMatrix& vm = fMultipleViewMatrices ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
     SkVerticesPriv info(fMeshes[0].fVertices->priv());
+
+    sk_sp<GrColorSpaceXform> csxform = (fColorArrayType == ColorArrayType::kSkColor ||
+                                        info.hasUsage(SkVertices::Attribute::Usage::kColor))
+                                               ? fColorSpaceXform
+                                               : nullptr;
 
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
                                std::move(csxform), vm, info.attributes(), info.attributeCount(),

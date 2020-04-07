@@ -393,3 +393,126 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
 
     canvas->drawVertices(verts, paint);
 }
+
+static constexpr SkScalar kSin60 = 0.8660254f; // sqrt(3) / 2
+static constexpr SkPoint kHexVerts[] = {
+    { 0, 0 },
+    { 0, -1 },
+    { kSin60, -0.5f },
+    { kSin60, 0.5f },
+    { 0, 1 },
+    { -kSin60, 0.5f },
+    { -kSin60, -0.5f },
+    { 0, -1 },
+};
+
+static constexpr SkColor4f kColors[] = {
+    SkColors::kWhite,
+    SkColors::kRed,
+    SkColors::kYellow,
+    SkColors::kGreen,
+    SkColors::kCyan,
+    SkColors::kBlue,
+    SkColors::kMagenta,
+    SkColors::kRed,
+};
+
+DEF_SIMPLE_GM(vertices_custom_colors, canvas, 300, 200) {
+    ToolUtils::draw_checkerboard(canvas);
+
+    auto draw = [=](SkScalar cx, SkScalar cy, SkVertices::Builder& builder, const SkPaint& paint) {
+        memcpy(builder.positions(), kHexVerts, sizeof(kHexVerts));
+
+        canvas->save();
+        canvas->translate(cx, cy);
+        canvas->scale(45, 45);
+        canvas->drawVertices(builder.detach(), paint);
+        canvas->restore();
+    };
+
+    auto transColor = [](int i) {
+        return SkColor4f { kColors[i].fR, kColors[i].fG, kColors[i].fB, i % 2 ? 0.5f : 1.0f };
+    };
+
+    // Fixed function SkVertices, opaque
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        for (int i = 0; i < 8; ++i) {
+            builder.colors()[i] = kColors[i].toSkColor();
+        }
+        draw(50, 50, builder, SkPaint());
+    }
+
+    // Fixed function SkVertices, w/transparency
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        for (int i = 0; i < 8; ++i) {
+            builder.colors()[i] = transColor(i).toSkColor();
+        }
+        draw(50, 150, builder, SkPaint());
+    }
+
+    const char* gProg = R"(
+        varying half4 vtx_color;
+        void main(float2 p, inout half4 color) {
+            color = vtx_color;
+        }
+    )";
+    SkPaint skslPaint;
+    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+    skslPaint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, false));
+
+    using Attr = SkVertices::Attribute;
+    Attr byteColorAttr(Attr::Type::kByte4_unorm, Attr::Usage::kColor);
+    Attr float4ColorAttr(Attr::Type::kFloat4, Attr::Usage::kColor);
+    Attr float3ColorAttr(Attr::Type::kFloat3, Attr::Usage::kColor);
+
+    // Custom vertices, byte colors, opaque
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &byteColorAttr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((uint32_t*)builder.customData())[i] = kColors[i].toBytes_RGBA();
+        }
+        draw(150, 50, builder, skslPaint);
+    }
+
+    // Custom vertices, byte colors, w/transparency
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &byteColorAttr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((uint32_t*)builder.customData())[i] = transColor(i).toBytes_RGBA();
+        }
+        draw(150, 150, builder, skslPaint);
+    }
+
+    // Custom vertices, float4 colors, opaque
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &float4ColorAttr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((SkColor4f*)builder.customData())[i] = kColors[i];
+        }
+        draw(250, 50, builder, skslPaint);
+    }
+
+    // Custom vertices, float4 colors, w/transparency
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &float4ColorAttr, 1);
+        SkColor4f* clr = (SkColor4f*)builder.customData();
+        for (int i = 0; i < 8; ++i) {
+            clr[i] = transColor(i);
+        }
+        draw(250, 150, builder, skslPaint);
+    }
+
+    // Custom vertices, float3 colors, opaque
+    {
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &float3ColorAttr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((SkV3*)builder.customData())[i] = { kColors[i].fR, kColors[i].fG, kColors[i].fB };
+        }
+        draw(350, 50, builder, skslPaint);
+    }
+
+}

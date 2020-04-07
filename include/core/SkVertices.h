@@ -70,8 +70,9 @@ public:
             // Raw values passed directly to effect
             kRaw,
 
-            // sRGB colors, transformed to destination color space (3 or 4 channels)
-//           kColor,
+            // sRGB unpremul colors, transformed to destination color space (3 or 4 channels)
+            // Colors are always assumed to be in RGBA order, and are automatically premultiplied.
+            kColor,
 
             // Local vector, transformed to world (2 or 3 channels)
             kVector,
