@@ -1110,20 +1110,20 @@ namespace skvm {
     }
 
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
-        skvm::F32 invA = div(1.0f, a),
+        skvm::F32 invA = 1.0f / a,
                   inf  = bit_cast(splat(0x7f800000));
         // If a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
-        invA = select(lt(invA, inf), invA
-                                   , splat(0.0f));
-        *r = mul(*r, invA);
-        *g = mul(*g, invA);
-        *b = mul(*b, invA);
+        invA = select(invA < inf, invA
+                                , 0.0f);
+        *r *= invA;
+        *g *= invA;
+        *b *= invA;
     }
 
     void Builder::premul(F32* r, F32* g, F32* b, F32 a) {
-        *r = mul(*r, a);
-        *g = mul(*g, a);
-        *b = mul(*b, a);
+        *r *= a;
+        *g *= a;
+        *b *= a;
     }
 
     Color Builder::uniformPremul(SkColor4f color,    SkColorSpace* src,
@@ -1151,24 +1151,20 @@ namespace skvm {
         F32 mx = max(max(c.r,c.g),c.b),
             mn = min(min(c.r,c.g),c.b),
              d = mx - mn,
+          invd = 1.0f / d,
         g_lt_b = select(c.g < c.b, splat(6.0f)
                                  , splat(0.0f));
 
-        auto diffm = [&](auto a, auto b) {
-            return (a - b) * (1 / d);
-        };
+        F32 h = (1/6.0f) * select(mx == mn,  0.0f,
+                           select(mx == c.r, invd * (c.g - c.b) + g_lt_b,
+                           select(mx == c.g, invd * (c.b - c.r) + 2.0f
+                                           , invd * (c.r - c.g) + 4.0f)));
 
-        F32 h = mul(1/6.0f,
-                        select(eq(mx,  mn), 0.0f,
-                        select(eq(mx, c.r), add(diffm(c.g,c.b), g_lt_b),
-                        select(eq(mx, c.g), add(diffm(c.b,c.r), 2.0f)
-                                          , add(diffm(c.r,c.g), 4.0f)))));
-
-        F32 sum = add(mx,mn);
-        F32   l = mul(sum, 0.5f);
-        F32   s = select(eq(mx,mn), 0.0f
-                                  , div(d, select(gt(l,0.5f), sub(2.0f,sum)
-                                                            , sum)));
+        F32 sum = mx + mn,
+              l = sum * 0.5f,
+              s = select(mx == mn, 0.0f
+                                 , d / select(l > 0.5f, 2.0f - sum
+                                                      , sum));
         return {h, s, l, c.a};
     }
 
@@ -1176,17 +1172,17 @@ namespace skvm {
         // See GrRGBToHSLFilterEffect.fp
 
         auto [h,s,l,a] = c;
-        F32 x = mul(sub(1.0f, abs(sub(add(l,l), 1.0f))), s);
+        F32 x = s * (1.0f - abs(l + l - 1.0f));
 
         auto hue_to_rgb = [&,l=l](auto hue) {
-            auto q = sub(abs(mad(fract(hue), 6.0f, -3.0f)), 1.0f);
-            return mad(sub(clamp01(q), 0.5f), x, l);
+            auto q = abs(6.0f * fract(hue) - 3.0f) - 1.0f;
+            return x * (clamp01(q) - 0.5f) + l;
         };
 
         return {
-            hue_to_rgb(add(h, 0/3.0f)),
-            hue_to_rgb(add(h, 2/3.0f)),
-            hue_to_rgb(add(h, 1/3.0f)),
+            hue_to_rgb(h + 0/3.0f),
+            hue_to_rgb(h + 2/3.0f),
+            hue_to_rgb(h + 1/3.0f),
             c.a,
         };
     }
@@ -1249,11 +1245,11 @@ namespace skvm {
     }
 
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {
-        auto mma = [this](skvm::F32 x, skvm::F32 y, skvm::F32 z, skvm::F32 w) {
-            return mad(x,y, mul(z,w));
+        auto mma = [](skvm::F32 x, skvm::F32 y, skvm::F32 z, skvm::F32 w) {
+            return x*y + z*w;
         };
 
-        auto two = [this](skvm::F32 x) { return add(x, x); };
+        auto two = [](skvm::F32 x) { return x+x; };
 
         auto apply_rgba = [&](auto fn) {
             return Color {
@@ -1275,10 +1271,10 @@ namespace skvm {
 
         auto non_sep = [&](auto R, auto G, auto B) {
             return Color{
-                add(mma(src.r, 1-dst.a,  dst.r, 1-src.a), R),
-                add(mma(src.g, 1-dst.a,  dst.g, 1-src.a), G),
-                add(mma(src.b, 1-dst.a,  dst.b, 1-src.a), B),
-                mad(dst.a,1-src.a, src.a),  // srcover
+                R + mma(src.r, 1-dst.a,  dst.r, 1-src.a),
+                G + mma(src.g, 1-dst.a,  dst.g, 1-src.a),
+                B + mma(src.b, 1-dst.a,  dst.b, 1-src.a),
+                mad(dst.a, 1-src.a, src.a),   // srcover for alpha
             };
         };
 
@@ -1299,13 +1295,13 @@ namespace skvm {
             case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
             case SkBlendMode::kSrcIn:
                 return apply_rgba([&](auto s, auto d) {
-                    return mul(s, dst.a);
+                    return s * dst.a;
                 });
 
             case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
             case SkBlendMode::kSrcOut:
                 return apply_rgba([&](auto s, auto d) {
-                    return mul(s, 1-dst.a);
+                    return s * (1-dst.a);
                 });
 
             case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
@@ -1321,42 +1317,42 @@ namespace skvm {
 
             case SkBlendMode::kPlus:
                 return apply_rgba([&](auto s, auto d) {
-                    return min(add(s, d), 1.0f);
+                    return min(s+d, 1.0f);
                 });
 
             case SkBlendMode::kModulate:
                 return apply_rgba([&](auto s, auto d) {
-                    return mul(s, d);
+                    return s * d;
                 });
 
             case SkBlendMode::kScreen:
                 // (s+d)-(s*d) gave us trouble with our "r,g,b <= after blending" asserts.
                 // It's kind of plausible that s + (d - sd) keeps more precision?
                 return apply_rgba([&](auto s, auto d) {
-                    return add(s, sub(d, mul(s, d)));
+                    return s + (d - s*d);
                 });
 
             case SkBlendMode::kDarken:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(s, sub(d, max(mul(s, dst.a),
-                                             mul(d, src.a))));
+                    return s + (d - max(s * dst.a,
+                                       d * src.a));
                 });
 
             case SkBlendMode::kLighten:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(s, sub(d, min(mul(s, dst.a),
-                                             mul(d, src.a))));
+                    return s + (d - min(s * dst.a,
+                                       d * src.a));
                 });
 
             case SkBlendMode::kDifference:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(s, sub(d, two(min(mul(s, dst.a),
-                                                 mul(d, src.a)))));
+                    return s + (d - two(min(s * dst.a,
+                                           d * src.a)));
                 });
 
             case SkBlendMode::kExclusion:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    return add(s, sub(d, two(mul(s, d))));
+                    return s + (d - two(s * d));
                 });
 
             case SkBlendMode::kColorBurn:
