@@ -12,7 +12,6 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkVertices.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkClipStackDevice.h"
@@ -28,6 +27,7 @@ struct GrCachedLayer;
 
 class SkSpecialImage;
 class SkSurface;
+class SkVertices;
 
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
@@ -167,9 +167,6 @@ private:
                              const SkPaint&);
 
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
-
-    void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
-                           SkBlendMode, const uint16_t indices[], int indexCount, const SkPaint&);
 
     static std::unique_ptr<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                           SkBudgeted,
