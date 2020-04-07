@@ -233,6 +233,7 @@ void SkPictureRecord::recordScale(const SkMatrix& m) {
     this->validate(initialOffset, size);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
 void SkPictureRecord::didConcat44(const SkScalar m[16]) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix
@@ -243,6 +244,18 @@ void SkPictureRecord::didConcat44(const SkScalar m[16]) {
 
     this->INHERITED::didConcat44(m);
 }
+#else
+void SkPictureRecord::didConcat44(const SkM44& m) {
+    this->validate(fWriter.bytesWritten(), 0);
+    // op + matrix
+    size_t size = kUInt32Size + 16 * sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(CONCAT44, &size);
+    fWriter.write(SkMatrixPriv::M44ColMajor(m), 16 * sizeof(SkScalar));
+    this->validate(initialOffset, size);
+
+    this->INHERITED::didConcat44(m);
+}
+#endif
 
 void SkPictureRecord::didScale(SkScalar x, SkScalar y) {
     this->didConcat(SkMatrix::MakeScale(x, y));

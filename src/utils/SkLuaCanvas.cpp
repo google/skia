@@ -110,7 +110,12 @@ void SkLuaCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkLuaCanvas::didConcat44(const SkScalar m[16]) {
+#ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
+void SkLuaCanvas::didConcat44(const SkScalar m[16])
+#else
+void SkLuaCanvas::didConcat44(const SkM44&)
+#endif
+{
     // TODO
 }
 void SkLuaCanvas::didScale(SkScalar x, SkScalar y) {
