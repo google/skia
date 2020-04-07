@@ -22,6 +22,30 @@
       "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ec692ff_dff71045",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-07T19:19:09Z",
+      "side": 0,
+      "message": "This change makes it so that it\u0027s valid to draw without colors or textures, in which case the triangles are filled with the paint color. (Consistent with every other primitive in Skia).",
+      "parentUuid": "67c11f4d_a5990afa",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 14
+      },
+      "revId": "a735ad98dbc575208620da4565e99c662c70d96b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
