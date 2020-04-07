@@ -210,8 +210,7 @@ public:
     void setResourceCacheLimit(size_t maxResourceBytes);
 
     /**
-     * Frees GPU created by the context. Can be called to reduce GPU memory
-     * pressure.
+     * Frees GPU created by the context. Can be called to reduce GPU memory pressure.
      */
     virtual void freeGpuResources();
 

@@ -72,7 +72,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fStrikeCache.reset(new GrStrikeCache{});
+    fStrikeCache.reset(new GrStrikeCache(SkToBool(this->asDirectContext())));
 
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));

@@ -29,8 +29,6 @@ class SkBulkGlyphMetricsAndImages;
  */
 class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
-    GrTextStrike(const SkDescriptor& fontScalerKey);
-
     GrGlyph* getGlyph(const SkGlyph& skGlyph);
 
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
@@ -46,7 +44,15 @@ public:
                                              GrAtlasManager*,
                                              GrGlyph*);
 
+    uint32_t uniqueID() const { return fUniqueID; }
+
 private:
+    friend class GrStrikeCache;
+
+    GrTextStrike(const SkDescriptor& fontScalerKey);
+
+    void setUniqueID(uint32_t uniqueID) { fUniqueID = uniqueID; }
+
     struct HashTraits {
         // GetKey and Hash for the the hash table.
         static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
@@ -57,11 +63,11 @@ private:
             return SkChecksum::Mix(key.hash());
         }
     };
+
+    uint32_t fUniqueID = SK_InvalidUniqueID;
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fAlloc{512};
-
-    friend class GrStrikeCache;
 };
 
 /**
@@ -76,7 +82,7 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
+    sk_sp<GrTextStrike> findOrCreateStrike(const SkDescriptor& desc) {
         if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
             return *cached;
         }
@@ -85,12 +91,34 @@ public:
 
     void freeAll();
 
-private:
-    sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(desc);
-        fCache.set(strike);
-        return strike;
+    // This method unifies any GrTextStrikes created by a given DDL with those created by other
+    // DDLs along with any GrTextStrikes created by the direct context.
+    // Note that DDLs are only valid for the GrContext they are destined to be replayed in. Thus,
+    // we don't have to worry about unique text strike IDs from another GrContext causing problems.
+    // That is, we can copy the id from the direct context's GrTextStrike to the copy in the DDL
+    // and leave it there forever.
+    // The only quirk with this system is wrt GrContext::freeGpuResources. In that case 'freeAll'
+    // is called - clearing out the strike cache. Any ids previously generated are still fine.
+    // Aliasing could occur though: if one copy of a strike gets its id, gpu resources are freed,
+    // then a second copy of the strike gets resolved - the two copies of the strike will get
+    // different ids.
+    void resolveUniqueID(GrTextStrike* strike) {
+        SkASSERT(fOwnedByDirectContext);
+
+        if (strike->fUniqueID != SK_InvalidUniqueID) {
+            return;
+        }
+
+        sk_sp<GrTextStrike> tmp = this->findOrCreateStrike(*strike->fFontScalerKey.getDesc());
+        strike->setUniqueID(tmp->uniqueID());
     }
+
+private:
+    friend class GrRecordingContext;
+
+    GrStrikeCache(bool ownedByDirectContext) : fOwnedByDirectContext(ownedByDirectContext) {}
+
+    sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc);
 
     struct DescriptorHashTraits {
         static const SkDescriptor& GetKey(const sk_sp<GrTextStrike>& strike) {
@@ -102,6 +130,7 @@ private:
     using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;
 
     StrikeHash fCache;
+    bool fOwnedByDirectContext;
 };
 
 #endif  // GrStrikeCache_DEFINED
