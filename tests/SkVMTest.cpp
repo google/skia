@@ -1837,9 +1837,12 @@ DEF_TEST(SkVM_approx_math, r) {
         b.done().eval(N, values);
     };
 
-    auto compare = [r](int N, const float values[], const float expected[]) {
+    auto compare = [r](int N, const float values[], const float expected[], float tol = 0.001f) {
         for (int i = 0; i < N; ++i) {
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(values[i], expected[i], 0.001f));
+            if (!SkScalarNearlyEqual(values[i], expected[i], tol)) {
+                SkDebugf("<%d> expected=%g, actual=%g", i, expected[i], values[i]);
+                REPORTER_ASSERT(r, SkScalarNearlyEqual(values[i], expected[i], tol));
+            }
         }
     };
 
@@ -1884,5 +1887,28 @@ DEF_TEST(SkVM_approx_math, r) {
         });
         const float expected[] = {1/9.0f, 1/3.0f, 1, 3, 9};
         compare(N, exps, expected);
+    }
+
+    auto test = [r](float value, float expected, float tolerance, auto prog) {
+        skvm::Builder b;
+        skvm::Arg inout  = b.varying<float>();
+        b.storeF(inout, prog(b.loadF(inout)));
+        b.done().eval(1, &value);
+
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
+    };
+
+    // sine & cosine
+    {
+        constexpr float P = SK_ScalarPI;
+        constexpr float tol = 0.002f;
+        for (float rad = -5*P; rad <= 5*P; rad += 0.1f) {
+            test(rad, sk_float_sin(rad), tol, [](skvm::F32 x) {
+                return approx_sin(x);
+            });
+            test(rad, sk_float_cos(rad), tol, [](skvm::F32 x) {
+                return approx_cos(x);
+            });
+        }
     }
 }
