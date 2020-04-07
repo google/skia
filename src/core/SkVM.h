@@ -560,6 +560,9 @@ namespace skvm {
         F32 approx_powf(F32  base, F32  exp);
         F32 approx_powf(F32a base, F32a exp) { return approx_powf(_(base), _(exp)); }
 
+        F32 approx_sin(F32 radians);
+        F32 approx_cos(F32 radians) { return approx_sin(add(radians, SK_ScalarPI/2)); }
+
         F32 lerp(F32  lo, F32  hi, F32  t) { return mad(sub(hi, lo), t, lo); }
         F32 lerp(F32a lo, F32a hi, F32a t) { return lerp(_(lo), _(hi), _(t)); }
 
@@ -910,6 +913,9 @@ namespace skvm {
 
     static inline F32 approx_powf(F32   base, F32a exp) { return base->approx_powf(base, exp); }
     static inline F32 approx_powf(float base, F32  exp) { return  exp->approx_powf(base, exp); }
+
+    static inline F32 approx_sin(F32 radians) { return radians->approx_sin(radians); }
+    static inline F32 approx_cos(F32 radians) { return radians->approx_cos(radians); }
 
     static inline F32 clamp01(F32 x) { return x->clamp01(x); }
     static inline F32     abs(F32 x) { return x->    abs(x); }
