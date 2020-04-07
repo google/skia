@@ -2950,9 +2950,10 @@ namespace skvm {
 #if defined(SKVM_JIT)
 
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
-                      const bool try_hoisting,
+                      const JITMode mode,
                       Assembler* a) const {
         using A = Assembler;
+        const bool try_hoisting = mode != JITMode::RegisterNoHoist;
 
         auto debug_dump = [&] {
         #if 0
@@ -2968,6 +2969,8 @@ namespace skvm {
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
+        const int K = 8;
+        const bool stack_only = mode == JITMode::Stack;
         A::GP64 N        = A::rdi,
                 scratch  = A::rax,
                 scratch2 = A::r11,
@@ -2975,16 +2978,20 @@ namespace skvm {
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
-        uint32_t avail = 0xffff;
+        const uint32_t all_regs = 0xffff;
+        uint32_t avail = all_regs;
 
     #elif defined(__aarch64__)
+        const int K = 4;
+        const bool stack_only = false;  // TODO
         A::X N       = A::x0,
              scratch = A::x8,
              arg[]   = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
         // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
         using Reg = A::V;
-        uint32_t avail = 0xffff00ff;
+        const uint32_t all_regs = 0xffff00ff;
+        uint32_t avail = all_regs;
     #endif
 
         if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
@@ -3003,8 +3010,11 @@ namespace skvm {
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
         auto emit = [&](Val id, bool scalar) {
-            const OptimizedInstruction& inst = instructions[id];
+            if (stack_only) {
+                SkASSERT(avail == all_regs);
+            }
 
+            const OptimizedInstruction& inst = instructions[id];
             Op op = inst.op;
             Val x = inst.x,
                 y = inst.y,
@@ -3028,6 +3038,30 @@ namespace skvm {
             Reg tmp_reg = (Reg)0;  // This initial value won't matter... anything legal is fine.
 
             bool ok = true;   // Set to false if we need to assign a register and none's available.
+
+            if (stack_only) {
+                // Move each unique argument into a temporary register.
+                auto load_from_stack = [&](Val arg) {
+                    if (int found = __builtin_ffs(avail)) {
+                        Reg reg = (Reg)(found - 1);
+                        avail ^= 1 << reg;
+                        r[arg] = reg;
+                    #if defined(__x86_64__)
+                        a->vmovups(r[arg], arg*K*4);
+                    #else
+                        SkASSERT(false); // TODO
+                    #endif
+                    } else {
+                        if (debug_dump()) {
+                            SkDebugf("\nCould not find temporary register for %d\n", arg);
+                        }
+                        ok = false;
+                    }
+                };
+                if (x != NA                    ) { load_from_stack(x); }
+                if (y != NA && y != x          ) { load_from_stack(y); }
+                if (z != NA && z != x && z != y) { load_from_stack(z); }
+            }
 
             // First lock in how to choose tmp if we need to based on the registers
             // available before this instruction, not including any of its input registers.
@@ -3424,13 +3458,29 @@ namespace skvm {
             #endif
             }
 
+            if (stack_only) {
+                if (dst_is_set) {
+                #if defined(__x86_64__)
+                    a->vmovups(id*K*4, r[id]);
+                #else
+                    SkASSERT(false);  // TODO
+                #endif
+                    avail |= 1 << r[id];
+                }
+                for (Val arg : {x,y,z}) {
+                    if (arg != NA) {
+                        avail |= 1 << r[arg];
+                    }
+                }
+                SkASSERT(avail == all_regs);
+            }
+
             // Calls to tmp() or dst() might have flipped this false from its default true state.
             return ok;
         };
 
 
         #if defined(__x86_64__)
-            const int K = 8;
             auto jump_if_less = [&](A::Label* l) { a->jl (l); };
             auto jump         = [&](A::Label* l) { a->jmp(l); };
 
@@ -3440,7 +3490,6 @@ namespace skvm {
             auto enter = [&]{ a->sub(A::rsp, instructions.size()*K*4); };
             auto exit  = [&]{ a->add(A::rsp, instructions.size()*K*4); a->vzeroupper(); a->ret(); };
         #elif defined(__aarch64__)
-            const int K = 4;
             auto jump_if_less = [&](A::Label* l) { a->blt(l); };
             auto jump         = [&](A::Label* l) { a->b  (l); };
 
@@ -3534,13 +3583,16 @@ namespace skvm {
 
         // First try allowing code hoisting (faster code)
         // then again without if that fails (lower register pressure).
-        bool try_hoisting = true;
-        if (!this->jit(instructions, try_hoisting, &a)) {
-            try_hoisting = false;
-            if (!this->jit(instructions, try_hoisting, &a)) {
-                return;
+        JITMode mode = JITMode::Register;
+        bool ok = false;
+        for (JITMode m : {JITMode::Register, JITMode::RegisterNoHoist, JITMode::Stack}) {
+            if (this->jit(instructions, m, &a)) {
+                ok = true;
+                mode = m;
+                break;
             }
         }
+        if (!ok) { return; }
 
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
@@ -3554,7 +3606,7 @@ namespace skvm {
 
         // Assemble the program for real.
         a = Assembler{jit_entry};
-        SkAssertResult(this->jit(instructions, try_hoisting, &a));
+        SkAssertResult(this->jit(instructions, mode, &a));
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
