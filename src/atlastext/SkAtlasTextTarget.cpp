@@ -226,6 +226,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     auto& context = target->context()->internal();
     auto atlasManager = context.grContext()->priv().getAtlasManager();
     auto resourceProvider = context.grContext()->priv().resourceProvider();
+    auto strikeCache = context.grContext()->priv().getGrStrikeCache();
 
     unsigned int numProxies;
     if (!atlasManager->getViews(kA8_GrMaskFormat, &numProxies)) {
@@ -237,8 +238,8 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         // TODO4F: Preserve float colors
         subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
-        GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
+        GrTextBlob::VertexRegenerator regenerator(resourceProvider, fGeoData[i].fSubRunPtr,
+                                                  &context, atlasManager, strikeCache);
         int subRunEnd = subRun->fGlyphs.count();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
             auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);

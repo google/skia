@@ -362,8 +362,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
 
         // TODO4F: Preserve float colors
-        GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, target->deferredUploadTarget(), atlasManager);
+        GrTextBlob::VertexRegenerator regenerator(resourceProvider, args.fSubRunPtr,
+                                                  target->deferredUploadTarget(), atlasManager,
+                                                  target->glyphCache());
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;

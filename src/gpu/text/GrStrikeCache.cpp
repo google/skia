@@ -17,6 +17,25 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
+static uint32_t create_unique_strike_id() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID++;
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+sk_sp<GrTextStrike> GrStrikeCache::generateStrike(const SkDescriptor& desc) {
+    sk_sp<GrTextStrike> strike(new GrTextStrike(desc));
+
+    if (fOwnedByDirectContext) {
+        strike->setUniqueID(create_unique_strike_id());
+    }
+
+    fCache.set(strike);
+    return strike;
+}
 GrStrikeCache::~GrStrikeCache() {
     this->freeAll();
 }
@@ -148,6 +167,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrGlyph* grGlyph) {
     SkASSERT(grGlyph != nullptr);
     SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
+    SkASSERT(fUniqueID != SK_InvalidUniqueID);
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
