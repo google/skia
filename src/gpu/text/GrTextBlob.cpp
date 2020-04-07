@@ -44,9 +44,8 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
-                           GrMaskFormat format,
-                           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
-                           sk_sp<GrTextStrike>&& grStrike)
+                           GrMaskFormat format, const SkSpan<GrGlyph*>& glyphs,
+                           const SkSpan<char>& vertexData, sk_sp<GrTextStrike>&& grStrike)
         : fType{type}
         , fBlob{textBlob}
         , fMaskFormat{format}
@@ -61,14 +60,15 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
     textBlob->insertSubRun(this);
 }
 
-GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
+GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
+                           sk_sp<GrTextStrike>&& grStrike)
         : fType{kTransformedPath}
         , fBlob{textBlob}
         , fMaskFormat{kA8_GrMaskFormat}
         , fGlyphs{SkSpan<GrGlyph*>{}}
         , fVertexData{SkSpan<char>{}}
         , fStrikeSpec{strikeSpec}
-        , fStrike{nullptr}
+        , fStrike{grStrike}
         , fCurrentColor{textBlob->fColor}
         , fPaths{} {
     textBlob->insertSubRun(this);
@@ -154,7 +154,6 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
-void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
@@ -493,8 +492,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             for (const auto& pathGlyph : subRun->fPaths) {
                 SkMatrix ctm{drawMatrix};
                 ctm.preTranslate(drawOrigin.x(), drawOrigin.y());
-                SkMatrix pathMatrix = SkMatrix::MakeScale(
-                        subRun->fStrikeSpec.strikeToSourceRatio());
+                SkMatrix pathMatrix = SkMatrix::MakeScale(subRun->fStrikeSpec.strikeToSourceRatio());
                 pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
 
                 // TmpPath must be in the same scope as GrShape shape below.
@@ -757,7 +755,10 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) {
     this->setHasBitmap();
-    SubRun* subRun = fAlloc.make<SubRun>(this, strikeSpec);
+
+    sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
+
+    SubRun* subRun = fAlloc.make<SubRun>(this, strikeSpec, std::move(grStrike));
     subRun->setAntiAliased(runFont.hasSomeAntiAliasing());
     for (auto [variant, pos] : drawables) {
         subRun->fPaths.emplace_back(*variant.path(), pos);
