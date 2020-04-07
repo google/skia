@@ -293,7 +293,7 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      GrDeferredUploadTarget*, GrAtlasManager*);
+                      GrDeferredUploadTarget*, GrAtlasManager*, GrStrikeCache*);
 
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> regenerate(int begin, int end);
@@ -307,6 +307,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
+    GrStrikeCache* fStrikeCache;
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
