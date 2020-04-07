@@ -208,10 +208,10 @@ class DefaultFlavor(object):
       os = self.m.vars.builder_cfg.get('os', '')
       if 'Mac' in os or 'Win' in os:
         # Mac and Win don't support detect_leaks.
-        env['ASAN_OPTIONS'] = 'symbolize=1'
+        env['ASAN_OPTIONS'] = 'symbolize=1 fast_unwind_on_malloc=0'
       else:
-        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
-      env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
+        env['ASAN_OPTIONS'] = 'symbolize=1 fast_unwind_on_malloc=0 detect_leaks=1'
+      env[ 'LSAN_OPTIONS'] = 'symbolize=1 fast_unwind_on_malloc=0 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
     if 'TSAN' in extra_tokens:
