@@ -8,7 +8,6 @@
 // This is a GPU-backend specific test.
 
 #include "include/core/SkTypes.h"
-
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrAutoLocaleSetter.h"

@@ -164,13 +164,13 @@ private:
                         fTarget->restore();
                         // Flush periodically to test continued drawing after a flush.
                         if ((random.nextU() % 8) == 0) {
-                            fTarget->flush();
+                            fTarget->flush1();
                         }
                         if (x + 100 > kSize) {
                             x = 0;
                             y += SkScalarCeilToScalar(size + 3);
                             if (y > kSize) {
-                                fTarget->flush();
+                                fTarget->flush1();
                                 return fRenderer->readTargetHandle(fTarget->handle());
                             }
                         }

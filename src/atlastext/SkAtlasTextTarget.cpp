@@ -119,7 +119,7 @@ public:
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
                   const SkAtlasTextFont&) override;
-    void flush() override;
+    void flush1() override;
 
 private:
     void deleteOps();
@@ -203,7 +203,7 @@ void SkInternalAtlasTextTarget::deleteOps() {
     fOps.reset();
 }
 
-void SkInternalAtlasTextTarget::flush() {
+void SkInternalAtlasTextTarget::flush1() {
     for (int i = 0; i < fOps.count(); ++i) {
         fOps[i]->executeForTextTarget(this);
     }
@@ -239,9 +239,9 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
-        int subRunEnd = subRun->fGlyphs.count();
+        int subRunEnd = subRun->fGlyphs3.count();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
-            auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
+            auto [ok, glyphsRegenerated] = regenerator.regenerate1(subRunIndex, subRunEnd);
             if (!ok) {
                 break;
             }
