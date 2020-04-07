@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcbdf321_9efc6974",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T16:56:36Z",
+      "side": 1,
+      "message": "Looks like you could use `PI` all the way through, and can just replace every splat(x) with (x)?",
+      "revId": "f11a540ca7ab123a4d0c720eeac4814a66358aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1398949_02aa8c39",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T16:56:36Z",
+      "side": 1,
+      "message": "No need to splat?",
+      "range": {
+        "startLine": 564,
+        "startChar": 69,
+        "endLine": 564,
+        "endChar": 75
+      },
+      "revId": "f11a540ca7ab123a4d0c720eeac4814a66358aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
