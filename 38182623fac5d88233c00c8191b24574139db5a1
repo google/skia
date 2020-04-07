@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f436faba_bf37a0e5",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2996,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T19:48:17Z",
+      "side": 1,
+      "message": "I was kind of thinking just move K here?\n\nAll this other stuff makes more sense if defined closer to where it\u0027s used.",
+      "revId": "38182623fac5d88233c00c8191b24574139db5a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "980308cd_fefa4370",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 3066,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T19:48:17Z",
+      "side": 1,
+      "message": "I am ok with K*4, fwiw.  That part is more deeply true, true no matter what platform we\u0027re targeting.\nNaming it kind of makes it seem like this might not always be K*4?",
+      "range": {
+        "startLine": 3066,
+        "startChar": 45,
+        "endLine": 3066,
+        "endChar": 52
+      },
+      "revId": "38182623fac5d88233c00c8191b24574139db5a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41aed8df_f8157ab4",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 3473,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T19:48:17Z",
+      "side": 1,
+      "message": "Typically I\u0027d de-dent the #if instead, leaving code where it\u0027d belong normally, with the guards one stop to the left (if possible).",
+      "range": {
+        "startLine": 3465,
+        "startChar": 0,
+        "endLine": 3473,
+        "endChar": 18
+      },
+      "revId": "38182623fac5d88233c00c8191b24574139db5a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
