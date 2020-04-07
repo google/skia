@@ -44,8 +44,6 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Debug-OpenCL',
   'Build-Debian10-Clang-x86_64-Debug-SK_CPU_LIMIT_SSE41',
   'Build-Debian10-Clang-x86_64-Debug-SafeStack',
-  'Build-Debian10-Clang-x86_64-Debug-SkVM',
-  'Build-Debian10-Clang-x86_64-Debug-SkVM_ASAN',
   'Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN',
   'Build-Debian10-Clang-x86_64-Debug-SwiftShader_TSAN',
   'Build-Debian10-Clang-x86_64-Debug-Tidy',
