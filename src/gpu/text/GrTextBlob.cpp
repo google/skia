@@ -16,6 +16,7 @@
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextTarget.h"
 

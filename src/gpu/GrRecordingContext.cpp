@@ -20,6 +20,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
