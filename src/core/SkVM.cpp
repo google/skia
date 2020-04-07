@@ -3421,7 +3421,8 @@ namespace skvm {
             auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
             auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
 
-            auto exit = [&]{ a->vzeroupper(); a->ret(); };
+            auto enter = [&]{ a->sub(A::rsp, instructions.size()*K*4); };
+            auto exit  = [&]{ a->add(A::rsp, instructions.size()*K*4); a->vzeroupper(); a->ret(); };
         #elif defined(__aarch64__)
             const int K = 4;
             auto jump_if_less = [&](A::Label* l) { a->blt(l); };
@@ -3430,13 +3431,15 @@ namespace skvm {
             auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
             auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
 
-            auto exit = [&]{ a->ret(A::x30); };
+            auto enter = [&]{};
+            auto exit  = [&]{ a->ret(A::x30); };
         #endif
 
         A::Label body,
                  tail,
                  done;
 
+        enter();
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             if (hoisted(id) && !emit(id, /*scalar=*/false)) {
                 return false;
