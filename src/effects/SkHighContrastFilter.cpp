@@ -25,41 +25,167 @@
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
-class SkHighContrast_Filter : public SkColorFilter {
-public:
-    SkHighContrast_Filter(const SkHighContrastConfig& config) {
-        fConfig = config;
-        // Clamp contrast to just inside -1 to 1 to avoid division by zero.
-        fConfig.fContrast = SkTPin(fConfig.fContrast,
-                                   -1.0f + FLT_EPSILON,
-                                   1.0f - FLT_EPSILON);
+// Matrix multiplication routines.
+
+#define R result->fMat
+#define F first.fMat
+#define S second.fMat
+
+// result_4x1 = first_4x4 . second_4x1
+void multiply_4x4_to_4x1(Color4x1Matrix* result,
+                         const Color4x4Matrix& first,
+                         const Color4x1Matrix& second) {
+    R[0] = F[0] * S[0] + F[1] * S[1] + F[2] * S[2] + F[3] * S[3];
+    R[1] = F[4] * S[0] + F[5] * S[1] + F[6] * S[2] + F[7] * S[3];
+    R[2] = F[8] * S[0] + F[9] * S[1] + F[10] * S[2] + F[11] * S[3];
+
+    // Skip computing R[3], as it would be 1.
+    // R[3] = 1;
+    R[3] = F[12] * S[0] + F[13] * S[1] + F[14] * S[2] + F[15] * S[3];
+}
+
+// result_4x4 = first_4x4 . second_4x4
+void multiply_4x4_to_4x4(Color4x4Matrix* result,
+                         const Color4x4Matrix& first,
+                         const Color4x4Matrix& second) {
+    R[0] = F[0] * S[0] + F[1] * S[4] + F[2] * S[8] + F[3] * S[12];
+    R[1] = F[0] * S[1] + F[1] * S[5] + F[2] * S[9] + F[3] * S[13];
+    R[2] = F[0] * S[2] + F[1] * S[6] + F[2] * S[10] + F[3] * S[14];
+    R[3] = F[0] * S[3] + F[1] * S[7] + F[2] * S[11] + F[3] * S[15];
+
+    R[4] = F[4] * S[0] + F[5] * S[4] + F[6] * S[8] + F[7] * S[12];
+    R[5] = F[4] * S[1] + F[5] * S[5] + F[6] * S[9] + F[7] * S[13];
+    R[6] = F[4] * S[2] + F[5] * S[6] + F[6] * S[10] + F[7] * S[14];
+    R[7] = F[4] * S[3] + F[5] * S[7] + F[6] * S[11] + F[7] * S[15];
+
+    R[8] = F[8] * S[0] + F[9] * S[4] + F[10] * S[8] + F[11] * S[12];
+    R[9] = F[8] * S[1] + F[9] * S[5] + F[10] * S[9] + F[11] * S[13];
+    R[10] = F[8] * S[2] + F[9] * S[6] + F[10] * S[10] + F[11] * S[14];
+    R[11] = F[8] * S[3] + F[9] * S[7] + F[10] * S[11] + F[11] * S[15];
+
+    // Skip computing R[12] to R[15], as they would be 0, 0, 0, 1.
+    // R[12] = R[13] = R[14] = 0;
+    // R[15] = 1;
+    R[12] = F[12] * S[0] + F[13] * S[4] + F[14] * S[8] + F[15] * S[12];
+    R[13] = F[12] * S[1] + F[13] * S[5] + F[14] * S[9] + F[15] * S[13];
+    R[14] = F[12] * S[2] + F[13] * S[6] + F[14] * S[10] + F[15] * S[14];
+    R[15] = F[12] * S[3] + F[13] * S[7] + F[14] * S[11] + F[15] * S[15];
+}
+
+#undef R
+#undef F
+#undef S
+
+const Color4x4Matrix kGrayScaleMatrix{SK_LUM_COEFF_R,
+                                      SK_LUM_COEFF_G,
+                                      SK_LUM_COEFF_B,
+                                      0,
+                                      SK_LUM_COEFF_R,
+                                      SK_LUM_COEFF_G,
+                                      SK_LUM_COEFF_B,
+                                      0,
+                                      SK_LUM_COEFF_R,
+                                      SK_LUM_COEFF_G,
+                                      SK_LUM_COEFF_B,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      1};
+
+const Color4x4Matrix kInvertBrightnessMatrix{-1, 0, 0, 1, 0, -1, 0, 1, 0, 0, -1, 1, 0, 0, 0, 1};
+
+const Color4x4Matrix kRGBToYCbCrBT601Matrix{
+        0.299f, 0.587f,     0.114f,     0, -0.1687736f, -0.331264f, 0.5f, 0,
+        0.5f,   -0.418688f, -0.081312f, 0, 0,           0,          0,    1};
+
+const Color4x4Matrix kInvertLumaMatrix{-1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+
+const Color4x4Matrix kYCbCrBT601ToRGBMatrix{1, 0,      1.402f, 0, 1, -0.344f, -0.714136f, 0,
+                                            1, 1.772f, 0,      0, 0, 0,       0,          1};
+
+Color4x4Matrix getMatrix_InvertLightness_YCbCrBT601() {
+    Color4x4Matrix result;
+    Color4x4Matrix temp;
+    multiply_4x4_to_4x4(&temp, kYCbCrBT601ToRGBMatrix, kInvertLumaMatrix);
+    multiply_4x4_to_4x4(&result, temp, kRGBToYCbCrBT601Matrix);
+
+    return result;
+}
+
+SkHighContrastFilter::SkHighContrastFilter(const SkHighContrastConfig& config) {
+    fConfig = config;
+    // Clamp contrast to just inside -1 to 1 to avoid division by zero.
+    fConfig.fContrast = SkTPin(fConfig.fContrast, -1.0f + FLT_EPSILON, 1.0f - FLT_EPSILON);
+
+    buildTransformationMatrix();
+}
+
+sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
+    if (!config.isValid()) {
+        return nullptr;
     }
 
-    ~SkHighContrast_Filter() override {}
+    return sk_make_sp<SkHighContrastFilter>(config);
+}
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
-#endif
+void SkHighContrastFilter::buildTransformationMatrix() {
+    if (!fConfig.fUseOptimized) return;
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Color, SkColorSpace*, skvm::Uniforms*,
-                          SkArenaAlloc*) const override;
+    if (fConfig.fGrayscale) {
+        fTransformationMatrix = std::make_unique<Color4x4Matrix>(kGrayScaleMatrix);
+    } else {
+        fTransformationMatrix = std::make_unique<Color4x4Matrix>();
+    }
 
-protected:
-    void flatten(SkWriteBuffer&) const override;
+    if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
+        Color4x4Matrix temp(*fTransformationMatrix);
+        multiply_4x4_to_4x4(fTransformationMatrix.get(), kInvertBrightnessMatrix, temp);
+    } else if (fConfig.fInvertStyle == InvertStyle::kInvertLightness_YCbCrBT601) {
+        static Color4x4Matrix matrix = getMatrix_InvertLightness_YCbCrBT601();
+        Color4x4Matrix temp(*fTransformationMatrix);
+        multiply_4x4_to_4x4(fTransformationMatrix.get(), matrix, temp);
+    }
 
-private:
-    SK_FLATTENABLE_HOOKS(SkHighContrast_Filter)
+    if (fConfig.fContrast != 0.0) {
+        float c = fConfig.fContrast;
+        float m = (1 + c) / (1 - c);
+        float b = (-0.5f * m + 0.5f);
+        Color4x4Matrix contrast(m, 0, 0, b, 0, m, 0, b, 0, 0, m, b, 0, 0, 0, 1);
 
-    SkHighContrastConfig fConfig;
+        Color4x4Matrix temp(*fTransformationMatrix);
+        multiply_4x4_to_4x4(fTransformationMatrix.get(), contrast, temp);
+    }
+}
 
-    friend class SkHighContrastFilter;
+SkColor SkHighContrastFilter::filterColorWithoutPipeline(SkColor color) const {
+    SkScalar rc = SkColorGetR(color) / 255;
+    SkScalar gc = SkColorGetG(color) / 255;
+    SkScalar bc = SkColorGetB(color) / 255;
 
-    typedef SkColorFilter INHERITED;
-};
+    // Apply a gamma of 2.0 so that the rest of the calculations
+    // happen roughly in linear space.
+    rc *= rc;
+    gc *= gc;
+    bc *= bc;
 
-bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+    Color4x1Matrix color_vector(rc, gc, bc, 1);
+    Color4x1Matrix output;
+    multiply_4x4_to_4x1(&output, *fTransformationMatrix, color_vector);
+
+    rc = std::min(std::max(rc, 0.0f), 1.0f);
+    gc = std::min(std::max(gc, 0.0f), 1.0f);
+    bc = std::min(std::max(bc, 0.0f), 1.0f);
+
+    // Convert back from linear to a color space with a gamma of ~2.0.
+    rc = SkScalarSqrt(rc) * 255;
+    gc = SkScalarSqrt(gc) * 255;
+    bc = SkScalarSqrt(bc) * 255;
+
+    return SkColorSetARGB(SkColorGetA(color), rc, gc, bc);
+}
+
+bool SkHighContrastFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
@@ -132,8 +258,11 @@ bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     return true;
 }
 
-skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
-                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkHighContrastFilter::onProgram(skvm::Builder* p,
+                                            skvm::Color c,
+                                            SkColorSpace* dstCS,
+                                            skvm::Uniforms* uniforms,
+                                            SkArenaAlloc* alloc) const {
     c = p->unpremul(c);
 
     // Linearize before applying high-contrast filter.
@@ -182,31 +311,19 @@ skvm::Color SkHighContrast_Filter::onProgram(skvm::Builder* p, skvm::Color c, Sk
     return p->premul(c);
 }
 
-void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
+void SkHighContrastFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeBool(fConfig.fGrayscale);
     buffer.writeInt(static_cast<int>(fConfig.fInvertStyle));
     buffer.writeScalar(fConfig.fContrast);
 }
 
-sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkHighContrastFilter::CreateProc(SkReadBuffer& buffer) {
     SkHighContrastConfig config;
     config.fGrayscale = buffer.readBool();
     config.fInvertStyle = buffer.read32LE(InvertStyle::kLast);
     config.fContrast = buffer.readScalar();
 
     return SkHighContrastFilter::Make(config);
-}
-
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(
-    const SkHighContrastConfig& config) {
-    if (!config.isValid()) {
-        return nullptr;
-    }
-    return sk_make_sp<SkHighContrast_Filter>(config);
-}
-
-void SkHighContrastFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkHighContrast_Filter);
 }
 
 #if SK_SUPPORT_GPU
@@ -407,7 +524,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
 }
 
-std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
+std::unique_ptr<GrFragmentProcessor> SkHighContrastFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo& csi) const {
     bool linearize = !csi.isLinearlyBlended();
     return HighContrastFilterEffect::Make(fConfig, linearize);
