@@ -19,7 +19,6 @@ declare_args() {
 
   ar = "ar"
   cc = "cc"
-  cxx = "c++"
 
   win_sdk = "C:/Program Files (x86)/Windows Kits/10"
   win_sdk_version = ""
@@ -34,6 +33,7 @@ declare_args() {
 }
 declare_args() {
   is_debug = !is_official_build
+  cxx = cc + " -x c++"
 }
 
 assert(!(is_debug && is_official_build))
