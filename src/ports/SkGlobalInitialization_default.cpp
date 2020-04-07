@@ -78,7 +78,7 @@
         SkColorFilter_Matrix::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
-        SkHighContrastFilter::RegisterFlattenables();
+        SK_REGISTER_FLATTENABLE(SkHighContrastFilter);
         SkOverdrawColorFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
 
