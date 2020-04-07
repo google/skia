@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4afdf320_f9b3c7c7",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T15:42:45Z",
+      "side": 1,
+      "message": "Lets move this into the find call. Then just fail the allocation if find returns nullptr.",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 929,
+        "endChar": 5
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b2d424_7f490c30",
+        "filename": "src/gpu/GrStagingBuffer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T15:42:45Z",
+      "side": 1,
+      "message": "move this to private",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 31
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f7672b0_85ed6a4e",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T15:42:45Z",
+      "side": 1,
+      "message": "Should this and kMinStagingBufferSize be moved to the base class? Looks like or choice on buffer size will probably be pretty universal across backends. Then the virtual here can just be dumb and create exactly what was asked for.",
+      "range": {
+        "startLine": 642,
+        "startChar": 4,
+        "endLine": 642,
+        "endChar": 39
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad40e586_a644012c",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T15:42:45Z",
+      "side": 1,
+      "message": "make this private",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 37
+      },
+      "revId": "6608e0162eef56f7bdd91c657d467658ad05122e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
