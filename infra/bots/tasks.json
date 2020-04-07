@@ -414,6 +414,26 @@
         "Build-Debian10-GCC-x86_64-Release-Shared_Docker"
       ]
     },
+    "Build-Debian9-Clang-arm-Debug-Chromebook_GLES": {
+      "tasks": [
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES"
+      ]
+    },
+    "Build-Debian9-Clang-arm-Release-Chromebook_GLES": {
+      "tasks": [
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES"
+      ]
+    },
+    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES": {
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES"
+      ]
+    },
+    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES": {
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES"
+      ]
+    },
     "Build-Mac-Clang-arm-Debug-iOS": {
       "tasks": [
         "Build-Mac-Clang-arm-Debug-iOS"
@@ -9462,6 +9482,308 @@
         "os:Debian-10.3",
         "pool:Skia",
         "docker_installed:true"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-arm-Debug-Chromebook_GLES": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "skia/bots/armhf_sysroot",
+          "path": "armhf_sysroot",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:20"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Debug-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-arm-Release-Chromebook_GLES": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "skia/bots/armhf_sysroot",
+          "path": "armhf_sysroot",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:20"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-arm-Release-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "skia/bots/chromebook_x86_64_gles",
+          "path": "chromebook_x86_64_gles",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:20"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e33e0a2c282bee6ca91e452ff3065ec44852d7b"
+        },
+        {
+          "name": "skia/bots/chromebook_x86_64_gles",
+          "path": "chromebook_x86_64_gles",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:20"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Debian-9.8",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -18716,7 +19038,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -18783,7 +19105,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -18850,7 +19172,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -18917,7 +19239,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -18984,7 +19306,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -19051,7 +19373,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31272,7 +31594,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31339,7 +31661,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31406,7 +31728,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31473,7 +31795,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31540,7 +31862,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31607,7 +31929,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31674,7 +31996,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31741,7 +32063,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-x86_64-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31808,7 +32130,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31875,7 +32197,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31942,7 +32264,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -32009,7 +32331,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
