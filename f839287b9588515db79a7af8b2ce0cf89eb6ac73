@@ -16,6 +16,70 @@
       "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35719d17_075a5e3f",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-07T15:59:46Z",
+      "side": 1,
+      "message": "Is this only problematic when called from reloadFont (because we\u0027re reading back the family string from SkTypeface), or needed in general even for SVG family strings?\n\nIf the former, it seems cleaner to track the original family string (as passed to setFontFamily) separately.\n\nIf the latter, it may be easier to review as a separate change.",
+      "parentUuid": "04d1b23d_259ecfcb",
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baeb1af5_f91df975",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-07T15:59:46Z",
+      "side": 1,
+      "message": "Might be worth avoiding a reload when the value is not changing:\n\n  if (font_style !\u003d fFontStyle) ...",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 15
+      },
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d763ae29_3d722852",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-07T15:59:46Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
