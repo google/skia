@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fb99373_3ebd2bfe",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 3430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-07T15:44:03Z",
+      "side": 1,
+      "message": "I don\u0027t think r[id] is set to anything meaningful when has_side_effect(op)... we never call dst() or set_dst().\n\nYou can probably\n\nif (dst_is_set) {\n   SkASSERT(dst() \u003d\u003d r[id]);\n   a-\u003evmovups(id * 8 * 4, r[id]);\n   avail |\u003d 1 \u003c\u003c r[id];\n}\n\n?",
+      "revId": "c6103ccf699d5aa34eecf8e1f5188ccdfe996c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
