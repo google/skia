@@ -53,7 +53,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-All-Debug'
+  builder = 'Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-All-Debug'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,

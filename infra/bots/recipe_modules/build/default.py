@@ -138,7 +138,7 @@ def compile_fn(api, checkout_root, out_dir):
   if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
       ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
-      # As of 2020-02-07, the sum of each Debian9-Clang-x86
+      # As of 2020-02-07, the sum of each Debian10-Clang-x86
       # non-flutter/android/chromebook build takes less than 75G cache space.
       env['CCACHE_MAXSIZE'] = '75G'
     else:

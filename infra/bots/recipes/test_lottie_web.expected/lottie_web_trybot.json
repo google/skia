@@ -116,7 +116,7 @@
       "gcr.io/skia-public/gold-lottie-web-puppeteer:v2",
       "/SRC/skia/infra/lottiecap/docker/lottiecap_gold.sh",
       "--builder",
-      "Test-Debian9-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb",
+      "Test-Debian10-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",

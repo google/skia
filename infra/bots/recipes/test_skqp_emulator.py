@@ -92,9 +92,9 @@ sys.exit(1)
 
 def GenTests(api):
   yield (
-      api.test('Test-Debian9-Clang-GCE-CPU-Emulator-x86-devrel'
+      api.test('Test-Debian10-Clang-GCE-CPU-Emulator-x86-devrel'
                '-All-Android_SKQP') +
-      api.properties(buildername=('Test-Debian9-Clang-GCE-CPU-Emulator'
+      api.properties(buildername=('Test-Debian10-Clang-GCE-CPU-Emulator'
                                   '-x86-devrel-All-Android_SKQP'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',

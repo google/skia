@@ -222,7 +222,7 @@ def make_treemap(api, checkout_root, out_dir, files):
 
 
 def GenTests(api):
-  builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
+  builder = 'BuildStats-Debian10-EMCC-wasm-Release-PathKit'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,

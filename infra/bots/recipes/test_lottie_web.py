@@ -103,8 +103,8 @@ os.chmod(out_dir, 0o777)
 
 def GenTests(api):
   yield (
-      api.test('Test-Debian9-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb') +
-      api.properties(buildername=('Test-Debian9-none-GCE-CPU-AVX2'
+      api.test('Test-Debian10-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb') +
+      api.properties(buildername=('Test-Debian10-none-GCE-CPU-AVX2'
                                   '-x86_64-Debug-All-LottieWeb'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -114,7 +114,7 @@ def GenTests(api):
 
   yield (
       api.test('lottie_web_trybot') +
-      api.properties(buildername=('Test-Debian9-none-GCE-CPU-AVX2'
+      api.properties(buildername=('Test-Debian10-none-GCE-CPU-AVX2'
                                   '-x86_64-Debug-All-LottieWeb'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',

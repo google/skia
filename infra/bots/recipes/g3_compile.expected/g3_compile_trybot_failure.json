@@ -10,7 +10,7 @@
       "--output_file",
       "[CLEANUP]/g3_try_tmp_1/output_file",
       "--builder_name",
-      "Build-Debian9-Clang-TAP-Presubmit-G3_Framework"
+      "Build-Debian10-Clang-TAP-Presubmit-G3_Framework"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

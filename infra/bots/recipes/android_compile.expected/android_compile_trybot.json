@@ -12,7 +12,7 @@
       "--patchset",
       "12",
       "--builder_name",
-      "Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework"
+      "Build-Debian10-Clang-cf_x86_phone-eng-Android_Framework"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

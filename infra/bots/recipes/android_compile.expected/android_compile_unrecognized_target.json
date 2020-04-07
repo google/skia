@@ -17,12 +17,12 @@
       "    return callable_obj(*props, **additional_args)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipes/android_compile.py\", line 47, in RunSteps",
       "    api.vars.builder_name)",
-      "Exception: Lunch target in Build-Debian9-Clang-unrecognized-Android_Framework is not recognized."
+      "Exception: Lunch target in Build-Debian10-Clang-unrecognized-Android_Framework is not recognized."
     ]
   },
   {
     "failure": {
-      "humanReason": "Uncaught Exception: Exception('Lunch target in Build-Debian9-Clang-unrecognized-Android_Framework is not recognized.',)"
+      "humanReason": "Uncaught Exception: Exception('Lunch target in Build-Debian10-Clang-unrecognized-Android_Framework is not recognized.',)"
     },
     "name": "$result"
   }

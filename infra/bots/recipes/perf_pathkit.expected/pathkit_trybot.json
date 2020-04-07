@@ -218,7 +218,7 @@
       "gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1",
       "/SRC/skia/infra/pathkit/perf_pathkit.sh",
       "--builder",
-      "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
+      "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",

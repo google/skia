@@ -218,7 +218,7 @@
       "gcr.io/skia-public/gold-karma-chrome-tests:77.0.3865.120_v2",
       "/SRC/skia/infra/canvaskit/test_canvaskit.sh",
       "--builder",
-      "Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-CanvasKit",
+      "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Debug-All-CanvasKit",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",

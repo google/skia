@@ -44,7 +44,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD',
+  'Build-Debian10-Clang-x86_64-Release-SKNX_NO_SIMD',
   'Housekeeper-Weekly-RecreateSKPs',
 ]
 
@@ -77,7 +77,7 @@ def GenTests(api):
       )
   )
 
-  buildername = 'Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_Vulkan'
+  buildername = 'Upload-Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_Vulkan'
   yield (
       api.test('integer_issue') +
       api.properties(buildername=buildername,

@@ -472,7 +472,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.gpu() {
 		// Don't run the "svgparse_*" svgs on GPU.
 		blacklist("_ svg _ svgparse_")
-	} else if b.Name == "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
+	} else if b.Name == "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
 		// Only run the CPU SVGs on 8888.
 		blacklist("~8888 svg _ _")
 	} else {
