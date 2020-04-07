@@ -901,6 +901,28 @@ namespace skvm {
         return select(is_x, x, approx_pow2(mul(approx_log2(x), y)));
     }
 
+    // Bhaskara I's sine approximation
+    // 16x(pi - x) / (5*pi^2 - 4x(pi - x)
+    // ... divide by 4
+    // 4x(pi - x) / 5*pi^2/4 - x(pi - x)
+    //
+    // This is a good approximation only for 0 <= x <= pi, so we use symmetries to get
+    // radians into that range first.
+    //
+    F32 Builder::approx_sin(F32 radians) {
+        constexpr float PI = SK_ScalarPI;
+        F32 pi = splat(PI);
+        // x = radians mod pi
+        F32 x = fract(radians * splat(0.5f/PI)) * 2 * pi;
+        I32 neg = x > pi;   // are we pi < x < 2pi --> need to negate result
+        x = select(neg, x - pi, x);
+
+        F32 pair = x * (pi - x);
+        x = 4.0f * pair / (splat(5*PI*PI/4) - pair);
+        x = select(neg, -x, x);
+        return x;
+    }
+
     F32 Builder::min(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
