@@ -781,11 +781,13 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
                                                  GrDeferredUploadTarget* uploadTarget,
-                                                 GrAtlasManager* fullAtlasManager)
+                                                 GrAtlasManager* fullAtlasManager,
+                                                 GrStrikeCache* strikeCache)
         : fResourceProvider(resourceProvider)
         , fUploadTarget(uploadTarget)
         , fFullAtlasManager(fullAtlasManager)
-        , fSubRun(subRun) { }
+        , fSubRun(subRun)
+        , fStrikeCache(strikeCache) { }
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
         const int begin, const int end) {
@@ -800,6 +802,9 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     GrTextStrike* grStrike = fSubRun->strike();
+
+    fStrikeCache->resolveUniqueID(grStrike);
+
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
@@ -819,7 +824,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
             }
         }
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                fSubRun->bulkUseToken(),  fSubRun->maskFormat(), grGlyph,
+                fSubRun->bulkUseToken(), fSubRun->maskFormat(), grGlyph,
                 tokenTracker->nextDrawToken());
     }
     int glyphsPlacedInAtlas = i - begin;
