@@ -69,6 +69,30 @@
       "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bb8f2a3_047d89ed",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-07T14:32:33Z",
+      "side": 1,
+      "message": "So the worry about splitting ready and available and having to do the search twice I don\u0027t think is a problem. If they were together I would still suggest that we search the list trying to find a buffer that is already being used for this frame before using an unused one. This way there are less actually buffers that are being used by the GPU. If we just greedily picked a buffer from the combined list we could get in a situation where we keep picking unused buffers and never actually using all the allocated space in a buffer. In worst case scenarios searching one list of size N+M is the same as search a list of N then a list of M.\n\nIf we are worried that the buffers in active get filled quickly and we never are picking them, we can also move them out of active and to busy early.\n\nI also wouldn\u0027t fret too much of over the O(N) removal call when going from available-\u003eactive or from busy-\u003eavailable (the move from active-\u003ebusy will move everything then just do a reset on the active). I can\u0027t imagine N getting large at all if we are picking good values for our allocation sizes. Saying that I think a linked list is also a perfectly fine\n\nI\u0027m still confused why you think markAsReady is a needed thing. At most that sounds like a backend specific need for dawn (and maybe metal) to give a signal that it should move the buffer from busy list to available. Like I don\u0027t see vulkan or d3d needing to ever set state on the buffer itself to know when to move it back. The key think is the moving back to available is purely a backend specific operation. Which is why I could even see the busy array not even being in GrGpu but living on individual backends if that\u0027s how they decide to implement things. The backend is just responsible for moving things off of active and at some point putting back onto available.",
+      "parentUuid": "850a1e69_596da56a",
+      "range": {
+        "startLine": 700,
+        "startChar": 4,
+        "endLine": 702,
+        "endChar": 57
+      },
+      "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
