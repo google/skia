@@ -144,6 +144,7 @@ namespace skvm {
         void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
+        void vmovups  (Ymm dst, int  imm);   // dst = *(sp + imm)
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
         void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
@@ -152,6 +153,7 @@ namespace skvm {
         enum Scale { ONE, TWO, FOUR, EIGHT };
         void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
+        void vmovups(int  imm, Ymm src);     // *(sp + imm) = src
         void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
         void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
@@ -270,6 +272,8 @@ namespace skvm {
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
+        // *(sp+off) = ymm or ymm = *(sp+off), depending on opcode.
+        void stack_load_store(int prefix, int map, int opcode, Ymm ymm, int off);
 
         // Opcode for 3-arguments ops is split between hi and lo:
         //    [11 bits hi] [5 bits m] [6 bits lo] [5 bits n] [5 bits d]
