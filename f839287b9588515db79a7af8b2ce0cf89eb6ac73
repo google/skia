@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "65ab4436_1a5ee4d1",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-04-07T20:28:32Z",
+      "side": 1,
+      "message": "I think it happened regardless if I added the other attributes (triggering reloadFont()) or not. But I think you\u0027re right, it looks weird and is probably best for a separate CL and more investigation. Removing from this CL.",
+      "parentUuid": "35719d17_075a5e3f",
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baeb1af5_f91df975",
         "filename": "experimental/svg/model/SkSVGText.cpp",
         "patchSetId": 1
@@ -60,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "1df6df7e_da66ee33",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-04-07T20:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baeb1af5_f91df975",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 15
+      },
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d763ae29_3d722852",
         "filename": "experimental/svg/model/SkSVGText.cpp",
         "patchSetId": 1
@@ -80,6 +122,30 @@
       "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fc9d859_d9b51fdc",
+        "filename": "experimental/svg/model/SkSVGText.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-04-07T20:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d763ae29_3d722852",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "f839287b9588515db79a7af8b2ce0cf89eb6ac73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
