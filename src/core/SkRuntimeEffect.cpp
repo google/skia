@@ -372,8 +372,8 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
     for (const uint8_t *ip = fn.code(), *end = ip + fn.size(); ip != end; ) {
         using Inst = SkSL::ByteCodeInstruction;
 
-        auto inst = (Inst)(uintptr_t)sk_unaligned_load<SkSL::instruction>(ip);
-        ip += sizeof(SkSL::instruction);
+        auto inst = sk_unaligned_load<Inst>(ip);
+        ip += sizeof(Inst);
 
         auto u8  = [&]{ auto x = sk_unaligned_load<uint8_t >(ip); ip += sizeof(x); return x; };
       //auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
@@ -389,26 +389,22 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 return {};
 
             case Inst::kLoad: {
-                SkAssertResult(u8() == 1);
                 int ix = u8();
                 push(stack[ix + 0]);
             } break;
 
             case Inst::kLoad2: {
-                SkAssertResult(u8() == 2);
                 int ix = u8();
                 push(stack[ix + 0]);
                 push(stack[ix + 1]);
             } break;
 
             case Inst::kLoadUniform: {
-                SkAssertResult(u8() == 1);
                 int ix = u8();
                 push(uniform[ix]);
             } break;
 
             case Inst::kLoadUniform4: {
-                SkAssertResult(u8() == 4);
                 int ix = u8();
                 push(uniform[ix + 0]);
                 push(uniform[ix + 1]);
@@ -441,26 +437,22 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kDup: {
-                int off = u8();
-                push(stack[stack.size() - off]);
+                push(stack[stack.size() - 1]);
             } break;
 
             case Inst::kAddF: {
-                SkAssertResult(u8() == 1);
                 skvm::F32 x = pop(),
                           a = pop();
                 push(a+x);
             } break;
 
             case Inst::kMultiplyF: {
-                SkAssertResult(u8() == 1);
                 skvm::F32 x = pop(),
                           a = pop();
                 push(a*x);
             } break;
 
             case Inst::kMultiplyF2: {
-                SkAssertResult(u8() == 2);
                 skvm::F32 x = pop(), y = pop(),
                           a = pop(), b = pop();
                 push(b*y);
@@ -472,7 +464,6 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kMaskNegate: break;
 
             case Inst::kCompareFLT: {
-                SkAssertResult(u8() == 1);
                 skvm::F32 x = pop(),
                           a = pop();
                 push(bit_cast(a<x));
