@@ -45,6 +45,30 @@
       "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "850a1e69_596da56a",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T14:08:39Z",
+      "side": 1,
+      "message": "Splitting fReady into fAvailable and fActive could be done, but I think we would have to search both the fAvailable and fActive lists when looking for a buffer with enough space. Not a huge deal, but if we do need to optimize it later for performance, we wouldn\u0027t be able to easily sort across both lists.\n\nIn that case, empty() could go away, but we still need markReady(). It\u0027s the mechanism to notify the system when a buffer is no longer in use on the GPU, and it\u0027s backend-specific now that we no longer have a post-flush mapStagingBuffers() loop. For Metal it would likely be tied into the ResourceManager callback. It should also be moving the buffers from fBusy to fReady; that was a bug, thanks for catching!\n\nI\u0027m also not super-happy about using vectors, since it\u0027s O(N) to move a buffer from one list to another. I was thinking about changing them to std::list (or a custom intrusive linked list). WDYT?",
+      "parentUuid": "0b7abdbd_923fa47a",
+      "range": {
+        "startLine": 700,
+        "startChar": 4,
+        "endLine": 702,
+        "endChar": 57
+      },
+      "revId": "64b644e67e594a0dd3e34de6dc0cffbd00c990f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
