@@ -588,6 +588,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case SAVE_CAMERA: {
             auto make = [](SkReadBuffer* reader) {
                 const float* cols = (const float*)reader->skip(16 * sizeof(float));
+                if (!cols) {
+                    return SkM44();
+                }
                 SkV4 c0 = {cols[0], cols[1], cols[2], cols[3]}; cols += 4;
                 SkV4 c1 = {cols[0], cols[1], cols[2], cols[3]}; cols += 4;
                 SkV4 c2 = {cols[0], cols[1], cols[2], cols[3]}; cols += 4;
