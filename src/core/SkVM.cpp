@@ -545,6 +545,16 @@ namespace skvm {
             return change;
         };
 
+        std::vector<int> tree_number(program.size());
+        auto score = [&](Val id) {
+            return std::make_tuple(-tree_number[id], pressure_change(id), -id);
+        };
+
+        auto compare = [&](Val lhs, Val rhs) {
+            return score(lhs) < score(rhs);
+        };
+
+        /*
         auto compare = [&](Val lhs, Val rhs) {
             SkASSERT(lhs != rhs);
             int lhs_change = pressure_change(lhs);
@@ -572,6 +582,7 @@ namespace skvm {
             // The tie-breaker heuristic was found through experimentation.
             return lhs_change < rhs_change || (lhs_change == rhs_change && lhs > rhs);
         };
+         */
 
         auto ready_to_schedule = [&](Val id) { return uses[id] == 0; };
 
@@ -580,6 +591,7 @@ namespace skvm {
             Instruction inst = program[id];
             if (has_side_effect(inst.op)) {
                 frontier.push_back(id);
+                tree_number[id] = std::numeric_limits<int>::max();
             }
             // Having eliminated dead code, the only Instructions that should start
             // with no users remaining to schedule are those with side effects.
@@ -604,6 +616,7 @@ namespace skvm {
                 if (arg != NA) {
                     uses[arg]--;
                     if (ready_to_schedule(arg)) {
+                        tree_number[arg] = n;
                         frontier.push_back(arg);
                         std::push_heap(frontier.begin(), frontier.end(), compare);
                     }
