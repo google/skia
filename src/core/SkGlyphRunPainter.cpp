@@ -280,7 +280,6 @@ void GrTextContext::drawGlyphRunList(
     if (contextPriv.abandoned()) {
         return;
     }
-    auto grStrikeCache = contextPriv.getGrStrikeCache();
     GrTextBlobCache* textBlobCache = contextPriv.getTextBlobCache();
 
     // Get the first paint to use as the key paint.
@@ -336,9 +335,8 @@ void GrTextContext::drawGlyphRunList(
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cachedBlob.get());
-            cachedBlob = textBlobCache->makeCachedBlob(
-                    glyphRunList, grStrikeCache, key, blurRec, drawMatrix,
-                    initialVertexColor, forceW);
+            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
+                                                       initialVertexColor, forceW);
 
             painter->processGlyphRunList(
                     glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -347,12 +345,11 @@ void GrTextContext::drawGlyphRunList(
         }
     } else {
         if (canCache) {
-            cachedBlob = textBlobCache->makeCachedBlob(
-                    glyphRunList, grStrikeCache, key, blurRec, drawMatrix,
-                    initialVertexColor, forceW);
+            cachedBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix,
+                                                       initialVertexColor, forceW);
         } else {
-            cachedBlob = textBlobCache->makeBlob(
-                    glyphRunList, grStrikeCache, drawMatrix, initialVertexColor, forceW);
+            cachedBlob = textBlobCache->makeBlob(glyphRunList, drawMatrix,
+                                                 initialVertexColor, forceW);
         }
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
@@ -380,8 +377,6 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
         return nullptr;
     }
 
-    auto strikeCache = direct->priv().getGrStrikeCache();
-
     static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
     size_t textLen = (int)strlen(text);
@@ -396,8 +391,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = direct->priv().getTextBlobCache()->makeBlob(
-                glyphRunList, strikeCache, drawMatrix, color, false);
+        blob = direct->priv().getTextBlobCache()->makeBlob(glyphRunList, drawMatrix, color, false);
         SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
         painter->processGlyphRunList(
                 glyphRunList, drawMatrix, surfaceProps,
