@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59289aba_2a6de626",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-04-08T20:10:10Z",
+      "side": 1,
+      "message": "A comment explaining why this is would be really helpful",
+      "revId": "f2698ff36e0c99c4dfb29c902f10dc8ad18e7928",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
