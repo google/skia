@@ -187,6 +187,30 @@
       "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d321fea2_5ed15d70",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-08T18:24:36Z",
+      "side": 1,
+      "message": "As far as I can tell. ETC2 isn\u0027t on their forbidden list, and I didn\u0027t encounter any problems running with it through the simulator.",
+      "parentUuid": "0e454478_823d30c7",
+      "range": {
+        "startLine": 257,
+        "startChar": 7,
+        "endLine": 257,
+        "endChar": 23
+      },
+      "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
