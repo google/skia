@@ -477,6 +477,8 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append(ec, "Docker")
+		} else if b.matchOs("Debian9") {
+			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
 		} else if b.matchOs("Ubuntu", "Debian") {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.matchOs("Mac") {
@@ -732,13 +734,18 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_LINUX_GCE {
+		if d["os"] == OLD_OS_LINUX_GCE {
+			// Set the os before linuxGceDimensions forces it to Debian10.
+			// TODO(westont): clean this up.
+			b.dimension(fmt.Sprintf("os:%s", OLD_OS_LINUX_GCE))
+		}
+		if d["os"] == DEFAULT_OS_LINUX_GCE || d["os"] == OLD_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-				return
+			} else {
+				// Use many-core machines for Build tasks.
+				b.linuxGceDimensions(MACHINE_TYPE_LARGE)
 			}
-			// Use many-core machines for Build tasks.
-			b.linuxGceDimensions(MACHINE_TYPE_LARGE)
 			return
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
