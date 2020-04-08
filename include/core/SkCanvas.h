@@ -893,6 +893,22 @@ public:
     void concat(const SkMatrix& matrix);
     void concat(const SkM44&);
 
+    /**
+     *  Recorder a marker (32bit id provided by caller) for the current CTM. This does not
+     *  change anything about the ctm or clip, but does "note" this matrix value, so it can
+     *  be referenced by custom effects (who access it by specifying the same id).
+     *
+     *  Within a save frame, marking with the same id more than once just replaces the previous
+     *  value. However, between save frames, marking with the same id does not lose the marker
+     *  in the previous save frame. It is "visible" when the currnet save() is balanced with
+     *  a restore().
+     *
+     *  NOTE: id==0 is reserved.
+     */
+    void markCTM(uint32_t id);
+
+    bool findMarkedCTM(uint32_t id, SkM44*) const;
+
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
 
@@ -2495,6 +2511,7 @@ protected:
     virtual void willRestore() {}
     virtual void didRestore() {}
 
+    virtual void onMarkCTM(uint32_t id) {}
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     virtual void didConcat44(const SkScalar[]) {} // colMajor
 #else
@@ -2655,6 +2672,13 @@ private:
         CameraRec(MCRec* owner, const SkM44& camera);
     };
     std::vector<CameraRec> fCameraStack;
+
+    struct MarkerRec {
+        MCRec*      fMCRec;
+        SkM44       fMatrix;
+        uint32_t    fID;
+    };
+    std::vector<MarkerRec> fMarkerStack;
 
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 128;  // most recent measurement
