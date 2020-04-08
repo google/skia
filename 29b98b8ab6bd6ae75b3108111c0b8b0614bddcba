@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3775a68_981ff48b",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-08T15:50:53Z",
+      "side": 1,
+      "message": "probably don\u0027t need to say \"internally\"",
+      "range": {
+        "startLine": 938,
+        "startChar": 81,
+        "endLine": 938,
+        "endChar": 91
+      },
+      "revId": "29b98b8ab6bd6ae75b3108111c0b8b0614bddcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b347cd27_cadd3cf5",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-08T15:50:53Z",
+      "side": 1,
+      "message": "Skia?",
+      "range": {
+        "startLine": 938,
+        "startChar": 66,
+        "endLine": 938,
+        "endChar": 70
+      },
+      "revId": "29b98b8ab6bd6ae75b3108111c0b8b0614bddcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddc629ef_0a2b4607",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-08T15:50:53Z",
+      "side": 1,
+      "message": "client",
+      "range": {
+        "startLine": 942,
+        "startChar": 69,
+        "endLine": 942,
+        "endChar": 74
+      },
+      "revId": "29b98b8ab6bd6ae75b3108111c0b8b0614bddcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "568e2aa3_afeb265d",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-08T15:50:53Z",
+      "side": 1,
+      "message": "minor, but I kinda don\u0027t like the gr prefix unless there is name conflict. Seems unnecessary.",
+      "range": {
+        "startLine": 623,
+        "startChar": 52,
+        "endLine": 623,
+        "endChar": 64
+      },
+      "revId": "29b98b8ab6bd6ae75b3108111c0b8b0614bddcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
