@@ -696,17 +696,14 @@ protected:
                            uint32_t mipLevels = 1) const;
 
     typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
+    const StagingBufferList&         availableStagingBuffers() { return fAvailableStagingBuffers; }
+    const StagingBufferList&         activeStagingBuffers() { return fActiveStagingBuffers; }
+    const StagingBufferList&         busyStagingBuffers() { return fBusyStagingBuffers; }
 
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
     sk_sp<const GrCaps>              fCaps;
-    std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
-
-    StagingBufferList                fAvailableStagingBuffers;
-    StagingBufferList                fActiveStagingBuffers;
-    StagingBufferList                fBusyStagingBuffers;
-
 
 private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
@@ -834,6 +831,12 @@ private:
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
     GrSamplePatternDictionary fSamplePatternDictionary;
+
+    std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
+
+    StagingBufferList                fAvailableStagingBuffers;
+    StagingBufferList                fActiveStagingBuffers;
+    StagingBufferList                fBusyStagingBuffers;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;

@@ -45,7 +45,14 @@ GrGpu::~GrGpu() {
     SkASSERT(fBusyStagingBuffers.isEmpty());
 }
 
-void GrGpu::disconnect(DisconnectType) {}
+void GrGpu::disconnect(DisconnectType type) {
+    if (DisconnectType::kAbandon == type) {
+        fAvailableStagingBuffers.reset();
+        fActiveStagingBuffers.reset();
+        fBusyStagingBuffers.reset();
+    }
+    fStagingBuffers.clear();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
