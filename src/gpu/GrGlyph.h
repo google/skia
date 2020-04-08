@@ -36,7 +36,7 @@ public:
         SkUNREACHABLE;
     }
 
-    GrGlyph(const SkGlyph& skGlyph) : fPackedID(skGlyph.getPackedID()) {}
+    GrGlyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
 
     const SkPackedGlyphID       fPackedID;
     GrDrawOpAtlas::AtlasLocator fAtlasLocator;

@@ -45,16 +45,14 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
-                           GrMaskFormat format,
-                           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
-                           sk_sp<GrTextStrike>&& grStrike)
+                           GrMaskFormat format, const SkSpan<PackedGlyphIDorGrGlyph>& glyphs,
+                           const SkSpan<char>& vertexData)
         : fType{type}
         , fBlob{textBlob}
         , fMaskFormat{format}
         , fGlyphs{glyphs}
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
-        , fStrike{grStrike}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
@@ -66,10 +64,9 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         : fType{kTransformedPath}
         , fBlob{textBlob}
         , fMaskFormat{kA8_GrMaskFormat}
-        , fGlyphs{SkSpan<GrGlyph*>{}}
+        , fGlyphs{SkSpan<PackedGlyphIDorGrGlyph>{}}
         , fVertexData{SkSpan<char>{}}
         , fStrikeSpec{strikeSpec}
-        , fStrike{nullptr}
         , fCurrentColor{textBlob->fColor}
         , fPaths{} {
     textBlob->insertSubRun(this);
@@ -105,9 +102,9 @@ static SkRect dest_rect(const SkGlyph& g, SkPoint origin, SkScalar textScale) {
 }
 
 void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables) {
-    GrTextStrike* grStrike = fStrike.get();
     SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
-    GrGlyph** glyphCursor = fGlyphs.data();
+    SkASSERT(!this->isPrepared());
+    PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
     char* vertexCursor = fVertexData.data();
     size_t vertexStride = this->vertexStride();
     // We always write the third position component used by SDFs. If it is unused it gets
@@ -116,7 +113,6 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     size_t colorOffset = this->colorOffset();
     for (auto [variant, pos] : drawables) {
         SkGlyph* skGlyph = variant;
-        GrGlyph* grGlyph = grStrike->getGlyph(*skGlyph);
         // Only floor the device coordinates.
         SkRect dstRect;
         if (!this->needsTransform()) {
@@ -148,14 +144,14 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
         *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
         vertexCursor += vertexStride;
 
-        *glyphCursor++ = grGlyph;
+        packedIDCursor->fPackedGlyphID = skGlyph->getPackedID();
+        packedIDCursor++;
     }
 }
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
-void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
@@ -210,6 +206,18 @@ bool GrTextBlob::SubRun::hasW() const {
     return fBlob->hasW(fType);
 }
 
+void GrTextBlob::SubRun::prepareGrGlyphs(GrStrikeCache* strikeCache) {
+    if (fStrike) {
+        return;
+    }
+
+    fStrike = fStrikeSpec.findOrCreateGrStrike(strikeCache);
+
+    for (auto& tmp : fGlyphs) {
+        tmp.fGrGlyph = fStrike->getGlyph(tmp.fPackedGlyphID);
+    }
+}
+
 void GrTextBlob::SubRun::translateVerticesIfNeeded(
         const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     SkVector translation;
@@ -262,12 +270,14 @@ void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
 }
 
 void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
+    SkASSERT(this->isPrepared());
+
     const size_t vertexStride = this->vertexStride();
     const size_t texCoordOffset = this->texCoordOffset();
     char* vertex = this->quadStart(begin);
     uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
     for (int i = begin; i < end; i++) {
-        GrGlyph* glyph = this->fGlyphs[i];
+        GrGlyph* glyph = this->fGlyphs[i].fGrGlyph;
         SkASSERT(glyph != nullptr);
 
         int pad = this->drawAsDistanceFields() ? SK_DistanceFieldInset
@@ -304,7 +314,6 @@ void* GrTextBlob::operator new(size_t, void* p) { return p; }
 GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
-                                   GrStrikeCache* strikeCache,
                                    const SkMatrix& drawMatrix,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
@@ -338,7 +347,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-            arenaSize, strikeCache, drawMatrix, glyphRunList.origin(),
+            arenaSize, drawMatrix, glyphRunList.origin(),
             color, initialLuminance, forceWForDistanceFields}};
 
     return blob;
@@ -628,7 +637,8 @@ GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
                                            const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                            const SkStrikeSpec& strikeSpec,
                                            GrMaskFormat format) {
-    SkSpan<GrGlyph*> glyphs{fAlloc.makeArrayDefault<GrGlyph*>(drawables.size()), drawables.size()};
+    SkSpan<SubRun::PackedGlyphIDorGrGlyph> glyphs{
+       fAlloc.makeArrayDefault<SubRun::PackedGlyphIDorGrGlyph>(drawables.size()), drawables.size()};
     bool hasW = this->hasW(type);
 
     SkASSERT(!fInitialMatrix.hasPerspective() || hasW);
@@ -636,10 +646,7 @@ GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
     size_t vertexDataSize = drawables.size() * GetVertexStride(format, hasW) * kVerticesPerGlyph;
     SkSpan<char> vertexData{fAlloc.makeArrayDefault<char>(vertexDataSize), vertexDataSize};
 
-    sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
-
-    SubRun* subRun = fAlloc.make<SubRun>(
-            type, this, strikeSpec, format, glyphs, vertexData, std::move(grStrike));
+    SubRun* subRun = fAlloc.make<SubRun>(type, this, strikeSpec, format, glyphs, vertexData);
 
     subRun->appendGlyphs(drawables);
 
@@ -693,14 +700,12 @@ void GrTextBlob::addSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
 }
 
 GrTextBlob::GrTextBlob(size_t allocSize,
-                       GrStrikeCache* strikeCache,
                        const SkMatrix& drawMatrix,
                        SkPoint origin,
                        GrColor color,
                        SkColor initialLuminance,
                        bool forceWForDistanceFields)
         : fSize{allocSize}
-        , fStrikeCache{strikeCache}
         , fInitialMatrix{drawMatrix}
         , fInitialMatrixInverse{make_inverse(drawMatrix)}
         , fInitialOrigin{origin}
@@ -791,6 +796,7 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
         const int begin, const int end) {
 
+    SkASSERT(fSubRun->isPrepared());
     const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
     if (!fMetricsAndImages.isValid()
@@ -804,7 +810,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
-        GrGlyph* grGlyph = fSubRun->fGlyphs[i];
+        GrGlyph* grGlyph = fSubRun->fGlyphs[i].fGrGlyph;
         SkASSERT(grGlyph);
 
         if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {

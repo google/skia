@@ -234,11 +234,11 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
 
     for (int i = 0; i < fGeoCount; ++i) {
         auto subRun = fGeoData[i].fSubRunPtr;
+        subRun->prepareGrGlyphs(context.grContext()->priv().getGrStrikeCache());
         // TODO4F: Preserve float colors
         subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
-        GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
+        GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun, &context, atlasManager);
         int subRunEnd = subRun->fGlyphs.count();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
             auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);

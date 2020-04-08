@@ -177,10 +177,10 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                         storage.get(), &grGlyph->fAtlasLocator);
 }
 
-GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
-    GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
+GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
+    GrGlyph* grGlyph = fCache.findOrNull(packedGlyphID);
     if (grGlyph == nullptr) {
-        grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+        grGlyph = fAlloc.make<GrGlyph>(packedGlyphID);
         fCache.set(grGlyph);
     }
     return grGlyph;
