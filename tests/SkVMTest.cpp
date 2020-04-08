@@ -26,6 +26,7 @@ const char* fmt_name(Fmt fmt) {
 
 static void dump(skvm::Builder& builder, SkWStream* o) {
     skvm::Program program = builder.done();
+    builder.optimize(true);
     builder.dump(o);
     o->writeText("\n");
     program.dump(o);
@@ -251,28 +252,6 @@ DEF_TEST(SkVM_eliminate_dead_code, r) {
 
     program = skvm::eliminate_dead_code(program);
     REPORTER_ASSERT(r, program.size() == 0);
-}
-
-DEF_TEST(SkVM_Usage, r) {
-    skvm::Builder b;
-    {
-        skvm::Arg arg = b.varying<int>(),
-                  buf = b.varying<int>();
-        skvm::I32 l = b.load32(arg);
-        skvm::I32 a = b.add(l, l);
-        skvm::I32 s = b.add(a, b.splat(7));
-        b.store32(buf, s);
-    }
-
-    skvm::Usage usage{b.program()};
-    REPORTER_ASSERT(r, b.program()[0].op == skvm::Op::load32);
-    REPORTER_ASSERT(r, usage[0].size() == 2);
-    REPORTER_ASSERT(r, b.program()[1].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, usage[1].size() == 1);
-    REPORTER_ASSERT(r, b.program()[2].op == skvm::Op::splat);
-    REPORTER_ASSERT(r, usage[2].size() == 1);
-    REPORTER_ASSERT(r, b.program()[3].op == skvm::Op::add_i32);
-    REPORTER_ASSERT(r, usage[3].size() == 1);
 }
 
 DEF_TEST(SkVM_Pointless, r) {
