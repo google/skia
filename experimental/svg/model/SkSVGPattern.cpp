@@ -80,12 +80,12 @@ const SkSVGPattern* SkSVGPattern::hrefTarget(const SkSVGRenderContext& ctx) cons
         return nullptr;
     }
 
-    const auto* href = ctx.findNodeById(fHref);
+    const auto href = ctx.findNodeById(fHref);
     if (!href || href->tag() != SkSVGTag::kPattern) {
         return nullptr;
     }
 
-    return static_cast<const SkSVGPattern*>(href);
+    return static_cast<const SkSVGPattern*>(href.get());
 }
 
 template <typename T>

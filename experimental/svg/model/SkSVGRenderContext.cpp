@@ -109,7 +109,7 @@ void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, Sk
         p->setColor(SkColorSetA(svgPaint.color(), p->getAlpha()));
         break;
     case SkSVGPaint::Type::kIRI: {
-        const auto* node = ctx.findNodeById(svgPaint.iri());
+        const auto node = ctx.findNodeById(svgPaint.iri());
         if (!node || !node->asPaint(ctx, p)) {
             p->setColor(SK_ColorTRANSPARENT);
         }
@@ -312,9 +312,8 @@ SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
 }
 
-const SkSVGNode* SkSVGRenderContext::findNodeById(const SkString& id) const {
-    const auto* v = fIDMapper.find(id);
-    return v ? v->get() : nullptr;
+SkSVGRenderContext::BorrowedNode SkSVGRenderContext::findNodeById(const SkString& id) const {
+    return BorrowedNode(fIDMapper.find(id));
 }
 
 void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs,
@@ -405,7 +404,7 @@ void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
         return;
     }
 
-    const SkSVGNode* clipNode = this->findNodeById(clip.iri());
+    const auto clipNode = this->findNodeById(clip.iri());
     if (!clipNode || clipNode->tag() != SkSVGTag::kClipPath) {
         return;
     }

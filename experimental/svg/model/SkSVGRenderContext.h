@@ -77,7 +77,41 @@ public:
     };
     void applyPresentationAttributes(const SkSVGPresentationAttributes&, uint32_t flags);
 
-    const SkSVGNode* findNodeById(const SkString&) const;
+    // Scoped wrapper that temporarily clears the original node reference.
+    class BorrowedNode {
+    public:
+        explicit BorrowedNode(sk_sp<SkSVGNode>* node)
+            : fOwner(node) {
+            if (fOwner) {
+                fBorrowed = std::move(*fOwner);
+                *fOwner = nullptr;
+            }
+        }
+
+        ~BorrowedNode() {
+            if (fOwner) {
+                *fOwner = std::move(fBorrowed);
+            }
+        }
+
+        const SkSVGNode* get() const { return fBorrowed.get(); }
+        const SkSVGNode* operator->() const { return fBorrowed.get(); }
+        const SkSVGNode& operator*() const { return *fBorrowed; }
+
+        operator bool() const { return !!fBorrowed; }
+
+    private:
+        // noncopyable
+        BorrowedNode(const BorrowedNode&)      = delete;
+        BorrowedNode& operator=(BorrowedNode&) = delete;
+
+        sk_sp<SkSVGNode>* fOwner;
+        sk_sp<SkSVGNode>  fBorrowed;
+    };
+
+    // Note: the id->node association is cleared for the lifetime of the returned value
+    // (effectively breaks reference cycles, assuming appropriate return value scoping).
+    BorrowedNode findNodeById(const SkString&) const;
 
     const SkPaint* fillPaint() const;
     const SkPaint* strokePaint() const;
