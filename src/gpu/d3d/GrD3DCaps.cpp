@@ -14,6 +14,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
 GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adapter,
@@ -853,8 +854,13 @@ GrCaps::SurfaceReadPixelsSupport GrD3DCaps::surfaceSupportsReadPixels(
     if (surface->isProtected()) {
         return SurfaceReadPixelsSupport::kUnsupported;
     }
-    // TODO
-    return SurfaceReadPixelsSupport::kUnsupported;
+    if (auto tex = static_cast<const GrD3DTexture*>(surface->asTexture())) {
+        // We can't directly read from a compressed format
+        if (GrDxgiFormatIsCompressed(tex->dxgiFormat())) {
+            return SurfaceReadPixelsSupport::kCopyToTexture2D;
+        }
+    }
+    return SurfaceReadPixelsSupport::kSupported;
 }
 
 bool GrD3DCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
@@ -972,8 +978,28 @@ uint64_t GrD3DCaps::computeFormatKey(const GrBackendFormat& format) const {
 GrCaps::SupportedRead GrD3DCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
-    // TODO
-    return {GrColorType::kUnknown, 0};
+    DXGI_FORMAT dxgiFormat;
+    if (!srcBackendFormat.asDxgiFormat(&dxgiFormat)) {
+        return { GrColorType::kUnknown, 0 };
+    }
+
+    SkImage::CompressionType compression = GrDxgiFormatToCompressionType(dxgiFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : GrColorType::kRGBA_8888, 0 };
+    }
+
+    // Any subresource buffer data we copy to needs to be aligned to 256 bytes.
+    size_t offsetAlignment = D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+
+    const auto& info = this->getFormatInfo(dxgiFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == srcColorType) {
+            return { srcColorType, offsetAlignment };
+        }
+    }
+    return { GrColorType::kUnknown, 0 };
 }
 
 void GrD3DCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
