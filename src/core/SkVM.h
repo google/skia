@@ -733,18 +733,6 @@ namespace skvm {
     std::vector<Instruction>          schedule           (std::vector<Instruction>);
     std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
 
-    class Usage {
-    public:
-        Usage(const std::vector<Instruction>&);
-
-        // Return a sorted span of Vals which use result of Instruction id.
-        SkSpan<const Val> operator[](Val id) const;
-
-    private:
-        std::vector<int> fIndex;
-        std::vector<Val> fTable;
-    };
-
     using Reg = int;
 
     // d = op(x, y/imm, z/imm)
