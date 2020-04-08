@@ -22,6 +22,7 @@
 #include "src/gpu/dawn/GrDawnOpsRenderPass.h"
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
+#include "src/gpu/dawn/GrDawnStagingBuffer.h"
 #include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
@@ -34,7 +35,7 @@
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
 
-const int kMaxRenderPipelineEntries = 1024;
+static const int kMaxRenderPipelineEntries = 1024;
 
 static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
     switch (filter) {
@@ -83,17 +84,28 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(device.CreateQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
-        , fRenderPipelineCache(kMaxRenderPipelineEntries)
-        , fStagingManager(fDevice) {
+        , fRenderPipelineCache(kMaxRenderPipelineEntries) {
     fCaps.reset(new GrDawnCaps(options));
 }
 
 GrDawnGpu::~GrDawnGpu() {
+    while (!fBusyStagingBuffers.isEmpty()) {
+        fDevice.Tick();
+    }
 }
 
 
 void GrDawnGpu::disconnect(DisconnectType type) {
-    SkASSERT(!"unimplemented");
+    if (DisconnectType::kAbandon == type) {
+        fBusyStagingBuffers.reset();
+        fAvailableStagingBuffers.reset();
+        fActiveStagingBuffers.reset();
+    } else {
+        while (!fBusyStagingBuffers.isEmpty()) {
+            fDevice.Tick();
+        }
+    }
+    fStagingBuffers.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,24 +324,21 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
-        GrDawnStagingBuffer* stagingBuffer = this->getStagingBuffer(size);
+        GrStagingBuffer::Slice stagingBuffer = this->allocateStagingBufferSlice(size);
         if (rowBytes == origRowBytes) {
-            memcpy(stagingBuffer->fData, pixels, size);
+            memcpy(stagingBuffer.fData, pixels, size);
         } else {
             const char* src = static_cast<const char*>(pixels);
-            char* dst = static_cast<char*>(stagingBuffer->fData);
+            char* dst = static_cast<char*>(stagingBuffer.fData);
             for (int row = 0; row < h; row++) {
                 memcpy(dst, src, origRowBytes);
                 dst += rowBytes;
                 src += origRowBytes;
             }
         }
-        wgpu::Buffer buffer = stagingBuffer->fBuffer;
-        buffer.Unmap();
-        stagingBuffer->fData = nullptr;
         wgpu::BufferCopyView srcBuffer;
-        srcBuffer.buffer = buffer;
-        srcBuffer.offset = 0;
+        srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(stagingBuffer.fBuffer)->buffer();
+        srcBuffer.offset = stagingBuffer.fOffset;
         srcBuffer.rowPitch = rowBytes;
         srcBuffer.imageHeight = h;
         wgpu::TextureCopyView dstTexture;
@@ -424,13 +433,12 @@ void GrDawnGpu::testingOnly_flushGpuAndSync() {
 #endif
 
 void GrDawnGpu::flush() {
-    fUniformRingBuffer.flush();
     this->flushCopyEncoder();
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
         fCommandBuffers.clear();
     }
-    fStagingManager.mapBusyList();
+    this->mapStagingBuffers();
     fDevice.Tick();
 }
 
@@ -634,8 +642,13 @@ GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
 }
 
-GrDawnStagingBuffer* GrDawnGpu::getStagingBuffer(size_t size) {
-    return fStagingManager.findOrCreateStagingBuffer(size);
+std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size) {
+    wgpu::BufferDescriptor desc;
+    desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
+    desc.size = size;
+    wgpu::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
+    auto stagingBuffer = new GrDawnStagingBuffer(this, result.buffer, desc.size, result.data);
+    return std::unique_ptr<GrStagingBuffer>(stagingBuffer);
 }
 
 void GrDawnGpu::appendCommandBuffer(wgpu::CommandBuffer commandBuffer) {
@@ -655,5 +668,12 @@ void GrDawnGpu::flushCopyEncoder() {
     if (fCopyEncoder) {
         fCommandBuffers.push_back(fCopyEncoder.Finish());
         fCopyEncoder = nullptr;
+    }
+}
+
+void GrDawnGpu::mapStagingBuffers() {
+    // Map all active buffers, so we get a callback when they're done.
+    for (auto buffer : fActiveStagingBuffers) {
+        static_cast<GrDawnStagingBuffer*>(buffer)->mapAsync();
     }
 }

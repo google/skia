@@ -12,7 +12,6 @@
 #include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
-struct GrDawnStagingBuffer;
 
 class GrDawnBuffer : public GrGpuBuffer {
 public:
@@ -28,7 +27,8 @@ public:
 
 private:
     wgpu::Buffer fBuffer;
-    GrDawnStagingBuffer* fStagingBuffer;
+    wgpu::Buffer fStagingBuffer;
+    size_t       fStagingOffset;
     typedef GrGpuBuffer INHERITED;
 };
 

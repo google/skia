@@ -9,6 +9,7 @@
 
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
+#include "src/gpu/dawn/GrDawnStagingBuffer.h"
 #include "src/gpu/dawn/GrDawnTextureRenderTarget.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 
@@ -151,15 +152,12 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
         size_t trimRowBytes = width * SkColorTypeBytesPerPixel(colorType);
         size_t dstRowBytes = GrDawnRoundRowBytes(trimRowBytes);
         size_t size = dstRowBytes * height;
-        GrDawnStagingBuffer* stagingBuffer = getDawnGpu()->getStagingBuffer(size);
-        SkRectMemcpy(stagingBuffer->fData, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
-        wgpu::Buffer buffer = stagingBuffer->fBuffer;
-        buffer.Unmap();
-        stagingBuffer->fData = nullptr;
+        GrStagingBuffer::Slice slice = getDawnGpu()->allocateStagingBufferSlice(size);
+        SkRectMemcpy(slice.fData, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
 
         wgpu::BufferCopyView srcBuffer;
-        srcBuffer.buffer = buffer;
-        srcBuffer.offset = 0;
+        srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
+        srcBuffer.offset = slice.fOffset;
         srcBuffer.rowPitch = dstRowBytes;
         srcBuffer.imageHeight = height;
 
