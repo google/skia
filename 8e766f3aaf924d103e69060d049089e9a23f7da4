@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b64359b_9666ebe6",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-08T14:33:04Z",
+      "side": 1,
+      "message": "nit: oldLinuxGceDimensions",
+      "range": {
+        "startLine": 442,
+        "startChar": 3,
+        "endLine": 442,
+        "endChar": 21
+      },
+      "revId": "8e766f3aaf924d103e69060d049089e9a23f7da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
