@@ -537,23 +537,41 @@ bool SkSVGAttributeParser::parseSpreadMethod(SkSVGSpreadMethod* spread) {
 bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
     SkTDArray<SkPoint> pts;
 
+    // comma-wsp:
+    //     (wsp+ comma? wsp*) | (comma wsp*)
+    const auto parseCommaWsp = [this]() -> bool {
+        const bool wsp   = this->parseWSToken();
+        const bool comma = this->parseExpectedStringToken(",");
+        return wsp || comma;
+    };
+
+    // Skip initial wsp.
+    // list-of-points:
+    //     wsp* coordinate-pairs? wsp*
+    this->advanceWhile(is_ws);
+
     bool parsedValue = false;
     for (;;) {
-        this->parseWSToken();
+        // Adjacent coordinate-pairs separated by comma-wsp.
+        // coordinate-pairs:
+        //     coordinate-pair
+        //     | coordinate-pair comma-wsp coordinate-pairs
+        if (parsedValue && !parseCommaWsp()) {
+            break;
+        }
 
         SkScalar x, y;
         if (!this->parseScalarToken(&x)) {
             break;
         }
 
-        // comma-wsp:
-        //     (wsp+ comma? wsp*) | (comma wsp*)
-        bool wsp   = this->parseWSToken();
-        bool comma = this->parseExpectedStringToken(",");
-        if (!(wsp || comma)) {
+        // Coordinate values separated by comma-wsp or '-'.
+        // coordinate-pair:
+        //     coordinate comma-wsp coordinate
+        //     | coordinate negative-coordinate
+        if (!parseCommaWsp() && !this->parseEOSToken() && *fCurPos != '-') {
             break;
         }
-        this->parseWSToken();
 
         if (!this->parseScalarToken(&y)) {
             break;
