@@ -236,7 +236,7 @@ private:
 
     // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
-    GrStrikeCache* const fStrikeCache;
+    GrStrikeCache* const fStrikeCache1;
 
     // The initial view matrix and its inverse. This is used for moving additional draws of this
     // same text blob. We record the initial view matrix and initial offsets(x,y), because we
@@ -303,6 +303,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
+    GrStrikeCache* fStrikeCache = nullptr;
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
@@ -326,7 +327,6 @@ public:
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
 
     GrMaskFormat maskFormat() const;
@@ -355,7 +355,7 @@ public:
     void setAntiAliased(bool antiAliased);
     bool isAntiAliased() const;
 
-    const SkStrikeSpec& strikeSpec() const;
+    const SkStrikeSpec& strikeSpec1() const;
 
     SubRun* fNextSubRun{nullptr};
     const SubRunType fType;
@@ -363,8 +363,8 @@ public:
     const GrMaskFormat fMaskFormat;
     const SkSpan<GrGlyph*> fGlyphs;
     const SkSpan<char> fVertexData;
-    const SkStrikeSpec fStrikeSpec;
-    sk_sp<GrTextStrike> fStrike;
+    const SkStrikeSpec fStrikeSpec1;
+    sk_sp<GrTextStrike> fStrike2;
     struct {
         bool useLCDText:1;
         bool antiAliased:1;

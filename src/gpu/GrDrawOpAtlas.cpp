@@ -114,7 +114,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* gener
         , fPlotIndex(plotIndex)
         , fGenerationCounter(generationCounter)
         , fGenID(fGenerationCounter->next())
-        , fPlotLocator(CreatePlotLocator(fPageIndex, fPlotIndex, fGenID))
+        , fPlotGenID(PlotGenID::Make(fPageIndex, fPlotIndex, fGenID))
         , fData(nullptr)
         , fWidth(width)
         , fHeight(height)
@@ -209,7 +209,7 @@ void GrDrawOpAtlas::Plot::resetRects() {
     fRectanizer.reset();
 
     fGenID = fGenerationCounter->next();
-    fPlotLocator = CreatePlotLocator(fPageIndex, fPlotIndex, fGenID);
+    fPlotGenID = PlotGenID::Make(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = GrDeferredUploadToken::AlreadyFlushedToken();
     fLastUse = GrDeferredUploadToken::AlreadyFlushedToken();
 
@@ -251,9 +251,9 @@ GrDrawOpAtlas::GrDrawOpAtlas(
     this->createPages(proxyProvider, generationCounter);
 }
 
-inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
+inline void GrDrawOpAtlas::processEviction(PlotGenID plotGenID) {
     for (auto evictor : fEvictionCallbacks) {
-        evictor->evict(plotLocator);
+        evictor->evict(plotGenID);
     }
 
     fAtlasGeneration = fGenerationCounter->next();
@@ -280,7 +280,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
                 });
         plot->setLastUploadToken(lastUploadToken);
     }
-    atlasLocator->fPlotLocator = plot->plotLocator();
+    atlasLocator->fPlotGenID = plot->plotGenID();
     return true;
 }
 
@@ -394,7 +394,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
         return ErrorCode::kTryAgain;
     }
 
-    this->processEviction(plot->plotLocator());
+    this->processEviction(plot->plotGenID());
     int pageIdx = plot->pageIndex();
     fPages[pageIdx].fPlotList.remove(plot);
     sk_sp<Plot>& newPlot = fPages[pageIdx].fPlotArray[plot->plotIndex()];
@@ -419,7 +419,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
             });
     newPlot->setLastUploadToken(lastUploadToken);
 
-    atlasLocator->fPlotLocator = newPlot->plotLocator();
+    atlasLocator->fPlotGenID = newPlot->plotGenID();
 
     return ErrorCode::kSucceeded;
 }
