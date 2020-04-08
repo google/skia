@@ -477,6 +477,8 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append(ec, "Docker")
+		} else if b.matchOs("Debian9") {
+			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
 		} else if b.matchOs("Ubuntu", "Debian") {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.matchOs("Mac") {
