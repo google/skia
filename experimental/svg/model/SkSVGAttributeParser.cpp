@@ -373,7 +373,7 @@ bool SkSVGAttributeParser::parseSkewXToken(SkMatrix* matrix) {
         if (!this->parseScalarToken(&angle)) {
             return false;
         }
-        m->setSkewX(angle);
+        m->setSkewX(tanf(SkDegreesToRadians(angle)));
         return true;
     }, matrix);
 }
@@ -384,7 +384,7 @@ bool SkSVGAttributeParser::parseSkewYToken(SkMatrix* matrix) {
         if (!this->parseScalarToken(&angle)) {
             return false;
         }
-        m->setSkewY(angle);
+        m->setSkewY(tanf(SkDegreesToRadians(angle)));
         return true;
     }, matrix);
 }
