@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bcf06ad_6553a788",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-08T17:23:50Z",
+      "side": 1,
+      "message": "Note: This does nothing if the color space xform is null",
+      "revId": "b1e24010097e8747f49f5ba2b54261e850659b0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7366996c_89695a27",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-08T17:23:50Z",
+      "side": 1,
+      "message": "Similarly, if the helper wasn\u0027t initialized (because of a null xform), this just sets the output color to the input color.",
+      "revId": "b1e24010097e8747f49f5ba2b54261e850659b0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
