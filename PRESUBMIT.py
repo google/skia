@@ -163,7 +163,7 @@ def _InfraTests(input_api, output_api):
 def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
   files = []
-  for f in input_api.AffectedFiles():
+  for f in input_api.AffectedFiles(include_deletes=False):
     if (f.LocalPath().endswith('.gn') or
         f.LocalPath().endswith('.gni')):
       files.append(f)
