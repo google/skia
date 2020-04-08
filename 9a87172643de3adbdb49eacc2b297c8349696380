@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "680430d5_62d5c70c",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T19:20:41Z",
+      "side": 1,
+      "message": "So a concrete example would be in Vulkan. At the end of vulkan\u0027s disconnect function we release our memory allocator. After that if we try to release any more vulkan memory we will crash cause the allocator is already gone. Thus we need to make sure we\u0027ve freed all memory before this happens.\n\nWhen fStagingBuffers gets released it will free the actually buffer it is holding a ref to. So fStagingBuffers needs to get released before the end of GrVkGpu::disconnect. A function that GrVkGpu could call on GrGpu to free its stuff would work. It is not prettiest thing but that is probably the best option in the current design.\n\nNot suggesting we do this right now, but just trying to write ideas out there to think about. But if we were in a world where GrGpu didn\u0027t have the busy list, and the available and active list owned unique_ptrs (not fStagingBuffers). Then we could have GrGpu::disconnect be non virtual. It could immediately drop all the buffers in available and active. Then call the virtual onDisconnect. Then the backend is in charge of freeing all the resources it has in its own busy lists when the GPU is done.\n\nI\u0027m sure there are other problems in that last suggestion and for now I think we should go with the function on GrGpu to free staging buffers that can be called by the backends.",
+      "parentUuid": "8238182a_fac56af0",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f67e59e4_92052935",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 1
@@ -107,6 +131,30 @@
       "side": 1,
       "message": "Re: Tick(): It\u0027s possible, though unlikely given all the pipelining in GPUs. I actually wanted to move the Active buffers to Busy before the onFinishFlush(), which would avoid this problem, but I needed to know which ones were Active to know which ones to re-map after (in mapStagingBuffers). I also had a \"NewlyBusy\" list before for this purpose, but it was pretty gross.\n\n(TBH I don\u0027t even remember why I added this Tick(); it\u0027s possible that it\u0027s no longer necessary. If we were really flushing we should Tick() until a fence fires anyway; one Tick doesn\u0027t guarantee anything.)\n\nAnother idea might be to provide a function to move a buffer from Active to Busy, and let the backend control it. Then at least we could do it before Tick().\n\nRe: Vulkan: I think we should probably prototype something in Vulkan with this stuff before trying to anticipate all the use cases preemptively.",
       "parentUuid": "f67e59e4_92052935",
+      "range": {
+        "startLine": 437,
+        "startChar": 4,
+        "endLine": 438,
+        "endChar": 19
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01617d98_cfdc76ba",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T19:20:41Z",
+      "side": 1,
+      "message": "Well I know in Vulkan the command buffer can finish and we notice it inside of the onFinishFlush call. So it would be nice for that to work easily. I think (though we should check) the completion callbacks in metal are asynchronous and could be triggered at any time.\n\nSo yeah if we keep the current model I think we will need a function call to move all active to busy.",
+      "parentUuid": "5607124a_5e2472de",
       "range": {
         "startLine": 437,
         "startChar": 4,
