@@ -444,11 +444,12 @@ namespace skvm {
 
                 case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
                 case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
-                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
-                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
                 case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
                 case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
                 case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
+                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x;
+                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x;
+                case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
 
                 try_imm_x_and_y:
                     if (int bits; is_imm(inst.x, &bits)) {
@@ -462,9 +463,17 @@ namespace skvm {
                         inst.immy = bits;
                     } break;
 
-                case Op::sub_f32:
+                try_imm_x:
+                    if (int bits; is_imm(inst.x, &bits)) {
+                        inst.op   = imm_op;
+                        inst.x    = inst.y;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } break;
+
+                try_imm_y:
                     if (int bits; is_imm(inst.y, &bits)) {
-                        inst.op   = Op::sub_f32_imm;
+                        inst.op   = imm_op;
                         inst.y    = NA;
                         inst.immy = bits;
                     } break;
@@ -927,29 +936,13 @@ namespace skvm {
         return x;
     }
 
-    // We want all our implementations to behave the same with regard to NaN,
-    // and std::min() and std::max() are spec'd to work the way SKVM_PORTABLE_MIN_MAX defines.
-    // Our interpreter and LLVM backends already work exactly likes std::min()/std::max(),
-    // but our JIT backend does not, at least not on x86.
-    // TODO: test, fix, and re-enable backend-specific implementations.
-    // Need to test NaN on both sides of each, including splats() to test {min,max}_f32_imm.
-    #define SKVM_PORTABLE_MIN_MAX
-
     F32 Builder::min(F32 x, F32 y) {
-    #if defined(SKVM_PORTABLE_MIN_MAX)
-        return select(y<x, y,x);
-    #else
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
-    #endif
     }
     F32 Builder::max(F32 x, F32 y) {
-    #if defined(SKVM_PORTABLE_MIN_MAX)
-        return select(x<y, y,x);
-    #else
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::max(X,Y)); }
         return {this, this->push(Op::max_f32, x.id, y.id)};
-    #endif
     }
 
     I32 Builder::add(I32 x, I32 y) {
@@ -3251,8 +3244,8 @@ namespace skvm {
                 case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
                 case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
                 case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
-                case Op::min_f32: a->vminps(dst(), r[x], r[y]); break;
-                case Op::max_f32: a->vmaxps(dst(), r[x], r[y]); break;
+                case Op::min_f32: a->vminps(dst(), r[y], r[x]); break;  // Order matters,
+                case Op::max_f32: a->vmaxps(dst(), r[y], r[x]); break;  // see test SkVM_min_max.
 
                 case Op::fma_f32:
                     if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
@@ -3370,8 +3363,6 @@ namespace skvm {
                 case Op::sub_f32: a->fsub4s(dst(), r[x], r[y]); break;
                 case Op::mul_f32: a->fmul4s(dst(), r[x], r[y]); break;
                 case Op::div_f32: a->fdiv4s(dst(), r[x], r[y]); break;
-                case Op::min_f32: a->fmin4s(dst(), r[x], r[y]); break;
-                case Op::max_f32: a->fmax4s(dst(), r[x], r[y]); break;
 
                 case Op::fma_f32: // fmla.4s is z += x*y
                     if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
@@ -3433,6 +3424,20 @@ namespace skvm {
                                                             a->bsl16b(tmp(),  r[y],  r[z]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
+
+                // fmin4s and fmax4s don't work the way we want with NaN,
+                // so we write them the long way:
+                case Op::min_f32: // min(x,y) = y<x ? y : x
+                                  a->fcmgt4s(tmp(), r[x],r[y]);
+                                  a->bsl16b (tmp(), r[y],r[x]);
+             if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); }
+                                  break;
+
+                case Op::max_f32: // max(x,y) = x<y ? y : x
+                                  a->fcmgt4s(tmp(), r[y],r[x]);
+                                  a->bsl16b (tmp(), r[y],r[x]);
+             if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); }
+                                  break;
 
                 case Op::shl_i32: a-> shl4s(dst(), r[x], immy); break;
                 case Op::shr_i32: a->ushr4s(dst(), r[x], immy); break;
