@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "4a11c641_05b3f088",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-08T18:12:24Z",
+      "side": 1,
+      "message": "Make that RGB.",
+      "parentUuid": "5e62029b_a505cac7",
+      "range": {
+        "startLine": 245,
+        "startChar": 51,
+        "endLine": 245,
+        "endChar": 76
+      },
+      "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbbbf7a3_aa44d075",
         "filename": "src/gpu/mtl/GrMtlUtil.mm",
         "patchSetId": 6
