@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59c5ddbc_e48c7a84",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10941
+      },
+      "writtenOn": "2020-04-08T21:16:05Z",
+      "side": 1,
+      "message": "Dawn side fix landed (stoled your CL).\n\nd9d9d1ec7348f2e4682cce2c4d188e38d62ff9f9 or newer hopefully pass all bots.",
+      "revId": "77e7456ef0cf217e5975fdece220626e36c1ead9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
