@@ -909,6 +909,11 @@ public:
     */
     void resetMatrix();
 
+    /**
+     *  Sets the clip to wide-open.
+     */
+    void resetClip();
+
     /** Replaces clip with the intersection or difference of clip and rect,
         with an aliased or anti-aliased clip edge. rect is transformed by SkMatrix
         before it is combined with clip.
@@ -2559,6 +2564,7 @@ protected:
         kSoft_ClipEdgeStyle
     };
 
+    virtual void onResetClip();
     virtual void onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle);
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle);
     virtual void onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle);
