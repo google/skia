@@ -100,7 +100,6 @@ public:
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  GrStrikeCache* strikeCache,
                                   const SkMatrix& drawMatrix,
                                   GrColor color,
                                   bool forceWForDistanceFields);
@@ -203,7 +202,6 @@ private:
     };
 
     GrTextBlob(size_t allocSize,
-               GrStrikeCache* strikeCache,
                const SkMatrix& drawMatrix,
                SkPoint origin,
                GrColor color,
@@ -233,10 +231,6 @@ private:
 
     // Overall size of this struct plus vertices and glyphs at the end.
     const size_t fSize;
-
-    // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
-    // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
-    GrStrikeCache* const fStrikeCache;
 
     // The initial view matrix and its inverse. This is used for moving additional draws of this
     // same text blob. We record the initial view matrix and initial offsets(x,y), because we
@@ -310,24 +304,30 @@ private:
 // glyphs that are included in them.
 class GrTextBlob::SubRun {
 public:
+    union Foo {
+        Foo() {}
+
+        SkPackedGlyphID fPackedGlyphID;
+        GrGlyph*        fGrGlyph;
+    };
+
     // SubRun for masks
     SubRun(SubRunType type,
            GrTextBlob* textBlob,
            const SkStrikeSpec& strikeSpec,
            GrMaskFormat format,
-           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
-           sk_sp<GrTextStrike>&& grStrike);
+           const SkSpan<Foo>& glyphs,
+           const SkSpan<char>& vertexData);
 
     // SubRun for paths
-    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+    SubRun(GrTextBlob*, const SkStrikeSpec&);
 
     void appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables);
 
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    void setStrike(sk_sp<GrTextStrike> strike);
-    GrTextStrike* strike() const;
+    GrTextStrike* strike2() const;
 
     GrMaskFormat maskFormat() const;
 
@@ -345,6 +345,11 @@ public:
     bool needsTransform() const;
     bool needsPadding() const;
 
+    // Makes the GrGlyphs and textStrike active for this subrun
+    void itsAlive(GrStrikeCache*);
+    // has 'itsAlive' been called (i.e., can the GrGlyphs be accessed) ?
+    SkDEBUGCODE(bool alive() const { return SkToBool(fStrike); })
+
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
     void updateTexCoords(int begin, int end);
@@ -361,7 +366,7 @@ public:
     const SubRunType fType;
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
-    const SkSpan<GrGlyph*> fGlyphs;
+    const SkSpan<Foo> fGlyphs;
     const SkSpan<char> fVertexData;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
