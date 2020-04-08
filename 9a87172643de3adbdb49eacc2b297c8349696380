@@ -45,6 +45,52 @@
       "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f67e59e4_92052935",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T18:29:33Z",
+      "side": 1,
+      "message": "Another random thought. I would imagine that is is possible that whatever was submitted above could be done by the time we called this Tick (or maybe submissions can fail in dawn??). Regardless would that cause the staging buffers AsyncMap to be triggered here which tries to move the buffer from busy to available? I don\u0027t think it would be in the busy state yet cause we don\u0027t move it from active to busy till after we call onFinishFlush in GrGpu.\n\nThis makes me think more that maybe the busy list really should be a backend control and maybe owned/specific thing. That way you can move the buffers to busy after the Submit call but before you map and do the Tick.",
+      "range": {
+        "startLine": 437,
+        "startChar": 4,
+        "endLine": 438,
+        "endChar": 19
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afc12cd9_5e737429",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T18:29:33Z",
+      "side": 1,
+      "message": "nit: this-\u003eactiveStagingBuffers()",
+      "range": {
+        "startLine": 672,
+        "startChar": 23,
+        "endLine": 672,
+        "endChar": 24
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
