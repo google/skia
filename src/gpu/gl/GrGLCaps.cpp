@@ -3094,7 +3094,13 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                     // returned by GL so that the array is ascending.
                     fFormatTable[i].fColorSampleCounts[0] = 1;
                     for (int j = 0; j < count; ++j) {
+#if TARGET_OS_SIMULATOR
+                        // The iOS simulator is reporting incorrect values for sample counts,
+                        // so force them to be a power of 2.
+                        fFormatTable[i].fColorSampleCounts[j+1] = SkPrevPow2(temp[count - j - 1]);
+#else
                         fFormatTable[i].fColorSampleCounts[j+1] = temp[count - j - 1];
+#endif
                     }
                 }
             } else {
