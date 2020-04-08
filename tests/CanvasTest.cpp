@@ -680,3 +680,45 @@ DEF_TEST(Canvas_ClippedOutImageFilter, reporter) {
     REPORTER_ASSERT(reporter, preCTM == postCTM);
 }
 
+DEF_TEST(canvas_markctm, reporter) {
+    SkCanvas canvas(10, 10);
+
+    SkM44    m;
+    uint32_t id_a = 1,
+             id_b = 2;
+
+    REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_a, nullptr));
+    REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_b, nullptr));
+
+    // remember the starting state
+    SkM44 b = canvas.getLocalToDevice();
+    canvas.markCTM(id_b);
+
+    // test add
+    canvas.concat(SkM44::Scale(2, 4, 6));
+    SkM44 a = canvas.getLocalToDevice();
+    canvas.markCTM(id_a);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a);
+
+    // test replace
+    canvas.translate(1, 2);
+    SkM44 a1 = canvas.getLocalToDevice();
+    SkASSERT(a != a1);
+    canvas.markCTM(id_a);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+
+    // test nested
+    canvas.save();
+    // no change
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_b, &m) && m == b);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+    canvas.translate(2, 3);
+    SkM44 a2 = canvas.getLocalToDevice();
+    SkASSERT(a2 != a1);
+    canvas.markCTM(id_a);
+    // found the new one
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a2);
+    canvas.restore();
+    // found the previous one
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+}
