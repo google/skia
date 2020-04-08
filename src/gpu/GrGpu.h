@@ -12,9 +12,11 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
+#include "src/gpu/GrStagingBuffer.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
@@ -678,6 +680,12 @@ public:
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
+    GrStagingBuffer* findStagingBuffer(size_t size);
+    GrStagingBuffer::Slice allocateStagingBufferSlice(size_t size);
+    virtual std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) { return nullptr; }
+    void unmapStagingBuffers();
+    void markStagingBufferAvailable(GrStagingBuffer* buffer);
+
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
@@ -687,10 +695,18 @@ protected:
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                            uint32_t mipLevels = 1) const;
 
+    typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
+
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
     sk_sp<const GrCaps>              fCaps;
+    std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
+
+    StagingBufferList                fAvailableStagingBuffers;
+    StagingBufferList                fActiveStagingBuffers;
+    StagingBufferList                fBusyStagingBuffers;
+
 
 private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
@@ -809,6 +825,10 @@ private:
         this->onResetContext(fResetBits);
         fResetBits = 0;
     }
+#ifdef SK_DEBUG
+    bool inStagingBuffers(GrStagingBuffer* b) const;
+    void validateStagingBuffers() const;
+#endif
 
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
