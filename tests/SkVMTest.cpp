@@ -1927,3 +1927,112 @@ DEF_TEST(SkVM_approx_math, r) {
         }
     }
 }
+
+DEF_TEST(SkVM_min_max, r) {
+    // min() and max() have subtle behavior when one argument is NaN and
+    // the other isn't.  It's not sound to blindly swap their arguments.
+    //
+    // All backends must behave like std::min() and std::max(), which are
+    //
+    //    min(x,y) = y<x ? y : x
+    //    max(x,y) = x<y ? y : x
+
+    // ±NaN, ±0, ±1, ±inf
+    const uint32_t bits[] = {0x7f80'0001, 0xff80'0001, 0x0000'0000, 0x8000'0000,
+                             0x3f80'0000, 0xbf80'0000, 0x7f80'0000, 0xff80'0000};
+
+    float f[8];
+    memcpy(f, bits, sizeof(bits));
+
+    auto identical = [&](float x, float y) {
+        uint32_t X,Y;
+        memcpy(&X, &x, 4);
+        memcpy(&Y, &y, 4);
+        return X == Y;
+    };
+
+    // Test min/max with non-constant x, non-constant y.
+    // (Whether x and y are varying or uniform shouldn't make any difference.)
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg src = b.varying<float>(),
+                       mn = b.varying<float>(),
+                       mx = b.varying<float>();
+
+            skvm::F32 x = b.loadF(src),
+                      y = b.uniformF(b.uniform(), 0);
+
+            b.storeF(mn, b.min(x,y));
+            b.storeF(mx, b.max(x,y));
+        }
+
+    #if defined(SKVM_LLVM) || defined(SK_CPU_X86)
+        test_jit_and_interpreter
+    #else
+        test_interpreter_only  // No uniforms on non-LLVM ARM JIT yet.
+    #endif
+        (r, b.done(), [&](const skvm::Program& program){
+            float mn[8], mx[8];
+            for (int i = 0; i < 8; i++) {
+                // min() and max() everything with f[i].
+                program.eval(8, f,mn,mx, &f[i]);
+
+                for (int j = 0; j < 8; j++) {
+                    REPORTER_ASSERT(r, identical(mn[j], std::min(f[j], f[i])));
+                    REPORTER_ASSERT(r, identical(mx[j], std::max(f[j], f[i])));
+                }
+            }
+        });
+    }
+
+    // Test each with constant on the right.
+    for (int i = 0; i < 8; i++) {
+        skvm::Builder b;
+        {
+            skvm::Arg src = b.varying<float>(),
+                       mn = b.varying<float>(),
+                       mx = b.varying<float>();
+
+            skvm::F32 x = b.loadF(src),
+                      y = b.splat(f[i]);
+
+            b.storeF(mn, b.min(x,y));
+            b.storeF(mx, b.max(x,y));
+        }
+
+        test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program){
+            float mn[8], mx[8];
+            program.eval(8, f,mn,mx);
+            for (int j = 0; j < 8; j++) {
+                REPORTER_ASSERT(r, identical(mn[j], std::min(f[j], f[i])));
+                REPORTER_ASSERT(r, identical(mx[j], std::max(f[j], f[i])));
+            }
+        });
+    }
+
+    // Test each with constant on the left.
+    for (int i = 0; i < 8; i++) {
+        skvm::Builder b;
+        {
+            skvm::Arg src = b.varying<float>(),
+                       mn = b.varying<float>(),
+                       mx = b.varying<float>();
+
+            skvm::F32 x = b.splat(f[i]),
+                      y = b.loadF(src);
+
+            b.storeF(mn, b.min(x,y));
+            b.storeF(mx, b.max(x,y));
+        }
+
+        test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program){
+            float mn[8], mx[8];
+            program.eval(8, f,mn,mx);
+            for (int j = 0; j < 8; j++) {
+                REPORTER_ASSERT(r, identical(mn[j], std::min(f[i], f[j])));
+                REPORTER_ASSERT(r, identical(mx[j], std::max(f[i], f[j])));
+            }
+        });
+    }
+}
