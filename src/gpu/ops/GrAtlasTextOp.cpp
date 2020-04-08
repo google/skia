@@ -358,16 +358,17 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         auto subRun = args.fSubRunPtr;
         SkASSERT((int)subRun->vertexStride() == vertexStride);
 
+        subRun->itsAlive(target->glyphCache());
         subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
 
         // TODO4F: Preserve float colors
-        GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, target->deferredUploadTarget(), atlasManager);
+        GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun,
+                                                  target->deferredUploadTarget(), atlasManager);
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
-        int subRunEnd = subRunBegin + subRun->fGlyphs.count();
+        int subRunEnd = subRunBegin + subRun->fGlyphs3.count();
 
         // Draw all the glyphs in the subRun.
         while (totalGlyphsRegened < subRunEnd) {
@@ -376,7 +377,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             int drawBegin = totalGlyphsRegened - subRunBegin;
             // drawEnd is either the end of the subRun or the end of the current quad buffer.
             int drawEnd = std::min(subRunEnd, quadBufferEnd) - subRunBegin;
-            auto[ok, glyphsRegenerated] = regenerator.regenerate(drawBegin, drawEnd);
+            auto[ok, glyphsRegenerated] = regenerator.regenerate1(drawBegin, drawEnd);
 
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
