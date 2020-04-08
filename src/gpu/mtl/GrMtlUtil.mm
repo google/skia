@@ -246,7 +246,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
 #endif
         case MTLPixelFormatRGBA16Float:     return kRGBA_SkColorChannelFlags;
         case MTLPixelFormatR16Float:        return kRed_SkColorChannelFlag;
-        case MTLPixelFormatRG8Unorm:        return kRGB_SkColorChannelFlags;
+        case MTLPixelFormatRG8Unorm:        return kRG_SkColorChannelFlags;
         case MTLPixelFormatRGB10A2Unorm:    return kRGBA_SkColorChannelFlags;
 #if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatABGR4Unorm:      return kRGBA_SkColorChannelFlags;

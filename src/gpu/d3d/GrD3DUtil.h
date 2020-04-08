@@ -29,7 +29,7 @@ static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
         case DXGI_FORMAT_R8_UNORM:                 return kRed_SkColorChannelFlag;
         case DXGI_FORMAT_B8G8R8A8_UNORM:           return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_B5G6R5_UNORM:             return kRGB_SkColorChannelFlags;
-        case DXGI_FORMAT_R16G16B16A16_FLOAT:       return kRGBA_1010102_SkColorType;
+        case DXGI_FORMAT_R16G16B16A16_FLOAT:       return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R16_FLOAT:                return kRed_SkColorChannelFlag;
         case DXGI_FORMAT_R8G8_UNORM:               return kRG_SkColorChannelFlags;
         case DXGI_FORMAT_R10G10B10A2_UNORM:        return kRGBA_SkColorChannelFlags;
