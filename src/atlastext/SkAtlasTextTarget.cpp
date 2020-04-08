@@ -235,13 +235,13 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     for (int i = 0; i < fGeoCount; ++i) {
         auto subRun = fGeoData[i].fSubRunPtr;
         // TODO4F: Preserve float colors
+        subRun->itsAlive(context.grContext()->priv().getGrStrikeCache());
         subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
-        GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, fGeoData[i].fSubRunPtr, &context, atlasManager);
-        int subRunEnd = subRun->fGlyphs.count();
+        GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun, &context, atlasManager);
+        int subRunEnd = subRun->fGlyphs3.count();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
-            auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
+            auto [ok, glyphsRegenerated] = regenerator.regenerate1(subRunIndex, subRunEnd);
             if (!ok) {
                 break;
             }
