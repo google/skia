@@ -134,14 +134,14 @@ public:
 
 
 // Callback to clear out internal path cache when eviction occurs
-void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotGenID plotGenID) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
     ShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
-        if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
+        if (plotGenID == shapeData->fAtlasLocator.plotGenID()) {
             fShapeCache.remove(shapeData->fKey);
             fShapeList.remove(shapeData);
             delete shapeData;
@@ -458,7 +458,7 @@ private:
                 // check to see if df path is cached
                 ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fAtlasLocator)) {
+                if (!shapeData || !fAtlas->isGenIDStillValid(shapeData->fAtlasLocator.plotGenID())) {
                     // Remove the stale cache entry
                     if (shapeData) {
                         fShapeCache->remove(shapeData->fKey);
@@ -483,7 +483,7 @@ private:
                 // check to see if bitmap path is cached
                 ShapeDataKey key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fAtlasLocator)) {
+                if (!shapeData || !fAtlas->isGenIDStillValid(shapeData->fAtlasLocator.plotGenID())) {
                     // Remove the stale cache entry
                     if (shapeData) {
                         fShapeCache->remove(shapeData->fKey);
@@ -909,14 +909,14 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
         fShapeCache.reset();
     }
 
-    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override {
+    void evict(GrDrawOpAtlas::PlotGenID plotGenID) override {
         // remove any paths that use this plot
         ShapeDataList::Iter iter;
         iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
         ShapeData* shapeData;
         while ((shapeData = iter.get())) {
             iter.next();
-            if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
+            if (plotGenID == shapeData->fAtlasLocator.plotGenID()) {
                 fShapeCache.remove(shapeData->fKey);
                 fShapeList.remove(shapeData);
                 delete shapeData;
