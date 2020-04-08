@@ -150,6 +150,10 @@ public:
         this->onRestore();
         this->setLocalToDevice(localToDevice);
     }
+
+    void resetClip() {
+        this->onResetClip();
+    }
     void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
         this->onClipRect(rect, op, aa);
     }
@@ -197,6 +201,7 @@ protected:
 
     virtual void onSave() {}
     virtual void onRestore() {}
+    virtual void onResetClip() = 0;
     virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
@@ -468,6 +473,7 @@ protected:
     // We pretend to be wide-open. We could pretend to always be empty, but that *seems* worse.
     void onSave() override {}
     void onRestore() override {}
+    void onResetClip() override {}
     void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
     void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}

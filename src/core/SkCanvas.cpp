@@ -1567,6 +1567,19 @@ void SkCanvas::resetMatrix() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::resetClip() {
+    this->checkForDeferredSave();
+    this->onResetClip();
+}
+
+void SkCanvas::onResetClip() {
+    FOR_EACH_TOP_DEVICE(device->resetClip());
+
+    AutoValidateClip avc(this);
+    fMCRec->fRasterClip.setRect(this->getTopLayerBounds());
+    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+}
+
 void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
     if (!rect.isFinite()) {
         return;
