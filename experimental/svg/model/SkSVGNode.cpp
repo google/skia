@@ -64,12 +64,23 @@ void SkSVGNode::setClipPath(const SkSVGClip& clip) {
     fPresentationAttributes.fClipPath.set(clip);
 }
 
+template <typename T>
+void SetInheritedByDefault(const T& value, SkTLazy<T>& presentation_attribute) {
+    if (value.type() != T::Type::kInherit) {
+        presentation_attribute.set(value);
+    } else {
+        // kInherited values are semantically equivalent to
+        // the absence of a local presentation attribute.
+        presentation_attribute.reset();
+    }
+}
+
 void SkSVGNode::setClipRule(const SkSVGFillRule& clipRule) {
-    fPresentationAttributes.fClipRule.set(clipRule);
+    SetInheritedByDefault(clipRule, fPresentationAttributes.fClipRule);
 }
 
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
-    fPresentationAttributes.fFill.set(svgPaint);
+    SetInheritedByDefault(svgPaint, fPresentationAttributes.fFill);
 }
 
 void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
@@ -78,7 +89,7 @@ void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
 }
 
 void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
-    fPresentationAttributes.fFillRule.set(fillRule);
+    SetInheritedByDefault(fillRule, fPresentationAttributes.fFillRule);
 }
 
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
@@ -87,11 +98,11 @@ void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
 }
 
 void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
-    fPresentationAttributes.fStroke.set(svgPaint);
+    SetInheritedByDefault(svgPaint, fPresentationAttributes.fStroke);
 }
 
 void SkSVGNode::setStrokeDashArray(const SkSVGDashArray& dashArray) {
-    fPresentationAttributes.fStrokeDashArray.set(dashArray);
+    SetInheritedByDefault(dashArray, fPresentationAttributes.fStrokeDashArray);
 }
 
 void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
@@ -103,12 +114,24 @@ void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
 }
 
+void SkSVGNode::setStrokeLineCap(const SkSVGLineCap& lc) {
+    SetInheritedByDefault(lc, fPresentationAttributes.fStrokeLineCap);
+}
+
+void SkSVGNode::setStrokeLineJoin(const SkSVGLineJoin& lj) {
+    SetInheritedByDefault(lj, fPresentationAttributes.fStrokeLineJoin);
+}
+
+void SkSVGNode::setStrokeMiterLimit(const SkSVGNumberType& ml) {
+    fPresentationAttributes.fStrokeMiterLimit.set(ml);
+}
+
 void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
     fPresentationAttributes.fStrokeWidth.set(strokeWidth);
 }
 
 void SkSVGNode::setVisibility(const SkSVGVisibility& visibility) {
-    fPresentationAttributes.fVisibility.set(visibility);
+    SetInheritedByDefault(visibility, fPresentationAttributes.fVisibility);
 }
 
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -165,17 +188,17 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         break;
     case SkSVGAttribute::kStrokeLineCap:
         if (const SkSVGLineCapValue* lineCap = v.as<SkSVGLineCapValue>()) {
-            fPresentationAttributes.fStrokeLineCap.set(*lineCap);
+            this->setStrokeLineCap(*lineCap);
         }
         break;
     case SkSVGAttribute::kStrokeLineJoin:
         if (const SkSVGLineJoinValue* lineJoin = v.as<SkSVGLineJoinValue>()) {
-            fPresentationAttributes.fStrokeLineJoin.set(*lineJoin);
+            this->setStrokeLineJoin(*lineJoin);
         }
         break;
     case SkSVGAttribute::kStrokeMiterLimit:
         if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
-            fPresentationAttributes.fStrokeMiterLimit.set(*miterLimit);
+            this->setStrokeMiterLimit(*miterLimit);
         }
         break;
     case SkSVGAttribute::kStrokeWidth:
