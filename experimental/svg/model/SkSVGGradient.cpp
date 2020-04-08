@@ -44,7 +44,7 @@ void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-// https://www.w3.org/TR/SVG/pservers.html#LinearGradientElementHrefAttribute
+// https://www.w3.org/TR/SVG11/pservers.html#LinearGradientElementHrefAttribute
 void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
                                       StopPositionArray* pos,
                                       StopColorArray* colors) const {

@@ -98,7 +98,7 @@ bool inherit_if_needed(const SkTLazy<T>& src, SkTLazy<T>& dst) {
     return false;
 }
 
-/* https://www.w3.org/TR/SVG/pservers.html#PatternElementHrefAttribute
+/* https://www.w3.org/TR/SVG11/pservers.html#PatternElementHrefAttribute
  *
  * Any attributes which are defined on the referenced element which are not defined on this element
  * are inherited by this element. If this element has no children, and the referenced element does

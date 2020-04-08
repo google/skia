@@ -13,7 +13,7 @@
 
 /**
  * Implements support for <use> (reference) elements.
- * (https://www.w3.org/TR/SVG/struct.html#UseElement)
+ * (https://www.w3.org/TR/SVG11/struct.html#UseElement)
  */
 class SkSVGUse final : public SkSVGTransformableNode {
 public:

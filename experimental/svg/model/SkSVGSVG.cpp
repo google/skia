@@ -96,7 +96,7 @@ void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-// https://www.w3.org/TR/SVG/coords.html#IntrinsicSizing
+// https://www.w3.org/TR/SVG11/coords.html#IntrinsicSizing
 SkSize SkSVGSVG::intrinsicSize(const SkSVGLengthContext& lctx) const {
     // Percentage values do not provide an intrinsic size.
     if (fWidth.unit() == SkSVGLength::Unit::kPercentage ||
