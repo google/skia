@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1eb7ae14_0087499a",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-08T18:11:04Z",
+      "side": 1,
+      "message": "See https://skia-review.googlesource.com/c/skia/+/282270. 565 and 4444 aren\u0027t supported in the iOS Metal simulator. You\u0027ll want to make this\n#if defined(SK_BUILD_FOR_IOS) \u0026\u0026 !TARGET_OS_SIMULATOR",
+      "range": {
+        "startLine": 244,
+        "startChar": 7,
+        "endLine": 244,
+        "endChar": 23
+      },
+      "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e62029b_a505cac7",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-08T18:11:04Z",
+      "side": 1,
+      "message": "RGBA?",
+      "range": {
+        "startLine": 245,
+        "startChar": 51,
+        "endLine": 245,
+        "endChar": 76
+      },
+      "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbbbf7a3_aa44d075",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-08T18:11:04Z",
+      "side": 1,
+      "message": "Same here for TARGET_OS_SIMULATOR.",
+      "range": {
+        "startLine": 251,
+        "startChar": 7,
+        "endLine": 251,
+        "endChar": 23
+      },
+      "revId": "285b2bfa05243da8a0adcba7cb441e995a3467e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
