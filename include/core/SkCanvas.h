@@ -2690,6 +2690,7 @@ private:
     friend class AutoLayerForImageFilter;
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkNoDrawCanvas;    // needs resetForNextPicture()
+    friend class SkNWayCanvas;      // needs onSaveCamera()
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
@@ -2744,8 +2745,6 @@ private:
     void internalSaveBehind(const SkRect*);
     void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
-
-    void internalConcat44(const SkM44&);
 
     // shared by save() and saveLayer()
     void internalSave();
