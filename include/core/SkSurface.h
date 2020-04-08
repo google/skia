@@ -934,9 +934,13 @@ public:
         The GrFlushInfo describes additional options to flush. Please see documentation at
         GrFlushInfo for more info.
 
-        If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
-        add any semaphores to signal on the GPU; the caller should not instruct the GPU
-        to wait on any of the semaphores passed in the GrFlushInfo.
+         If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will
+         have been submitted and can be waited on (it is possible Skia failed to create a subset of
+         the semaphores). If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not
+         have submitted any semaphores to be signaled on the GPU. Thus the client should not have
+         the GPU wait on any of the semaphores passed in with the GrFlushInfo. Regardless of whether
+         semaphores were submitted to the GPU or not, the client is still responsible for deleting
+         any initialized semaphores.
 
         Pending surface commands are flushed regardless of the return result.
 
