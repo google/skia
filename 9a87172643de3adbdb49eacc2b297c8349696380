@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1a66440_ceb1d630",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T18:00:10Z",
+      "side": 1,
+      "message": "maybe put this loop in its own function and have it called by the dtor and disconnect. That way if anything else needs to be cleaned up later we just have one spot to add it.",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 5
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a13591d_763ba799",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-08T18:00:10Z",
+      "side": 1,
+      "message": "Sadly I think we have to free fStagingBuffers in the backend disconnect/dtors. In other backends after disconnect is over the gpu context is no longer valid to use. When we then free the fStagingBuffers we\u0027ll get errors trying to use the context to delete the internal buffers.\n\nWe also can\u0027t call the base class first cause we need to be in the sub class to make sure we\u0027ve finished all the GPU work and the GPU is idle.",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "9a87172643de3adbdb49eacc2b297c8349696380",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
