@@ -8,6 +8,13 @@ Milestone 84
 
   * <insert new release note here>
 
+  * Updated the contract of GrContext and SkSurface flush calls in regards to semaphores. Made it
+    clear that the caller is responsible for deleting any initialized semaphores after the flush
+    call regardless if we were able to submit them or not. Also, allows skia to only submit a
+    subset of the requested semaphores if we failed to create some.
+    https://review.skia.org/282265
+
+
   * SkCanvas::drawVertices will now always fill the triangles specified by the vertices. Previously,
     vertices with no colors and no (texture coordinates or shader) would be drawn in wireframe.
     https://review.skia.org/282043
