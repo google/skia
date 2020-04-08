@@ -534,52 +534,84 @@ namespace skvm {
     }
 
     std::vector<Instruction> schedule(std::vector<Instruction> program) {
-        Usage usage{program};
 
+        // Calculate the number of times a value is used.
         std::vector<int> uses(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
-            uses[id] = (int)usage[id].size();
+            Instruction& inst = program[id];
+            for (Val arg : {inst.x, inst.y, inst.z}) {
+                if (arg != NA) { uses[arg]++; }
+            }
         }
 
-        auto pressure_change = [&](Val id) -> int {
-            Instruction inst = program[id];
+        // Calculate the maximum register usage for all fan-in trees. Define a fan-in tree as all
+        // sink nodes plus all nodes that have use > 1. This divides the DAG into a set of
+        // distinct trees. For each tree calculate the maximum register usage for the tree as
+        // adapted from
+        // "The Generation of Optimal Code for Arithmetic Expressions" and
+        // "Register-Sensitive Selection, Duplication, and Sequencing of Instructions"
+        std::vector<int>tree_register_use(program.size());
+        auto register_use = [&](Val id, auto& recurse) -> void {
+            Instruction& inst = program[id];
+            int child_register_use[] = {0, 0, 0};
+            int child_count = 0;
+            auto insert_in_descending_order = [&](int registers_used) {
+                int i = child_count;
+                while (i > 0 && registers_used > child_register_use[i]) {
+                    child_register_use[i] = child_register_use[i-1];
+                    i--;
+                }
+                child_register_use[i] = registers_used;
+                child_count++;
+            };
 
-            // If this Instruction is not a sink, its result needs a register.
-            int change = has_side_effect(inst.op) ? 0 : 1;
-
-            // If this is the final user of an argument, the argument's register becomes free.
             for (Val arg : {inst.x, inst.y, inst.z}) {
-                if (arg != NA && uses[arg] == 1) { change -= 1; }
+                if (arg != NA) {
+                    if (uses[arg] == 1) {
+                        recurse(arg, recurse);
+                        insert_in_descending_order(tree_register_use[arg]);
+                    } else {
+                        // Nodes with usage > 1 are counted as 1 register because they are fully
+                        // calculated before use.
+                        insert_in_descending_order(1);
+                    }
+                }
             }
-            return change;
+
+            // Assume 1 register is used for this value. Start with the intuition that the
+            // maximum number of registers needed for this instruction is the maximum register
+            // use among the children calculating assuming that all the rest of the children will
+            // take less than the maximum. But intuition doesn't hold if all n of the children are
+            // equal, then we need (n-1) + max_registers_among(children). In general, given that
+            // the children's maximums are ordered largest to smallest, then the result for three
+            // children is max(m_0, m_1+1, m_2+2).
+            int max_register_use = 1;
+            for (int i = 0; i < child_count; i++) {
+                max_register_use = std::max(child_register_use[i] + i, max_register_use);
+            }
+
+            tree_register_use[id] = max_register_use;
         };
 
-        auto compare = [&](Val lhs, Val rhs) {
-            SkASSERT(lhs != rhs);
-            int lhs_change = pressure_change(lhs);
-            int rhs_change = pressure_change(rhs);
+        // Calculate the maximum register usage for all fan-in trees, which are trees rooted at
+        // a sink or a node that has a use count > 1.
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (has_side_effect(program[id].op) || uses[id] > 1) {
+                register_use(id, register_use);
+            }
+        }
 
-            // This comparison operator orders instructions from least (likely negative) register
-            // pressure to most register pressure,  breaking ties arbitrarily using original
-            // program order comparing the instruction index itself.
-            //
-            // We'll use this operator with std::{make,push,pop}_heap() to maintain a max heap
-            // frontier of instructions that are ready to schedule.  We iterate backwards through
-            // the program, scheduling later instruction slots before earlier ones, and that means
-            // an instruction becomes ready to schedule once all instructions using its result have
-            // been scheduled (in later slots).
-            //
-            // All together that means we'll be issuing the instructions that hurt register pressure
-            // as late as possible, and issuing the instructions that help register pressure as soon
-            // as possible.
-            //
-            // This heuristic of greedily issuing the instruction that most immediately decreases
-            // register pressure approximates a more expensive search to find a schedule that
-            // minimizes the high-water maximum register pressure, the number of registers we'll
-            // need to run this program.
-            //
-            // The tie-breaker heuristic was found through experimentation.
-            return lhs_change < rhs_change || (lhs_change == rhs_change && lhs > rhs);
+        // Tree number allows the scheduler to keep instructions for the same tree close together.
+        std::vector<int> tree_number(program.size());
+
+        // Order instructions in the frontier by tree first then by higher register pressure.
+        auto score = [&](Val id) {
+            return std::make_tuple(tree_number[id], tree_register_use[id]);
+        };
+
+        // This comparison specifies a min-heap for the frontier.
+        auto compare = [&](Val lhs, Val rhs) {
+            return score(lhs) > score(rhs);
         };
 
         auto ready_to_schedule = [&](Val id) { return uses[id] == 0; };
@@ -589,6 +621,7 @@ namespace skvm {
             Instruction inst = program[id];
             if (has_side_effect(inst.op)) {
                 frontier.push_back(id);
+                tree_number[id] = std::numeric_limits<int>::max();
             }
             // Having eliminated dead code, the only Instructions that should start
             // with no users remaining to schedule are those with side effects.
@@ -613,6 +646,8 @@ namespace skvm {
                 if (arg != NA) {
                     uses[arg]--;
                     if (ready_to_schedule(arg)) {
+                        // Give the argument nodes a number associated with this tree.
+                        if (tree_number[arg] == 0) { tree_number[arg] = n; }
                         frontier.push_back(arg);
                         std::push_heap(frontier.begin(), frontier.end(), compare);
                     }
@@ -1505,67 +1540,6 @@ namespace skvm {
                 return non_sep(R, G, B);
             }
         }
-    }
-
-    // For a given program we'll store each Instruction's users contiguously in a table,
-    // and track where each Instruction's span of users starts and ends in another index.
-    // Here's a simple program that loads x and stores kx+k:
-    //
-    //  v0 = splat(k)
-    //  v1 = load(...)
-    //  v2 = mul(v1, v0)
-    //  v3 = add(v2, v0)
-    //  v4 = store(..., v3)
-    //
-    // This program has 5 instructions v0-v4.
-    //    - v0 is used by v2 and v3
-    //    - v1 is used by v2
-    //    - v2 is used by v3
-    //    - v3 is used by v4
-    //    - v4 has a side-effect
-    //
-    // For this program we fill out these two arrays:
-    //     table:  [v2,v3, v2, v3, v4]
-    //     index:  [0,     2,  3,  4,  5]
-    //
-    // The table is just those "is used by ..." I wrote out above in order,
-    // and the index tracks where an Instruction's span of users starts, table[index[id]].
-    // The span continues up until the start of the next Instruction, table[index[id+1]].
-    SkSpan<const Val> Usage::operator[](Val id) const {
-        int begin = fIndex[id];
-        int end   = fIndex[id + 1];
-        return SkMakeSpan(fTable.data() + begin, end - begin);
-    }
-
-    Usage::Usage(const std::vector<Instruction>& program) {
-        // uses[id] counts the number of times each Instruction is used.
-        std::vector<int> uses(program.size(), 0);
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            Instruction inst = program[id];
-            if (inst.x != NA) { ++uses[inst.x]; }
-            if (inst.y != NA) { ++uses[inst.y]; }
-            if (inst.z != NA) { ++uses[inst.z]; }
-        }
-
-        // Build our index into fTable, with an extra entry marking the final Instruction's end.
-        fIndex.reserve(program.size() + 1);
-        int total_uses = 0;
-        for (int n : uses) {
-            fIndex.push_back(total_uses);
-            total_uses += n;
-        }
-        fIndex.push_back(total_uses);
-
-        // Tick down each Instruction's uses to fill in fTable.
-        fTable.resize(total_uses, NA);
-        for (Val id = (Val)program.size(); id --> 0; ) {
-            Instruction inst = program[id];
-            if (inst.x != NA) { fTable[fIndex[inst.x] + --uses[inst.x]] = id; }
-            if (inst.y != NA) { fTable[fIndex[inst.y] + --uses[inst.y]] = id; }
-            if (inst.z != NA) { fTable[fIndex[inst.z] + --uses[inst.z]] = id; }
-        }
-        for (int n  : uses  ) { (void)n;  SkASSERT(n  == 0 ); }
-        for (Val id : fTable) { (void)id; SkASSERT(id != NA); }
     }
 
     // ~~~~ Program::eval() and co. ~~~~ //
