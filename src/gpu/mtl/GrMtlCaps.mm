@@ -572,7 +572,7 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-#ifdef SK_BUILD_FOR_IOS
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
     // Format: B5G6R5Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
@@ -836,7 +836,7 @@ void GrMtlCaps::initFormatTable() {
 
     this->setColorType(GrColorType::kAlpha_8,          { MTLPixelFormatR8Unorm,
                                                          MTLPixelFormatA8Unorm });
-#ifdef SK_BUILD_FOR_IOS
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
     this->setColorType(GrColorType::kBGR_565,          { MTLPixelFormatB5G6R5Unorm });
     this->setColorType(GrColorType::kABGR_4444,        { MTLPixelFormatABGR4Unorm });
 #endif
@@ -1076,7 +1076,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeMtl(MTLPixelFormatA8Unorm)         },
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm)         },
-#ifdef SK_BUILD_FOR_IOS
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         { GrColorType::kBGR_565,          GrBackendFormat::MakeMtl(MTLPixelFormatB5G6R5Unorm)     },
         { GrColorType::kABGR_4444,        GrBackendFormat::MakeMtl(MTLPixelFormatABGR4Unorm)      },
 #endif
