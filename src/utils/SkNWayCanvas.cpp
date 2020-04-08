@@ -68,7 +68,7 @@ void SkNWayCanvas::willSave() {
 void SkNWayCanvas::onSaveCamera(const SkM44& projection, const SkM44& camera) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->saveCamera(projection, camera);
+        iter->onSaveCamera(projection, camera);
     }
     this->INHERITED::onSaveCamera(projection, camera);
 }
