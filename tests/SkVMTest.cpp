@@ -1910,19 +1910,25 @@ DEF_TEST(SkVM_approx_math, r) {
         b.storeF(inout, prog(b.loadF(inout)));
         b.done().eval(1, &value);
 
-        REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
+        if (!SkScalarNearlyEqual(value, expected, tolerance)) {
+            SkDebugf("expected %g, actual %g\n", expected, value);
+        }
+//        REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
     };
 
     // sine & cosine
     {
         constexpr float P = SK_ScalarPI;
         constexpr float tol = 0.002f;
-        for (float rad = -5*P; rad <= 5*P; rad += 0.1f) {
+        for (float rad = -5*P/5; rad <= 5*P/5; rad += 0.1f) {
             test(rad, sk_float_sin(rad), tol, [](skvm::F32 x) {
                 return approx_sin(x);
             });
             test(rad, sk_float_cos(rad), tol, [](skvm::F32 x) {
                 return approx_cos(x);
+            });
+            test(rad, sk_float_tan(rad), tol, [](skvm::F32 x) {
+                return approx_tan(x);
             });
         }
     }
@@ -2034,5 +2040,50 @@ DEF_TEST(SkVM_min_max, r) {
                 REPORTER_ASSERT(r, identical(mx[j], std::max(f[i], f[j])));
             }
         });
+    }
+}
+
+constexpr float Pi = SK_ScalarPI;
+
+DEF_TEST(SkVM_approx_tan, r) {
+    auto approx_tan = [](float x) {
+        SkASSERT(x >= -Pi/2 && x <= Pi/2);
+
+        bool neg = x < 0;
+        if (neg) {
+            x = -x;
+        }
+
+        auto poly = [](float x) {
+            SkASSERT(x >= 0 && x <= Pi/4);
+            float xx = x * x;
+            float t =    (62/2835.0f);
+            t = t * xx + (17/315.0f);
+            t = t * xx + ( 2/15.0f);
+            t = t * xx + ( 1/3.0f);
+            t = t * xx * x + x;
+            return t;
+        };
+
+        float t;
+        if (x <= Pi/4) {
+            t = poly(x);
+        } else {
+            t = poly(x - Pi/4);
+            t = (1 + t) / (1 - t);
+        }
+
+        if (neg) {
+            t = -t;
+        }
+        return t;
+    };
+
+    for (float x = 0; x <= Pi/2; x += 0.05f) {
+        float t0 = approx_tan(x);
+        float t1 = tanf(x);
+        if (abs(t0 - t1) > 0.001f) {
+            SkDebugf("[%g] diff %g\n", x, abs(t0-t1));
+        }
     }
 }
