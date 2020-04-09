@@ -8,8 +8,12 @@
 #ifndef GrTextBlob_DEFINED
 #define GrTextBlob_DEFINED
 
+#include <limits>
+
 #include "include/core/SkPoint3.h"
-#include "src/core/SkDescriptor.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkIPoint16.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRectPriv.h"
@@ -17,10 +21,9 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 
-#include <limits>
-
 class GrAtlasManager;
 class GrAtlasTextOp;
+class GrDeferredUploadTarget;
 class GrGlyph;
 class GrStrikeCache;
 class GrTextContext;
