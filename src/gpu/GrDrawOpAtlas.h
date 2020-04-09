@@ -97,6 +97,8 @@ public:
     private:
         friend class GrDrawOpAtlas;
 
+        SkDEBUGCODE(void validate(const GrDrawOpAtlas*) const;)
+
         GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
         GrIRect16                  fRect{0, 0, 0, 0};
 
@@ -202,7 +204,7 @@ public:
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
     bool hasID(const AtlasLocator& atlasLocator) {
-        if (kInvalidPlotLocator == atlasLocator.fPlotLocator) {
+        if (kInvalidPlotLocator == atlasLocator.plotLocator()) {
             return false;
         }
 
