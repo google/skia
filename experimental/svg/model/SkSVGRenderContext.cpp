@@ -176,7 +176,7 @@ void commitToPaint<SkSVGAttribute::kStrokeDashArray>(const SkSVGPresentationAttr
         // If an odd number of values is provided, then the list of values
         // is repeated to yield an even number of values.
         intervals.push_back_n(count);
-        memcpy(intervals.begin() + count, intervals.begin(), count);
+        memcpy(intervals.begin() + count, intervals.begin(), count * sizeof(SkScalar));
     }
 
     SkASSERT((intervals.count() & 1) == 0);
