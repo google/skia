@@ -187,30 +187,34 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 }
 
-bool GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess,
+void GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess,
                              const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
-    bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag) ||
-                     (info.fFinishedProc && !this->mtlCaps().fenceSyncSupport());
-    // TODO: do we care about info.fSemaphore?
-    if (forceSync) {
+    if (info.fFinishedProc) {
+        FinishCallback callback;
+        callback.fCallback = info.fFinishedProc;
+        callback.fContext = info.fFinishedContext;
+        if (this->mtlCaps().fenceSyncSupport()) {
+            callback.fFence = this->insertFence();
+        } else {
+            callback.fFence = 0;
+        }
+        fFinishCallbacks.push_back(callback);
+    }
+}
+
+bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
+    if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         this->submitCommandBuffer(kForce_SyncQueue);
-        // After a forced sync everything previously sent to the GPU is done.
         for (const auto& cb : fFinishCallbacks) {
             cb.fCallback(cb.fContext);
-            this->deleteFence(cb.fFence);
+            if (cb.fFence) {
+                this->deleteFence(cb.fFence);
+            } else {
+                SkASSERT(!this->caps()->fenceSyncSupport());
+            }
         }
         fFinishCallbacks.clear();
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
     } else {
-        if (info.fFinishedProc) {
-            FinishCallback callback;
-            callback.fCallback = info.fFinishedProc;
-            callback.fContext = info.fFinishedContext;
-            callback.fFence = this->insertFence();
-            fFinishCallbacks.push_back(callback);
-        }
         this->submitCommandBuffer(kSkip_SyncQueue);
     }
     return true;

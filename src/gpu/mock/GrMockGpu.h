@@ -131,11 +131,14 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
 
-    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
+    }
+
+    bool onSubmitToGpu(bool syncCpu) override {
         return true;
     }
 

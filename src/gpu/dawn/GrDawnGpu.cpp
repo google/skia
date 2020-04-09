@@ -432,7 +432,7 @@ void GrDawnGpu::testingOnly_flushGpuAndSync() {
 
 #endif
 
-void GrDawnGpu::flush() {
+bool GrDawnGpu::onSubmitToGpu() {
     this->flushCopyEncoder();
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
@@ -442,10 +442,8 @@ void GrDawnGpu::flush() {
     fDevice.Tick();
 }
 
-bool GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                               const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
-    this->flush();
-    return true;
 }
 
 static wgpu::Texture get_dawn_texture_from_surface(GrSurface* src) {
