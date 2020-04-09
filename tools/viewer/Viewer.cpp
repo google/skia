@@ -766,10 +766,21 @@ void Viewer::initSlides() {
                 addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
             } else {
                 // directory
-                SkOSFile::Iter it(flag.c_str(), info.fExtension);
                 SkString name;
+                SkTArray<SkString> sortedFilenames;
+                SkOSFile::Iter it(flag.c_str(), info.fExtension);
                 while (it.next(&name)) {
-                    addSlide(name, SkOSPath::Join(flag.c_str(), name.c_str()), info.fFactory);
+                    sortedFilenames.push_back(name);
+                }
+                if (sortedFilenames.count()) {
+                    SkTQSort(sortedFilenames.begin(), sortedFilenames.end() - 1,
+                             [](const SkString& a, const SkString& b) {
+                                 return strcmp(a.c_str(), b.c_str()) < 0;
+                             });
+                }
+                for (const SkString& filename : sortedFilenames) {
+                    addSlide(filename, SkOSPath::Join(flag.c_str(), filename.c_str()),
+                             info.fFactory);
                 }
             }
             if (!dirSlides.empty()) {
