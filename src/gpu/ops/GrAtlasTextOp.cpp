@@ -392,13 +392,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                         SkTAddOffset<char>(vertices, subRun->quadOffset(quadBufferIndex));
                 if (args.fClipRect.isEmpty()) {
                     memcpy(regeneratedQuadBuffer,
-                           subRun->quadStart(subRunIndex),
+                           subRun->quadStart1(subRunIndex),
                            glyphsRegenerated * quadSize);
                 } else {
                     SkASSERT(!vmPerspective);
                     clip_quads(args.fClipRect,
                                regeneratedQuadBuffer,
-                               subRun->quadStart(subRunIndex),
+                               subRun->quadStart1(subRunIndex),
                                vertexStride,
                                glyphsRegenerated);
                 }

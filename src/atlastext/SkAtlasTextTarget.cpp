@@ -246,7 +246,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 break;
             }
 
-            context.recordDraw(subRun->quadStart(subRunIndex), glyphsRegenerated,
+            context.recordDraw(subRun->quadStart1(subRunIndex), glyphsRegenerated,
                                fGeoData[i].fDrawMatrix, target->handle());
             subRunIndex += glyphsRegenerated;
             if (subRunIndex != subRunEnd) {

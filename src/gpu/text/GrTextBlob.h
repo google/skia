@@ -337,7 +337,7 @@ public:
     size_t vertexStride() const;
     size_t colorOffset() const;
     size_t texCoordOffset() const;
-    char* quadStart(size_t index) const;
+    char* quadStart1(size_t index) const;
     size_t quadOffset(size_t index) const;
 
     const SkRect& vertexBounds() const;
@@ -370,7 +370,7 @@ public:
     GrTextBlob* const fBlob;
     const GrMaskFormat fMaskFormat;
     const SkSpan<PackedGlyphIDorGrGlyph> fGlyphs;
-    const SkSpan<char> fVertexData;
+    const SkSpan<char> fVertexData1;
     const SkStrikeSpec fStrikeSpec;
     sk_sp<GrTextStrike> fStrike;
     struct {

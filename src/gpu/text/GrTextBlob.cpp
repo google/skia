@@ -51,7 +51,7 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fBlob{textBlob}
         , fMaskFormat{format}
         , fGlyphs{glyphs}
-        , fVertexData{vertexData}
+        , fVertexData1{vertexData}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
@@ -65,7 +65,7 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         , fBlob{textBlob}
         , fMaskFormat{kA8_GrMaskFormat}
         , fGlyphs{SkSpan<PackedGlyphIDorGrGlyph>{}}
-        , fVertexData{SkSpan<char>{}}
+        , fVertexData1{SkSpan<char>{}}
         , fStrikeSpec{strikeSpec}
         , fCurrentColor{textBlob->fColor}
         , fPaths{} {
@@ -105,7 +105,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     SkASSERT(!this->isPrepared());
     PackedGlyphIDorGrGlyph* packedIDCursor = fGlyphs.data();
-    char* vertexCursor = fVertexData.data();
+    char* vertexCursor = fVertexData1.data();
     size_t vertexStride = this->vertexStride();
     // We always write the third position component used by SDFs. If it is unused it gets
     // overwritten. Similarly, we always write the color and the blob will later overwrite it
@@ -175,8 +175,8 @@ size_t GrTextBlob::SubRun::texCoordOffset() const {
     }
 }
 
-char* GrTextBlob::SubRun::quadStart(size_t index) const {
-    return SkTAddOffset<char>(fVertexData.data(), this->quadOffset(index));
+char* GrTextBlob::SubRun::quadStart1(size_t index) const {
+    return SkTAddOffset<char>(fVertexData1.data(), this->quadOffset(index));
 }
 
 size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
@@ -243,7 +243,7 @@ void GrTextBlob::SubRun::translateVerticesIfNeeded(
     if (translation != SkPoint{0, 0}) {
         size_t vertexStride = this->vertexStride();
         for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
-            SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
+            SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart1(quad));
             for (int i = 0; i < 4; ++i) {
                 *vertexCursor += translation;
                 vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
@@ -259,7 +259,7 @@ void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
         size_t vertexStride = this->vertexStride();
         size_t colorOffset = this->colorOffset();
         for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
-            GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart(quad), colorOffset);
+            GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart1(quad), colorOffset);
             for (int i = 0; i < 4; ++i) {
                 *colorCursor = newColor;
                 colorCursor = SkTAddOffset<GrColor>(colorCursor, vertexStride);
@@ -274,7 +274,7 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
 
     const size_t vertexStride = this->vertexStride();
     const size_t texCoordOffset = this->texCoordOffset();
-    char* vertex = this->quadStart(begin);
+    char* vertex = this->quadStart1(begin);
     uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
     for (int i = begin; i < end; i++) {
         GrGlyph* glyph = this->fGlyphs[i].fGrGlyph;
