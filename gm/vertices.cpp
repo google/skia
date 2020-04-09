@@ -417,7 +417,7 @@ static constexpr SkColor4f kColors[] = {
     SkColors::kRed,
 };
 
-DEF_SIMPLE_GM(vertices_custom_colors, canvas, 300, 200) {
+DEF_SIMPLE_GM(vertices_custom_colors, canvas, 400, 200) {
     ToolUtils::draw_checkerboard(canvas);
 
     auto draw = [=](SkScalar cx, SkScalar cy, SkVertices::Builder& builder, const SkPaint& paint) {
@@ -514,5 +514,92 @@ DEF_SIMPLE_GM(vertices_custom_colors, canvas, 300, 200) {
         }
         draw(350, 50, builder, skslPaint);
     }
+}
 
+using Attr = SkVertices::Attribute;
+
+static sk_sp<SkVertices> make_cone(Attr::Usage u, uint32_t id) {
+    Attr attr(Attr::Type::kFloat3, u, id);
+
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 66, 0, &attr, 1);
+
+    SkPoint* pos = builder.positions();
+    SkPoint3* vec = (SkPoint3*)builder.customData();
+
+    pos[0] = { 0, 0 };
+    vec[0] = { 0, 0, 1 };
+
+    for (int i = 0; i < 65; ++i) {
+        SkScalar t = (i / 64.0f) * 2 * SK_ScalarPI;
+        SkScalar s = SkScalarSin(t),
+                 c = SkScalarCos(t);
+        pos[i + 1] = { c, s };
+        vec[i + 1] = { c, s, 0 };
+    }
+
+    return builder.detach();
+}
+
+DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 200) {
+    ToolUtils::draw_checkerboard(canvas);
+
+    enum MatrixMarkers {
+        kDeviceSpace = 0,
+        kViewSpace,
+        kWorldSpace,
+        kLocalSpace,
+    };
+
+    auto draw = [=](SkScalar cx, SkScalar cy, sk_sp<SkVertices> vertices, const char* prog,
+                    SkScalar squish = 1.0f) {
+        SkPaint paint;
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(prog));
+        paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, false));
+
+        canvas->save();
+
+        // Device space: mesh is upright, translated to its "cell"
+        canvas->translate(cx, cy);
+
+        // View (camera) space: Mesh is upright, centered on origin, device scale
+        canvas->markCTM(kViewSpace);
+        canvas->rotate(90);
+
+        // World space: Mesh is sideways, centered on origin, device scale (possibly squished)
+        canvas->markCTM(kWorldSpace);
+        canvas->rotate(-90);
+        canvas->scale(45, 45 * squish);
+
+        // Local space: Mesh is upright, centered on origin, unit scale
+        canvas->markCTM(kLocalSpace);
+        canvas->drawVertices(vertices, paint);
+
+        canvas->restore();
+    };
+
+    const char* vectorProg = R"(
+        varying float3 vtx_vec;
+        void main(float2 p, inout half4 color) {
+            color.rgb = half3(vtx_vec) * 0.5 + 0.5;
+        })";
+
+    // raw & local-space vectors should look the same
+    draw(50, 50, make_cone(Attr::Usage::kRaw, 0), vectorProg);
+    draw(150, 50, make_cone(Attr::Usage::kVector, kLocalSpace), vectorProg);
+
+    // world-space vectors are rotated 90 degrees
+    draw(250, 50, make_cone(Attr::Usage::kVector, kWorldSpace), vectorProg);
+
+    // squished world-space, which is "wrong" because we're using the model matrix
+    draw(350, 50, make_cone(Attr::Usage::kVector, kWorldSpace), vectorProg, 0.5f);
+
+    // raw & local-space normals should look the same (and same as vectors from above)
+    draw(50, 150, make_cone(Attr::Usage::kRaw, 0), vectorProg);
+    draw(150, 150, make_cone(Attr::Usage::kNormalVector, kLocalSpace), vectorProg);
+
+    // world-space normals are rotated 90 degrees
+    draw(250, 150, make_cone(Attr::Usage::kNormalVector, kWorldSpace), vectorProg);
+
+    // squished world-space, should still look like normals, because we use inverse-transpose
+    draw(350, 150, make_cone(Attr::Usage::kNormalVector, kWorldSpace), vectorProg, 0.5f);
 }
