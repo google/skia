@@ -981,13 +981,9 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
                              this->localToDevice(), mode, hasTexs, hasColors, &grPaint)) {
         return;
     }
-    SkM44 localToWorld(SkM44::kUninitialized_Constructor);
-    if (info.usesLocalToWorldMatrix()) {
-        localToWorld = this->localToWorld();
-    }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)), nullptr,
-                                       effect, &localToWorld);
+                                       effect, static_cast<const SkMarkedMatrixProvider*>(this));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
