@@ -38,6 +38,19 @@ std::array<uint16_t, 4> GrDrawOpAtlas::AtlasLocator::getUVs(int padding) const {
     return { left, top, right, bottom };
 }
 
+#ifdef SK_DEBUG
+void GrDrawOpAtlas::AtlasLocator::validate(const GrDrawOpAtlas* drawOpAtlas) const {
+    // Verify that the plotIndex stored in the PlotLocator is consistent with the glyph rectangle
+    int numPlotsX = drawOpAtlas->fTextureWidth / drawOpAtlas->fPlotWidth;
+    int numPlotsY = drawOpAtlas->fTextureHeight / drawOpAtlas->fPlotHeight;
+
+    int plotIndex = this->plotIndex();
+    int plotX = fRect.fLeft / drawOpAtlas->fPlotWidth;
+    int plotY = fRect.fTop / drawOpAtlas->fPlotHeight;
+    SkASSERT(plotIndex == (numPlotsY - plotY - 1) * numPlotsX + (numPlotsX - plotX - 1));
+}
+#endif
+
 // When proxy allocation is deferred until flush time the proxies acting as atlases require
 // special handling. This is because the usage that can be determined from the ops themselves
 // isn't sufficient. Independent of the ops there will be ASAP and inline uploads to the
@@ -281,6 +294,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
         plot->setLastUploadToken(lastUploadToken);
     }
     atlasLocator->fPlotLocator = plot->plotLocator();
+    SkDEBUGCODE(atlasLocator->validate(this);)
     return true;
 }
 
@@ -407,7 +421,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
 
     // Note that this plot will be uploaded inline with the draws whereas the
     // one it displaced most likely was uploaded ASAP.
-    // With c+14 we could move sk_sp into lambda to only ref once.
+    // With c++14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
 
     GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
@@ -420,6 +434,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     newPlot->setLastUploadToken(lastUploadToken);
 
     atlasLocator->fPlotLocator = newPlot->plotLocator();
+    SkDEBUGCODE(atlasLocator->validate(this);)
 
     return ErrorCode::kSucceeded;
 }
