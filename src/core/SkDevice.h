@@ -28,7 +28,13 @@ class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
-class SkBaseDevice : public SkRefCnt {
+class SkMarkedMatrixProvider {
+public:
+    virtual ~SkMarkedMatrixProvider() {}
+    virtual bool getLocalToMarker(SkCanvas::MarkerID, SkM44* localToMarker) const = 0;
+};
+
+class SkBaseDevice : public SkRefCnt, public SkMarkedMatrixProvider {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -134,21 +140,23 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
-    // The inverse of the CTM up to and including the Camera matrix.
-    void setInvCamera(const SkM44& invc) {
-        fInvCamera = invc;
+    void setMarkerToGlobal(SkCanvas::MarkerID, const SkM44& markerToGlobal);
+
+    bool getLocalToMarker(SkCanvas::MarkerID, SkM44* localToMarker) const override;
+
+    void save() {
+        fSaveCount++;
+        this->onSave();
     }
-
-    SkM44 localToWorld() const;
-
-    void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
         this->setGlobalCTM(ctm);
+        this->restoreMarkerStack();
     }
     void restoreLocal(const SkMatrix& localToDevice) {
         this->onRestore();
         this->setLocalToDevice(localToDevice);
+        this->restoreMarkerStack();
     }
     void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
         this->onClipRect(rect, op, aa);
@@ -439,7 +447,17 @@ private:
     // This is the device CTM, not the global CTM. This transform maps from local space to the
     // device's coordinate space; fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
     SkMatrix             fLocalToDevice;
-    SkM44                fInvCamera;    // inverse of ctm up to and including camera
+
+    void restoreMarkerStack();
+
+    struct MarkerRec {
+        int                fSaveCount;
+        SkCanvas::MarkerID fID;
+        SkM44              fDeviceToMarker;
+    };
+
+    int fSaveCount;
+    std::vector<MarkerRec> fMarkerStack;
 
     typedef SkRefCnt INHERITED;
 };
