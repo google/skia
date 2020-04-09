@@ -58,7 +58,7 @@ public:
     SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
-    GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
+    GrStrikeCache* getGrStrikeCache() { return fContext->fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
     /**
