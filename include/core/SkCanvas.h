@@ -756,20 +756,6 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    /**
-     *  Save the matrix and clip state (just like save()), but then also concat
-     *  two more matrices: projection and camera. This call is logically similar to:
-     *      save()
-     *      concat(projection)
-     *      concat(camera)
-     *  However, these matrices are tracked by the canvas, so if any shader references
-     *  lights or normals, these can be properly transformed, as they will have access to
-     *  local-to-world and local-to-camera.
-     *
-     *  returns the current save count (see getSaveCount()).
-     */
-    int saveCamera(const SkM44& projection, const SkM44& camera);
-
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
 
@@ -892,6 +878,24 @@ public:
     */
     void concat(const SkMatrix& matrix);
     void concat(const SkM44&);
+
+    typedef uint32_t MarkerID;
+
+    /**
+     *  Record a marker (provided by caller) for the current CTM. This does not
+     *  change anything about the ctm or clip, but does "note" this matrix value, so it can
+     *  be referenced by custom effects (who access it by specifying the same id).
+     *
+     *  Within a save frame, marking with the same id more than once just replaces the previous
+     *  value. However, between save frames, marking with the same id does not lose the marker
+     *  in the previous save frame. It is "visible" when the current save() is balanced with
+     *  a restore().
+     *
+     *  NOTE: id==0 is reserved.
+     */
+    void markCTM(MarkerID id);
+
+    bool findMarkedCTM(MarkerID id, SkM44*) const;
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2428,21 +2432,22 @@ public:
     */
     virtual bool isClipRect() const;
 
-    /** Returns SkMatrix.
-        This does not account for translation by SkBaseDevice or SkSurface.
+    /** Returns the current transform from local coordinates to the 'device', which for most
+     *  purposes means pixels.
+     *
+     *  @return transformation from local coordinates to device / pixels.
+     */
+    SkM44 getLocalToDevice() const;
 
-        @return  SkMatrix in SkCanvas
-
-        example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
-        example: https://fiddle.skia.org/c/@Clip
-    */
+    /** Legacy version of getLocalToDevice(), which strips away any Z information, and
+     *  just returns a 3x3 version.
+     *
+     *  @return 3x3 version of getLocalToDevice()
+     *
+     *  example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
+     *  example: https://fiddle.skia.org/c/@Clip
+     */
     SkMatrix getTotalMatrix() const;
-
-    SkM44 getLocalToDevice() const; // entire matrix stack
-
-    // These will go away when we have formal access to these from SkSL
-    SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
-    SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -2488,13 +2493,13 @@ protected:
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& ) {
         return kFullLayer_SaveLayerStrategy;
     }
-    virtual void onSaveCamera(const SkM44& projection, const SkM44& camera);
 
     // returns true if we should actually perform the saveBehind, or false if we should just save.
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
     virtual void didRestore() {}
 
+    virtual void onMarkCTM(MarkerID) {}
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     virtual void didConcat44(const SkScalar[]) {} // colMajor
 #else
@@ -2637,8 +2642,6 @@ private:
                                                                 : kNotOpaque_ShaderOverrideOpacity);
     }
 
-    void notifyCameraChanged();
-
     SkBaseDevice* getDevice() const;
 
     class MCRec;
@@ -2647,14 +2650,12 @@ private:
     // points to top of stack
     MCRec*      fMCRec;
 
-    struct CameraRec {
-        MCRec*  fMCRec;         // the saveCamera rec that built us
-        SkM44   fCamera;        // just the user's camera
-        SkM44   fInvPostCamera; // cache of ctm post camera
-
-        CameraRec(MCRec* owner, const SkM44& camera);
+    struct MarkerRec {
+        MCRec*      fMCRec;
+        SkM44       fMatrix;
+        MarkerID    fID;
     };
-    std::vector<CameraRec> fCameraStack;
+    std::vector<MarkerRec> fMarkerStack;
 
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 128;  // most recent measurement

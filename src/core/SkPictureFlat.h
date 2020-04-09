@@ -106,9 +106,9 @@ enum DrawType {
     DRAW_BEHIND_PAINT,
     CONCAT44,
     CLIP_SHADER_IN_PAINT,
-    SAVE_CAMERA,
+    MARK_CTM,
 
-    LAST_DRAWTYPE_ENUM = SAVE_CAMERA,
+    LAST_DRAWTYPE_ENUM = MARK_CTM,
 };
 
 enum DrawVertexFlags {
