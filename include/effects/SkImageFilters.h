@@ -297,7 +297,8 @@ public:
      *  @param input    The image filter that is dilated, using source bitmap if this is null.
      *  @param cropRect Optional rectangle that crops the input and output.
      */
-    static sk_sp<SkImageFilter> Dilate(int radiusX, int radiusY, sk_sp<SkImageFilter> input,
+    static sk_sp<SkImageFilter> Dilate(SkScalar radiusX, SkScalar radiusY,
+                                       sk_sp<SkImageFilter> input,
                                        const SkIRect* cropRect = nullptr);
 
     /**
@@ -308,7 +309,8 @@ public:
      *  @param input    The image filter that is eroded, using source bitmap if this is null.
      *  @param cropRect Optional rectangle that crops the input and output.
      */
-    static sk_sp<SkImageFilter> Erode(int radiusX, int radiusY, sk_sp<SkImageFilter> input,
+    static sk_sp<SkImageFilter> Erode(SkScalar radiusX, SkScalar radiusY,
+                                      sk_sp<SkImageFilter> input,
                                       const SkIRect* cropRect = nullptr);
 
     // Lighting filter effects

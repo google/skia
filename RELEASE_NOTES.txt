@@ -8,6 +8,13 @@ Milestone 84
 
   * <insert new release note here>
 
+  * Changed Dilate and Erode image filters to take SkScalar for radius instead of int. While
+    the image filters themselves are defined in terms of discrete pixels, the radii provided by
+    the user are mapped through the CTM so taking ints forced over discretization. After mapping
+    through the CTM the radii are now rounded to pixels.
+    https://review.skia.org/281731
+    https://review.skia.org/282636
+
   * Updated the contract of GrContext and SkSurface flush calls in regards to semaphores. Made it
     clear that the caller is responsible for deleting any initialized semaphores after the flush
     call regardless if we were able to submit them or not. Also, allows skia to only submit a
