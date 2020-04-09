@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a08bafb3_49f5cf3b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-09T21:15:44Z",
+      "side": 1,
+      "message": "The base class does handle the semaphore part of GrFlushInfo so I\u0027m definitely all for sharing code if we can here. My only worry is that each backend does have a unique way of handling finish procs and knowing when they are done, so I think it would be hard to find a common API that they all use. Though I do like that general idea so I\u0027ll think about some, but I think its a better change for a follow on CL if we can think of a good API that everything can use.",
+      "parentUuid": "89baede5_609202eb",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aa36db2_34759061",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 10
@@ -30,6 +48,47 @@
       "writtenOn": "2020-04-09T20:57:56Z",
       "side": 1,
       "message": "I find it confusing that the calls to glFlush() and glFinish() are no longer in the finishFlush function.\n\nIt looks to me like the other function is concerned with setting finish callbacks; maybe it could be named appendFinishCallback or addFinishCallback or something? Then this one could remain onFinishFlush().",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f7854a3_bec82835",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-09T21:15:44Z",
+      "side": 1,
+      "message": "So we are moving trying to move to a world where on the public API we separate the idea of flush and submit. So the job of flush is send all things from Ganesh queued up buffers, to backend specific calls. Most backends will build up command buffers or equivalent during this time, GL being the outlier that sends calls to the driver (though really the driver is just recording things to its own buffer).\n\nSubmit says okay actually send all the work to the GPU now. For non GL backends this is pretty obvious what it does, it submits the buffers/encoders to the GPU. For GL the equivalent of this is glFlush and glFinish. This is why they are currently in GLs submit call.\n\nfinishFlush and onFinishFlush are not just about handling finishCallbacks, but they are also responsible for handling all the other state in GrFlushInfo (modulo syncing the CPU which will eventually be pulled off and passed in the submit call). It just happens to be that GL and Metal currently only care about the finish callback and don\u0027t need to know things for the others. Happy to rename the function to be something like handleFlushInfo and onHandleFlushInfo or something like that.",
+      "parentUuid": "3aa36db2_34759061",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf26e5d6_0fdbe54e",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-09T21:15:44Z",
+      "side": 1,
+      "message": "Jim is this always going to be true in metal. My looking of the caps suggest that is the case.",
+      "range": {
+        "startLine": 196,
+        "startChar": 12,
+        "endLine": 196,
+        "endChar": 45
+      },
       "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
