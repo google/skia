@@ -417,7 +417,7 @@ static constexpr SkColor4f kColors[] = {
     SkColors::kRed,
 };
 
-DEF_SIMPLE_GM(vertices_custom_colors, canvas, 300, 200) {
+DEF_SIMPLE_GM(vertices_custom_colors, canvas, 400, 200) {
     ToolUtils::draw_checkerboard(canvas);
 
     auto draw = [=](SkScalar cx, SkScalar cy, SkVertices::Builder& builder, const SkPaint& paint) {
@@ -514,5 +514,86 @@ DEF_SIMPLE_GM(vertices_custom_colors, canvas, 300, 200) {
         }
         draw(350, 50, builder, skslPaint);
     }
+}
 
+DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 200) {
+    ToolUtils::draw_checkerboard(canvas);
+
+    enum MatrixMarkers {
+        kDeviceSpace = 0,
+        kViewSpace,
+        kWorldSpace,
+        kLocalSpace,
+    };
+
+    auto draw = [=](SkScalar cx, SkScalar cy, SkVertices::Builder& builder, const char* prog) {
+        memcpy(builder.positions(), kHexVerts, sizeof(kHexVerts));
+
+        SkPaint paint;
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(prog));
+        paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, false));
+
+        canvas->save();
+
+        // Device space: mesh is upright, translated to its "cell"
+        canvas->translate(cx, cy);
+
+        // View (camera) space: Mesh is upright, centered on origin, device scale
+        canvas->markCTM(kViewSpace);
+        canvas->rotate(-90);
+
+        // World space: Mesh is sideways, centered on origin, device scale
+        canvas->markCTM(kWorldSpace);
+        canvas->rotate(90);
+        canvas->scale(45, 45);
+
+        // Local space: Mesh is upright, centered on origin, unit scale
+        canvas->markCTM(kLocalSpace);
+        canvas->drawVertices(builder.detach(), paint);
+
+        canvas->restore();
+    };
+
+    using Attr = SkVertices::Attribute;
+
+    const char* vectorProg = R"(
+        varying float3 vtx_vec;
+        void main(float2 p, inout half4 color) {
+            color.rgb = half3(vtx_vec) * 2 + 1;
+        })";
+
+    static int w = 0;
+
+    // float3 raw vectors as colors
+    if (w == 0)
+    {
+        Attr attr(Attr::Type::kFloat3, Attr::Usage::kRaw);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &attr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((SkV3*)builder.customData())[i] = {kHexVerts[i].fX, kHexVerts[i].fY, i == 0 ? 1.0f : 0.0f};
+        }
+        draw(50, 50, builder, vectorProg);
+    }
+
+    // float3 local-space vectors as colors
+    if (w == 1)
+    {
+        Attr attr(Attr::Type::kFloat3, Attr::Usage::kVector, kLocalSpace);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &attr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((SkV3*)builder.customData())[i] = {kHexVerts[i].fX, kHexVerts[i].fY, i == 0 ? 1.0f : 0.0f};
+        }
+        draw(150, 50, builder, vectorProg);
+    }
+
+    // float3 world-space vectors as colors
+    if (w == 2)
+    {
+        Attr attr(Attr::Type::kFloat3, Attr::Usage::kVector, kWorldSpace);
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 8, 0, &attr, 1);
+        for (int i = 0; i < 8; ++i) {
+            ((SkV3*)builder.customData())[i] = {kHexVerts[i].fX, kHexVerts[i].fY, i == 0 ? 1.0f : 0.0f};
+        }
+        draw(250, 50, builder, vectorProg);
+    }
 }

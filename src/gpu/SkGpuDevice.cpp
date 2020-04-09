@@ -981,13 +981,17 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
                              this->localToDevice(), mode, hasTexs, hasColors, &grPaint)) {
         return;
     }
-    SkM44 localToWorld(SkM44::kUninitialized_Constructor);
-    if (info.usesLocalToWorldMatrix()) {
-        localToWorld = this->localToWorld();
+    // If we can't provide any of the asked-for matrices, we can't draw this
+    for (int i = 0; i < info.attributeCount(); ++i) {
+        if (SkCanvas::MarkerID id = info.attributes()[i].fMarkerID) {
+            if (!this->getLocalToMarker(id, nullptr)) {
+                return;
+            }
+        }
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
                                        sk_ref_sp(const_cast<SkVertices*>(vertices)), nullptr,
-                                       effect, &localToWorld);
+                                       effect, static_cast<const SkMarkedMatrixProvider*>(this));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

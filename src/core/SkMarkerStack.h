@@ -30,4 +30,10 @@ private:
     std::vector<Rec> fStack;
 };
 
+class SkMarkedMatrixProvider {
+public:
+    virtual ~SkMarkedMatrixProvider() {}
+    virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
+};
+
 #endif
