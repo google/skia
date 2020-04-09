@@ -103,7 +103,7 @@ public:
     SkM44 localToWorld(SkCanvas* canvas) {
         SkM44 camera;
         SkAssertResult(canvas->findMarkedCTM(kCameraID, &camera));
-        return inv(canvas->getLocalToDevice()) * camera;
+        return inv(camera) * canvas->getLocalToDevice();
     }
 };
 
