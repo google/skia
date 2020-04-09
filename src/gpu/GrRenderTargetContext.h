@@ -41,7 +41,7 @@ class SkGlyphRunList;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
-class SkM44;
+class SkMarkedMatrixProvider;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -425,7 +425,7 @@ public:
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr,
                       const SkRuntimeEffect* effect = nullptr,
-                      const SkM44* localToWorld = nullptr);
+                      const SkMarkedMatrixProvider* matrixProvider = nullptr);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the
