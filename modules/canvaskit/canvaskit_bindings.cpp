@@ -1025,15 +1025,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
         }))
         // 4x4 matrix functions
-        .function("_saveCamera", optional_override([](SkCanvas& self,
-            uintptr_t /* SkScalar*  */ pPtr, uintptr_t /* SkScalar*  */ cPtr) {
-            // See comment above for uintptr_t explanation
-            const SkScalar* projectionMatrixValues = reinterpret_cast<const SkScalar*>(pPtr);
-            const SkScalar* cameraMatrixValues = reinterpret_cast<const SkScalar*>(cPtr);
-            SkM44 projection = SkM44::RowMajor(projectionMatrixValues);
-            SkM44 camera = SkM44::RowMajor(cameraMatrixValues);
-            self.saveCamera(projection, camera);
-        }))
         // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
         // interface.js, so it can also free them when its done.
         .function("_getLocalToDevice", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
@@ -1042,22 +1033,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 return; // matrix cannot be null
             }
             SkM44 m = self.getLocalToDevice();
-            m.getRowMajor(sixteenMatrixValues);
-        }))
-        .function("_getLocalToWorld", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
-            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
-            if (!sixteenMatrixValues) {
-                return; // matrix cannot be null
-            }
-            SkM44 m = self.experimental_getLocalToWorld();
-            m.getRowMajor(sixteenMatrixValues);
-        }))
-        .function("_getLocalToCamera", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
-            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
-            if (!sixteenMatrixValues) {
-                return; // matrix cannot be null
-            }
-            SkM44 m = self.experimental_getLocalToCamera();
             m.getRowMajor(sixteenMatrixValues);
         }));
 

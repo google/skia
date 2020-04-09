@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <title>CanvasKit Extra features (Skia via Web Assembly)</title>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -721,9 +721,9 @@ const curves = {
 
       // want "world" to be in our big coordinates (e.g. area), so apply this inverse
       // as part of our "camera".
-      canvas.saveCamera(
-        CanvasKit.SkM44.multiply(viewport, perspective),
-        CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+      canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
+      canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+      // canvas.markCTM(...);
     }
 
     function setClickToWorld(canvas, matrix) {

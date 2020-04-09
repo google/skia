@@ -331,6 +331,10 @@ void SkRecorder::didRestore() {
     this->append<SkRecords::Restore>(this->getTotalMatrix());
 }
 
+void SkRecorder::onMarkCTM(MarkerID id) {
+    this->append<SkRecords::MarkCTM>(id);
+}
+
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
 void SkRecorder::didConcat44(const SkScalar m[16]) {
     this->append<SkRecords::Concat44>(SkM44::ColMajor(m));

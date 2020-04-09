@@ -63,18 +63,13 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onSaveCamera(const SkM44& proj, const SkM44& camera) {
-    fRestoreOffsetStack.push_back(-(int32_t)fWriter.bytesWritten());
-
-    size_t size = sizeof(kUInt32Size) + 32 * sizeof(float); // op + proj + camera
-    size_t initialOffset = this->addDraw(SAVE_CAMERA, &size);
-
-    fWriter.write(SkMatrixPriv::M44ColMajor(proj),   16 * sizeof(float));
-    fWriter.write(SkMatrixPriv::M44ColMajor(camera), 16 * sizeof(float));
-
+void SkPictureRecord::onMarkCTM(MarkerID id) {
+    size_t size = sizeof(kUInt32Size) + sizeof(uint32_t); // op + id
+    size_t initialOffset = this->addDraw(MARK_CTM, &size);
+    fWriter.write32(id);
     this->validate(initialOffset, size);
 
-    this->INHERITED::onSaveCamera(proj, camera);
+    this->INHERITED::onMarkCTM(id);
 }
 
 SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {

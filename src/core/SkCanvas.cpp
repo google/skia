@@ -734,28 +734,6 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
-void SkCanvas::notifyCameraChanged() {
-    SkM44 invc; // start with identity
-    if (!fCameraStack.empty()) {
-        invc = fCameraStack.back().fInvPostCamera;
-    }
-    FOR_EACH_TOP_DEVICE(device->setInvCamera(invc));
-}
-
-// Don't trigger other virtuals from onSaveCamera
-void SkCanvas::onSaveCamera(const SkM44& projection, const SkM44& camera) {
-    (void)this->save();
-    this->internalConcat44(projection * camera);
-
-    fCameraStack.push_back(CameraRec(fMCRec, camera));
-    this->notifyCameraChanged();
-}
-
-int SkCanvas::saveCamera(const SkM44& projection, const SkM44& camera) {
-    this->onSaveCamera(projection, camera);
-    return this->getSaveCount();
-}
-
 void SkCanvas::restore() {
     if (fMCRec->fDeferredSaveCount > 0) {
         SkASSERT(fSaveCount > 1);
@@ -1284,9 +1262,8 @@ void SkCanvas::internalRestore() {
     // move this out before we do the actual restore
     auto backImage = std::move(fMCRec->fBackImage);
 
-    if (!fCameraStack.empty() && fCameraStack.back().fMCRec == fMCRec) {
-        fCameraStack.pop_back();
-        this->notifyCameraChanged();
+    while (!fMarkerStack.empty() && fMarkerStack.back().fMCRec == fMCRec) {
+        fMarkerStack.pop_back();
     }
 
     // now do the normal restore()
@@ -1563,6 +1540,42 @@ void SkCanvas::setMatrix(const SkMatrix& matrix) {
 
 void SkCanvas::resetMatrix() {
     this->setMatrix(SkMatrix::I());
+}
+
+void SkCanvas::markCTM(MarkerID id) {
+    if (id == 0) return;
+
+    this->onMarkCTM(id);
+
+    SkM44 mx = this->getLocalToDevice();
+
+    // Look if we've already seen id in this save-frame.
+    // If so, replace, else append
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        auto& m = fMarkerStack[i];
+        if (m.fMCRec != fMCRec) {   // we've gone past the current save-frame
+            break;                  // fall out so we append
+        }
+        if (m.fID == id) {    // in current frame, so replace
+            m.fMatrix = mx;
+            return;
+        }
+    }
+    // if we get here, we should append a new marker
+    fMarkerStack.push_back({fMCRec, mx, id});
+}
+
+bool SkCanvas::findMarkedCTM(MarkerID id, SkM44* mx) const {
+    // search from top to bottom, so we find the most recent id
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        if (fMarkerStack[i].fID == id) {
+            if (mx) {
+                *mx = fMarkerStack[i].fMatrix;
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1860,40 +1873,12 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
 
 ///////////////////////////////////////////////////////////////////////
 
-SkCanvas::CameraRec::CameraRec(MCRec* owner, const SkM44& camera)
-    : fMCRec(owner)
-    , fCamera(camera)
-{
-    // assumes the mcrec has already been concatenated with the camera
-    if (!owner->fMatrix.invert(&fInvPostCamera)) {
-        fInvPostCamera.setIdentity();
-    }
-}
-
 SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
 SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
-}
-
-SkM44 SkCanvas::experimental_getLocalToWorld() const {
-    if (fCameraStack.empty()) {
-        return this->getLocalToDevice();
-    } else {
-        const auto& top = fCameraStack.back();
-        return top.fInvPostCamera * this->getLocalToDevice();
-    }
-}
-
-SkM44 SkCanvas::experimental_getLocalToCamera() const {
-    if (fCameraStack.empty()) {
-        return this->getLocalToDevice();
-    } else {
-        const auto& top = fCameraStack.back();
-        return top.fCamera * top.fInvPostCamera * this->getLocalToDevice();
-    }
 }
 
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
