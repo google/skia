@@ -42,7 +42,7 @@ struct GrD3DBackendSurfaceInfo {
 #endif
 
 private:
-    std::unique_ptr<GrD3DTextureResourceInfo> fTextureResourceInfo;
+    GrD3DTextureResourceInfo* fTextureResourceInfo;
     GrD3DResourceState* fResourceState;
 };
 

@@ -39,7 +39,7 @@ public:
     GrD3DTextureResource* msaaTextureResource() { return fMSAATextureResource.get(); }
 
     bool canAttemptStencilAttachment() const override {
-        return false; // For now
+        return true;
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
