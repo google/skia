@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89baede5_609202eb",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-09T20:57:56Z",
+      "side": 1,
+      "message": "This function looks almost identical between GL and Metal (with the only difference that GL\u0027s casts the fence as a GrGLSync object and stores that. Dawn is likely to look the same, with Vulkan the only outlier. Could it be refactored into GrGpu, with Vulkan overriding it to something else?",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa36db2_34759061",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-09T20:57:56Z",
+      "side": 1,
+      "message": "I find it confusing that the calls to glFlush() and glFinish() are no longer in the finishFlush function.\n\nIt looks to me like the other function is concerned with setting finish callbacks; maybe it could be named appendFinishCallback or addFinishCallback or something? Then this one could remain onFinishFlush().",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
