@@ -62,6 +62,9 @@ public:
     void setStrokeDashArray(const SkSVGDashArray&);
     void setStrokeDashOffset(const SkSVGLength&);
     void setStrokeOpacity(const SkSVGNumberType&);
+    void setStrokeLineCap(const SkSVGLineCap&);
+    void setStrokeLineJoin(const SkSVGLineJoin&);
+    void setStrokeMiterLimit(const SkSVGNumberType&);
     void setStrokeWidth(const SkSVGLength&);
     void setVisibility(const SkSVGVisibility&);
 
