@@ -33,6 +33,13 @@ void SvgSlide::unload() {
     fDom.reset();
 }
 
+void SvgSlide::resize(SkScalar w, SkScalar h) {
+    fWinSize = { w, h };
+    if (fDom) {
+        fDom->setContainerSize(fWinSize);
+    }
+}
+
 SkISize SvgSlide::getDimensions() const {
     // We always scale to fill the window.
     return fWinSize.toCeil();
