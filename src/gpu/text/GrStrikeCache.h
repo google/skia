@@ -9,9 +9,7 @@
 #define GrStrikeCache_DEFINED
 
 #include "include/private/SkTHash.h"
-#include "src/codec/SkMasks.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
 
