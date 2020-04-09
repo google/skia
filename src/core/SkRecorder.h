@@ -67,6 +67,7 @@ public:
     void willRestore() override {}
     void didRestore() override;
 
+    void onMarkCTM(uint32_t) override;
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     void didConcat44(const SkScalar[16]) override;
 #else

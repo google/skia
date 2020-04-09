@@ -158,11 +158,11 @@ protected:
     void onFlush() override;
 
     void willSave() override;
-    void onSaveCamera(const SkM44&, const SkM44&) override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
+    void onMarkCTM(uint32_t id) override;
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     void didConcat44(const SkScalar[16]) override;
 #else
