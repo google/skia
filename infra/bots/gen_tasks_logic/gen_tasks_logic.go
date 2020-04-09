@@ -467,7 +467,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
+			task_os = COMPILE_TASK_NAME_OS_LINUX
+			if In("Pixelbook", ec) {
+				ec = append(ec, "Docker")
+			}
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
