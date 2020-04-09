@@ -49,7 +49,7 @@ public:
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
-    void testingOnly_flushGpuAndSync() override {}
+    void testingOnly_flushGpuAndSync() override;
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
@@ -183,6 +183,15 @@ private:
     void submitDirectCommandList();
 
     void checkForFinishedCommandLists();
+
+    bool createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
+                                                SkISize dimensions,
+                                                GrTexturable texturable,
+                                                GrRenderable renderable,
+                                                GrMipMapped mipMapped,
+                                                GrD3DTextureResourceInfo* info,
+                                                GrProtected isProtected,
+                                                const BackendTextureData* data);
 
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;

@@ -18,13 +18,17 @@ GrD3DBackendSurfaceInfo::GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo&
 void GrD3DBackendSurfaceInfo::cleanup() {
     SkSafeUnref(fResourceState);
     fResourceState = nullptr;
+    delete fTextureResourceInfo;
+    fTextureResourceInfo = nullptr;
 };
 
 void GrD3DBackendSurfaceInfo::assign(const GrD3DBackendSurfaceInfo& that, bool isThisValid) {
-    fTextureResourceInfo.reset(new GrD3DTextureResourceInfo(*that.fTextureResourceInfo));
+    GrD3DTextureResourceInfo* oldInfo = fTextureResourceInfo;
     GrD3DResourceState* oldLayout = fResourceState;
+    fTextureResourceInfo = new GrD3DTextureResourceInfo(*that.fTextureResourceInfo);
     fResourceState = SkSafeRef(that.fResourceState);
     if (isThisValid) {
+        delete oldInfo;
         SkSafeUnref(oldLayout);
     }
 }
@@ -44,6 +48,7 @@ GrD3DTextureResourceInfo GrD3DBackendSurfaceInfo::snapTextureResourceInfo() cons
 }
 
 bool GrD3DBackendSurfaceInfo::isProtected() const {
+    SkASSERT(fTextureResourceInfo);
     return fTextureResourceInfo->fProtected == GrProtected::kYes;
 }
 

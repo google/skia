@@ -113,9 +113,9 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
                                   static_cast<D3D12_RESOURCE_STATES>(msInfo.fResourceState)));
 
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
-                                      std::move(msState));
+                                      std::move(msState), kWrapped);
     } else {
-        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state));
+        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), kWrapped);
     }
 
     return sk_sp<GrD3DRenderTarget>(d3dRT);
