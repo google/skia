@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6dd853_0dfaa40c",
+        "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-09T18:45:59Z",
+      "side": 0,
+      "message": "I had to change fTextureResourceInfo into a raw pointer because this was crashing. In some cases the constructor for GrD3DBackendSurfaceInfo isn\u0027t called, so calling reset here accesses uninitialized memory. It\u0027s the same reason that fResourceState is a pointer instead of using sk_sp\u003c\u003e.",
+      "range": {
+        "startLine": 24,
+        "startChar": 25,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "0929425f3d84019053bd9e48742b6cc766e8cc93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
