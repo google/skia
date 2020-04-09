@@ -207,7 +207,7 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
 }
 
 sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {
-    return cache->getStrike(*fAutoDescriptor.getDesc());
+    return cache->findOrCreateStrike(*fAutoDescriptor.getDesc());
 }
 #endif
 

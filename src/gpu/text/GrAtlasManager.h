@@ -56,15 +56,65 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(GrMaskFormat, GrGlyph*);
+    class SmallLocator {
+    public:
+        SmallLocator() = default;
+
+        uint32_t getGlyphIndex() const { return (fLocator >> 8) & 0xFFFFFF; }
+        uint8_t  getPlotIndex() const { return (fLocator >> 2) & 0x3F; }
+        uint8_t  getPageIndex() const { return fLocator & 0x3; }
+
+    private:
+        SmallLocator(uint8_t pageIndex, uint8_t plotIndex, int32_t glyphIndex) {
+            SkASSERT(plotIndex < GrDrawOpAtlas::kMaxPlots);
+            SkASSERT(pageIndex < GrDrawOpAtlas::kMaxMultitexturePages);
+            SkASSERT(glyphIndex < (1 << 24));
+
+            fLocator = (glyphIndex << 8) | (plotIndex << 2) | pageIndex;
+        }
+
+        // 24 bits for the glyph index | 6 bits for the plot index | 2 bits for the page index
+        uint32_t fLocator = 0;
+    };
+
+    class Baz {
+    public:
+        Baz(uint32_t strikeUniqueID, SkPackedGlyphID packedGlyphID)
+            : fStrikeUniqueID(strikeUniqueID)
+            , fPackedGlyphID(packedGlyphID) {}
+
+        uint32_t hash() const {
+            return SkGoodHash()(this);
+        }
+
+        bool operator==(const Baz& other) const {
+            return fStrikeUniqueID == other.fStrikeUniqueID &&
+                   fPackedGlyphID == other.fPackedGlyphID;
+        }
+
+        uint32_t fStrikeUniqueID;
+        SkPackedGlyphID fPackedGlyphID;
+    };
+
+    struct Bar {
+        Bar(uint32_t strikeUniqueID, SkPackedGlyphID packedGlyphID)
+            : fBaz(strikeUniqueID, packedGlyphID) {}
+
+        Baz fBaz;
+        GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    };
+
+    Bar* findOrCreateBar(GrMaskFormat, uint32_t strikeUniqueID, SkPackedGlyphID);
+
+    bool isGenIDStillValid(GrMaskFormat, GrDrawOpAtlas::PlotGenID) const;
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater*, GrMaskFormat, GrGlyph*,
-                                      GrDeferredUploadToken);
+    void addGlyphToBulkAndSetUseToken1(GrDrawOpAtlas::BulkUseTokenUpdater*, GrMaskFormat,
+                                       Bar*, GrDeferredUploadToken);
 
     void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
                          GrDeferredUploadToken token,
@@ -75,7 +125,7 @@ public:
     // add to texture atlas that matches this format
     GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*, GrMaskFormat,
                                         int width, int height, const void* image,
-                                        GrDrawOpAtlas::AtlasLocator*);
+                                        Bar*);
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
@@ -136,6 +186,20 @@ private:
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlasConfig fAtlasConfig;
+
+    struct HashTraits {
+        // GetKey and Hash for the the hash table.
+        static const Baz& GetKey(const Bar* bar) {
+            return bar->fBaz;
+        }
+
+        static uint32_t Hash(Baz key) {
+            return SkChecksum::Mix(key.hash());
+        }
+    };
+
+    SkTHashTable<Bar*, Baz, HashTraits> fMaps[kMaskFormatCount];
+    SkArenaAlloc fAlloc1{512};
 
     typedef GrOnFlushCallbackObject INHERITED;
 };

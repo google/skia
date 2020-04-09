@@ -43,7 +43,7 @@ public:
         bool fDistanceFieldVerticesAlwaysHaveW = false;
     };
 
-    static std::unique_ptr<GrTextContext> Make(const Options& options);
+    static std::unique_ptr<GrTextContext> Make1(const Options& options);
 
     void drawGlyphRunList(GrRecordingContext*, GrTextTarget*, const GrClip&,
                           const SkMatrix& drawMatrix, const SkSurfaceProps&, const SkGlyphRunList&);

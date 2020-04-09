@@ -49,7 +49,7 @@ GrTextContext::GrTextContext(const Options& options) : fOptions(options) {
     SanitizeOptions(&fOptions);
 }
 
-std::unique_ptr<GrTextContext> GrTextContext::Make(const Options& options) {
+std::unique_ptr<GrTextContext> GrTextContext::Make1(const Options& options) {
     return std::unique_ptr<GrTextContext>(new GrTextContext(options));
 }
 
@@ -248,7 +248,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 
     if (context->priv().contextID() != gContextID) {
         gContextID = context->priv().contextID();
-        gTextContext = GrTextContext::Make(GrTextContext::Options());
+        gTextContext = GrTextContext::Make1(GrTextContext::Options());
     }
 
     // Setup dummy SkPaint / GrPaint / GrRenderTargetContext

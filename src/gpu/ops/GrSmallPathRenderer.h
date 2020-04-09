@@ -74,7 +74,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    void evict(GrDrawOpAtlas::PlotLocator) override;
+    void evict(GrDrawOpAtlas::PlotGenID) override;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;
