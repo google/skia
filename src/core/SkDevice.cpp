@@ -34,7 +34,8 @@
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
         : fInfo(info)
-        , fSurfaceProps(surfaceProps) {
+        , fSurfaceProps(surfaceProps)
+        , fSaveCount(0) {
     fDeviceToGlobal.reset();
     fGlobalToDevice.reset();
     fLocalToDevice.reset();
@@ -90,9 +91,43 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) con
     return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
-SkM44 SkBaseDevice::localToWorld() const {
-    // fInvCamera == GlobalToWorld
-    return fInvCamera * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
+void SkBaseDevice::setMarkerToGlobal(SkCanvas::MarkerID id, const SkM44& markerToGlobal) {
+    SkASSERT(id != 0);
+
+    SkM44 markerToDevice = fGlobalToDevice * markerToGlobal;
+    SkM44 deviceToMarker;
+    SkAssertResult(markerToDevice.invert(&deviceToMarker));
+
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        auto& m = fMarkerStack[i];
+        if (m.fSaveCount != fSaveCount) {
+            break;
+        }
+        if (m.fID == id) {
+            m.fDeviceToMarker = deviceToMarker;
+            return;
+        }
+    }
+    fMarkerStack.push_back({fSaveCount, id, deviceToMarker});
+}
+
+void SkBaseDevice::restoreMarkerStack() {
+    while (!fMarkerStack.empty() && fMarkerStack.back().fSaveCount == fSaveCount) {
+        fMarkerStack.pop_back();
+    }
+    fSaveCount--;
+}
+
+bool SkBaseDevice::getLocalToMarker(SkCanvas::MarkerID id, SkM44* localToMarker) const {
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        if (fMarkerStack[i].fID == id) {
+            if (localToMarker) {
+                *localToMarker = fMarkerStack[i].fDeviceToMarker * fLocalToDevice;
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {
