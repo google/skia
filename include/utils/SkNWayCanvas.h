@@ -31,6 +31,7 @@ protected:
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
+    void onMarkCTM(uint32_t id) override;
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
     void didConcat44(const SkScalar[16]) override;
 #else

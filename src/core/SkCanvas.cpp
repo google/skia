@@ -1289,6 +1289,10 @@ void SkCanvas::internalRestore() {
         this->notifyCameraChanged();
     }
 
+    while (!fMarkerStack.empty() && fMarkerStack.back().fMCRec == fMCRec) {
+        fMarkerStack.pop_back();
+    }
+
     // now do the normal restore()
     fMCRec->~MCRec();       // balanced in save()
     fMCStack.pop_back();
@@ -1563,6 +1567,42 @@ void SkCanvas::setMatrix(const SkMatrix& matrix) {
 
 void SkCanvas::resetMatrix() {
     this->setMatrix(SkMatrix::I());
+}
+
+void SkCanvas::markCTM(uint32_t id) {
+    if (id == 0) return;
+
+    this->onMarkCTM(id);
+
+    SkM44 mx = this->getLocalToDevice();
+
+    // Look if we've already seen id in this save-frame.
+    // If so, replace, else append
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        auto& m = fMarkerStack[i];
+        if (m.fMCRec != fMCRec) {   // we've gone past the current save-frame
+            break;                  // fall out so we append
+        }
+        if (m.fID == id) {    // in current frame, so replace
+            m.fMatrix = mx;
+            return;
+        }
+    }
+    // if we get here, we should append a new marker
+    fMarkerStack.push_back({fMCRec, mx, id});
+}
+
+bool SkCanvas::findMarkedCTM(uint32_t id, SkM44* mx) const {
+    // search from top to bottom, so we find the most recent id
+    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
+        if (fMarkerStack[i].fID == id) {
+            if (mx) {
+                *mx = fMarkerStack[i].fMatrix;
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
