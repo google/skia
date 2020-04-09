@@ -1883,7 +1883,7 @@ namespace skvm {
     void Assembler::vptest(Ymm dst, Label* l) { this->op(0x66, 0x380f, 0x17, dst, (Ymm)0, l); }
 
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
-    void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }
+    void Assembler::vbroadcastss(Ymm dst, Ymm src)  { this->op(0x66,0x380f,0x18, dst, src); }
     void Assembler::vbroadcastss(Ymm dst, GP64 ptr, int off) {
         int prefix = 0x66,
                map = 0x380f,
@@ -1954,7 +1954,7 @@ namespace skvm {
     void Assembler::vmovups(Ymm dst, int off) { this->stack_load_store(0, 0x0f, 0x10, dst,off); }
     void Assembler::vmovups(int off, Ymm src) { this->stack_load_store(0, 0x0f, 0x11, src,off); }
 
-    void Assembler::vmovq(GP64 dst, Xmm src) {
+    void Assembler::vmovq(GP64 dst, Ymm src) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0xd6;
@@ -1965,7 +1965,7 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
-    void Assembler::vmovd(GP64 dst, Xmm src) {
+    void Assembler::vmovd(GP64 dst, Ymm src) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0x7e;
@@ -1976,7 +1976,7 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, src&7, dst&7));
     }
 
-    void Assembler::vmovd_direct(GP64 dst, Xmm src) {
+    void Assembler::vmovd_direct(GP64 dst, Ymm src) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0x7e;
@@ -1987,7 +1987,7 @@ namespace skvm {
         this->byte(mod_rm(Mod::Direct, src&7, dst&7));
     }
 
-    void Assembler::vmovd(Xmm dst, GP64 src) {
+    void Assembler::vmovd(Ymm dst, GP64 src) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0x6e;
@@ -1998,7 +1998,7 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
     }
 
-    void Assembler::vmovd(Xmm dst, Scale scale, GP64 index, GP64 base) {
+    void Assembler::vmovd(Ymm dst, Scale scale, GP64 index, GP64 base) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0x6e;
@@ -2010,7 +2010,7 @@ namespace skvm {
         this->byte(sib(scale, index&7, base&7));
     }
 
-    void Assembler::vmovd_direct(Xmm dst, GP64 src) {
+    void Assembler::vmovd_direct(Ymm dst, GP64 src) {
         int prefix = 0x66,
             map    = 0x0f,
             opcode = 0x6e;
@@ -3145,7 +3145,7 @@ namespace skvm {
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                a->vpermq   (tmp(), tmp(), 0xd8);
                                                a->vpackuswb(tmp(), tmp(), tmp());
-                                               a->vmovq    (arg[immy], (A::Xmm)tmp()); }
+                                               a->vmovq    (arg[immy], tmp()); }
                                                break;
 
                 case Op::store16: if (scalar) { a->vpextrw  (arg[immy], (A::Xmm)r[x], 0); }
@@ -3154,8 +3154,8 @@ namespace skvm {
                                                 a->vmovups  (arg[immy], (A::Xmm)tmp()); }
                                                 break;
 
-                case Op::store32: if (scalar) { a->vmovd  (arg[immy], (A::Xmm)r[x]); }
-                                  else        { a->vmovups(arg[immy],         r[x]); }
+                case Op::store32: if (scalar) { a->vmovd  (arg[immy], r[x]); }
+                                  else        { a->vmovups(arg[immy], r[x]); }
                                                 break;
 
                 case Op::load8:  if (scalar) {
@@ -3172,8 +3172,8 @@ namespace skvm {
                                      a->vpmovzxwd(dst(), arg[immy]);
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[immy]); }
-                                 else        { a->vmovups(        dst(), arg[immy]); }
+                case Op::load32: if (scalar) { a->vmovd  (dst(), arg[immy]); }
+                                 else        { a->vmovups(dst(), arg[immy]); }
                                  break;
 
                 case Op::gather32:
@@ -3184,10 +3184,10 @@ namespace skvm {
                     a->movq(base, arg[immy], immz);
 
                     // Grab our index from lane 0 of the index argument.
-                    a->vmovd_direct(index, (A::Xmm)r[x]);
+                    a->vmovd_direct(index, r[x]);
 
                     // dst = *(base + 4*index)
-                    a->vmovd((A::Xmm)dst(), A::FOUR, index, base);
+                    a->vmovd(dst(), A::FOUR, index, base);
                 } else {
                     // We may not let any of dst(), index, or mask use the same register,
                     // so we must allocate registers manually and very carefully.
@@ -3224,15 +3224,15 @@ namespace skvm {
                 break;
 
                 case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
-                                   a->vmovd_direct((A::Xmm)dst(), scratch);
-                                   a->vbroadcastss(dst(), (A::Xmm)dst());
+                                   a->vmovd_direct(dst(), scratch);
+                                   a->vbroadcastss(dst(), dst());
                                    break;
 
                 case Op::uniform32: a->vbroadcastss(dst(), arg[immy], immz);
                                     break;
 
-                case Op::index: a->vmovd_direct((A::Xmm)tmp(), N);
-                                a->vbroadcastss(tmp(), (A::Xmm)tmp());
+                case Op::index: a->vmovd_direct(tmp(), N);
+                                a->vbroadcastss(tmp(), tmp());
                                 a->vpsubd(dst(), tmp(), &iota.label);
                                 break;
 

@@ -1341,8 +1341,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vbroadcastss(A::ymm8,  A::rdx, -12);
         a.vbroadcastss(A::ymm8,  A::rdx, 400);
 
-        a.vbroadcastss(A::ymm8,  A::xmm0);
-        a.vbroadcastss(A::ymm0,  A::xmm13);
+        a.vbroadcastss(A::ymm8,  A::ymm0);
+        a.vbroadcastss(A::ymm0,  A::ymm13);
     },{
         /*   VEX    */ /*op*/     /*ModRM*/   /*offset*/
         0xc4,0xe2,0x7d, 0x18,   0b00'000'111,
@@ -1388,7 +1388,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpmovzxwd(A::ymm4, A::rsi);
         a.vpmovzxbd(A::ymm4, A::rsi);
 
-        a.vmovq(A::rdx, A::xmm15);
+        a.vmovq(A::rdx, A::ymm15);
     },{
         /*    VEX    */  /*Op*/  /*  ModRM  */
         0xc5,     0xfc,   0x10,  0b00'101'110,
@@ -1427,25 +1427,25 @@ DEF_TEST(SkVM_Assembler, r) {
         a.movzbl(A::r8,  A::rsi, 12);
         a.movzbl(A::r8,  A::rsi, 400);
 
-        a.vmovd(A::rax, A::xmm0);
-        a.vmovd(A::rax, A::xmm8);
-        a.vmovd(A::r8,  A::xmm0);
+        a.vmovd(A::rax, A::ymm0);
+        a.vmovd(A::rax, A::ymm8);
+        a.vmovd(A::r8,  A::ymm0);
 
-        a.vmovd(A::xmm0, A::rax);
-        a.vmovd(A::xmm8, A::rax);
-        a.vmovd(A::xmm0, A::r8);
+        a.vmovd(A::ymm0, A::rax);
+        a.vmovd(A::ymm8, A::rax);
+        a.vmovd(A::ymm0, A::r8);
 
-        a.vmovd(A::xmm0 , A::FOUR, A::rcx, A::rax);
-        a.vmovd(A::xmm15, A::TWO,  A::r8,  A::rax);
-        a.vmovd(A::xmm0 , A::ONE,  A::rcx, A::r8);
+        a.vmovd(A::ymm0 , A::FOUR, A::rcx, A::rax);
+        a.vmovd(A::ymm15, A::TWO,  A::r8,  A::rax);
+        a.vmovd(A::ymm0 , A::ONE,  A::rcx, A::r8);
 
-        a.vmovd_direct(A::rax, A::xmm0);
-        a.vmovd_direct(A::rax, A::xmm8);
-        a.vmovd_direct(A::r8,  A::xmm0);
+        a.vmovd_direct(A::rax, A::ymm0);
+        a.vmovd_direct(A::rax, A::ymm8);
+        a.vmovd_direct(A::r8,  A::ymm0);
 
-        a.vmovd_direct(A::xmm0, A::rax);
-        a.vmovd_direct(A::xmm8, A::rax);
-        a.vmovd_direct(A::xmm0, A::r8);
+        a.vmovd_direct(A::ymm0, A::rax);
+        a.vmovd_direct(A::ymm8, A::rax);
+        a.vmovd_direct(A::ymm0, A::r8);
 
         a.movb(A::rdx, A::rax);
         a.movb(A::rdx, A::r8);
