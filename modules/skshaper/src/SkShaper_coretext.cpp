@@ -237,9 +237,12 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             CFRange range = CTRunGetStringRange(run);
 
-            SkFont run_font = run_to_font(run, font);
+            // TODO: There's a bug here in run_font going out of skope at the end of the for loop
+            // and infos[x] losing its SkFont object. Hacky fix, by heap allocating and leaking run_font.
+            SkFont* run_font = new SkFont;
+            *run_font = run_to_font(run, font);
             infos.push_back({
-                run_font,
+                *run_font,
                 0,      // need fBidiLevel
                 {adv, 0},
                 (size_t)runGlyphs,

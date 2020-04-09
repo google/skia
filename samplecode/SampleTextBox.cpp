@@ -8,6 +8,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
@@ -118,6 +119,9 @@ DEF_SAMPLE( return new TextBoxView([](){ return SkShaper::Make(); }, "default");
 DEF_SAMPLE( return new TextBoxView(SkShaper::MakeCoreText, "coretext"); );
 #endif
 
+
+extern sk_sp<SkTypeface> makeMacSystemFont(float size);
+  
 class SampleShaper : public Sample {
 public:
     SampleShaper() {}
@@ -125,12 +129,13 @@ public:
 protected:
     SkString name() override { return SkString("shaper"); }
 
-    void drawTest(SkCanvas* canvas, const char str[], SkScalar size,
-                  std::unique_ptr<SkShaper> shaper) {
-        if (!shaper) return;
+    sk_sp<SkTextBlob> drawTest(SkCanvas* canvas, const char str[], SkScalar size,
+                  std::unique_ptr<SkShaper> shaper, SkColor color) {
+        if (!shaper) return nullptr;
 
         SkTextBlobBuilderRunHandler builder(str, {0, 0});
-        SkFont srcFont;
+        sk_sp<SkTypeface> mac_system_font(makeMacSystemFont(size));
+        SkFont srcFont(mac_system_font);
         srcFont.setSize(size);
         srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         srcFont.setSubpixel(true);
@@ -140,44 +145,55 @@ protected:
         std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
             SkShaper::MakeBiDiRunIterator(str, len, 0xfe));
         if (!bidi) {
-            return;
+            return nullptr;
         }
 
         std::unique_ptr<SkShaper::LanguageRunIterator> language(
             SkShaper::MakeStdLanguageRunIterator(str, len));
         if (!language) {
-            return;
+            return nullptr;
         }
 
         SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
         std::unique_ptr<SkShaper::ScriptRunIterator> script(
             SkShaper::MakeScriptRunIterator(str, len, undeterminedScript));
         if (!script) {
-            return;
+            return nullptr;
         }
 
         std::unique_ptr<SkShaper::FontRunIterator> font(
             SkShaper::MakeFontMgrRunIterator(str, len, srcFont, SkFontMgr::RefDefault(),
                                              "Arial", SkFontStyle::Bold(), &*language));
         if (!font) {
-            return;
+            return nullptr;
         }
 
         shaper->shape(str, len, *font, *bidi, *script, *language, 2000, &builder);
 
-        canvas->drawTextBlob(builder.makeBlob(), 0, 0, SkPaint());
+        SkPaint paint;
+        paint.setColor(color);
+        sk_sp<SkTextBlob> paint_blob = builder.makeBlob();
+        canvas->drawTextBlob(paint_blob, 0, 0, paint);
+        return paint_blob;
     }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(10, 30);
 
-        const char text[] = "world";
+        const char text[] = "YouWebTorrentVa";
 
-        for (SkScalar size = 30; size <= 30; size += 10) {
-            this->drawTest(canvas, text, size, SkShaper::Make());
-            canvas->translate(0, size + 5);
-            this->drawTest(canvas, text, size, SkShaper::MakeCoreText());
-            canvas->translate(0, size*2);
+        float trakTableFontSizes[] = {6.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                                      16.0, 17.0, 20.0, 22.0, 28.0, 32.0, 36.0, 50.0, 64.0, 80.0, 100.0, 138.0 };
+
+        for (SkScalar size : trakTableFontSizes) {
+          sk_sp<SkTextBlob> coretext_blob = this->drawTest(canvas, text, size, SkShaper::MakeCoreText(), SkColorSetARGB(180, 0, 255, 0));
+          sk_sp<SkTextBlob> harfbuzz_blob = this->drawTest(canvas, text, size, SkShaper::Make(), SkColorSetARGB(180, 255, 0, 0));
+            canvas->translate(0, size * 1.2);
+
+
+            float diff = coretext_blob->bounds().width() - harfbuzz_blob->bounds().width();
+            float diff_font_units_per_character = diff / size * 2048 / 15.0f;
+            printf("Blob width diff for font size: %03.2f: %.3f, diff per character in font units: %.3f\n", size, diff, diff_font_units_per_character);
         }
     }
 
