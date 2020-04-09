@@ -205,8 +205,7 @@ public:
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
 
-    // TODO: rename to strikeCache
-    virtual GrStrikeCache* glyphCache() const = 0;
+    virtual GrStrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
 
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
