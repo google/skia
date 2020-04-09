@@ -101,6 +101,14 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
+void SkNWayCanvas::onMarkCTM(uint32_t id) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->markCTM(id);
+    }
+    this->INHERITED::onMarkCTM(id);
+}
+
 #ifdef SK_SUPPORT_LEGACY_DIDCONCAT44
 void SkNWayCanvas::didConcat44(const SkScalar m[16]) {
     Iter iter(fList);
