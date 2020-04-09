@@ -11,6 +11,7 @@
 #include "src/gpu/GrCaps.h"
 
 #include "include/gpu/d3d/GrD3DTypes.h"
+#include "src/gpu/d3d/GrD3DStencilAttachment.h"
 
 class GrShaderCaps;
 
@@ -19,6 +20,8 @@ class GrShaderCaps;
  */
 class GrD3DCaps : public GrCaps {
 public:
+    typedef GrD3DStencilAttachment::Format StencilFormat;
+
     /**
      * Creates a GrD3DCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
@@ -52,6 +55,13 @@ public:
                                                  GrColorType srcColorType) const override;
 
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
+
+    /**
+     * Returns both a supported and most preferred stencil format to use in draws.
+     */
+    const StencilFormat& preferredStencilFormat() const {
+        return fPreferredStencilFormat;
+    }
 
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
@@ -95,6 +105,7 @@ private:
     void initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc);
 
     void initFormatTable(const DXGI_ADAPTER_DESC&, ID3D12Device*);
+    void initStencilFormat(ID3D12Device*);
 
     void applyDriverCorrectnessWorkarounds(int vendorID);
 
@@ -167,6 +178,8 @@ private:
 
     int fMaxPerStageShaderResourceViews;
     int fMaxPerStageUnorderedAccessViews;
+
+    StencilFormat fPreferredStencilFormat;
 
     typedef GrCaps INHERITED;
 };
