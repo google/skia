@@ -194,13 +194,13 @@ sk_sp<SkImageFilter> SkImageFilters::Xfermode(
 // Morphology filter effects
 
 sk_sp<SkImageFilter> SkImageFilters::Dilate(
-        int radiusX, int radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
+        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
     SkImageFilter::CropRect r = make_crop_rect(cropRect);
     return SkDilateImageFilter::Make(radiusX, radiusY, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Erode(
-        int radiusX, int radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
+        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
     SkImageFilter::CropRect r = make_crop_rect(cropRect);
     return SkErodeImageFilter::Make(radiusX, radiusY, std::move(input), &r);
 }

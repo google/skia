@@ -14,7 +14,7 @@
 // DEPRECATED: Use include/effects/SkImageFilters::Dilate
 class SK_API SkDilateImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
+    static sk_sp<SkImageFilter> Make(SkScalar radiusX, SkScalar radiusY,
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr);
 
@@ -29,7 +29,7 @@ private:
 // DEPRECATED: Use include/effects/SkImageFilters::Erode
 class SK_API SkErodeImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
+    static sk_sp<SkImageFilter> Make(SkScalar radiusX, SkScalar radiusY,
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr);
 
