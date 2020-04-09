@@ -243,8 +243,10 @@ private:
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    bool onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
+    void onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo&, const GrPrepareForExternalIORequests&) override;
+
+    bool onSubmitToGpu(bool syncCpu) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
@@ -252,8 +254,7 @@ private:
     // fSemaphoreToSignal, we will add those signal semaphores to the submission of this command
     // buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we will add those
     // wait semaphores to the submission of this command buffer.
-    bool submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
-                             GrGpuFinishedContext finishedContext = nullptr);
+    bool submitCommandBuffer(SyncQueue sync);
 
     void copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                 GrVkImage* srcImage, const SkIRect& srcRect,

@@ -360,9 +360,11 @@ public:
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
-    GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*[], int n,
-                                      SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
-                                      const GrPrepareForExternalIORequests&);
+    void finishFlush(GrSurfaceProxy*[], int numProxies,
+                     SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
+                     const GrPrepareForExternalIORequests&);
+
+    bool submitToGpu(bool syncCpu);
 
     virtual void submit(GrOpsRenderPass*) = 0;
 
@@ -805,8 +807,10 @@ private:
     virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
 
-    virtual bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    virtual void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                                const GrFlushInfo&, const GrPrepareForExternalIORequests&) = 0;
+
+    virtual bool onSubmitToGpu(bool syncCpu) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}

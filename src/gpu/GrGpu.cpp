@@ -645,11 +645,11 @@ void GrGpu::validateStagingBuffers() const {
 }
 #endif
 
-GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
-                                         int n,
-                                         SkSurface::BackendSurfaceAccess access,
-                                         const GrFlushInfo& info,
-                                         const GrPrepareForExternalIORequests& externalRequests) {
+void GrGpu::finishFlush(GrSurfaceProxy* proxies[],
+                        int numProxies,
+                        SkSurface::BackendSurfaceAccess access,
+                        const GrFlushInfo& info,
+                        const GrPrepareForExternalIORequests& externalRequests) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #ifdef SK_DEBUG
     this->validateStagingBuffers();
@@ -677,21 +677,21 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
         }
     }
 
+    this->onFinishFlush(proxies, numProxies, access, info, externalRequests);
+}
+
+bool GrGpu::submitToGpu(bool syncCpu) {
     this->unmapStagingBuffers();
 
-    if (!this->onFinishFlush(proxies, n, access, info, externalRequests)) {
-        return GrSemaphoresSubmitted::kNo;
-    }
-
+    bool submitted = this->onSubmitToGpu(syncCpu);
 
     // Move all active staging buffers to the busy list.
+    // TODO: this should probably be handled inside of the onSubmitToGpu by the backends.
     while (GrStagingBuffer* buffer = fActiveStagingBuffers.head()) {
         fActiveStagingBuffers.remove(buffer);
         fBusyStagingBuffers.addToTail(buffer);
     }
-
-    return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
-                                            : GrSemaphoresSubmitted::kNo;
+    return submitted;
 }
 
 #ifdef SK_ENABLE_DUMP_GPU

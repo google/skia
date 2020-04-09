@@ -442,10 +442,13 @@ void GrDawnGpu::flush() {
     fDevice.Tick();
 }
 
-bool GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                              const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
+bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
     this->flush();
     return true;
+}
+
+void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+                              const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
 }
 
 static wgpu::Texture get_dawn_texture_from_surface(GrSurface* src) {
@@ -516,7 +519,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
-    flush();
+    this->flush();
 
     const void *readPixelsPtr = nullptr;
     buf.MapReadAsync(callback, &readPixelsPtr);
