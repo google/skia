@@ -8,6 +8,7 @@
 #include "include/core/SkM44.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -57,6 +58,46 @@ static GrSLType SkVerticesAttributeToGrSLType(const SkVertices::Attribute& a) {
     SkUNREACHABLE;
 }
 
+// Container for a collection of [MarkerID, Matrix] pairs. For a GrDrawVerticesOp whose custom
+// attributes reference some set of MarkerIDs, this stores the actual values of those matrices,
+// at the time the Op is created.
+class MarkedMatrices {
+public:
+    // For each MarkerID required by 'info', fetch the value of that matrix from 'matrixProvider'
+    void gather(const SkVerticesPriv& info, const SkMarkedMatrixProvider* matrixProvider) {
+        for (int i = 0; i < info.attributeCount(); ++i) {
+            if (SkCanvas::MarkerID id = info.attributes()[i].fMarkerID) {
+                if (std::none_of(fMatrices.begin(), fMatrices.end(),
+                                 [id](const auto& m) { return m.first == id; })) {
+                    SkM44 matrix;
+                    // SkCanvas should guarantee that this succeeds
+                    SkAssertResult(matrixProvider->getLocalToMarker(id, &matrix));
+                    fMatrices.push_back({id, matrix});
+                }
+            }
+        }
+    }
+
+    SkM44 get(SkCanvas::MarkerID id) const {
+        for (const auto& m : fMatrices) {
+            if (m.first == id) {
+                return m.second;
+            }
+        }
+        SkASSERT(false);
+        return SkM44{};
+    }
+
+    bool operator==(const MarkedMatrices& that) const { return fMatrices == that.fMatrices; }
+    bool operator!=(const MarkedMatrices& that) const { return !(*this == that); }
+
+private:
+    // If we expected many MarkerIDs, this should be a hash table. As it is, we're bounded by
+    // SkVertices::kMaxCustomAttributes (which is 8). Realistically, we're never going to see
+    // more than 1 or 2 unique MarkerIDs, so rely on linear search when inserting and fetching.
+    std::vector<std::pair<SkCanvas::MarkerID, SkM44>> fMatrices;
+};
+
 class VerticesGP : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
@@ -67,10 +108,10 @@ public:
                                      const SkMatrix& viewMatrix,
                                      const SkVertices::Attribute* attrs,
                                      int attrCount,
-                                     const SkM44& localToWorld) {
+                                     const MarkedMatrices* customMatrices) {
         return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
                                        std::move(colorSpaceXform), viewMatrix, attrs, attrCount,
-                                       localToWorld);
+                                       customMatrices);
     }
 
     const char* name() const override { return "VerticesGP"; }
@@ -144,18 +185,43 @@ public:
                                  args.fFPCoordTransformHandler);
 
             // Add varyings and globals for all custom attributes
+            using Usage = SkVertices::Attribute::Usage;
             for (size_t i = kFirstCustomIndex; i < gp.fAttributes.size(); ++i) {
                 const auto& attr(gp.fAttributes[i]);
                 const int customIdx = i - kFirstCustomIndex;
-                auto usage = gp.fUsages[customIdx];
+                const auto& customAttr(gp.fCustomAttributes[customIdx]);
 
                 GrSLType varyingType = attr.gpuType();
                 SkString varyingIn(attr.name());
 
-                switch (usage) {
-                    case SkVertices::Attribute::Usage::kRaw:
+                UniformHandle matrixHandle;
+                if (customAttr.fMarkerID) {
+                    bool normal = customAttr.fUsage == Usage::kNormalVector;
+                    for (const MarkedUniform& matrixUni : fCustomMatrixUniforms) {
+                        if (matrixUni.fID == customAttr.fMarkerID && matrixUni.fNormal == normal) {
+                            matrixHandle = matrixUni.fUniform;
+                            break;
+                        }
+                    }
+                    if (!matrixHandle.isValid()) {
+                        SkString uniName = SkStringPrintf("customMatrix_%d%s", customAttr.fMarkerID,
+                                                          normal ? "_IT" : "");
+                        matrixHandle = uniformHandler->addUniform(
+                                nullptr, kVertex_GrShaderFlag,
+                                normal ? kFloat3x3_GrSLType : kFloat4x4_GrSLType, uniName.c_str());
+                        fCustomMatrixUniforms.push_back(
+                                {customAttr.fMarkerID, normal, matrixHandle});
+                    }
+                }
+
+                // TODO: For now, vectors/normals/positions with a 0 markerID get no transform.
+                // Those should use localToDevice instead. That means we need to change batching
+                // logic and then guarantee that we have the view matrix as a uniform here.
+
+                switch (customAttr.fUsage) {
+                    case Usage::kRaw:
                         break;
-                    case SkVertices::Attribute::Usage::kColor: {
+                    case Usage::kColor: {
                         // For RGB colors, expand to RGBA with A = 1
                         if (attr.gpuType() == kFloat3_GrSLType) {
                             varyingIn = SkStringPrintf("float4(%s, 1)", attr.name());
@@ -176,54 +242,44 @@ public:
                         varyingType = kHalf4_GrSLType;
                         break;
                     }
-                    case SkVertices::Attribute::Usage::kVector: {
-                        if (!fLocalToWorldMatrixUniform.isValid()) {
-                            fLocalToWorldMatrixUniform =
-                                    uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                                                               kFloat4x4_GrSLType, "localToWorld");
-                        }
+                    case Usage::kVector: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
                             varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
                         }
-                        varyingIn = SkStringPrintf(
-                                "normalize((%s * float4(%s, 0)).xyz)",
-                                uniformHandler->getUniformCStr(fLocalToWorldMatrixUniform),
-                                varyingIn.c_str());
+                        if (matrixHandle.isValid()) {
+                            varyingIn = SkStringPrintf("(%s * float4(%s, 0)).xyz",
+                                                       uniformHandler->getUniformCStr(matrixHandle),
+                                                       varyingIn.c_str());
+                        }
+                        varyingIn = SkStringPrintf("normalize(%s)", varyingIn.c_str());
                         varyingType = kFloat3_GrSLType;
                         break;
                     }
-                    case SkVertices::Attribute::Usage::kNormalVector: {
-                        if (!fNormalMatrixUniform.isValid()) {
-                            fNormalMatrixUniform = uniformHandler->addUniform(
-                                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType,
-                                    "localToWorld_IT");
-                        }
+                    case Usage::kNormalVector: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
                             varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
                         }
-                        varyingIn = SkStringPrintf(
-                                "normalize(%s * %s)",
-                                uniformHandler->getUniformCStr(fNormalMatrixUniform),
-                                varyingIn.c_str());
+                        if (matrixHandle.isValid()) {
+                            varyingIn = SkStringPrintf("(%s * %s)",
+                                                       uniformHandler->getUniformCStr(matrixHandle),
+                                                       varyingIn.c_str());
+                        }
+                        varyingIn = SkStringPrintf("normalize(%s)", varyingIn.c_str());
                         varyingType = kFloat3_GrSLType;
                         break;
                     }
-                    case SkVertices::Attribute::Usage::kPosition: {
-                        if (!fLocalToWorldMatrixUniform.isValid()) {
-                            fLocalToWorldMatrixUniform =
-                                    uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                                                               kFloat4x4_GrSLType, "localToWorld");
-                        }
+                    case Usage::kPosition: {
                         if (attr.gpuType() == kFloat2_GrSLType) {
                             varyingIn = SkStringPrintf("float3(%s, 0)", attr.name());
                         }
-                        vertBuilder->codeAppendf(
-                                "float4 _tmp_pos_%d = %s * float4(%s, 1);",
-                                customIdx,
-                                uniformHandler->getUniformCStr(fLocalToWorldMatrixUniform),
-                                varyingIn.c_str());
-                        varyingIn = SkStringPrintf("_tmp_pos_%d.xyz / _tmp_pos_%d.w",
-                                                   customIdx, customIdx);
+                        if (matrixHandle.isValid()) {
+                            vertBuilder->codeAppendf("float4 _tmp_pos_%d = %s * float4(%s, 1);",
+                                                     customIdx,
+                                                     uniformHandler->getUniformCStr(matrixHandle),
+                                                     varyingIn.c_str());
+                            varyingIn = SkStringPrintf("_tmp_pos_%d.xyz / _tmp_pos_%d.w",
+                                                       customIdx, customIdx);
+                        }
                         varyingType = kFloat3_GrSLType;
                     }
                 }
@@ -250,13 +306,11 @@ public:
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
 
-            uint32_t usageKey = 0;
-            SkASSERT(vgp.fUsages.size() <= 8);
-            for (size_t i = 0; i < vgp.fUsages.size(); ++i) {
-                SkASSERT((uint32_t)vgp.fUsages[i] < (1 << 4));
-                usageKey = (usageKey << 4) | (uint32_t)vgp.fUsages[i];
+            for (int i = 0; i < vgp.fCustomAttributeCount; ++i) {
+                SkASSERT(SkTFitsIn<uint16_t>(vgp.fCustomAttributes[i].fMarkerID));
+                b->add32(vgp.fCustomAttributes[i].fMarkerID << 16 |
+                         (uint32_t)vgp.fCustomAttributes[i].fUsage);
             }
-            b->add32(usageKey);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -279,23 +333,25 @@ public:
 
             fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
 
-            if (fLocalToWorldMatrixUniform.isValid()) {
-                pdman.setSkM44(fLocalToWorldMatrixUniform, vgp.fLocalToWorldMatrix);
-            }
-
-            if (fNormalMatrixUniform.isValid()) {
-                // Get the upper-left 3x3 (rotation + scale) of local to world:
-                SkM44 mtx(vgp.fLocalToWorldMatrix);
-                mtx.setCol(3, {0, 0, 0, 1});
-                mtx.setRow(3, {0, 0, 0, 1});
-                // Invert it...
-                SkAssertResult(mtx.invert(&mtx));
-                // We want the inverse transpose, but we're going to feed it as a 3x3 column major
-                // matrix to the uniform. So copy the (not-yet-transposed) values out in row order.
-                float l2wIT[9] = { mtx.rc(0, 0), mtx.rc(0, 1), mtx.rc(0, 2),
-                                   mtx.rc(1, 0), mtx.rc(1, 1), mtx.rc(1, 2),
-                                   mtx.rc(2, 0), mtx.rc(2, 1), mtx.rc(2, 2) };
-                pdman.setMatrix3f(fNormalMatrixUniform, l2wIT);
+            for (const auto& matrixUni : fCustomMatrixUniforms) {
+                SkASSERT(matrixUni.fUniform.isValid());
+                SkM44 mtx = vgp.fCustomMatrices->get(matrixUni.fID);
+                if (matrixUni.fNormal) {
+                    // Get the upper-left 3x3 (rotation + scale):
+                    mtx.setCol(3, {0, 0, 0, 1});
+                    mtx.setRow(3, {0, 0, 0, 1});
+                    // Invert it...
+                    SkAssertResult(mtx.invert(&mtx));
+                    // We want the inverse transpose, but we're going to feed it as a 3x3 column
+                    // major matrix to the uniform. So copy the (not-yet-transposed) values out in
+                    // row order.
+                    float mtxIT[9] = {mtx.rc(0, 0), mtx.rc(0, 1), mtx.rc(0, 2),
+                                      mtx.rc(1, 0), mtx.rc(1, 1), mtx.rc(1, 2),
+                                      mtx.rc(2, 0), mtx.rc(2, 1), mtx.rc(2, 2)};
+                    pdman.setMatrix3f(matrixUni.fUniform, mtxIT);
+                } else {
+                    pdman.setSkM44(matrixUni.fUniform, mtx);
+                }
             }
         }
 
@@ -306,8 +362,12 @@ public:
         UniformHandle fColorUniform;
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-        UniformHandle fLocalToWorldMatrixUniform;
-        UniformHandle fNormalMatrixUniform;
+        struct MarkedUniform {
+            SkCanvas::MarkerID fID;
+            bool               fNormal;
+            UniformHandle      fUniform;
+        };
+        std::vector<MarkedUniform> fCustomMatrixUniforms;
 
         typedef GrGLSLGeometryProcessor INHERITED;
     };
@@ -330,13 +390,15 @@ private:
                const SkMatrix& viewMatrix,
                const SkVertices::Attribute* attrs,
                int attrCount,
-               const SkM44& localToWorld)
+               const MarkedMatrices* customMatrices)
             : INHERITED(kVerticesGP_ClassID)
             , fColorArrayType(colorArrayType)
             , fColor(color)
             , fViewMatrix(viewMatrix)
             , fColorSpaceXform(std::move(colorSpaceXform))
-            , fLocalToWorldMatrix(localToWorld) {
+            , fCustomAttributes(attrs)
+            , fCustomAttributeCount(attrCount)
+            , fCustomMatrices(customMatrices) {
         constexpr Attribute missingAttr;
         fAttributes.push_back({"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
         fAttributes.push_back(fColorArrayType != ColorArrayType::kUnused
@@ -352,7 +414,6 @@ private:
             fAttributes.push_back({fAttrNames.back().c_str(),
                                    SkVerticesAttributeToGrVertexAttribType(attrs[i]),
                                    SkVerticesAttributeToGrSLType(attrs[i])});
-            fUsages.push_back(attrs[i].fUsage);
         }
 
         this->setVertexAttributes(fAttributes.data(), fAttributes.size());
@@ -367,12 +428,14 @@ private:
 
     std::vector<SkString> fAttrNames;
     std::vector<Attribute> fAttributes;
-    std::vector<SkVertices::Attribute::Usage> fUsages;
     ColorArrayType fColorArrayType;
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    SkM44 fLocalToWorldMatrix;
+
+    const SkVertices::Attribute* fCustomAttributes;
+    int                          fCustomAttributeCount;
+    const MarkedMatrices*        fCustomMatrices;
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -386,7 +449,7 @@ public:
 
     DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
                    GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix,
-                   const SkRuntimeEffect*, const SkM44* localToWorld);
+                   const SkRuntimeEffect*, const SkMarkedMatrixProvider* matrixProvider);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -472,7 +535,7 @@ private:
     LocalCoordsType fLocalCoordsType;
     ColorArrayType fColorArrayType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    SkM44 fLocalToWorld;
+    MarkedMatrices fCustomMatrices;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -484,7 +547,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
                                GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                                const SkMatrix& viewMatrix, const SkRuntimeEffect* effect,
-                               const SkM44* localToWorld)
+                               const SkMarkedMatrixProvider* matrixProvider)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
         , fPrimitiveType(primitiveType)
@@ -500,11 +563,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
                                        : ColorArrayType::kUnused;
     fLocalCoordsType = info.hasTexCoords() ? LocalCoordsType::kExplicit
                                            : LocalCoordsType::kUsePosition;
-    if (localToWorld) {
-        fLocalToWorld = *localToWorld;
-    } else {
-        fLocalToWorld.setIdentity();
-    }
+    fCustomMatrices.gather(info, matrixProvider);
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -573,7 +632,7 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
 
     auto gp = VerticesGP::Make(arena, fLocalCoordsType, fColorArrayType, fMeshes[0].fColor,
                                std::move(csxform), vm, info.attributes(), info.attributeCount(),
-                               fLocalToWorld);
+                               &fCustomMatrices);
     SkASSERT(this->vertexStride() == gp->vertexStride());
     return gp;
 }
@@ -714,7 +773,8 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingCont
         return CombineResult::kCannotCombine;
     }
 
-    if (vThis.usesLocalToWorldMatrix() && this->fLocalToWorld != that->fLocalToWorld) {
+    // We can't batch draws if any of the custom matrices have changed.
+    if (this->fCustomMatrices != that->fCustomMatrices) {
         return CombineResult::kCannotCombine;
     }
 
@@ -797,14 +857,14 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType,
                                                  const SkRuntimeEffect* effect,
-                                                 const SkM44* localToWorld) {
+                                                 const SkMarkedMatrixProvider* matrixProvider) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType
                                        : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(
             context, std::move(paint), std::move(vertices), primType, aaType,
-            std::move(colorSpaceXform), viewMatrix, effect, localToWorld);
+            std::move(colorSpaceXform), viewMatrix, effect, matrixProvider);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

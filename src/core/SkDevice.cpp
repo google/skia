@@ -90,9 +90,17 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) con
     return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
-SkM44 SkBaseDevice::localToWorld() const {
-    // fInvCamera == GlobalToWorld
-    return fInvCamera * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
+bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
+    SkM44 markerToGlobal;
+    if (fMarkerStack && fMarkerStack->findMarker(id, &markerToGlobal)) {
+        if (localToMarker) {
+            SkM44 globalToMarker;
+            SkAssertResult(markerToGlobal.invert(&globalToMarker));
+            *localToMarker = globalToMarker * SkMatrix::Concat(fDeviceToGlobal, fLocalToDevice);
+        }
+        return true;
+    }
+    return false;
 }
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {

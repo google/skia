@@ -60,9 +60,10 @@ size_t SkVertices::Attribute::bytesPerVertex() const {
 bool SkVertices::Attribute::isValid() const {
     switch (fUsage) {
         case Usage::kRaw:
-            return true;
+            return fMarkerID == 0;
         case Usage::kColor:
-            return fType == Type::kFloat3 || fType == Type::kFloat4 || fType == Type::kByte4_unorm;
+            return fMarkerID == 0 && (fType == Type::kFloat3 || fType == Type::kFloat4 ||
+                                      fType == Type::kByte4_unorm);
         case Usage::kVector:
         case Usage::kNormalVector:
         case Usage::kPosition:
@@ -326,20 +327,6 @@ bool SkVerticesPriv::hasUsage(SkVertices::Attribute::Usage u) const {
     for (int i = 0; i < fVertices->fAttributeCount; ++i) {
         if (fVertices->fAttributes[i].fUsage == u) {
             return true;
-        }
-    }
-    return false;
-}
-
-bool SkVerticesPriv::usesLocalToWorldMatrix() const {
-    for (int i = 0; i < fVertices->fAttributeCount; ++i) {
-        switch (fVertices->fAttributes[i].fUsage) {
-            case SkVertices::Attribute::Usage::kVector:
-            case SkVertices::Attribute::Usage::kNormalVector:
-            case SkVertices::Attribute::Usage::kPosition:
-                return true;
-            default:
-                break;
         }
     }
     return false;

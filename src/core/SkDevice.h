@@ -15,6 +15,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/core/SkMarkerStack.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
@@ -28,7 +29,7 @@ class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
-class SkBaseDevice : public SkRefCnt {
+class SkBaseDevice : public SkRefCnt, public SkMarkedMatrixProvider {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -134,15 +135,11 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
-    // The inverse of the CTM up to and including the Camera matrix.
-    void setInvCamera(const SkM44& invc) {
-        fInvCamera = invc;
-    }
-
-    SkM44 localToWorld() const;
-
     SkMarkerStack* markerStack() const { return fMarkerStack; }
     void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
+
+    // SkMarkedMatrixProvider interface:
+    bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
 
     void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
@@ -444,7 +441,6 @@ private:
     // This is the device CTM, not the global CTM. This transform maps from local space to the
     // device's coordinate space; fDeviceToGlobal * fLocalToDevice will match the canvas' CTM.
     SkMatrix             fLocalToDevice;
-    SkM44                fInvCamera;    // inverse of ctm up to and including camera
 
     typedef SkRefCnt INHERITED;
 };
