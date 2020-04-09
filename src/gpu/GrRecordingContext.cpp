@@ -73,8 +73,6 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fStrikeCache.reset(new GrStrikeCache{});
-
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));
 
@@ -122,7 +120,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
 
-    fStrikeCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
