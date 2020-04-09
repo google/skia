@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "281f3c98_250e321e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 11
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-04-09T16:01:29Z",
+      "side": 0,
+      "message": "The canvas.spec.js test file calls these - just remove those calls.",
+      "range": {
+        "startLine": 949,
+        "startChar": 31,
+        "endLine": 949,
+        "endChar": 47
+      },
+      "revId": "5ca3e54301848400f755bda32079079d8660d9b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
