@@ -104,7 +104,7 @@ def compile_fn(api, checkout_root, out_dir):
   args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image_hash)
 
   api.docker.run('Run build script in Docker', image_hash,
-                 api.path['start_dir'], out_dir, script, args=[py_to_gn(args)])
+                 api.checkout.default_checkout_root, out_dir, script, args=[py_to_gn(args)])
 
 def copy_build_products(api, src, dst):
   util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
