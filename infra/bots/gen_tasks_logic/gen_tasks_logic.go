@@ -37,13 +37,13 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-10.3"
-	DEFAULT_OS_LINUX_GCE = "Debian-10.3"
-	OLD_OS_LINUX_GCE     = "Debian-9.8"
-	COMPILE_TASK_NAME_OS_LINUX      = "Debian10"
-	COMPILE_TASK_NAME_OS_LINUX_OLD  = "Debian9"
-	DEFAULT_OS_MAC       = "Mac-10.14.6"
-	DEFAULT_OS_WIN       = "Windows-Server-17763"
+	DEFAULT_OS_DEBIAN              = "Debian-10.3"
+	DEFAULT_OS_LINUX_GCE           = "Debian-10.3"
+	OLD_OS_LINUX_GCE               = "Debian-9.8"
+	COMPILE_TASK_NAME_OS_LINUX     = "Debian10"
+	COMPILE_TASK_NAME_OS_LINUX_OLD = "Debian9"
+	DEFAULT_OS_MAC                 = "Mac-10.14.6"
+	DEFAULT_OS_WIN                 = "Windows-Server-17763"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -630,7 +630,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		} else if b.cpu() || b.extraConfig("CanvasKit", "Docker", "SwiftShader") {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
-					"Golo":      "x86-64-E5-2670",
 					"VMware7.1": "x86-64-E5-2697_v2",
 				},
 				"AVX2": {
@@ -640,7 +639,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"NUC5i7RYH":      "x86-64-i7-5557U",
 				},
 				"AVX512": {
-					"GCE": "x86-64-Skylake_GCE",
+					"GCE":  "x86-64-Skylake_GCE",
+					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
 				"Snapdragon850": {
 					"LenovoYogaC630": "arm64-64-Snapdragon850",

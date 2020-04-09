@@ -2999,54 +2999,54 @@
         "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All"
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All"
+        "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All"
+        "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All"
+        "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All"
+        "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All"
       ]
     },
     "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
@@ -49268,7 +49268,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49318,7 +49318,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49326,7 +49326,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49351,7 +49351,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49401,7 +49401,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49409,7 +49409,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49434,7 +49434,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49484,7 +49484,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49492,7 +49492,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49517,7 +49517,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -49567,7 +49567,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49575,7 +49575,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49600,7 +49600,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI": {
       "caches": [
         {
           "name": "vpython",
@@ -49650,7 +49650,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"extra_config\\\",\\\"NativeFonts_GDI\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--gdi\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"extra_config\\\",\\\"NativeFonts_GDI\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--gdi\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49658,7 +49658,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49683,7 +49683,7 @@
         "test"
       ]
     },
-    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49733,7 +49733,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49741,7 +49741,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -49766,7 +49766,7 @@
         "test"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49816,7 +49816,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"f16\\\",\\\"_\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"abnormal.wbmp\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"f16\\\",\\\"_\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"abnormal.wbmp\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49824,7 +49824,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -49849,7 +49849,7 @@
         "test"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49899,7 +49899,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"f16\\\",\\\"_\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"abnormal.wbmp\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--threads\\\",\\\"4\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"f16\\\",\\\"_\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"abnormal.wbmp\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49907,7 +49907,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -49932,7 +49932,7 @@
         "test"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -49982,7 +49982,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -49990,7 +49990,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -50015,7 +50015,7 @@
         "test"
       ]
     },
-    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -50065,7 +50065,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX512\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win8\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--blacklist\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"composeshader_bitmap\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -50073,7 +50073,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2670",
+        "cpu:Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -76595,7 +76595,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -76635,12 +76635,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -76667,7 +76667,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -76707,12 +76707,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -76739,7 +76739,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -76779,12 +76779,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -76811,7 +76811,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -76851,12 +76851,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -76883,7 +76883,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI": {
       "caches": [
         {
           "name": "vpython",
@@ -76923,12 +76923,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts_GDI"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -76955,7 +76955,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -76995,12 +76995,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All"
+        "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77027,7 +77027,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All": {
+    "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -77067,12 +77067,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All"
+        "Test-Win8-Clang-Golo-CPU-AVX512-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77099,7 +77099,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All": {
+    "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -77139,12 +77139,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All"
+        "Test-Win8-Clang-Golo-CPU-AVX512-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77171,7 +77171,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
+    "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -77211,12 +77211,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All"
+        "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77243,7 +77243,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All": {
+    "Upload-Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -77283,12 +77283,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All"
+        "Test-Win8-Clang-Golo-CPU-AVX512-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
