@@ -17,6 +17,26 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkOverdrawColorFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
+
+static const char* code = R"(
+uniform half4 color0;
+uniform half4 color1;
+uniform half4 color2;
+uniform half4 color3;
+uniform half4 color4;
+uniform half4 color5;
+
+void main(inout half4 color) {
+    half alpha = 255.0 * color.a;
+    color = alpha < 0.5 ? color0
+          : alpha < 1.5 ? color1
+          : alpha < 2.5 ? color2
+          : alpha < 3.5 ? color3
+          : alpha < 4.5 ? color4
+          :               color5;
+}
+)";
 
 static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
     for (int y = 0; y < bitmap->height(); y++) {
@@ -29,8 +49,15 @@ static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
     bitmap->notifyPixelsChanged();
 }
 
-class OverdrawColorFilter : public skiagm::GM {
-    SkString onShortName() override { return SkString("overdrawcolorfilter"); }
+struct OverdrawColorFilter : public skiagm::GM {
+    bool fRuntime;
+
+    OverdrawColorFilter(bool runtime) : fRuntime(runtime) {}
+
+    SkString onShortName() override {
+        return SkString{fRuntime ? "overdrawcolorfilter_runtime"
+                                 : "overdrawcolorfilter"};
+    }
 
     SkISize onISize() override { return {200, 400}; }
 
@@ -40,8 +67,25 @@ class OverdrawColorFilter : public skiagm::GM {
         };
 
         SkPaint paint;
-        sk_sp<SkColorFilter> colorFilter = SkOverdrawColorFilter::MakeWithSkColors(colors);
-        paint.setColorFilter(colorFilter);
+        if (fRuntime) {
+            auto [effect, err] = SkRuntimeEffect::Make(SkString{code});
+            if (effect) {
+
+                SkRGBA4f<kPremul_SkAlphaType> uniforms[SK_ARRAY_COUNT(colors)];
+                for (int i = 0; i < (int)SK_ARRAY_COUNT(colors); i++) {
+                    uniforms[i] = SkColor4f::FromColor(colors[i]).premul();
+                }
+
+                paint.setColorFilter(
+                    effect->makeColorFilter(SkData::MakeWithCopy(uniforms, sizeof(uniforms))));
+            } else {
+                SkDebugf("SkRuntimeEffect error: %s\n", err.c_str());
+            }
+        } else {
+            paint.setColorFilter(SkOverdrawColorFilter::MakeWithSkColors(colors));
+        }
+
+        SkASSERT(paint.getColorFilter());
 
         SkImageInfo info = SkImageInfo::MakeA8(100, 100);
         SkBitmap bitmap;
@@ -63,4 +107,5 @@ class OverdrawColorFilter : public skiagm::GM {
     }
 };
 
-DEF_GM(return new OverdrawColorFilter;)
+DEF_GM(return new OverdrawColorFilter(false);)
+DEF_GM(return new OverdrawColorFilter( true);)
