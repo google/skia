@@ -20,7 +20,6 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
@@ -73,8 +72,6 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fStrikeCache.reset(new GrStrikeCache{});
-
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));
 
@@ -122,7 +119,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
 
-    fStrikeCache->freeAll();
     fTextBlobCache->freeAll();
 }
 

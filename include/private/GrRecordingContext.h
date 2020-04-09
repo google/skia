@@ -20,7 +20,6 @@ class GrOpMemoryPool;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrRecordingContextPriv;
-class GrStrikeCache;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
@@ -116,7 +115,6 @@ protected:
     // same lifetime at the DDL itself.
     virtual void detachProgramData(SkTArray<ProgramData>*) {}
 
-    GrStrikeCache* getGrStrikeCache() { return fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache();
     const GrTextBlobCache* getTextBlobCache() const;
 
@@ -137,7 +135,6 @@ private:
 
     std::unique_ptr<GrDrawingManager> fDrawingManager;
 
-    std::unique_ptr<GrStrikeCache>    fStrikeCache;
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
