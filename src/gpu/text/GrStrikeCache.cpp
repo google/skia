@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/text/GrStrikeCache.h"
+
 #include "src/codec/SkMasks.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoMalloc.h"
@@ -138,18 +140,21 @@ static void get_packed_glyph_image(
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
+GrDrawOpAtlas::ErrorCode GrTextStrike::AddGlyphToAtlas1(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
                                                        bool needsPadding,
                                                        GrResourceProvider* resourceProvider,
                                                        GrDeferredUploadTarget* target,
                                                        GrAtlasManager* fullAtlasManager,
-                                                       GrGlyph* grGlyph) {
-    SkASSERT(grGlyph != nullptr);
-    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
+                                                       GrAtlasManager::Bar* bar) {
+    SkASSERT(bar != nullptr);
+//    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
+
+    SkASSERT(!fullAtlasManager->isGenIDStillValid(expectedMaskFormat, bar->fAtlasLocator.plotGenID()));
+
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
     SkDEBUGCODE(bool isSDFGlyph = skGlyph.maskFormat() == SkMask::kSDF_Format;)
@@ -173,7 +178,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
     return fullAtlasManager->addToAtlas(resourceProvider, target, expectedMaskFormat, width, height,
-                                        storage.get(), &grGlyph->fAtlasLocator);
+                                        storage.get(), bar);
 }
 
 GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {

@@ -854,7 +854,7 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
 
 GrTextContext* GrDrawingManager::getTextContext() {
     if (!fTextContext) {
-        fTextContext = GrTextContext::Make(fOptionsForTextContext);
+        fTextContext = GrTextContext::Make1(fOptionsForTextContext);
     }
 
     return fTextContext.get();
