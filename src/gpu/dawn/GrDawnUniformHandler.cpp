@@ -315,3 +315,14 @@ uint32_t GrDawnUniformHandler::getRTHeightOffset() const {
     uint32_t dummy = fCurrentUBOOffset;
     return get_ubo_offset(&dummy, kFloat_GrSLType, 0);
 }
+
+void GrDawnUniformHandler::writeUniformMappings(GrFragmentProcessor* owner,
+                                              GrGLSLShaderBuilder* b) {
+    for (auto& u : fUniforms.items()) {
+        if (u.fOwner == owner) {
+            u.fVisibility |= kVertex_GrShaderFlag;
+            b->codeAppendf("%s %s = %s;\n", GrGLSLTypeString(u.fVariable.getType()),
+                           u.fRawName.c_str(), u.fVariable.getName().c_str());
+        }
+    }
+}

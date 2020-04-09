@@ -45,6 +45,7 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) override;
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;

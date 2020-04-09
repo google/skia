@@ -99,6 +99,8 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) override;
+
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;

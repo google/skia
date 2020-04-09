@@ -81,9 +81,12 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b) override;
+
+    UniformInfoArray            fUniforms;
+    std::vector<UniformMapping> fUniformMappings;
+    UniformInfoArray            fSamplers;
+    SkTArray<GrSwizzle>         fSamplerSwizzles;
 
     uint32_t            fCurrentUBOOffset;
     uint32_t            fCurrentUBOMaxAlignment;
