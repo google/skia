@@ -115,9 +115,13 @@ void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, Sk
         }
         break;
     }
-    case SkSVGPaint::Type::kCurrentColor:
-        SkDebugf("unimplemented 'currentColor' paint type");
-        // Fall through.
+    case SkSVGPaint::Type::kCurrentColor: {
+        const auto* color = ctx.presentationContext().fInherited.fColor.getMaybeNull();
+        if (color) {
+            p->setColor(*color);
+        }
+        break;
+    }
     case SkSVGPaint::Type::kNone:
         // Fall through.
     case SkSVGPaint::Type::kInherit:
@@ -267,6 +271,13 @@ void commitToPaint<SkSVGAttribute::kVisibility>(const SkSVGPresentationAttribute
     // Not part of the SkPaint state; queried to veto rendering.
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kColor>(const SkSVGPresentationAttributes& attrs,
+                                                 const SkSVGRenderContext&,
+                                                 SkSVGPresentationContext* pctx) {
+    // Not part of the SkPaint state; applied via 'currentColor' color value
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -354,6 +365,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
     ApplyLazyInheritedAttribute(Visibility);
+    ApplyLazyInheritedAttribute(Color);
 
 #undef ApplyLazyInheritedAttribute
 
