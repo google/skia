@@ -139,14 +139,20 @@ template <>
 void commitToPaint<SkSVGAttribute::kFill>(const SkSVGPresentationAttributes& attrs,
                                           const SkSVGRenderContext& ctx,
                                           SkSVGPresentationContext* pctx) {
-    applySvgPaint(ctx, *attrs.fFill.get(), &pctx->fFillPaint);
+    const auto& fill = *attrs.fFill.get();
+    SkASSERT(fill.type() != SkSVGPaint::Type::kInherit);
+
+    applySvgPaint(ctx, fill, &pctx->fFillPaint);
 }
 
 template <>
 void commitToPaint<SkSVGAttribute::kStroke>(const SkSVGPresentationAttributes& attrs,
                                             const SkSVGRenderContext& ctx,
                                             SkSVGPresentationContext* pctx) {
-    applySvgPaint(ctx, *attrs.fStroke.get(), &pctx->fStrokePaint);
+    const auto& stroke = *attrs.fStroke.get();
+    SkASSERT(stroke.type() != SkSVGPaint::Type::kInherit);
+
+    applySvgPaint(ctx, stroke, &pctx->fStrokePaint);
 }
 
 template <>
@@ -161,6 +167,8 @@ void commitToPaint<SkSVGAttribute::kStrokeDashArray>(const SkSVGPresentationAttr
                                                      const SkSVGRenderContext& ctx,
                                                      SkSVGPresentationContext* pctx) {
     const auto& dashArray = attrs.fStrokeDashArray.get();
+    SkASSERT(dashArray->type() != SkSVGDashArray::Type::kInherit);
+
     if (dashArray->type() != SkSVGDashArray::Type::kDashArray) {
         return;
     }
@@ -200,9 +208,9 @@ void commitToPaint<SkSVGAttribute::kStrokeLineCap>(const SkSVGPresentationAttrib
                                                    const SkSVGRenderContext&,
                                                    SkSVGPresentationContext* pctx) {
     const auto& cap = *attrs.fStrokeLineCap.get();
-    if (cap.type() != SkSVGLineCap::Type::kInherit) {
-        pctx->fStrokePaint.setStrokeCap(toSkCap(cap));
-    }
+    SkASSERT(cap.type() != SkSVGLineCap::Type::kInherit);
+
+    pctx->fStrokePaint.setStrokeCap(toSkCap(cap));
 }
 
 template <>
@@ -210,9 +218,9 @@ void commitToPaint<SkSVGAttribute::kStrokeLineJoin>(const SkSVGPresentationAttri
                                                     const SkSVGRenderContext&,
                                                     SkSVGPresentationContext* pctx) {
     const auto& join = *attrs.fStrokeLineJoin.get();
-    if (join.type() != SkSVGLineJoin::Type::kInherit) {
-        pctx->fStrokePaint.setStrokeJoin(toSkJoin(join));
-    }
+    SkASSERT(join.type() != SkSVGLineJoin::Type::kInherit);
+
+    pctx->fStrokePaint.setStrokeJoin(toSkJoin(join));
 }
 
 template <>
