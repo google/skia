@@ -125,5 +125,4 @@ static void cleanup_test(skiatest::Reporter* reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PinnedImageTest, reporter, ctxInfo) {
     basic_test(reporter, ctxInfo.grContext());
     cleanup_test(reporter);
-    ctxInfo.testContext()->makeCurrent();
 }

@@ -64,6 +64,9 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
+            // In case the test changed the current context make sure we move it back before
+            // calling flush.
+            ctxInfo.testContext()->makeCurrent();
             ctxInfo.grContext()->flush();
         }
     }
