@@ -585,12 +585,6 @@ describe('Canvas Behavior', () => {
         let matr = canvas.getLocalToDevice();
         expect(matr).toEqual(CanvasKit.SkM44.identity());
 
-        matr = canvas.getLocalToWorld();
-        expect(matr).toEqual(CanvasKit.SkM44.identity());
-
-        matr = canvas.getLocalToCamera();
-        expect(matr).toEqual(CanvasKit.SkM44.identity());
-
         canvas.concat(CanvasKit.SkM44.rotated([0, 1, 0], Math.PI/4));
         canvas.concat(CanvasKit.SkM44.rotated([1, 0, 1], Math.PI/8));
 
@@ -600,8 +594,6 @@ describe('Canvas Behavior', () => {
         );
 
         expect4x4MatricesToMatch(expected, canvas.getLocalToDevice());
-        expect4x4MatricesToMatch(expected, canvas.getLocalToWorld());
-        expect4x4MatricesToMatch(expected, canvas.getLocalToCamera());
         // TODO(kjlubick) add test for DOMMatrix
         // TODO(nifong) add more involved test for camera-related math.
     });

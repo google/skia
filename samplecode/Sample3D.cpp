@@ -82,6 +82,10 @@ protected:
     SkV3    fCOA { 0, 0, 0 };
     SkV3    fUp  { 0, 1, 0 };
 
+    enum {
+        kCameraID = 42,
+    };
+
 public:
     void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
         SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
@@ -91,7 +95,15 @@ public:
 
         // want "world" to be in our big coordinates (e.g. area), so apply this inverse
         // as part of our "camera".
-        canvas->saveCamera(viewport * perspective, camera * inv(viewport));
+        canvas->save();
+        canvas->concat(viewport * perspective * camera * inv(viewport));
+        canvas->markCTM(kCameraID);
+    }
+
+    SkM44 localToWorld(SkCanvas* canvas) {
+        SkM44 camera;
+        SkAssertResult(canvas->findMarkedCTM(kCameraID, &camera));
+        return inv(canvas->getLocalToDevice()) * camera;
     }
 };
 
@@ -439,7 +451,7 @@ public:
             SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
         } uni;
-        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorld = this->localToWorld(canvas);
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
 
@@ -526,7 +538,7 @@ public:
             SkM44  fLocalToWorld;
             SkV3   fLightPos;
         } uni;
-        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorld = this->localToWorld(canvas);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
