@@ -50,7 +50,7 @@ SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     }
 }
 
-GrStrikeCache* SkInternalAtlasTextContext::glyphCache() {
+GrStrikeCache* SkInternalAtlasTextContext::strikeCache() {
     return fGrContext->priv().getGrStrikeCache();
 }
 
