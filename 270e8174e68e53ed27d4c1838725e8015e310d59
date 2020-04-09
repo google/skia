@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9f68a94_cb0c81e3",
+        "filename": "experimental/svg/model/SkSVGNode.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-09T12:36:33Z",
+      "side": 1,
+      "message": "There are still a couple of warts around here:\n\n1) it\u0027s not immediately clear by looking at the code which attributes are supposed to be inherited by default - would be nice to make that more obvious\n\n2) some setters take primitive types (e.g. fill-opacity -\u003e SkSVGNumberType), which cannot be tagged as inherited, even though the property itself supports that value; gotta circle back to parsing and find a way to plumb this info",
+      "revId": "270e8174e68e53ed27d4c1838725e8015e310d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
