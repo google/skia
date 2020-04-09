@@ -297,6 +297,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
+    GrStrikeCache* fStrikeCache = nullptr;
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------

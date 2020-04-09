@@ -8,13 +8,11 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/geometry/GrRect.h"
-
-#include "include/core/SkPath.h"
-#include "include/private/SkChecksum.h"
-#include "include/private/SkFixed.h"
+#include "include/core/SkPoint.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
 class GrGlyph {
 public:
@@ -38,8 +36,12 @@ public:
 
     GrGlyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
 
-    const SkPackedGlyphID       fPackedID;
-    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    GrGlyph& operator=(const GrGlyph& that) = default;
+
+    SkPackedGlyphID packedID() const { return fPackedID; }
+
+    SkPackedGlyphID              fPackedID;
+    GrDrawOpAtlas::AtlasLocator  fAtlasLocator;
 };
 
 #endif

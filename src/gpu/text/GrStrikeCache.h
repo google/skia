@@ -15,7 +15,8 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
 
-class GrAtlasManager;
+#include "src/gpu/text/GrAtlasManager.h"
+
 class GrGpu;
 class GrStrikeCache;
 class SkBulkGlyphMetricsAndImages;
@@ -38,19 +39,21 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                             GrMaskFormat expectedMaskFormat,
-                                             bool needsPadding,
-                                             GrResourceProvider*,
-                                             GrDeferredUploadTarget*,
-                                             GrAtlasManager*,
-                                             GrGlyph*);
+    static GrDrawOpAtlas::ErrorCode AddGlyphToAtlas1(const SkGlyph&,
+                                                     GrMaskFormat expectedMaskFormat,
+                                                     bool needsPadding,
+                                                     GrResourceProvider*,
+                                                     GrDeferredUploadTarget*,
+                                                     GrAtlasManager*,
+                                                     GrAtlasManager::Bar*);
+
+    uint32_t uniqueID() const { return 0; }
 
 private:
     struct HashTraits {
         // GetKey and Hash for the the hash table.
         static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
-            return glyph->fPackedID;
+            return glyph->packedID();
         }
 
         static uint32_t Hash(SkPackedGlyphID key) {
@@ -76,7 +79,7 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
+    sk_sp<GrTextStrike> findOrCreateStrike(const SkDescriptor& desc) {
         if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
             return *cached;
         }
@@ -84,6 +87,8 @@ public:
     }
 
     void freeAll();
+
+    void resolveUniqueID(GrTextStrike* strike) {}
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
