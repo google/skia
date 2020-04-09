@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1e5518a_266a8490",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 897,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-09T14:51:02Z",
+      "side": 1,
+      "message": "\u0027Record\u0027",
+      "range": {
+        "startLine": 897,
+        "startChar": 8,
+        "endLine": 897,
+        "endChar": 16
+      },
+      "revId": "1c776f9d040f2de31e025aa3c5319a41bed7c668",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bb93ab3_289665d5",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-09T14:51:02Z",
+      "side": 1,
+      "message": "\u0027current\u0027",
+      "range": {
+        "startLine": 903,
+        "startChar": 61,
+        "endLine": 903,
+        "endChar": 68
+      },
+      "revId": "1c776f9d040f2de31e025aa3c5319a41bed7c668",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7243de6_ba2bb596",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-09T14:51:02Z",
+      "side": 1,
+      "message": "Maybe make a typedef for this, given our discussion about making these smaller (or larger).",
+      "range": {
+        "startLine": 908,
+        "startChar": 17,
+        "endLine": 908,
+        "endChar": 25
+      },
+      "revId": "1c776f9d040f2de31e025aa3c5319a41bed7c668",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
