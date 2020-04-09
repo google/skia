@@ -365,6 +365,10 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
     auto push = [&](skvm::F32 x) { stack.push_back(x); };
     auto pop  = [&]{ skvm::F32 x = stack.back(); stack.pop_back(); return x; };
 
+    for (int i = 0; i < fn.getLocalCount(); i++) {
+        push(p->splat(0.0f));
+    }
+
     for (const uint8_t *ip = fn.code(), *end = ip + fn.size(); ip != end; ) {
         using Inst = SkSL::ByteCodeInstruction;
 
@@ -397,41 +401,19 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 push(stack[ix + 1]);
             } break;
 
-            case Inst::kPushImmediate: {
-                push(bit_cast(p->splat(u32())));
-            } break;
-
-            case Inst::kDup: {
-                int off = u8();
-                push(stack[stack.size() - off]);
-            } break;
-
-            case Inst::kAddF: {
-                SkAssertResult(u8() == 1);
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(x+a);
-            } break;
-
-            case Inst::kMultiplyF: {
-                SkAssertResult(u8() == 1);
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(x*a);
-            } break;
-
-            case Inst::kMultiplyF2: {
-                SkAssertResult(u8() == 2);
-                skvm::F32 x = pop(), y = pop(),
-                          a = pop(), b = pop();
-                push(y*b);
-                push(x*a);
-            } break;
-
             case Inst::kLoadUniform: {
                 SkAssertResult(u8() == 1);
                 int ix = u8();
                 push(uniform[ix]);
+            } break;
+
+            case Inst::kLoadUniform4: {
+                SkAssertResult(u8() == 4);
+                int ix = u8();
+                push(uniform[ix + 0]);
+                push(uniform[ix + 1]);
+                push(uniform[ix + 2]);
+                push(uniform[ix + 3]);
             } break;
 
             case Inst::kStore: {
@@ -453,11 +435,70 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 stack[ix + 0] = pop();
             } break;
 
+
+            case Inst::kPushImmediate: {
+                push(bit_cast(p->splat(u32())));
+            } break;
+
+            case Inst::kDup: {
+                int off = u8();
+                push(stack[stack.size() - off]);
+            } break;
+
+            case Inst::kAddF: {
+                SkAssertResult(u8() == 1);
+                skvm::F32 x = pop(),
+                          a = pop();
+                push(a+x);
+            } break;
+
+            case Inst::kMultiplyF: {
+                SkAssertResult(u8() == 1);
+                skvm::F32 x = pop(),
+                          a = pop();
+                push(a*x);
+            } break;
+
+            case Inst::kMultiplyF2: {
+                SkAssertResult(u8() == 2);
+                skvm::F32 x = pop(), y = pop(),
+                          a = pop(), b = pop();
+                push(b*y);
+                push(a*x);
+            } break;
+
+            // Baby steps... just leaving test conditions on the stack for now.
+            case Inst::kMaskPush:   break;
+            case Inst::kMaskNegate: break;
+
+            case Inst::kCompareFLT: {
+                SkAssertResult(u8() == 1);
+                skvm::F32 x = pop(),
+                          a = pop();
+                push(bit_cast(a<x));
+            } break;
+
+            case Inst::kMaskBlend: {
+                std::vector<skvm::F32> if_true,
+                                       if_false;
+                int count = u8();
+                for (int i = 0; i < count; i++) { if_false.push_back(pop()); }
+                for (int i = 0; i < count; i++) { if_true .push_back(pop()); }
+
+                skvm::I32 cond = bit_cast(pop());
+                for (int i = count; i --> 0; ) {
+                    push(select(cond, if_true[i], if_false[i]));
+                }
+            } break;
+
             case Inst::kReturn: {
                 SkAssertResult(u8() == 0);
                 SkASSERT(ip == end);
             } break;
         }
+    }
+    for (int i = 0; i < fn.getLocalCount(); i++) {
+        pop();
     }
     return stack;
 }

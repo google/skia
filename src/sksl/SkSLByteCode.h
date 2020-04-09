@@ -175,6 +175,7 @@ class ByteCodeFunction {
 public:
     int getParameterCount() const { return fParameterCount; }
     int getReturnCount() const { return fReturnCount; }
+    int getLocalCount() const { return fLocalCount; }
 
     const uint8_t* code() const { return fCode.data(); }
     size_t         size() const { return fCode.size(); }
