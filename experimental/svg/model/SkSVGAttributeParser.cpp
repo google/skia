@@ -437,7 +437,7 @@ bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kInherit);
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
-        *paint = SkSVGPaint(iri.value());
+        *paint = SkSVGPaint(iri);
         parsedValue = true;
     }
     return parsedValue && this->parseEOSToken();
@@ -455,7 +455,7 @@ bool SkSVGAttributeParser::parseClipPath(SkSVGClip* clip) {
         *clip = SkSVGClip(SkSVGClip::Type::kInherit);
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
-        *clip = SkSVGClip(iri.value());
+        *clip = SkSVGClip(iri);
         parsedValue = true;
     }
 

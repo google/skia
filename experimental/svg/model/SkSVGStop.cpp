@@ -20,7 +20,7 @@ void SkSVGStop::setStopColor(const SkSVGColorType& color) {
 }
 
 void SkSVGStop::setStopOpacity(const SkSVGNumberType& opacity) {
-    fStopOpacity = SkTPin<SkScalar>(opacity.value(), 0, 1);
+    fStopOpacity = SkTPin<SkScalar>(opacity, 0, 1);
 }
 
 void SkSVGStop::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {

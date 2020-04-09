@@ -52,7 +52,7 @@ void SkSVGUse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 bool SkSVGUse::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    if (fHref.value().isEmpty() || !INHERITED::onPrepareToRender(ctx)) {
+    if (fHref.isEmpty() || !INHERITED::onPrepareToRender(ctx)) {
         return false;
     }
 
