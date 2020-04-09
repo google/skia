@@ -642,7 +642,7 @@ void GrVkPrimaryCommandBuffer::onReleaseResources() {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
         fSecondaryCommandBuffers[i]->releaseResources();
     }
-    fFinishedProcs.reset();
+    this->callFinishedProcs();
 }
 
 void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool) {
