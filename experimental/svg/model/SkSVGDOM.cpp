@@ -316,6 +316,7 @@ struct AttrParseInfo {
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "clip-path"        , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
     { "clip-rule"        , { SkSVGAttribute::kClipRule         , SetFillRuleAttribute     }},
+    { "color"            , { SkSVGAttribute::kColor            , SetColorAttribute        }},
     { "cx"               , { SkSVGAttribute::kCx               , SetLengthAttribute       }},
     { "cy"               , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
     { "d"                , { SkSVGAttribute::kD                , SetPathDataAttribute     }},

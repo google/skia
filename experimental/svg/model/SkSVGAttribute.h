@@ -16,6 +16,7 @@ class SkSVGRenderContext;
 enum class SkSVGAttribute {
     kClipPath,
     kClipRule,
+    kColor,
     kCx, // <circle>, <ellipse>, <radialGradient>: center x position
     kCy, // <circle>, <ellipse>, <radialGradient>: center y position
     kD,
@@ -83,6 +84,8 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGLength>     fStrokeWidth;
 
     SkTLazy<SkSVGVisibility> fVisibility;
+
+    SkTLazy<SkSVGColorType>  fColor;
 
     // uninherited
     SkTLazy<SkSVGNumberType> fOpacity;
