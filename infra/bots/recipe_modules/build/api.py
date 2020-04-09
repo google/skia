@@ -31,6 +31,9 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'Chromebook' in b:
       self.compile_fn = chromebook.compile_fn
       self.copy_fn = chromebook.copy_build_products
+    elif 'Docker' in b:
+      self.compile_fn = docker.compile_fn
+      self.copy_fn = docker.copy_build_products
     elif 'Flutter' in b:
       self.compile_fn = flutter.compile_fn
       self.copy_fn = flutter.copy_build_products
@@ -44,9 +47,6 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'CMake' in b:
       self.compile_fn = cmake.compile_fn
       self.copy_fn = cmake.copy_build_products
-    elif 'Docker' in b:
-      self.compile_fn = docker.compile_fn
-      self.copy_fn = docker.copy_build_products
     else:
       self.compile_fn = default.compile_fn
       self.copy_fn = default.copy_build_products

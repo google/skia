@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
+  'checkout',
   'depot_tools/gclient',
   'docker',
   'env',
