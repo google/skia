@@ -357,7 +357,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         auto subRun = args.fSubRunPtr;
         SkASSERT((int)subRun->vertexStride() == vertexStride);
 
-        subRun->prepareGrGlyphs(target->glyphCache());
+        subRun->prepareGrGlyphs(target->strikeCache());
         subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
         subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
 

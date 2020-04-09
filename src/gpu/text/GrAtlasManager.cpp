@@ -11,13 +11,12 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
                                size_t maxTextureBytes,
                                GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
             : fAllowMultitexturing{allowMultitexturing}
             , fProxyProvider{proxyProvider}
             , fCaps{fProxyProvider->refCaps()}
-            , fGlyphCache{glyphCache}
             , fAtlasConfig{fCaps->maxTextureSize(), maxTextureBytes} { }
 
 GrAtlasManager::~GrAtlasManager() = default;

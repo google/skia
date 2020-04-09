@@ -25,8 +25,7 @@ class GrTextStrike;
  */
 class GrAtlasManager : public GrOnFlushCallbackObject, public GrDrawOpAtlas::GenerationCounter {
 public:
-    GrAtlasManager(GrProxyProvider*, GrStrikeCache*,
-                   size_t maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+    GrAtlasManager(GrProxyProvider*, size_t maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasManager() override;
 
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
@@ -136,7 +135,6 @@ private:
     static_assert(kMaskFormatCount == 3);
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
-    GrStrikeCache* fGlyphCache;
     GrDrawOpAtlasConfig fAtlasConfig;
 
     typedef GrOnFlushCallbackObject INHERITED;
