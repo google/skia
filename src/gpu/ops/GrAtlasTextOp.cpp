@@ -22,7 +22,6 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrDistanceFieldAdjustTable.h"
-#include "src/gpu/text/GrStrikeCache.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

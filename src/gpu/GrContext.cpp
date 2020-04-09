@@ -75,10 +75,10 @@ bool GrContext::init(sk_sp<const GrCaps> caps) {
     }
 
     SkASSERT(this->caps());
-    SkASSERT(this->getGrStrikeCache());
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
+        fStrikeCache.reset(new GrStrikeCache{});
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
         fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
@@ -117,6 +117,8 @@ void GrContext::abandonContext() {
     }
 
     INHERITED::abandonContext();
+
+    fStrikeCache->freeAll();
 
     fMappedBufferManager->abandon();
 
@@ -185,7 +187,7 @@ void GrContext::freeGpuResources() {
 
     // TODO: the glyph cache doesn't hold any GpuResources so this call should not be needed here.
     // Some slack in the GrTextBlob's implementation requires it though. That could be fixed.
-    this->getGrStrikeCache()->freeAll();
+    fStrikeCache->freeAll();
 
     this->drawingManager()->freeGpuResources();
 
