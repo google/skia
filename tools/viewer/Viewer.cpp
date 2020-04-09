@@ -124,6 +124,8 @@ static DEFINE_string2(match, m, nullptr,
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
+static DEFINE_bool(sortSlides, false, "Sort slides by name.");
+
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
                "defaulting to one extra thread per core.");
@@ -779,6 +781,13 @@ void Viewer::initSlides() {
                 dirSlides.reset();  // NOLINT(bugprone-use-after-move)
             }
         }
+    }
+
+    if (FLAGS_sortSlides && fSlides.count()) {
+        SkTQSort(fSlides.begin(), fSlides.end() - 1,
+                 [](const sk_sp<Slide>& a, const sk_sp<Slide>& b) {
+                     return strcmp(a->getName().c_str(), b->getName().c_str()) < 0;
+                 });
     }
 
     if (!fSlides.count()) {
