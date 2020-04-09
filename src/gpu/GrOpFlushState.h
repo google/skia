@@ -155,7 +155,7 @@ public:
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
 
-    GrStrikeCache* glyphCache() const final;
+    GrStrikeCache* strikeCache() const final;
 
     // At this point we know we're flushing so full access to the GrAtlasManager is required (and
     // permissible).
