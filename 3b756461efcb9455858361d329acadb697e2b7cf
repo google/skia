@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e5dd55b4_f8a87a6b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-09T21:19:14Z",
+      "side": 1,
+      "message": "It does seem more tractable to do this now that flush and submit are separated.",
+      "parentUuid": "a08bafb3_49f5cf3b",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aa36db2_34759061",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 10
