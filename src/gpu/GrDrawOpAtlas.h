@@ -11,16 +11,19 @@
 #include <cmath>
 #include <vector>
 
-#include "include/core/SkSize.h"
-#include "src/core/SkGlyphRunPainter.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
-
+#include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrRectanizerSkyline.h"
-#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/geometry/GrRect.h"
 
 class GrOnFlushResourceProvider;
-
+class GrProxyProvider;
+class GrResourceProvider;
+class GrTextureProxy;
 
 /**
  * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
@@ -51,7 +54,6 @@ class GrDrawOpAtlas {
 private:
     static constexpr auto kMaxMultitexturePages = 4;
 
-
 public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
@@ -75,7 +77,7 @@ public:
         std::array<uint16_t, 4> getUVs(int padding) const;
 
         // TODO: Remove the small path renderer's use of this for eviction
-        GrDrawOpAtlas::PlotLocator plotLocator() const { return fPlotLocator; }
+        PlotLocator plotLocator() const { return fPlotLocator; }
 
         uint32_t pageIndex() const {
             uint32_t pageIndex = fPlotLocator & 0xff;
@@ -97,8 +99,8 @@ public:
     private:
         friend class GrDrawOpAtlas;
 
-        GrDrawOpAtlas::PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
-        GrIRect16                  fRect{0, 0, 0, 0};
+        PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+        GrIRect16   fRect{0, 0, 0, 0};
 
         // TODO: the inset to the actual data w/in 'fRect' could also be stored in this class
         // This would simplify the 'getUVs' call. The valid values would be 0, 1, 2 & 4.
