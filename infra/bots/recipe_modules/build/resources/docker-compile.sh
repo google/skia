@@ -17,4 +17,4 @@ export PATH="/SRC/recipe_bundle/depot_tools:${PATH}"
 cd /SRC/skia
 ./bin/fetch-gn
 ./bin/gn gen /OUT "--args=$1"
-ninja -C /OUT
+ninja -C /OUT -j100
