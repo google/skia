@@ -368,7 +368,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     // Uninherited attributes.  Only apply to the current context.
 
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
-        this->applyOpacity(opacity->value(), flags);
+        this->applyOpacity(*opacity, flags);
     }
 
     if (auto* clip = attrs.fClipPath.getMaybeNull()) {

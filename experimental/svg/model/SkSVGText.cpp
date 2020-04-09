@@ -19,7 +19,7 @@ void SkSVGText::setY(const SkSVGLength& y) { fY = y; }
 
 void SkSVGText::setFontFamily(const SkSVGStringType& font_family) {
   fTypeface =
-      SkTypeface::MakeFromName(font_family.value().c_str(), SkFontStyle());
+      SkTypeface::MakeFromName(font_family.c_str(), SkFontStyle());
 }
 
 void SkSVGText::setFontSize(const SkSVGLength& size) { fFontSize = size; }
@@ -27,11 +27,11 @@ void SkSVGText::setFontSize(const SkSVGLength& size) { fFontSize = size; }
 void SkSVGText::setText(const SkSVGStringType& text) { fText = text; }
 
 void SkSVGText::setTextAnchor(const SkSVGStringType& text_anchor) {
-  if (strcmp(text_anchor.value().c_str(), "start") == 0) {
+  if (strcmp(text_anchor.c_str(), "start") == 0) {
     fTextAlign = SkTextUtils::Align::kLeft_Align;
-  } else if (strcmp(text_anchor.value().c_str(), "middle") == 0) {
+  } else if (strcmp(text_anchor.c_str(), "middle") == 0) {
     fTextAlign = SkTextUtils::Align::kCenter_Align;
-  } else if (strcmp(text_anchor.value().c_str(), "end") == 0) {
+  } else if (strcmp(text_anchor.c_str(), "end") == 0) {
     fTextAlign = SkTextUtils::Align::kRight_Align;
   }
 }
@@ -39,7 +39,7 @@ void SkSVGText::setTextAnchor(const SkSVGStringType& text_anchor) {
 void SkSVGText::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
                        const SkPaint& paint, SkPathFillType) const {
   SkFont font(fTypeface, fFontSize.value());
-  SkTextUtils::DrawString(canvas, fText.value().c_str(), fX.value(), fY.value(),
+  SkTextUtils::DrawString(canvas, fText.c_str(), fX.value(), fY.value(),
                           font, paint, fTextAlign);
 }
 

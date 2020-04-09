@@ -15,8 +15,8 @@ SkSVGPoly::SkSVGPoly(SkSVGTag t) : INHERITED(t) {}
 
 void SkSVGPoly::setPoints(const SkSVGPointsType& pts) {
     fPath.reset();
-    fPath.addPoly(pts.value().begin(),
-                  pts.value().count(),
+    fPath.addPoly(pts.begin(),
+                  pts.count(),
                   this->tag() == SkSVGTag::kPolygon); // only polygons are auto-closed
 }
 

@@ -18,36 +18,12 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 
-template <typename T>
-class SkSVGPrimitiveTypeWrapper {
-public:
-    SkSVGPrimitiveTypeWrapper() = default;
-    explicit constexpr SkSVGPrimitiveTypeWrapper(T v) : fValue(v) {}
-
-    SkSVGPrimitiveTypeWrapper(const SkSVGPrimitiveTypeWrapper&)            = default;
-    SkSVGPrimitiveTypeWrapper& operator=(const SkSVGPrimitiveTypeWrapper&) = default;
-    SkSVGPrimitiveTypeWrapper& operator=(const T& v) { fValue = v; return *this; }
-
-    bool operator==(const SkSVGPrimitiveTypeWrapper<T>& other) const {
-        return fValue == other.fValue;
-    }
-    bool operator!=(const SkSVGPrimitiveTypeWrapper<T>& other) const {
-        return !(*this == other);
-    }
-
-    const T& value() const { return fValue; }
-    operator const T&() const { return fValue; }
-
-private:
-    T fValue;
-};
-
-using SkSVGColorType      = SkSVGPrimitiveTypeWrapper<SkColor >;
-using SkSVGNumberType     = SkSVGPrimitiveTypeWrapper<SkScalar>;
-using SkSVGStringType     = SkSVGPrimitiveTypeWrapper<SkString>;
-using SkSVGViewBoxType    = SkSVGPrimitiveTypeWrapper<SkRect  >;
-using SkSVGTransformType  = SkSVGPrimitiveTypeWrapper<SkMatrix>;
-using SkSVGPointsType     = SkSVGPrimitiveTypeWrapper<SkTDArray<SkPoint>>;
+using SkSVGColorType     = SkColor;
+using SkSVGNumberType    = SkScalar;
+using SkSVGStringType    = SkString;
+using SkSVGViewBoxType   = SkRect;
+using SkSVGTransformType = SkMatrix;
+using SkSVGPointsType    = SkTDArray<SkPoint>;
 
 class SkSVGLength {
 public:

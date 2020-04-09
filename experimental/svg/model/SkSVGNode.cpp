@@ -89,8 +89,7 @@ void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
 }
 
 void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fFillOpacity.set(
-        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+    fPresentationAttributes.fFillOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
 
 void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
@@ -98,8 +97,7 @@ void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
 }
 
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fOpacity.set(
-        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+    fPresentationAttributes.fOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
 
 void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
@@ -115,8 +113,7 @@ void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
 }
 
 void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fStrokeOpacity.set(
-        SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+    fPresentationAttributes.fStrokeOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
 
 void SkSVGNode::setStrokeLineCap(const SkSVGLineCap& lc) {
