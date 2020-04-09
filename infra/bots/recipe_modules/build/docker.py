@@ -17,6 +17,9 @@ IMAGES = {
     'gcc-debian10-mips64el': (
         'gcr.io/skia-public/gcc-debian10-mips64el@sha256:'
         'c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540'),
+    'debian9': (
+        'gcr.io/skia-public/debian9@sha256:'
+        '4d33f9b0174a0afe4264ca223aa03ba41137957d342cb8a0a4b863f4fb85f5c1'),
 }
 
 
@@ -43,6 +46,7 @@ def compile_fn(api, checkout_root, out_dir):
   extra_tokens = api.vars.extra_tokens
   extra_tokens.remove('Docker')
   os = api.vars.builder_cfg.get('os', '')
+  builder_name = api.vars.builder_name
   target_arch = api.vars.builder_cfg.get('target_arch', '')
 
   args = {
@@ -65,7 +69,9 @@ def compile_fn(api, checkout_root, out_dir):
     extra_tokens.remove('Shared')
 
   image_name = None
+  script = None
   if os == 'Debian10' and compiler == 'GCC' and not extra_tokens:
+    script = api.build.resource('docker-compile.sh')
     args['cc'] = 'gcc'
     args['cxx'] = 'g++'
     # Newer GCC includes tons and tons of debugging symbols. This seems to
@@ -80,6 +86,12 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian10-mips64el'
       args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
       args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
+  elif os == 'Debian9' and 'Flutter' in builder_name:
+    image_name = 'debian9'
+    script = api.build.resource('docker-compile.sh')
+    args['runtime-mode'] = api.vars.builder_cfg.get('configuration').lower()
+    if 'Android' in extra_tokens:
+      args['android'] = True
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
@@ -91,7 +103,6 @@ def compile_fn(api, checkout_root, out_dir):
   # anytime the image changes.
   args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image_hash)
 
-  script = api.build.resource('docker-compile.sh')
   api.docker.run('Run build script in Docker', image_hash,
                  checkout_root, out_dir, script, args=[py_to_gn(args)])
 
