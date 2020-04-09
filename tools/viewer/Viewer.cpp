@@ -124,8 +124,6 @@ static DEFINE_string2(match, m, nullptr,
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
-static DEFINE_bool(sortSlides, false, "Sort slides by name.");
-
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
                "defaulting to one extra thread per core.");
@@ -768,10 +766,21 @@ void Viewer::initSlides() {
                 addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
             } else {
                 // directory
-                SkOSFile::Iter it(flag.c_str(), info.fExtension);
                 SkString name;
+                SkTArray<SkString> sortedFilenames;
+                SkOSFile::Iter it(flag.c_str(), info.fExtension);
                 while (it.next(&name)) {
-                    addSlide(name, SkOSPath::Join(flag.c_str(), name.c_str()), info.fFactory);
+                    sortedFilenames.push_back(name);
+                }
+                if (sortedFilenames.count()) {
+                    SkTQSort(sortedFilenames.begin(), sortedFilenames.end() - 1,
+                             [](const SkString& a, const SkString& b) {
+                                 return strcmp(a.c_str(), b.c_str()) < 0;
+                             });
+                }
+                for (const SkString& filename : sortedFilenames) {
+                    addSlide(filename, SkOSPath::Join(flag.c_str(), filename.c_str()),
+                             info.fFactory);
                 }
             }
             if (!dirSlides.empty()) {
@@ -781,13 +790,6 @@ void Viewer::initSlides() {
                 dirSlides.reset();  // NOLINT(bugprone-use-after-move)
             }
         }
-    }
-
-    if (FLAGS_sortSlides && fSlides.count()) {
-        SkTQSort(fSlides.begin(), fSlides.end() - 1,
-                 [](const sk_sp<Slide>& a, const sk_sp<Slide>& b) {
-                     return strcmp(a->getName().c_str(), b->getName().c_str()) < 0;
-                 });
     }
 
     if (!fSlides.count()) {
