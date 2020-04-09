@@ -60,7 +60,29 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     if (!tmp) {
         fGpu->fStats.incNumInlineCompilationFailures();
     } else {
+        if (stat == Stats::ProgramCacheResult::kMiss) {
+//            uint32_t hash = SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+//            SkDebugf("inline- hash for %p is %d\n", &programInfo, hash);
+        }
         fGpu->fStats.incNumInlineProgramCacheResult(stat);
+    }
+
+    return tmp;
+}
+
+sk_sp<GrGLProgram>  GrGLGpu::ProgramCache::findOrCreateProgram(const GrProgramDesc& desc,
+                                                               const GrProgramInfo& programInfo) {
+    Stats::ProgramCacheResult stat;
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, &stat);
+    if (!tmp) {
+        fGpu->fStats.incNumPreCompilationFailures();
+    } else {
+        if (stat == Stats::ProgramCacheResult::kMiss) {
+            uint32_t hash = SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            SkDebugf("pre- hash for %p is %d\n", &programInfo, hash);
+        }
+
+        fGpu->fStats.incNumPreProgramCacheResult(stat);
     }
 
     return tmp;

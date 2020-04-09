@@ -328,18 +328,8 @@ private:
         void abandon();
         void reset();
         sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*, const GrProgramInfo&);
-        sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc& desc,
-                                               const GrProgramInfo& programInfo) {
-            Stats::ProgramCacheResult stat;
-            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, &stat);
-            if (!tmp) {
-                fGpu->fStats.incNumPreCompilationFailures();
-            } else {
-                fGpu->fStats.incNumPreProgramCacheResult(stat);
-            }
+        sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc&, const GrProgramInfo&);
 
-            return tmp;
-        }
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:

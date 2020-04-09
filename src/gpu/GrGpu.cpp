@@ -711,6 +711,8 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #if GR_TEST_UTILS
 
 #if GR_GPU_STATS
+
+#if 0
 static const char* cache_result_to_str(int i) {
     const char* kCacheResultStrings[GrGpu::Stats::kNumProgramCacheResults] = {
         "hits",
@@ -723,8 +725,10 @@ static const char* cache_result_to_str(int i) {
     static_assert(GrGpu::Stats::kNumProgramCacheResults == 3);
     return kCacheResultStrings[i];
 }
+#endif
 
 void GrGpu::Stats::dump(SkString* out) {
+#if 0
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
@@ -754,9 +758,10 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Total number of partial compilation successes %d\n",
                  fNumPartialCompilationSuccesses);
     out->appendf("Total number of compilation successes %d\n", fNumCompilationSuccesses);
+#endif
 
     // enable this block to output CSV-style stats for program pre-compilation
-#if 0
+#if 1
     SkASSERT(fNumInlineCompilationFailures == 0);
     SkASSERT(fNumPreCompilationFailures == 0);
     SkASSERT(fNumCompilationFailures == 0);

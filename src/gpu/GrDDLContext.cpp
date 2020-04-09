@@ -95,7 +95,10 @@ private:
             return;
         }
 
-        fProgramInfoMap.add(desc, programInfo);
+        const GrProgramInfo* result = fProgramInfoMap.add1(desc, programInfo);
+        if (result != programInfo) {
+//            SkDebugf("duplicate %p -> %p\n", programInfo, result);
+        }
     }
 
     void detachProgramData(SkTArray<ProgramData>* dst) final {
@@ -118,15 +121,16 @@ private:
 
         // TODO: this is doing a lot of reallocating of the ProgramDesc! Once the program descs
         // are allocated in the record-time area there won't be a problem.
-        void add(CacheKey& desc, const GrProgramInfo* programInfo) {
+        const GrProgramInfo* add1(CacheKey& desc, const GrProgramInfo* programInfo) {
             SkASSERT(desc.isValid());
 
-            const CacheValue* preExisting = fMap.find(desc);
+            CacheValue* preExisting = fMap.find(desc);
             if (preExisting) {
-                return;
+                return *preExisting;
             }
 
             fMap.insert(desc, programInfo);
+            return programInfo;
         }
 
         void toArray(SkTArray<ProgramData>* dst) {

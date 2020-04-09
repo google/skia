@@ -228,6 +228,8 @@ private:
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
+        SkASSERT(!fProgramInfo);
+
         const VertexSpec vertexSpec = this->vertexSpec();
 
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
@@ -255,6 +257,9 @@ private:
         this->createProgramInfo(context->priv().caps(), arena, writeView,
                                 std::move(appliedClip), dstProxyView);
 
+        //SkDebugf("recording %p\n", fProgramInfo);
+
+        SkASSERT(fProgramInfo);
         context->priv().recordProgramInfo(fProgramInfo);
 
         const VertexSpec vertexSpec = this->vertexSpec();
@@ -329,9 +334,10 @@ private:
             return;
         }
 
-        if (!fProgramInfo) {
-            this->createProgramInfo(flushState);
-        }
+        SkASSERT(fProgramInfo);
+//        if (!fProgramInfo) {
+//            this->createProgramInfo(flushState);
+//        }
 
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
 
