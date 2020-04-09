@@ -691,8 +691,6 @@ varied_text_ignorable_clip_no_lcd,-1
 vertices,-1
 vertices_batching,-1
 vertices_scaled_shader,-1
-verylarge_picture_image,-1
-verylargebitmap,-1
 wacky_yuv_formats,0
 wacky_yuv_formats_cs,0
 windowrectangles,-1
