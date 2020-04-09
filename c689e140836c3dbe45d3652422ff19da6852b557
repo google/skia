@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e0c4605_01cade7d",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-09T18:22:04Z",
+      "side": 1,
+      "message": "These could all be constexpr except that the MSVC on our bots hits an internal compiler bug using initializer_list::begin() in a constexpr function.",
+      "range": {
+        "startLine": 284,
+        "startChar": 19,
+        "endLine": 284,
+        "endChar": 24
+      },
+      "revId": "c689e140836c3dbe45d3652422ff19da6852b557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

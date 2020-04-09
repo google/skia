@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "affc81be_a06b629c",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-09T18:22:04Z",
+      "side": 0,
+      "message": "I\u0027m pretty sure this was a bug:\n\nhttps://docs.microsoft.com/en-us/windows/win32/medfound/10-bit-and-16-bit-yuv-video-formats\n\nI\u0027m not sure what the comment about swapping V and U is supposed to mean.",
+      "range": {
+        "startLine": 640,
+        "startChar": 20,
+        "endLine": 640,
+        "endChar": 93
+      },
+      "revId": "332ab60287a3a19f4563f223a1ee725f34d97c4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
