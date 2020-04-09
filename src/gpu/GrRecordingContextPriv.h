@@ -55,7 +55,6 @@ public:
         fContext->detachProgramData(dst);
     }
 
-    GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
     /**

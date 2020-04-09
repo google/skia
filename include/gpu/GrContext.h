@@ -33,6 +33,7 @@ class GrPath;
 class GrRenderTargetContext;
 class GrResourceCache;
 class GrResourceProvider;
+class GrStrikeCache;
 class GrSurfaceProxy;
 class GrSwizzle;
 class GrTextContext;
@@ -598,6 +599,7 @@ private:
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
     // invoked after objects they depend upon have already been destroyed.
     std::unique_ptr<SkTaskGroup>            fTaskGroup;
+    std::unique_ptr<GrStrikeCache>          fStrikeCache;
     sk_sp<GrGpu>                            fGpu;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
