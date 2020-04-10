@@ -936,6 +936,50 @@ namespace skvm {
         return x;
     }
 
+    /*  "GENERATING ACCURATE VALUES FOR THE TANGENT FUNCTION"
+         https://mae.ufl.edu/~uhk/ACCURATE-TANGENT.pdf
+
+        approx = x + (1/3)x^3 + (2/15)x^5 + (17/315)x^7 + (62/2835)x^9
+
+        Some simplifications:
+        1. tan(x) is periodic, -PI/2 < x < PI/2
+        2. tan(x) is odd, so tan(-x) = -tan(x)
+        3. Our polynomial approximation is best near zero, so we use the following identity
+                        tan(x) + tan(y)
+           tan(x + y) = -----------------
+                       1 - tan(x)*tan(y)
+           tan(PI/4) = 1
+
+           So for x > PI/4, we do the following refactor:
+           x' = x - PI/4
+
+                    1 + tan(x')
+           tan(x) = ------------
+                    1 - tan(x')
+     */
+    F32 Builder::approx_tan(F32 x) {
+        constexpr float Pi = SK_ScalarPI;
+        // periodic between -pi/2 ... pi/2
+        // shift to 0...Pi, scale 1/Pi to get into 0...1, then fract, scale-up, shift-back
+        x = fract((1/Pi)*x + 0.5f) * Pi - (Pi/2);
+
+        I32 neg = (x < 0.0f);
+        x = select(neg, -x, x);
+
+        I32 use_quotient = (x > (Pi/4));
+        x = select(use_quotient, x - (Pi/4), x);
+        // 9th order poly
+        F32 xx = x * x,
+            t = splat(62/2835.0f);
+        t = t * xx + (17/315.0f);
+        t = t * xx + ( 2/15.0f);
+        t = t * xx + ( 1/3.0f);
+        t = t * xx * x + x;
+        t = select(use_quotient, (1+t)/(1-t), t);
+        t = select(neg, -t, t);
+        return t;
+    }
+
     F32 Builder::min(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
