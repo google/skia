@@ -35,28 +35,13 @@ typedef SkRange<CodepointIndex> CodepointRange;
 typedef size_t GlyphIndex;
 typedef SkRange<GlyphIndex> GlyphRange;
 
-/* This is a part of future LTR/RTL refactoring
-// This is a part of a shaped text
-// Text range (a, b) can be:
-// LTR: [a:b) where a < b
-// RTL: (b:a] where a > b
-class ShapedSpan {
-  public:
-      ShapedSpan(Run* run, TextRange textRange, GlyphRange glyphRange)
-        : fRun(run)
-        , fText(textRange)
-        , fGlyphs(glyphRange) { }
-
-  private:
-      Run* fRun;
-      TextRange fText;
-      GlyphRange fGlyphs;
-};
-*/
-struct RunShifts {
-    RunShifts() { }
-    RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
-    SkSTArray<128, SkScalar, true> fShifts;
+// LTR: [start: end) where start <= end
+// RTL: [end: start) where start >= end
+class DirText {
+    DirText(bool dir, size_t s, size_t e) : start(s), end(e) { }
+    bool isLeftToRight() const { return start <= end; }
+    size_t start;
+    size_t end;
 };
 
 class InternalLineMetrics;
