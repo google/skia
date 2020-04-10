@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGEllipse.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 
 SkSVGEllipse::SkSVGEllipse() : INHERITED(SkSVGTag::kEllipse) {}
@@ -28,25 +27,25 @@ void SkSVGEllipse::setRy(const SkSVGLength& ry) {
     fRy = ry;
 }
 
-void SkSVGEllipse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGEllipse::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kCx:
-        if (const auto* cx = v.as<SkSVGLengthValue>()) {
+        if (const auto* cx = std::get_if<SkSVGLength>(&v)) {
             this->setCx(*cx);
         }
         break;
     case SkSVGAttribute::kCy:
-        if (const auto* cy = v.as<SkSVGLengthValue>()) {
+        if (const auto* cy = std::get_if<SkSVGLength>(&v)) {
             this->setCy(*cy);
         }
         break;
     case SkSVGAttribute::kRx:
-        if (const auto* rx = v.as<SkSVGLengthValue>()) {
+        if (const auto* rx = std::get_if<SkSVGLength>(&v)) {
             this->setRx(*rx);
         }
         break;
     case SkSVGAttribute::kRy:
-        if (const auto* ry = v.as<SkSVGLengthValue>()) {
+        if (const auto* ry = std::get_if<SkSVGLength>(&v)) {
             this->setRy(*ry);
         }
         break;

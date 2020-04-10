@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGRect.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
 
@@ -37,35 +36,35 @@ void SkSVGRect::setRy(const SkSVGLength& ry) {
     fRy = ry;
 }
 
-void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kX:
-        if (const auto* x = v.as<SkSVGLengthValue>()) {
+        if (const auto* x = std::get_if<SkSVGLength>(&v)) {
             this->setX(*x);
         }
         break;
     case SkSVGAttribute::kY:
-        if (const auto* y = v.as<SkSVGLengthValue>()) {
+        if (const auto* y = std::get_if<SkSVGLength>(&v)) {
             this->setY(*y);
         }
         break;
     case SkSVGAttribute::kWidth:
-        if (const auto* w = v.as<SkSVGLengthValue>()) {
+        if (const auto* w = std::get_if<SkSVGLength>(&v)) {
             this->setWidth(*w);
         }
         break;
     case SkSVGAttribute::kHeight:
-        if (const auto* h = v.as<SkSVGLengthValue>()) {
+        if (const auto* h = std::get_if<SkSVGLength>(&v)) {
             this->setHeight(*h);
         }
         break;
     case SkSVGAttribute::kRx:
-        if (const auto* rx = v.as<SkSVGLengthValue>()) {
+        if (const auto* rx = std::get_if<SkSVGLength>(&v)) {
             this->setRx(*rx);
         }
         break;
     case SkSVGAttribute::kRy:
-        if (const auto* ry = v.as<SkSVGLengthValue>()) {
+        if (const auto* ry = std::get_if<SkSVGLength>(&v)) {
             this->setRy(*ry);
         }
         break;

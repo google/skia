@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGRadialGradient.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/effects/SkGradientShader.h"
 
 SkSVGRadialGradient::SkSVGRadialGradient() : INHERITED(SkSVGTag::kRadialGradient) {}
@@ -32,30 +31,30 @@ void SkSVGRadialGradient::setFy(const SkSVGLength& fy) {
     fFy.set(fy);
 }
 
-void SkSVGRadialGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGRadialGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kCx:
-        if (const auto* cx = v.as<SkSVGLengthValue>()) {
+        if (const auto* cx = std::get_if<SkSVGLength>(&v)) {
             this->setCx(*cx);
         }
         break;
     case SkSVGAttribute::kCy:
-        if (const auto* cy = v.as<SkSVGLengthValue>()) {
+        if (const auto* cy = std::get_if<SkSVGLength>(&v)) {
             this->setCy(*cy);
         }
         break;
     case SkSVGAttribute::kR:
-        if (const auto* r = v.as<SkSVGLengthValue>()) {
+        if (const auto* r = std::get_if<SkSVGLength>(&v)) {
             this->setR(*r);
         }
         break;
     case SkSVGAttribute::kFx:
-        if (const auto* fx = v.as<SkSVGLengthValue>()) {
+        if (const auto* fx = std::get_if<SkSVGLength>(&v)) {
             this->setFx(*fx);
         }
         break;
     case SkSVGAttribute::kFy:
-        if (const auto* fy = v.as<SkSVGLengthValue>()) {
+        if (const auto* fy = std::get_if<SkSVGLength>(&v)) {
             this->setFy(*fy);
         }
         break;

@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGPoly.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "src/core/SkTLazy.h"
 
@@ -20,10 +19,10 @@ void SkSVGPoly::setPoints(const SkSVGPointsType& pts) {
                   this->tag() == SkSVGTag::kPolygon); // only polygons are auto-closed
 }
 
-void SkSVGPoly::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGPoly::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kPoints:
-        if (const auto* pts = v.as<SkSVGPointsValue>()) {
+        if (const auto* pts = std::get_if<SkSVGPointsType>(&v)) {
             this->setPoints(*pts);
         }
         break;

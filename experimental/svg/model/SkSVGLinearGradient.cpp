@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGLinearGradient.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/effects/SkGradientShader.h"
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
@@ -28,25 +27,25 @@ void SkSVGLinearGradient::setY2(const SkSVGLength& y2) {
     fY2 = y2;
 }
 
-void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kX1:
-        if (const auto* x1 = v.as<SkSVGLengthValue>()) {
+        if (const auto* x1 = std::get_if<SkSVGLength>(&v)) {
             this->setX1(*x1);
         }
         break;
     case SkSVGAttribute::kY1:
-        if (const auto* y1 = v.as<SkSVGLengthValue>()) {
+        if (const auto* y1 = std::get_if<SkSVGLength>(&v)) {
             this->setY1(*y1);
         }
         break;
     case SkSVGAttribute::kX2:
-        if (const auto* x2 = v.as<SkSVGLengthValue>()) {
+        if (const auto* x2 = std::get_if<SkSVGLength>(&v)) {
             this->setX2(*x2);
         }
         break;
     case SkSVGAttribute::kY2:
-        if (const auto* y2 = v.as<SkSVGLengthValue>()) {
+        if (const auto* y2 = std::get_if<SkSVGLength>(&v)) {
             this->setY2(*y2);
         }
         break;
