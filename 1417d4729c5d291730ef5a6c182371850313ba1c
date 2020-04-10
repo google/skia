@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45f2e6ef_f74cf1da",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-04-10T14:33:33Z",
+      "side": 1,
+      "message": "why not\nuint64_t fGenID:48;\nuint64_t fPlotIndex:8;\nuint64_t fPageIndex:8;",
+      "range": {
+        "startLine": 112,
+        "startChar": 8,
+        "endLine": 112,
+        "endChar": 50
+      },
+      "revId": "1417d4729c5d291730ef5a6c182371850313ba1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
