@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "373301d4_24db8c66",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-10T15:36:31Z",
+      "side": 1,
+      "message": "Latest MSVC 2019 is hitting an internal compiler bug on this as well.",
+      "parentUuid": "0e0c4605_01cade7d",
+      "range": {
+        "startLine": 284,
+        "startChar": 19,
+        "endLine": 284,
+        "endChar": 24
+      },
+      "revId": "c689e140836c3dbe45d3652422ff19da6852b557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c3dbf4d7_483750e7",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 6
