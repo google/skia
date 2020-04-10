@@ -42,11 +42,9 @@ struct FunctionDeclaration : public Symbol {
         return result;
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return this->declaration();
     }
-#endif
 
     bool matches(const FunctionDeclaration& f) const {
         if (fName != f.fName) {

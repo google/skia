@@ -31,7 +31,7 @@ public:
      * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
      * fragment shader (xy / z) to convert them to 2D.
      */
-    virtual SkString ensureCoords2D(const GrShaderVar&) = 0;
+    virtual SkString ensureCoords2D(const GrShaderVar&, const SkSL::SampleMatrix& matrix) = 0;
 
     // TODO: remove this method.
     void declAppendf(const char* fmt, ...);
@@ -153,7 +153,8 @@ public:
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
     // Shared GrGLSLFragmentBuilder interface.
-    virtual SkString ensureCoords2D(const GrShaderVar&) override;
+    virtual SkString ensureCoords2D(const GrShaderVar&,
+                                    const SkSL::SampleMatrix& matrix) override;
 
     // GrGLSLFPFragmentBuilder interface.
     const char* sampleOffsets() override;

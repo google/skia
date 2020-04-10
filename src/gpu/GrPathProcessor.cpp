@@ -89,6 +89,7 @@ public:
                                                        &name)
                                           .toIndex();
                     transformVar = uniformHandler->getUniformVariable(uni.fHandle);
+                    matrix = name;
                 }
             } else {
                 SkString strVaryingName;
@@ -106,7 +107,7 @@ public:
                 matrix = matrix_to_sksl(coordTransform.matrix());
                 fragmentVar = {SkString(v.fsIn()), varyingType};
             }
-            transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
+            transformHandler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fragmentVar);
         }
     }
 

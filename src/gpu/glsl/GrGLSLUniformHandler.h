@@ -8,6 +8,8 @@
 #ifndef GrGLSLUniformHandler_DEFINED
 #define GrGLSLUniformHandler_DEFINED
 
+#include <unordered_map>
+
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -16,6 +18,8 @@
 #define GR_NO_MANGLE_PREFIX "sk_"
 
 class GrGLSLProgramBuilder;
+class GrGLSLShaderBuilder;
+class GrProcessor;
 class GrSamplerState;
 class GrSurfaceProxy;
 
@@ -78,7 +82,21 @@ public:
      */
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
 
+    virtual int numUniforms() const = 0;
+
+    virtual UniformInfo& uniform(int idx) = 0;
+
+    void writeUniformMappings(GrFragmentProcessor* owner, GrGLSLShaderBuilder* b);
+
 protected:
+    struct UniformMapping {
+        const GrFragmentProcessor* fOwner;
+        int fInfoIndex;
+        SkString fRawName;
+        const char* fFinalName;
+        GrSLType fType;
+    };
+
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
     // This is not owned by the class
