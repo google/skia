@@ -4,10 +4,36 @@
 
 from . import util
 
+IMAGES = {
+    # Used to build ChromeOS for Pixelbook in Debian9, to align GLIBC versions.
+    'debian9': (
+        'gcr.io/skia-public/debian9:latest'),
+        #'gcr.io/skia-public/debian9@sha256:'
+        #'7d2666afcdf7e64e0e1830980e9b051d58c6f2ac74a22a6187c319412bccb736'),
+}
+
+def py_to_gn(val):
+  """Convert val to a string that can be used as GN args."""
+  if isinstance(val, bool):
+    return 'true' if val else 'false'
+  elif isinstance(val, basestring):
+    # TODO(dogben): Handle quoting "$\
+    return '"%s"' % val
+  elif isinstance(val, (list, tuple)):
+    return '[%s]' % (','.join(py_to_gn(x) for x in val))
+  elif isinstance(val, dict):
+    gn = ' '.join(
+        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.iteritems()))
+    return gn
+  else:  # pragma: nocover
+    raise Exception('Converting %s to gn is not implemented.' % type(val))
+
 def compile_fn(api, checkout_root, out_dir):
   skia_dir      = checkout_root.join('skia')
   configuration = api.vars.builder_cfg.get('configuration')
   target_arch   = api.vars.builder_cfg.get('target_arch')
+  os = api.vars.builder_cfg.get('os', '')
+  builder_name = api.vars.builder_name
 
   clang_linux = api.vars.slave_dir.join('clang_linux')
   # This is a pretty typical arm-linux-gnueabihf sysroot
@@ -85,6 +111,14 @@ def compile_fn(api, checkout_root, out_dir):
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
   gn = skia_dir.join('bin', 'gn')
+
+  if True or os == 'Debian9' and 'Docker' in builder_name:
+    script = api.build.resource('docker-chromeos-compile.sh')
+    image_name = 'debian9'
+    image_hash = IMAGES[image_name]
+    api.docker.run('Run build script in Docker', image_hash,
+                   checkout_root, out_dir, script, args=[py_to_gn(args)])
+    return
 
   with api.context(cwd=skia_dir, env=env):
     api.run(api.python, 'fetch-gn',
