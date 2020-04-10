@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c6bc839_995a1a7e",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-10T15:24:23Z",
+      "side": 1,
+      "message": "This will lead to perspective interpolation issues if the localCoordsMatrix has perspective. In that case, we can keep explicit local coords but we have to switch to writing an SkPoint3 and not divide by the w.\n\nAs long as the GP sees a vec3 or a matrix with perspective when it emits its transform, the perspective divide will happen in the fragment shader (I think, that code isn\u0027t the trivial-ist to follow).",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 65
+      },
+      "revId": "cb6805f2132892eef45a31c03968e8c35ca12b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
