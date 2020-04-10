@@ -74,6 +74,28 @@ void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
     fFlags |= kHasCoordTransforms_Flag;
 }
 
+void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix matrix) {
+    if (matrix == fMatrix) {
+        return;
+    }
+    SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
+    if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+        SkASSERT(matrix.fKind == SkSL::SampleMatrix::Kind::kVariable ||
+                 (matrix.fKind == SkSL::SampleMatrix::Kind::kMixed &&
+                  matrix.fExpression == fMatrix.fExpression));
+        fMatrix = SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kMixed, fMatrix.fOwner,
+                                     fMatrix.fExpression);
+    } else {
+        SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
+        fMatrix = matrix;
+    }
+    if (matrix.fKind == SkSL::SampleMatrix::Kind::kVariable) {
+        for (auto& child : fChildProcessors) {
+            child->setSampleMatrix(matrix);
+        }
+    }
+}
+
 #ifdef SK_DEBUG
 bool GrFragmentProcessor::isInstantiated() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
@@ -100,7 +122,8 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));
-
+    SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
+             fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform);
     return index;
 }
 

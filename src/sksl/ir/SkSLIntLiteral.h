@@ -27,11 +27,9 @@ struct IntLiteral : public Expression {
     : INHERITED(offset, kIntLiteral_Kind, *type)
     , fValue(value) {}
 
-#ifdef SK_DEBUG
     String description() const override {
         return to_string(fValue);
     }
-#endif
 
     bool hasProperty(Property property) const override {
         return false;
