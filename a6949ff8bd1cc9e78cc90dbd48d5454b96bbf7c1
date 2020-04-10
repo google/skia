@@ -46,6 +46,30 @@
       "revId": "a6949ff8bd1cc9e78cc90dbd48d5454b96bbf7c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ba849a3_6f4c31fc",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-10T15:15:30Z",
+      "side": 1,
+      "message": "duh didn\u0027t that on the other patch set.",
+      "parentUuid": "57a65f4b_c29cb6f4",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 51
+      },
+      "revId": "a6949ff8bd1cc9e78cc90dbd48d5454b96bbf7c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
