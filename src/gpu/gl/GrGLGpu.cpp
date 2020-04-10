@@ -3784,37 +3784,35 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-bool GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
-                            const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
-    // If we inserted semaphores during the flush, we need to call GLFlush.
-    bool insertedSemaphore = info.fNumSemaphores > 0 && this->caps()->semaphoreSupport();
-    // We call finish if the client told us to sync or if we have a finished proc but don't support
-    // GLsync objects.
-    bool finish = (info.fFlags & kSyncCpu_GrFlushFlag) ||
-                  (info.fFinishedProc && !this->caps()->fenceSyncSupport());
-    if (finish) {
+void GrGLGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext) {
+    SkASSERT(finishedProc);
+    FinishCallback callback;
+    callback.fCallback = finishedProc;
+    callback.fContext = finishedContext;
+    if (this->caps()->fenceSyncSupport()) {
+        callback.fSync = (GrGLsync)this->insertFence();
+    } else {
+        callback.fSync = 0;
+    }
+    fFinishCallbacks.push_back(callback);
+}
+
+bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
+    if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         GL_CALL(Finish());
         // After a finish everything previously sent to GL is done.
         for (const auto& cb : fFinishCallbacks) {
             cb.fCallback(cb.fContext);
-            this->deleteSync(cb.fSync);
+            if (cb.fSync) {
+                this->deleteSync(cb.fSync);
+            } else {
+                SkASSERT(!this->caps()->fenceSyncSupport());
+            }
         }
         fFinishCallbacks.clear();
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
     } else {
-        if (info.fFinishedProc) {
-            FinishCallback callback;
-            callback.fCallback = info.fFinishedProc;
-            callback.fContext = info.fFinishedContext;
-            callback.fSync = (GrGLsync)this->insertFence();
-            fFinishCallbacks.push_back(callback);
-            GL_CALL(Flush());
-        } else if (insertedSemaphore) {
-            // Must call flush after semaphores in case they are waited on another GL context.
-            GL_CALL(Flush());
-        }
+        GL_CALL(Flush());
         // See if any previously inserted finish procs are good to go.
         this->checkFinishProcs();
     }
