@@ -23,9 +23,7 @@ struct IRNode {
 
     virtual ~IRNode() {}
 
-#ifdef SK_DEBUG
     virtual String description() const = 0;
-#endif
 
     // character offset of this element within the program being compiled, for error reporting
     // purposes

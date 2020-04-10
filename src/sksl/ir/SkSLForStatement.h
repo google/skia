@@ -34,7 +34,6 @@ struct ForStatement : public Statement {
                                                            fStatement->clone(), fSymbols));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         String result("for (");
         if (fInitializer) {
@@ -51,7 +50,6 @@ struct ForStatement : public Statement {
         result += ") " + fStatement->description();
         return result;
     }
-#endif
 
     // it's important to keep fSymbols defined first (and thus destroyed last) because destroying
     // the other fields can update symbol reference counts
