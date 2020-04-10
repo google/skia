@@ -34,8 +34,7 @@ static const int DEFAULT_BUFFER_SIZE = 100;
 // the time being, we simply drop back to software rendering above this stroke width.
 static const SkScalar kMaxStrokeWidth = 20.0;
 
-GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
-}
+GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -83,13 +82,19 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 
 // extract the result vertices and indices from the GrAAConvexTessellator
 static void extract_verts(const GrAAConvexTessellator& tess,
+                          const SkMatrix* localCoordsMatrix,
                           void* vertData,
                           const GrVertexColor& color,
                           uint16_t firstIndex,
                           uint16_t* idxs) {
     GrVertexWriter verts{vertData};
     for (int i = 0; i < tess.numPts(); ++i) {
-        verts.write(tess.point(i), color, tess.coverage(i));
+        SkPoint lc;
+        if (localCoordsMatrix) {
+            localCoordsMatrix->mapPoints(&lc, &tess.point(i), 1);
+        }
+        verts.write(tess.point(i), GrVertexWriter::If(localCoordsMatrix, lc), color,
+                    tess.coverage(i));
     }
 
     for (int i = 0; i < tess.numIndices(); ++i) {
@@ -99,7 +104,6 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 
 static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
                                                  bool tweakAlphaForCoverage,
-                                                 const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords,
                                                  bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
@@ -107,11 +111,11 @@ static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
     Coverage::Type coverageType =
         tweakAlphaForCoverage ? Coverage::kAttributeTweakAlpha_Type : Coverage::kAttribute_Type;
     LocalCoords::Type localCoordsType =
-        usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+        usesLocalCoords ? LocalCoords::kHasExplicit_Type : LocalCoords::kUnused_Type;
     Color::Type colorType =
         wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
 
-    return MakeForDeviceSpace(arena, colorType, coverageType, localCoordsType, viewMatrix);
+    return Make(arena, colorType, coverageType, localCoordsType, SkMatrix::I());
 }
 
 namespace {
@@ -147,9 +151,8 @@ public:
                              SkScalar miterLimit,
                              const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
-            , fViewMatrix(viewMatrix) {
-        fPaths.emplace_back(PathData{color, path, strokeWidth, style, join, miterLimit});
+            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+        fPaths.emplace_back(PathData{viewMatrix, path, color, strokeWidth, miterLimit, style, join});
 
         // compute bounds
         SkRect bounds = path.getBounds();
@@ -213,7 +216,6 @@ private:
                              const GrXferProcessor::DstProxyView& dstProxyView) override {
         GrGeometryProcessor* gp = create_lines_only_gp(arena,
                                                        fHelper.compatibleWithCoverageAsAlpha(),
-                                                       fViewMatrix,
                                                        fHelper.usesLocalCoords(),
                                                        fWideColor);
         if (!gp) {
@@ -278,7 +280,7 @@ private:
             GrAAConvexTessellator tess(args.fStyle, args.fStrokeWidth,
                                        args.fJoin, args.fMiterLimit);
 
-            if (!tess.tessellate(fViewMatrix, args.fPath)) {
+            if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
                 continue;
             }
 
@@ -310,7 +312,16 @@ private:
                 indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
 
-            extract_verts(tess, vertices + vertexStride * vertexCount,
+            const SkMatrix* localCoordsMatrix = nullptr;
+            SkMatrix ivm;
+            if (fHelper.usesLocalCoords()) {
+                if (!args.fViewMatrix.invert(&ivm)) {
+                    ivm = SkMatrix::I();
+                }
+                localCoordsMatrix = &ivm;
+            }
+
+            extract_verts(tess, localCoordsMatrix, vertices + vertexStride * vertexCount,
                           GrVertexColor(args.fColor, fWideColor), vertexCount,
                           indices + indexCount);
             vertexCount += currentVertices;
@@ -341,9 +352,6 @@ private:
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return CombineResult::kCannotCombine;
         }
-        if (fViewMatrix != that->fViewMatrix) {
-            return CombineResult::kCannotCombine;
-        }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         fWideColor |= that->fWideColor;
@@ -352,17 +360,17 @@ private:
 
 
     struct PathData {
-        SkPMColor4f fColor;
+        SkMatrix fViewMatrix;
         SkPath fPath;
+        SkPMColor4f fColor;
         SkScalar fStrokeWidth;
+        SkScalar fMiterLimit;
         SkStrokeRec::Style fStyle;
         SkPaint::Join fJoin;
-        SkScalar fMiterLimit;
     };
 
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
-    SkMatrix fViewMatrix;
     bool fWideColor;
 
     SkTDArray<GrSimpleMesh*> fMeshes;
