@@ -78,13 +78,6 @@ static constexpr uint32_t GrVkFormatChannels(VkFormat vkFormat) {
 
 bool GrVkFormatNeedsYcbcrSampler(VkFormat format);
 
-#ifdef SK_DEBUG
-/**
- * Returns true if the passed in VkFormat and GrColorType are compatible with each other.
- */
-bool GrVkFormatColorTypePairIsValid(VkFormat, GrColorType);
-#endif
-
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 bool GrCompileVkShaderModule(GrVkGpu* gpu,
