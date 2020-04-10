@@ -18,8 +18,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 
-#include <variant>
-
 using SkSVGColorType     = SkColor;
 using SkSVGNumberType    = SkScalar;
 using SkSVGStringType    = SkString;
@@ -280,25 +278,5 @@ private:
     Type fType;
     SkTDArray<SkSVGLength> fDashArray;
 };
-
-using SkSVGAttributeValue =
-    std::variant<
-        SkPath,              // TODO: hmm, why is this not aliased?
-        SkSVGClip,
-        SkSVGColorType,
-        SkSVGDashArray,
-        SkSVGFillRule,
-        SkSVGLength,
-        SkSVGLineCap,
-        SkSVGLineJoin,
-        SkSVGNumberType,
-        SkSVGPaint,
-        SkSVGPointsType,
-        SkSVGStringType,
-        SkSVGSpreadMethod,
-        SkSVGTransformType,
-        SkSVGViewBoxType,
-        SkSVGVisibility
-    >;
 
 #endif // SkSVGTypes_DEFINED

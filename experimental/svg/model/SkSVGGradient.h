@@ -26,7 +26,7 @@ public:
 protected:
     explicit SkSVGGradient(SkSVGTag t) : INHERITED(t) {}
 
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const final;
 

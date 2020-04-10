@@ -27,7 +27,7 @@ public:
     void setPoints(const SkSVGPointsType&);
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPathFillType) const override;

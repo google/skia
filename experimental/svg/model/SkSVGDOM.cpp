@@ -26,6 +26,7 @@
 #include "experimental/svg/model/SkSVGText.h"
 #include "experimental/svg/model/SkSVGTypes.h"
 #include "experimental/svg/model/SkSVGUse.h"
+#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTo.h"
@@ -43,7 +44,7 @@ bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, paint);
+    node->setAttribute(attr, SkSVGPaintValue(paint));
     return true;
 }
 
@@ -55,7 +56,7 @@ bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, color);
+    node->setAttribute(attr, SkSVGColorValue(color));
     return true;
 }
 
@@ -67,7 +68,7 @@ bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, iri);
+    node->setAttribute(attr, SkSVGStringValue(iri));
     return true;
 }
 
@@ -79,7 +80,7 @@ bool SetClipPathAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, clip);
+    node->setAttribute(attr, SkSVGClipValue(clip));
     return true;
 }
 
@@ -91,7 +92,7 @@ bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, path);
+    node->setAttribute(attr, SkSVGPathValue(path));
     return true;
 }
 
@@ -99,7 +100,7 @@ bool SetStringAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
     SkString str(stringValue, strlen(stringValue));
     SkSVGStringType strType = SkSVGStringType(str);
-    node->setAttribute(attr, strType);
+    node->setAttribute(attr, SkSVGStringValue(strType));
     return true;
 }
 
@@ -111,7 +112,7 @@ bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, transform);
+    node->setAttribute(attr, SkSVGTransformValue(transform));
     return true;
 }
 
@@ -123,7 +124,7 @@ bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, length);
+    node->setAttribute(attr, SkSVGLengthValue(length));
     return true;
 }
 
@@ -135,7 +136,7 @@ bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, number);
+    node->setAttribute(attr, SkSVGNumberValue(number));
     return true;
 }
 
@@ -147,7 +148,7 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, viewBox);
+    node->setAttribute(attr, SkSVGViewBoxValue(viewBox));
     return true;
 }
 
@@ -159,7 +160,7 @@ bool SetLineCapAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, lineCap);
+    node->setAttribute(attr, SkSVGLineCapValue(lineCap));
     return true;
 }
 
@@ -171,7 +172,7 @@ bool SetLineJoinAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, lineJoin);
+    node->setAttribute(attr, SkSVGLineJoinValue(lineJoin));
     return true;
 }
 
@@ -183,7 +184,7 @@ bool SetSpreadMethodAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, spread);
+    node->setAttribute(attr, SkSVGSpreadMethodValue(spread));
     return true;
 }
 
@@ -195,7 +196,7 @@ bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, points);
+    node->setAttribute(attr, SkSVGPointsValue(points));
     return true;
 }
 
@@ -207,7 +208,7 @@ bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, fillRule);
+    node->setAttribute(attr, SkSVGFillRuleValue(fillRule));
     return true;
 }
 
@@ -219,7 +220,7 @@ bool SetVisibilityAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, visibility);
+    node->setAttribute(attr, SkSVGVisibilityValue(visibility));
     return true;
 }
 
@@ -231,7 +232,7 @@ bool SetDashArrayAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, dashArray);
+    node->setAttribute(attr, SkSVGDashArrayValue(dashArray));
     return true;
 }
 

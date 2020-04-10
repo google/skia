@@ -7,6 +7,7 @@
 
 #include "experimental/svg/model/SkSVGNode.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/pathops/SkPathOps.h"
@@ -55,7 +56,7 @@ bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     return visibility != SkSVGVisibility::Type::kHidden;
 }
 
-void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
+void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     this->onSetAttribute(attr, v);
 }
 
@@ -135,85 +136,85 @@ void SkSVGNode::setVisibility(const SkSVGVisibility& visibility) {
     SetInheritedByDefault(fPresentationAttributes.fVisibility, visibility);
 }
 
-void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
+void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kClipPath:
-        if (const auto* clip = std::get_if<SkSVGClip>(&v)) {
+        if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
             this->setClipPath(*clip);
         }
         break;
     case SkSVGAttribute::kClipRule:
-        if (const auto* clipRule = std::get_if<SkSVGFillRule>(&v)) {
+        if (const SkSVGFillRuleValue* clipRule = v.as<SkSVGFillRuleValue>()) {
             this->setClipRule(*clipRule);
         }
         break;
     case SkSVGAttribute::kColor:
-        if (const auto* color = std::get_if<SkSVGColorType>(&v)) {
+        if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
             this->setColor(*color);
         }
         break;
     case SkSVGAttribute::kFill:
-        if (const auto* paint = std::get_if<SkSVGPaint>(&v)) {
+        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
             this->setFill(*paint);
         }
         break;
     case SkSVGAttribute::kFillOpacity:
-        if (const auto* opacity = std::get_if<SkSVGNumberType>(&v)) {
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setFillOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kFillRule:
-        if (const auto* fillRule = std::get_if<SkSVGFillRule>(&v)) {
+        if (const SkSVGFillRuleValue* fillRule = v.as<SkSVGFillRuleValue>()) {
             this->setFillRule(*fillRule);
         }
         break;
     case SkSVGAttribute::kOpacity:
-        if (const auto* opacity = std::get_if<SkSVGNumberType>(&v)) {
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kStroke:
-        if (const auto* paint = std::get_if<SkSVGPaint>(&v)) {
+        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
             this->setStroke(*paint);
         }
         break;
     case SkSVGAttribute::kStrokeDashArray:
-        if (const auto* dashArray = std::get_if<SkSVGDashArray>(&v)) {
+        if (const SkSVGDashArrayValue* dashArray = v.as<SkSVGDashArrayValue>()) {
             this->setStrokeDashArray(*dashArray);
         }
         break;
     case SkSVGAttribute::kStrokeDashOffset:
-        if (const auto* dashOffset= std::get_if<SkSVGLength>(&v)) {
+        if (const SkSVGLengthValue* dashOffset= v.as<SkSVGLengthValue>()) {
             this->setStrokeDashOffset(*dashOffset);
         }
         break;
     case SkSVGAttribute::kStrokeOpacity:
-        if (const auto* opacity = std::get_if<SkSVGNumberType>(&v)) {
+        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setStrokeOpacity(*opacity);
         }
         break;
     case SkSVGAttribute::kStrokeLineCap:
-        if (const auto* lineCap = std::get_if<SkSVGLineCap>(&v)) {
+        if (const SkSVGLineCapValue* lineCap = v.as<SkSVGLineCapValue>()) {
             this->setStrokeLineCap(*lineCap);
         }
         break;
     case SkSVGAttribute::kStrokeLineJoin:
-        if (const auto* lineJoin = std::get_if<SkSVGLineJoin>(&v)) {
+        if (const SkSVGLineJoinValue* lineJoin = v.as<SkSVGLineJoinValue>()) {
             this->setStrokeLineJoin(*lineJoin);
         }
         break;
     case SkSVGAttribute::kStrokeMiterLimit:
-        if (const auto* miterLimit = std::get_if<SkSVGNumberType>(&v)) {
+        if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
             this->setStrokeMiterLimit(*miterLimit);
         }
         break;
     case SkSVGAttribute::kStrokeWidth:
-        if (const auto* strokeWidth = std::get_if<SkSVGLength>(&v)) {
+        if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
             this->setStrokeWidth(*strokeWidth);
         }
         break;
     case SkSVGAttribute::kVisibility:
-        if (const auto* visibility = std::get_if<SkSVGVisibility>(&v)) {
+        if (const SkSVGVisibilityValue* visibility = v.as<SkSVGVisibilityValue>()) {
             this->setVisibility(*visibility);
         }
         break;

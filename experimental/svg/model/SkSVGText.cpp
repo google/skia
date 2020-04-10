@@ -8,6 +8,7 @@
 #include "experimental/svg/model/SkSVGText.h"
 
 #include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 
 SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
@@ -47,35 +48,35 @@ SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
   return path;
 }
 
-void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
+void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
   switch (attr) {
     case SkSVGAttribute::kX:
-      if (const auto* x = std::get_if<SkSVGLength>(&v)) {
+      if (const auto* x = v.as<SkSVGLengthValue>()) {
         this->setX(*x);
       }
       break;
     case SkSVGAttribute::kY:
-      if (const auto* y = std::get_if<SkSVGLength>(&v)) {
+      if (const auto* y = v.as<SkSVGLengthValue>()) {
         this->setY(*y);
       }
       break;
     case SkSVGAttribute::kText:
-      if (const auto* text = std::get_if<SkSVGStringType>(&v)) {
+      if (const auto* text = v.as<SkSVGStringValue>()) {
         this->setText(*text);
       }
       break;
     case SkSVGAttribute::kTextAnchor:
-      if (const auto* text_anchor = std::get_if<SkSVGStringType>(&v)) {
+      if (const auto* text_anchor = v.as<SkSVGStringValue>()) {
         this->setTextAnchor(*text_anchor);
       }
       break;
     case SkSVGAttribute::kFontFamily:
-      if (const auto* font_family = std::get_if<SkSVGStringType>(&v)) {
+      if (const auto* font_family = v.as<SkSVGStringValue>()) {
         this->setFontFamily(*font_family);
       }
       break;
     case SkSVGAttribute::kFontSize:
-      if (const auto* font_size = std::get_if<SkSVGLength>(&v)) {
+      if (const auto* font_size = v.as<SkSVGLengthValue>()) {
         this->setFontSize(*font_size);
       }
       break;

@@ -8,6 +8,7 @@
 #include "experimental/svg/model/SkSVGPattern.h"
 
 #include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
 
@@ -37,35 +38,35 @@ void SkSVGPattern::setPatternTransform(const SkSVGTransformType& patternTransfor
     fAttributes.fPatternTransform.set(patternTransform);
 }
 
-void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
+void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kX:
-        if (const auto* x = std::get_if<SkSVGLength>(&v)) {
+        if (const auto* x = v.as<SkSVGLengthValue>()) {
             this->setX(*x);
         }
         break;
     case SkSVGAttribute::kY:
-        if (const auto* y = std::get_if<SkSVGLength>(&v)) {
+        if (const auto* y = v.as<SkSVGLengthValue>()) {
             this->setY(*y);
         }
         break;
     case SkSVGAttribute::kWidth:
-        if (const auto* w = std::get_if<SkSVGLength>(&v)) {
+        if (const auto* w = v.as<SkSVGLengthValue>()) {
             this->setWidth(*w);
         }
         break;
     case SkSVGAttribute::kHeight:
-        if (const auto* h = std::get_if<SkSVGLength>(&v)) {
+        if (const auto* h = v.as<SkSVGLengthValue>()) {
             this->setHeight(*h);
         }
         break;
     case SkSVGAttribute::kHref:
-        if (const auto* href = std::get_if<SkSVGStringType>(&v)) {
+        if (const auto* href = v.as<SkSVGStringValue>()) {
             this->setHref(*href);
         }
         break;
     case SkSVGAttribute::kPatternTransform:
-        if (const auto* t = std::get_if<SkSVGTransformType>(&v)) {
+        if (const auto* t = v.as<SkSVGTransformValue>()) {
             this->setPatternTransform(*t);
         }
         break;
