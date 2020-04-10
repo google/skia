@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "370d4d73_7e5455ea",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-04-10T13:06:50Z",
+      "side": 0,
+      "message": "I wonder if we should leave this in, or maybe it doesnt matter since we are removing all jobs except presubmit anyway. Also not having this in would make things much faster. So nevermind.",
+      "revId": "e94a4662a426a03d284e19670f019bb00bbb6fca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
