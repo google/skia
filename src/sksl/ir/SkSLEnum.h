@@ -50,11 +50,9 @@ struct Enum : public ProgramElement {
         return result;
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return this->code();
     }
-#endif
 
     bool fBuiltin = false;
     const StringFragment fTypeName;

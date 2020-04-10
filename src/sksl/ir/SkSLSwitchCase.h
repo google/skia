@@ -33,7 +33,6 @@ struct SwitchCase : public Statement {
                                                          std::move(cloned)));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         String result;
         if (fValue) {
@@ -46,7 +45,6 @@ struct SwitchCase : public Statement {
         }
         return result;
     }
-#endif
 
     // null value implies "default" case
     std::unique_ptr<Expression> fValue;

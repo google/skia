@@ -56,6 +56,14 @@ public:
      */
     uint32_t getRTHeightOffset() const;
 
+    int numUniforms() const override {
+        return fUniforms.count();
+    }
+
+    UniformInfo& uniform(int idx) override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
