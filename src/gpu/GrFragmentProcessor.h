@@ -11,6 +11,7 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
+#include "src/sksl/SkSLSampleMatrix.h"
 
 class GrGLSLFragmentProcessor;
 class GrPaint;
@@ -146,6 +147,7 @@ public:
     }
 
     void setSampledWithExplicitCoords(bool value) {
+        SkASSERT(value);
         if (value) {
             fFlags |= kSampledWithExplicitCoords;
         } else {
@@ -155,6 +157,12 @@ public:
             child->setSampledWithExplicitCoords(value);
         }
     }
+
+    SkSL::SampleMatrix sampleMatrix() const {
+        return fMatrix;
+    }
+
+    void setSampleMatrix(SkSL::SampleMatrix matrix);
 
     /**
      * A GrDrawOp may premultiply its antialiasing coverage into its GrGeometryProcessor's color
@@ -465,6 +473,8 @@ private:
     SkSTArray<4, GrCoordTransform*, true> fCoordTransforms;
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
+
+    SkSL::SampleMatrix fMatrix;
 
     typedef GrProcessor INHERITED;
 };

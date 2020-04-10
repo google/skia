@@ -8,6 +8,7 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 
 #include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrPipeline.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -84,7 +85,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
     for (int i = 0; *handler; ++*handler, ++i) {
         auto [coordTransform, fp] = handler->get();
         // Add uniform for coord transform matrix.
-        const char* matrixName;
+        SkString matrix;
         if (!fp.isSampledWithExplicitCoords() || !coordTransform.isNoOp()) {
             SkString strUniName;
             strUniName.printf("CoordTransformMatrix_%d", i);
@@ -96,9 +97,11 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             } else {
                 uni.fType = kFloat3x3_GrSLType;
             }
+            const char* matrixName;
             uni.fHandle =
                     uniformHandler->addUniform(&fp, flag, uni.fType, strUniName.c_str(),
                                                &matrixName);
+            matrix = matrixName;
             transformVar = uniformHandler->getUniformVariable(uni.fHandle);
         } else {
             // Install a coord transform that will be skipped.
@@ -122,14 +125,45 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
             SkASSERT(fInstalledTransforms.back().fType == kFloat3x3_GrSLType);
             if (v.type() == kFloat2_GrSLType) {
-                vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrixName,
+                vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrix.c_str(),
                                 localCoordsStr.c_str());
             } else {
-                vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrixName, localCoordsStr.c_str());
+                vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(), localCoordsStr.c_str());
             }
             fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
+            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix.c_str(), localCoordsStr, &fp });
+        } else {
+            SkASSERT(fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kVariable);
+            if (fp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
+                matrix += " * " + fp.sampleMatrix().fExpression;
+            }
         }
-        handler->specifyCoordsForCurrCoordTransform(transformVar, fsVar);
+        handler->specifyCoordsForCurrCoordTransform(matrix, transformVar, fsVar);
+    }
+}
+
+void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
+                                                GrGLSLUniformHandler* uniformHandler) {
+    for (const auto& tr : fTransformInfos) {
+        switch (tr.fFP->sampleMatrix().fKind) {
+            case SkSL::SampleMatrix::Kind::kConstantOrUniform:
+                vb->codeAppend("{\n");
+                uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
+                if (tr.fType == kFloat2_GrSLType) {
+                    vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
+                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
+                                    tr.fLocalCoords.c_str());
+                } else {
+                    SkASSERT(tr.fType == kFloat3_GrSLType);
+                    vb->codeAppendf("%s = %s * %s * %s", tr.fName,
+                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix,
+                                    tr.fName);
+                }
+                vb->codeAppend(";\n");
+                vb->codeAppend("}\n");
+            default:
+                break;
+        }
     }
 }
 
