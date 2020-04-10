@@ -70,7 +70,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrOpsTaskFlushCount, reporter, ctxInfo) {
     // In total we make 2000 oplists. Our current limit on max oplists between flushes is 100, so we
     // should do 20 flushes while executing oplists. Additionaly we always do 1 flush at the end of
     // executing all oplists. So in total we should see 21 flushes here.
-    REPORTER_ASSERT(reporter, gpu->stats()->numFinishFlushes() == 21);
+    REPORTER_ASSERT(reporter, gpu->stats()->numSubmitToGpus() == 21);
 
     SkBitmap readbackBitmap;
     readbackBitmap.allocN32Pixels(1000, 1);

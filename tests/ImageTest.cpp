@@ -1380,8 +1380,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     // Flush all the setup work we did above and then make little lambda that reports the flush
     // count delta since the last time it was called.
     c->flush();
-    auto numFlushes = [c, flushCnt = c->priv().getGpu()->stats()->numFinishFlushes()]() mutable {
-        int curr = c->priv().getGpu()->stats()->numFinishFlushes();
+    auto numFlushes = [c, flushCnt = c->priv().getGpu()->stats()->numSubmitToGpus()]() mutable {
+        int curr = c->priv().getGpu()->stats()->numSubmitToGpus();
         int n = curr - flushCnt;
         flushCnt = curr;
         return n;
