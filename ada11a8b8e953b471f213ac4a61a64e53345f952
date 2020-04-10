@@ -46,6 +46,52 @@
       "revId": "ada11a8b8e953b471f213ac4a61a64e53345f952",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1015a54_8f6867b8",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 11
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-10T15:02:22Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 195,
+        "startChar": 25,
+        "endLine": 195,
+        "endChar": 30
+      },
+      "revId": "ada11a8b8e953b471f213ac4a61a64e53345f952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1b082b5_870db7ba",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 11
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-10T15:02:22Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 196,
+        "startChar": 24,
+        "endLine": 196,
+        "endChar": 29
+      },
+      "revId": "ada11a8b8e953b471f213ac4a61a64e53345f952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
