@@ -1707,7 +1707,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     // Helper that checks whether a flush has occurred between calls.
     int baseFlushCount = 0;
     auto getFlushCountDelta = [context, &baseFlushCount]() {
-        int cur = context->priv().getGpu()->stats()->numFinishFlushes();
+        int cur = context->priv().getGpu()->stats()->numSubmitToGpus();
         int delta = cur - baseFlushCount;
         baseFlushCount = cur;
         return delta;

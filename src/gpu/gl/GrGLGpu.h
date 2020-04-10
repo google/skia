@@ -306,8 +306,10 @@ private:
 
     void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
-    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo&, const GrPrepareForExternalIORequests&) override;
+    void addFinishedProc(GrGpuFinishedProc finishedProc,
+                         GrGpuFinishedContext finishedContext) override;
+
+    bool onSubmitToGpu(bool syncCpu) override;
 
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 

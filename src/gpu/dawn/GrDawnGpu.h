@@ -172,8 +172,10 @@ private:
     bool onCopySurface(GrSurface* dst, GrSurface* src,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
-    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
+    void addFinishedProc(GrGpuFinishedProc finishedProc,
+                         GrGpuFinishedContext finishedContext) override;
+
+    bool onSubmitToGpu(bool syncCpu) override;
 
     void mapStagingBuffers();
 

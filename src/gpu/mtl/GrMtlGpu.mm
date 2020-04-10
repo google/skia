@@ -187,30 +187,26 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 }
 
-bool GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess,
-                             const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
-    bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag) ||
-                     (info.fFinishedProc && !this->mtlCaps().fenceSyncSupport());
-    // TODO: do we care about info.fSemaphore?
-    if (forceSync) {
+void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
+                               GrGpuFinishedContext finishedContext) {
+    SkASSERT(finishedProc);
+    SkASSERT(this->caps()->fenceSyncSupport());
+    FinishCallback callback;
+    callback.fCallback = finishedProc;
+    callback.fContext = finishedContext;
+    callback.fFence = this->insertFence();
+    fFinishCallbacks.push_back(callback);
+}
+
+bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
+    if (syncCpu) {
         this->submitCommandBuffer(kForce_SyncQueue);
-        // After a forced sync everything previously sent to the GPU is done.
         for (const auto& cb : fFinishCallbacks) {
             cb.fCallback(cb.fContext);
             this->deleteFence(cb.fFence);
         }
         fFinishCallbacks.clear();
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
     } else {
-        if (info.fFinishedProc) {
-            FinishCallback callback;
-            callback.fCallback = info.fFinishedProc;
-            callback.fContext = info.fFinishedContext;
-            callback.fFence = this->insertFence();
-            fFinishCallbacks.push_back(callback);
-        }
         this->submitCommandBuffer(kSkip_SyncQueue);
     }
     return true;

@@ -347,10 +347,8 @@ void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
     sk_sp<GrRefCntedCallback> procRef(new GrRefCntedCallback(finishedProc, finishedContext));
     for (int i = 0; i < fActiveCommandPools.count(); ++i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
-        if (!pool->isOpen()) {
-            GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
-            buffer->addFinishedProc(procRef);
-        }
+        GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
+        buffer->addFinishedProc(procRef);
     }
 }
 

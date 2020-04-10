@@ -160,11 +160,14 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
 
-    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+    void addFinishedProc(GrGpuFinishedProc finishedProc,
+                         GrGpuFinishedContext finishedContext) override {
+        // TODO: have this actually wait before calling the proc
+        SkASSERT(finishedProc);
+        finishedProc(finishedContext);
+    }
+
+    bool onSubmitToGpu(bool syncCpu) override {
         return true;
     }
 
