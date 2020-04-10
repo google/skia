@@ -18,6 +18,7 @@
 #include "src/core/SkVM.h"
 #include <algorithm>
 #include <atomic>
+#include <bitset>
 #include <queue>
 
 #if defined(SKVM_LLVM)
@@ -34,7 +35,7 @@
     #endif
 #endif
 
-bool gSkVMJITViaDylib{false};
+bool gSkVMJITViaDylib{true};
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
 // uninitialized memory, and we'll not see the writes it makes as properly
@@ -104,6 +105,8 @@ namespace skvm {
             #define M(x) case Op::x: return #x;
                 SKVM_OPS(M)
             #undef M
+                case Op::op_count:
+                    break;
             }
             return "unknown op";
         }
@@ -302,6 +305,7 @@ namespace skvm {
                 case Op::to_f32: write(o, V{id}, "=", op, V{x}); break;
                 case Op::trunc:  write(o, V{id}, "=", op, V{x}); break;
                 case Op::round:  write(o, V{id}, "=", op, V{x}); break;
+                case Op::op_count: write(o, "op_count"); break;
             }
 
             write(o, "\n");
@@ -421,6 +425,8 @@ namespace skvm {
                 case Op::to_f32: write(o, R{d}, "=", op, R{x}); break;
                 case Op::trunc:  write(o, R{d}, "=", op, R{x}); break;
                 case Op::round:  write(o, R{d}, "=", op, R{x}); break;
+
+                case Op::op_count: write(o, "op_count"); break;
             }
             write(o, "\n");
         }
@@ -1744,32 +1750,24 @@ namespace skvm {
         this->bytes(&off, imm_bytes(mod(off)));
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
-        VEX v = vex(W, dst>>3, 0, y>>3,
-                    map, x, 1/*ymm, not xmm*/, prefix);
-        this->bytes(v.bytes, v.len);
-        this->byte(opcode);
-        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
-    }
-
-    void Assembler::vpaddd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
-    void Assembler::vpsubd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
+    void Assembler::vpaddd (Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
     void Assembler::vpmulld(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
     void Assembler::vpsubw (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
     void Assembler::vpmullw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
 
-    void Assembler::vpand (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
-    void Assembler::vpor  (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
-    void Assembler::vpxor (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpand (Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
+    void Assembler::vpor  (Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
+    void Assembler::vpxor (Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0x66,0x0f,0xef, dst,x,y); }
     void Assembler::vpandn(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
 
-    void Assembler::vaddps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x58, dst,x,y); }
-    void Assembler::vsubps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5c, dst,x,y); }
-    void Assembler::vmulps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x59, dst,x,y); }
+    void Assembler::vaddps(Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0,0x0f,0x58, dst,x,y); }
+    void Assembler::vsubps(Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0,0x0f,0x5c, dst,x,y); }
+    void Assembler::vmulps(Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0,0x0f,0x59, dst,x,y); }
     void Assembler::vdivps(Ymm dst, Ymm x, Ymm        y) { this->op(0,0x0f,0x5e, dst,x,y); }
-    void Assembler::vminps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5d, dst,x,y); }
-    void Assembler::vmaxps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5f, dst,x,y); }
+    void Assembler::vminps(Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0,0x0f,0x5d, dst,x,y); }
+    void Assembler::vmaxps(Ymm dst, Ymm x, YmmLabelOrStack y) { this->op(0,0x0f,0x5f, dst,x,y); }
 
     void Assembler::vfmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x98, dst,x,y); }
     void Assembler::vfmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
@@ -1844,6 +1842,16 @@ namespace skvm {
         return { (int)this->size(), Label::NotYetSet, {} };
     }
 
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, int off) {
+        VEX v = vex(0, dst>>3, 0, rsp>>3/*i.e. 0*/,
+                    map, x, /*ymm?*/1, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(mod(off), dst&7, rsp/*use SIB*/));
+        this->byte(sib(ONE, rsp/*no index*/, rsp));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
+
     int Assembler::disp19(Label* l) {
         SkASSERT(l->kind == Label::NotYetSet ||
                  l->kind == Label::ARMDisp19);
@@ -1874,9 +1882,22 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel y) {
-        y.label ? this->op(prefix,map,opcode,dst,x, y.label)
-                : this->op(prefix,map,opcode,dst,x, y.ymm  );
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
+        VEX v = vex(W, dst>>3, 0, y>>3,
+                    map, x, 1/*ymm, not xmm*/, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Direct, dst&7, y&7));
+    }
+
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmLabelOrStack y) {
+        if (y.off >= 0) {
+            this->op(prefix,map,opcode,dst,x, y.off);
+        } else if (y.label) {
+            this->op(prefix,map,opcode,dst,x, y.label);
+        } else {
+            this->op(prefix,map,opcode,dst,x, y.ymm  );
+        }
     }
 
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
@@ -2937,6 +2958,19 @@ namespace skvm {
         }
     }
 
+    using OpBitVector = std::bitset<(int)Op::op_count>;
+    static OpBitVector stack_use_ops() {
+        static std::unique_ptr<OpBitVector> ops;
+        if (ops == nullptr) {
+            ops = std::make_unique<OpBitVector>();
+            for (auto op : {Op::add_f32, Op::sub_f32, Op::mul_f32, Op::add_i32, Op::sub_i32,
+                            Op::bit_and, Op::bit_or, Op::bit_xor}) {
+                ops->set((int)op);
+            }
+        }
+        return *ops;
+    }
+
 #if defined(SKVM_JIT)
 
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
@@ -2944,6 +2978,7 @@ namespace skvm {
                       Assembler* a) const {
         using A = Assembler;
         const bool try_hoisting = mode != JITMode::RegisterNoHoist;
+        const OpBitVector& stack_ops = stack_use_ops();
 
         auto debug_dump = [&] {
         #if 0
@@ -3049,7 +3084,7 @@ namespace skvm {
                     }
                 };
                 if (x != NA                    ) { load_from_stack(x); }
-                if (y != NA && y != x          ) { load_from_stack(y); }
+                if (y != NA && y != x && !stack_ops[(int)op]) { load_from_stack(y); }
                 if (z != NA && z != x && z != y) { load_from_stack(z); }
             }
 
@@ -3114,6 +3149,13 @@ namespace skvm {
                     }
                 }
                 return r[id];
+            };
+
+            auto stackOrReg = [&](Val a, Val b) -> A::YmmLabelOrStack {
+                if (stack_only && a != b) {
+                    return b*K*4;
+                }
+                return r[b];
             };
 
             // Because we use the same logic to pick an arbitrary dst and to pick tmp,
@@ -3240,9 +3282,9 @@ namespace skvm {
                                 else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
-                case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
-                case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
-                case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
+                case Op::add_f32: a->vaddps(dst(), r[x], stackOrReg(x, y)); break;
+                case Op::sub_f32: a->vsubps(dst(), r[x], stackOrReg(x, y)); break;
+                case Op::mul_f32: a->vmulps(dst(), r[x], stackOrReg(x, y)); break;
                 case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
                 case Op::min_f32: a->vminps(dst(), r[y], r[x]); break;  // Order matters,
                 case Op::max_f32: a->vmaxps(dst(), r[y], r[x]); break;  // see test SkVM_min_max.
@@ -3282,17 +3324,17 @@ namespace skvm {
                 case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy].label); break;
                 case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy].label); break;
 
-                case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
-                case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
+                case Op::add_i32: a->vpaddd (dst(), r[x], stackOrReg(x, y)); break;
+                case Op::sub_i32: a->vpsubd (dst(), r[x], stackOrReg(x, y)); break;
                 case Op::mul_i32: a->vpmulld(dst(), r[x], r[y]); break;
 
                 case Op::sub_i16x2: a->vpsubw (dst(), r[x], r[y]); break;
                 case Op::mul_i16x2: a->vpmullw(dst(), r[x], r[y]); break;
                 case Op::shr_i16x2: a->vpsrlw (dst(), r[x], immy); break;
 
-                case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
-                case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
-                case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
+                case Op::bit_and  : a->vpand (dst(), r[x], stackOrReg(x, y)); break;
+                case Op::bit_or   : a->vpor  (dst(), r[x], stackOrReg(x, y)); break;
+                case Op::bit_xor  : a->vpxor (dst(), r[x], stackOrReg(x, y)); break;
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // Notice, y then x.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
@@ -3587,7 +3629,7 @@ namespace skvm {
         // then again without if that fails (lower register pressure).
         JITMode mode = JITMode::Register;
         bool ok = false;
-        for (JITMode m : {JITMode::Register, JITMode::RegisterNoHoist, JITMode::Stack}) {
+        for (JITMode m : {/*JITMode::Register, JITMode::RegisterNoHoist,*/ JITMode::Stack}) {
             if (this->jit(instructions, m, &a)) {
                 ok = true;
                 mode = m;
