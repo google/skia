@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46a46d95_3148be25",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-10T15:21:28Z",
+      "side": 1,
+      "message": "Nit: formatChannelMask",
+      "range": {
+        "startLine": 288,
+        "startChar": 13,
+        "endLine": 288,
+        "endChar": 29
+      },
+      "revId": "db8e455fcf4c4dbf00b19b3e4b47d92ed34e345f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
