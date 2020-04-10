@@ -9,6 +9,7 @@
 #define GrStrikeCache_DEFINED
 
 #include "include/private/SkTHash.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
@@ -36,13 +37,15 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                             GrMaskFormat expectedMaskFormat,
-                                             bool needsPadding,
-                                             GrResourceProvider*,
-                                             GrDeferredUploadTarget*,
-                                             GrAtlasManager*,
-                                             GrGlyph*);
+    static GrDrawOpAtlas::ErrorCode AddGlyphToAtlas1(const SkGlyph&,
+                                                     GrMaskFormat expectedMaskFormat,
+                                                     bool needsPadding,
+                                                     GrResourceProvider*,
+                                                     GrDeferredUploadTarget*,
+                                                     GrAtlasManager*,
+                                                     GrGlyph*);
+
+    uint32_t uniqueID() const { return 0; }
 
 private:
     struct HashTraits {
@@ -74,7 +77,7 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
+    sk_sp<GrTextStrike> findOrCreateStrike(const SkDescriptor& desc) {
         if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
             return *cached;
         }
