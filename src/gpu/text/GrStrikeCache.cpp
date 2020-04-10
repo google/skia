@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/text/GrStrikeCache.h"
+
 #include "src/codec/SkMasks.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoMalloc.h"
@@ -14,7 +16,6 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"
 #include "src/gpu/text/GrAtlasManager.h"
-#include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::~GrStrikeCache() {
     this->freeAll();
@@ -138,7 +139,7 @@ static void get_packed_glyph_image(
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
+GrDrawOpAtlas::ErrorCode GrTextStrike::AddGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrMaskFormat expectedMaskFormat,
                                                        bool needsPadding,
                                                        GrResourceProvider* resourceProvider,
@@ -146,7 +147,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                        GrAtlasManager* fullAtlasManager,
                                                        GrGlyph* grGlyph) {
     SkASSERT(grGlyph != nullptr);
-    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
+//    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
     SkASSERT(skGlyph.image() != nullptr);
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
