@@ -57,10 +57,6 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         fragBuilder->onAfterChildProcEmitCode();
     }
 
-    // If the fragment processor is invoked with overridden coordinates, it must *always* be invoked
-    // with overridden coords.
-    SkASSERT(childProc.isSampledWithExplicitCoords() == !skslCoords.empty());
-
     // Produce a string containing the call to the helper function
     SkString result = SkStringPrintf("%s(%s", fFunctionNames[childIndex].c_str(),
                                               inputColor ? inputColor : "half4(1)");
@@ -69,6 +65,43 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
     }
     result.append(")");
     return result;
+}
+
+SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
+                                                        EmitArgs& args,
+                                                        SkSL::String skslMatrix) {
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    while (childIndex >= (int) fFunctionNames.size()) {
+        fFunctionNames.emplace_back();
+    }
+
+    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
+
+    // Emit the child's helper function if this is the first time we've seen a call
+    if (fFunctionNames[childIndex].size() == 0) {
+        fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
+
+        TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
+        TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
+
+        EmitArgs childArgs(fragBuilder,
+                           args.fUniformHandler,
+                           args.fShaderCaps,
+                           childProc,
+                           "_output",
+                           "_input",
+                           coordVars,
+                           textureSamplers);
+        fFunctionNames[childIndex] =
+                fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
+
+        fragBuilder->onAfterChildProcEmitCode();
+    }
+
+    // Produce a string containing the call to the helper function
+    return SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(),
+                                        inputColor ? inputColor : "half4(1)",
+                                        skslMatrix.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////

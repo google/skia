@@ -57,6 +57,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     this->emitAndInstallPrimProc(&inputColor, &inputCoverage);
     this->emitAndInstallFragProcs(&inputColor, &inputCoverage);
     this->emitAndInstallXferProc(inputColor, inputCoverage);
+    fGeometryProcessor->emitTransformCode(&fVS, this->uniformHandler());
 
     return this->checkSamplerCounts();
 }

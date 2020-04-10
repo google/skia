@@ -26,7 +26,8 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                    bicubicEffect.sampleMatrix());
 
     /*
      * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
