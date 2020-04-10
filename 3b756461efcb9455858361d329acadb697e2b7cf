@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "b8a3a2d9_3f467659",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T13:37:09Z",
+      "side": 1,
+      "message": "The last proposal doesn\u0027t seem terrible to me. Maybe try it and see if it\u0027s an improvement? I wouldn\u0027t worry about virtual call overhead for this.",
+      "parentUuid": "82ffb6da_0c7bd1f9",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aa36db2_34759061",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 10
