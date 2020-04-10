@@ -299,10 +299,6 @@ public:
 
     void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
-    void callFinishedProcs() {
-        fFinishedProcs.reset();
-    }
-
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
 private:

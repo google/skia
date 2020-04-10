@@ -312,20 +312,19 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
+bool GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
+                                  GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fCurrentCmdBuffer);
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
     if (!fCurrentCmdBuffer->hasWork() && kForce_SyncQueue != sync &&
         !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
-        // We may have added finished procs during the flush call. Since there is no actual work
-        // we are not submitting the command buffer and may never come back around to submit it.
-        // Thus we call all current finished procs manually, since the work has technically
-        // finished.
-        fCurrentCmdBuffer->callFinishedProcs();
         SkASSERT(fDrawables.empty());
         fResourceProvider.checkCommandBuffers();
+        if (finishedProc) {
+            fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
+        }
         return true;
     }
 
@@ -337,6 +336,11 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     if (didSubmit && sync == kForce_SyncQueue) {
         fCurrentCmdBuffer->forceSync(this);
+    }
+
+    if (finishedProc) {
+        // Make sure this is called after closing the current command pool
+        fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
     }
 
     // We must delete any drawables that had to wait until submit to destroy.
@@ -2095,16 +2099,16 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
                                        barrier);
 }
 
-void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) {
-    SkASSERT(numProxies >= 0);
-    SkASSERT(!numProxies || proxies);
+bool GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
+                            SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
+                            const GrPrepareForExternalIORequests& externalRequests) {
+    SkASSERT(n >= 0);
+    SkASSERT(!n || proxies);
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
-    if (numProxies && access == SkSurface::BackendSurfaceAccess::kPresent) {
+    if (n && access == SkSurface::BackendSurfaceAccess::kPresent) {
         GrVkImage* image;
-        for (int i = 0; i < numProxies; ++i) {
+        for (int i = 0; i < n; ++i) {
             SkASSERT(proxies[i]->isInstantiated());
             if (GrTexture* tex = proxies[i]->peekTexture()) {
                 image = static_cast<GrVkTexture*>(tex);
@@ -2166,19 +2170,13 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndExternalIO(
             vkRT->prepareForExternal(this);
         }
     }
-}
 
-void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                              GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
-}
-
-bool GrVkGpu::onSubmitToGpu(bool syncCpu) {
-    if (syncCpu) {
-        return this->submitCommandBuffer(kForce_SyncQueue);
+    if (info.fFlags & kSyncCpu_GrFlushFlag) {
+        return this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc,
+                                         info.fFinishedContext);
     } else {
-        return this->submitCommandBuffer(kSkip_SyncQueue);
+        return this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc,
+                                         info.fFinishedContext);
     }
 }
 

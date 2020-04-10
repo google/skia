@@ -646,13 +646,16 @@ void GrGpu::validateStagingBuffers() const {
 }
 #endif
 
-void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
-                             int numProxies,
-                             SkSurface::BackendSurfaceAccess access,
-                             const GrFlushInfo& info,
-                             const GrPrepareForExternalIORequests& externalRequests) {
+GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
+                                         int n,
+                                         SkSurface::BackendSurfaceAccess access,
+                                         const GrFlushInfo& info,
+                                         const GrPrepareForExternalIORequests& externalRequests) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
+#ifdef SK_DEBUG
+    this->validateStagingBuffers();
+#endif
+    this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores(
@@ -675,30 +678,21 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
         }
     }
 
-    if (info.fFinishedProc) {
-        this->addFinishedProc(info.fFinishedProc, info.fFinishedContext);
-    }
-    this->prepareSurfacesForBackendAccessAndExternalIO(proxies, numProxies, access,
-                                                       externalRequests);
-}
-
-bool GrGpu::submitToGpu(bool syncCpu) {
-    this->stats()->incNumSubmitToGpus();
-
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
     this->unmapStagingBuffers();
 
-    bool submitted = this->onSubmitToGpu(syncCpu);
+    if (!this->onFinishFlush(proxies, n, access, info, externalRequests)) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+
 
     // Move all active staging buffers to the busy list.
-    // TODO: this should probably be handled inside of the onSubmitToGpu by the backends.
     while (GrStagingBuffer* buffer = fActiveStagingBuffers.head()) {
         fActiveStagingBuffers.remove(buffer);
         fBusyStagingBuffers.addToTail(buffer);
     }
-    return submitted;
+
+    return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
+                                            : GrSemaphoresSubmitted::kNo;
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
