@@ -13,6 +13,7 @@
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
+#include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
@@ -418,8 +419,19 @@ sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType 
 
 GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
-    // TODO
-    return nullptr;
+    SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
+    SkASSERT(width >= rt->width());
+    SkASSERT(height >= rt->height());
+
+    const GrD3DCaps::StencilFormat& sFmt = this->d3dCaps().preferredStencilFormat();
+
+    GrD3DStencilAttachment* stencil(GrD3DStencilAttachment::Make(this,
+                                                                 width,
+                                                                 height,
+                                                                 numStencilSamples,
+                                                                 sFmt));
+    fStats.incStencilAttachmentCreates();
+    return stencil;
 }
 
 bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
