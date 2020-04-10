@@ -536,7 +536,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		d["os"], ok = map[string]string{
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
-			"Debian9":  OLD_OS_LINUX_GCE,
+			"Debian9":  DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian10": DEFAULT_OS_LINUX_GCE,
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",

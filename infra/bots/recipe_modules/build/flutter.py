@@ -4,10 +4,19 @@
 
 from . import util
 
+IMAGES = {
+    # Used to build Flutter_Android in Debian9, since the underlying build
+    # scripts require jdk8.
+    'debian9': (
+        'gcr.io/skia-public/debian9@sha256:'
+        '4d33f9b0174a0afe4264ca223aa03ba41137957d342cb8a0a4b863f4fb85f5c1'),
+}
+
 def compile_fn(api, checkout_root, out_dir):
   flutter_dir   = checkout_root.join('src')
   configuration = api.vars.builder_cfg.get('configuration').lower()
   extra_tokens = api.vars.extra_tokens
+  builder_name = api.vars.builder_name
 
   with api.context(cwd=flutter_dir):
     # Setup GN args.
