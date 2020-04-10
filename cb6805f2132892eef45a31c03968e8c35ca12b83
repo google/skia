@@ -22,6 +22,30 @@
       "revId": "cb6805f2132892eef45a31c03968e8c35ca12b83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f88432_fb7df4a0",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T15:31:47Z",
+      "side": 1,
+      "message": "Ah good point.",
+      "parentUuid": "8c6bc839_995a1a7e",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 65
+      },
+      "revId": "cb6805f2132892eef45a31c03968e8c35ca12b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
