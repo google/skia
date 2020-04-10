@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "542e2316_9757df86",
+        "filename": "gm/sample_matrix_constant.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T19:18:56Z",
+      "side": 1,
+      "message": "minor, but can you not just do\n\nrtCtx-\u003edrawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), bounds);\n\n?\n\nJust to avoid adding more dependencies on this odd ball testing method.",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f2aa81b_29e5acce",
+        "filename": "gm/sample_matrix_variable.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T19:18:56Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f4de59a_b1d6cd25",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T19:18:56Z",
+      "side": 1,
+      "message": "unindent?",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 62
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04ca742f_66abbc73",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T19:18:56Z",
+      "side": 1,
+      "message": "Hopefully this helps me understand the bigger picture - why do we apply _matrix here in this case in texture effect but no other effect uses it? Is that related to the ensureCoords2D changes?",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 17
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0facb0a0_2afe11f8",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T19:18:56Z",
+      "side": 1,
+      "message": "not used?",
+      "range": {
+        "startLine": 75,
+        "startChar": 79,
+        "endLine": 75,
+        "endChar": 85
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
