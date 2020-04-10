@@ -82,12 +82,15 @@ namespace skvm {
             SkSTArray<1, int>                        references;
         };
 
-        struct YmmOrLabel {
-            Ymm    ymm   = ymm0;
-            Label* label = nullptr;
+        struct YmmLabelOrStack {
+            Ymm    ymm    = ymm0;
+            Label* label  = nullptr;
+            int    off = -1;
 
-            /*implicit*/ YmmOrLabel(Ymm    y) : ymm  (y) { SkASSERT(!label); }
-            /*implicit*/ YmmOrLabel(Label* l) : label(l) { SkASSERT( label); }
+
+            /*implicit*/ YmmLabelOrStack(Ymm    y) : ymm  (y) { SkASSERT(!label && off == -1); }
+            /*implicit*/ YmmLabelOrStack(Label* l) : label(l) { SkASSERT( label && off == -1); }
+            /*implicit*/ YmmLabelOrStack(int s)    : off  (s) { SkASSERT(!label && off >=  0); }
         };
 
         // All dst = x op y.
@@ -102,7 +105,7 @@ namespace skvm {
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
 
-        using DstEqXOpYOrLabel = void(Ymm dst, Ymm x, YmmOrLabel y);
+        using DstEqXOpYOrLabel = void(Ymm dst, Ymm x, YmmLabelOrStack y);
         DstEqXOpYOrLabel vpand, vpor, vpxor,
                          vpaddd, vpsubd,
                          vaddps, vsubps, vmulps, vminps, vmaxps;
@@ -267,8 +270,9 @@ namespace skvm {
         void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
 
         // dst = op(x,label) or op(label)
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, int slot);
         void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmLabelOrStack);
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
@@ -342,6 +346,7 @@ namespace skvm {
     #define M(op) op,
         SKVM_OPS(M)
     #undef M
+        op_count
     };
 
     static inline bool has_side_effect(Op op) {
