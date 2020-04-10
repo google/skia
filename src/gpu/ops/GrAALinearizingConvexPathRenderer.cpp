@@ -99,7 +99,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
         if (localCoordsMatrix) {
             localCoordsMatrix->mapPoints(&lc, &tess.point(i), 1);
         }
-        verts.write(tess.point(i), GrVertexWriter::If(localCoordsMatrix, lc), color,
+        verts.write(tess.point(i), color, GrVertexWriter::If(localCoordsMatrix, lc),
                     tess.coverage(i));
     }
 
