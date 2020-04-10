@@ -360,9 +360,11 @@ public:
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
-    GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*[], int n,
-                                      SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
-                                      const GrPrepareForExternalIORequests&);
+    void executeFlushInfo(GrSurfaceProxy*[], int numProxies,
+                          SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
+                          const GrPrepareForExternalIORequests&);
+
+    bool submitToGpu(bool syncCpu);
 
     virtual void submit(GrOpsRenderPass*) = 0;
 
@@ -433,8 +435,8 @@ public:
         int numFailedDraws() const { return fNumFailedDraws; }
         void incNumFailedDraws() { ++fNumFailedDraws; }
 
-        int numFinishFlushes() const { return fNumFinishFlushes; }
-        void incNumFinishFlushes() { ++fNumFinishFlushes; }
+        int numSubmitToGpus() const { return fNumSubmitToGpus; }
+        void incNumSubmitToGpus() { ++fNumSubmitToGpus; }
 
         int numScratchTexturesReused() const { return fNumScratchTexturesReused; }
         void incNumScratchTexturesReused() { ++fNumScratchTexturesReused; }
@@ -482,7 +484,7 @@ public:
         int fStencilAttachmentCreates = 0;
         int fNumDraws = 0;
         int fNumFailedDraws = 0;
-        int fNumFinishFlushes = 0;
+        int fNumSubmitToGpus = 0;
         int fNumScratchTexturesReused = 0;
 
         int fNumInlineCompilationFailures = 0;
@@ -509,7 +511,7 @@ public:
         void incStencilAttachmentCreates() {}
         void incNumDraws() {}
         void incNumFailedDraws() {}
-        void incNumFinishFlushes() {}
+        void incNumSubmitToGpus() {}
         void incNumInlineCompilationFailures() {}
         void incNumInlineProgramCacheResult(ProgramCacheResult stat) {}
         void incNumPreCompilationFailures() {}
@@ -805,8 +807,14 @@ private:
     virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
 
-    virtual bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                               const GrFlushInfo&, const GrPrepareForExternalIORequests&) = 0;
+    virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
+                                 GrGpuFinishedContext finishedContext) = 0;
+
+    virtual void prepareSurfacesForBackendAccessAndExternalIO(
+            GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
+            const GrPrepareForExternalIORequests& externalRequests) {}
+
+    virtual bool onSubmitToGpu(bool syncCpu) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
