@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eee36b21_66e63912",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-10T14:56:35Z",
+      "side": 1,
+      "message": "What was the need to make this a pointer? Looks like this class is still always the ones who deletes the pointer so I\u0027m not sure why it can\u0027t be a unique_ptr.",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 51
+      },
+      "revId": "a6949ff8bd1cc9e78cc90dbd48d5454b96bbf7c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
