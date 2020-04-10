@@ -29,7 +29,7 @@ void GrAtlasManager::freeAll() {
 
 bool GrAtlasManager::hasGlyph(GrMaskFormat format, GrGlyph* glyph) {
     SkASSERT(glyph);
-    return this->getAtlas(format)->hasID(glyph->fAtlasLocator);
+    return this->getAtlas(format)->hasID(glyph->fAtlasLocator.plotLocator());
 }
 
 // add to texture atlas that matches this format
@@ -38,8 +38,8 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
                                                     GrMaskFormat format,
                                                     int width, int height, const void* image,
                                                     GrDrawOpAtlas::AtlasLocator* atlasLocator) {
-    return this->getAtlas(format)->addToAtlas(
-            resourceProvider, target, width, height, image, atlasLocator);
+    return this->getAtlas(format)->addToAtlas(resourceProvider, target, width, height, image,
+                                              atlasLocator);
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
