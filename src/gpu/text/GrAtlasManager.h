@@ -56,7 +56,6 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(GrMaskFormat, GrGlyph*);
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.

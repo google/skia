@@ -72,7 +72,6 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
-
 static SkRect dest_rect(const SkGlyph& g, SkPoint origin) {
     return SkRect::MakeXYWH(
             SkIntToScalar(g.left()) + origin.x(),
@@ -799,14 +798,20 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     SkASSERT(fSubRun->isPrepared());
     const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-    if (!fMetricsAndImages.isValid()
-            || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
+    if (!fMetricsAndImages.isValid() ||
+            fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
         fMetricsAndImages.init(strikeSpec);
     }
+
+    SkTDArray<GrAtlasManager::Bar*> barArray;
+    barArray.reserve(end-begin);
 
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     GrTextStrike* grStrike = fSubRun->strike();
+
+    fStrikeCache->resolveUniqueID(grStrike);
+
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
@@ -814,23 +819,27 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
         SkASSERT(grGlyph);
 
         if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
-            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->fPackedID);
+            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->packedID());
             if (skGlyph.image() == nullptr) {
                 return {false, 0};
             }
-            code = grStrike->addGlyphToAtlas(skGlyph, fSubRun->maskFormat(),
-                                             fSubRun->needsPadding(), fResourceProvider,
-                                             fUploadTarget, fFullAtlasManager, grGlyph);
+            code = GrTextStrike::AddGlyphToAtlas1(skGlyph, fSubRun->maskFormat(),
+                                                  fSubRun->needsPadding(), fResourceProvider,
+                                                  fUploadTarget, fFullAtlasManager, grGlyph);
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 break;
             }
         }
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                fSubRun->bulkUseToken(),  fSubRun->maskFormat(), grGlyph,
+                fSubRun->bulkUseToken(), fSubRun->maskFormat(), grGlyph,
                 tokenTracker->nextDrawToken());
+
+        SkASSERT(fFullAtlasManager->hasID(fSubRun->maskFormat(), bar->fAtlasLocator.plotLocator()));
+        barArray.push_back(bar);
     }
     int glyphsPlacedInAtlas = i - begin;
 
+    SkASSERT(glyphsPlacedInAtlas == barArray.size());
     // Update the quads with the new atlas coordinates.
     fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
 
