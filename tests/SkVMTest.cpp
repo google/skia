@@ -1910,19 +1910,38 @@ DEF_TEST(SkVM_approx_math, r) {
         b.storeF(inout, prog(b.loadF(inout)));
         b.done().eval(1, &value);
 
+        if (!SkScalarNearlyEqual(value, expected, tolerance)) {
+            SkDebugf("expected %g, actual %g\n", expected, value);
+        }
         REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
     };
 
-    // sine & cosine
+    // sine, cosine, tangent
     {
         constexpr float P = SK_ScalarPI;
         constexpr float tol = 0.002f;
-        for (float rad = -5*P; rad <= 5*P; rad += 0.1f) {
+        for (float rad = -5*P/5; rad <= 5*P/5; rad += 0.1f) {
             test(rad, sk_float_sin(rad), tol, [](skvm::F32 x) {
                 return approx_sin(x);
             });
             test(rad, sk_float_cos(rad), tol, [](skvm::F32 x) {
                 return approx_cos(x);
+            });
+        }
+
+        // Our tangent diverge more as we get near infinities (x near +- Pi/2),
+        // so bring in the domain a little.
+        float eps = 0.16f;
+        for (float rad = -P/2 + eps; rad <= P/2 - eps; rad += 0.1f) {
+            test(rad, sk_float_tan(rad), tol, [](skvm::F32 x) {
+                return approx_tan(x);
+            });
+            // try again with some multiples of P, to check our periodicity
+            test(rad, sk_float_tan(rad), tol, [=](skvm::F32 x) {
+                return approx_tan(x + 3*P);
+            });
+            test(rad, sk_float_tan(rad), tol, [=](skvm::F32 x) {
+                return approx_tan(x - 3*P);
             });
         }
     }
