@@ -654,6 +654,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
+        auto lastLine = (&line == &fLines.back());
         if (intersect.empty() && lineText.start != text.start) {
             continue;
         }
@@ -792,7 +793,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             return true;
         });
 
-        if (rectWidthStyle == RectWidthStyle::kMax) {
+        if (rectWidthStyle == RectWidthStyle::kMax && !lastLine) {
             // Align the very left/right box horizontally
             auto lineStart = line.offset().fX;
             auto lineEnd = line.offset().fX + line.width();

@@ -2538,6 +2538,42 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView38 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph38"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(16);
+        builder.pushStyle(text_style);
+        builder.addText(u"Atwater Peel Sherbrooke Bonaventure\nhi\nwassssup!");
+        auto paragraph = builder.Build();
+        paragraph->layout(width() / 2);
+        auto boxes = paragraph->getRectsForRange(0, 48, RectHeightStyle::kIncludeLineSpacingTop, RectWidthStyle::kMax);
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        for (auto& box : boxes) {
+            canvas->drawRect(box.rect, paint);
+        }
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+// Atwater Peel Sherbrooke Bonaventure\nhi\nwassssup!
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2575,3 +2611,4 @@ DEF_SAMPLE(return new ParagraphView34();)
 DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
+DEF_SAMPLE(return new ParagraphView38();)
