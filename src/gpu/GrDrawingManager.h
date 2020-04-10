@@ -182,13 +182,11 @@ private:
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
                             int* numRenderTasksExecuted);
 
-    bool flush(GrSurfaceProxy* proxies[],
-               int numProxies,
-               SkSurface::BackendSurfaceAccess access,
-               const GrFlushInfo&,
-               const GrPrepareForExternalIORequests&);
-
-    bool submitToGpu(bool syncToCpu);
+    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxies[],
+                                int numProxies,
+                                SkSurface::BackendSurfaceAccess access,
+                                const GrFlushInfo&,
+                                const GrPrepareForExternalIORequests&);
 
     SkDEBUGCODE(void validate() const);
 

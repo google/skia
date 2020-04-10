@@ -442,12 +442,8 @@ void GrDawnGpu::flush() {
     fDevice.Tick();
 }
 
-void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                                GrGpuFinishedContext finishedContext) {
-    // TODO: implement
-}
-
-bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
+bool GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+                              const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     this->flush();
     return true;
 }
@@ -520,7 +516,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
-    this->flush();
+    flush();
 
     const void *readPixelsPtr = nullptr;
     buf.MapReadAsync(callback, &readPixelsPtr);
