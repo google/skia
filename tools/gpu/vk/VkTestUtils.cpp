@@ -110,13 +110,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pMessage,
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-        // TODO: The current SDK is not ignoring the sampler parameter on VkDescriptorImageInfo
-        // for vkUpdateDescriptorSets when the descriptor is immutable. Thus it complains about
-        // having a sampler when using a multi-planer format that doesn't have a mutable view. When
-        // the next SDK update happens see if this has been fixed.
-        if (strstr(pMessage, "VUID-VkDescriptorImageInfo-sampler-0156")) {
-            return VK_FALSE;
-        }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
         print_backtrace();
         SkDEBUGFAIL("Vulkan debug layer error");
