@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "5e357c00_8a69e765",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-04-10T16:00:44Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/282849 (Appease VS 2019) should fix it.",
+      "parentUuid": "373301d4_24db8c66",
+      "range": {
+        "startLine": 284,
+        "startChar": 19,
+        "endLine": 284,
+        "endChar": 24
+      },
+      "revId": "c689e140836c3dbe45d3652422ff19da6852b557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c3dbf4d7_483750e7",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 6
