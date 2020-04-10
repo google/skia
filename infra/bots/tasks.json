@@ -410,14 +410,14 @@
       ],
       "trigger": "master"
     },
-    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES": {
+    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker": {
       "tasks": [
-        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES"
+        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker"
       ]
     },
-    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES": {
+    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker": {
       "tasks": [
-        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES"
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker"
       ]
     },
     "Build-Mac-Clang-arm-Debug-iOS": {
@@ -9521,8 +9521,12 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES": {
+    "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker": {
       "caches": [
+        {
+          "name": "docker",
+          "path": "cache/docker"
+        },
         {
           "name": "vpython",
           "path": "cache/vpython"
@@ -9561,7 +9565,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9570,9 +9574,10 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "machine_type:n1-highcpu-64",
+        "machine_type:n1-standard-16",
         "os:Debian-10.3",
-        "pool:Skia"
+        "pool:Skia",
+        "docker_installed:true"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9596,8 +9601,12 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES": {
+    "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker": {
       "caches": [
+        {
+          "name": "docker",
+          "path": "cache/docker"
+        },
         {
           "name": "vpython",
           "path": "cache/vpython"
@@ -9636,7 +9645,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Chromebook_GLES\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -9645,9 +9654,10 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "machine_type:n1-highcpu-64",
+        "machine_type:n1-standard-16",
         "os:Debian-10.3",
-        "pool:Skia"
+        "pool:Skia",
+        "docker_installed:true"
       ],
       "env_prefixes": {
         "PATH": [
@@ -19103,7 +19113,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -31994,7 +32004,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -32061,7 +32071,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
+        "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
