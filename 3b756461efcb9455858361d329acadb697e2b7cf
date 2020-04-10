@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "82ffb6da_0c7bd1f9",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-10T13:07:39Z",
+      "side": 1,
+      "message": "Okay so think about this last a bunch last night, I don\u0027t think there is a good way to split this out for the purpose of sharing code. What makes it not worth doing is the fact that flush and submit are separated. We want to pass in the finished procs during the flush call (cause the caller generally wants to know when work on a specific surface is done). But at that time we don\u0027t yet if we\u0027ll force a sync or not. So each backend is going to need to insert/hold on to the finish procs during flush and insert backend specific fences if needed. I agree as of now GL and Metal do this in a very similar way, but I expect D3D to be closer to Vulkan and no idea about Dawn. It seems weird to be to have a base class implementation that still must call a virtual and on top of that is only used by a subset of the backends.\n\nNow if we think for clarity sake it is better to have GrGpu::finishFlush call multiple virtuals, like addFinishedProc(), prepareSurfacesForExternalIO(), etc. instead of just calling one \"handle everything in the GrFlushInfo\" virtual that is worth considering. Personally I lean towards just having the one virtual call, but if others like splitting it into multiple I\u0027m not against that either. What do you think?",
+      "parentUuid": "e5dd55b4_f8a87a6b",
+      "revId": "3b756461efcb9455858361d329acadb697e2b7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aa36db2_34759061",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 10
