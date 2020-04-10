@@ -2538,6 +2538,140 @@ private:
     typedef Sample INHERITED;
 };
 
+/*
+ *                  child: const Text.rich(
+
+                      children: <InlineSpan>[
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Checkbox(value: true, onChanged: null),
+                        ),
+                        WidgetSpan(
+                          child: Checkbox(value: false, onChanged: null),
+                        ),
+                        TextSpan(text: 'He ', style: TextStyle(fontSize: 20)),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: SizedBox(
+                            width: 50.0,
+                            height: 55.0,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Color(0xffffff00),
+                              ),
+                              child: Center(
+                                child:SizedBox(
+                                  width: 10.0,
+                                  height: 15.0,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xffff0000),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        TextSpan(text: 'hello world! sieze the day!'),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Checkbox(value: false, onChanged: null),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Checkbox(value: true, onChanged: null),
+                          ),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Checkbox(value: false, onChanged: null),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Checkbox(value: true, onChanged: null),
+                          ),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Text('embedded'),
+                        ),
+                        TextSpan(text: 'ref'),
+                      ],
+                    ),
+                    textDirection: TextDirection.ltr,
+                  ),
+
+ */
+
+class ParagraphView38 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph38"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(16);
+        builder.pushStyle(text_style);
+        builder.addText("C ");
+        builder.pop();
+
+        PlaceholderStyle placeholder1(48, 48, PlaceholderAlignment::kMiddle, TextBaseline::kAlphabetic, 48);
+        builder.addPlaceholder(placeholder1);
+        PlaceholderStyle placeholder2(48, 48, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 48);
+        builder.addPlaceholder(placeholder2);
+
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText("He ");
+        builder.pop();
+
+        PlaceholderStyle placeholder3(50, 55, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 55);
+        builder.addPlaceholder(placeholder3);
+
+        text_style.setFontSize(16);
+        builder.pushStyle(text_style);
+        builder.addText("hello world! sieze the day!");
+        builder.pop();
+
+        builder.addPlaceholder(placeholder1);
+        PlaceholderStyle placeholder4(20, 20, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 20);
+        builder.addPlaceholder(placeholder4);
+        builder.addPlaceholder(placeholder1);
+        builder.addPlaceholder(placeholder4);
+        PlaceholderStyle placeholder5(112, 14, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 14);
+        builder.addPlaceholder(placeholder5);
+
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+// Atwater Peel Sherbrooke Bonaventure\nhi\nwassssup!
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)
 DEF_SAMPLE(return new ParagraphView2();)
@@ -2575,3 +2709,4 @@ DEF_SAMPLE(return new ParagraphView34();)
 DEF_SAMPLE(return new ParagraphView35();)
 DEF_SAMPLE(return new ParagraphView36();)
 DEF_SAMPLE(return new ParagraphView37();)
+DEF_SAMPLE(return new ParagraphView38();)

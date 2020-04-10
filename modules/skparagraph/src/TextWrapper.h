@@ -34,9 +34,9 @@ class TextWrapper {
     };
     class TextStretch {
     public:
-        TextStretch() : fStart(), fEnd(), fWidth(0), fWidthWithGhostSpaces(0) {}
+        TextStretch() : fStart(), fEnd(), fWidth(0), fWidthWithGhostSpaces(0), fTextWidth(0) {}
         TextStretch(Cluster* s, Cluster* e, bool forceStrut)
-                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
+                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0), fTextWidth(0) {
             for (auto c = s; c <= e; ++c) {
                 if (c->run() != nullptr) {
                     fMetrics.add(c->run());
@@ -45,6 +45,7 @@ class TextWrapper {
         }
 
         inline SkScalar width() const { return fWidth; }
+        inline SkScalar textWidth() const { return fTextWidth; }
         SkScalar widthWithGhostSpaces() const { return fWidthWithGhostSpaces; }
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
@@ -62,6 +63,7 @@ class TextWrapper {
             fMetrics.add(stretch.fMetrics);
             fEnd = stretch.fEnd;
             fWidth += stretch.fWidth;
+            fTextWidth += stretch.fTextWidth;
             stretch.clean();
         }
 
@@ -77,6 +79,7 @@ class TextWrapper {
             fEnd = ClusterPos(cluster, cluster->endPos());
             if (!cluster->run()->isPlaceholder()) {
                 fMetrics.add(cluster->run());
+                fTextWidth += cluster->width();
             }
             fWidth += cluster->width();
         }
@@ -95,6 +98,7 @@ class TextWrapper {
                 fMetrics.add(cluster->run());
             }
             fWidth = 0;
+            fTextWidth = 0;
         }
 
         void saveBreak() {
@@ -132,6 +136,7 @@ class TextWrapper {
             fStart.clean();
             fEnd.clean();
             fWidth = 0;
+            fTextWidth = 0;
             fMetrics.clean();
         }
 
@@ -142,6 +147,7 @@ class TextWrapper {
         InternalLineMetrics fMetrics;
         SkScalar fWidth;
         SkScalar fWidthWithGhostSpaces;
+        SkScalar fTextWidth; // Skipping placeholders
     };
 
 public:
@@ -160,6 +166,7 @@ public:
                                                   size_t endClip,
                                                   SkVector offset,
                                                   SkVector advance,
+                                                  SkScalar textWidth,
                                                   InternalLineMetrics metrics,
                                                   bool addEllipsis)>;
     void breakTextIntoLines(ParagraphImpl* parent,

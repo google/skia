@@ -214,7 +214,21 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
-    //SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
+    /*
+    SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
+    for (auto& ts : fTextStyles) {
+        SkDebugf("[%d:%d): ", ts.fRange.start, ts.fRange.end);
+        if (ts.fStyle.isPlaceholder()) {
+            SkDebugf("placeholder\n");
+        } else {
+            SkDebugf("%f\n", ts.fStyle.getFontSize());
+        }
+    }
+    for (auto& ph: fPlaceholders) {
+        SkDebugf("[%d:%d): %d %d %f %f %f\n", ph.fRange.start, ph.fRange.end,
+                 (int)ph.fStyle.fAlignment, (int)ph.fStyle.fBaseline, ph.fStyle.fWidth, ph.fStyle.fHeight, ph.fStyle.fBaselineOffset);
+    }
+    */
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -407,6 +421,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 size_t endPos,
                 SkVector offset,
                 SkVector advance,
+                SkScalar textWidth,
                 InternalLineMetrics metrics,
                 bool addEllipsis) {
                 // TODO: Take in account clipped edges
@@ -422,7 +437,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     }
                 }
 
-                fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
+                fLongestLine = std::max(fLongestLine, nearlyZero(textWidth) ? widthWithSpaces : textWidth);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
@@ -654,6 +669,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
+        auto lastLine = (&line == &fLines.back());
         if (intersect.empty() && lineText.start != text.start) {
             continue;
         }
@@ -706,6 +722,11 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         auto top = line.baseline();
                         clip.fTop = top + fStrutMetrics.ascent();
                         clip.fBottom = top + fStrutMetrics.descent();
+                    }
+                } else {
+                    if (run->fHeightMultiplier > 0) {
+                        // This is a special case when we do not need to take in account this height multiplier
+                        clip.fBottom = clip.fTop + clip.height() / run->fHeightMultiplier;
                     }
                 }
 
@@ -792,7 +813,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
             return true;
         });
 
-        if (rectWidthStyle == RectWidthStyle::kMax) {
+        if (rectWidthStyle == RectWidthStyle::kMax && !lastLine) {
             // Align the very left/right box horizontally
             auto lineStart = line.offset().fX;
             auto lineEnd = line.offset().fX + line.width();
