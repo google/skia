@@ -46,6 +46,30 @@
       "revId": "cb6805f2132892eef45a31c03968e8c35ca12b83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a9a6296_45c3a607",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-10T16:21:56Z",
+      "side": 1,
+      "message": "So I tried to create a test case that would cover this. I learned that the AAConvexPathRenderer will grab almost all filled paths that this PR would grab with higher priority. The exception is convex paths with no known first direction, a rare odd case.\n\nThis PR already does not allow perspective for stroked paths, which is its major use case. So I think the simplest thing to do is just block this from taking perspective fill paths as well.",
+      "parentUuid": "08f88432_fb7df4a0",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 65
+      },
+      "revId": "cb6805f2132892eef45a31c03968e8c35ca12b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
