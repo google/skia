@@ -16,7 +16,6 @@ class SkMatrix;
 class SkPaint;
 class SkPath;
 class SkSVGRenderContext;
-class SkSVGValue;
 
 enum class SkSVGTag {
     kCircle,
@@ -50,7 +49,7 @@ public:
     bool asPaint(const SkSVGRenderContext&, SkPaint*) const;
     SkPath asPath(const SkSVGRenderContext&) const;
 
-    void setAttribute(SkSVGAttribute, const SkSVGValue&);
+    void setAttribute(SkSVGAttribute, const SkSVGAttributeValue&);
 
     void setClipPath(const SkSVGClip&);
     void setClipRule(const SkSVGFillRule&);
@@ -86,7 +85,7 @@ protected:
 
     virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
-    virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
+    virtual void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&);
 
     virtual bool hasChildren() const { return false; }
 

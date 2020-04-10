@@ -28,7 +28,7 @@ public:
     void setY(const SkSVGLength&);
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
 
     bool onPrepareToRender(SkSVGRenderContext*) const override;
     void onRender(const SkSVGRenderContext&) const override;

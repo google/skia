@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGRenderContext.h"
 #include "experimental/svg/model/SkSVGTransformableNode.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 
 SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
@@ -24,10 +23,10 @@ bool SkSVGTransformableNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     return this->INHERITED::onPrepareToRender(ctx);
 }
 
-void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kTransform:
-        if (const auto* transform = v.as<SkSVGTransformValue>()) {
+        if (const auto* transform = std::get_if<SkSVGTransformType>(&v)) {
             this->setTransform(*transform);
         }
         break;

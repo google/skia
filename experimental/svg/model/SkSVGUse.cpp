@@ -8,7 +8,6 @@
 #include "experimental/svg/model/SkSVGUse.h"
 
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 
 SkSVGUse::SkSVGUse() : INHERITED(SkSVGTag::kUse) {}
@@ -29,20 +28,20 @@ void SkSVGUse::setY(const SkSVGLength& y) {
     fY = y;
 }
 
-void SkSVGUse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGUse::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kHref:
-        if (const auto* href = v.as<SkSVGStringValue>()) {
+        if (const auto* href = std::get_if<SkSVGStringType>(&v)) {
             this->setHref(*href);
         }
         break;
     case SkSVGAttribute::kX:
-        if (const auto* x = v.as<SkSVGLengthValue>()) {
+        if (const auto* x = std::get_if<SkSVGLength>(&v)) {
             this->setX(*x);
         }
         break;
     case SkSVGAttribute::kY:
-        if (const auto* y = v.as<SkSVGLengthValue>()) {
+        if (const auto* y = std::get_if<SkSVGLength>(&v)) {
             this->setY(*y);
         }
         break;

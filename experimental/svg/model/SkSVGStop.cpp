@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGRenderContext.h"
 #include "experimental/svg/model/SkSVGStop.h"
-#include "experimental/svg/model/SkSVGValue.h"
 
 SkSVGStop::SkSVGStop() : INHERITED(SkSVGTag::kStop) {}
 
@@ -23,20 +22,20 @@ void SkSVGStop::setStopOpacity(const SkSVGNumberType& opacity) {
     fStopOpacity = SkTPin<SkScalar>(opacity, 0, 1);
 }
 
-void SkSVGStop::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGStop::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kOffset:
-        if (const auto* offset = v.as<SkSVGLengthValue>()) {
+        if (const auto* offset = std::get_if<SkSVGLength>(&v)) {
             this->setOffset(*offset);
         }
         break;
     case SkSVGAttribute::kStopColor:
-        if (const auto* color = v.as<SkSVGColorValue>()) {
+        if (const auto* color = std::get_if<SkSVGColorType>(&v)) {
             this->setStopColor(*color);
         }
         break;
     case SkSVGAttribute::kStopOpacity:
-        if (const auto* opacity = v.as<SkSVGNumberValue>()) {
+        if (const auto* opacity = std::get_if<SkSVGNumberType>(&v)) {
             this->setStopOpacity(*opacity);
         }
         break;

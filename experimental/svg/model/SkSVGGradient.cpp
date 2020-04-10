@@ -8,7 +8,6 @@
 #include "experimental/svg/model/SkSVGGradient.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
 #include "experimental/svg/model/SkSVGStop.h"
-#include "experimental/svg/model/SkSVGValue.h"
 
 void SkSVGGradient::setHref(const SkSVGStringType& href) {
     fHref = std::move(href);
@@ -22,20 +21,20 @@ void SkSVGGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
 
-void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kGradientTransform:
-        if (const auto* t = v.as<SkSVGTransformValue>()) {
+        if (const auto* t = std::get_if<SkSVGTransformType>(&v)) {
             this->setGradientTransform(*t);
         }
         break;
     case SkSVGAttribute::kHref:
-        if (const auto* href = v.as<SkSVGStringValue>()) {
+        if (const auto* href = std::get_if<SkSVGStringType>(&v)) {
             this->setHref(*href);
         }
         break;
     case SkSVGAttribute::kSpreadMethod:
-        if (const auto* spread = v.as<SkSVGSpreadMethodValue>()) {
+        if (const auto* spread = std::get_if<SkSVGSpreadMethod>(&v)) {
             this->setSpreadMethod(*spread);
         }
         break;

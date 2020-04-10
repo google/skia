@@ -7,7 +7,6 @@
 
 #include "experimental/svg/model/SkSVGCircle.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 
 SkSVGCircle::SkSVGCircle() : INHERITED(SkSVGTag::kCircle) {}
@@ -24,20 +23,20 @@ void SkSVGCircle::setR(const SkSVGLength& r) {
     fR = r;
 }
 
-void SkSVGCircle::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGCircle::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kCx:
-        if (const auto* cx = v.as<SkSVGLengthValue>()) {
+        if (const auto* cx = std::get_if<SkSVGLength>(&v)) {
             this->setCx(*cx);
         }
         break;
     case SkSVGAttribute::kCy:
-        if (const auto* cy = v.as<SkSVGLengthValue>()) {
+        if (const auto* cy = std::get_if<SkSVGLength>(&v)) {
             this->setCy(*cy);
         }
         break;
     case SkSVGAttribute::kR:
-        if (const auto* r = v.as<SkSVGLengthValue>()) {
+        if (const auto* r = std::get_if<SkSVGLength>(&v)) {
             this->setR(*r);
         }
         break;

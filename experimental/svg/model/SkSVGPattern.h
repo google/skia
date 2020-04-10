@@ -31,7 +31,7 @@ public:
 protected:
     SkSVGPattern();
 
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
 
     bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const override;
 

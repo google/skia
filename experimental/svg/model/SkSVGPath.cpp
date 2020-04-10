@@ -7,16 +7,15 @@
 
 #include "experimental/svg/model/SkSVGPath.h"
 #include "experimental/svg/model/SkSVGRenderContext.h"
-#include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 
 SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 
-void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
+void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGAttributeValue& v) {
     switch (attr) {
     case SkSVGAttribute::kD:
-        if (const auto* path = v.as<SkSVGPathValue>()) {
+        if (const auto* path = std::get_if<SkPath>(&v)) {
             this->setPath(*path);
         }
         break;
