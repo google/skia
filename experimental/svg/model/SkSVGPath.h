@@ -19,7 +19,7 @@ public:
     void setPath(const SkPath& path) { fPath = path; }
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPathFillType) const override;

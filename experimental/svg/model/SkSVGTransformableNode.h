@@ -22,7 +22,7 @@ protected:
 
     bool onPrepareToRender(SkSVGRenderContext*) const override;
 
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void mapToParent(SkPath*) const;
 

@@ -25,7 +25,7 @@ public:
     void setFy(const SkSVGLength&);
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                  const SkColor*, const SkScalar*, int count,

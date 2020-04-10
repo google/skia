@@ -29,7 +29,7 @@ public:
     void setStopOpacity(const SkSVGNumberType&);
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGAttributeValue&) override;
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
 private:
     SkSVGStop();
