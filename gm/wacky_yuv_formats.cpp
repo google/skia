@@ -255,6 +255,7 @@ bool YUVAPlanarConfig::getYUVAIndices(const uint32_t planeChannelMasks[],
         int plane = fLocations[i].fPlaneIdx;
         if (plane < 0) {
             indices[i].fIndex = -1;
+            indices[i].fChannel = SkColorChannel::kR;
         } else {
             indices[i].fIndex = plane;
             if (!ChannelIndexToChannel(planeChannelMasks[plane], fLocations[i].fChannelIdx,
