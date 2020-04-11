@@ -310,8 +310,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
-                          GrPrepareForExternalIORequests());
+    if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
+                              GrPrepareForExternalIORequests())) {
+        drawingManager->submitToGpu(false);
+    }
 
     // Validate that GrFPs work correctly without an input.
     auto renderTargetContext = GrRenderTargetContext::Make(
@@ -334,8 +336,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.addColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
-            drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  GrFlushInfo(), GrPrepareForExternalIORequests());
+            if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                      GrFlushInfo(), GrPrepareForExternalIORequests())) {
+                drawingManager->submitToGpu(false);
+            }
         }
     }
 
