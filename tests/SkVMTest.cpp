@@ -1904,18 +1904,19 @@ DEF_TEST(SkVM_approx_math, r) {
         compare(N, exps, expected);
     }
 
-    auto test = [r](float value, float expected, float tolerance, auto prog) {
+    auto test = [r](float arg, float expected, float tolerance, auto prog) {
         skvm::Builder b;
         skvm::Arg inout  = b.varying<float>();
         b.storeF(inout, prog(b.loadF(inout)));
-        b.done().eval(1, &value);
+        float actual = arg;
+        b.done().eval(1, &actual);
 
-        float err = std::abs(value - expected);
+        float err = std::abs(actual - expected);
 
         if (err > tolerance) {
-     //       SkDebugf("expected %g, actual %g\n", expected, value);
+            SkDebugf("arg %g, expected %g, actual %g\n", arg, expected, actual);
         }
-        REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
+     //   REPORTER_ASSERT(r, SkScalarNearlyEqual(value, expected, tolerance));
         return err;
     };
 
@@ -1949,8 +1950,17 @@ DEF_TEST(SkVM_approx_math, r) {
             });
         }
         if (0) {
-            SkDebugf("error %g\n", err);
+            SkDebugf("tan error %g\n", err);
         }
+
+        err = 0;
+        int n = 0;
+        for (float x = -3; x <= 3; x += 0.1f, n += 1) {
+            err += test(x, atan(x), tol, [](skvm::F32 x) {
+                return approx_atan(x);
+            });
+        }
+        SkDebugf("atan error %g, ave_err %g\n", err, err/n);
     }
 }
 

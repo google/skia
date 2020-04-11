@@ -977,6 +977,26 @@ namespace skvm {
         return x;
     }
 
+    /*  Split domain into 3 parts:
+     *      0... 1-K    poly approximation
+     *      1-K..1+K    sqrt
+     *      1+K...      poly(1/x)
+     *
+     */
+    F32 Builder::approx_atan(F32 x) {
+        auto approx_poly = [](F32 x) {
+            return poly(x*x, -1/11.0f, +1/9.0f, -1/7.0f, +1/5.0f, -1/3.0f, 1.0f) * x;
+        };
+
+        I32 neg = (x < 0.0f);
+        x = select(neg, -x, x);
+        x = select(x < 0.824f, approx_poly(x),
+            select(x < 1.2f  , sqrt(x) + (SK_ScalarPI/4 - 1)
+                             , SK_ScalarPI/2 - approx_poly(1/x)));
+        x = select(neg, -x, x);
+        return x;
+    }
+
     F32 Builder::min(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
