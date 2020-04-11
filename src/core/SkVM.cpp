@@ -977,6 +977,37 @@ namespace skvm {
         return x;
     }
 
+     // http://mathforum.org/library/drmath/view/54137.html
+     // referencing Handbook of Mathematical Functions,
+     //             by Milton Abramowitz and Irene Stegun
+     F32 Builder::approx_asin(F32 x) {
+         I32 neg = (x < 0.0f);
+         x = select(neg, -x, x);
+         x = SK_ScalarPI/2 - sqrt(1-x) * poly(x, -0.0187293f, 0.0742610f, -0.2121144f, 1.5707288f);
+         x = select(neg, -x, x);
+         return x;
+     }
+
+    /*  Use symmetry (atan is odd)
+     *  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
+     *  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
+     *      with 129 values of x,atan(x) for x:[0...1]
+     */
+    F32 Builder::approx_atan(F32 x) {
+        I32 neg = (x < 0.0f);
+        x = select(neg, -x, x);
+        I32 flip = (x > 1.0f);
+        x = select(flip, 1/x, x);
+        x = poly(x, 0.14130025741326729f,
+                   -0.34312835980675116f,
+                   -0.016172900528248768f,
+                    1.0037696976200385f,
+                   -0.00014758242182738969f);
+        x = select(flip, SK_ScalarPI/2 - x, x);
+        x = select(neg, -x, x);
+        return x;
+    }
+
     F32 Builder::min(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(std::min(X,Y)); }
         return {this, this->push(Op::min_f32, x.id, y.id)};
