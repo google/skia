@@ -221,7 +221,7 @@ void GrDrawingManager::freeGpuResources() {
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
+bool GrDrawingManager::flush2(GrSurfaceProxy* proxies[], int numProxies,
         SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
         const GrPrepareForExternalIORequests& externalRequests) {
     SkASSERT(numProxies >= 0);
@@ -395,6 +395,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
 #endif
 
     gpu->executeFlushInfo(proxies, numProxies, access, info, externalRequests);
+    //this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
@@ -411,12 +412,13 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     }
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
+    //this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
 
     return true;
 }
 
 bool GrDrawingManager::submitToGpu(bool syncToCpu) {
-    if (fFlushing || this->wasAbandoned()) {
+    if (/*fFlushing || */this->wasAbandoned()) {
         return false;
     }
 
@@ -533,8 +535,15 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     // TODO: It is important to upgrade the drawingmanager to just flushing the
     // portion of the DAG required by 'proxies' in order to restore some of the
     // semantics of this method.
-    bool didFlush = this->flush(proxies, numProxies, access, info,
+    bool didFlush = this->flush2(proxies, numProxies, access, info,
                                 GrPrepareForExternalIORequests());
+    bool submitted = false;
+    if (didFlush) {
+        submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
+      //  submitted = true;
+        SkASSERT(submitted);
+    }
+
     for (int i = 0; i < numProxies; ++i) {
         GrSurfaceProxy* proxy = proxies[i];
         if (!proxy->isInstantiated()) {
@@ -569,10 +578,6 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     SkDEBUGCODE(this->validate());
 
-    bool submitted = false;
-    if (didFlush) {
-        submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
-    }
 
     if (!submitted || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
@@ -929,7 +934,7 @@ void GrDrawingManager::flushIfNecessary() {
 
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
-        if (this->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
+        if (this->flush2(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
                         GrPrepareForExternalIORequests())) {
             this->submitToGpu(false);
         }

@@ -182,7 +182,7 @@ private:
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
                             int* numRenderTasksExecuted);
 
-    bool flush(GrSurfaceProxy* proxies[],
+    bool flush2(GrSurfaceProxy* proxies[],
                int numProxies,
                SkSurface::BackendSurfaceAccess access,
                const GrFlushInfo&,

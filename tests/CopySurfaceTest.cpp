@@ -186,6 +186,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                 ERRORF(reporter, "Expected dst %d,%d to contain "
                                                        "0x%08x copied from src location %d,%d. Got "
                                                        "0x%08x", x, y, s, sx, sy, r);
+                                                SkDebugf("sOrigin: %d, dOrigin: %d\n",
+                                                         sOrigin, dOrigin);
+                                                SkDebugf("sRenderable: %d, dRenderable: %d\n",
+                                                         sRenderable, dRenderable);
+                                                SkDebugf("srcRect: %d, %d, %d, %d\n",
+                                                         srcRect.fLeft, srcRect.fTop, srcRect.fRight, srcRect.fBottom);
+                                                SkDebugf("dstPoint: %d, %d\n",
+                                                         dstPoint.fX, dstPoint.fY);
+                                                SkDebugf("ii colorType: %d", ii.colorType());
                                                 abort = true;
                                                 break;
                                             }
@@ -195,6 +204,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                 ERRORF(reporter, "Expected dst %d,%d to be "
                                                        "unmodified (0x%08x). Got 0x%08x",
                                                        x, y, d, r);
+                                                SkDebugf("sOrigin: %d, dOrigin: %d\n",
+                                                         sOrigin, dOrigin);
+                                                SkDebugf("sRenderable: %d, dRenderable: %d\n",
+                                                         sRenderable, dRenderable);
+                                                SkDebugf("srcRect: %d, %d, %d, %d\n",
+                                                         srcRect.fLeft, srcRect.fTop, srcRect.fRight, srcRect.fBottom);
+                                                SkDebugf("dstPoint: %d, %d\n",
+                                                         dstPoint.fX, dstPoint.fY);
+                                                SkDebugf("ii colorType: %d", ii.colorType());
                                                 abort = true;
                                                 break;
                                             }
