@@ -172,3 +172,11 @@ source_set("libshaderc_spvc_sources") {
 
   configs += []
 }
+
+group("libshaderc_spvc") {
+  public_deps = [ ":libshaderc_spvc_sources" ]
+}
+
+group("spirv_cross") {
+  public_deps = [ "../spirv-cross:spirv_cross" ]
+}
