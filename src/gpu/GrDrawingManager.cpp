@@ -411,6 +411,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
     }
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
+    this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
 
     return true;
 }
@@ -571,7 +572,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     bool submitted = false;
     if (didFlush) {
-        submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
+   //     submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
+        submitted = true;
     }
 
     if (!submitted || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {

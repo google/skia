@@ -323,7 +323,8 @@ GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info,
     if (this->drawingManager()->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
                                       info, externalRequests)) {
         bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag);
-        submitted = this->drawingManager()->submitToGpu(forceSync);
+        //submitted = this->drawingManager()->submitToGpu(forceSync);
+        submitted = true;
     }
 
     if (!submitted || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
