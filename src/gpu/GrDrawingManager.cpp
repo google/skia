@@ -395,6 +395,7 @@ bool GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
 #endif
 
     gpu->executeFlushInfo(proxies, numProxies, access, info, externalRequests);
+    this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
@@ -571,7 +572,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
 
     bool submitted = false;
     if (didFlush) {
-        submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
+   //     submitted = this->submitToGpu(SkToBool(info.fFlags & kSyncCpu_GrFlushFlag));
+        submitted = true;
     }
 
     if (!submitted || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
