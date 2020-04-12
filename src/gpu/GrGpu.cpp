@@ -655,6 +655,10 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
 
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
+    if (info.fNumSemaphores) {
+        SK_ABORT("we have a semahpore!!!");
+    }
+
     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores(
             new std::unique_ptr<GrSemaphore>[info.fNumSemaphores]);
     if (this->caps()->semaphoreSupport() && info.fNumSemaphores) {
