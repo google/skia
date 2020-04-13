@@ -19,6 +19,8 @@ class GrProxyProvider;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
+    const char* name() const final { return "SW"; }
+
     GrSoftwarePathRenderer(GrProxyProvider* proxyProvider, bool allowCaching)
             : fProxyProvider(proxyProvider)
             , fAllowCaching(allowCaching) {
