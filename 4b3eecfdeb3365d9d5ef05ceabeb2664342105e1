@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "042b9337_cc399bfd",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:37:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20c4e8ee_e95ca773",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 8
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c92a1ddc_3fb97d49",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 1
@@ -68,6 +92,30 @@
       "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d54a7ba5_07a8dd41",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:37:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c92a1ddc_3fb97d49",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 24
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "17b32c86_f18ab759",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:37:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "679305c3_abf2986d",
+      "range": {
+        "startLine": 322,
+        "startChar": 74,
+        "endLine": 322,
+        "endChar": 80
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60126c7e_5a0c883a",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 1
@@ -105,6 +177,30 @@
       "writtenOn": "2020-04-13T14:20:07Z",
       "side": 1,
       "message": "I\u0027m setting it to 0 in texture creation as well, but we might want to centralize this somewhere in case we want to set it globally.",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 52
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8f09303_a34ccf9f",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:37:26Z",
+      "side": 1,
+      "message": "I agree we should do something. But lets do it in a follow on CL since it may propagate to a slightly larger change if we support clients wrapping arbitrary qualities.",
+      "parentUuid": "60126c7e_5a0c883a",
       "range": {
         "startLine": 324,
         "startChar": 4,
