@@ -240,14 +240,10 @@ namespace SK_OPTS_NS {
                     CASE(Op::gte_f32): r(d).i32 = r(x).f32 >= r(y).f32; break;
 
                     CASE(Op:: eq_i32): r(d).i32 = r(x).i32 == r(y).i32; break;
-                    CASE(Op::neq_i32): r(d).i32 = r(x).i32 != r(y).i32; break;
                     CASE(Op:: gt_i32): r(d).i32 = r(x).i32 >  r(y).i32; break;
-                    CASE(Op::gte_i32): r(d).i32 = r(x).i32 >= r(y).i32; break;
 
                     CASE(Op:: eq_i16x2): r(d).i16x2 = r(x).i16x2 == r(y).i16x2; break;
-                    CASE(Op::neq_i16x2): r(d).i16x2 = r(x).i16x2 != r(y).i16x2; break;
                     CASE(Op:: gt_i16x2): r(d).i16x2 = r(x).i16x2 >  r(y).i16x2; break;
-                    CASE(Op::gte_i16x2): r(d).i16x2 = r(x).i16x2 >= r(y).i16x2; break;
 
                     CASE(Op::bit_and  ): r(d).i32 = r(x).i32 &  r(y).i32; break;
                     CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;

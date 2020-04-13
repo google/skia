@@ -327,9 +327,9 @@ namespace skvm {
         M(max_f32_imm)                        \
         M(floor) M(trunc) M(round) M(to_f32)  \
         M( eq_f32) M( eq_i32) M( eq_i16x2)    \
-        M(neq_f32) M(neq_i32) M(neq_i16x2)    \
+        M(neq_f32)                            \
         M( gt_f32) M( gt_i32) M( gt_i16x2)    \
-        M(gte_f32) M(gte_i32) M(gte_i16x2)    \
+        M(gte_f32)                            \
         M(bit_and)                            \
         M(bit_or)                             \
         M(bit_xor)                            \
@@ -900,9 +900,6 @@ namespace skvm {
     static inline F32& operator-=(F32& x, F32a y) { return (x = x - y); }
     static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
 
-    static inline I32 operator-(I32 x) { return 0-x; }
-    static inline F32 operator-(F32 x) { return 0-x; }
-
     static inline void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
@@ -987,6 +984,10 @@ namespace skvm {
     static inline I32 extract(int x, int bits, I32  z) { return z->extract(x,bits,z); }
     static inline I32 pack   (I32 x, I32a y, int bits) { return x->pack   (x,y,bits); }
     static inline I32 pack   (int x, I32  y, int bits) { return y->pack   (x,y,bits); }
+
+    static inline I32 operator~(I32 x) { return ~0^x; }
+    static inline I32 operator-(I32 x) { return  0-x; }
+    static inline F32 operator-(F32 x) { return  0-x; }
 
     static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
     static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
