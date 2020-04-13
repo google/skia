@@ -1387,13 +1387,52 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vmovdqa   (A::ymm3, A::ymm2);
+        A::Label l;
+        a.vmovdqa(A::ymm3, A::ymm2);                                // vmovdqa %ymm2         , %ymm3
+
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi});                         // vmovdqa  (%rsi)       , %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsp});                         // vmovdqa  (%rsp)       , %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::r11});                         // vmovdqa  (%r11)       , %ymm3
+
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  4});                     // vmovdqa 4(%rsi)       , %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsp,  4});                     // vmovdqa 4(%rsp)       , %ymm3
+
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  4, A::rax, A::EIGHT});   // vmovdqa 4(%rsi,%rax,8), %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::r11,  4, A::rax, A::TWO  });   // vmovdqa 4(%r11,%rax,2), %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  4, A::r11, A::FOUR });   // vmovdqa 4(%rsi,%r11,4), %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  4, A::r11, A::ONE  });   // vmovdqa 4(%rsi,%r11,1), %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  4, A::r11});             // vmovdqa 4(%rsi,%r11)  , %ymm3
+
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi,  64, A::r11});            // vmovdqa  64(%rsi,%r11), %ymm3
+        a.vmovdqa(A::ymm3, A::Mem{A::rsi, 128, A::r11});            // vmovdqa 128(%rsi,%r11), %ymm3
+        a.vmovdqa(A::ymm3, &l);                                     // vmovdqa  16(%rip)     , %ymm3
+
         a.vcvttps2dq(A::ymm3, A::ymm2);
         a.vcvtdq2ps (A::ymm3, A::ymm2);
         a.vcvtps2dq (A::ymm3, A::ymm2);
         a.vsqrtps   (A::ymm3, A::ymm2);
+        a.label(&l);
     },{
         0xc5,0xfd,0x6f,0xda,
+
+        0xc5,0xfd,0x6f,0x1e,
+        0xc5,0xfd,0x6f,0x1c,0x24,
+        0xc4,0xc1,0x7d,0x6f,0x1b,
+
+        0xc5,0xfd,0x6f,0x5e,0x04,
+        0xc5,0xfd,0x6f,0x5c,0x24,0x04,
+
+        0xc5,0xfd,0x6f,0x5c,0xc6,0x04,
+        0xc4,0xc1,0x7d,0x6f,0x5c,0x43,0x04,
+        0xc4,0xa1,0x7d,0x6f,0x5c,0x9e,0x04,
+        0xc4,0xa1,0x7d,0x6f,0x5c,0x1e,0x04,
+        0xc4,0xa1,0x7d,0x6f,0x5c,0x1e,0x04,
+
+        0xc4,0xa1,0x7d,0x6f,0x5c,0x1e,0x40,
+        0xc4,0xa1,0x7d,0x6f,0x9c,0x1e,0x80,0x00,0x00,0x00,
+
+        0xc5,0xfd,0x6f,0x1d,0x10,0x00,0x00,0x00,
+
         0xc5,0xfe,0x5b,0xda,
         0xc5,0xfc,0x5b,0xda,
         0xc5,0xfd,0x5b,0xda,
