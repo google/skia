@@ -98,7 +98,8 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         msTextureDesc.MipLevels = 1;
         msTextureDesc.Format = dxgiFormat;
         msTextureDesc.SampleDesc.Count = sampleCnt;
-        msTextureDesc.SampleDesc.Quality = 0;  // TODO: only valid for tiled renderers
+        // quality levels are only supported for tiled resources so ignore for now
+        msTextureDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
         msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
         msTextureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 

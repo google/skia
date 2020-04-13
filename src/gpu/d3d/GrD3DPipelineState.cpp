@@ -290,7 +290,8 @@ static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
                                                              const GrProgramInfo& programInfo,
                                                              DXGI_FORMAT renderTargetFormat,
-                                                             DXGI_FORMAT depthStencilFormat) {
+                                                             DXGI_FORMAT depthStencilFormat,
+                                                             unsigned int sampleQualityLevel) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
     psoDesc.StreamOutput = {nullptr, 0, nullptr, 0, 0};
@@ -317,13 +318,8 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
     psoDesc.RTVFormats[0] = renderTargetFormat;
     psoDesc.DSVFormat = depthStencilFormat;
 
-    // Setting quality level to zero here as it will always be supported. The D3D12 spec doesn't
-    // actually define what quality levels are and leaves it up to driver implementations to
-    // define them for themselves. In many cases the increased quality is simply a different sample
-    // pattern for the pixel.
-    static const unsigned int kBaseQualityLevel = 0;
     unsigned int numRasterSamples = programInfo.numRasterSamples();
-    psoDesc.SampleDesc = {numRasterSamples, kBaseQualityLevel};
+    psoDesc.SampleDesc = {numRasterSamples, sampleQualityLevel};
 
     // Only used for multi-adapter systems.
     psoDesc.NodeMask = 0;
