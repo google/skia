@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "89729b3a_089d8548",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T13:53:06Z",
+      "side": 1,
+      "message": "That edit didn\u0027t work, thanks Gerrit -- putting d3d12.h *in* GrBackendSurface.h.",
+      "parentUuid": "cb8240d0_bc5886b0",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 29
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c0cf30c_6c11b7e2",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 3
