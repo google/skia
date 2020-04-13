@@ -22,6 +22,8 @@ private:
     class Resource;
 
 public:
+    static const unsigned int kDefaultQualityLevel = 0;
+
     GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state)
             : fInfo(info)
             , fState(std::move(state))
@@ -53,6 +55,8 @@ public:
     }
 
     void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
+
+    unsigned int sampleQualityLevel() const { return fInfo.fSampleQualityLevel; }
 
     // This simply updates our tracking of the resourceState and does not actually do any gpu work.
     // Externally, primarily used for implicit changes in resourceState due to certain GPU commands.

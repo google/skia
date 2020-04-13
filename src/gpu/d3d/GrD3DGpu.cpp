@@ -184,8 +184,8 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
     resourceDesc.MipLevels = mipLevelCount;
     resourceDesc.Format = dxgiFormat;
     resourceDesc.SampleDesc.Count = 1;
-    resourceDesc.SampleDesc.Quality = 0; // quality levels are only supported for tiled resources
-                                         // so ignore for now
+    // quality levels are only supported for tiled resources so ignore for now
+    resourceDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 
@@ -479,8 +479,8 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.MipLevels = numMipLevels;
     resourceDesc.Format = dxgiFormat;
     resourceDesc.SampleDesc.Count = 1;
-    resourceDesc.SampleDesc.Quality = 0; // quality levels are only supported for tiled resources
-                                         // so ignore for now
+    // quality levels are only supported for tiled resources so ignore for now
+    resourceDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 

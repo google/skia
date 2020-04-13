@@ -36,8 +36,8 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
     resourceDesc.MipLevels = 1;
     resourceDesc.Format = format.fInternalFormat;
     resourceDesc.SampleDesc.Count = sampleCnt;
-    resourceDesc.SampleDesc.Quality = 0; // quality levels are only supported for tiled resources
-                                         // so ignore for now
+    // quality levels are only supported for tiled resources so ignore for now
+    resourceDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 

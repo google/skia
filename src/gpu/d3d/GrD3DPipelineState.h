@@ -19,7 +19,8 @@ class GrD3DPipelineState {
 public:
     static std::unique_ptr<GrD3DPipelineState> Make(GrD3DGpu* gpu, const GrProgramInfo&,
                                                     DXGI_FORMAT renderTargetFormat,
-                                                    DXGI_FORMAT depthStencilFormat);
+                                                    DXGI_FORMAT depthStencilFormat,
+                                                    unsigned int sampleQualityLevel);
 
 private:
     GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState);
