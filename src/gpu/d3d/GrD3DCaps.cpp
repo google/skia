@@ -110,7 +110,7 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     this->initShaderCaps(adapterDesc.VendorId, optionsDesc);
 
     this->initFormatTable(adapterDesc, device);
-    // TODO: set up stencil
+    this->initStencilFormat(device);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(adapterDesc.VendorId);
@@ -205,6 +205,33 @@ void GrD3DCaps::initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTI
 
 void GrD3DCaps::applyDriverCorrectnessWorkarounds(int vendorID) {
     // Nothing yet.
+}
+
+
+bool stencil_format_supported(ID3D12Device* device, DXGI_FORMAT format) {
+    D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupportDesc;
+    formatSupportDesc.Format = format;
+    SkDEBUGCODE(HRESULT hr = ) device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
+                                                           &formatSupportDesc,
+                                                           sizeof(formatSupportDesc));
+    SkASSERT(SUCCEEDED(hr));
+    return SkToBool(D3D12_FORMAT_SUPPORT1_DEPTH_STENCIL & formatSupportDesc.Support1);
+}
+
+void GrD3DCaps::initStencilFormat(ID3D12Device* device) {
+    // List of legal stencil formats (though perhaps not supported on
+    // the particular gpu/driver) from most preferred to least.
+    static const StencilFormat
+                   // internal Format             stencil bits
+        gD24S8 = { DXGI_FORMAT_D24_UNORM_S8_UINT,    8 },
+        gD32S8 = { DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 8 };
+
+    if (stencil_format_supported(device, DXGI_FORMAT_D24_UNORM_S8_UINT)) {
+        fPreferredStencilFormat = gD24S8;
+    } else {
+        SkASSERT(stencil_format_supported(device, DXGI_FORMAT_D32_FLOAT_S8X24_UINT));
+        fPreferredStencilFormat = gD32S8;
+    }
 }
 
 // These are all the valid DXGI_FORMATs that we support in Skia. They are roughly ordered from most
