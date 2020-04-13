@@ -885,10 +885,13 @@ static SkScalar sk_relax(SkScalar x) {
 static SkMask::Format compute_mask_format(const SkFont& font) {
     switch (font.getEdging()) {
         case SkFont::Edging::kAlias:
+            SkDebugf("Font => BW format");
             return SkMask::kBW_Format;
         case SkFont::Edging::kAntiAlias:
+            SkDebugf("Font => AntiAlias, A8 Format");
             return SkMask::kA8_Format;
         case SkFont::Edging::kSubpixelAntiAlias:
+            SkDebugf("Font => Subpixel AA, LCD16 Format");
             return SkMask::kLCD16_Format;
     }
     SkASSERT(false);
@@ -997,6 +1000,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         if (too_big_for_lcd(*rec, checkPost2x2)) {
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
+            SkDebugf("****** Font is too big for LCD text");
         } else {
             SkPixelGeometry geometry = surfaceProps.pixelGeometry();
 
@@ -1005,19 +1009,24 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
                     // eeek, can't support LCD
                     rec->fMaskFormat = SkMask::kA8_Format;
                     flags |= SkScalerContext::kGenA8FromLCD_Flag;
+                    SkDebugf("****** surface doesn't support LCD text");
                     break;
                 case kRGB_H_SkPixelGeometry:
                     // our default, do nothing.
+                    SkDebugf("++++++ surface suports RGB_H");
                     break;
                 case kBGR_H_SkPixelGeometry:
                     flags |= SkScalerContext::kLCD_BGROrder_Flag;
+                    SkDebugf("++++++ surface suports BGR_H");
                     break;
                 case kRGB_V_SkPixelGeometry:
                     flags |= SkScalerContext::kLCD_Vertical_Flag;
+                    SkDebugf("++++++ surface suports RGB_V");
                     break;
                 case kBGR_V_SkPixelGeometry:
                     flags |= SkScalerContext::kLCD_Vertical_Flag;
                     flags |= SkScalerContext::kLCD_BGROrder_Flag;
+                    SkDebugf("++++++ surface suports BGR_V");
                     break;
             }
         }

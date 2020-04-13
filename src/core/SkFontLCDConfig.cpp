@@ -16,6 +16,7 @@ SkFontLCDConfig::LCDOrientation SkFontLCDConfig::GetSubpixelOrientation() {
 
 void SkFontLCDConfig::SetSubpixelOrientation(LCDOrientation orientation) {
     gLCDOrientation = orientation;
+    SkDebugf("SetSubpixelOrientation: %d", orientation);
 }
 
 SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
@@ -24,4 +25,5 @@ SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
 
 void SkFontLCDConfig::SetSubpixelOrder(LCDOrder order) {
     gLCDOrder = order;
+    SkDebugf("SetSubpixelOrder: %d", order);
 }
