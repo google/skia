@@ -74,7 +74,7 @@ void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
 
 class DummyEvict : public GrDrawOpAtlas::EvictionCallback {
 public:
-    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override {
+    void evict(GrDrawOpAtlas::PlotLocator) override {
         SkASSERT(0); // The unit test shouldn't exercise this code path
     }
 };

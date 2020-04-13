@@ -46,8 +46,10 @@ public:
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
     void drawGlyphRunList(GrRecordingContext*, GrTextTarget*, const GrClip&,
-                          const SkMatrix& drawMatrix, const SkSurfaceProps&, const SkGlyphRunList&);
+                          const SkMatrix& drawMatrix, const SkSurfaceProps&,
+                          const SkGlyphRunList&) const;
 
+#if GR_TEST_UTILS
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                    GrTextContext*,
                                                    GrRenderTargetContext*,
@@ -56,6 +58,7 @@ public:
                                                    const char* text,
                                                    int x,
                                                    int y);
+#endif
 
     static void SanitizeOptions(Options* options);
     static bool CanDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,

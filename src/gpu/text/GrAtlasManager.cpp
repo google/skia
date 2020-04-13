@@ -38,8 +38,8 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
                                                     GrMaskFormat format,
                                                     int width, int height, const void* image,
                                                     GrDrawOpAtlas::AtlasLocator* atlasLocator) {
-    return this->getAtlas(format)->addToAtlas(
-            resourceProvider, target, width, height, image, atlasLocator);
+    return this->getAtlas(format)->addToAtlas(resourceProvider, target, width, height, image,
+                                              atlasLocator);
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,

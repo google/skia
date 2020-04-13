@@ -317,8 +317,7 @@ void SkGlyphRunBuilder::makeGlyphRunList(
         const SkPaint& paint, const SkTextBlob* blob, SkPoint origin) {
 
     fGlyphRunList.~SkGlyphRunList();
-    new (&fGlyphRunList) SkGlyphRunList{
-        paint, blob, origin, SkMakeSpan(fGlyphRunListStorage)};
+    new (&fGlyphRunList) SkGlyphRunList{paint, blob, origin, SkMakeSpan(fGlyphRunListStorage)};
 }
 
 void SkGlyphRunBuilder::simplifyDrawText(
