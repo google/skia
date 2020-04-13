@@ -12,7 +12,6 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"
 #include "src/gpu/text/GrAtlasManager.h"
-#include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::~GrStrikeCache() {
     this->freeAll();
@@ -33,6 +32,45 @@ void GrStrikeCache::freeAll() {
  */
 
 GrTextStrike::GrTextStrike(const SkDescriptor& key) : fFontScalerKey(key) {}
+
+GrDrawOpAtlas::ErrorCode GrTextStrike::AddGlyphToAtlas(const SkGlyph& skGlyph,
+                                                       GrMaskFormat expectedMaskFormat,
+                                                       bool needsPadding,
+                                                       GrResourceProvider* resourceProvider,
+                                                       GrDeferredUploadTarget* target,
+                                                       GrAtlasManager* fullAtlasManager,
+                                                       GrGlyph* grGlyph) {
+    SkASSERT(grGlyph != nullptr);
+//    SkASSERT(fCache.findOrNull(grGlyph->fPackedID));
+    SkASSERT(skGlyph.image() != nullptr);
+
+    expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
+    int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+
+    SkDEBUGCODE(bool isSDFGlyph = skGlyph.maskFormat() == SkMask::kSDF_Format;)
+    SkASSERT(!needsPadding || !isSDFGlyph);
+
+    // Add 1 pixel padding around grGlyph if needed.
+    const int width = needsPadding ? skGlyph.width() + 2 : skGlyph.width();
+    const int height = needsPadding ? skGlyph.height() + 2 : skGlyph.height();
+    int rowBytes = width * bytesPerPixel;
+    size_t size = height * rowBytes;
+
+    // Temporary storage for normalizing grGlyph image.
+    SkAutoSMalloc<1024> storage(size);
+    void* dataPtr = storage.get();
+    if (needsPadding) {
+        sk_bzero(dataPtr, size);
+        // Advance in one row and one column.
+        dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
+    }
+
+    get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
+
+    return fullAtlasManager->addToAtlas(resourceProvider, target, expectedMaskFormat, width, height,
+                                        storage.get(), &grGlyph->fAtlasLocator);
+}
+>>>>>>> git squash commit for omnibus.
 
 GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
     GrGlyph* grGlyph = fCache.findOrNull(packedGlyphID);
