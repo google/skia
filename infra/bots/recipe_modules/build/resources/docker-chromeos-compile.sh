@@ -14,14 +14,12 @@ set -x
 
 export PATH="/SRC/recipe_bundle/depot_tools:${PATH}"
 
-cd /SRC/cache/work/flutter/src
-echo "LSing"
-ls
-ls *
-ls */*
-echo "Trying out a git command."
-git -C gen/third_party/dart rev-parse HEAD
-flutter/tools/gn "$@"
-# This is the same as /OUT, but necessary since GN sets a command to do a
-# version check via relative path (../../flutter/third_party/gn/gn)
-ninja -C /SRC/cache/work/flutter/src/out/android_release -j100
+cd /SRC/skia
+# OPTS = ""
+# if [ "$2" ]; then
+  # OPTS=$2
+  # echo "Setting some options: $OPTS"
+# fi
+./bin/fetch-gn
+./bin/gn gen /OUT "--args=$1"
+ninja -C /OUT nanobench dm
