@@ -33,6 +33,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;
+    fTwoSidedStencilRefsAndMasksMustMatch = false;
     fMustClearUploadedBufferData = false;
     fShouldInitializeTextures = false;
     fSupportsAHardwareBufferImages = false;
@@ -206,6 +207,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
     writer->appendBool("Prefer fullscreen clears (and stencil discard)", fPreferFullscreenClears);
+    writer->appendBool("Two-sided Stencil Refs And Masks Must Match",
+                       fTwoSidedStencilRefsAndMasksMustMatch);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Should initialize textures", fShouldInitializeTextures);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
