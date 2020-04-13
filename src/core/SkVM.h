@@ -65,6 +65,12 @@ namespace skvm {
         void byte(uint8_t);
         void word(uint32_t);
 
+        struct Label {
+            int                                      offset = 0;
+            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
+            SkSTArray<1, int>                        references;
+        };
+
         // x86-64
 
         void align(int mod);
@@ -73,60 +79,115 @@ namespace skvm {
         void vzeroupper();
         void ret();
 
+        // Mem represents a value at base + disp + scale*index,
+        // or simply at base + disp if index=rsp.
+        enum Scale { ONE, TWO, FOUR, EIGHT };
+        struct Mem {
+            GP64  base;
+            int   disp  = 0;
+            GP64  index = rsp;
+            Scale scale = ONE;
+        };
+
+        // Instructions on GP64 registers can generally take an immediate,
+        // another GP64 register, or a memory address (possibly ip-relative).
+        struct GP64Operand {
+            union {
+                int    imm;
+                GP64   reg;
+                Mem    mem;
+                Label* label;
+            };
+            enum { IMM, REG, MEM, LABEL } kind;
+
+            GP64Operand(int    i) : imm  (i), kind(IMM  ) {}
+            GP64Operand(GP64   r) : reg  (r), kind(REG  ) {}
+            GP64Operand(Mem    m) : mem  (m), kind(MEM  ) {}
+            GP64Operand(Label* l) : label(l), kind(LABEL) {}
+        };
+
+        // Instructions on Ymm registers can generally take
+        // another Ymm register or a memory address (possibly ip-relative).
+        struct YmmOperand {
+            union {
+                Ymm    ymm;
+                Mem    mem;
+                Label* label;
+            };
+            enum { YMM, MEM, LABEL } kind;
+
+            YmmOperand(Ymm    y) : ymm  (y), kind(YMM  ) {}
+            YmmOperand(Mem    m) : mem  (m), kind(MEM  ) {}
+            YmmOperand(Label* l) : label(l), kind(LABEL) {}
+        };
+
         void add(GP64, int imm);
         void sub(GP64, int imm);
 
         void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
 
-        struct Label {
-            int                                      offset = 0;
-            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            SkSTArray<1, int>                        references;
-        };
+        void vpand (Ymm dst, Ymm x, YmmOperand y);
+        void vpandn(Ymm dst, Ymm x, YmmOperand y);
+        void vpor  (Ymm dst, Ymm x, YmmOperand y);
+        void vpxor (Ymm dst, Ymm x, YmmOperand y);
 
-        struct YmmOrLabel {
-            Ymm    ymm   = ymm0;
-            Label* label = nullptr;
+        void vpaddd (Ymm dst, Ymm x, YmmOperand y);
+        void vpsubd (Ymm dst, Ymm x, YmmOperand y);
+        void vpmulld(Ymm dst, Ymm x, YmmOperand y);
 
-            /*implicit*/ YmmOrLabel(Ymm    y) : ymm  (y) { SkASSERT(!label); }
-            /*implicit*/ YmmOrLabel(Label* l) : label(l) { SkASSERT( label); }
-        };
+        void vpsubw (Ymm dst, Ymm x, YmmOperand y);
+        void vpmullw(Ymm dst, Ymm x, YmmOperand y);
 
-        // All dst = x op y.
-        using DstEqXOpY = void(Ymm dst, Ymm x, Ymm y);
-        DstEqXOpY vpandn,
-                  vpmulld,
-                  vpsubw, vpmullw,
-                  vdivps,
-                  vfmadd132ps, vfmadd213ps, vfmadd231ps,
-                  vfmsub132ps, vfmsub213ps, vfmsub231ps,
-                  vfnmadd132ps, vfnmadd213ps, vfnmadd231ps,
-                  vpackusdw, vpackuswb,
-                  vpcmpeqd, vpcmpgtd;
+        void vaddps(Ymm dst, Ymm x, YmmOperand y);
+        void vsubps(Ymm dst, Ymm x, YmmOperand y);
+        void vmulps(Ymm dst, Ymm x, YmmOperand y);
+        void vdivps(Ymm dst, Ymm x, YmmOperand y);
+        void vminps(Ymm dst, Ymm x, YmmOperand y);
+        void vmaxps(Ymm dst, Ymm x, YmmOperand y);
 
-        using DstEqXOpYOrLabel = void(Ymm dst, Ymm x, YmmOrLabel y);
-        DstEqXOpYOrLabel vpand, vpor, vpxor,
-                         vpaddd, vpsubd,
-                         vaddps, vsubps, vmulps, vminps, vmaxps;
+        void vsqrtps(Ymm dst, YmmOperand x);
 
-        // Floating point comparisons are all the same instruction with varying imm.
-        void vcmpps(Ymm dst, Ymm x, Ymm y, int imm);
-        void vcmpeqps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,0); }
-        void vcmpltps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,1); }
-        void vcmpleps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,2); }
-        void vcmpneqps(Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,4); }
+        void vfmadd132ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmadd213ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmadd231ps(Ymm dst, Ymm x, YmmOperand y);
 
-        using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
-        DstEqXOpImm vpslld, vpsrld, vpsrad,
-                    vpsrlw,
-                    vpermq,
-                    vroundps;
+        void vfmsub132ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmsub213ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfmsub231ps(Ymm dst, Ymm x, YmmOperand y);
 
-        enum { NEAREST, FLOOR, CEIL, TRUNC };  // vroundps immediates
+        void vfnmadd132ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfnmadd213ps(Ymm dst, Ymm x, YmmOperand y);
+        void vfnmadd231ps(Ymm dst, Ymm x, YmmOperand y);
 
-        using DstEqOpX = void(Ymm dst, Ymm x);
-        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq, vsqrtps;
+        void vpackusdw(Ymm dst, Ymm x, YmmOperand y);
+        void vpackuswb(Ymm dst, Ymm x, YmmOperand y);
 
+        void vpcmpeqd(Ymm dst, Ymm x, YmmOperand y);
+        void vpcmpgtd(Ymm dst, Ymm x, YmmOperand y);
+
+        void vcmpps   (Ymm dst, Ymm x, YmmOperand y, int imm);
+        void vcmpeqps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,0); }
+        void vcmpltps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,1); }
+        void vcmpleps (Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,2); }
+        void vcmpneqps(Ymm dst, Ymm x, YmmOperand y) { this->vcmpps(dst,x,y,4); }
+
+        void vpslld(Ymm dst, Ymm x, int imm);
+        void vpsrld(Ymm dst, Ymm x, int imm);
+        void vpsrad(Ymm dst, Ymm x, int imm);
+        void vpsrlw(Ymm dst, Ymm x, int imm);
+
+        void vpermq(Ymm dst, Ymm x, int imm);
+
+        enum Rounding { NEAREST, FLOOR, CEIL, TRUNC };
+        void vroundps(Ymm dst, Ymm x, Rounding);
+
+        void vmovdqa(Ymm dst, YmmOperand x);
+
+        void vcvtdq2ps (Ymm dst, YmmOperand x);
+        void vcvttps2dq(Ymm dst, YmmOperand x);
+        void vcvtps2dq (Ymm dst, YmmOperand x);
+
+        // TODO: which if any can be YmmOperand?
         void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
 
         Label here();
@@ -139,8 +200,9 @@ namespace skvm {
         void jc (Label*);
         void cmp(GP64, int imm);
 
-        void vpshufb(Ymm dst, Ymm x, Label*);
-        void vptest(Ymm dst, Label*);
+        void vpshufb(Ymm dst, Ymm x, YmmOperand y);
+
+        void vptest(Ymm x, YmmOperand y);
 
         void vbroadcastss(Ymm dst, Label*);
         void vbroadcastss(Ymm dst, Xmm src);
@@ -152,7 +214,6 @@ namespace skvm {
         void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
-        enum Scale { ONE, TWO, FOUR, EIGHT };
         void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
         void vmovups(int  imm, Ymm src);     // *(sp + imm) = src
@@ -255,28 +316,33 @@ namespace skvm {
         void fmovs(X dst, V src); // dst = 32-bit src[0]
 
     private:
-        // dst = op(dst, imm)
-        void op(int opcode, int opcode_ext, GP64 dst, int imm);
+        // TODO: can probably track two of these three?
+        uint8_t* fCode;
+        uint8_t* fCurr;
+        size_t   fSize;
 
-
-        // dst = op(x,y) or op(x)
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W=false);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x,        bool W=false) {
-            // Two arguments ops seem to pass them in dst and y, forcing x to 0 so VEX.vvvv == 1111.
-            this->op(prefix, map, opcode, dst,(Ymm)0,x, W);
+        // x86-64
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOperand y, bool W=false);
+        void op(int prefix, int map, int opcode, Ymm dst,        YmmOperand x, bool W=false) {
+            this->op(prefix,map,opcode, dst,(Ymm)0,x, W);
         }
 
-        // dst = op(x,imm)
-        void op(int prefix, int map, int opcode, int opcode_ext, Ymm dst, Ymm x, int imm);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm   , bool W=false);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Mem   , bool W=false);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label*, bool W=false);
 
-        // dst = op(x,label) or op(label)
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l);
-        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel);
+        void op(                     int opcode, int opcode_ext, GP64 dst       , int imm);
+        void op(int prefix, int map, int opcode, int opcode_ext,  Ymm dst, Ymm x, int imm);
 
-        // *ptr = ymm or ymm = *ptr, depending on opcode.
+
+        // TODO: these should become ops taking Mem
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
-        // *(sp+off) = ymm or ymm = *(sp+off), depending on opcode.
         void stack_load_store(int prefix, int map, int opcode, Ymm ymm, int off);
+
+        void jump(uint8_t condition, Label*);
+        int disp32(Label*);
+
+        // aarch64
 
         // Opcode for 3-arguments ops is split between hi and lo:
         //    [11 bits hi] [5 bits m] [6 bits lo] [5 bits n] [5 bits d]
@@ -284,21 +350,13 @@ namespace skvm {
 
         // 2-argument ops, with or without an immediate.
         void op(uint32_t op22, int imm, V n, V d);
-        void op(uint32_t op22, V n, V d) { this->op(op22,0,n,d); }
+        void op(uint32_t op22, V n, V d) { this->op(op22,0,   n,d); }
         void op(uint32_t op22, X x, V v) { this->op(op22,0,(V)x,v); }
 
         // Order matters... value is 4-bit encoding for condition code.
         enum class Condition { eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,al };
         void b(Condition, Label*);
-
-        void jump(uint8_t condition, Label*);
-
         int disp19(Label*);
-        int disp32(Label*);
-
-        uint8_t* fCode;
-        uint8_t* fCurr;
-        size_t   fSize;
     };
 
     // Order matters a little: Ops <=store32 are treated as having side effects.
