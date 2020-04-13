@@ -112,7 +112,7 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
         GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
         0xffff,                           0x0001,
         GrUserStencilOp::kZero,           GrUserStencilOp::kZero,
-        GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kZero,
         0xffff,                           0xffff>()
 );
 
