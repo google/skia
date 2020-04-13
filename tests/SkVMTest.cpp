@@ -1914,9 +1914,27 @@ DEF_TEST(SkVM_approx_math, r) {
         float err = std::abs(actual - expected);
 
         if (err > tolerance) {
-    //        SkDebugf("arg %g, expected %g, actual %g\n", arg, expected, actual);
+            SkDebugf("arg %g, expected %g, actual %g\n", arg, expected, actual);
         }
-        REPORTER_ASSERT(r, err <= tolerance);
+    //    REPORTER_ASSERT(r, err <= tolerance);
+        return err;
+    };
+
+    auto test2 = [r](float arg0, float arg1, float expected, float tolerance, auto prog) {
+        skvm::Builder b;
+        skvm::Arg in0  = b.varying<float>();
+        skvm::Arg in1  = b.varying<float>();
+        skvm::Arg out  = b.varying<float>();
+        b.storeF(out, prog(b.loadF(in0), b.loadF(in1)));
+        float actual;
+        b.done().eval(1, &arg0, &arg1, &actual);
+
+        float err = std::abs(actual - expected);
+
+        if (err > tolerance) {
+            SkDebugf("[%g, %g]: expected %g, actual %g\n", arg0, arg1, expected, actual);
+        }
+     //   REPORTER_ASSERT(r, err <= tolerance);
         return err;
     };
 
@@ -1967,12 +1985,37 @@ DEF_TEST(SkVM_approx_math, r) {
         if (0) { SkDebugf("asin error %g\n", err); }
 
         err = 0;
-        for (float x = -10; x <= 10; x += 0.1f) {
+        for (float x = -10; x <= 10; x += 1.0f/16) {
             err += test(x, atan(x), tol, [](skvm::F32 x) {
                 return approx_atan(x);
             });
         }
         if (0) { SkDebugf("atan error %g\n", err); }
+
+        // atan2 -- check special cases first
+        struct {
+            float x, y, expected;
+        } rec[] = {
+            { 0, 1, SK_ScalarPI/2 },
+            { 0,-1,-SK_ScalarPI/2 },
+            { 1, 0, 0 },
+            {-1, 0, SK_ScalarPI },
+        };
+        for (auto& r : rec) {
+            SkASSERT(SkScalarNearlyEqual(r.expected, atan2(r.y,r.x)));
+            test2(r.y, r.x, atan2(r.y,r.x), tol, [](skvm::F32 y, skvm::F32 x) {
+                return approx_atan(y,x);
+            });
+        }
+//        return;
+        for (float y = -3; y <= 3; y += 1) {
+            for (float x = -3; x <= 3; x += 1) {
+                err += test2(y, x, atan2(y,x), tol, [](skvm::F32 y, skvm::F32 x) {
+                    return approx_atan(y,x);
+                });
+            }
+        }
+        if (1) { SkDebugf("atan2 error %g\n", err); }
     }
 }
 
