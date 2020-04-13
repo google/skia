@@ -51,25 +51,57 @@ class GrTextureProxy;
  * and passes in the given GrDrawUploadToken.
  */
 class GrDrawOpAtlas {
-private:
-    static constexpr auto kMaxMultitexturePages = 4;
-
 public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
 
-    static constexpr int kMaxPlots = 32; // restricted by the fPlotAlreadyUpdated bitfield
-                                         // in BulkUseTokenUpdater
+    // These are both restricted by the space they occupy in the PlotLocator.
+    // maxPages is also limited by being crammed into the glyph uvs.
+    // maxPlots is also limited by the fPlotAlreadyUpdated bitfield in BulkUseTokenUpdater
+    static constexpr auto kMaxMultitexturePages = 4;
+    static constexpr int kMaxPlots = 32;
 
     /**
      * A PlotLocator specifies the plot and is analogous to a directory path:
      *    page/plot/plotGeneration
      *
      * In fact PlotLocator is a portion of a glyph image location in the atlas fully specified by:
-     * format/atlasGeneration/page/plot/plotGeneration/(u,v)
+     *    format/atlasGeneration/page/plot/plotGeneration/rect
+     *
+     * TODO: Remove the small path renderer's use of the PlotLocator for eviction.
      */
-    typedef uint64_t PlotLocator;
-    static const uint64_t kInvalidPlotLocator = 0;
+    class PlotLocator {
+    public:
+        PlotLocator(uint32_t pageIdx, uint32_t plotIdx, uint64_t generation)
+                : fGenID(generation)
+                , fPlotIndex(plotIdx)
+                , fPageIndex(pageIdx) {
+            SkASSERT(pageIdx < kMaxMultitexturePages);
+            SkASSERT(plotIdx < kMaxPlots);
+            SkASSERT(generation < ((uint64_t)1 << 48));
+        }
+
+        PlotLocator() : fGenID(0), fPlotIndex(0), fPageIndex(0) {}
+
+        bool isValid() const {
+            return fGenID != 0 || fPlotIndex != 0 || fPageIndex != 0;
+        }
+
+        bool operator==(const PlotLocator& other) const {
+            return fGenID == other.fGenID &&
+                   fPlotIndex == other.fPlotIndex &&
+                   fPageIndex == other.fPageIndex; }
+
+        uint32_t pageIndex() const { return fPageIndex; }
+        uint32_t plotIndex() const { return fPlotIndex; }
+        uint64_t genID() const { return fGenID; }
+
+    private:
+        uint64_t fGenID:48;
+        uint64_t fPlotIndex:8;
+        uint64_t fPageIndex:8;
+    };
+
     static const uint64_t kInvalidAtlasGeneration = 0;
 
     class AtlasLocator {
@@ -79,29 +111,18 @@ public:
         // TODO: Remove the small path renderer's use of this for eviction
         PlotLocator plotLocator() const { return fPlotLocator; }
 
-        uint32_t pageIndex() const {
-            uint32_t pageIndex = fPlotLocator & 0xff;
-            SkASSERT(pageIndex < 4);
-            return pageIndex;
-        }
+        uint32_t pageIndex() const { return fPlotLocator.pageIndex(); }
 
-        uint32_t plotIndex() const {
-            uint32_t plotIndex = (fPlotLocator >> 8) & 0xff;
-            SkASSERT(plotIndex < kMaxPlots);
-            return plotIndex;
-        }
+        uint32_t plotIndex() const { return fPlotLocator.plotIndex(); }
 
-        uint64_t genID() const {
-            // top 48 bits are reserved for the generation ID
-            return (fPlotLocator >> 16) & 0xffffffffffff;
-        }
+        uint64_t genID() const { return fPlotLocator.genID(); }
 
     private:
         friend class GrDrawOpAtlas;
 
         SkDEBUGCODE(void validate(const GrDrawOpAtlas*) const;)
 
-        PlotLocator fPlotLocator{GrDrawOpAtlas::kInvalidPlotLocator};
+        PlotLocator fPlotLocator;
         GrIRect16   fRect{0, 0, 0, 0};
 
         // TODO: the inset to the actual data w/in 'fRect' could also be stored in this class
@@ -116,7 +137,7 @@ public:
     class EvictionCallback {
     public:
         virtual ~EvictionCallback() = default;
-        virtual void evict(PlotLocator plotLocator) = 0;
+        virtual void evict(PlotLocator) = 0;
     };
 
     /**
@@ -205,21 +226,21 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    bool hasID(const AtlasLocator& atlasLocator) {
-        if (kInvalidPlotLocator == atlasLocator.plotLocator()) {
+    bool hasID(const PlotLocator& plotLocator) {
+        if (!plotLocator.isValid()) {
             return false;
         }
 
-        uint32_t plot = atlasLocator.plotIndex();
-        uint32_t page = atlasLocator.pageIndex();
+        uint32_t plot = plotLocator.plotIndex();
+        uint32_t page = plotLocator.pageIndex();
         uint64_t plotGeneration = fPages[page].fPlotArray[plot]->genID();
-        uint64_t locatorGeneration = atlasLocator.genID();
+        uint64_t locatorGeneration = plotLocator.genID();
         return plot < fNumPlots && page < fNumActivePages && plotGeneration == locatorGeneration;
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
     void setLastUseToken(const AtlasLocator& atlasLocator, GrDeferredUploadToken token) {
-        SkASSERT(this->hasID(atlasLocator));
+        SkASSERT(this->hasID(atlasLocator.plotLocator()));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = atlasLocator.pageIndex();
@@ -337,8 +358,8 @@ private:
          * if a particular subimage is still present in the atlas.
          */
         uint64_t genID() const { return fGenID; }
-        GrDrawOpAtlas::PlotLocator plotLocator() const {
-            SkASSERT(GrDrawOpAtlas::kInvalidPlotLocator != fPlotLocator);
+        PlotLocator plotLocator() const {
+            SkASSERT(fPlotLocator.isValid());
             return fPlotLocator;
         }
         SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
@@ -379,15 +400,6 @@ private:
                 fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType);
         }
 
-        static GrDrawOpAtlas::PlotLocator CreatePlotLocator(
-                uint32_t pageIdx, uint32_t plotIdx, uint64_t generation) {
-            SkASSERT(pageIdx < (1 << 8));
-            SkASSERT(pageIdx < kMaxMultitexturePages);
-            SkASSERT(plotIdx < (1 << 8));
-            SkASSERT(generation < ((uint64_t)1 << 48));
-            return generation << 16 | plotIdx << 8 | pageIdx;
-        }
-
         GrDeferredUploadToken fLastUpload;
         GrDeferredUploadToken fLastUse;
         // the number of flushes since this plot has been last used
@@ -399,7 +411,7 @@ private:
         };
         GenerationCounter* const fGenerationCounter;
         uint64_t fGenID;
-        GrDrawOpAtlas::PlotLocator fPlotLocator;
+        PlotLocator fPlotLocator;
         unsigned char* fData;
         const int fWidth;
         const int fHeight;

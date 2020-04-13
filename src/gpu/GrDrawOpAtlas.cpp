@@ -127,7 +127,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* gener
         , fPlotIndex(plotIndex)
         , fGenerationCounter(generationCounter)
         , fGenID(fGenerationCounter->next())
-        , fPlotLocator(CreatePlotLocator(fPageIndex, fPlotIndex, fGenID))
+        , fPlotLocator(fPageIndex, fPlotIndex, fGenID)
         , fData(nullptr)
         , fWidth(width)
         , fHeight(height)
@@ -222,7 +222,7 @@ void GrDrawOpAtlas::Plot::resetRects() {
     fRectanizer.reset();
 
     fGenID = fGenerationCounter->next();
-    fPlotLocator = CreatePlotLocator(fPageIndex, fPlotIndex, fGenID);
+    fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = GrDeferredUploadToken::AlreadyFlushedToken();
     fLastUse = GrDeferredUploadToken::AlreadyFlushedToken();
 
