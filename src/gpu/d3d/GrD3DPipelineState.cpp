@@ -9,6 +9,7 @@
 
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 static DXGI_FORMAT attrib_type_to_format(GrVertexAttribType type) {
@@ -206,33 +207,135 @@ static void fill_in_rasterizer_state(const GrPipeline& pipeline, const GrCaps* c
     rasterizer->ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }
 
+static D3D12_STENCIL_OP stencil_op_to_d3d_op(GrStencilOp op) {
+    switch (op) {
+        case GrStencilOp::kKeep:
+            return D3D12_STENCIL_OP_KEEP;
+        case GrStencilOp::kZero:
+            return D3D12_STENCIL_OP_ZERO;
+        case GrStencilOp::kReplace:
+            return D3D12_STENCIL_OP_REPLACE;
+        case GrStencilOp::kInvert:
+            return D3D12_STENCIL_OP_INVERT;
+        case GrStencilOp::kIncWrap:
+            return D3D12_STENCIL_OP_INCR;
+        case GrStencilOp::kDecWrap:
+            return D3D12_STENCIL_OP_DECR;
+        case GrStencilOp::kIncClamp:
+            return D3D12_STENCIL_OP_INCR_SAT;
+        case GrStencilOp::kDecClamp:
+            return D3D12_STENCIL_OP_DECR_SAT;
+    }
+    SkUNREACHABLE;
+}
+
+static D3D12_COMPARISON_FUNC stencil_test_to_d3d_func(GrStencilTest test) {
+    switch (test) {
+        case GrStencilTest::kAlways:
+            return D3D12_COMPARISON_FUNC_ALWAYS;
+        case GrStencilTest::kNever:
+            return D3D12_COMPARISON_FUNC_NEVER;
+        case GrStencilTest::kGreater:
+            return D3D12_COMPARISON_FUNC_GREATER;
+        case GrStencilTest::kGEqual:
+            return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+        case GrStencilTest::kLess:
+            return D3D12_COMPARISON_FUNC_LESS;
+        case GrStencilTest::kLEqual:
+            return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        case GrStencilTest::kEqual:
+            return D3D12_COMPARISON_FUNC_EQUAL;
+        case GrStencilTest::kNotEqual:
+            return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+    }
+    SkUNREACHABLE;
+}
+
+static void setup_stencilop_desc(D3D12_DEPTH_STENCILOP_DESC* desc,
+                                 const GrStencilSettings::Face& stencilFace) {
+    desc->StencilFailOp = stencil_op_to_d3d_op(stencilFace.fFailOp);
+    desc->StencilDepthFailOp = desc->StencilFailOp;
+    desc->StencilPassOp = stencil_op_to_d3d_op(stencilFace.fPassOp);
+    desc->StencilFunc = stencil_test_to_d3d_func(stencilFace.fTest);
+}
+
+static void fill_in_depth_stencil_state(const GrProgramInfo& programInfo,
+                                        D3D12_DEPTH_STENCIL_DESC* dsDesc) {
+    GrStencilSettings stencilSettings = programInfo.nonGLStencilSettings();
+    GrSurfaceOrigin origin = programInfo.origin();
+
+    dsDesc->DepthEnable = false;
+    dsDesc->DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    dsDesc->DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
+    dsDesc->StencilEnable = !stencilSettings.isDisabled();
+    if (stencilSettings.isTwoSided()) {
+        const auto& frontFace = stencilSettings.postOriginCCWFace(origin);
+        const auto& backFace = stencilSettings.postOriginCCWFace(origin);
+
+        SkASSERT(frontFace.fTestMask == backFace.fTestMask);
+        SkASSERT(frontFace.fWriteMask == backFace.fWriteMask);
+        dsDesc->StencilReadMask = frontFace.fTestMask;
+        dsDesc->StencilWriteMask = frontFace.fWriteMask;
+
+        setup_stencilop_desc(&dsDesc->FrontFace, frontFace);
+        setup_stencilop_desc(&dsDesc->BackFace, backFace);
+    } else {
+        dsDesc->StencilReadMask = stencilSettings.singleSidedFace().fTestMask;
+        dsDesc->StencilWriteMask = stencilSettings.singleSidedFace().fTestMask;
+        setup_stencilop_desc(&dsDesc->FrontFace, stencilSettings.singleSidedFace());
+        dsDesc->BackFace = dsDesc->FrontFace;
+    }
+}
+
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineState::Make(GrD3DGpu* gpu,
-                                                             const GrProgramInfo& programInfo) {
+                                                             const GrProgramInfo& programInfo,
+                                                             DXGI_FORMAT renderTargetFormat,
+                                                             DXGI_FORMAT depthStencilFormat) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
+    psoDesc.StreamOutput = {nullptr, 0, nullptr, 0, 0};
+
+    fill_in_blend_state(programInfo.pipeline(), &psoDesc.BlendState);
+    psoDesc.SampleMask = UINT_MAX;
+
+    fill_in_rasterizer_state(programInfo.pipeline(), gpu->caps(), &psoDesc.RasterizerState);
+
+    fill_in_depth_stencil_state(programInfo, &psoDesc.DepthStencilState);
+
     unsigned int totalAttributeCnt = programInfo.primProc().numVertexAttributes() +
-                                     programInfo.primProc().numInstanceAttributes();
+            programInfo.primProc().numInstanceAttributes();
     SkAutoSTArray<4, D3D12_INPUT_ELEMENT_DESC> inputElements(totalAttributeCnt);
     setup_vertex_input_layout(programInfo.primProc(), inputElements.get());
     psoDesc.InputLayout = { inputElements.get(), totalAttributeCnt };
 
+    psoDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 
-    fill_in_blend_state(programInfo.pipeline(), &psoDesc.BlendState);
+    // This is for geometry or hull shader primitives
+    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 
-    fill_in_rasterizer_state(programInfo.pipeline(), gpu->caps(), &psoDesc.RasterizerState);
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.RTVFormats[0] = renderTargetFormat;
+    psoDesc.DSVFormat = depthStencilFormat;
+
+    // Setting quality level to zero here as it will always be supported. The D3D12 spec doesn't
+    // actually define what quality levels are and leaves it up to driver implementations to
+    // define them for themselves. In many cases the increased quality is simply a different sample
+    // pattern for the pixel.
+    static const unsigned int kBaseQualityLevel = 0;
+    unsigned int numRasterSamples = programInfo.numRasterSamples();
+    psoDesc.SampleDesc = {numRasterSamples, kBaseQualityLevel};
+
+    // Only used for multi-adapter systems.
+    psoDesc.NodeMask = 0;
+
+    psoDesc.CachedPSO = {nullptr, 0};
+    psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     // TODO: fill in the rest of the descriptor.
 #if 0
     psoDesc.pRootSignature = m_rootSignature.Get();
     psoDesc.VS = { reinterpret_cast<UINT8*>(vertexShader->GetBufferPointer()), vertexShader->GetBufferSize() };
     psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()), pixelShader->GetBufferSize() };
-    psoDesc.DepthStencilState.DepthEnable = FALSE;
-    psoDesc.DepthStencilState.StencilEnable = FALSE;
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-    psoDesc.SampleDesc.Count = 1;
     ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));
 #endif
 
