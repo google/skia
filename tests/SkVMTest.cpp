@@ -1387,13 +1387,15 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.vmovdqa   (A::ymm3, A::ymm2);
+        a.vmovdqa   (A::ymm3, A::ymm2);            // vmovdqa   %ymm2, %ymm3
+        a.vmovdqa   (A::ymm3, A::Mem{A::rsi, 4});  // vmovdqa 4(%rsi), %ymm3
         a.vcvttps2dq(A::ymm3, A::ymm2);
         a.vcvtdq2ps (A::ymm3, A::ymm2);
         a.vcvtps2dq (A::ymm3, A::ymm2);
         a.vsqrtps   (A::ymm3, A::ymm2);
     },{
         0xc5,0xfd,0x6f,0xda,
+        0xc5,0xfd,0x6f,0x5e,0x04,
         0xc5,0xfe,0x5b,0xda,
         0xc5,0xfc,0x5b,0xda,
         0xc5,0xfd,0x5b,0xda,
