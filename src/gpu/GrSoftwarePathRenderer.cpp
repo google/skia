@@ -313,9 +313,12 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (useCache) {
         auto proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
         if (proxy) {
+            SkDebugf("SW Cache Hit\n");
             GrSwizzle swizzle = args.fRenderTargetContext->caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);
             view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+        } else {
+            SkDebugf("SW Cache Miss\n");
         }
     }
     if (!view) {
