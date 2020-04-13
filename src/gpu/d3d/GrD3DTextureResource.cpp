@@ -59,6 +59,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     info->fResourceState = D3D12_RESOURCE_STATE_COMMON;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
+    info->fSampleQualityLevel = desc.SampleDesc.Quality;
     info->fProtected = isProtected;
 
     return true;
