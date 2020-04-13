@@ -75,16 +75,6 @@ DEF_TEST(SkVM, r) {
         buf.writeText("I32 (Naive) 8888 over 8888\n");
         dump(builder, &buf);
     }
-    {
-        SrcoverBuilder_I32 builder;
-        buf.writeText("I32 8888 over 8888\n");
-        dump(builder, &buf);
-    }
-    {
-        SrcoverBuilder_I32_SWAR builder;
-        buf.writeText("I32 (SWAR) 8888 over 8888\n");
-        dump(builder, &buf);
-    }
 
     {
         // Demonstrate the value of program reordering.
@@ -177,8 +167,6 @@ DEF_TEST(SkVM, r) {
 
     test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done("srcover_f32"));
     test_8888(SrcoverBuilder_I32_Naive{}.done("srcover_i32_naive"));
-    test_8888(SrcoverBuilder_I32{}.done("srcover_i32"));
-    test_8888(SrcoverBuilder_I32_SWAR{}.done("srcover_i32_SWAR"));
 
     test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
                              [&](const skvm::Program& program) {
@@ -615,70 +603,6 @@ DEF_TEST(SkVM_index, r) {
         }
     });
 }
-
-DEF_TEST(SkVM_i16x2, r) {
-    skvm::Builder b;
-    {
-        skvm::Arg buf = b.varying<int>();
-
-        skvm::I32 x = b.load32(buf),
-                  y = b.add_16x2(x,x),   // y = 2x
-                  z = b.mul_16x2(x,y),   // z = 2x^2
-                  w = b.sub_16x2(z,x),   // w = x(2x-1)
-                  v = b.shl_16x2(w,7),   // These shifts will be a no-op
-                  u = b.sra_16x2(v,7);   // for all but x=12 and x=13.
-        b.store32(buf, u);
-    }
-
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
-        uint16_t buf[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13 };
-
-        program.eval(SK_ARRAY_COUNT(buf)/2, buf);
-        for (int i = 0; i < 12; i++) {
-            REPORTER_ASSERT(r, buf[i] == i*(2*i-1));
-        }
-        REPORTER_ASSERT(r, buf[12] == 0xff14);   // 12*23 = 0x114
-        REPORTER_ASSERT(r, buf[13] == 0xff45);   // 13*25 = 0x145
-    });
-}
-
-DEF_TEST(SkVM_cmp_i16, r) {
-    skvm::Builder b;
-    {
-        skvm::Arg buf = b.varying<int>();
-        skvm::I32 x = b.load32(buf);
-
-        auto to_bit = [&](int shift, skvm::I32 mask) {
-            return b.shl_16x2(b.bit_and(mask, b.splat(0x0001'0001)), shift);
-        };
-
-        skvm::I32 m = b.splat(0);
-        m = b.bit_or(m, to_bit(0, b. eq_16x2(x, b.splat(0x0000'0000))));
-        m = b.bit_or(m, to_bit(1, b.neq_16x2(x, b.splat(0x0001'0001))));
-        m = b.bit_or(m, to_bit(2, b. lt_16x2(x, b.splat(0x0002'0002))));
-        m = b.bit_or(m, to_bit(3, b.lte_16x2(x, b.splat(0x0003'0003))));
-        m = b.bit_or(m, to_bit(4, b. gt_16x2(x, b.splat(0x0004'0004))));
-        m = b.bit_or(m, to_bit(5, b.gte_16x2(x, b.splat(0x0005'0005))));
-
-        b.store32(buf, m);
-    }
-
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
-        int16_t buf[] = { 0,1, 2,3, 4,5, 6,7, 8,9 };
-
-        program.eval(SK_ARRAY_COUNT(buf)/2, buf);
-
-        REPORTER_ASSERT(r, buf[0] == 0b001111);
-        REPORTER_ASSERT(r, buf[1] == 0b001100);
-        REPORTER_ASSERT(r, buf[2] == 0b001010);
-        REPORTER_ASSERT(r, buf[3] == 0b001010);
-        REPORTER_ASSERT(r, buf[4] == 0b000010);
-        for (int i = 5; i < (int)SK_ARRAY_COUNT(buf); i++) {
-            REPORTER_ASSERT(r, buf[i] == 0b110010);
-        }
-    });
-}
-
 
 DEF_TEST(SkVM_mad, r) {
     // This program is designed to exercise the tricky corners of instruction
