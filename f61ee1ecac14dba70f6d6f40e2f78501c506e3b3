@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dec5a66_03441cd7",
+        "filename": "tools/sk_app/Window.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:28:46Z",
+      "side": 1,
+      "message": "nit: we typically just write \"if (!backbuffer)\" here.",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 29
+      },
+      "revId": "f61ee1ecac14dba70f6d6f40e2f78501c506e3b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
