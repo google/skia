@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f470fa2_9c707054",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T19:14:02Z",
+      "side": 1,
+      "message": "Maybe we should assert it\u0027s in range?",
+      "revId": "cf0c3d9bb9a1bfa8e154a83570a82661418356a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26a84761_bfbebc99",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T19:14:02Z",
+      "side": 1,
+      "message": "Seems niche enough that maybe this should be a static helper in the .cpp?",
+      "revId": "cf0c3d9bb9a1bfa8e154a83570a82661418356a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
