@@ -158,7 +158,7 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
         case GrPrimitiveType::kPath:
             SK_ABORT("Unsupported primitive type");
     }
-    SK_ABORT("invalid GrPrimitiveType");
+    SkUNREACHABLE;
 }
 
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,

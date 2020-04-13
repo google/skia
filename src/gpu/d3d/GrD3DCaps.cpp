@@ -166,6 +166,8 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
 
     fOversizedStencilSupport = true;
 
+    fTwoSidedStencilRefsAndMasksMustMatch = true;
+
     // Advanced blend modes don't appear to be supported.
 }
 
