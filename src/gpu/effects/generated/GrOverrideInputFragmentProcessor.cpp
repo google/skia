@@ -93,8 +93,9 @@ GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         , literalColor(src.literalColor) {
     {
         auto clone = src.childProcessor(fp_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

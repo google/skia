@@ -89,7 +89,8 @@ public:
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkASSERT(args.fTransformedCoords.count() == 1);
-        SkString coords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        SkString coords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                      fp.sampleMatrix());
         std::vector<SkString> childNames;
         // We need to ensure that we call invokeChild on each child FP at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
@@ -204,7 +205,7 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    child->setSampledWithExplicitCoords(true);
+    child->setSampledWithExplicitCoords();
     this->registerChildProcessor(std::move(child));
 }
 

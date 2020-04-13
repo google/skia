@@ -453,11 +453,11 @@ DEF_TEST(SkSLFPTransformedCoords, r) {
          {},
          {
             "SkString sk_TransformedCoords2D_0 = "
-                           "fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);",
+                           "fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint, "
+                                                       "_outer.sampleMatrix());",
             "fragBuilder->codeAppendf(\"%s = half4(%s, %s);\\n\", args.fOutputColor, "
                     "sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"
          });
-
 }
 
 DEF_TEST(SkSLFPLayoutWhen, r) {
@@ -495,14 +495,16 @@ DEF_TEST(SkSLFPChildProcessors, r) {
                                      "_sample110.c_str());\n",
             "{",
             "    auto clone = src.childProcessor(child1_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
             "{",
             "    auto clone = src.childProcessor(child2_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
          });
@@ -533,14 +535,16 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
             "_sample174 = this->invokeChild(_outer.child2_index, _input174.c_str(), args);",
             "{",
             "    auto clone = src.childProcessor(child1_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
             "{",
             "    auto clone = src.childProcessor(child2_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}"
          });
@@ -563,8 +567,9 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample64.c_str());",
             "{",
             "    auto clone = src.childProcessor(child_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
          });
@@ -592,14 +597,16 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample93.c_str());",
             "{",
             "    auto clone = src.childProcessor(child1_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child1_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
             "{",
             "    auto clone = src.childProcessor(child2_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child2_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
             });
@@ -631,8 +638,9 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
                                      " args.fOutputColor, _sample130.c_str(), args.fOutputColor);",
             "{",
             "    auto clone = src.childProcessor(child_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
             });
@@ -662,8 +670,9 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
                                      " args.fOutputColor, _sample105.c_str(), args.fOutputColor);",
             "{",
             "    auto clone = src.childProcessor(child_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
          });
@@ -694,8 +703,9 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
                                      " args.fOutputColor, _sample126.c_str(), args.fOutputColor);",
             "{",
             "    auto clone = src.childProcessor(child_index).clone();",
-            "    clone->setSampledWithExplicitCoords(",
-            "            src.childProcessor(child_index).isSampledWithExplicitCoords());",
+            "    if (src.childProcessor(child_index).isSampledWithExplicitCoords()) {",
+            "        clone->setSampledWithExplicitCoords();",
+            "    }",
             "    this->registerChildProcessor(std::move(clone));",
             "}",
          });
@@ -750,7 +760,8 @@ DEF_TEST(SkSLFPSampleCoords, r) {
             "_sample94 = this->invokeChild(_outer.child_index, args);\n",
             "SkString _sample110;\n",
             "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D("
-                                                     "args.fTransformedCoords[0].fVaryingPoint);\n",
+                                                     "args.fTransformedCoords[0].fVaryingPoint, "
+                                                     "_outer.sampleMatrix());\n",
             "SkString _coords110 = SkStringPrintf(\"%s / 2.0\", "
                 "sk_TransformedCoords2D_0.c_str());\n",
             "_sample110 = this->invokeChild(_outer.child_index, args, _coords110.c_str());\n",
@@ -775,5 +786,17 @@ DEF_TEST(SkSLFPFunction, r) {
                                       "\"return c.wzyx;\\n\", &flip_name);",
             "fragBuilder->codeAppendf(\"%s = %s(%s);\\n\", args.fOutputColor, flip_name.c_str(), "
                                       "args.fInputColor);"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSample, r) {
+    test(r,
+         "in fragmentProcessor? child;"
+         "void main() {"
+         "    sk_OutColor = sample(child, float3x3(2));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {},
+         {
          });
 }

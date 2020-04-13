@@ -21,11 +21,9 @@ struct BoolLiteral : public Expression {
     : INHERITED(offset, kBoolLiteral_Kind, *context.fBool_Type)
     , fValue(value) {}
 
-#ifdef SK_DEBUG
     String description() const override {
         return String(fValue ? "true" : "false");
     }
-#endif
 
     bool hasProperty(Property property) const override {
         return false;

@@ -72,14 +72,16 @@ GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         , weight(src.weight) {
     if (child1_index >= 0) {
         auto clone = src.childProcessor(child1_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(child1_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
     if (child2_index >= 0) {
         auto clone = src.childProcessor(child2_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(child2_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }
