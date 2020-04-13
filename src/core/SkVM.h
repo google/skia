@@ -65,6 +65,12 @@ namespace skvm {
         void byte(uint8_t);
         void word(uint32_t);
 
+        struct Label {
+            int                                      offset = 0;
+            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
+            SkSTArray<1, int>                        references;
+        };
+
         // x86-64
 
         void align(int mod);
@@ -73,16 +79,44 @@ namespace skvm {
         void vzeroupper();
         void ret();
 
+        // Mem represents a value at base + offset + scale*index,
+        // or simply at base + offset if index=rsp.
+        enum Scale { ONE, TWO, FOUR, EIGHT };
+        struct Mem {
+            GP64  base;
+            int   offset = 0;
+            Scale scale  = ONE;
+            GP64  index  = rsp;
+        };
+
+        struct Operand {
+            union {
+                int    imm;
+                GP64   reg;
+                Ymm    ymm;
+                Mem    mem;
+                Label* label;
+            };
+
+            Operand(int    i) : imm  (i), kind(Imm  ) {}
+            Operand(GP64   r) : reg  (r), kind(Reg  ) {}
+            Operand(Ymm    y) : ymm  (y), kind(Ymm  ) {}
+            Operand(Mem    m) : mem  (m), kind(Mem  ) {}
+            Operand(Label* l) : label(l), kind(Label) {}
+
+            enum {
+                Imm,   // value is imm
+                Reg,   // value is in reg
+                Ymm,   // value is in ymm
+                Mem,   // value is at address described by mem
+                Label, // value is at label
+            } kind;
+        };
+
         void add(GP64, int imm);
         void sub(GP64, int imm);
 
         void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
-
-        struct Label {
-            int                                      offset = 0;
-            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            SkSTArray<1, int>                        references;
-        };
 
         struct YmmOrLabel {
             Ymm    ymm   = ymm0;
@@ -152,7 +186,6 @@ namespace skvm {
         void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
 
-        enum Scale { ONE, TWO, FOUR, EIGHT };
         void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
         void vmovups(int  imm, Ymm src);     // *(sp + imm) = src
