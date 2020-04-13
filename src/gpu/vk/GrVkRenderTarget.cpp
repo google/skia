@@ -296,7 +296,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
-        desc->fStencil.fFormat = vkStencil->vkFormat();
+        desc->fStencil.fFormat = vkStencil->imageFormat();
         desc->fStencil.fSamples = vkStencil->numSamples();
 #ifdef SK_DEBUG
         if (this->getVkGpu()->caps()->mixedSamplesSupport()) {

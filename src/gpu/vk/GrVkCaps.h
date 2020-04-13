@@ -106,6 +106,22 @@ public:
         return fPreferredStencilFormat;
     }
 
+    // Returns total number of bits used by stencil + depth + padding
+    static int GetStencilFormatTotalBitCount(VkFormat format) {
+        switch (format) {
+        case VK_FORMAT_S8_UINT:
+            return 8;
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+            return 32;
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            // can optionally have 24 unused bits at the end so we assume the total bits is 64.
+            return 64;
+        default:
+            SkASSERT(false);
+            return 0;
+        }
+    }
+
     // Returns whether the device supports VK_KHR_Swapchain. Internally Skia never uses any of the
     // swapchain functions, but we may need to transition to and from the
     // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR image layout, so we must know whether that layout is
