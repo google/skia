@@ -12,6 +12,8 @@
 
 class GrAAConvexPathRenderer : public GrPathRenderer {
 public:
+    const char* name() const { return "AAConvex"; }
+
     GrAAConvexPathRenderer();
 
 private:

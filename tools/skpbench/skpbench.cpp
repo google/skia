@@ -269,17 +269,17 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
     clock::duration cumulativeDuration = std::chrono::milliseconds(0);
 
-    do {
+//    do {
         samples->emplace_back();
         Sample& sample = samples->back();
 
-        do {
+//        do {
             tiles.resetAllTiles();
             ddl_sample(context, &tiles, gpuSync, &sample, &startStopTime);
-        } while (sample.fDuration < sampleDuration);
+//        } while (sample.fDuration < sampleDuration);
 
         cumulativeDuration += sample.fDuration;
-    } while (cumulativeDuration < benchDuration || 0 == samples->size() % 2);
+//    } while (cumulativeDuration < benchDuration || 0 == samples->size() % 2);
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result

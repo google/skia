@@ -21,6 +21,8 @@ public:
     void setMaxVerbCount(int maxVerbCount) { fMaxVerbCount = maxVerbCount; }
 #endif
 
+    const char* name() const final { return "Triangulating"; }
+
 private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 

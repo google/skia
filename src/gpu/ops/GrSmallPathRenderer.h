@@ -30,6 +30,8 @@ public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
 
+    const char* name() const final { return "Small"; }
+
     // GrOnFlushCallbackObject overrides
     //
     // Note: because this class is associated with a path renderer we want it to be removed from

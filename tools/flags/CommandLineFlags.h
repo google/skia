@@ -125,7 +125,8 @@ public:
      */
     class StringArray {
     public:
-        StringArray() {}
+        StringArray() {
+        }
         explicit StringArray(const SkTArray<SkString>& strings) : fStrings(strings) {}
         const char* operator[](int i) const {
             SkASSERT(i >= 0 && i < fStrings.count());

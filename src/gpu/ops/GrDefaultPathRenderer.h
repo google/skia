@@ -20,6 +20,8 @@ class GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer();
 
+    const char* name() const final { return "Default"; }
+
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override;
 
