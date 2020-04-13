@@ -14,6 +14,8 @@ class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:
     GrAAHairLinePathRenderer() {}
 
+    const char* name() const final { return "AAHairline"; }
+
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
