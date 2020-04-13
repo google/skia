@@ -21,7 +21,6 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const GrVkImageView* stencilView)
     : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
     , GrVkImage(gpu, info, std::move(layout), GrBackendObjectOwnership::kOwned)
-    , fFormat(format)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
     stencilView->ref();
@@ -74,7 +73,7 @@ GrVkStencilAttachment::~GrVkStencilAttachment() {
 size_t GrVkStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
-    size *= fFormat.fTotalBits;
+    size *= GrVkCaps::GetStencilFormatTotalBitCount(this->imageFormat());
     size *= this->numSamples();
     return static_cast<size_t>(size / 8);
 }
