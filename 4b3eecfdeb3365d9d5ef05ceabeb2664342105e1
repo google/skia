@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40d86a3d_4529be9b",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T13:55:53Z",
+      "side": 1,
+      "message": "chris is this true currently? If not is there a reason it can\u0027t be?",
+      "range": {
+        "startLine": 274,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 62
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
