@@ -71,19 +71,14 @@ static float adjust_sigma(float sigma, int maxTextureSize, int *scaleFactor, int
     return sigma;
 }
 
-static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
+static GrSamplerState::WrapMode to_wrap_mode(SkTileMode tileMode) {
     switch (tileMode) {
-        case SkTileMode::kClamp:
-            return GrTextureDomain::kClamp_Mode;
-        case SkTileMode::kDecal:
-            return GrTextureDomain::kDecal_Mode;
-        case SkTileMode::kMirror:
-            // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
-        case SkTileMode::kRepeat:
-            return GrTextureDomain::kRepeat_Mode;
-        default:
-            SK_ABORT("Unsupported tile mode.");
+        case SkTileMode::kClamp:  return GrSamplerState::WrapMode::kClamp;
+        case SkTileMode::kDecal:  return GrSamplerState::WrapMode::kClampToBorder;
+        case SkTileMode::kMirror: return GrSamplerState::WrapMode::kMirrorRepeat;
+        case SkTileMode::kRepeat: return GrSamplerState::WrapMode::kRepeat;
     }
+    SkUNREACHABLE;
 }
 
 /**
@@ -101,7 +96,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  SkTileMode mode,
                                  int bounds[2]) {
     GrPaint paint;
-    auto domainMode = to_texture_domain_mode(mode);
+    auto wm = to_wrap_mode(mode);
     int realBounds[2];
     if (bounds) {
         realBounds[0] = bounds[0]; realBounds[1] = bounds[1];
@@ -111,12 +106,27 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
         realBounds[1] = direction == Direction::kX ? proxy->width() : proxy->height();
     }
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            std::move(srcView), srcAlphaType, direction, radius, sigma, domainMode, realBounds));
+            std::move(srcView), srcAlphaType, direction, radius, sigma, wm, realBounds,
+            *renderTargetContext->caps()));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     auto srcRect = SkRect::Make(rtcRect.makeOffset(rtcToSrcOffset));
     renderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(rtcRect), srcRect);
+}
+
+static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
+    switch (tileMode) {
+        case SkTileMode::kClamp:
+            return GrTextureDomain::kClamp_Mode;
+        case SkTileMode::kDecal:
+            return GrTextureDomain::kDecal_Mode;
+        case SkTileMode::kMirror:
+            // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
+        case SkTileMode::kRepeat:
+            return GrTextureDomain::kRepeat_Mode;
+    }
+    SkUNREACHABLE;
 }
 
 static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
