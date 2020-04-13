@@ -76,20 +76,22 @@ void Window::onPaint() {
     if (!fWindowContext) {
         return;
     }
-    markInvalProcessed();
-    this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
-    if (backbuffer) {
-        // draw into the canvas of this surface
-        this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
-
-        backbuffer->flush();
-
-        fWindowContext->swapBuffers();
-    } else {
+    if (backbuffer == nullptr) {
         printf("no backbuffer!?\n");
-        // try recreating testcontext
+        // TODO: try recreating testcontext
+        return;
     }
+
+    markInvalProcessed();
+
+    // draw into the canvas of this surface
+    this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
+    this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
+
+    backbuffer->flush();
+
+    fWindowContext->swapBuffers();
 }
 
 void Window::onResize(int w, int h) {
