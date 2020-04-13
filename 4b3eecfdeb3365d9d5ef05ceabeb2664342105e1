@@ -22,6 +22,98 @@
       "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20c4e8ee_e95ca773",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T14:20:07Z",
+      "side": 1,
+      "message": "indent?",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 8
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c92a1ddc_3fb97d49",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T14:20:07Z",
+      "side": 1,
+      "message": "define",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 24
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679305c3_abf2986d",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T14:20:07Z",
+      "side": 1,
+      "message": "simply",
+      "range": {
+        "startLine": 322,
+        "startChar": 74,
+        "endLine": 322,
+        "endChar": 80
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60126c7e_5a0c883a",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T14:20:07Z",
+      "side": 1,
+      "message": "I\u0027m setting it to 0 in texture creation as well, but we might want to centralize this somewhere in case we want to set it globally.",
+      "range": {
+        "startLine": 324,
+        "startChar": 4,
+        "endLine": 324,
+        "endChar": 52
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
