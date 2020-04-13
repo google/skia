@@ -161,7 +161,8 @@ namespace skvm {
         void vmovq  (GP64 ptr, Xmm src);     // *ptr = src,  64-bit
         void vmovd  (GP64 ptr, Xmm src);     // *ptr = src,  32-bit
 
-        void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t -> int
+        void movzbl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint8_t  -> int
+        void movzwl(GP64 dst, GP64 ptr, int off);  // dst = *(ptr+off), uint16_t -> int
         void movb  (GP64 ptr, GP64 src);           // *ptr = src, 8-bit
 
         void vmovd_direct(GP64 dst, Xmm src);  // dst = src, 32-bit
