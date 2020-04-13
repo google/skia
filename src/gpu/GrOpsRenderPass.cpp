@@ -77,6 +77,15 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     if (programInfo.pipeline().isWireframe()) {
          SkASSERT(this->gpu()->caps()->wireframeSupport());
     }
+    if (this->gpu()->caps()->twoSidedStencilRefsAndMasksMustMatch() &&
+        programInfo.pipeline().isStencilEnabled()) {
+        const GrUserStencilSettings* stencil = programInfo.pipeline().getUserStencil();
+        if (stencil->isTwoSided(programInfo.pipeline().hasStencilClip())) {
+            SkASSERT(stencil->fCCWFace.fRef == stencil->fCWFace.fRef);
+            SkASSERT(stencil->fCCWFace.fTestMask == stencil->fCWFace.fTestMask);
+            SkASSERT(stencil->fCCWFace.fWriteMask == stencil->fCWFace.fWriteMask);
+        }
+    }
     if (GrPrimitiveType::kPatches == programInfo.primitiveType()) {
         SkASSERT(this->gpu()->caps()->shaderCaps()->tessellationSupport());
     }
