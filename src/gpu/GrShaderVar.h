@@ -130,10 +130,6 @@ public:
     /** Write a declaration of this variable to out. */
     void appendDecl(const GrShaderCaps*, SkString* out) const;
 
-    void appendArrayAccess(const char* indexName, SkString* out) const {
-        out->appendf("%s[%s]", this->getName().c_str(), indexName);
-    }
-
 private:
     GrSLType        fType;
     TypeModifier    fTypeModifier;
