@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2eca9b03_0b8a4168",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-13T15:08:04Z",
+      "side": 1,
+      "message": "This is not true (but could be) for CCPR:\n\nhttps://github.com/google/skia/blob/master/src/gpu/ccpr/GrStencilAtlasOp.cpp#L95\n\nI intentionally made the tests different for each face to dance around a Qualcomm bug (https://b.corp.google.com/issues/144933198).\n\nIs this a requirement for D3D? If so then we can make a qualcomm cap and only use front/back tests on that platform.\n\nOtherwise a grep for StaticInitSeparate reveals everyone else uses the same test and mask.",
+      "parentUuid": "40d86a3d_4529be9b",
+      "range": {
+        "startLine": 274,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 62
+      },
+      "revId": "4b3eecfdeb3365d9d5ef05ceabeb2664342105e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20c4e8ee_e95ca773",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 1
