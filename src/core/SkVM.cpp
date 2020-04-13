@@ -2095,6 +2095,15 @@ namespace skvm {
         this->byte(mod_rm(mod(off), dst&7, src&7));
         this->bytes(&off, imm_bytes(mod(off)));
     }
+    void Assembler::movzwl(GP64 dst, GP64 src, int off) {
+        if ((dst>>3) || (src>>3)) {
+            this->byte(rex(0,dst>>3,0,src>>3));
+        }
+        this->byte(0x0f);
+        this->byte(0xb7);
+        this->byte(mod_rm(mod(off), dst&7, src&7));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
 
 
     void Assembler::movb(GP64 dst, GP64 src) {
@@ -3183,12 +3192,6 @@ namespace skvm {
             //
             // Now let's actually assemble the instruction!
             switch (op) {
-                default:
-                    if (debug_dump()) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;  // TODO: many new ops
-
             #if defined(__x86_64__)
                 case Op::assert_true: {
                     a->vptest (r[x], &constants[0xffffffff].label);
@@ -3232,6 +3235,11 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[immy]); }
                                  else        { a->vmovups(        dst(), arg[immy]); }
                                  break;
+
+                case Op::gather8:
+                case Op::gather16:
+                    SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    return false;  // TODO:
 
                 case Op::gather32:
                 if (scalar) {
@@ -3284,6 +3292,11 @@ namespace skvm {
                                    a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
                                    break;
+
+                case Op::uniform16: a->movzwl(scratch, arg[immy], immz);
+                                    a->vmovd_direct((A::Xmm)dst(), scratch);
+                                    a->vbroadcastss(dst(), (A::Xmm)dst());
+                                    break;
 
                 case Op::uniform32: a->vbroadcastss(dst(), arg[immy], immz);
                                     break;
@@ -3343,6 +3356,14 @@ namespace skvm {
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
                 case Op::mul_i32: a->vpmulld(dst(), r[x], r[y]); break;
 
+                case Op::add_i16x2:
+                case Op::shl_i16x2:
+                case Op::sra_i16x2:
+                case Op:: eq_i16x2:
+                case Op:: gt_i16x2:
+                    SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    return false;  // TODO:
+
                 case Op::sub_i16x2: a->vpsubw (dst(), r[x], r[y]); break;
                 case Op::mul_i16x2: a->vpmullw(dst(), r[x], r[y]); break;
                 case Op::shr_i16x2: a->vpsrlw (dst(), r[x], immy); break;
@@ -3379,6 +3400,12 @@ namespace skvm {
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
             #elif defined(__aarch64__)
+                default:
+                    if (debug_dump()) {
+                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
+                    }
+                    return false;  // TODO: many new ops
+
                 case Op::assert_true: {
                     a->uminv4s(tmp(), r[x]);   // uminv acts like an all() across the vector.
                     a->fmovs(scratch, tmp());
