@@ -22,6 +22,30 @@
       "revId": "809d970721da132574f150b5298860cc75d92fc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e0cdf30_c118a26d",
+        "filename": "src/gpu/ccpr/GrStencilAtlasOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-04-13T17:14:52Z",
+      "side": 1,
+      "message": "Oops, I thought I put an assert there. (Currently nobody will have the \"discard\" and \"must match\" settings both at the same time.)\n\nRegardless, I rearranged it to something I like better.",
+      "parentUuid": "c054f77c_41da7875",
+      "range": {
+        "startLine": 165,
+        "startChar": 40,
+        "endLine": 165,
+        "endChar": 63
+      },
+      "revId": "809d970721da132574f150b5298860cc75d92fc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
