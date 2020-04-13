@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21212276_7f98260e",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-13T04:13:59Z",
+      "side": 1,
+      "message": "It seems as if fTextureResourceInfo is still owned by this class; why was this changed from unique_ptr? Is there an advantage to using a raw pointer?",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 29
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c0cf30c_6c11b7e2",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-13T04:13:59Z",
+      "side": 1,
+      "message": "Consider TODO(jvanverth): \n\nhttps://google.github.io/styleguide/cppguide.html#TODO_Comments",
+      "range": {
+        "startLine": 484,
+        "startChar": 7,
+        "endLine": 484,
+        "endChar": 11
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d1bb9cd_1e9b9f9a",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-13T04:13:59Z",
+      "side": 1,
+      "message": "Should this be \"return {};\" for consistency?",
+      "range": {
+        "startLine": 585,
+        "startChar": 8,
+        "endLine": 585,
+        "endChar": 39
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
