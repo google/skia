@@ -2601,6 +2601,8 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+    return;
+
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
@@ -2617,7 +2619,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     DRAW_BEGIN(paint, bounds)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawTextBlob(draw.paint(), *blob, {x, y}, iter.fDevice);
+//        fScratchGlyphRunBuilder->drawTextBlob(draw.paint(), *blob, {x, y}, iter.fDevice);
     }
 
     DRAW_END
@@ -2629,7 +2631,7 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
+//        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
 
@@ -2638,7 +2640,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
-    this->onDrawTextBlob(blob, x, y, paint);
+//    this->onDrawTextBlob(blob, x, y, paint);
 }
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,

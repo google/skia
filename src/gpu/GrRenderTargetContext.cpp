@@ -2241,6 +2241,8 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawShape", fContext);
 
+    return;
+
     if (shape.isEmpty()) {
         if (shape.inverseFilled()) {
             this->drawPaint(clip, std::move(paint), viewMatrix);

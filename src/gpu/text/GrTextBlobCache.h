@@ -159,6 +159,8 @@ private:
     };
 
     void add(sk_sp<GrTextBlob> blob) {
+        return;
+
         auto  id      = GrTextBlob::GetKey(*blob).fUniqueID;
         auto* idEntry = fBlobIDCache.find(id);
         if (!idEntry) {
