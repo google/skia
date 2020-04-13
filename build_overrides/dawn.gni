@@ -10,11 +10,10 @@
 # many of these as possible. This will require updating Skia's
 # SPIRV-Tools and Shaderc at a minimum.
 
-# skia/third_party/externals/jinja2 relative to skia/third_party/dawn/BUILD.gn
-dawn_jinja2_dir = "../externals/jinja2"
+# Skia doesn't have Chromium's //build directory. Tell Dawn to do without.
+dawn_has_build = false
 
-# dawn_glfw_dir = "//third_party/glfw"
-# dawn_googletest_dir = "//third_party/googletest"
+dawn_jinja2_dir = "//third_party/externals/jinja2"
 dawn_shaderc_dir = "//third_party/shaderc"
 dawn_spirv_tools_dir = "//third_party/spirv-tools"
 dawn_spirv_cross_dir = "//third_party/spirv-cross"

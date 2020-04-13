@@ -578,11 +578,11 @@ optional("gpu") {
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
     sources += skia_dawn_sources
-    public_deps += [ "//third_party/dawn:dawn_headers" ]
+    public_deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
     deps += [
-      "//third_party/dawn:dawncpp",
-      "//third_party/dawn:libdawn_native",
-      "//third_party/dawn:libdawn_proc",
+      "//third_party/externals/dawn/src/dawn:dawn_proc",
+      "//third_party/externals/dawn/src/dawn:dawncpp",
+      "//third_party/externals/dawn/src/dawn_native",
     ]
     if (dawn_enable_d3d12) {
       libs += [
@@ -1220,7 +1220,7 @@ if (skia_enable_tools) {
     ]
 
     if (skia_use_dawn) {
-      deps += [ "//third_party/dawn:dawn_headers" ]
+      deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
     }
   }
 
@@ -1385,7 +1385,7 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/d3d/D3DTestUtils.cpp" ]
     }
     if (skia_use_dawn) {
-      public_deps += [ "//third_party/dawn:dawn_headers" ]
+      public_deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
       sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
       cflags_cc = [ "-Wno-microsoft-cast" ]
     }
