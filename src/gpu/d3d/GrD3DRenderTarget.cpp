@@ -104,8 +104,9 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
-        if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc, info.fProtected,
-                                                           &msInfo)) {
+        if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc,
+                                                           D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                                           info.fProtected, &msInfo)) {
             return nullptr;
         }
 

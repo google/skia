@@ -42,8 +42,9 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
     GrD3DTextureResourceInfo info;
-    // TODO: it'd be better if we initialized the resource in DEPTH_WRITE state instead of COMMON
-    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, GrProtected::kNo, &info)) {
+    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc,
+                                                       D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                                                       GrProtected::kNo, &info)) {
         return nullptr;
     }
 

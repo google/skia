@@ -484,7 +484,11 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 
-    if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, isProtected, info)) {
+    D3D12_RESOURCE_STATES initialState =
+        (renderable == GrRenderable::kYes) && !data ? D3D12_RESOURCE_STATE_RENDER_TARGET :
+                                                      D3D12_RESOURCE_STATE_COPY_DEST;
+    if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, initialState,
+                                                       isProtected, info)) {
         SkDebugf("Failed to init texture resource info\n");
         return false;
     }
