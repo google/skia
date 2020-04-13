@@ -810,7 +810,7 @@ namespace skvm {
         return {this, push(Op::splat, NA,NA,NA, bits)};
     }
 
-    static bool fma_supported() {
+    bool fma_supported() {
         static const bool supported =
      #if defined(SK_CPU_X86)
          SkCpu::Supports(SkCpu::HSW);
