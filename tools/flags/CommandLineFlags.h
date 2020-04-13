@@ -125,8 +125,13 @@ public:
      */
     class StringArray {
     public:
-        StringArray() {}
-        explicit StringArray(const SkTArray<SkString>& strings) : fStrings(strings) {}
+        StringArray() {
+        }
+        explicit StringArray(const SkTArray<SkString>& strings) : fStrings(strings) {
+            int foo = 0;
+            foo++;
+            SkDebugf("wtf\n");
+        }
         const char* operator[](int i) const {
             SkASSERT(i >= 0 && i < fStrings.count());
             return fStrings[i].c_str();
@@ -162,9 +167,13 @@ public:
     private:
         void reset() { fStrings.reset(); }
 
-        void append(const char* string) { fStrings.push_back().set(string); }
+        void append(const char* string) {
+            fStrings.push_back().set(string);
+        }
 
-        void append(const char* string, size_t length) { fStrings.push_back().set(string, length); }
+        void append(const char* string, size_t length) {
+            fStrings.push_back().set(string, length);
+        }
 
         SkTArray<SkString> fStrings;
 

@@ -1993,6 +1993,15 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+
+    const SkRect& pathBounds = path.getBounds();
+
+    static int foo = 0;
+    SkDebugf("drawPath %d - %d - %.2f %.2f %.2f %.2f\n",
+             foo++,
+             path.getGenerationID(),
+             pathBounds.fLeft, pathBounds.fTop, pathBounds.fBottom, pathBounds.fBottom);
     this->onDrawPath(path, paint);
 }
 

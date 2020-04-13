@@ -877,6 +877,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
     if (!pr && allowSW) {
+        SkDebugf("PR: falling back to SW\n");
         auto swPR = this->getSoftwarePathRenderer();
         if (GrPathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args)) {
             pr = swPR;
