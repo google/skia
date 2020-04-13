@@ -93,7 +93,7 @@ private:
 
     GrD3DGpu* getD3DGpu() const;
 
-    bool completeStencilAttachment() override { /* TODO */ return false; }
+    bool completeStencilAttachment() override { return true; }
 
     // In Direct3D we call the release proc after we are finished with the underlying
     // GrD3DTextureResource::Resource object (which occurs after the GPU finishes all work on it).

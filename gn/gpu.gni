@@ -743,6 +743,8 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DResourceProvider.cpp",
   "$_src/gpu/d3d/GrD3DResourceProvider.h",
   "$_src/gpu/d3d/GrD3DResourceState.h",
+  "$_src/gpu/d3d/GrD3DStencilAttachment.cpp",
+  "$_src/gpu/d3d/GrD3DStencilAttachment.h",
   "$_src/gpu/d3d/GrD3DTexture.cpp",
   "$_src/gpu/d3d/GrD3DTexture.h",
   "$_src/gpu/d3d/GrD3DTextureRenderTarget.cpp",
