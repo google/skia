@@ -572,6 +572,7 @@ namespace skvm {
         F32 approx_asin(F32 x);
         F32 approx_acos(F32 x) { return sub(SK_ScalarPI/2, approx_asin(x)); }
         F32 approx_atan(F32 x);
+        F32 approx_atan(F32 y, F32 x);
 
         F32 lerp(F32  lo, F32  hi, F32  t) { return mad(sub(hi, lo), t, lo); }
         F32 lerp(F32a lo, F32a hi, F32a t) { return lerp(_(lo), _(hi), _(t)); }
@@ -918,6 +919,7 @@ namespace skvm {
     static inline F32 approx_asin(F32 x) { return x->approx_asin(x); }
     static inline F32 approx_acos(F32 x) { return x->approx_acos(x); }
     static inline F32 approx_atan(F32 x) { return x->approx_atan(x); }
+    static inline F32 approx_atan(F32 y, F32 x) { return x->approx_atan(y, x); }
 
     static inline F32 clamp01(F32 x) { return x->clamp01(x); }
     static inline F32     abs(F32 x) { return x->    abs(x); }

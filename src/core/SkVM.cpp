@@ -956,24 +956,56 @@ namespace skvm {
          return x;
      }
 
-    /*  Use symmetry (atan is odd)
-     *  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
-     *  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
+    /*  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
      *      with 129 values of x,atan(x) for x:[0...1]
+     *  This only works for 0 <= x <= 1
+     */
+    static F32 approx_atan_unit(F32 x) {
+        // for now we might be given NaN... let that through
+        x->assert_true((x != x) | ((x >= 0) & (x <= 1)));
+        return poly(x, 0.14130025741326729f,
+                      -0.34312835980675116f,
+                      -0.016172900528248768f,
+                       1.0037696976200385f,
+                      -0.00014758242182738969f);
+    }
+
+    /*  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
      */
     F32 Builder::approx_atan(F32 x) {
         I32 neg = (x < 0.0f);
         x = select(neg, -x, x);
         I32 flip = (x > 1.0f);
         x = select(flip, 1/x, x);
-        x = poly(x, 0.14130025741326729f,
-                   -0.34312835980675116f,
-                   -0.016172900528248768f,
-                    1.0037696976200385f,
-                   -0.00014758242182738969f);
+        x = approx_atan_unit(x);
         x = select(flip, SK_ScalarPI/2 - x, x);
         x = select(neg, -x, x);
         return x;
+    }
+
+    /*  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
+     *  By swapping y,x to ensure the ratio is <= 1, we can safely call atan_unit()
+     *  which avoids a 2nd divide instruction if we had instead called atan().
+     */
+    F32 Builder::approx_atan(F32 y0, F32 x0) {
+
+        I32 flip = (abs(y0) > abs(x0));
+        F32 y = select(flip, x0, y0);
+        F32 x = select(flip, y0, x0);
+        F32 arg = y/x;
+
+        I32 neg = (arg < 0.0f);
+        arg = select(neg, -arg, arg);
+
+        F32 r = approx_atan_unit(arg);
+        r = select(flip, SK_ScalarPI/2 - r, r);
+        r = select(neg, -r, r);
+
+        // handle quadrant distinctions
+        r = select((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
+        r = select((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
+        // Note: we don't try to handle 0,0 or infinities (yet)
+        return r;
     }
 
     F32 Builder::min(F32 x, F32 y) {
