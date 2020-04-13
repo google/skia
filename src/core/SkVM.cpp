@@ -2095,6 +2095,15 @@ namespace skvm {
         this->byte(mod_rm(mod(off), dst&7, src&7));
         this->bytes(&off, imm_bytes(mod(off)));
     }
+    void Assembler::movzwl(GP64 dst, GP64 src, int off) {
+        if ((dst>>3) || (src>>3)) {
+            this->byte(rex(0,dst>>3,0,src>>3));
+        }
+        this->byte(0x0f);
+        this->byte(0xb7);
+        this->byte(mod_rm(mod(off), dst&7, src&7));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
 
 
     void Assembler::movb(GP64 dst, GP64 src) {
@@ -3284,6 +3293,11 @@ namespace skvm {
                                    a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
                                    break;
+
+                case Op::uniform16: a->movzwl(scratch, arg[immy], immz);
+                                    a->vmovd_direct((A::Xmm)dst(), scratch);
+                                    a->vbroadcastss(dst(), (A::Xmm)dst());
+                                    break;
 
                 case Op::uniform32: a->vbroadcastss(dst(), arg[immy], immz);
                                     break;
