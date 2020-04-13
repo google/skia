@@ -74,7 +74,6 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
     textBlob->insertSubRun(this);
 }
 
-
 static SkRect dest_rect(const SkGlyph& g, SkPoint origin) {
     return SkRect::MakeXYWH(
             SkIntToScalar(g.left()) + origin.x(),
@@ -946,8 +945,8 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     SkASSERT(fSubRun->isPrepared());
     const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-    if (!fMetricsAndImages.isValid()
-            || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
+    if (!fMetricsAndImages.isValid() ||
+            fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
         fMetricsAndImages.init(strikeSpec);
     }
 
@@ -972,7 +971,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
             }
         }
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                fSubRun->bulkUseToken(),  fSubRun->maskFormat(), grGlyph,
+                fSubRun->bulkUseToken(), fSubRun->maskFormat(), grGlyph,
                 tokenTracker->nextDrawToken());
     }
     int glyphsPlacedInAtlas = i - begin;
