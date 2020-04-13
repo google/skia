@@ -310,26 +310,24 @@ namespace skvm {
         M(gather8)  M(gather16)  M(gather32)  \
         M(uniform8) M(uniform16) M(uniform32) \
         M(splat)                              \
-        M(add_f32) M(add_i32) M(add_i16x2)    \
-        M(sub_f32) M(sub_i32) M(sub_i16x2)    \
-        M(mul_f32) M(mul_i32) M(mul_i16x2)    \
+        M(add_f32) M(add_i32)                 \
+        M(sub_f32) M(sub_i32)                 \
+        M(mul_f32) M(mul_i32)                 \
         M(div_f32)                            \
         M(min_f32)                            \
         M(max_f32)                            \
         M(fma_f32) M(fms_f32) M(fnma_f32)     \
         M(sqrt_f32)                           \
-                   M(shl_i32) M(shl_i16x2)    \
-                   M(shr_i32) M(shr_i16x2)    \
-                   M(sra_i32) M(sra_i16x2)    \
+        M(shl_i32) M(shr_i32) M(sra_i32)      \
         M(add_f32_imm)                        \
         M(sub_f32_imm)                        \
         M(mul_f32_imm)                        \
         M(min_f32_imm)                        \
         M(max_f32_imm)                        \
         M(floor) M(trunc) M(round) M(to_f32)  \
-        M( eq_f32) M( eq_i32) M( eq_i16x2)    \
+        M( eq_f32) M( eq_i32)                 \
         M(neq_f32)                            \
-        M( gt_f32) M( gt_i32) M( gt_i16x2)    \
+        M( gt_f32) M( gt_i32)                 \
         M(gte_f32)                            \
         M(bit_and)                            \
         M(bit_or)                             \
@@ -622,22 +620,6 @@ namespace skvm {
 
         F32 to_f32(I32 x);
         F32 bit_cast(I32 x) { return {x.builder, x.id}; }
-
-        // Treat each 32-bit lane as a pair of 16-bit ints.
-        I32 add_16x2(I32, I32);  I32 add_16x2(I32a x, I32a y) { return add_16x2(_(x), _(y)); }
-        I32 sub_16x2(I32, I32);  I32 sub_16x2(I32a x, I32a y) { return sub_16x2(_(x), _(y)); }
-        I32 mul_16x2(I32, I32);  I32 mul_16x2(I32a x, I32a y) { return mul_16x2(_(x), _(y)); }
-
-        I32 shl_16x2(I32 x, int bits);
-        I32 shr_16x2(I32 x, int bits);
-        I32 sra_16x2(I32 x, int bits);
-
-        I32  eq_16x2(I32, I32);  I32  eq_16x2(I32a x, I32a y) { return  eq_16x2(_(x), _(y)); }
-        I32 neq_16x2(I32, I32);  I32 neq_16x2(I32a x, I32a y) { return neq_16x2(_(x), _(y)); }
-        I32  lt_16x2(I32, I32);  I32  lt_16x2(I32a x, I32a y) { return  lt_16x2(_(x), _(y)); }
-        I32 lte_16x2(I32, I32);  I32 lte_16x2(I32a x, I32a y) { return lte_16x2(_(x), _(y)); }
-        I32  gt_16x2(I32, I32);  I32  gt_16x2(I32a x, I32a y) { return  gt_16x2(_(x), _(y)); }
-        I32 gte_16x2(I32, I32);  I32 gte_16x2(I32a x, I32a y) { return gte_16x2(_(x), _(y)); }
 
         // Bitwise operations.
         I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }

@@ -28,15 +28,10 @@ namespace SK_OPTS_NS {
         using U16 = skvx::Vec<K, uint16_t>;
         using  U8 = skvx::Vec<K, uint8_t>;
 
-        using I16x2 = skvx::Vec<2*K,  int16_t>;
-        using U16x2 = skvx::Vec<2*K, uint16_t>;
-
         union Slot {
             F32   f32;
             I32   i32;
             U32   u32;
-            I16x2 i16x2;
-            U16x2 u16x2;
         };
 
         Slot                     few_regs[16];
@@ -222,17 +217,9 @@ namespace SK_OPTS_NS {
                     CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y).i32; break;
                     CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y).i32; break;
 
-                    CASE(Op::add_i16x2): r(d).i16x2 = r(x).i16x2 + r(y).i16x2; break;
-                    CASE(Op::sub_i16x2): r(d).i16x2 = r(x).i16x2 - r(y).i16x2; break;
-                    CASE(Op::mul_i16x2): r(d).i16x2 = r(x).i16x2 * r(y).i16x2; break;
-
                     CASE(Op::shl_i32): r(d).i32 = r(x).i32 << immy; break;
                     CASE(Op::sra_i32): r(d).i32 = r(x).i32 >> immy; break;
                     CASE(Op::shr_i32): r(d).u32 = r(x).u32 >> immy; break;
-
-                    CASE(Op::shl_i16x2): r(d).i16x2 = r(x).i16x2 << immy; break;
-                    CASE(Op::sra_i16x2): r(d).i16x2 = r(x).i16x2 >> immy; break;
-                    CASE(Op::shr_i16x2): r(d).u16x2 = r(x).u16x2 >> immy; break;
 
                     CASE(Op:: eq_f32): r(d).i32 = r(x).f32 == r(y).f32; break;
                     CASE(Op::neq_f32): r(d).i32 = r(x).f32 != r(y).f32; break;
@@ -241,9 +228,6 @@ namespace SK_OPTS_NS {
 
                     CASE(Op:: eq_i32): r(d).i32 = r(x).i32 == r(y).i32; break;
                     CASE(Op:: gt_i32): r(d).i32 = r(x).i32 >  r(y).i32; break;
-
-                    CASE(Op:: eq_i16x2): r(d).i16x2 = r(x).i16x2 == r(y).i16x2; break;
-                    CASE(Op:: gt_i16x2): r(d).i16x2 = r(x).i16x2 >  r(y).i16x2; break;
 
                     CASE(Op::bit_and  ): r(d).i32 = r(x).i32 &  r(y).i32; break;
                     CASE(Op::bit_or   ): r(d).i32 = r(x).i32 |  r(y).i32; break;
