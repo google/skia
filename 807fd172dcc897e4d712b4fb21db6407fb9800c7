@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d86a9056_3f713c7d",
+        "filename": "src/gpu/d3d/GrD3DStencilAttachment.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:19:53Z",
+      "side": 1,
+      "message": "Move these down to where we are stetting them? Can we just do \"resourceDesc.Flags \u003d D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;\"",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 58
+      },
+      "revId": "807fd172dcc897e4d712b4fb21db6407fb9800c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "374e1535_ea239522",
+        "filename": "src/gpu/d3d/GrD3DStencilAttachment.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:19:53Z",
+      "side": 1,
+      "message": "Is this used anywhere?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 21
+      },
+      "revId": "807fd172dcc897e4d712b4fb21db6407fb9800c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43ccc46d_8e70aecd",
+        "filename": "src/gpu/d3d/GrD3DStencilAttachment.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:19:53Z",
+      "side": 1,
+      "message": "Is this function not already on GrD3DTextureResource?",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 70
+      },
+      "revId": "807fd172dcc897e4d712b4fb21db6407fb9800c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d548cc25_facec773",
+        "filename": "src/gpu/d3d/GrD3DStencilAttachment.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T14:19:53Z",
+      "side": 1,
+      "message": "Do we need to store the whole format struct here? Looks like all this class needs to store is the fTotalBits, assuming the internalFormat just lives on the grD3DTextureResource.\n\nEven then the fTotalBits is just used in onGPUMemorySize. Would it make sense to just have a static helper function that can quickly go from a DXGI_FORMAT to a bit count, and then we don\u0027t have to store anything? Then again storing one int here is very cheap.",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 19
+      },
+      "revId": "807fd172dcc897e4d712b4fb21db6407fb9800c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
