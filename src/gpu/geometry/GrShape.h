@@ -527,11 +527,15 @@ private:
         return fPathData.fPath;
     }
 
+public:
     const SkPath& path() const {
         SkASSERT(Type::kPath == fType);
         return fPathData.fPath;
     }
 
+    bool isPath() const { return Type::kPath == fType; }
+
+private:
     /** Constructor used by the applyStyle() function */
     GrShape(const GrShape& parentShape, GrStyle::Apply, SkScalar scale);
 

@@ -2383,6 +2383,15 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
         return;
     }
 
+    const SkRect& pathBounds = originalShape.bounds();
+
+    static int foo = 0;
+    SkDebugf("drawPath %d - %d - %.2f %.2f %.2f %.2f\n",
+             foo++,
+             originalShape.isPath() ? originalShape.path().getGenerationID() : -1,
+             pathBounds.fLeft, pathBounds.fTop, pathBounds.fBottom, pathBounds.fBottom);
+
+
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
@@ -2431,6 +2440,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
             pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
         } else {
             pr = this->drawingManager()->getSoftwarePathRenderer();
+            SkDebugf("PR: falling back to SW\n");
         }
     }
 

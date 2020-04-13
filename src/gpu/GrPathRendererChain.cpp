@@ -129,5 +129,9 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
             break;
         }
     }
+
+    if (bestPathRenderer) {
+        SkDebugf("PR: %s\n", bestPathRenderer->name());
+    }
     return bestPathRenderer;
 }
