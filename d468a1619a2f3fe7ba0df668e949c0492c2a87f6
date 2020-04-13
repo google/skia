@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70eafec4_0efb3b99",
+        "filename": "src/gpu/ccpr/GrCCClipPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-13T20:58:42Z",
+      "side": 0,
+      "message": "This gets asserted when the texture is assigned to the proxy.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 81
+      },
+      "revId": "d468a1619a2f3fe7ba0df668e949c0492c2a87f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
