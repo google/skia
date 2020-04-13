@@ -1,0 +1,267 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4108b627_3b8055ed",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "Instruction or const Instruction\u0026 here?",
+      "range": {
+        "startLine": 541,
+        "startChar": 12,
+        "endLine": 541,
+        "endChar": 24
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a38c027_195f67ad",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "We don\u0027t have a \"use\" defined yet, so I\u0027m not sure I follow.  Is this uses \u003e 1?",
+      "range": {
+        "startLine": 548,
+        "startChar": 47,
+        "endLine": 548,
+        "endChar": 54
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "280ec4f3_ebda6c64",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "I don\u0027t think your first sentence makes strict sense.\n\nI read it as literally saying, a fan-in tree is the sub-graph consisting of sink nodes and nodes with use \u003e 1.  By that definition, each DAG has exactly one fan-in tree, and it\u0027s not likely a tree.\n\nDid you mean, each sink node and each node with use \u003e 1 is a fan-in tree _root_?  I think I can see how that partitions the DAG into disjoint trees, but it might be clearer with an example?  E.g.\n\n    A   B   C   D\n     \\   \\ /   /\n      \\   E   /\n       \\ / \\ /\n        F   G\n         \\ /\n          H\n          |\n          S\n\nThis DAG has trees rooted at E,H, and S, right?  And the trees are {B,C,E}, {A,D,F,G,H}, and {S}?\n\nOnce we\u0027ve gotten that far, I think the next important thing to do is to explain what indexes tree_register_use[], and once indexed, what the value it returns means.  Is it a Val -\u003e int mapping, and does it hold the same result for each Val in a given tree?  How do we know which tree each Val is in, and does it matter?",
+      "range": {
+        "startLine": 547,
+        "startChar": 70,
+        "endLine": 549,
+        "endChar": 26
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b745546_5a541b81",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "probably better with a space",
+      "range": {
+        "startLine": 553,
+        "startChar": 23,
+        "endLine": 553,
+        "endChar": 24
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6116c799_05801242",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "Same, Instruction or const Instruction\u0026?  This screams \"I\u0027m mutating inst\" and in a complicated function like this it\u0027s hard to glance to see whether or not you are.",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd00fdcf_50441e0c",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "It\u0027s ok with me if you want to introduce new names, but please do change them all through the system if you do.  We\u0027ve been fairly consistent so far calling these \"args\", right?  And we\u0027ve been calling sinks \"instructions with side effects\", that sort of thing.   You pick, but please make sure we don\u0027t ever call the same thing by different names, or different things by the same name.\n\nOr is child something else?",
+      "range": {
+        "startLine": 556,
+        "startChar": 16,
+        "endLine": 556,
+        "endChar": 21
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "518996eb_3ba88556",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "Is this something we can calculate directly?  It\u0027d be easier to follow if we can extract this simple logic out from the part we have to think carefully about.\n\nIs it just\n\n   const int child_count \u003d (inst.x \u003d\u003d NA ? 0 : 1)\n                         + (inst.y \u003d\u003d NA ? 0 : 1)\n                         + (inst.z \u003d\u003d NA ? 0 : 1);\n\nand do we have to think about overlap between x,y,z?",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d9256e4_7a0c1f48",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "This is pretty hard to follow what\u0027s going on with descending order, and why.\n\nCan we just calculate each child\u0027s value, then sort the three descending afterwards?",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd253731_b87c78a1",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "// The Val which is an argument to this instruction is part of its same tree.",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3888401a_1eda5bf8",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "I think I understand that this is an important spot to write a comment, but it doesn\u0027t make any sense to me.  All nodes must be fully calculated before they\u0027re used, no?  How can you use a value that does not exist?",
+      "range": {
+        "startLine": 574,
+        "startChar": 0,
+        "endLine": 575,
+        "endChar": 49
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a358cbed_82103f38",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "I think this is subtle enough that we should try to explain only how it works, and not mention any incorrect intuition.  Since there are only four cases, it might be simpler to just list them out?  (Mostly just for comments, even leaving the impl exactly as it is.)\n\n  // We have up to three arguments (x,y,z) sorted by descending register usage into (L,M,S),\n  // large, medium, and small.  The least register usage we can schedule for each of these cases is\n  //\n  //   0 args: regs[id] \u003d 1                                   (e.g. Op::index)\n  //   1 arg:  regs[id] \u003d regs[L]                             (eval L, reuse its register for id)\n  //   2 args: regs[id] \u003d max(regs[L], regs[M]+1)             (eval L before M, holding L in a tmp)\n  //   3 args: regs[id] \u003d max(regs[L], regs[M]+1, regs[S]+2)  (L then M then S, with two tmps)",
+      "range": {
+        "startLine": 581,
+        "startChar": 0,
+        "endLine": 587,
+        "endChar": 50
+      },
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "791bbdd7_25e5067e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "Given how clear the impl is a line below, this comment seems pretty useless.\n\nIt not clear why we want to keep instructions in the same tree close together,\nand that we appear to favor this over register usage is very unintuitive.",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bf3f02e_132431d0",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-04-13T15:39:43Z",
+      "side": 1,
+      "message": "I think I\u0027m not following how the tree numbering works.\n\nCan we reframe this as\n\n   // Which instruction is the root of a given instruction\u0027s fan-in tree?\n   std::vector\u003cVal\u003e tree_root(program.size(), NA);\n\nand then replace this line with\n\n    tree_root[id] \u003d id;\n    frontier.push_back(id);\n\nand below write\n\n    if (tree_root[arg] \u003d\u003d NA) {\n        tree_root[arg] \u003d tree_root[id];\n    }\n    frontier.push_back(arg);\n\n?\n\nLooking at this code though I think I may misunderstand how the trees are determined.\nDid I partition my {A,B,C,D,E,F,G,H,S} graph correctly?  What are the tree numbers\n(and tree roots?) for each of the nodes in that graph?",
+      "revId": "1f9f13061f068661a09d7831d5cdbdf1a1fe3f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
