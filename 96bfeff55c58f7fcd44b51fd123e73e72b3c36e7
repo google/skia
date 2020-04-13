@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "cb8240d0_bc5886b0",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-04-13T13:50:27Z",
+      "side": 1,
+      "message": "FYI, I tried pulling the D3DSurfaceInfo out of the union and it created a terrible dependency chain which would have involved putting d3d12.h GrBackendSurface.h.",
+      "parentUuid": "2b12ec19_11b77f17",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 29
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c0cf30c_6c11b7e2",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 3
