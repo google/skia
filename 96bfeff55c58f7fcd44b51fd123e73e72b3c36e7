@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2b12ec19_11b77f17",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T12:12:53Z",
+      "side": 1,
+      "message": "See previous comments in the CL. Basically by the way we store GrD3DTextureResourceInfos as a union on GrBackendTexture, it can cause us to create and uninitialized GrD3DTextureResourceInfo. When we later go to initialize it with assign function, the unique_ptr doesn\u0027t have a nullptr but some random value in it. Thus it will try to unref that ptr which isn\u0027t good. I suppose we could use release on the unique_ptr but we\u0027d still need the isThisValid parameter passed in. The argument is if we\u0027re already do some manual ref tracking should we just go all the way it instead of managing some hybrid versoin? Personally I am happy with either approach.",
+      "parentUuid": "21212276_7f98260e",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 29
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c0cf30c_6c11b7e2",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-13T04:13:59Z",
       "side": 1,
       "message": "Consider TODO(jvanverth): \n\nhttps://google.github.io/styleguide/cppguide.html#TODO_Comments",
+      "range": {
+        "startLine": 484,
+        "startChar": 7,
+        "endLine": 484,
+        "endChar": 11
+      },
+      "revId": "96bfeff55c58f7fcd44b51fd123e73e72b3c36e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90136661_fc0a039c",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-13T12:12:53Z",
+      "side": 1,
+      "message": "we haven\u0027t used the TODO(name) style much within Skia. I think a lot of this is cause many people end up touching the same part of the code and it isn\u0027t always obvious that anyone particular should be assigned a TODO.\n\nOn a related note, I\u0027ve seen some use lately in Skia of doing \"TODO ProjectName:\" so it can be easily identified for a particular project, but it is not widely used right now. I kind of like that model if we also add a requirement that in the tracking bug for a particular long term project what its ProjectName is. That way when looking at bug you can quickly find which tasks are left. And if you want to close out that bug you need to have no TODO lefts (either actually fix them or pass them off to another project). This way anyone who jumps in to work on such a project and see things that are left todo.",
+      "parentUuid": "3c0cf30c_6c11b7e2",
       "range": {
         "startLine": 484,
         "startChar": 7,
