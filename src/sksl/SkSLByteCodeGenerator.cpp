@@ -936,6 +936,9 @@ void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
 void ByteCodeGenerator::writeVariableExpression(const Expression& expr) {
     Location location = this->getLocation(expr);
     int count = SlotCount(expr.fType);
+    if (count == 0) {
+        return;
+    }
     if (location.isOnStack() || count > 4) {
         if (!location.isOnStack()) {
             this->write(ByteCodeInstruction::kPushImmediate);
