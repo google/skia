@@ -29,6 +29,8 @@ class GrCoverageCountingPathRenderer : public GrPathRenderer, public GrOnFlushCa
 public:
     using CoverageType = GrCCAtlas::CoverageType;
 
+    const char* name() const final { return "CCPR"; }
+
     static bool IsSupported(const GrCaps&, CoverageType* = nullptr);
 
     enum class AllowCaching : bool {
