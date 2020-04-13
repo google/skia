@@ -83,6 +83,11 @@ public:
         return this->preferFullscreenClears();
     }
 
+    // D3D does not allow the refs or masks to differ on a two-sided stencil draw.
+    bool twoSidedStencilRefsAndMasksMustMatch() const {
+        return fTwoSidedStencilRefsAndMasksMustMatch;
+    }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
@@ -473,6 +478,7 @@ protected:
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
+    bool fTwoSidedStencilRefsAndMasksMustMatch       : 1;
     bool fMustClearUploadedBufferData                : 1;
     bool fShouldInitializeTextures                   : 1;
     bool fSupportsAHardwareBufferImages              : 1;
