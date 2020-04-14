@@ -1256,6 +1256,15 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
         outReturn = nullptr;
     }
 
+    // The instructions to store to locals and globals mask in the original value,
+    // so they technically need to be initialized (to any value).
+    for (int i = f->fParameterCount; i < f->fParameterCount + f->fLocalCount; i++) {
+        stack[i].fFloat = 0.0f;
+    }
+    for (int i = 0; i < fGlobalSlotCount; i++) {
+        globals[i].fFloat = 0.0f;
+    }
+
     int baseIndex = 0;
 
     while (N) {
