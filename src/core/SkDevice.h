@@ -141,6 +141,9 @@ public:
 
     SkM44 localToWorld() const;
 
+    SkCanvas* canvas() const { return fCanvas; }
+    void setCanvas(SkCanvas* canvas) { fCanvas = canvas; }
+
     void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
@@ -429,6 +432,8 @@ private:
     void privateResize(int w, int h) {
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
+
+    SkCanvas* fCanvas = nullptr;
 
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
