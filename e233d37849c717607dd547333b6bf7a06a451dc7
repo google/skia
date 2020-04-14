@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7d37c2a_def90b4c",
+        "filename": "infra/bots/recipe_modules/build/chromebook.py",
+        "patchSetId": 30
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-14T13:31:33Z",
+      "side": 1,
+      "message": "Nit: should this just be:\n\nIMAGES \u003d {\n  \u0027Debian9\u0027: ...\n}\n\n...\n\nimage_hash \u003d IMAGES[os_name]\n\n?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "e233d37849c717607dd547333b6bf7a06a451dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab5aced9_385add5f",
+        "filename": "infra/bots/recipe_modules/build/util.py",
+        "patchSetId": 30
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-04-14T13:31:33Z",
+      "side": 1,
+      "message": "Nit: let\u0027s add a TODO to deduplicate this with the other.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "e233d37849c717607dd547333b6bf7a06a451dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
