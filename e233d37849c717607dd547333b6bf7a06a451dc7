@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "257c4377_b266ac24",
+        "filename": "infra/bots/recipe_modules/build/chromebook.py",
+        "patchSetId": 30
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-14T15:37:10Z",
+      "side": 1,
+      "message": "Done. Also added a dummy flag to the build with the image hash to invalidate the incremental build cache when the image changes.",
+      "parentUuid": "e7d37c2a_def90b4c",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "e233d37849c717607dd547333b6bf7a06a451dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab5aced9_385add5f",
         "filename": "infra/bots/recipe_modules/build/util.py",
         "patchSetId": 30
@@ -45,6 +69,30 @@
       "revId": "e233d37849c717607dd547333b6bf7a06a451dc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e67876_0ae19ac2",
+        "filename": "infra/bots/recipe_modules/build/util.py",
+        "patchSetId": 30
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-04-14T15:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab5aced9_385add5f",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "e233d37849c717607dd547333b6bf7a06a451dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
