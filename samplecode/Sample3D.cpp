@@ -601,3 +601,87 @@ public:
     }
 };
 DEF_SAMPLE( return new SampleSkottieCube; )
+
+class Flipper {
+    SkPoint fCenter;
+    float   fRadius;
+    float   fStart, fDuration;
+    float   fT = -1;
+public:
+    Flipper() {}
+
+    void start(SkRect bounds, float now, float duration = 1.4f) {
+        fCenter = {bounds.centerX(), bounds.centerY()};
+        fRadius = bounds.width()/2;
+        fDuration = duration;
+        this->restart(now);
+    }
+
+    void restart(float now) {
+        fStart = now;
+        fT = 0;
+    }
+
+    bool running() const { return fT >= 0; }
+    bool T() const { return fT; }
+    bool front() const { return fT <= 0.5f; }
+
+    SkM44 compute(SkScalar secs) {
+        float t = std::min((secs - fStart) / fDuration, 1.0f);
+        float angle = t * SK_ScalarPI;
+        float height = std::max(sinf(angle) * fRadius, 0.0f);
+        fT = t;
+   //     SkDebugf("secs %g, t %g, angle %g, height %g\n", secs - fStart, t, angle, height);
+        return SkM44::Translate( fCenter.fX,  fCenter.fY, height)
+             * SkM44::Rotate({0, 1, 0}, angle)
+             * SkM44::Translate(-fCenter.fX, -fCenter.fY, 0);
+    }
+};
+
+class SampleFlipper : public SampleCubeBase {
+    Flipper fFlipper;
+    double fNow = 0;
+public:
+    SampleFlipper() : SampleCubeBase(kCanRunOnCPU) {}
+
+    SkString name() override { return SkString("flipper3d"); }
+
+    void onOnceBeforeDraw() override {
+    }
+
+    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+        if (!drawFront || !front(canvas->getLocalToDevice()) || index != 0) {
+            return;
+        }
+        if (fNow == 0) {
+            return;
+        }
+
+        SkRect r = {0, 0, 400, 400};
+
+        if (!fFlipper.running()) {
+            fFlipper.start(r, fNow);
+        }
+
+        auto m = fFlipper.compute(fNow);
+  //      m.dump();
+        canvas->concat(m);
+
+        SkPaint paint;
+        paint.setColor(fFlipper.front() ? SK_ColorRED : SK_ColorBLUE);
+        canvas->drawRRect(SkRRect::MakeRectXY(r, 40, 40), paint);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        fNow = SkTime::GetSecs();
+        fFlipper.restart(fNow);
+        return nullptr;
+    }
+
+    bool onAnimate(double nanos) override {
+        fNow = 1e-9 * nanos;
+        return true;
+    }
+};
+DEF_SAMPLE( return new SampleFlipper; )
+
