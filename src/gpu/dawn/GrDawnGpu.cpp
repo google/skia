@@ -89,23 +89,19 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
 }
 
 GrDawnGpu::~GrDawnGpu() {
-    while (!fBusyStagingBuffers.isEmpty()) {
+    while (!busyStagingBuffers().isEmpty()) {
         fDevice.Tick();
     }
 }
 
 
 void GrDawnGpu::disconnect(DisconnectType type) {
-    if (DisconnectType::kAbandon == type) {
-        fBusyStagingBuffers.reset();
-        fAvailableStagingBuffers.reset();
-        fActiveStagingBuffers.reset();
-    } else {
-        while (!fBusyStagingBuffers.isEmpty()) {
+    if (DisconnectType::kCleanup == type) {
+        while (!busyStagingBuffers().isEmpty()) {
             fDevice.Tick();
         }
     }
-    fStagingBuffers.clear();
+    INHERITED::disconnect(type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -677,7 +673,7 @@ void GrDawnGpu::flushCopyEncoder() {
 
 void GrDawnGpu::mapStagingBuffers() {
     // Map all active buffers, so we get a callback when they're done.
-    for (auto buffer : fActiveStagingBuffers) {
+    for (auto buffer : activeStagingBuffers()) {
         static_cast<GrDawnStagingBuffer*>(buffer)->mapAsync();
     }
 }
