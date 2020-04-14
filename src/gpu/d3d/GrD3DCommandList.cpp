@@ -7,7 +7,9 @@
 
 #include "src/gpu/d3d/GrD3DCommandList.h"
 
+#include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                    gr_cp<ID3D12GraphicsCommandList> commandList)
@@ -20,6 +22,7 @@ void GrD3DCommandList::close() {
     SkDEBUGCODE(HRESULT hr = ) fCommandList->Close();
     SkASSERT(SUCCEEDED(hr));
     SkDEBUGCODE(fIsActive = false;)
+    fHasWork = false;
 }
 
 void GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
@@ -60,6 +63,135 @@ void GrD3DCommandList::releaseResources() {
         fTrackedResources.rewind();
         fTrackedRecycledResources.rewind();
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// GraphicsCommandList commands
+////////////////////////////////////////////////////////////////////////////////
+
+void GrD3DCommandList::resourceBarrier(const GrManagedResource* resource,
+                                       int numBarriers,
+                                       D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
+    SkASSERT(fIsActive);
+    SkASSERT(barriers);
+    for (int i = 0; i < numBarriers; ++i) {
+        bool replacedExistingBarrier = false;
+        for (int j = 0; j < fResourceBarriers.count(); ++j) {
+            D3D12_RESOURCE_BARRIER& existingBarrier = fResourceBarriers[j];
+            SkASSERT(existingBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION);
+            if (existingBarrier.Transition.pResource == barriers[i].pResource &&
+                existingBarrier.Transition.Subresource == barriers[i].Subresource &&
+                (existingBarrier.Transition.StateBefore == barriers[i].StateBefore ||
+                 existingBarrier.Transition.StateAfter == barriers[i].StateAfter)) {
+                existingBarrier.Transition.StateAfter = barriers[i].StateAfter;
+                replacedExistingBarrier = true;
+                break;
+            }
+        }
+        if (!replacedExistingBarrier) {
+            // D3D will apply barriers in order so we can just add onto the end
+            D3D12_RESOURCE_BARRIER& newBarrier = fResourceBarriers.push_back();
+            newBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            newBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            newBarrier.Transition = barriers[i];
+        }
+    }
+
+    fHasWork = true;
+    if (resource) {
+        this->addResource(resource);
+    }
+}
+
+void GrD3DCommandList::submitResourceBarriers() {
+    SkASSERT(fIsActive);
+
+    if (fResourceBarriers.count()) {
+        fCommandList->ResourceBarrier(fResourceBarriers.count(), fResourceBarriers.begin());
+        fResourceBarriers.reset();
+    }
+    SkASSERT(!fResourceBarriers.count());
+}
+
+void GrD3DCommandList::copyTextureToBuffer(GrD3DTextureResource* srcTexture,
+                                           GrD3DBuffer* dstBuffer,
+                                           uint32_t copyRegionCount,
+                                           const TextureCopyRegion* copyRegions) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(srcTexture->resource());
+    this->addResource(dstBuffer->resource());
+    for (uint32_t i = 0; i < copyRegionCount; ++i) {
+        D3D12_TEXTURE_COPY_LOCATION src = {};
+        src.pResource = srcTexture->d3dResource();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        src.SubresourceIndex = copyRegions[i].fSrc.fSubresourceIndex;
+
+        D3D12_TEXTURE_COPY_LOCATION dst = {};
+        dst.pResource = dstBuffer->d3dResource();
+        dst.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        dst.PlacedFootprint = copyRegions[i].fDst.fPlacedFootprint;
+
+        fCommandList->CopyTextureRegion(&dst, copyRegions[i].fDstX, copyRegions[i].fDstY, 0,
+                                        &src, copyRegions[i].fSrcBox);
+    }
+}
+
+void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                                           GrD3DTextureResource* dstTexture,
+                                           uint32_t copyRegionCount,
+                                           const TextureCopyRegion* copyRegions) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(srcBuffer->resource());
+    this->addResource(dstTexture->resource());
+    for (uint32_t i = 0; i < copyRegionCount; ++i) {
+        D3D12_TEXTURE_COPY_LOCATION src = {};
+        src.pResource = srcBuffer->d3dResource();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        src.PlacedFootprint = copyRegions[i].fSrc.fPlacedFootprint;
+
+        D3D12_TEXTURE_COPY_LOCATION dst = {};
+        dst.pResource = dstTexture->d3dResource();
+        dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        dst.SubresourceIndex = copyRegions[i].fDst.fSubresourceIndex;
+
+        fCommandList->CopyTextureRegion(&dst, copyRegions[i].fDstX, copyRegions[i].fDstY, 0,
+                                        &src, copyRegions[i].fSrcBox);
+    }
+}
+
+void GrD3DCommandList::copyTexture(GrD3DTextureResource* srcTexture,
+                                   GrD3DTextureResource* dstTexture,
+                                   uint32_t copyRegionCount,
+                                   const TextureCopyRegion* copyRegions) {
+    SkASSERT(fIsActive);
+
+    this->addingWork();
+    this->addResource(srcTexture->resource());
+    this->addResource(dstTexture->resource());
+    for (uint32_t i = 0; i < copyRegionCount; ++i) {
+        D3D12_TEXTURE_COPY_LOCATION src = {};
+        src.pResource = srcTexture->d3dResource();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        src.SubresourceIndex = copyRegions[i].fSrc.fSubresourceIndex;
+
+        D3D12_TEXTURE_COPY_LOCATION dst = {};
+        dst.pResource = dstTexture->d3dResource();
+        dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        dst.SubresourceIndex = copyRegions[i].fDst.fSubresourceIndex;
+
+        fCommandList->CopyTextureRegion(&dst, copyRegions[i].fDstX, copyRegions[i].fDstY, 0,
+                                        &src, copyRegions[i].fSrcBox);
+    }
+
+}
+
+void GrD3DCommandList::addingWork() {
+    this->submitResourceBarriers();
+    fHasWork = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

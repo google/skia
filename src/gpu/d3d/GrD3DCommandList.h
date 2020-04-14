@@ -15,6 +15,8 @@
 #include <memory>
 
 class GrD3DGpu;
+class GrD3DBuffer;
+class GrD3DTextureResource;
 
 class GrD3DCommandList {
 public:
@@ -23,6 +25,44 @@ public:
     void submit(ID3D12CommandQueue* queue);
 
     void reset();
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GraphicsCommandList commands
+    ////////////////////////////////////////////////////////////////////////////
+
+    // For the moment we only support Transition barriers
+    // All barriers should reference subresources of managedResource
+    void resourceBarrier(const GrManagedResource* managedResource,
+                         int numBarriers,
+                         D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
+
+    struct TextureCopyRegion {
+        union {
+            uint32_t fSubresourceIndex;
+            D3D12_PLACED_SUBRESOURCE_FOOTPRINT fPlacedFootprint;
+        } fSrc;
+        union {
+            uint32_t fSubresourceIndex;
+            D3D12_PLACED_SUBRESOURCE_FOOTPRINT fPlacedFootprint;
+        } fDst;
+        D3D12_BOX* fSrcBox;
+        uint32_t fDstX;
+        uint32_t fDstY;
+    };
+    void copyTextureToBuffer(GrD3DTextureResource* srcTexture,
+                             GrD3DBuffer* dstBuffer,
+                             uint32_t copyRegionCount,
+                             const TextureCopyRegion* copyRegions);
+
+    void copyBufferToTexture(GrD3DBuffer* srcBuffer,
+                             GrD3DTextureResource* dstTexture,
+                             uint32_t copyRegionCount,
+                             const TextureCopyRegion* copyRegions);
+
+    void copyTexture(GrD3DTextureResource* srcTexture,
+                     GrD3DTextureResource* dstTexture,
+                     uint32_t copyRegionCount,
+                     const TextureCopyRegion* copyRegions);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -43,9 +83,15 @@ public:
 
     void releaseResources();
 
+    bool hasWork() const { return fHasWork; }
+
 protected:
     GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                      gr_cp<ID3D12GraphicsCommandList> commandList);
+
+    void addingWork();
+
+    void submitResourceBarriers();
 
     gr_cp<ID3D12GraphicsCommandList> fCommandList;
 
@@ -54,6 +100,7 @@ protected:
 
     // When we create a command list it starts in an active recording state
     SkDEBUGCODE(bool fIsActive = true;)
+    bool fHasWork = false;
 
 private:
     gr_cp<ID3D12CommandAllocator> fAllocator;
@@ -65,6 +112,8 @@ private:
     // resource arrays.
     static const int kNumRewindResetsBeforeFullReset = 8;
     int              fNumResets = 0;
+
+    SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {
