@@ -61,7 +61,9 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
                                                  GrProtected isProtected,
                                                  GrMipMapsStatus mipMapsStatus) {
     GrD3DTextureResourceInfo info;
-    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, desc, isProtected, &info)) {
+    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, desc,
+                                                       D3D12_RESOURCE_STATE_COPY_DEST,
+                                                       isProtected, &info)) {
         return nullptr;
     }
 

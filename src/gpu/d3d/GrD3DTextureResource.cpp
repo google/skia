@@ -21,6 +21,7 @@ void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
 }
 
 bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RESOURCE_DESC& desc,
+                                                   D3D12_RESOURCE_STATES initialState,
                                                    GrProtected isProtected,
                                                    GrD3DTextureResourceInfo* info) {
     if (0 == desc.Width || 0 == desc.Height) {
@@ -36,19 +37,17 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
 
     ID3D12Resource* resource = nullptr;
 
-    // TODO: incorporate D3Dx12.h and use CD3DX12_HEAP_PROPERTIES instead?
-    D3D12_HEAP_PROPERTIES heapProperties = {
-        D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-        D3D12_MEMORY_POOL_UNKNOWN,
-        1, // CreationNodeMask
-        1  // VisibleNodeMask
-    };
+    D3D12_HEAP_PROPERTIES heapProperties = {};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+    heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    heapProperties.CreationNodeMask = 1;
+    heapProperties.VisibleNodeMask = 1;
     HRESULT hr = gpu->device()->CreateCommittedResource(
         &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &desc,
-        D3D12_RESOURCE_STATE_COMMON,
+        initialState,
         nullptr,  // TODO: might want to set pOptimizedClearValue for rendertarget and stencil
         IID_PPV_ARGS(&resource));
     if (!SUCCEEDED(hr)) {
@@ -56,7 +55,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     }
 
     info->fResource.reset(resource);
-    info->fResourceState = D3D12_RESOURCE_STATE_COMMON;
+    info->fResourceState = initialState;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
     info->fSampleQualityLevel = desc.SampleDesc.Quality;

@@ -173,7 +173,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
     // requested, this describes the resolved texture. Therefore we always have samples set
     // to 1.
     SkASSERT(mipLevelCount > 0);
-    D3D12_RESOURCE_DESC resourceDesc;
+    D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     // TODO: will use 4MB alignment for MSAA textures and 64KB for everything else
     //       might want to manually set alignment to 4KB for smaller textures
@@ -470,7 +470,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
         usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     }
 
-    D3D12_RESOURCE_DESC resourceDesc;
+    D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment = 0; // use default alignment
     resourceDesc.Width = dimensions.fWidth;
@@ -484,7 +484,11 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN; // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
 
-    if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, isProtected, info)) {
+    D3D12_RESOURCE_STATES initialState =
+        (renderable == GrRenderable::kYes) && !data ? D3D12_RESOURCE_STATE_RENDER_TARGET :
+                                                      D3D12_RESOURCE_STATE_COPY_DEST;
+    if (!GrD3DTextureResource::InitTextureResourceInfo(this, resourceDesc, initialState,
+                                                       isProtected, info)) {
         SkDebugf("Failed to init texture resource info\n");
         return false;
     }
@@ -594,7 +598,7 @@ GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int 
     this->handleDirtyContext();
 
     if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
-        return GrBackendRenderTarget();
+        return {};
     }
 
     DXGI_FORMAT dxgiFormat = this->d3dCaps().getFormatFromColorType(colorType);
