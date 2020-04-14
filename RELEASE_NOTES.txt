@@ -8,6 +8,9 @@ Milestone 84
 
   * <insert new release note here>
 
+  * SkCamera.h and all of its contained classes are DEPRECATED.
+    Use SkM44 if you want to have 3d transformations.
+
   * Changed Dilate and Erode image filters to take SkScalar for radius instead of int. While
     the image filters themselves are defined in terms of discrete pixels, the radii provided by
     the user are mapped through the CTM so taking ints forced over discretization. After mapping
