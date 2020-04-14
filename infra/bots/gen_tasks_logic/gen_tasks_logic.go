@@ -467,7 +467,11 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
+			task_os = COMPILE_TASK_NAME_OS_LINUX
+			if b.model("Pixelbook") {
+				task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
+				ec = append(ec, "Docker")
+			}
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
@@ -536,7 +540,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		d["os"], ok = map[string]string{
 			"Android":  "Android",
 			"ChromeOS": "ChromeOS",
-			"Debian9":  OLD_OS_LINUX_GCE,
+			"Debian9":  DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian10": DEFAULT_OS_LINUX_GCE,
 			"Mac":      DEFAULT_OS_MAC,
 			"Mac10.13": "Mac-10.13.6",
