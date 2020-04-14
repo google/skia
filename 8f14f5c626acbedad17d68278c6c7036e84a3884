@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "388ea086_61f1c7ad",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-14T17:58:01Z",
+      "side": 1,
+      "message": "Probably not for this CL, but we should write a GM test for gaussian blurs with mirror mode to make sure everything is in place for this feature now.",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 78,
+        "endChar": 81
+      },
+      "revId": "8f14f5c626acbedad17d68278c6c7036e84a3884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d975575_896f1758",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -18,6 +41,76 @@
         "startChar": 0,
         "endLine": 155,
         "endChar": 92
+      },
+      "revId": "8f14f5c626acbedad17d68278c6c7036e84a3884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef1f87d6_a1aa6bf0",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-14T17:58:01Z",
+      "side": 1,
+      "message": "And then we can remove the to_texture_domain_mode function too, right?",
+      "parentUuid": "9d975575_896f1758",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 92
+      },
+      "revId": "8f14f5c626acbedad17d68278c6c7036e84a3884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "438917a6_c67210c4",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-14T17:58:01Z",
+      "side": 1,
+      "message": "Here, and the one spot marked below, are the only two places we use the increment uniform. If I followed the changes properly, it is either (1, 0) for x direction or (0, 1) for y direction, since it no longer has to do normalization.\n\nThe underlying child FP most likely already depends on the direction since the shader wrap mode will be coupled to that (the exception being an unbounded gaussian convolution could reuse the same shader for both x and y directions). Given that most cases effectively have direction baked into the shader key, and its expression is so simple, what do you think about removing the increment uniform and just having the emitted shader update .x or .y as necessary?",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 99
+      },
+      "revId": "8f14f5c626acbedad17d68278c6c7036e84a3884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64ab65ea_72f1e85d",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-04-14T17:58:01Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 54
       },
       "revId": "8f14f5c626acbedad17d68278c6c7036e84a3884",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
