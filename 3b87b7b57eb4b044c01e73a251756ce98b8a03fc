@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adb03a67_04a61b06",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-14T20:18:32Z",
+      "side": 1,
+      "message": "Small naming quibble, the \"IfRequired\" part is only applicable if ForceFlush::kNo is passed.\n\nWDYT about\n\n\n    enum class FlushType {\n        kIfRequired,\n        kForce,\n    };\n\n    // This calls glFlush if it is required for previous operations or kForce is passed.\n    void flush(FlushType \u003d FlushType::kIfRequired);",
+      "range": {
+        "startLine": 618,
+        "startChar": 9,
+        "endLine": 618,
+        "endChar": 26
+      },
+      "revId": "3b87b7b57eb4b044c01e73a251756ce98b8a03fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
