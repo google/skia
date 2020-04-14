@@ -13,8 +13,14 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkNoncopyable.h"
 
+// NOTE -- This entire header / impl is deprecated, and will be removed from Skia soon.
+//
+// Skia now has support for a 4x matrix (SkM44) in SkCanvas.
+//
+
 class SkCanvas;
 
+// DEPRECATED
 struct SkUnit3D {
     SkScalar fX, fY, fZ;
 
@@ -25,6 +31,7 @@ struct SkUnit3D {
     static void Cross(const SkUnit3D&, const SkUnit3D&, SkUnit3D* cross);
 };
 
+// DEPRECATED
 struct SkPoint3D {
     SkScalar    fX, fY, fZ;
 
@@ -35,6 +42,7 @@ struct SkPoint3D {
 };
 typedef SkPoint3D SkVector3D;
 
+// DEPRECATED
 struct SkMatrix3D {
     SkScalar    fMat[3][4];
 
@@ -71,6 +79,7 @@ struct SkMatrix3D {
     }
 };
 
+// DEPRECATED
 class SkPatch3D {
 public:
     SkPatch3D();
@@ -96,6 +105,7 @@ public: // make public for SkDraw3D for now
     friend class SkCamera3D;
 };
 
+// DEPRECATED
 class SkCamera3D {
 public:
     SkCamera3D();
@@ -116,6 +126,7 @@ private:
     void doUpdate() const;
 };
 
+// DEPRECATED
 class SK_API Sk3DView : SkNoncopyable {
 public:
     Sk3DView();
