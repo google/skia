@@ -14,6 +14,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include <algorithm>
@@ -524,52 +525,28 @@ namespace skvm {
     }
 
     std::vector<Instruction> schedule(std::vector<Instruction> program) {
-        Usage usage{program};
 
+        // Calculate the number of times a value is used.
         std::vector<int> uses(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
-            uses[id] = (int)usage[id].size();
+            const Instruction& inst = program[id];
+            for (Val arg : {inst.x, inst.y, inst.z}) {
+                if (arg != NA) { uses[arg]++; }
+            }
         }
 
-        auto pressure_change = [&](Val id) -> int {
-            Instruction inst = program[id];
+        // Tree number allows the scheduler to keep instructions for the same tree close together.
+        std::vector<int> tree_number(program.size());
+        std::vector<int> parameter_number(program.size());
 
-            // If this Instruction is not a sink, its result needs a register.
-            int change = has_side_effect(inst.op) ? 0 : 1;
-
-            // If this is the final user of an argument, the argument's register becomes free.
-            for (Val arg : {inst.x, inst.y, inst.z}) {
-                if (arg != NA && uses[arg] == 1) { change -= 1; }
-            }
-            return change;
+        // Order instructions in the frontier by tree first then by higher register pressure.
+        auto score = [&](Val id) {
+            return std::make_tuple(tree_number[id], parameter_number[id]);
         };
 
+        // This comparison specifies a min-heap for the frontier.
         auto compare = [&](Val lhs, Val rhs) {
-            SkASSERT(lhs != rhs);
-            int lhs_change = pressure_change(lhs);
-            int rhs_change = pressure_change(rhs);
-
-            // This comparison operator orders instructions from least (likely negative) register
-            // pressure to most register pressure,  breaking ties arbitrarily using original
-            // program order comparing the instruction index itself.
-            //
-            // We'll use this operator with std::{make,push,pop}_heap() to maintain a max heap
-            // frontier of instructions that are ready to schedule.  We iterate backwards through
-            // the program, scheduling later instruction slots before earlier ones, and that means
-            // an instruction becomes ready to schedule once all instructions using its result have
-            // been scheduled (in later slots).
-            //
-            // All together that means we'll be issuing the instructions that hurt register pressure
-            // as late as possible, and issuing the instructions that help register pressure as soon
-            // as possible.
-            //
-            // This heuristic of greedily issuing the instruction that most immediately decreases
-            // register pressure approximates a more expensive search to find a schedule that
-            // minimizes the high-water maximum register pressure, the number of registers we'll
-            // need to run this program.
-            //
-            // The tie-breaker heuristic was found through experimentation.
-            return lhs_change < rhs_change || (lhs_change == rhs_change && lhs > rhs);
+            return score(lhs) > score(rhs);
         };
 
         auto ready_to_schedule = [&](Val id) { return uses[id] == 0; };
@@ -579,6 +556,7 @@ namespace skvm {
             Instruction inst = program[id];
             if (has_side_effect(inst.op)) {
                 frontier.push_back(id);
+                tree_number[id] = std::numeric_limits<int>::max();
             }
             // Having eliminated dead code, the only Instructions that should start
             // with no users remaining to schedule are those with side effects.
@@ -598,11 +576,16 @@ namespace skvm {
 
             Instruction inst = program[id];
             new_id[id] = n;
-
-            for (Val arg : {inst.x, inst.y, inst.z}) {
+            auto args = {inst.x, inst.y, inst.z};
+            for (auto [arg_pos, arg] : SkMakeEnumerate(args)) {
                 if (arg != NA) {
                     uses[arg]--;
                     if (ready_to_schedule(arg)) {
+                        // Give the argument nodes a number associated with this tree.
+                        if (true || tree_number[arg] == 0) {
+                            tree_number[arg] = n;
+                            parameter_number[arg] = arg_pos;
+                        }
                         frontier.push_back(arg);
                         std::push_heap(frontier.begin(), frontier.end(), compare);
                     }
