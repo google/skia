@@ -8,10 +8,10 @@
 #ifndef GrGLGpu_DEFINED
 #define GrGLGpu_DEFINED
 
-#include <list>
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -163,7 +163,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
-    bool waitFence(GrFence, uint64_t timeout) override;
+    bool waitFence(GrFence, uint64_t timeout, bool flush) override;
     void deleteFence(GrFence) const override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
@@ -697,13 +697,7 @@ private:
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
     std::unique_ptr<GrGLOpsRenderPass> fCachedOpsRenderPass;
-
-    struct FinishCallback {
-        GrGpuFinishedProc fCallback;
-        GrGpuFinishedContext fContext;
-        GrGLsync fSync;
-    };
-    std::list<FinishCallback> fFinishCallbacks;
+    GrFinishCallbacks fFinishCallbacks;
 
     SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
 

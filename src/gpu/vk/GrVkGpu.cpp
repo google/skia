@@ -2655,7 +2655,7 @@ GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
     return (GrFence)fence;
 }
 
-bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout, bool /* flush */) {
     SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
 
     VkResult result;
