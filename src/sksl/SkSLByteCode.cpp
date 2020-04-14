@@ -586,12 +586,16 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 // the stack. Update our bottom of stack to point at the first parameter, and our
                 // sp to point past those parameters (plus space for locals).
                 int target = READ8();
-                const ByteCodeFunction* fun = byteCode->fFunctions[target].get();
+                const ByteCodeFunction* f = byteCode->fFunctions[target].get();
                 if (skvx::any(mask())) {
-                    frames.push_back({ code, ip, stack, fun->fParameterCount });
-                    ip = code = fun->fCode.data();
-                    stack = sp - fun->fParameterCount + 1;
-                    sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
+                    frames.push_back({ code, ip, stack, f->fParameterCount });
+                    ip = code = f->fCode.data();
+                    stack = sp - f->fParameterCount + 1;
+                    sp = stack + f->fParameterCount + f->fLocalCount - 1;
+                    // As we did in runStriped(), zero locals so they're safe to mask-store into.
+                    for (int i = f->fParameterCount; i < f->fParameterCount + f->fLocalCount; i++) {
+                        stack[i].fFloat = 0.0f;
+                    }
                 }
                 continue;
             }
@@ -1254,6 +1258,15 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
     // innerRun just takes outArgs, so clear it if the count is zero
     if (returnCount == 0) {
         outReturn = nullptr;
+    }
+
+    // The instructions to store to locals and globals mask in the original value,
+    // so they technically need to be initialized (to any value).
+    for (int i = f->fParameterCount; i < f->fParameterCount + f->fLocalCount; i++) {
+        stack[i].fFloat = 0.0f;
+    }
+    for (int i = 0; i < fGlobalSlotCount; i++) {
+        globals[i].fFloat = 0.0f;
     }
 
     int baseIndex = 0;
