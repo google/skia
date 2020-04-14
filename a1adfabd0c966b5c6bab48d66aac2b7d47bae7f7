@@ -22,6 +22,30 @@
       "revId": "a1adfabd0c966b5c6bab48d66aac2b7d47bae7f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d092a67_e22f8307",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-14T14:11:23Z",
+      "side": 1,
+      "message": "Two things:\n1) Yes, I was planning to use \u00270\u0027 as localToDevice, so the default behavior is the right one.\n2) I was considering the case where you want to pass *other* positions down, although that might not make much sense. Once we have support for uniform access to these matrices, things like lights should be uniforms, so I don\u0027t know if there are use-cases for additional per-vertex positions to use in shading?",
+      "parentUuid": "c177fb8b_5588cf10",
+      "range": {
+        "startLine": 83,
+        "startChar": 47,
+        "endLine": 83,
+        "endChar": 53
+      },
+      "revId": "a1adfabd0c966b5c6bab48d66aac2b7d47bae7f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
