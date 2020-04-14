@@ -63,10 +63,17 @@ public:
 
         SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
 
+        static void CreateBackendTexture(GrContext*, TileData*);
+        static void DeleteBackendTexture(GrContext*, TileData*);
+
     private:
+        sk_sp<SkSurface> makeWrappedTileDest(GrContext* context);
+
         int                       fID = -1;
-        sk_sp<SkSurface>          fDstSurface;       // the ultimate target for composition
-        SkSurfaceCharacterization fCharacterization; // characterization for the tile's surface
+        sk_sp<SkSurface>          fDstSurface1;       // the ultimate target for composition
+
+        GrBackendTexture          fBackendTexture;   // destination for this tile's content
+        SkSurfaceCharacterization fCharacterization1; // characterization for the tile's surface
         SkIRect                   fClip;             // in the device space of the 'fDstSurface'
 
         sk_sp<SkImage>            fImage;            // the result of replaying the DDL
@@ -110,6 +117,9 @@ public:
     void resetAllTiles();
 
     int numTiles() const { return fNumDivisions * fNumDivisions; }
+
+    void createBackendTextures(SkTaskGroup*, GrContext*);
+    void deleteBackendTextures(SkTaskGroup*, GrContext*);
 
 private:
     int                fNumDivisions; // number of tiles along a side
