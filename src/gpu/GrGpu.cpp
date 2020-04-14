@@ -47,6 +47,16 @@ GrGpu::~GrGpu() {
 
 void GrGpu::disconnect(DisconnectType) {}
 
+void GrGpu::callFinishCallbacks(bool doDelete) {
+    while (!fFinishCallbacks.empty()) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        if (doDelete) {
+            this->deleteFence(fFinishCallbacks.front().fFence);
+        }
+        fFinishCallbacks.pop_front();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texProxy,
@@ -682,6 +692,30 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
                                                        externalRequests);
 }
 
+void GrGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
+                            GrGpuFinishedContext finishedContext) {
+    SkASSERT(finishedProc);
+    FinishCallback callback;
+    callback.fCallback = finishedProc;
+    callback.fContext = finishedContext;
+    if (this->caps()->fenceSyncSupport()) {
+        callback.fFence = this->insertFence();
+    } else {
+        callback.fFence = 0;
+    }
+    fFinishCallbacks.push_back(callback);
+}
+
+void GrGpu::checkFinishProcs() {
+    // Bail after the first unfinished sync since we expect they signal in the order inserted.
+    while (!fFinishCallbacks.empty() && this->waitFence(fFinishCallbacks.front().fFence,
+                                                       /* timeout = */ 0, /* flush  = */ false)) {
+        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
+        this->deleteFence(fFinishCallbacks.front().fFence);
+        fFinishCallbacks.pop_front();
+    }
+}
+
 bool GrGpu::submitToGpu(bool syncCpu) {
     this->stats()->incNumSubmitToGpus();
 
@@ -691,6 +725,16 @@ bool GrGpu::submitToGpu(bool syncCpu) {
     this->unmapStagingBuffers();
 
     bool submitted = this->onSubmitToGpu(syncCpu);
+    if (syncCpu ||  (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
+        for (const auto& cb : fFinishCallbacks) {
+            cb.fCallback(cb.fContext);
+            if (cb.fFence) {
+                this->deleteFence(cb.fFence);
+            } else {
+                SkASSERT(!this->caps()->fenceSyncSupport());
+            }
+        }
+    }
 
     // Move all active staging buffers to the busy list.
     // TODO: this should probably be handled inside of the onSubmitToGpu by the backends.

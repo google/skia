@@ -89,7 +89,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
-    bool waitFence(GrFence, uint64_t) override;
+    bool waitFence(GrFence, uint64_t, bool flush) override;
     void deleteFence(GrFence) const override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
@@ -99,7 +99,6 @@ public:
             GrWrapOwnership ownership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
-    void checkFinishProcs() override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
@@ -198,9 +197,6 @@ private:
                                ForExternalIO) override;
 
     void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
-
-    void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 

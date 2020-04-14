@@ -163,7 +163,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
-    bool waitFence(GrFence, uint64_t timeout) override;
+    bool waitFence(GrFence, uint64_t timeout, bool flush) override;
     void deleteFence(GrFence) const override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
@@ -173,8 +173,6 @@ public:
             GrWrapOwnership ownership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
-
-    void checkFinishProcs() override;
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
@@ -305,9 +303,6 @@ private:
     void flushProgram(GrGLuint);
 
     void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
-
-    void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 
@@ -697,13 +692,6 @@ private:
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
     std::unique_ptr<GrGLOpsRenderPass> fCachedOpsRenderPass;
-
-    struct FinishCallback {
-        GrGpuFinishedProc fCallback;
-        GrGpuFinishedContext fContext;
-        GrGLsync fSync;
-    };
-    std::list<FinishCallback> fFinishCallbacks;
 
     SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
 
