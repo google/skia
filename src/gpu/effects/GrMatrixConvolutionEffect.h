@@ -8,7 +8,7 @@
 #ifndef GrMatrixConvolutionEffect_DEFINED
 #define GrMatrixConvolutionEffect_DEFINED
 
-#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).
@@ -23,12 +23,9 @@ public:
                                                      SkScalar gain,
                                                      SkScalar bias,
                                                      const SkIPoint& kernelOffset,
-                                                     GrTextureDomain::Mode tileMode,
-                                                     bool convolveAlpha) {
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrMatrixConvolutionEffect(std::move(srcView), srcBounds, kernelSize, kernel,
-                                              gain, bias, kernelOffset, tileMode, convolveAlpha));
-    }
+                                                     GrSamplerState::WrapMode,
+                                                     bool convolveAlpha,
+                                                     const GrCaps&);
 
     static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrSurfaceProxyView srcView,
                                                              const SkIRect& srcBounds,
@@ -36,19 +33,19 @@ public:
                                                              SkScalar gain,
                                                              SkScalar bias,
                                                              const SkIPoint& kernelOffset,
-                                                             GrTextureDomain::Mode tileMode,
+                                                             GrSamplerState::WrapMode,
                                                              bool convolveAlpha,
                                                              SkScalar sigmaX,
-                                                             SkScalar sigmaY);
+                                                             SkScalar sigmaY,
+                                                             const GrCaps&);
 
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
-    const float* kernelOffset() const { return fKernelOffset; }
+    const SkV2 kernelOffset() const { return fKernelOffset; }
     const float* kernel() const { return fKernel; }
     float gain() const { return fGain; }
     float bias() const { return fBias; }
     bool convolveAlpha() const { return fConvolveAlpha; }
-    const GrTextureDomain& domain() const { return fDomain; }
 
     const char* name() const override { return "MatrixConvolution"; }
 
@@ -57,17 +54,15 @@ public:
 private:
     // srcProxy is the texture that is going to be convolved
     // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
-    GrMatrixConvolutionEffect(GrSurfaceProxyView srcView,
-                              const SkIRect& srcBounds,
+    GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor>,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
-                              GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
 
-    GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect&);
+    explicit GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -75,17 +70,15 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
-
-    GrCoordTransform fCoordTransform;
-    GrTextureDomain  fDomain;
-    TextureSampler   fTextureSampler;
+    // We really just want the unaltered local coords, but the only way to get that right now is
+    // an identity coord transform.
+    GrCoordTransform fCoordTransform = {};
     SkIRect          fBounds;
     SkISize          fKernelSize;
     float            fKernel[MAX_KERNEL_SIZE];
     float            fGain;
     float            fBias;
-    float            fKernelOffset[2];
+    SkV2             fKernelOffset;
     bool             fConvolveAlpha;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
