@@ -177,20 +177,6 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode) {
-    switch (tileMode) {
-        case SkTileMode::kClamp:
-            return GrSamplerState::WrapMode::kClamp;
-        case SkTileMode::kRepeat:
-            return GrSamplerState::WrapMode::kRepeat;
-        case SkTileMode::kMirror:
-            return GrSamplerState::WrapMode::kMirrorRepeat;
-        case SkTileMode::kDecal:
-            return GrSamplerState::WrapMode::kClampToBorder;
-    }
-    SK_ABORT("Unknown tile mode.");
-}
-
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     const auto lm = this->totalLocalMatrix(args.fPreLocalMatrix);
@@ -199,8 +185,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    GrSamplerState::WrapMode wmX = tile_mode_to_wrap_mode(fTileModeX),
-                             wmY = tile_mode_to_wrap_mode(fTileModeY);
+    GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
+                             wmY = SkTileModeToWrapMode(fTileModeY);
 
     // Must set wrap and filter on the sampler before requesting a texture. In two places below
     // we check the matrix scale factors to determine how to interpret the filter quality setting.
