@@ -42,6 +42,7 @@ private:
     bool onExecute(GrOpFlushState*) override;
 
 #ifdef SK_DEBUG
+    const char* name() const final { return "TransferFrom"; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {
         fn(fSrcProxy.get(), GrMipMapped::kNo);
     }

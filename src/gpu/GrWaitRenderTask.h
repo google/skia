@@ -36,6 +36,7 @@ private:
     bool onExecute(GrOpFlushState*) override;
 
 #ifdef SK_DEBUG
+    const char* name() const final { return "Wait"; }
     // No non-dst proxies.
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
 #endif
