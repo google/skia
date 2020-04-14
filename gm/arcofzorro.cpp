@@ -37,6 +37,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+#if 0
         SkRandom rand;
 
         SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
@@ -77,7 +78,7 @@ protected:
                 break;
             }
         }
-
+#endif
     }
 
 private:
