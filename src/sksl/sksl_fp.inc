@@ -23,11 +23,15 @@ layout(builtin=10011) half sk_Width;
 layout(builtin=10012) half sk_Height;
 
 half4 sample(fragmentProcessor fp);
+half4 sample(fragmentProcessor fp, float3x3 transform);
 half4 sample(fragmentProcessor fp, float2 coords);
 half4 sample(fragmentProcessor fp, half4 input);
+half4 sample(fragmentProcessor fp, half4 input, float3x3 transform);
 half4 sample(fragmentProcessor fp, half4 input, float2 coords);
 half4 sample(fragmentProcessor? fp);
+half4 sample(fragmentProcessor? fp, float3x3 transform);
 half4 sample(fragmentProcessor? fp, float2 coords);
 half4 sample(fragmentProcessor? fp, half4 input);
+half4 sample(fragmentProcessor? fp, half4 input, float3x3 transfrom);
 half4 sample(fragmentProcessor? fp, half4 input, float2 coords);
 )

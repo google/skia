@@ -24,11 +24,9 @@ struct BreakStatement : public Statement {
         return std::unique_ptr<Statement>(new BreakStatement(fOffset));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return String("break;");
     }
-#endif
 
     typedef Statement INHERITED;
 };

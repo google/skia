@@ -31,18 +31,21 @@ struct TernaryExpression : public Expression {
                fIfFalse->hasProperty(property);
     }
 
+    bool isConstantOrUniform() const override {
+        return fTest->isConstantOrUniform() && fIfTrue->isConstantOrUniform() &&
+               fIfFalse->isConstantOrUniform();
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
                                                                  fIfTrue->clone(),
                                                                  fIfFalse->clone()));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";
     }
-#endif
 
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Expression> fIfTrue;

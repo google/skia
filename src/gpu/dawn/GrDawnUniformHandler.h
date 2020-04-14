@@ -29,6 +29,14 @@ public:
     };
     uint32_t getRTHeightOffset() const;
 
+    int numUniforms() const override {
+        return fUniforms.count();
+    }
+
+    UniformInfo& uniform(int idx) override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
 
@@ -44,7 +52,6 @@ private:
                                           bool mangleName,
                                           int arrayCount,
                                           const char** outName) override;
-
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;

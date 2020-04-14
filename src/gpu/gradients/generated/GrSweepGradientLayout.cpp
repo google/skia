@@ -33,8 +33,8 @@ public:
                                                    "bias");
         scaleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "scale");
-        SkString sk_TransformedCoords2D_0 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
+                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
                 "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "

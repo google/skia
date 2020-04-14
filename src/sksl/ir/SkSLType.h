@@ -242,11 +242,9 @@ public:
         return fNameString;
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return this->displayName();
     }
-#endif
 
     bool operator==(const Type& other) const {
         return fName == other.fName;

@@ -26,6 +26,15 @@ public:
     const char* getUniformCStr(UniformHandle u) const override {
         return this->getUniformVariable(u).c_str();
     }
+
+    int numUniforms() const override {
+        return fUniforms.count();
+    }
+
+    UniformInfo& uniform(int idx) override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrGLUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
@@ -64,9 +73,9 @@ private:
     typedef GrGLProgramDataManager::GLUniformInfo GLUniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    UniformInfoArray            fUniforms;
-    UniformInfoArray            fSamplers;
-    SkTArray<GrSwizzle>         fSamplerSwizzles;
+    UniformInfoArray    fUniforms;
+    UniformInfoArray    fSamplers;
+    SkTArray<GrSwizzle> fSamplerSwizzles;
 
     friend class GrGLProgramBuilder;
 

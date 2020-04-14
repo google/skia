@@ -836,7 +836,8 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                   pne.sampleMatrix());
 
     fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");
@@ -1247,7 +1248,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     const GrImprovedPerlinNoiseEffect& pne = args.fFp.cast<GrImprovedPerlinNoiseEffect>();
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                   pne.sampleMatrix());
 
     fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");

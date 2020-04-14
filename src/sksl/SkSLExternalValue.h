@@ -101,11 +101,9 @@ public:
         return nullptr;
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return String("external<") + fName + ">";
     }
-#endif
 
 private:
     typedef Symbol INHERITED;

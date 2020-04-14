@@ -70,14 +70,16 @@ GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         , weight(src.weight) {
     {
         auto clone = src.childProcessor(fp0_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp0_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp0_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
     if (fp1_index >= 0) {
         auto clone = src.childProcessor(fp1_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp1_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp1_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

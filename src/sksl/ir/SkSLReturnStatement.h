@@ -31,7 +31,6 @@ struct ReturnStatement : public Statement {
         return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         if (fExpression) {
             return "return " + fExpression->description() + ";";
@@ -39,7 +38,6 @@ struct ReturnStatement : public Statement {
             return String("return;");
         }
     }
-#endif
 
     std::unique_ptr<Expression> fExpression;
 

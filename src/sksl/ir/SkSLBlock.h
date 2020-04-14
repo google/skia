@@ -40,7 +40,6 @@ struct Block : public Statement {
         return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         String result("{");
         for (size_t i = 0; i < fStatements.size(); i++) {
@@ -50,7 +49,6 @@ struct Block : public Statement {
         result += "\n}\n";
         return result;
     }
-#endif
 
     // it's important to keep fStatements defined after (and thus destroyed before) fSymbols,
     // because destroying statements can modify reference counts in symbols

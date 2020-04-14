@@ -103,14 +103,16 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
         , colorsAreOpaque(src.colorsAreOpaque) {
     {
         auto clone = src.childProcessor(colorizer_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(colorizer_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(colorizer_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
     {
         auto clone = src.childProcessor(gradLayout_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(gradLayout_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(gradLayout_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

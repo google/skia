@@ -49,8 +49,9 @@ GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
         : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()), fp_index(src.fp_index) {
     {
         auto clone = src.childProcessor(fp_index).clone();
-        clone->setSampledWithExplicitCoords(
-                src.childProcessor(fp_index).isSampledWithExplicitCoords());
+        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
+            clone->setSampledWithExplicitCoords();
+        }
         this->registerChildProcessor(std::move(clone));
     }
 }

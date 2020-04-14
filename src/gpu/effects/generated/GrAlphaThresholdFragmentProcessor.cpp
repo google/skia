@@ -41,8 +41,8 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
-        SkString sk_TransformedCoords2D_0 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
+                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 "half4 color = %s;\nhalf4 mask_color = sample(%s, %s).%s;\nif (mask_color.w < 0.5) "
                 "{\n    if (color.w > %s) {\n        half scale = %s / color.w;\n        color.xyz "

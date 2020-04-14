@@ -24,11 +24,9 @@ struct Extension : public ProgramElement {
         return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return "#extension " + fName + " : enable";
     }
-#endif
 
     const String fName;
 

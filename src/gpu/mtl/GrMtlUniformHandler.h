@@ -41,6 +41,14 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
+    int numUniforms() const override {
+        return fUniforms.count();
+    }
+
+    UniformInfo& uniform(int idx) override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrMtlUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)

@@ -56,7 +56,8 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                                  "Kernel", arrayCount);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                    ce.sampleMatrix());
 
     fragBuilder->codeAppendf("%s = half4(0, 0, 0, 0);", args.fOutputColor);
 
