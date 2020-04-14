@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c177fb8b_5588cf10",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-04-14T13:27:36Z",
+      "side": 1,
+      "message": "perhaps all, but certainly this one *seem* to beg for a \u0027std\u0027 marker for localToDevice... Actually, do we ever *not* transform positions by the ctm?",
+      "range": {
+        "startLine": 83,
+        "startChar": 47,
+        "endLine": 83,
+        "endChar": 53
+      },
+      "revId": "a1adfabd0c966b5c6bab48d66aac2b7d47bae7f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
