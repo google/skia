@@ -1619,11 +1619,16 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                            sk_gpu_test::TestContext* gpuTestCtx,
                            GrContext* gpuThreadCtx) const {
 
+    constexpr int kNumDivisions = 1;
+    GrBackendTexture backendTextures[kNumDivisions*kNumDivisions];
+
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
     // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the
     // same context (this thread and the gpuThread - which will be uploading textures)).
     SkSurfaceCharacterization dstCharacterization;
     SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+//    auto tileCharacterization = dstCharacterization.createResized(clip.width(), clip.height());
 
     // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
     // thread w/o a context.
@@ -1659,8 +1664,9 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // TODO: move the image upload to the utility thread
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
 
-    constexpr int kNumDivisions = 3;
     DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
+
+    tiles.foo(gpuTaskGroup, gpuThreadCtx);
 
     // Reinflate the compressed picture individually for each thread.
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
@@ -1676,6 +1682,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
     promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
+
+    tiles.bar(gpuTaskGroup, gpuThreadCtx);
 
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
     // textures so it is safe to schedule making 'mainCtx' not current on the gpuThread.
