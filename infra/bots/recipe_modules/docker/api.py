@@ -27,7 +27,7 @@ class DockerApi(recipe_api.RecipeApi):
   def mount_out(self):
     return MOUNT_OUT
 
-  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1):
+  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
@@ -63,8 +63,8 @@ class DockerApi(recipe_api.RecipeApi):
     # Run.
     cmd = [
       'docker', 'run', '--shm-size=2gb', '--rm',
-      '--mount', 'type=bind,source=%s,target=%s' % (src_dir, MOUNT_SRC),
-      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, MOUNT_OUT),
+      '--mount', 'type=bind,source=%s,target=%s' % (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
+      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, out_dir if match_directory_structure else MOUNT_OUT),
     ]
     if docker_args:
       cmd.extend(docker_args)
