@@ -87,6 +87,8 @@ struct SkSVGPresentationAttributes {
 
     SkTLazy<SkSVGColorType>  fColor;
 
+    // TODO(tdenniston): add SkSVGStopColor
+
     // uninherited
     SkTLazy<SkSVGNumberType> fOpacity;
     SkTLazy<SkSVGClip>       fClipPath;

@@ -188,6 +188,18 @@ bool SetSpreadMethodAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                           const char* stringValue) {
+    SkSVGStopColor stopColor;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseStopColor(&stopColor)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGStopColorValue(stopColor));
+    return true;
+}
+
 bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
     SkSVGPointsType points;
@@ -338,7 +350,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "rx"               , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"               , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
     { "spreadMethod"     , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
-    { "stop-color"       , { SkSVGAttribute::kStopColor        , SetColorAttribute        }},
+    { "stop-color"       , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"     , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
     { "stroke"           , { SkSVGAttribute::kStroke           , SetPaintAttribute        }},
     { "stroke-dasharray" , { SkSVGAttribute::kStrokeDashArray  , SetDashArrayAttribute    }},
