@@ -43,6 +43,7 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
+class SkMarkerStack;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -2650,12 +2651,7 @@ private:
     // points to top of stack
     MCRec*      fMCRec;
 
-    struct MarkerRec {
-        MCRec*      fMCRec;
-        SkM44       fMatrix;
-        MarkerID    fID;
-    };
-    std::vector<MarkerRec> fMarkerStack;
+    sk_sp<SkMarkerStack> fMarkerStack;
 
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 128;  // most recent measurement
