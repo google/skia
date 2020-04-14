@@ -2867,7 +2867,7 @@ void GrGLGpu::unbindSurfaceFBOForPixelOps(GrSurface* surface, int mipLevel, GrGL
 void GrGLGpu::onFBOChanged() {
     if (this->caps()->workarounds().flush_on_framebuffer_change ||
         this->caps()->workarounds().restore_scissor_on_fbo_change) {
-        GL_CALL(Flush());
+        this->flush(FlushType::kForce);
     }
 #ifdef SK_DEBUG
     if (fIsExecutingCommandBuffer_DebugOnly) {
@@ -3798,6 +3798,13 @@ void GrGLGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
     fFinishCallbacks.push_back(callback);
 }
 
+void GrGLGpu::flush(FlushType flushType) {
+    if (fNeedsGLFlush || flushType == FlushType::kForce) {
+        GL_CALL(Flush());
+        fNeedsGLFlush = false;
+    }
+}
+
 bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         GL_CALL(Finish());
@@ -3812,7 +3819,7 @@ bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
         }
         fFinishCallbacks.clear();
     } else {
-        GL_CALL(Flush());
+        this->flush();
         // See if any previously inserted finish procs are good to go.
         this->checkFinishProcs();
     }
@@ -3837,6 +3844,7 @@ GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
     } else {
         GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
     }
+    this->setNeedsFlush();
     static_assert(sizeof(GrFence) >= sizeof(GrGLsync));
     return (GrFence)sync;
 }
@@ -3846,7 +3854,7 @@ bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
         GrGLuint nvFence = static_cast<GrGLuint>(reinterpret_cast<intptr_t>(sync));
         if (!timeout) {
             if (flush) {
-                GL_CALL(Flush);
+                this->flush(FlushType::kForce);
             }
             GrGLboolean result;
             GL_CALL_RET(result, TestFence(nvFence));
@@ -3892,6 +3900,7 @@ void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {
     GrGLsync sync;
     GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
     glSem->setSync(sync);
+    this->setNeedsFlush();
 }
 
 void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
@@ -3925,7 +3934,7 @@ std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTextu
     SkASSERT(semaphore);
     this->insertSemaphore(semaphore.get());
     // We must call flush here to make sure the GrGLSync object gets created and sent to the gpu.
-    GL_CALL(Flush());
+    this->flush(FlushType::kForce);
 
     return semaphore;
 }
