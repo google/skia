@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc08dbc1_627a8c0b",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-14T20:44:44Z",
+      "side": 1,
+      "message": "^",
+      "revId": "8a00a295766d7f83a0a8c168301b78d40506cc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
