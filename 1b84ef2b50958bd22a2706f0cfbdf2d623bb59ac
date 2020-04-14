@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b397f2a4_45023484",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-14T14:41:26Z",
+      "side": 0,
+      "message": "Why we need gn to add external_deps ( https://bugs.chromium.org/p/gn/issues/detail?id\u003d157 ). It\u0027s difficult to tighten up warnings when third party headers can\u0027t have their warnings ignored when we want to share build targets.",
+      "revId": "1b84ef2b50958bd22a2706f0cfbdf2d623bb59ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
