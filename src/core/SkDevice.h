@@ -141,6 +141,9 @@ public:
 
     SkM44 localToWorld() const;
 
+    SkMarkerStack* markerStack() const { return fMarkerStack; }
+    void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
+
     void save() { this->onSave(); }
     void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
@@ -429,6 +432,8 @@ private:
     void privateResize(int w, int h) {
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
+
+    SkMarkerStack* fMarkerStack = nullptr;  // does not own this, set in setMarkerStack()
 
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
