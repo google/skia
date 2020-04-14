@@ -73,6 +73,7 @@ public:
      * Dump out the GrRenderTask dependency DAG
      */
     virtual void dump(bool printDependencies) const;
+    virtual const char* name() const = 0;
 
     virtual int numClips() const { return 0; }
 

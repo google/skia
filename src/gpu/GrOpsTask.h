@@ -110,9 +110,12 @@ public:
 
     void discard();
 
-    SkDEBUGCODE(void dump(bool printDependencies) const override;)
-    SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
+#ifdef SK_DEBUG
+    void dump(bool printDependencies) const override;
+    const char* name() const final { return "Ops"; }
+    int numClips() const override { return fNumClips; }
+    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
+#endif
 
 #if GR_TEST_UTILS
     int numOpChains() const { return fOpChains.count(); }
