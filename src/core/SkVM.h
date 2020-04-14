@@ -712,6 +712,11 @@ namespace skvm {
         std::vector<int>                              fStrides;
     };
 
+    template <typename... Fs>
+    void dump_instructions(const std::vector<Instruction>& instructions,
+                           SkWStream* o = nullptr,
+                           Fs... fs);
+
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
     std::vector<Instruction>          specialize_for_jit (std::vector<Instruction>);
