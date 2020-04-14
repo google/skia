@@ -1618,7 +1618,6 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                            SkTaskGroup* gpuTaskGroup,
                            sk_gpu_test::TestContext* gpuTestCtx,
                            GrContext* gpuThreadCtx) const {
-
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
     // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the
     // same context (this thread and the gpuThread - which will be uploading textures)).
@@ -1659,8 +1658,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // TODO: move the image upload to the utility thread
     promiseImageHelper.uploadAllToGPU(gpuTaskGroup, gpuThreadCtx);
 
-    constexpr int kNumDivisions = 3;
+    constexpr int kNumDivisions = 1;
     DDLTileHelper tiles(dstSurface, dstCharacterization, viewport, kNumDivisions);
+
+    tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
     // Reinflate the compressed picture individually for each thread.
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
@@ -1676,6 +1677,9 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
     promiseImageHelper.deleteAllFromGPU(gpuTaskGroup, gpuThreadCtx);
+
+
+    tiles.deleteBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
     // A flush has already been scheduled on the gpu thread along with the clean up of the backend
     // textures so it is safe to schedule making 'mainCtx' not current on the gpuThread.
@@ -2121,7 +2125,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Finally, compose the drawn tiles into the result
             // Note: the separation between the tiles and the final composition better
             // matches Chrome but costs us a copy
-            tiles.composeAllTiles();
+            tiles.composeAllTiles(context);
             context->flush();
         }
         return Result::Ok();
