@@ -337,6 +337,8 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill-rule"        , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
     { "font-family"      , { SkSVGAttribute::kFontFamily       , SetStringAttribute       }},
     { "font-size"        , { SkSVGAttribute::kFontSize         , SetLengthAttribute       }},
+    { "font-style"       , { SkSVGAttribute::kFontStyle        , SetStringAttribute       }},
+    { "font-weight"      , { SkSVGAttribute::kFontWeight       , SetStringAttribute       }},
     // focal point x & y
     { "fx"               , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"               , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
