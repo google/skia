@@ -24,6 +24,16 @@ public:
 
     void reset();
 
+    ////////////////////////////////////////////////////////////////////////////
+    // GraphicsCommandList commands
+    ////////////////////////////////////////////////////////////////////////////
+
+    // For the moment we only support Transition barriers
+    // All barriers should reference subresources of managedResource
+    void resourceBarrier(const GrManagedResource* managedResource,
+                         int numBarriers,
+                         D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
+
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
     void addResource(const GrManagedResource* resource) {
@@ -47,6 +57,8 @@ protected:
     GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                      gr_cp<ID3D12GraphicsCommandList> commandList);
 
+    void submitResourceBarriers();
+
     gr_cp<ID3D12GraphicsCommandList> fCommandList;
 
     SkTDArray<const GrManagedResource*> fTrackedResources;
@@ -65,6 +77,8 @@ private:
     // resource arrays.
     static const int kNumRewindResetsBeforeFullReset = 8;
     int              fNumResets = 0;
+
+    SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {

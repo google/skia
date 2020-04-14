@@ -62,6 +62,52 @@ void GrD3DCommandList::releaseResources() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// GraphicsCommandList commands
+////////////////////////////////////////////////////////////////////////////////
+
+void GrD3DCommandList::resourceBarrier(const GrManagedResource* resource,
+                                       int numBarriers,
+                                       D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
+    SkASSERT(fIsActive);
+    SkASSERT(barriers);
+    for (int i = 0; i < numBarriers; ++i) {
+        bool replacedExistingBarrier = false;
+        for (int j = 0; j < fResourceBarriers.count(); ++j) {
+            D3D12_RESOURCE_BARRIER& existingBarrier = fResourceBarriers[j];
+            SkASSERT(existingBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION);
+            if (existingBarrier.Transition.pResource == barriers[i].pResource &&
+                existingBarrier.Transition.Subresource == barriers[i].Subresource &&
+                (existingBarrier.Transition.StateBefore == barriers[i].StateBefore ||
+                 existingBarrier.Transition.StateAfter == barriers[i].StateAfter)) {
+                existingBarrier.Transition.StateAfter = barriers[i].StateAfter;
+                replacedExistingBarrier = true;
+                break;
+            }
+        }
+        if (!replacedExistingBarrier) {
+            // D3D will apply barriers in order so we can just add onto the end
+            D3D12_RESOURCE_BARRIER& newBarrier = fResourceBarriers.push_back();
+            newBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            newBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            newBarrier.Transition = barriers[i];
+        }
+    }
+    if (resource) {
+        this->addResource(resource);
+    }
+}
+
+void GrD3DCommandList::submitResourceBarriers() {
+    SkASSERT(fIsActive);
+
+    if (fResourceBarriers.count()) {
+        fCommandList->ResourceBarrier(fResourceBarriers.count(), fResourceBarriers.begin());
+        fResourceBarriers.reset();
+    }
+    SkASSERT(!fResourceBarriers.count());
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Device* device) {

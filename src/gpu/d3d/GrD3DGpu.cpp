@@ -229,6 +229,20 @@ static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     return true;
 }
 
+bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+                            size_t rowBytes) {
+    return true;
+}
+
+bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                             GrColorType surfaceColorType, GrColorType srcColorType,
+                             const GrMipLevel texels[], int mipLevelCount,
+                             bool prepForTexSampling) {
+    return true;
+}
+
+
 static bool check_tex_resource_info(const GrD3DCaps& caps, const GrD3DTextureResourceInfo& info) {
     if (!caps.isFormatTexturable(info.fFormat)) {
         return false;
