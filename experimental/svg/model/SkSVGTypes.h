@@ -279,4 +279,33 @@ private:
     SkTDArray<SkSVGLength> fDashArray;
 };
 
+class SkSVGStopColor {
+public:
+    enum class Type {
+        kColor,
+        kCurrentColor,
+        kICCColor,
+        kInherit,
+    };
+
+    SkSVGStopColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
+    explicit SkSVGStopColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
+    explicit SkSVGStopColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+
+    SkSVGStopColor(const SkSVGStopColor&)            = default;
+    SkSVGStopColor& operator=(const SkSVGStopColor&) = default;
+
+    bool operator==(const SkSVGStopColor& other) const {
+        return fType == other.fType && fColor == other.fColor;
+    }
+    bool operator!=(const SkSVGStopColor& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+
+private:
+    Type fType;
+    SkSVGColorType fColor;
+};
+
 #endif // SkSVGTypes_DEFINED

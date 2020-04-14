@@ -30,6 +30,7 @@ public:
         kPath,
         kPoints,
         kSpreadMethod,
+        kStopColor,
         kString,
         kTransform,
         kViewBox,
@@ -89,6 +90,7 @@ using SkSVGPointsValue       = SkSVGWrapperValue<SkSVGPointsType   , SkSVGValue:
 using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue::Type::kString    >;
 using SkSVGSpreadMethodValue = SkSVGWrapperValue<SkSVGSpreadMethod ,
                                                  SkSVGValue::Type::kSpreadMethod>;
+using SkSVGStopColorValue    = SkSVGWrapperValue<SkSVGStopColor    , SkSVGValue::Type::kStopColor >;
 using SkSVGVisibilityValue   = SkSVGWrapperValue<SkSVGVisibility   , SkSVGValue::Type::kVisibility>;
 using SkSVGDashArrayValue    = SkSVGWrapperValue<SkSVGDashArray    , SkSVGValue::Type::kDashArray >;
 
