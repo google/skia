@@ -78,7 +78,7 @@ static std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> create_msa
     sk_sp<GrD3DResourceState> msState;
 
     // create msaa surface
-    D3D12_RESOURCE_DESC msTextureDesc;
+    D3D12_RESOURCE_DESC msTextureDesc = {};
     msTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     msTextureDesc.Alignment = 0;  // Default alignment (64KB)
     msTextureDesc.Width = dimensions.fWidth;
@@ -92,8 +92,9 @@ static std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> create_msa
     msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
     msTextureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc, info.fProtected,
-                                                       &msInfo)) {
+    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc,
+                                                       D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                                       info.fProtected, &msInfo)) {
         return {};
     }
 
@@ -113,7 +114,10 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         GrMipMapsStatus mipMapsStatus) {
 
     GrD3DTextureResourceInfo info;
-    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, isProtected, &info)) {
+    D3D12_RESOURCE_STATES initialState = sampleCnt > 1 ? D3D12_RESOURCE_STATE_RESOLVE_DEST
+                                                       : D3D12_RESOURCE_STATE_RENDER_TARGET;
+    if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, resourceDesc, initialState,
+                                                       isProtected, &info)) {
         return nullptr;
     }
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(
