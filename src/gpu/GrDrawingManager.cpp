@@ -437,7 +437,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
                             startIndex, stopIndex, 0, fDAG.numRenderTasks());
     for (int i = startIndex; i < stopIndex; ++i) {
         if (fDAG.renderTask(i)) {
-            fDAG.renderTask(i)->dump(true);
+            fDAG.renderTask(i)->dump(true, false);
         }
     }
 #endif

@@ -640,8 +640,8 @@ void GrOpsTask::discard() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-void GrOpsTask::dump(bool printDependencies) const {
-    GrRenderTask::dump(printDependencies);
+void GrOpsTask::dump(bool printDependencies, bool foo) const {
+    GrRenderTask::dump(printDependencies, foo);
 
     SkDebugf("fColorLoadOp: ");
     switch (fColorLoadOp) {
