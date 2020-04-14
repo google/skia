@@ -187,39 +187,14 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 }
 
-void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                               GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    SkASSERT(this->caps()->fenceSyncSupport());
-    FinishCallback callback;
-    callback.fCallback = finishedProc;
-    callback.fContext = finishedContext;
-    callback.fFence = this->insertFence();
-    fFinishCallbacks.push_back(callback);
-}
-
 bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu) {
         this->submitCommandBuffer(kForce_SyncQueue);
-        for (const auto& cb : fFinishCallbacks) {
-            cb.fCallback(cb.fContext);
-            this->deleteFence(cb.fFence);
-        }
-        fFinishCallbacks.clear();
+        this->callFinishCallbacks(true);
     } else {
         this->submitCommandBuffer(kSkip_SyncQueue);
     }
     return true;
-}
-
-void GrMtlGpu::checkFinishProcs() {
-    // Bail after the first unfinished sync since we expect they signal in the order inserted.
-    while (!fFinishCallbacks.empty() && this->waitFence(fFinishCallbacks.front().fFence,
-                                                       /* timeout = */ 0)) {
-        fFinishCallbacks.front().fCallback(fFinishCallbacks.front().fContext);
-        this->deleteFence(fFinishCallbacks.front().fFence);
-        fFinishCallbacks.pop_front();
-    }
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
@@ -1324,7 +1299,7 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
     return (GrFence) cfFence;
 }
 
-bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout, bool /* flush */) {
     const void* cfFence = (const void*) fence;
     dispatch_semaphore_t semaphore = (__bridge dispatch_semaphore_t)cfFence;
 

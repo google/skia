@@ -31,7 +31,7 @@ public:
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence, uint64_t) override { return true; }
+    bool waitFence(GrFence, uint64_t, bool) override { return true; }
     void deleteFence(GrFence) const override {}
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
@@ -50,8 +50,6 @@ public:
     }
 
     void submit(GrOpsRenderPass* renderPass) override;
-
-    void checkFinishProcs() override {}
 
 private:
     GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);
@@ -130,12 +128,6 @@ private:
     bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
-
-    void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override {
-        SkASSERT(finishedProc);
-        finishedProc(finishedContext);
-    }
 
     bool onSubmitToGpu(bool syncCpu) override {
         return true;

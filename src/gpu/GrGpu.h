@@ -20,6 +20,7 @@
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
+#include <list>
 #include <map>
 
 class GrBackendRenderTarget;
@@ -369,7 +370,7 @@ public:
     virtual void submit(GrOpsRenderPass*) = 0;
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
-    virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
+    virtual bool waitFence(GrFence, uint64_t timeout = 1000, bool flush = false) = 0;
     virtual void deleteFence(GrFence) const = 0;
 
     virtual std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(
@@ -379,7 +380,7 @@ public:
     virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
-    virtual void checkFinishProcs() = 0;
+    virtual void checkFinishProcs();
 
     /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
@@ -699,6 +700,9 @@ protected:
 
     typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
 
+    bool                             hasFinishCallbacks() { return !fFinishCallbacks.empty(); }
+    void                             callFinishCallbacks(bool doDelete);
+
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
@@ -808,7 +812,7 @@ private:
                                const SkIPoint& dstPoint) = 0;
 
     virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
-                                 GrGpuFinishedContext finishedContext) = 0;
+                                 GrGpuFinishedContext finishedContext);
 
     virtual void prepareSurfacesForBackendAccessAndExternalIO(
             GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
@@ -842,6 +846,14 @@ private:
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
     GrSamplePatternDictionary fSamplePatternDictionary;
+
+    struct FinishCallback {
+        GrGpuFinishedProc     fCallback;
+        GrGpuFinishedContext  fContext;
+        GrFence               fFence;
+    };
+
+    std::list<FinishCallback>        fFinishCallbacks;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;
