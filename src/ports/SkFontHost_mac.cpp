@@ -1033,15 +1033,6 @@ static void add_opsz_attr(CFMutableDictionaryRef attr, double opsz) {
     CFDictionarySetValue(attr, SkCTFontOpticalSizeAttribute, opszValueNumber.get());
 }
 
-// This turns off application of the 'trak' table to advances, but also all other tracking.
-static void add_notrak_attr(CFMutableDictionaryRef attr) {
-    int zero = 0;
-    SkUniqueCFRef<CFNumberRef> unscaledTrackingNumber(
-        CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &zero));
-    CFStringRef SkCTFontUnscaledTrackingAttribute = CFSTR("NSCTFontUnscaledTrackingAttribute");
-    CFDictionarySetValue(attr, SkCTFontUnscaledTrackingAttribute, unscaledTrackingNumber.get());
-}
-
 static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
                                                          OpszVariation opsz)
 {
@@ -1052,7 +1043,6 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
     } else {
         // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
         // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
@@ -1074,21 +1064,12 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
             opsz_val = CTFontGetSize(baseFont);
         }
         add_opsz_attr(attr.get(), opsz_val);
-#endif
     }
-    add_notrak_attr(attr.get());
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
-#else
-    SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
-    return SkUniqueCFRef<CTFontRef>(
-            CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
-
-#endif
 }
 
 SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
