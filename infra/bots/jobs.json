@@ -23,6 +23,7 @@
   "Build-Debian10-Clang-arm-Release-Chromebook_GLES",
   "Build-Debian9-Clang-arm-Release-Chromebook_GLES",
   "Build-Debian10-Clang-arm-Release-Flutter_Android",
+  "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker",
   "Build-Debian10-Clang-arm64-Debug-Android",
   "Build-Debian10-Clang-arm64-Debug-Android_ASAN",
   "Build-Debian10-Clang-arm64-Debug-Android_ASAN_Vulkan",
