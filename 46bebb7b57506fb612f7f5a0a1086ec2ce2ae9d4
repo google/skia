@@ -46,6 +46,30 @@
       "revId": "46bebb7b57506fb612f7f5a0a1086ec2ce2ae9d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80878ace_309d1ece",
+        "filename": "experimental/svg/model/SkSVGTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-04-14T14:58:19Z",
+      "side": 1,
+      "message": "lgtm++",
+      "parentUuid": "b83f8a71_eed5d5b5",
+      "range": {
+        "startLine": 288,
+        "startChar": 8,
+        "endLine": 288,
+        "endChar": 16
+      },
+      "revId": "46bebb7b57506fb612f7f5a0a1086ec2ce2ae9d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
