@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "01e82346_72337d70",
+        "filename": "gm/sample_matrix_constant.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "That\u0027s what I get for copy-pasting another GM. Fixed.",
+      "parentUuid": "542e2316_9757df86",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f2aa81b_29e5acce",
         "filename": "gm/sample_matrix_variable.cpp",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "49e5fdaa_ca337959",
+        "filename": "gm/sample_matrix_variable.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f2aa81b_29e5acce",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a228dcb0_2f49958e",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 9
@@ -50,6 +86,24 @@
       "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92f8969d_938ee968",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Not much!",
+      "parentUuid": "a228dcb0_2f49958e",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "a758b89a_e4ed7b7b",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f4de59a_b1d6cd25",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 62
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04ca742f_66abbc73",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 9
@@ -87,6 +165,30 @@
       "writtenOn": "2020-04-10T19:18:56Z",
       "side": 1,
       "message": "Hopefully this helps me understand the bigger picture - why do we apply _matrix here in this case in texture effect but no other effect uses it? Is that related to the ensureCoords2D changes?",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 17
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9edc517_ef03bbd6",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Yes, I instrumented ensureCoords2D to handle this for you, but then discovered that GrTextureEffect doesn\u0027t use it along this path. Not sure what the best way to fix this is, but for the time being I\u0027m just applying it manually.",
+      "parentUuid": "04ca742f_66abbc73",
       "range": {
         "startLine": 239,
         "startChar": 0,
@@ -122,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "a42a514c_84c99552",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Not sure what happened there; the right code is in place now, and more importantly a test to make sure it actually works right.",
+      "parentUuid": "0facb0a0_2afe11f8",
+      "range": {
+        "startLine": 75,
+        "startChar": 79,
+        "endLine": 75,
+        "endChar": 85
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "103b9ef8_fb161d4f",
         "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
         "patchSetId": 9
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "c2686a6b_bd31a91b",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "103b9ef8_fb161d4f",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40426948_0df3be59",
         "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
         "patchSetId": 9
@@ -153,6 +297,24 @@
       "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e41b9c7b_7dbe0870",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-04-14T13:56:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "40426948_0df3be59",
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
