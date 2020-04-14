@@ -77,7 +77,6 @@ protected:
                 break;
             }
         }
-
     }
 
 private:

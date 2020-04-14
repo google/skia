@@ -2412,6 +2412,8 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const Sk
 }
 
 void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+    return;
+
     if (!path.isFinite()) {
         return;
     }
@@ -2532,6 +2534,8 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
+    return;
+
     SkPaint realPaint;
     paint = init_image_paint(&realPaint, paint);
 
@@ -2601,6 +2605,8 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+    return;
+
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
