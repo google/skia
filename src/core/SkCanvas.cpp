@@ -33,6 +33,7 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMSAN.h"
+#include "src/core/SkMarkerStack.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPaintPriv.h"
@@ -495,6 +496,8 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
+    fMarkerStack = sk_make_sp<SkMarkerStack>();
+
     fSaveCount = 1;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -517,6 +520,8 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
         fDeviceClipBounds = qr_clip_bounds(device->getGlobalBounds());
 
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+
+        device->setMarkerStack(fMarkerStack.get());
     }
 
     fScratchGlyphRunBuilder = std::make_unique<SkGlyphRunBuilder>();
@@ -1173,6 +1178,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         if (!newDevice) {
             return;
         }
+        newDevice->setMarkerStack(fMarkerStack.get());
     }
     DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix);
 
@@ -1262,9 +1268,7 @@ void SkCanvas::internalRestore() {
     // move this out before we do the actual restore
     auto backImage = std::move(fMCRec->fBackImage);
 
-    while (!fMarkerStack.empty() && fMarkerStack.back().fMCRec == fMCRec) {
-        fMarkerStack.pop_back();
-    }
+    fMarkerStack->restore(fMCRec);
 
     // now do the normal restore()
     fMCRec->~MCRec();       // balanced in save()
@@ -1547,35 +1551,11 @@ void SkCanvas::markCTM(MarkerID id) {
 
     this->onMarkCTM(id);
 
-    SkM44 mx = this->getLocalToDevice();
-
-    // Look if we've already seen id in this save-frame.
-    // If so, replace, else append
-    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
-        auto& m = fMarkerStack[i];
-        if (m.fMCRec != fMCRec) {   // we've gone past the current save-frame
-            break;                  // fall out so we append
-        }
-        if (m.fID == id) {    // in current frame, so replace
-            m.fMatrix = mx;
-            return;
-        }
-    }
-    // if we get here, we should append a new marker
-    fMarkerStack.push_back({fMCRec, mx, id});
+    fMarkerStack->setMarker(id, this->getLocalToDevice(), fMCRec);
 }
 
 bool SkCanvas::findMarkedCTM(MarkerID id, SkM44* mx) const {
-    // search from top to bottom, so we find the most recent id
-    for (int i = fMarkerStack.size() - 1; i >= 0; --i) {
-        if (fMarkerStack[i].fID == id) {
-            if (mx) {
-                *mx = fMarkerStack[i].fMatrix;
-            }
-            return true;
-        }
-    }
-    return false;
+    return fMarkerStack->findMarker(id, mx);
 }
 
 //////////////////////////////////////////////////////////////////////////////
