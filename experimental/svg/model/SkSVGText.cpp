@@ -10,6 +10,8 @@
 #include "experimental/svg/model/SkSVGRenderContext.h"
 #include "experimental/svg/model/SkSVGValue.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkString.h"
 
 SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
 
@@ -18,11 +20,45 @@ void SkSVGText::setX(const SkSVGLength& x) { fX = x; }
 void SkSVGText::setY(const SkSVGLength& y) { fY = y; }
 
 void SkSVGText::setFontFamily(const SkSVGStringType& font_family) {
-  fTypeface =
-      SkTypeface::MakeFromName(font_family.c_str(), SkFontStyle());
+  if (fFontFamily != font_family) {
+    fFontFamily = font_family;
+
+    this->loadFont();
+  }
+}
+
+void SkSVGText::loadFont() {
+  SkFontStyle style;
+  if (fFontWeight.equals("bold")) {
+    if (fFontStyle.equals("italic")) {
+      style = SkFontStyle::BoldItalic();
+    } else {
+      style = SkFontStyle::Bold();
+    }
+  } else if (fFontStyle.equals("italic")) {
+    style = SkFontStyle::Italic();
+  }
+
+  fTypeface = SkTypeface::MakeFromName(fFontFamily.c_str(), style);
 }
 
 void SkSVGText::setFontSize(const SkSVGLength& size) { fFontSize = size; }
+
+void SkSVGText::setFontStyle(const SkSVGStringType& font_style) {
+  if (fFontStyle != font_style) {
+    fFontStyle = font_style;
+
+    this->loadFont();
+  }
+}
+
+void SkSVGText::setFontWeight(const SkSVGStringType& font_weight) {
+  if (fFontWeight != font_weight) {
+    fFontWeight = font_weight;
+
+    this->loadFont();
+  }
+}
 
 void SkSVGText::setText(const SkSVGStringType& text) { fText = text; }
 
@@ -75,9 +111,19 @@ void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         this->setFontFamily(*font_family);
       }
       break;
+    case SkSVGAttribute::kFontWeight:
+      if (const auto* font_weight = v.as<SkSVGStringValue>()) {
+        this->setFontWeight(*font_weight);
+      }
+      break;
     case SkSVGAttribute::kFontSize:
       if (const auto* font_size = v.as<SkSVGLengthValue>()) {
         this->setFontSize(*font_size);
+      }
+      break;
+    case SkSVGAttribute::kFontStyle:
+      if (const auto* font_style = v.as<SkSVGStringValue>()) {
+        this->setFontStyle(*font_style);
       }
       break;
     default:
