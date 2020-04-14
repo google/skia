@@ -94,6 +94,7 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
+        struct Attr  { const char* label; int v; };
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -142,6 +143,11 @@ namespace skvm {
         }
         static void write(SkWStream* o, Hex h) {
             o->writeHexAsText(h.bits);
+        }
+        [[maybe_unused]] static void write(SkWStream* o, Attr a) {
+            write(o, a.label);
+            write(o, " ");
+            o->writeDecAsText(a.v);
         }
 
         template <typename T, typename... Ts>
@@ -287,6 +293,105 @@ namespace skvm {
                 case Op::to_f32: write(o, V{id}, "=", op, V{x}); break;
                 case Op::trunc:  write(o, V{id}, "=", op, V{x}); break;
                 case Op::round:  write(o, V{id}, "=", op, V{x}); break;
+            }
+
+            write(o, "\n");
+        }
+    }
+
+    template <typename... Fs>
+    void dump_instructions(const std::vector<Instruction>& instructions, SkWStream* o, Fs... fs)  {
+        SkDebugfStream debug;
+        if (o == nullptr) {
+            o = &debug;
+        }
+
+        o->writeDecAsText(instructions.size());
+        o->writeText("\n");
+        for (Val id = 0; id < (Val)instructions.size(); id++) {
+            const Instruction& inst = instructions[id];
+            Op  op = inst.op;
+            Val  x = inst.x,
+                 y = inst.y,
+                 z = inst.z;
+            int immy = inst.immy,
+                immz = inst.immz;
+            switch (op) {
+                case Op::assert_true: write(o, op, V{x}, V{y}, fs(id)...); break;
+
+                case Op::store8:  write(o, op, Arg{immy}, V{x}, fs(id)...); break;
+                case Op::store16: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
+                case Op::store32: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
+
+                case Op::index: write(o, V{id}, "=", op, fs(id)...); break;
+
+                case Op::load8:  write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+                case Op::load16: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+                case Op::load32: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+
+                case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
+                case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
+                case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
+
+                case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
+                case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
+                case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
+
+                case Op::splat:  write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
+
+
+                case Op::add_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::sub_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::mul_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::div_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::min_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+                case Op::fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+                case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+
+
+                case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+
+                case Op::add_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
+                case Op::sub_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
+                case Op::mul_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
+                case Op::min_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
+                case Op::max_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}, fs(id)...); break;
+
+                case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op::gte_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+
+                case Op::add_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+                case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+                case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+                case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+
+                case Op:: eq_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+                case Op:: gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+                case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+                case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+
+                case Op::bit_and_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
+                case Op::bit_or_imm : write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
+                case Op::bit_xor_imm: write(o, V{id}, "=", op, V{x}, Hex{immy}, fs(id)...); break;
+
+                case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+                case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
+
+                case Op::floor:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+                case Op::to_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+                case Op::trunc:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+                case Op::round:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             }
 
             write(o, "\n");
@@ -608,6 +713,8 @@ namespace skvm {
                 std::swap( new_id[id],  new_id[new_id[id]]);
             }
         }
+
+        dump_instructions(program);
         return program;
     }
 
