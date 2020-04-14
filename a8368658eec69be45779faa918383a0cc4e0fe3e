@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1579f89c_bfe560cf",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-04-14T20:55:27Z",
+      "side": 1,
+      "message": "Seems like the marker stack should store the inverse - we\u0027ll likely be fetching matrices far more than setting them.",
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
