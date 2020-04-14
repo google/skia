@@ -609,6 +609,16 @@ private:
         return &fHWBufferState[typeAsUInt];
     }
 
+    enum class ForceFlush {
+        kYes,
+        kNo,
+    };
+
+    // This calls glFlush if it is required for previously called operations.
+    void glFlushIfRequired(ForceFlush forceFlush = ForceFlush::kNo);
+
+    void setNeedsFlush() { fNeedsGLFlush = true; }
+
     struct {
         GrBlendEquation fEquation;
         GrBlendCoeff    fSrcCoeff;
@@ -704,6 +714,11 @@ private:
         GrGLsync fSync;
     };
     std::list<FinishCallback> fFinishCallbacks;
+
+    // If we've called a command that requires us to call glFlush than this will be set to true
+    // since we defer calling flush until submit time. When we call submitToGpu if this is true then
+    // we call glFlush and reset this to false.
+    bool fNeedsGLFlush = false;
 
     SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
 
