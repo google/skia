@@ -367,7 +367,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 
     // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context->priv().backdoor(), std::move(rtc),
-                                                SkGpuDevice::kClear_InitContents));
+                                                SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
     }

@@ -1999,6 +1999,9 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+
+    return;
+
     this->onDrawImage(image, x, y, paint);
 }
 
@@ -2013,6 +2016,9 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
                              const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+
+    return;
+
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
@@ -2022,11 +2028,16 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     RETURN_ON_NULL(image);
+
+    return;
+
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
     RETURN_ON_NULL(image);
+
+    return;
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         kFast_SrcRectConstraint);
 }
@@ -2601,6 +2612,9 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+
+    return;
+
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {

@@ -267,6 +267,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
     GpuSync gpuSync;
     ddl_sample(context, &tiles, gpuSync, nullptr, &startStopTime);
 
+#if 0
     clock::duration cumulativeDuration = std::chrono::milliseconds(0);
 
     do {
@@ -280,6 +281,7 @@ static void run_ddl_benchmark(GrContext* context, sk_sp<SkSurface> surface,
 
         cumulativeDuration += sample.fDuration;
     } while (cumulativeDuration < benchDuration || 0 == samples->size() % 2);
+#endif
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
