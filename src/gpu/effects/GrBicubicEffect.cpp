@@ -26,7 +26,8 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                                    bicubicEffect.sampleMatrix());
 
     /*
      * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
@@ -175,7 +176,7 @@ GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
         , fCoordTransform(matrix)
         , fDirection(direction)
         , fClamp(clamp) {
-    fp->setSampledWithExplicitCoords(true);
+    fp->setSampledWithExplicitCoords();
     this->addCoordTransform(&fCoordTransform);
     this->registerChildProcessor(std::move(fp));
 }
@@ -187,7 +188,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         , fClamp(that.fClamp) {
     this->addCoordTransform(&fCoordTransform);
     auto child = that.childProcessor(0).clone();
-    child->setSampledWithExplicitCoords(true);
+    child->setSampledWithExplicitCoords();
     this->registerChildProcessor(std::move(child));
 }
 

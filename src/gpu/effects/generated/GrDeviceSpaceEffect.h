@@ -30,7 +30,7 @@ private:
             : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags) {
         SkASSERT(fp);
         fp_index = this->numChildProcessors();
-        fp->setSampledWithExplicitCoords(true);
+        fp->setSampledWithExplicitCoords();
         this->registerChildProcessor(std::move(fp));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

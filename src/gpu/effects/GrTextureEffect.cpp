@@ -227,18 +227,26 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
     public:
         void emitCode(EmitArgs& args) override {
             auto& te = args.fFp.cast<GrTextureEffect>();
-            const char* coords;
-            if (args.fFp.isSampledWithExplicitCoords()) {
-                coords = "_coords";
-            } else {
-                coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
-            }
             auto* fb = args.fFragBuilder;
             if (te.fShaderModes[0] == ShaderMode::kNone &&
                 te.fShaderModes[1] == ShaderMode::kNone) {
+                SkString coords;
+                if (args.fFp.isSampledWithExplicitCoords()) {
+                    coords = "_coords";
+                } else {
+                    coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
+                }
+                switch (te.sampleMatrix().fKind) {
+                    case SkSL::SampleMatrix::Kind::kMixed:
+                    case SkSL::SampleMatrix::Kind::kVariable:
+                        coords = SkStringPrintf("(_matrix * float3(%s, 1)).xy", coords.c_str());
+                        break;
+                    default:
+                        break;
+                }
                 fb->codeAppendf("%s = ", args.fOutputColor);
                 fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                args.fTexSamplers[0], coords);
+                                                args.fTexSamplers[0], coords.c_str());
                 fb->codeAppendf(";");
             } else {
                 // Here is the basic flow of the various ShaderModes are implemented in a series of
@@ -262,7 +270,8 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 // Convert possible projective texture coordinates into non-homogeneous half2.
                 fb->codeAppendf(
                         "float2 inCoord = %s;",
-                        fb->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint).c_str());
+                        fb->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
+                                           te.sampleMatrix()).c_str());
 
                 const auto& m = te.fShaderModes;
                 GrTextureType textureType = te.fSampler.proxy()->backendFormat().textureType();

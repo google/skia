@@ -117,6 +117,7 @@ public:
         kGrLumaColorFilterEffect_ClassID,
         kGrMagnifierEffect_ClassID,
         kGrMatrixConvolutionEffect_ClassID,
+        kGrMatrixEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
         kGrMorphologyEffect_ClassID,
         kGrMixerEffect_ClassID,

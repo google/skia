@@ -68,11 +68,9 @@ struct PrefixExpression : public Expression {
         return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
     }
 
-#ifdef SK_DEBUG
     String description() const override {
         return Compiler::OperatorName(fOperator) + fOperand->description();
     }
-#endif
 
     std::unique_ptr<Expression> fOperand;
     const Token::Kind fOperator;

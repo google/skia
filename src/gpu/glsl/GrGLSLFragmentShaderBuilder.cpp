@@ -71,20 +71,30 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     fSubstageIndices.push_back(0);
 }
 
-SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
+SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords,
+                                                     const SkSL::SampleMatrix& matrix) {
+    SkString result;
     if (!coords.getName().size()) {
-        return SkString("_coords");
-    }
-    if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
+        result = "_coords";
+    } else if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
         SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
-        return coords.getName();
+        result = coords.getName();
+    } else {
+        SkString coords2D;
+        coords2D.printf("%s_ensure2D", coords.c_str());
+        this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
+                          coords.c_str());
+        result = coords2D;
     }
-
-    SkString coords2D;
-    coords2D.printf("%s_ensure2D", coords.c_str());
-    this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
-                      coords.c_str());
-    return coords2D;
+    switch (matrix.fKind) {
+        case SkSL::SampleMatrix::Kind::kMixed:
+        case SkSL::SampleMatrix::Kind::kVariable:
+            result = SkStringPrintf("(_matrix * float3(%s, 1)).xy", result.c_str());
+            break;
+        default:
+            break;
+    }
+    return result;
 }
 
 const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
@@ -163,6 +173,8 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
+    bool hasVariableMatrix = args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable ||
+                             args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed;
     if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
@@ -179,16 +191,27 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                 SkASSERT(transform.getType() == kVoid_GrSLType);
                 break;
         }
+        if (args.fFp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+            SkASSERT(!hasVariableMatrix);
+            this->codeAppend("{\n");
+            args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);
+            this->codeAppendf("_coords = (%s * float3(_coords, 1)).xy;\n",
+                              args.fFp.sampleMatrix().fExpression.c_str());
+            this->codeAppend("}\n");
+        }
     }
+
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
     this->codeAppendf("return %s;\n", args.fOutputColor);
     GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
-                             GrShaderVar("_coords", kFloat2_GrSLType) };
+                             hasVariableMatrix ? GrShaderVar("_matrix", kFloat3x3_GrSLType)
+                                               : GrShaderVar("_coords", kFloat2_GrSLType) };
     SkString result;
     this->emitFunction(kHalf4_GrSLType,
                        args.fFp.name(),
-                       args.fFp.isSampledWithExplicitCoords() ? 2 : 1,
+                       args.fFp.isSampledWithExplicitCoords() || hasVariableMatrix ? 2
+                                                                                   : 1,
                        params,
                        this->code().c_str(),
                        &result);
