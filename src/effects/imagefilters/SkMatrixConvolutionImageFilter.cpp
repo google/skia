@@ -19,6 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #endif
@@ -360,21 +361,18 @@ void SkMatrixConvolutionImageFilterImpl::filterBorderPixels(const SkBitmap& src,
 }
 
 #if SK_SUPPORT_GPU
-
-static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
+static GrSamplerState::WrapMode convert_tilemodes(SkTileMode tileMode) {
     switch (tileMode) {
-    case SkTileMode::kClamp:
-        return GrTextureDomain::kClamp_Mode;
-    case SkTileMode::kMirror:
-        return GrTextureDomain::kMirrorRepeat_Mode;
-    case SkTileMode::kRepeat:
-        return GrTextureDomain::kRepeat_Mode;
-    case SkTileMode::kDecal:
-        return GrTextureDomain::kDecal_Mode;
-    default:
-        SkASSERT(false);
+        case SkTileMode::kClamp:
+            return GrSamplerState::WrapMode::kClamp;
+        case SkTileMode::kDecal:
+            return GrSamplerState::WrapMode::kClampToBorder;
+        case SkTileMode::kMirror:
+            return GrSamplerState::WrapMode::kMirrorRepeat;
+        case SkTileMode::kRepeat:
+            return GrSamplerState::WrapMode::kRepeat;
     }
-    return GrTextureDomain::kIgnore_Mode;
+    SkUNREACHABLE;
 }
 #endif
 
@@ -439,7 +437,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
                                                   fBias,
                                                   fKernelOffset,
                                                   convert_tilemodes(fTileMode),
-                                                  fConvolveAlpha);
+                                                  fConvolveAlpha,
+                                                  *ctx.getContext()->priv().caps());
         if (!fp) {
             return nullptr;
         }

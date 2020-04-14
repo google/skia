@@ -115,20 +115,6 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                         SkRect::Make(rtcRect), srcRect);
 }
 
-static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
-    switch (tileMode) {
-        case SkTileMode::kClamp:
-            return GrTextureDomain::kClamp_Mode;
-        case SkTileMode::kDecal:
-            return GrTextureDomain::kDecal_Mode;
-        case SkTileMode::kMirror:
-            // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
-        case SkTileMode::kRepeat:
-            return GrTextureDomain::kRepeat_Mode;
-    }
-    SkUNREACHABLE;
-}
-
 static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
                                                                    GrSurfaceProxyView srcView,
                                                                    GrColorType srcColorType,
@@ -151,10 +137,10 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
-    auto domainMode = to_texture_domain_mode(mode);
-    auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(srcView), srcBounds, size,
-                                                        1.0, 0.0, kernelOffset, domainMode, true,
-                                                        sigmaX, sigmaY);
+    auto wm = to_wrap_mode(mode);
+    auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(srcView), srcBounds, size, 1.0,
+                                                        0.0, kernelOffset, wm, true, sigmaX, sigmaY,
+                                                        *renderTargetContext->caps());
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
