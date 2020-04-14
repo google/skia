@@ -16,9 +16,11 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/SkGr.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #endif
@@ -359,25 +361,6 @@ void SkMatrixConvolutionImageFilterImpl::filterBorderPixels(const SkBitmap& src,
     }
 }
 
-#if SK_SUPPORT_GPU
-
-static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
-    switch (tileMode) {
-    case SkTileMode::kClamp:
-        return GrTextureDomain::kClamp_Mode;
-    case SkTileMode::kMirror:
-        return GrTextureDomain::kMirrorRepeat_Mode;
-    case SkTileMode::kRepeat:
-        return GrTextureDomain::kRepeat_Mode;
-    case SkTileMode::kDecal:
-        return GrTextureDomain::kDecal_Mode;
-    default:
-        SkASSERT(false);
-    }
-    return GrTextureDomain::kIgnore_Mode;
-}
-#endif
-
 sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Context& ctx,
                                                                         SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
@@ -438,8 +421,9 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
                                                   fGain,
                                                   fBias,
                                                   fKernelOffset,
-                                                  convert_tilemodes(fTileMode),
-                                                  fConvolveAlpha);
+                                                  SkTileModeToWrapMode(fTileMode),
+                                                  fConvolveAlpha,
+                                                  *ctx.getContext()->priv().caps());
         if (!fp) {
             return nullptr;
         }

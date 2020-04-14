@@ -65,6 +65,19 @@ SkPMColor4f SkColorToPMColor4f(SkColor, const GrColorInfo&);
 SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorInfo&);
 
 ////////////////////////////////////////////////////////////////////////////////
+// SkTileMode conversion
+
+static constexpr GrSamplerState::WrapMode SkTileModeToWrapMode(SkTileMode tileMode) {
+    switch (tileMode) {
+        case SkTileMode::kClamp:  return GrSamplerState::WrapMode::kClamp;
+        case SkTileMode::kDecal:  return GrSamplerState::WrapMode::kClampToBorder;
+        case SkTileMode::kMirror: return GrSamplerState::WrapMode::kMirrorRepeat;
+        case SkTileMode::kRepeat: return GrSamplerState::WrapMode::kRepeat;
+    }
+    SkUNREACHABLE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Paint conversion
 
 /** Converts an SkPaint to a GrPaint for a given GrRecordingContext. The matrix is required in order
