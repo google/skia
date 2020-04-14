@@ -592,6 +592,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                     ip = code = fun->fCode.data();
                     stack = sp - fun->fParameterCount + 1;
                     sp = stack + fun->fParameterCount + fun->fLocalCount - 1;
+                    // As we did in runStriped(), zero locals so they're safe to mask-store into.
+                    for (int i = 0; i < fun->fLocalCount; i++) {
+                        sp[-i].fFloat = 0.0f;
+                    }
                 }
                 continue;
             }
@@ -1254,6 +1258,15 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
     // innerRun just takes outArgs, so clear it if the count is zero
     if (returnCount == 0) {
         outReturn = nullptr;
+    }
+
+    // The instructions to store to locals and globals mask in the original value,
+    // so they technically need to be initialized (to any value).
+    for (int i = f->fParameterCount; i < f->fParameterCount + f->fLocalCount; i++) {
+        stack[i].fFloat = 0.0f;
+    }
+    for (int i = 0; i < fGlobalSlotCount; i++) {
+        globals[i].fFloat = 0.0f;
     }
 
     int baseIndex = 0;
