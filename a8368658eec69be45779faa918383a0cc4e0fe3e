@@ -2,6 +2,167 @@
   "comments": [
     {
       "key": {
+        "uuid": "95f69221_a3408f60",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "nit: I\u0027m not sure if this is related to the CL or just an edit that accidentally ended up in this CL. Fine either way though.",
+      "range": {
+        "startLine": 422,
+        "startChar": 46,
+        "endLine": 422,
+        "endChar": 49
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54fd070_2522f0e5",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "nit: We use the vertex count in two places: here, and in the loop which populates the vert data. Consider moving into a named constant:\n    constexpr int kNumVerts \u003d 66;\n\nnit: Consider labeling ambiguous arguments.\n    /*index_count\u003d*/0, \u0026attr, /*attr_count\u003d*/1\n\nnit: The constructor you\u0027re calling is labeled as\n    // EXPERIMENTAL -- do not call if you care what happens\n\nIs it safe to use? Is this comment meant to apply to the Skia team or to the world at large?",
+      "range": {
+        "startLine": 523,
+        "startChar": 69,
+        "endLine": 523,
+        "endChar": 75
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "817d87d8_1b198936",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "https://google.github.io/styleguide/cppguide.html#Casting : \"Do not use C-style casts.\"",
+      "range": {
+        "startLine": 526,
+        "startChar": 20,
+        "endLine": 526,
+        "endChar": 31
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0df94cf8_d7d28287",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1965,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "optional: Consider SkVertices::Attribute here.\n\nhttps://google.github.io/styleguide/cppguide.html#Type_deduction : \"Use type deduction only if it makes the code clearer to readers who aren\u0027t familiar with the project, or if it makes the code safer. Do not use it merely to avoid the inconvenience of writing an explicit type.\"",
+      "range": {
+        "startLine": 1965,
+        "startChar": 18,
+        "endLine": 1965,
+        "endChar": 22
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c88de9f_33bb6c70",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "Is this cast actually necessary, or just trying to add clarity?",
+      "range": {
+        "startLine": 986,
+        "startChar": 47,
+        "endLine": 986,
+        "endChar": 89
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c10217_9731cfa4",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "Documentation comment seems really thin to me, maybe just because I\u0027m new to a lot of these concepts. My thoughts:\n- \"ID\" should be \"MarkerID\" for clarity.\n- What\u0027s \"snapped-off\" mean in this context? This term doesn\u0027t mean anything to me.\n- How does the \"gather\" mechanism work? Feels like this should be explained; it\u0027s different from a typical container in interesting ways that aren\u0027t explained.",
+      "range": {
+        "startLine": 61,
+        "startChar": 3,
+        "endLine": 61,
+        "endChar": 73
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "482f40fc_9f07d635",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "Consider\n\n    if (std::none_of(fMatrices.begin(), fMatrices.end(),\n                     [id](const auto\u0026 m) { return m.first \u003d\u003d id; }))\n\nAlso, how many marker IDs are we expecting to encounter? Is this bounded? `gather` is n^2 on the number of marker IDs, and `get` is linear when it could be constant time, but if the number of marker IDs is finite and sufficiently small, it\u0027s better to keep it simple.",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 69,
+        "endChar": 42
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1579f89c_bfe560cf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -13,6 +174,98 @@
       "writtenOn": "2020-04-14T20:55:27Z",
       "side": 1,
       "message": "Seems like the marker stack should store the inverse - we\u0027ll likely be fetching matrices far more than setting them.",
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39c22775_e0fbc975",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "It may not be necessary today, but it strikes me that there\u0027s no way to check the container for the presence of a Marker ID. Would this be useful?",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b5fffd8_9bf01cf5",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "Consider including an operator!\u003d that returns !operator\u003d\u003d. This will simplify calling code.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 93
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "039c08fb_4fd43be0",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "This seems like it could use a range-based for loop.",
+      "range": {
+        "startLine": 194,
+        "startChar": 20,
+        "endLine": 194,
+        "endChar": 77
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "869e6237_ce0a403d",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-04-14T21:46:00Z",
+      "side": 1,
+      "message": "Consider labeling otherwise-vague arguments.\n    /*owner\u003d*/nullptr\n\n(Does Skia use ClangTidy? ClangTidy can enforce that these labels are correct. See go/argument-comment for info.)",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 205,
+        "endChar": 39
+      },
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
