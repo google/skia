@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "8416c3d4_64bffe6f",
+        "filename": "gm/sample_matrix_constant.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-14T15:32:37Z",
+      "side": 1,
+      "message": "Probably makes more sense as a color processor (and in the other GM).",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 40
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "542e2316_9757df86",
         "filename": "gm/sample_matrix_constant.cpp",
         "patchSetId": 9
@@ -198,6 +221,30 @@
       "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dc5fa8a_7e45f3b0",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-14T15:32:37Z",
+      "side": 1,
+      "message": "I see. I think I was just confused because ensureCoords2D() wasn\u0027t actually using it. Yeah, we don\u0027t go through that here because on most APIs we can sample with a homogeneous coord.",
+      "parentUuid": "e9edc517_ef03bbd6",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 17
+      },
+      "revId": "e71d9c2046e96f7cd22af43499edc9464a232040",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
