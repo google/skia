@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6df5ceb_6c1a2e3b",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:55:23Z",
+      "side": 1,
+      "message": "do we have a bug for this?",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 93
+      },
+      "revId": "5b4a9a18c5af2720e1c96a5f6cc80ca504cf8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
