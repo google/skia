@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87525022_e1763750",
+        "filename": "src/gpu/GrFinishCallbacks.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 18,
+        "startChar": 28,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3f697d8_f2e6cc32",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "Add a comment describing what this is used for and its general model for handling finished procs.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b672c6f_05fdd18e",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "does anyone not delete the fence after?",
+      "range": {
+        "startLine": 22,
+        "startChar": 14,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f473eb9b_ece999c9",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "callAllProcs?",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 13
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "096a3cb6_604a30af",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "Add a comment what this check does since check is a little vague (or make a longer more descriptive name if you can come up with one).",
+      "range": {
+        "startLine": 24,
+        "startChar": 9,
+        "endLine": 24,
+        "endChar": 14
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db0b20a9_39cdeffb",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "nit: newline before private",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 1
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adc33254_df79a136",
+        "filename": "src/gpu/GrFinishCallbacks.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "don\u0027t need all these extra spaces.",
+      "range": {
+        "startLine": 34,
+        "startChar": 30,
+        "endLine": 34,
+        "endChar": 37
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65c5cf7c_c8a5368c",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-04-14T20:29:00Z",
+      "side": 1,
+      "message": "As far as I know there is currently no use of the timeout or flush arguments here. I would say lets delete them to simplify things.",
+      "range": {
+        "startLine": 372,
+        "startChar": 36,
+        "endLine": 372,
+        "endChar": 79
+      },
+      "revId": "05f2527ae7b356675c237fe8583cf6f05eb3a60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
