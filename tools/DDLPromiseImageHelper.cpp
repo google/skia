@@ -14,6 +14,7 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrContext.h"
 #include "src/core/SkCachedData.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -83,7 +84,6 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
                                                             PromiseImageInfo* info) {
     SkASSERT(context->priv().asDirectContext());
 
-    // DDL TODO: how can we tell if we need mipmapping!
     if (info->isYUV()) {
         int numPixmaps;
         SkAssertResult(SkYUVAIndex::AreValidIndices(info->yuvaIndices(), &numPixmaps));
@@ -93,6 +93,7 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
             PromiseImageCallbackContext* callbackContext = info->callbackContext(j);
             SkASSERT(callbackContext);
 
+            // DDL TODO: what should we do with mipmapped YUV images
             callbackContext->setBackendTexture(create_yuva_texture(context, yuvPixmap,
                                                                    info->yuvaIndices(), j));
             SkASSERT(callbackContext->promiseImageTexture());
@@ -106,9 +107,27 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
 
         const SkBitmap& bm = info->normalBitmap();
 
-        GrBackendTexture backendTex = context->createBackendTexture(
-                                                    &bm.pixmap(), 1, GrRenderable::kNo,
-                                                    GrProtected::kNo);
+        // Given how the DDL testing harness works (i.e., only modifying the SkImages w/in an
+        // SKP) we don't know if a given SkImage will require mipmapping. To work around this
+        // we just create all the backend textures as mipmapped.
+        sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm.pixmap(), nullptr));
+        if (!mipmaps) {
+            return;
+        }
+
+        const int mipLevelCount = mipmaps->countLevels() + 1;
+        std::unique_ptr<SkPixmap[]> pixmaps(new SkPixmap[mipLevelCount]);
+
+        pixmaps[0] = bm.pixmap();
+        for (int i = 1; i < mipLevelCount; ++i) {
+            SkMipMap::Level generatedMipLevel;
+            mipmaps->getLevel(i - 1, &generatedMipLevel);
+            pixmaps[i] = generatedMipLevel.fPixmap;
+        }
+
+        GrBackendTexture backendTex = context->createBackendTexture(pixmaps.get(), mipLevelCount,
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
         SkASSERT(backendTex.isValid());
 
         callbackContext->setBackendTexture(backendTex);
@@ -315,7 +334,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                 backendFormat,
                 curImage.overallWidth(),
                 curImage.overallHeight(),
-                GrMipMapped::kNo,
+                GrMipMapped::kYes,
                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                 curImage.overallColorType(),
                 curImage.overallAlphaType(),
