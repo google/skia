@@ -558,7 +558,7 @@ GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
     return GrFence();
 }
 
-bool GrDawnGpu::waitFence(GrFence fence, uint64_t timeout) {
+bool GrDawnGpu::waitFence(GrFence fence) {
     SkASSERT(!"unimplemented");
     return false;
 }
