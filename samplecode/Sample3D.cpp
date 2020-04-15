@@ -377,8 +377,8 @@ public:
             in fragmentProcessor color_map;
             in fragmentProcessor normal_map;
 
-            uniform float4x4 localToWorld;
-            uniform float4x4 localToWorldAdjInv;
+            layout (marker=local_to_world)          uniform float4x4 localToWorld;
+            layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
             float3 convert_normal_sample(half4 c) {
@@ -413,27 +413,11 @@ public:
             return;
         }
 
-        auto adj_inv = [](const SkM44& m) {
-            // Normals need to be transformed by the inverse-transpose of the upper-left 3x3 portion
-            // (scale + rotate) of the local to world matrix. (If the local to world only has
-            // uniform scale, we can use its upper-left 3x3 directly, but we don't know if that's
-            // the case here, so go the extra mile.)
-            SkM44 rot_scale(m.rc(0, 0), m.rc(0, 1), m.rc(0, 2), 0,
-                            m.rc(1, 0), m.rc(1, 1), m.rc(1, 2), 0,
-                            m.rc(2, 0), m.rc(2, 1), m.rc(2, 2), 0,
-                                     0,          0,          0, 1);
-            SkM44 inv(SkM44::kUninitialized_Constructor);
-            SkAssertResult(rot_scale.invert(&inv));
-            return inv.transpose();
-        };
-
         struct Uniforms {
-            SkM44  fLocalToWorld;
-            SkM44  fLocalToWorldAdjInv;
+            SkM44  fLocalToWorld;        // Automatically populated, via layout(marker)
+            SkM44  fLocalToWorldAdjInv;  // Ditto
             SkV3   fLightPos;
         } uni;
-        uni.fLocalToWorld = this->localToWorld(canvas);
-        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
