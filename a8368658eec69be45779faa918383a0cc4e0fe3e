@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "70f7b949_31dfb13e",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "FWIW we don\u0027t in general adhere to the Google C++ style guide and C style casts are used rampantly throughout Skia.",
+      "parentUuid": "817d87d8_1b198936",
+      "range": {
+        "startLine": 526,
+        "startChar": 20,
+        "endLine": 526,
+        "endChar": 31
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0df94cf8_d7d28287",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 7
@@ -87,6 +111,29 @@
         "startChar": 18,
         "endLine": 1965,
         "endChar": 22
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d35e8634_4d56c4ca",
+        "filename": "src/core/SkMarkerStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "I\u0027m curious whether this interface exists to hide the rest of Device from GrRTC/Op code or if there are other classes that will also implement the provider interface. Either is a good reason, just curious.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 2
       },
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -140,6 +187,29 @@
     },
     {
       "key": {
+        "uuid": "af0948a1_eb08e3bb",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "Can we put this in an anonymous namespace?",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 20
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "482f40fc_9f07d635",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -163,6 +233,30 @@
     },
     {
       "key": {
+        "uuid": "20685d33_8d356895",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "I\u0027d expect low single digit number of matrix ids since the ids are added by vertex attributes.",
+      "parentUuid": "482f40fc_9f07d635",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 69,
+        "endChar": 42
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1579f89c_bfe560cf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 7
@@ -174,6 +268,24 @@
       "writtenOn": "2020-04-14T20:55:27Z",
       "side": 1,
       "message": "Seems like the marker stack should store the inverse - we\u0027ll likely be fetching matrices far more than setting them.",
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f0b9adf_409a987b",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1579f89c_bfe560cf",
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -265,6 +377,29 @@
         "startChar": 32,
         "endLine": 205,
         "endChar": 39
+      },
+      "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27804c93_82fe9669",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-04-15T13:51:07Z",
+      "side": 1,
+      "message": "Agree with John that this would be a little nicer with !\u003d rather than !(... \u003d\u003d ...)",
+      "range": {
+        "startLine": 772,
+        "startChar": 7,
+        "endLine": 772,
+        "endChar": 60
       },
       "revId": "a8368658eec69be45779faa918383a0cc4e0fe3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
