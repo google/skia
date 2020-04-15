@@ -351,15 +351,15 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
     }
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm, dstColorType,
-                                                       args.fDstColorInfo->colorSpace(),
-                                                       maxTextureSize));
+    sk_sp<SkShader> bitmapShader(
+            this->refBitmapShader(args.fMatrixProvider->localToDevice(), &lm, dstColorType,
+                                  args.fDstColorInfo->colorSpace(), maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
-    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorInfo);
+    GrFPArgs newArgs(args.fContext, args.fMatrixProvider, args.fFilterQuality, args.fDstColorInfo);
     newArgs.fPreLocalMatrix = lm.get();
 
     return as_SB(bitmapShader)->asFragmentProcessor(newArgs);
