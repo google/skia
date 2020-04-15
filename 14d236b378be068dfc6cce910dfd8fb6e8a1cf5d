@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "618f9baf_fd844bb6",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T16:01:18Z",
+      "side": 1,
+      "message": "I assume this used to be in an \u0027else\u0027 clause or something. Should be removed now that it is trivial.",
+      "range": {
+        "startLine": 311,
+        "startChar": 16,
+        "endLine": 311,
+        "endChar": 51
+      },
+      "revId": "14d236b378be068dfc6cce910dfd8fb6e8a1cf5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "564ee1f7_a9cc9056",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-04-15T16:01:18Z",
+      "side": 1,
+      "message": "Isn\u0027t this more like\n\n    } else if (cluster-\u003erun()-\u003eisPlaceHolder()) {\n        softLineMaxIntrinsicWidth +\u003d cluster-\u003ewidth();\n        fMinIntrinsicWidth \u003d std::max(fMinIntrinsicWidth, lastWordLength);\n        lastWordLength \u003d cluster.width()\n    } else {\n        softLineMaxIntrinsicWidth +\u003d cluster-\u003ewidth();\n        lastWordLength +\u003d cluster-\u003ewidth();\n\nSo that the width of a placeholder by itself is also taken into account?",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 17
+      },
+      "revId": "14d236b378be068dfc6cce910dfd8fb6e8a1cf5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
